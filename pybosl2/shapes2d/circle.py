@@ -120,16 +120,16 @@ def circle(
     """
     if points is not None:
         center, rad = _circle_from_3pts(points)
-        return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0)
+        return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     if corner is not None:
         rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
         center = _circle_from_corner(corner, rad)
-        return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0)
+        return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     shape = _ocircle(r=rad, fn=fn, fa=fa, fs=fs)
     n = _frag_count(rad, fn, fa, fs)
     offset = _anchor_offset_hull(_circle_pts(rad, n), anchor)
-    return _finish(shape, offset, spin)
+    return _finish(shape, offset, spin, size=[2 * rad, 2 * rad], anchor=anchor)
 
 
 def arc(

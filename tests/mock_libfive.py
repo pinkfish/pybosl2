@@ -9,7 +9,8 @@
 import math
 import sys
 import types
-from typing import TYPE_CHECKING, Any
+from collections.abc import Sequence
+from typing import Any
 
 
 class Tree:
@@ -155,9 +156,6 @@ def frep(exp, mn, mx, res):
 # the AABB helpers below -- which need ordinary numeric min/max -- bind the real builtins.
 import builtins as _bi  # noqa: E402
 
-if TYPE_CHECKING:
-    from collections.abc import Sequence
-
 _bmin = _bi.min
 _bmax = _bi.max
 
@@ -205,7 +203,8 @@ class _AabbSolid:
             return _AabbSolid()
         import builtins
 
-        sv = [float(x) for x in v] if isinstance(v, (list, tuple)) else [float(v)] * 3
+        sv_lst = [float(x) for x in v] if isinstance(v, (list, tuple)) else [float(v)] * 3
+        sv = list(sv_lst) + [1.0] * (3 - len(sv_lst))
         z_min = mn[2] if len(mn) > 2 else 0.0
         z_max = mx[2] if len(mx) > 2 else 0.0
         mn3 = [mn[0], mn[1], z_min]
@@ -507,6 +506,20 @@ def _mock_sphere(r=None, d=None, **_k) -> Any:
     res = _AabbSolid([-rad, -rad, -rad], [rad, rad, rad])
     res.is_cylindrical = True  # type: ignore[attr-defined]
     return res
+
+
+def _mock_square(size: float | Sequence[float] = 1, center=True, **_k) -> Any:
+    sv = [float(size)] * 2 if isinstance(size, (int, float)) else [float(x) for x in size]
+    if center:
+        return _AabbSolid([-sv[0] / 2, -sv[1] / 2, 0.0], [sv[0] / 2, sv[1] / 2, 0.0])
+    return _AabbSolid([0.0, 0.0, 0.0], [sv[0], sv[1], 0.0])
+
+
+def _mock_circle(r=1.0, radius=None, d=None, diameter=None, **_k) -> Any:
+    rad_val = r if radius is None else radius
+    dia_val = d if diameter is None else diameter
+    rad = float(rad_val) if rad_val is not None else (float(dia_val) / 2 if dia_val is not None else 1.0)
+    return _AabbSolid([-rad, -rad, 0.0], [rad, rad, 0.0])
 
 
 def _mock_polyhedron(points=None, *_a, **_k) -> Any:

@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
-from pybosl2._edges_lang import Anchor
+from pybosl2._edges_lang import Anchor, resolve_anchor
 from pybosl2._helpers import (
     anchor_offset_box as _anchor_offset_box,
 )
@@ -32,7 +32,7 @@ from pybosl2._helpers import (
 )
 from pybosl2._native import native
 from pybosl2._shape import BaseShape as BaseShape
-from pybosl2.constants import CENTER
+from pybosl2.points import Point
 from pybosl2.vectors import unit
 
 if TYPE_CHECKING:
@@ -172,7 +172,7 @@ def _finish(
     offset: Anchor | Sequence[float],
     spin: float,
     size: Sequence[float] | None = None,
-    anchor: Anchor | Sequence[float] | str | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
 ) -> "Bosl2Shape2D":
     """Anchor-translate and spin a freshly built native 2-D shape, then wrap it.
 
@@ -222,18 +222,185 @@ class CsgShape2D(BaseShape):
     #: which realize backend produced this shape -- 2-D geometry is exact-CSG only (see
     #: pybosl2/_backend.py); the SDF backend has no 2-D surface.
     backend = "csg"
+    _bbox: tuple[list[float], list[float]] | None = None
 
     def __init__(
         self,
         shape: PyOpenSCAD,
         size: Sequence[float] | None = None,
-        anchor: "Anchor | Sequence[float] | str | None" = None,
+        anchor: Anchor | Sequence[float] | None = None,
+        _bbox: tuple[list[float], list[float]] | None = None,
     ):
         self.shape = shape
         #: nominal [x, y] size for the shapes that have a genuine box size, else None
         self.size = None if size is None else [float(v) for v in size][:2]
-        a_val: Anchor | Sequence[float] | str | None = anchor if anchor is not None else CENTER
+        a_val: Anchor | Sequence[float] | None
+        if anchor is None:
+            a_val = Anchor.CENTER
+        elif isinstance(anchor, Anchor):
+            a_val = anchor
+        elif isinstance(anchor, str):
+            raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
+        else:
+            a_val = resolve_anchor(list(anchor))
         self.anchor = a_val
+
+        # Setup manual bbox tracking for fallback bounds
+        if _bbox is not None:
+            self._bbox = _bbox
+        elif self.size is not None:
+            sz = [float(v) for v in self.size]
+            center = _anchor_offset_box(sz, a_val)
+            self._bbox = (
+                [center[0] - sz[0] / 2, center[1] - sz[1] / 2],
+                [center[0] + sz[0] / 2, center[1] + sz[1] / 2],
+            )
+        else:
+            self._bbox = None
+
+    def _wrap(self, new_shape: Any) -> "CsgShape2D":
+        out = type(self)(new_shape, self.size, self.anchor, _bbox=self._bbox)
+        if hasattr(self, "backend"):
+            out.backend = self.backend
+        out.attachments = list(self.attachments)
+        out.tag_name = self.tag_name
+        out.diff_config = self.diff_config
+        if hasattr(self, "_dont_propagate"):
+            out._dont_propagate = getattr(self, "_dont_propagate", None)  # type: ignore[attr-defined]
+        return out
+
+    def translate(self, v: Sequence[float]) -> "CsgShape2D":
+        out = super().translate(v)
+        if self._bbox is not None:
+            v_float = [float(x) for x in v]
+            lo, hi = self._bbox
+            out._bbox = (
+                [lo[0] + v_float[0], lo[1] + v_float[1]],
+                [hi[0] + v_float[0], hi[1] + v_float[1]],
+            )
+        return out
+
+    def rotate(self, *a: object, **k: object) -> "CsgShape2D":
+        out = super().rotate(*a, **k)
+        if self._bbox is not None:
+            angle = 0.0
+            if len(a) == 1 and isinstance(a[0], (int, float)):
+                angle = float(a[0])
+            elif "a" in k:
+                angle = float(k["a"])  # type: ignore[arg-type]
+            elif len(a) == 1 and isinstance(a[0], (list, tuple)) and len(a[0]) == 3:
+                angle = float(a[0][2])
+            rad = math.radians(angle)
+            cos_a, sin_a = math.cos(rad), math.sin(rad)
+            lo, hi = self._bbox
+            corners = [
+                [lo[0], lo[1]],
+                [hi[0], lo[1]],
+                [lo[0], hi[1]],
+                [hi[0], hi[1]],
+            ]
+            rot_corners = [[c[0] * cos_a - c[1] * sin_a, c[0] * sin_a + c[1] * cos_a] for c in corners]
+            xs = [c[0] for c in rot_corners]
+            ys = [c[1] for c in rot_corners]
+            out._bbox = ([min(xs), min(ys)], [max(xs), max(ys)])
+        return out
+
+    def scale(self, v: float | Sequence[float]) -> "CsgShape2D":
+        out = super().scale(v)
+        if self._bbox is not None:
+            sv = [float(v), float(v)] if isinstance(v, (int, float)) else [float(x) for x in v]
+            lo, hi = self._bbox
+            scaled_lo = [lo[0] * sv[0], lo[1] * sv[1]]
+            scaled_hi = [hi[0] * sv[0], hi[1] * sv[1]]
+            out._bbox = (
+                [min(scaled_lo[0], scaled_hi[0]), min(scaled_lo[1], scaled_hi[1])],
+                [max(scaled_lo[0], scaled_hi[0]), max(scaled_lo[1], scaled_hi[1])],
+            )
+        return out
+
+    def _resolve_bounds(self, bbox: Sequence[Sequence[float]] | None = None) -> tuple[list[float], list[float]]:
+        if bbox is None:
+            return self.bounds()
+        arr = np.asarray(bbox, dtype=float)
+        assert arr.shape == (2, 2), "bbox must be [[min_x,min_y],[max_x,max_y]]."
+        lo, hi = arr[0], arr[1]
+        assert bool(np.all(hi >= lo - 1e-12)), "bbox must be [[min...],[max...]] with max >= min."
+        return [(lo[i] + hi[i]) / 2 for i in range(2)], [hi[i] - lo[i] for i in range(2)]
+
+    def anchor_point(
+        self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None
+    ) -> list[float]:
+        center, size = self._resolve_bounds(bbox)
+        a = list(anchor.vector_2d) if isinstance(anchor, Anchor) else list(anchor)
+        return [center[i] + a[i] * size[i] / 2 for i in range(2)]
+
+    def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "CsgShape2D":
+        p = self.anchor_point(anchor, bbox=bbox)
+        moved = self.translate([-p[0], -p[1]])
+        if moved.size is not None and isinstance(anchor, Anchor):
+            moved.anchor = anchor
+        return moved
+
+    def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "CsgShape2D":
+        p = self.anchor_point(anchor, bbox=bbox)
+        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
+        placed = cshape.translate(p)
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(placed)
+        return out
+
+    def align(
+        self,
+        anchor: Anchor,
+        child: object,
+        align: Anchor | None = None,
+        inside: bool = False,
+        overlap: float = 0.0,
+        bbox: Sequence[Sequence[float]] | None = None,
+    ) -> "CsgShape2D":
+        face = list(anchor.vector_2d)
+        edge = list(Anchor.CENTER.vector_2d) if align is None else list(align.vector_2d)
+        factor = -1.0 if inside else 1.0
+        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
+        child_anchor = Point([edge[0] - factor * face[0], edge[1] - factor * face[1]])
+        cpt = cshape.anchor_point(child_anchor)
+        dest = self.anchor_point(Point([face[0] + edge[0], face[1] + edge[1]]), bbox=bbox)
+        fdir = list(unit(face)) if any(face) else [0.0, 0.0]
+        ov = -overlap if inside else overlap
+        placed = cshape.translate([dest[i] - cpt[i] - fdir[i] * ov for i in range(2)])
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(placed)
+        return out
+
+    def attach(
+        self,
+        parent_anchor: Anchor,
+        child: object,
+        child_anchor: Anchor | None = None,
+        overlap: float = 0.0,
+        spin: float = 0.0,
+        bbox: Sequence[Sequence[float]] | None = None,
+    ) -> "CsgShape2D":
+        pa = list(parent_anchor.vector_2d)
+        ca = [-pa[0], -pa[1]] if child_anchor is None else list(child_anchor.vector_2d)
+        cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
+        cpt = cshape.anchor_point(ca)
+        placed = cshape.translate([-cpt[0], -cpt[1]])
+        angle_rad = math.atan2(-pa[1], -pa[0]) - math.atan2(ca[1], ca[0])
+        angle_deg = math.degrees(angle_rad)
+        if abs(angle_deg) > 1e-9:
+            placed = placed.rotate(angle_deg)
+        if spin:
+            placed = placed.rotate(spin)
+        ppt = self.anchor_point(parent_anchor, bbox=bbox)
+        pdir = list(unit(pa)) if any(pa) else [0.0, 0.0]
+        placed = placed.translate([ppt[i] - pdir[i] * overlap for i in range(2)])
+        out = self._wrap(self.shape)
+        out.attachments = list(self.attachments)
+        out.attachments.append(placed)
+        return out
 
     spin = BaseShape.rotate
 
@@ -559,6 +726,11 @@ class CsgShape2D(BaseShape):
             mincorner = [float(pos[i]) for i in range(2)]
             size = [float(sz[i]) for i in range(2)]
             return [mincorner[i] + size[i] / 2 for i in range(2)], size
+        if self._bbox is not None:
+            lo, hi = self._bbox
+            size = [hi[0] - lo[0], hi[1] - lo[1]]
+            center = [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2]
+            return center, size
         if self.size is not None and not isinstance(self.anchor, str):
             size = [float(v) for v in self.size]
             assert self.anchor is not None

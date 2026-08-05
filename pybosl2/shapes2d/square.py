@@ -127,7 +127,7 @@ def square(
         path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
         shape = _opolygon(path)
         offset = _anchor_offset_hull(path, use_anchor)
-        return _finish(shape, offset, spin or 0)
+        return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
     shape = _osquare(sz, center=True)
     offset = _anchor_offset_box(sz, use_anchor)
     return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
@@ -171,7 +171,7 @@ def rect(
     )
     if complex_shape and atype == "perim":
         offset = _anchor_offset_hull(path, anchor)
-        return _finish(shape, offset, spin)
+        return _finish(shape, offset, spin, size=sz, anchor=anchor)
     offset = _anchor_offset_box(sz, anchor)
     return _finish(shape, offset, spin, size=sz, anchor=anchor)
 

@@ -1044,6 +1044,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../quaternions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Quaternions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../vectors.html" class="md-nav__link">
 
 
@@ -1705,8 +1729,8 @@
 
 <div class="viewcode-block" id="Sweepable.path_sweep">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.Sweepable.path_sweep">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Path3D</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;incremental&quot;</span><span class="p">,</span>
         <span class="n">normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1727,7 +1751,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep *shape* along this path (BOSL2 path_sweep()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_path_sweep</span><span class="p">(</span>
             <span class="n">shape</span><span class="p">,</span>
-            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path2D | Path3D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">normal</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span>
             <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
@@ -1748,21 +1772,21 @@
 
 <div class="viewcode-block" id="Sweepable.path_sweep2d">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.Sweepable.path_sweep2d">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep2d</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep2d</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d()).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_path_sweep2d</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_path_sweep2d</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Sweepable.linear_sweep">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.Sweepable.linear_sweep">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">linear_sweep</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">linear_sweep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">scale</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -1774,7 +1798,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_linear_sweep</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">twist</span><span class="o">=</span><span class="n">twist</span><span class="p">,</span>
             <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
@@ -1788,8 +1812,8 @@
 
 <div class="viewcode-block" id="Sweepable.rotate_sweep">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.Sweepable.rotate_sweep">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_sweep</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_sweep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">_closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1798,7 +1822,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_rotate_sweep</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span>
             <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
@@ -1808,8 +1832,8 @@
 
 <div class="viewcode-block" id="Sweepable.spiral_sweep">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.Sweepable.spiral_sweep">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">spiral_sweep</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spiral_sweep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">turns</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -1823,7 +1847,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep this 2-D profile along a helix (BOSL2 spiral_sweep()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_spiral_sweep</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">height</span><span class="p">,</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
             <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">,</span>
@@ -1839,8 +1863,8 @@
 
 <div class="viewcode-block" id="Sweepable.sweep">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.Sweepable.sweep">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sweep</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
-        <span class="bp">self</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sweep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
@@ -1849,7 +1873,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF</span>
 <span class="sd">        or Bosl2Solid (BOSL2 sweep()).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_sweep</span><span class="p">(</span>
-            <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">],</span>
+            <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)],</span>
             <span class="n">transforms</span><span class="p">,</span>
             <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
             <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
@@ -2593,7 +2617,7 @@
     <span class="n">radius_sign</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">max_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">45.0</span>
     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
-    <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span>

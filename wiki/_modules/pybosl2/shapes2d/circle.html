@@ -1044,6 +1044,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../quaternions.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Quaternions</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../vectors.html" class="md-nav__link">
 
 
@@ -1760,16 +1784,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">center</span><span class="p">,</span> <span class="n">rad</span> <span class="o">=</span> <span class="n">_circle_from_3pts</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">_ocircle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span> <span class="n">center</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">_ocircle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span> <span class="n">center</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">rad</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rad</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">corner</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circle_from_corner</span><span class="p">(</span><span class="n">corner</span><span class="p">,</span> <span class="n">rad</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">_ocircle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span> <span class="n">center</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">_ocircle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span> <span class="n">center</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">rad</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rad</span><span class="p">])</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_ocircle</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">_circle_pts</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">anchor</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">spin</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">rad</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">rad</span><span class="p">],</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">)</span></div>
 
 
 

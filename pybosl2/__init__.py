@@ -162,6 +162,22 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # surfaces
     "heightfield": ("pybosl2.surfaces3d", "heightfield"),
     "cylindrical_heightfield": ("pybosl2.surfaces3d", "cylindrical_heightfield"),
+    # quaternions
+    "quaternion": ("pybosl2.quaternions", "quaternion"),
+    "quaternion_to_matrix": ("pybosl2.quaternions", "quaternion_to_matrix"),
+    "quaternion_to_axis": ("pybosl2.quaternions", "quaternion_to_axis"),
+    "quaternion_mult": ("pybosl2.quaternions", "quaternion_mult"),
+    "quaternion_slerp": ("pybosl2.quaternions", "quaternion_slerp"),
+    "quaternion_rot": ("pybosl2.quaternions", "quaternion_rot"),
+    # masking
+    "mask2d_chamfer": ("pybosl2.masking", "mask2d_chamfer"),
+    "mask2d_cove": ("pybosl2.masking", "mask2d_cove"),
+    "mask2d_tear": ("pybosl2.masking", "mask2d_tear"),
+    "mask2d_step": ("pybosl2.masking", "mask2d_step"),
+    "mask2d_groove": ("pybosl2.masking", "mask2d_groove"),
+    "mask3d_roundover": ("pybosl2.masking", "mask3d_roundover"),
+    "mask3d_chamfer": ("pybosl2.masking", "mask3d_chamfer"),
+    "mask3d_groove": ("pybosl2.masking", "mask3d_groove"),
 }
 
 
