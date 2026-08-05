@@ -125,11 +125,11 @@ def test_path_length_and_closest_point() -> None:
     bp = Bezier([[0, 0], [1, 1], [2, 0], [3, 1], [4, 0], [5, 1], [6, 0]])
     assert bp.path_arc_length(n_degree=3) > 0
     assert bp.path_arc_length(n_degree=3) == pytest.approx(6.53653475176862, rel=1e-6)
-    seg, u = bp.path_closest_point([3, 0], n_degree=3)  # type: ignore[arg-type]
+    seg, u = bp.path_closest_point([3.5, 0.5], n_degree=3)  # type: ignore[arg-type]
     assert isinstance(seg, int)
     assert 0.0 <= u <= 1.0
     assert seg == 1
-    assert u == pytest.approx(0.12924382716049385, abs=1e-6)
+    assert u == pytest.approx(0.18364197530864199, abs=1e-6)
 
 
 def test_close_to_axis_and_offset_return_bezier() -> None:
