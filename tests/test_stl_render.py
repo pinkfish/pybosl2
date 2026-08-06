@@ -943,7 +943,7 @@ def test_nurbs_surface_patch(tmp_path):
     )
     m = _render(
         tmp_path,
-        "nurbs_vnf(patch, 3, splinesteps=8).polyhedron()",
+        "nurbs_vnf(patch, (3, 3), splinesteps=(8, 8)).polyhedron()",
         setup=setup,
         name="nurbspatch",
     )
@@ -1233,7 +1233,7 @@ def test_nurbs_rational_sphere_is_watertight(tmp_path):
     )
     m = _render(
         tmp_path,
-        "nurbs_vnf(patch, 3, weights=weights, knots=[None, vknots], splinesteps=12).polyhedron()",
+        "nurbs_vnf(patch, (3, 3), weights=weights, knots=(None, vknots), splinesteps=(12, 12)).polyhedron()",
         setup=setup,
         name="nurbssphere",
     )

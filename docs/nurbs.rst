@@ -8,12 +8,14 @@ three flavours -- ``"clamped"``, ``"open"`` and ``"closed"`` -- are supported, w
 
 :func:`~pybosl2.nurbs` returns a :class:`~pybosl2.paths` (2-D control points) or
 :class:`~pybosl2._sdf.skin.path3d` (3-D), so the result carries the full path/extrude/stroke API;
-:func:`~pybosl2.nurbs` returns a :class:`~pybosl2.vnf`. Every case is pinned
-point-for-point to the real BOSL2 output in ``tests/test_pybosl2_reorient.py`` -- including the
-classic rational-NURBS sphere.
+:func:`~pybosl2.nurbs` returns a :class:`~pybosl2.vnf`. The classic rational-NURBS sphere is
+rendered and checked for real in ``tests/test_stl_render.py``.
 
-The first argument to any of these may be a NURBS parameter list
-``[type, degree, control, knots, mult, weights]`` instead of separate arguments.
+Curves take ordinary arguments (``control``, ``degree``, ``nurbs_type``, ``knots``, ``mult``,
+``weights``), or a :class:`~pybosl2.nurbs.NurbsCurve` value object that bundles them -- which is
+what ``nurbs_elevate_degree`` returns. Surface functions take a ``(u, v)`` pair for each
+per-direction argument: ``degree=(3, 3)``, ``splinesteps=(16, 16)``, ``knots=(u_knots, v_knots)``,
+and so on.
 
 Coverage of BOSL2 ``nurbs.scad``
 --------------------------------
@@ -28,7 +30,8 @@ Coverage of BOSL2 ``nurbs.scad``
    * - ``nurbs_curve``
      - ported
      - :func:`~pybosl2.nurbs` -- clamped/open/closed, weights, mult, explicit knots,
-       ``splinesteps`` or ``u``. Returns a Path / Path3D (a scalar ``u`` returns one point).
+       ``splinesteps`` or ``u``. Returns a Path2D / Path3D; ``nurbs_curve_point`` evaluates
+       a single parameter value.
    * - ``nurbs_patch_points``
      - ported
      - :func:`~pybosl2.nurbs` -- sample a surface on a grid (``splinesteps`` or
@@ -40,7 +43,7 @@ Coverage of BOSL2 ``nurbs.scad``
    * - ``nurbs_elevate_degree``
      - ported
      - :func:`~pybosl2.nurbs` -- raise a clamped/open curve's degree (collocation
-       at Greville points).
+       at Greville points); returns a :class:`~pybosl2.nurbs.NurbsCurve`.
    * - ``is_nurbs_patch``
      - ported
      - :func:`~pybosl2.nurbs`.
@@ -77,7 +80,7 @@ A cubic B-spline surface patch meshed into a sheet:
         [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
         [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
     ]
-    nurbs_vnf(patch, 3, splinesteps=10).polyhedron().show()
+    nurbs_vnf(patch, (3, 3), splinesteps=(10, 10)).polyhedron().show()
 
 A sphere as a rational NURBS surface (weights + repeated knots):
 
@@ -91,7 +94,8 @@ A sphere as a rational NURBS surface (weights + repeated knots):
              [[0, 0, -1]] * 7]
     weights = [[w / 9 for w in row] for row in
                [[9, 3, 3, 9, 3, 3, 9], [3, 1, 1, 3, 1, 1, 3], [3, 1, 1, 3, 1, 1, 3], [9, 3, 3, 9, 3, 3, 9]]]
-    nurbs_vnf(patch, 3, weights=weights, knots=[None, [0, 0.5, 0.5, 0.5, 1]], splinesteps=12).polyhedron().show()
+    nurbs_vnf(patch, (3, 3), weights=weights, knots=(None, [0, 0.5, 0.5, 0.5, 1]),
+              splinesteps=(12, 12)).polyhedron().show()
 
 API reference
 -------------
