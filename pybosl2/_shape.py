@@ -320,6 +320,7 @@ class BaseShape(Colorable, Distributable):
 
         Args:
             name: The tag name or AttachTag enum.
+
         """
         out = self._wrap(self.shape)
         out.tag_name = str(name)
@@ -330,6 +331,7 @@ class BaseShape(Colorable, Distributable):
 
         Args:
             name: The tag name or AttachTag enum.
+
         """
         out = self._wrap(self.shape)
         out.tag_name = str(name)
@@ -346,6 +348,7 @@ class BaseShape(Colorable, Distributable):
         Args:
             remove: The tag(s) to subtract.
             keep: The tag(s) to preserve.
+
         """
         out = self._wrap(self.shape)
         rem_list = [str(r) for r in ([remove] if isinstance(remove, (str, AttachTag)) else remove)]
@@ -363,6 +366,7 @@ class BaseShape(Colorable, Distributable):
         Args:
             intersect: The tag(s) to intersect.
             keep: The tag(s) to preserve.
+
         """
         out = self._wrap(self.shape)
         int_list = [str(i) for i in ([intersect] if isinstance(intersect, (str, AttachTag)) else intersect)]
@@ -375,6 +379,7 @@ class BaseShape(Colorable, Distributable):
 
         Returns:
             The resolved and flattened shape wrapper.
+
         """
         return self._realize_node(parent_tag="")
 
@@ -383,6 +388,7 @@ class BaseShape(Colorable, Distributable):
 
         Args:
             parent_tag: Tag propagated from parent.
+
         """
         active_tag = self.tag_name if self.tag_name else parent_tag
         dont_prop = getattr(self, "_dont_propagate", False)
@@ -486,6 +492,7 @@ def diff(
         shape: The parent shape.
         remove: The tag(s) to subtract.
         keep: The tag(s) to preserve.
+
     """
     return shape.diff(remove, keep)
 
@@ -501,5 +508,6 @@ def intersect(
         shape: The parent shape.
         intersect: The tag(s) to intersect.
         keep: The tag(s) to preserve.
+
     """
     return shape.intersect(intersect, keep)

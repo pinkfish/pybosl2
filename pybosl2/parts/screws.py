@@ -66,8 +66,7 @@ _THREAD_ALIAS = {
 
 @dataclass(frozen=True)
 class ThreadPitches:
-    """
-    ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is
+    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is
     undefined.
     """
 
@@ -78,7 +77,8 @@ class ThreadPitches:
 
     def pitch(self, thread: str = "coarse") -> float:
         """The pitch for a thread class (``"coarse"``/``"fine"``/``"extra-fine"``/``"super-fine"``),
-        falling back to coarse if the requested class is undefined for this size."""
+        falling back to coarse if the requested class is undefined for this size.
+        """
         return getattr(self, _THREAD_ALIAS.get(str(thread).lower(), "coarse")) or self.coarse
 
 
@@ -92,9 +92,7 @@ class HexHead:
 
 @dataclass(frozen=True)
 class SocketHead:
-    """
-    Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2.
-    """
+    """Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2."""
 
     head_d: float
     hex_drive: float  # hex drive across-flats
@@ -433,8 +431,8 @@ class Screws:
 
                 from pybosl2.parts.screws import Screws
                 Screws.screw("M6", length=20, head="socket", drive="hex").show()
-        """
 
+        """
         info = Screws.screw_info(
             spec,
             head=head,
@@ -479,7 +477,6 @@ class Screws:
         fs: float | None,
     ) -> Bosl2Solid | None:
         """Build the screw head from resolved dimensions."""
-
         head = info["head"]
         if head in (None, "none"):
             return None
@@ -515,7 +512,6 @@ class Screws:
         fs: float | None,
     ) -> Bosl2Solid | None:
         """Build the drive recess from resolved dimensions."""
-
         drive = info.get("drive")
         size = info.get("drive_size")
         depth = info.get("drive_depth")
@@ -560,6 +556,7 @@ class Screws:
 
                 from pybosl2.parts.screws import Screws
                 Screws.nut("M8").show()
+
         """
         from pybosl2.parts.threading import Threading
 
@@ -597,8 +594,8 @@ class Screws:
                 from pybosl2.parts.screws import Screws
                 from pybosl2 import shapes3d as s3
                 (s3.cuboid([20, 20, 10]) - Screws.screw_hole("M6", length=10, head="socket", fit="normal")).show()
-        """
 
+        """
         use_thread = thread and thread.lower() not in ("none", "false", "no", "")
         d, p = _parse_spec(spec, "coarse" if not use_thread else thread, pitch)
         if use_thread:
@@ -647,9 +644,7 @@ def _closest(table: dict[Any, Any], diam: float) -> Any:
 
 
 def _nut_dims(diam: float, thickness: float | str | None, nutwidth: float | None) -> tuple[float, float]:
-    """
-    Resolve a nut's ``(across-flats width, thickness)`` for the given size and thickness class.
-    """
+    """Resolve a nut's ``(across-flats width, thickness)`` for the given size and thickness class."""
     spec = _closest(_NUT, diam)
     width = float(nutwidth) if nutwidth is not None else spec.width
     if thickness is None:

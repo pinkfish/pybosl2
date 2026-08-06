@@ -98,6 +98,7 @@ def pie_slice(
             from pybosl2 import shapes3d as s3
 
             s3.pie_slice(radius=20, angle=120, height=5).show()
+
     """
     from pybosl2._helpers import arc_points as _arc_points
     from pybosl2._native import native
@@ -181,6 +182,7 @@ def torus(
 
             shape = torus(major_radius=25, minor_radius=8)
             shape.show()
+
     """
     from pybosl2._helpers import arc_points as _arc_points
     from pybosl2._native import native

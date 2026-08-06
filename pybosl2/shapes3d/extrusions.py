@@ -222,6 +222,7 @@ def text3d(
             from pybosl2 import text3d
 
             text3d("BOSL2", size=10, height=3).show()
+
     """
     av = _text3d_anchor_vec(anchor)
     ha = halign if halign is not None else ("left" if av[0] < 0 else "right" if av[0] > 0 else "center")
@@ -281,6 +282,7 @@ def path_text(
         reverse:     reverse the letters if true (default False, 3-D paths only)
         textmetrics: use the experimental textmetrics feature when lettersize is not given (default False)
         kern:        scalar or array giving per-letter size adjustments (default 0)
+
     """
     # Imported lazily (only path_text() needs it) so that everything else in this file stays
     # free of a numpy dependency -- pybosl2.paths uses numpy internally, and numpy isn't always
@@ -428,6 +430,7 @@ def cross(
             from pybosl2 import cross
 
             cross(size=30, height=5).show()
+
     """
     h = height if height is not None else length
     assert h and h > 0, "cross(): need a positive height or length."

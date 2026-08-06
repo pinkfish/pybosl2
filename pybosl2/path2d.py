@@ -89,6 +89,7 @@ class SelfIntersection:
         prop1: Proportion along the first segment (0 to 1).
         seg2: Index of the second segment involved.
         prop2: Proportion along the second segment (0 to 1).
+
     """
 
     point: Point
@@ -125,6 +126,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             outline = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
             plate = outline.offset(radius=-3).round_corners(radius=5).polygon().linear_extrude(height=4)
             plate.show()
+
     """
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
@@ -174,6 +176,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 from pybosl2 import Path2D
 
                 Path2D.catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
+
         """
         assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
         assert width > 0, "catenary() needs width > 0."
@@ -264,7 +267,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """The points as an (N, 2) numpy array, for doing your own vectorised maths.
 
         Returns:
-            An (N, 2) float64 numpy array."""
+            An (N, 2) float64 numpy array.
+
+        """
         return self._points
 
     @property
@@ -272,7 +277,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """The points as a list of ``[x, y]`` plain-Python-float pairs.
 
         Returns:
-            A list of ``[x, y]`` pairs."""
+            A list of ``[x, y]`` pairs.
+
+        """
         return self._points.tolist()  # type: ignore[no-any-return]
 
     @property
@@ -293,6 +300,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` instance.
+
         """
         return cls(lst, closed=closed)
 
@@ -306,6 +314,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of segment lengths.
+
         """
         if closed is None:
             closed = self.closed
@@ -319,7 +328,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag.
 
         Returns:
-            An ndarray of cumulative length fractions, from 0 to 1."""
+            An ndarray of cumulative length fractions, from 0 to 1.
+
+        """
         if closed is None:
             closed = self.closed
         coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
@@ -339,6 +350,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A :class:`~pybosl2.points.Point` of the closest point on the path.
+
         """
         if closed is None:
             closed = self.closed
@@ -355,6 +367,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag.
             uniform: If True, simple segment-direction tangents.
                      If False, segment-length-weighted average at shared points.
+
         """
         if closed is None:
             closed = self.closed
@@ -414,7 +427,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag.
 
         Returns:
-            An ndarray of curvature values."""
+            An ndarray of curvature values.
+
+        """
         if closed is None:
             closed = self.closed
         coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
@@ -448,7 +463,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Override the instance's closed flag.
 
         Returns:
-            An ndarray of torsion values (all zeros for 2-D)."""
+            An ndarray of torsion values (all zeros for 2-D).
+
+        """
         if closed is None:
             closed = self.closed
         return np.zeros(len(self._points), dtype=np.float64)
@@ -462,6 +479,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`Path2D` subpaths.
+
         """
         if closed is None:
             closed = self.closed
@@ -500,7 +518,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of :class:`Path2D` subpaths."""
+            A list of :class:`Path2D` subpaths.
+
+        """
         from shapely.geometry import Point as _Point
         from shapely.ops import substring
 
@@ -572,7 +592,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            A list of :class:`CutPoint` entries, one per cut distance."""
+            A list of :class:`CutPoint` entries, one per cut distance.
+
+        """
         return self.cut_points(dists, closed=closed)
 
     def cut_single(self, dist: float, closed: bool = False, ind: int = 0, eps: float = 1e-7) -> CutPoint:  # noqa: ARG002
@@ -585,7 +607,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for distance comparison.
 
         Returns:
-            A :class:`CutPoint` with the cut point and its next segment index."""
+            A :class:`CutPoint` with the cut point and its next segment index.
+
+        """
         ls = self._shapely
         total = ls.length
         p = ls.interpolate(max(0.0, min(total, float(dist))))
@@ -627,7 +651,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed: Whether the path is closed.
 
         Returns:
-            Two basis vectors defining the XY plane."""
+            Two basis vectors defining the XY plane.
+
+        """
         return [Point(1.0, 0.0, 0.0), Point(0.0, 1.0, 0.0)]
 
     def cuts_dir(self, cuts: list[CutPoint], closed: bool = False, eps: float = 1e-2) -> "list[Point]":  # noqa: ARG002
@@ -639,7 +665,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             eps: Epsilon for numerical comparisons.
 
         Returns:
-            A list of :class:`Vector` direction vectors, one per cut point."""
+            A list of :class:`Vector` direction vectors, one per cut point.
+
+        """
         from shapely.geometry import Point as _Point
 
         ls = self._shapely
@@ -787,6 +815,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns a :class:`Bounds2D` named tuple with ``min_x``, ``min_y``,
         ``max_x``, ``max_y``, ``width``, and ``length`` fields.
+
         """
         minx, miny, maxx, maxy = self._shapely.bounds
         return Bounds2D(
@@ -806,6 +835,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             The enclosed area as a float.
+
         """
         poly = self._shapely_polygon
         if signed:
@@ -844,6 +874,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result = rect.contains([40, 30])
                 print("inside:", result)
                 rect.stroke(width=1).linear_extrude(height=1).show()
+
         """
         if not self.closed:
             return False
@@ -898,6 +929,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 outline = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 inset = outline.offset(radius=-3)
                 inset.polygon().linear_extrude(height=4).show()
+
         """
         return self.__class__(
             self._offset(
@@ -924,6 +956,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]], closed=False)
                 result = pts.close()
                 result.stroke(width=2).linear_extrude(height=4).show()
+
         """
         return self.__class__(Path2D._close_path(self), closed=self.closed)
 
@@ -941,6 +974,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60], [0, 0]])
                 result = pts.cleanup()
                 result.stroke(width=2).linear_extrude(height=4).show()
+
         """
         return self.__class__(Path2D._cleanup_path(self), closed=self.closed)
 
@@ -958,6 +992,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 rect = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = rect.reverse()
                 result.stroke(width=2).linear_extrude(height=4).show()
+
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
 
@@ -972,6 +1007,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 pts = Path2D([[0, 0], [20, 0], [20, 0], [40, 0], [40, 30], [40, 30], [80, 60]])
                 result = pts.deduplicated()
                 result.stroke(width=2).linear_extrude(height=4).show()
+
         """
         return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
 
@@ -993,6 +1029,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 result = pts.subdivide(num_copies=24)
                 result.stroke(width=1).linear_extrude(height=4).show()
+
         """
         if "num_copies" in kwargs:
             kwargs.setdefault("points", kwargs.pop("num_copies"))
@@ -1021,6 +1058,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 pts = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 sampled = pts.resample(num_copies=20)
                 sampled.stroke(width=1).linear_extrude(height=2).show()
+
         """
         if "num_copies" in kwargs:
             kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
@@ -1034,6 +1072,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`Path2D` subpaths split at each self-crossing.
+
         """
         return [
             self.__class__(sub, closed=self.closed)
@@ -1049,6 +1088,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of non-intersecting simple :class:`Path2D` polygon parts.
+
         """
         poly = Path2D._cleanup_path(self._points, eps=eps)
         temp = Path2D(poly, closed=True)
@@ -1070,6 +1110,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new translated :class:`Path2D`.
+
         """
         vv = np.zeros(2)
         va = np.asarray(v, dtype=float)
@@ -1086,6 +1127,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new rotated :class:`Path2D`.
+
         """
         rad = math.radians(a)
         c, s = math.cos(rad), math.sin(rad)
@@ -1102,6 +1144,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new mirrored :class:`Path2D`.
+
         """
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
@@ -1116,6 +1159,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new flipped :class:`Path2D`.
+
         """
         pts = self._points.copy()
         pts[:, 1] = 2 * y - pts[:, 1]
@@ -1129,6 +1173,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` shifted right.
+
         """
         return self.translate([x, 0.0])
 
@@ -1140,6 +1185,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` shifted left.
+
         """
         return self.translate([-x, 0.0])
 
@@ -1151,6 +1197,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` shifted back.
+
         """
         return self.translate([0.0, y])
 
@@ -1162,6 +1209,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` shifted forward.
+
         """
         return self.translate([0.0, -y])
 
@@ -1178,6 +1226,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If the path is not closed.
+
         """
         if not self.closed:
             raise ValueError("Cannot convert an open path to a Region; close the path first with .close()")
@@ -1215,6 +1264,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 pts = Path2D([[0, 0], [40, 30], [80, 0], [120, 30]])
                 curve = pts.to_bezier(size=10).path_curve()
                 curve.stroke(width=2).linear_extrude(height=3).show()
+
         """
         from pybosl2.beziers import create_bezier  # local: keep the import graph acyclic
 
@@ -1256,6 +1306,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 shape = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 shape.polygon().linear_extrude(height=5).show()
+
         """
         from pythonscad import polygon as _polygon
 
@@ -1280,6 +1331,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D` (csg backend only).
+
         """
         return self.polygon().fill()
 
@@ -1303,6 +1355,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If either path is not closed.
+
         """
         from shapely.geometry import MultiPoint
 
@@ -1388,6 +1441,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
                 base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.BEVEL) \\
                     .polygon().linear_extrude(height=3).show()
+
         """
         from shapely.geometry import JOIN_STYLE
         from shapely.geometry import Polygon as _Polygon
@@ -1421,6 +1475,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A closed :class:`Path2D`.
+
         """
         angles = np.linspace(0, 2 * np.pi, fn, endpoint=False)
         pts = [[float(radius * np.cos(a)), float(radius * np.sin(a))] for a in angles]
@@ -1440,6 +1495,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A closed :class:`Path2D`.
+
         """
         angles = np.linspace(0, 2 * np.pi, fn, endpoint=False)
         pts = [[float(rx * np.cos(a)), float(ry * np.sin(a))] for a in angles]
@@ -1459,6 +1515,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If any passed :class:`Path2D` is not closed.
+
         """
         from pybosl2.regions import Region  # local: Region imports Path2D from here
 
@@ -1482,6 +1539,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If any path is not closed or the result is invalid.
+
         """
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union
@@ -1512,6 +1570,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If any path is not closed.
+
         """
         from shapely.geometry import Polygon as _Polygon
 
@@ -1538,6 +1597,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If either path is not closed or the result is invalid.
+
         """
         from shapely.geometry import Polygon as _Polygon
 
@@ -1563,6 +1623,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If either path is not closed.
+
         """
         from shapely.geometry import Polygon as _Polygon
 
@@ -1596,6 +1657,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             ValueError: If the result is empty, invalid, or a GeometryCollection.
+
         """
         from shapely.geometry import GeometryCollection
         from shapely.geometry import Polygon as _Polygon
@@ -1640,6 +1702,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 plate = Path2D([[0, 0], [80, 0], [80, 60], [0, 60]])
                 plate.linear_extrude(height=4).show()
+
         """
         from pybosl2._backend import get_backend
 
@@ -1661,6 +1724,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --
             the SDF backend has no revolve; sweep the profile instead via
             ``pybosl2._sdf.shapes3d.path_sweep()``.
+
         """
         self._require_csg("rotate_extrude")
         return self.polygon().rotate_extrude(angle, **kwargs)
@@ -1676,6 +1740,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
+
         """
         import operator
         from functools import reduce
@@ -1773,6 +1838,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A list of :class:`SelfIntersection` entries with ``.point``, ``.seg1``,
             ``.prop1``, ``.seg2``, and ``.prop2`` fields.
+
         """
         if closed is None:
             closed = self.closed
@@ -1825,6 +1891,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` with collinear points removed.
+
         """
         if closed is None:
             closed = self.closed
@@ -1853,6 +1920,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` with duplicate points removed.
+
         """
         if closed is None:
             closed = self.closed
@@ -1865,6 +1933,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
             eps: Epsilon for numerical comparisons.
+
         """
         if closed is None:
             closed = self.closed
@@ -1884,6 +1953,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
             eps: Epsilon for numerical comparisons.
+
         """
         if closed is None:
             closed = self.closed
@@ -1910,6 +1980,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             nonzero: If True, use non-zero winding rule instead of even-odd.
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
             eps: Epsilon for numerical comparisons.
+
         """
         if closed is None:
             closed = self.closed
@@ -1963,6 +2034,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fn: Number of facets for rounded sections (overrides fa/fs).
             fa: Minimum angle in degrees for circle fragments.
             fs: Minimum size for circle fragments.
+
         """
         if closed is None:
             closed = self.closed
@@ -2142,6 +2214,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             poly: A sequence of [x, y] points.
             signed: If True, preserve the sign so negative indicates clockwise winding.
+
         """
         arr = np.asarray(poly, dtype=float)
         sides = len(arr)
@@ -2166,6 +2239,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             poly: The :class:`Path2D` defining the polygon boundary.
             nonzero: If True, use non-zero winding rule instead of even-odd.
             eps: Epsilon for numerical comparisons.
+
         """
         box = poly.bounds()
         if (
@@ -2225,6 +2299,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             path: A path to check for closure.
             eps: Epsilon for numerical comparison.
+
         """
         return np.allclose(path[0], path[-1], rtol=0, atol=eps)
 
@@ -2237,6 +2312,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             path: A path to close.
             eps: Epsilon for numerical comparison.
+
         """
         return list(path) if Path2D._is_closed_path(path, eps=eps) else list(path) + [path[0]]
 
@@ -2249,6 +2325,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             path: A path to clean up.
             eps: Epsilon for numerical comparison.
+
         """
         return list(path)[:-1] if Path2D._is_closed_path(path, eps=eps) else list(path)
 
@@ -2283,6 +2360,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fn: Number of facets (overrides fa/fs).
             fa: Minimum angle in degrees for circle fragments.
             fs: Minimum size for circle fragments.
+
         """
         if fn is not None and fn >= 3:
             return int(math.floor(fn))
@@ -2298,6 +2376,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             pathcut: Output from cut_points().
             path: The original path.
             closed: Whether the path is closed.
+
         """
         lastind = len(path) - (0 if closed else 1)
         out = []
@@ -2330,6 +2409,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fragments: List of path fragments.
             rightmost: If True, pick the most right-turning fragment.
             eps: Epsilon for numerical comparison.
+
         """
         if not fragments:
             return [None, []]
@@ -2371,6 +2451,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             rightmost: If True, use right-turning rule.
             startfrag: Index of the fragment to start from.
             eps: Epsilon for numerical comparison.
+
         """
         if len(fragments) == 0:
             return [[], []]
@@ -2405,6 +2486,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Args:
             fragments: List of path fragments.
             eps: Epsilon for numerical comparison.
+
         """
         finished = []
         frags = fragments
@@ -2433,6 +2515,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             p0: First point.
             p1: Center point.
             p2: Third point.
+
         """
         dim = len(p1)
         v1 = [p0[i] - p1[i] for i in range(dim)]
@@ -2459,6 +2542,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fn: Number of facets for the arc (overrides fa/fs).
             fa: Minimum angle in degrees for circle fragments.
             fs: Minimum size for circle fragments.
+
         """
         from pybosl2._helpers import arc_points as _arc_points
         from pybosl2._helpers import frag_count as _frag_count
@@ -2506,6 +2590,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fn: Number of facets for rounds (overrides fa/fs).
             fa: Minimum angle in degrees for circle fragments.
             fs: Minimum size for circle fragments.
+
         """
         sides = len(path)
         assert sides > 2, f"Path2D has length {sides}. Length must be 3 or more."
@@ -2556,6 +2641,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path2D` with bezier-rounded corners.
+
         """
         from pybosl2.rounding import _bezcorner
 

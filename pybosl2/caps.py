@@ -75,6 +75,7 @@ class CapType(Enum):
 
             spine = Path3D([[0,0,0],[0,0,30],[30,0,30]], closed=False)
             spine.stroke(width=4, endcaps=CapType.ARROW).show()
+
     """
 
     NONE = "none"
@@ -142,6 +143,7 @@ class CapSpec:
             spine = Path3D([[0,0,0],[0,0,40]], closed=False)
             cap = CapSpec(CapType.ARROW, length=2, width=3)
             spine.stroke(width=4, endcaps=cap).show()
+
     """
 
     cap_type: CapType = DEFAULT_CAP
@@ -203,6 +205,7 @@ def norm_caps(caps: CapsSpec, closed: bool = False) -> list[CapSpec]:
 
     Returns:
         A ``[CapSpec, CapSpec]`` pair.
+
     """
     if closed:
         return [CapSpec(cap_type=CapType.NONE), CapSpec(cap_type=CapType.NONE)]
@@ -258,6 +261,7 @@ def vnf_with_decorative_caps(
 
     Returns:
         A Bosl2Solid with the body polyhedron and any decorative endcaps unioned.
+
     """
     from pybosl2._stroke3d import endcap_geometry_3d
     from pybosl2.shapes3d import Bosl2Solid
@@ -298,6 +302,7 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
     Returns:
         A list of (N,2) polygon point lists in the endcap's local frame
         (X is the line direction, Y is perpendicular).
+
     """
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return []
@@ -380,6 +385,7 @@ def endcap_trim(spec: CapSpec, width: float) -> float:
 
     Returns:
         The trim distance in world units (0.0 for non-arrow styles).
+
     """
     s = (width / 2) / spec.width if spec.width else width / 2
     if spec.cap_type in (CapType.ARROW, CapType.ARROW3):

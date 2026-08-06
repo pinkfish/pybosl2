@@ -76,6 +76,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
             coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=120)
             coil.stroke(width=4).show()
+
     """
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
@@ -131,6 +132,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 from pybosl2 import Path3D
 
                 Path3D.helix(turns=2.5, height=100, radius=30).stroke(width=3).show()
+
         """
         r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
         r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
@@ -185,7 +187,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """The points as an (N, 3) numpy array, for doing your own vectorised maths.
 
         Returns:
-            An (N, 3) float64 numpy array."""
+            An (N, 3) float64 numpy array.
+
+        """
         return self._points
 
     @property
@@ -193,7 +197,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """The points as a list of ``[x, y, z]`` plain-Python-float triples.
 
         Returns:
-            A list of ``[x, y, z]`` triples."""
+            A list of ``[x, y, z]`` triples.
+
+        """
         return [list(map(float, p)) for p in self._points.tolist()]
 
     @classmethod
@@ -206,6 +212,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` instance.
+
         """
         return cls(lst, closed=closed)
 
@@ -219,6 +226,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of segment lengths.
+
         """
         if closed is None:
             closed = self.closed
@@ -235,6 +243,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of cumulative length fractions, from 0 to 1.
+
         """
         if closed is None:
             closed = self.closed
@@ -256,6 +265,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A :class:`~pybosl2.points.Point` of the closest point on the path.
+
         """
         if closed is None:
             closed = self.closed
@@ -290,6 +300,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of unit tangent vectors, one per path point.
+
         """
         if closed is None:
             closed = self.closed
@@ -317,6 +328,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of unit normal vectors, one per path point.
+
         """
         if closed is None:
             closed = self.closed
@@ -348,6 +360,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of curvature values, one per path point.
+
         """
         if closed is None:
             closed = self.closed
@@ -367,6 +380,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             An ndarray of torsion values, one per path point.
+
         """
         if closed is None:
             closed = self.closed
@@ -402,6 +416,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 pieces = path3d.cut(15)
                 pieces[0].stroke(width=1).show()
+
         """
         if closed is None:
             closed = self.closed
@@ -422,6 +437,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`Path3D` subpaths.
+
         """
         sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]  # type: ignore[arg-type]
@@ -444,6 +460,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`CutPoint` entries, one per cut distance.
+
         """
         if closed is None:
             closed = self.closed
@@ -458,6 +475,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`CutPoint` entries, one per cut distance.
+
         """
         return _path_cut_points_recurse(self._points, closed, dists)
 
@@ -472,6 +490,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A :class:`CutPoint` with the cut point and its next segment index.
+
         """
         return _path_cut_single(self._points, closed, dist, ind=ind, eps=eps)
 
@@ -488,6 +507,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`~pybosl2.points.Vector` normal vectors, one per cut point.
+
         """
         from pybosl2.vectors import unit
 
@@ -530,6 +550,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of two :class:`~pybosl2.points.Vector` basis vectors defining the local plane.
+
         """
         return _path_plane(self._points, closed, ind, i)
 
@@ -543,6 +564,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A list of :class:`Vector` direction vectors, one per cut point.
+
         """
         return _path_cuts_dir(self._points, closed, cuts, eps=eps)
 
@@ -581,6 +603,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 coil = Path3D.helix(turns=3, height=60, radius=20).subdivide_path(points=200)
                 coil.stroke(width=4).show()
+
         """
         if closed is None:
             closed = self.closed
@@ -663,6 +686,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=120)
                 coil.stroke(width=4).show()
+
         """
         if closed is None:
             closed = self.closed
@@ -708,6 +732,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 mid = path3d.select(0, 0.5, 2, 0.5)
                 mid.stroke(width=1).show()
+
         """
         if closed is None:
             closed = self.closed
@@ -733,6 +758,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A :class:`~pybosl2.bounds.Bounds3D` enclosing all path points.
+
         """
         pts = self._points
         min_pt = pts.min(axis=0)
@@ -753,7 +779,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Total length along the path.
 
         Returns:
-            The total path length as a float."""
+            The total path length as a float.
+
+        """
         if len(self._points) < 2:
             return 0.0
         diffs = np.diff(self._points, axis=0)
@@ -766,6 +794,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             True if the path endpoints are coincident, False otherwise.
+
         """
         return bool(Path2D._is_closed_path(self._points))
 
@@ -788,6 +817,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0]], closed=False)
                 loop = path3d.close()
                 loop.stroke(width=1).show()
+
         """
         return self.__class__(Path2D._close_path(self), closed=self.closed)
 
@@ -810,6 +840,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 0, 0]])
                 result = path3d.cleanup()
                 result.stroke(width=1).show()
+
         """
         return self.__class__(Path2D._cleanup_path(self), closed=self.closed)
 
@@ -831,6 +862,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.reverse()
                 result.stroke(width=1).show()
+
         """
         return self.__class__(list(reversed(self._points)), closed=self.closed)
 
@@ -854,6 +886,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [15, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.merge_collinear()
                 result.stroke(width=1).show()
+
         """
         if closed is None:
             closed = self.closed
@@ -901,6 +934,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.deduplicate()
                 result.stroke(width=1).show()
+
         """
         if closed is None:
             closed = self.closed
@@ -911,7 +945,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Drop consecutive repeated points.
 
         Returns:
-            A new :class:`Path3D` with duplicate points removed."""
+            A new :class:`Path3D` with duplicate points removed.
+
+        """
         return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
 
     def subdivide(self, **kwargs: Any) -> "Path3D":
@@ -934,6 +970,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.subdivide(num_copies=100)
                 result.stroke(width=1).show()
+
         """
         if "num_copies" in kwargs:
             kwargs.setdefault("points", kwargs.pop("num_copies"))
@@ -962,6 +999,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.resample(num_copies=50)
                 result.stroke(width=1).show()
+
         """
         if "num_copies" in kwargs:
             kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
@@ -984,6 +1022,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.translate([10, 5, 15])
                 result.stroke(width=2).show()
+
         """
         vv = np.zeros(3)
         va = np.asarray(v, dtype=float)
@@ -1009,6 +1048,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.scale(2)
                 result.stroke(width=2).show()
+
         """
         s = np.asarray([v, v, v] if isinstance(v, (int, float)) else list(v), dtype=float)
         return self.__class__(self._points * s, closed=self.closed)
@@ -1033,6 +1073,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.rotate(45, v=[0, 0, 1])
                 result.stroke(width=2).show()
+
         """
         from pybosl2.transforms import axis_angle_matrix
 
@@ -1067,6 +1108,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])
                 result = path3d.mirror([1, 0, 0])
                 result.stroke(width=2).show()
+
         """
         sides = np.asarray(v, dtype=float)
         sides = sides / np.linalg.norm(sides)
@@ -1080,6 +1122,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` shifted right.
+
         """
         return self.translate([x, 0.0, 0.0])
 
@@ -1091,6 +1134,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` shifted left.
+
         """
         return self.translate([-x, 0.0, 0.0])
 
@@ -1102,6 +1146,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` shifted back.
+
         """
         return self.translate([0.0, y, 0.0])
 
@@ -1113,6 +1158,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` shifted forward.
+
         """
         return self.translate([0.0, -y, 0.0])
 
@@ -1126,6 +1172,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` shifted up.
+
         """
         return self.translate([0.0, 0.0, z])
 
@@ -1137,6 +1184,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A new :class:`Path3D` shifted down.
+
         """
         return self.translate([0.0, 0.0, -z])
 
@@ -1156,6 +1204,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 sweep_path = Path3D.helix(turns=3, height=60, radius=20)
                 flat = sweep_path.path2d()
                 flat.stroke(width=2).linear_extrude(height=1).show()
+
         """
         return Path2D(self._points[:, :2].tolist(), closed=self.closed)
 
@@ -1195,6 +1244,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
                 path3d.stroke(width=2).show()
+
         """
         from pybosl2._backend import current_backend
         from pybosl2.caps import CapSpec, normalize_one
@@ -1256,6 +1306,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
                 path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])
                 path3d.dashed_stroke(dashpat=[5, 2]).show()
+
         """
         from pybosl2._stroke3d import dashed_stroke_3d
 
@@ -1297,6 +1348,7 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
 
     Returns:
         A list of subpath point lists.
+
     """
     cuts = len(cutlist)
     result = []
@@ -1359,6 +1411,7 @@ def _path_cut_points(
 
     Returns:
         A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
+
     """
     long_enough = len(points) >= (3 if closed else 2)
     assert long_enough, (
@@ -1410,6 +1463,7 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
 
     Returns:
         A list of :class:`CutPoint` entries, one per cut distance.
+
     """
     result: list[CutPoint] = []
     pind = 0
@@ -1440,6 +1494,7 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
 
     Returns:
         A :class:`CutPoint` with the cut point and its next segment index.
+
     """
     while True:
         if ind == len(points) - (0 if closed else 1):
@@ -1479,6 +1534,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Poin
 
     Raises:
         ValueError: If no non-collinear point is found within the search range.
+
     """
     lower = -1 if closed else 0
     while i >= lower:
@@ -1506,6 +1562,7 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
 
     Returns:
         A list of :class:`Vector` direction vectors, one per cut point.
+
     """
     out: list[Point] = []
     zeros = [0] * points.shape[1]

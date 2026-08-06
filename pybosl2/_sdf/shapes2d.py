@@ -84,7 +84,8 @@ class SdfShape2D:
     def rotate(self, a: float | list[float]) -> PyShape2D:
         """Rotate by `a` degrees around the origin -- a plain scalar, or the native
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
-        components must be 0), so migrated call sites keep working unchanged."""
+        components must be 0), so migrated call sites keep working unchanged.
+        """
         if isinstance(a, (list, tuple)):
             assert len(a) == 3 and not a[0] and not a[1], f"2-D rotate only supports [0, 0, angle], got {a}"
             a = a[2]
@@ -241,7 +242,8 @@ class SdfShape2D:
         """Union of many shapes as a balanced pairwise tree. A linear `a | b | c | ...` chain
         nests one lambda per piece, so composing hundreds of pieces (a dense tiling, say)
         overflows Python's recursion limit when the SDF is finally evaluated -- the tree keeps
-        the evaluation depth at log2(n) instead."""
+        the evaluation depth at log2(n) instead.
+        """
         shapes = list(shapes)
         assert shapes, "union() needs at least one shape"
         while len(shapes) > 1:
@@ -363,7 +365,8 @@ class SdfShape2D:
 
     def linear_extrude(self, height: float, center: bool = False) -> PyShape:
         """Native-spelling alias for extrude(), so migrated 2-D shapes keep working at existing
-        `.linear_extrude(height=...)` call sites."""
+        `.linear_extrude(height=...)` call sites.
+        """
         return self.extrude(height, center=center)
 
     def __getattr__(self, name: str) -> Any:
@@ -428,7 +431,8 @@ def supershape2d(
     res: int = 10,
 ) -> PyShape2D:
     """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
-    parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d()."""
+    parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d().
+    """
     return polygon2d(
         _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
         res=res,
@@ -438,7 +442,8 @@ def supershape2d(
 def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
     """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
-    Accepts any array-like path spelling (per the numpy-paths convention)."""
+    Accepts any array-like path spelling (per the numpy-paths convention).
+    """
     path_list = as_path_list(paths)
     for p in path_list:
         assert len(p) >= 3, f"polygon2d(): every path needs >= 3 points, got {len(p)}"
@@ -512,7 +517,8 @@ def stroke2d(
     res: int = 10,
 ) -> PyShape2D:
     """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
-    the min over the segments' capsule SDFs (distance-to-segment minus width/2)."""
+    the min over the segments' capsule SDFs (distance-to-segment minus width/2).
+    """
     pts = as_points(path)
     assert len(pts) >= 2, "stroke2d() needs at least 2 points"
     segs = pts if closed else pts[:-1]
@@ -660,6 +666,7 @@ def regular_ngon2d(
         side:    length of each side
         realign: rotate so a face centre faces +X (default: vertex at +X)
         res:     meshing resolution (default 10)
+
     """
     import math as _m
 
@@ -717,6 +724,7 @@ def star2d(
         step:    compute inner radius by drawing a line ``step`` tips around
         realign: put edge midpoint on +X instead of tip (default False)
         res:     meshing resolution (default 10)
+
     """
     import math as _m
 
@@ -763,6 +771,7 @@ def trapezoid2d(
         shift: X-axis shift of the back (default 0)
         anchor: anchor point (default CENTER)
         res:  meshing resolution (default 10)
+
     """
     import math as _m
 
@@ -807,6 +816,7 @@ def keyhole2d(
         diameter2:      radius/diameter of the large circle (default 10)
         shoulder_radius: fillet radius at the shoulder junctions (default 0)
         res:        meshing resolution (default 10)
+
     """
     import math as _m
 

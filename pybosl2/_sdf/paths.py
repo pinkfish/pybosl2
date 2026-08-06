@@ -38,7 +38,8 @@ if TYPE_CHECKING:
 def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:  # type: ignore[type-arg]
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
-    region2d() accept)."""
+    region2d() accept).
+    """
     if isinstance(paths, np.ndarray):
         return [as_points(paths)] if paths.ndim == 2 else [as_points(q) for q in paths]
     first = paths[0]
@@ -54,7 +55,8 @@ def as_points(pts: ArrayLike) -> NDArray[np.float64]:
     any array-like (lists, tuples, arrays, Vec-ish rows). Per the project convention, path
     data is numpy everywhere INSIDE the libraries -- but must be `.tolist()`ed before
     crossing any native boundary (frep bounds, polygon(), translate(), the osuse FFI):
-    raw ndarrays there raise SystemError/TypeError and poison the interpreter."""
+    raw ndarrays there raise SystemError/TypeError and poison the interpreter.
+    """
     arr = np.asarray(pts, dtype=float)
     assert arr.ndim == 2, f"expected a point path, got shape {arr.shape}"
     return arr
@@ -82,7 +84,8 @@ def _radius(
     _pick_radius() itself, whose `dflt: None` default means its return type is `float | None`
     even when a caller always passes a concrete `dflt`. Not for callers that genuinely need to
     tell "not specified" apart from a real radius (see torus()/tube(), which call
-    _pick_radius() directly with `dflt=None`)."""
+    _pick_radius() directly with `dflt=None`).
+    """
     result = _pick_radius(
         radius1=radius1,
         diameter1=diameter1,
@@ -159,8 +162,9 @@ def _ccw(pts: NDArray[np.float64]) -> NDArray[np.float64]:
 
 
 def _halfplane_max_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64]) -> LVTree:
-    """max of signed half-plane distances over a CCW convex polygon's edges (zero-length edges
-    skipped, tolerating duplicate points from densified/offset path data)."""
+    """Max of signed half-plane distances over a CCW convex polygon's edges (zero-length edges
+    skipped, tolerating duplicate points from densified/offset path data).
+    """
     d = None
     n = len(ccw_pts)
     for i in range(n):
@@ -208,7 +212,8 @@ def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _
 def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
     """Indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices --
     a wrap-aware pass dropping every vertex that turns clockwise (or is collinear) between its
-    surviving neighbours."""
+    surviving neighbours.
+    """
     n = len(ccw_pts)
     idx = list(range(n))
     changed = True
@@ -232,7 +237,8 @@ def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
 def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
     """UNSIGNED squared distance to the polygon outline `pts` at (x, y): the min over per-edge
     point-to-segment distances (the segment clamp is just min/max -- no atan2/winding needed,
-    so unlike the signed form this stays branch-cut-free everywhere)."""
+    so unlike the signed form this stays branch-cut-free everywhere).
+    """
     pts = as_points(pts)
     n = len(pts)
     dist2_min = None
@@ -251,7 +257,8 @@ def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
 
 def _is_convex(pts: NDArray[np.float64]) -> bool:
     """True if the simple polygon `pts` is convex: every consecutive edge pair turns the same
-    way (cross products all >= 0 or all <= 0, tolerating collinear runs from densified arcs)."""
+    way (cross products all >= 0 or all <= 0, tolerating collinear runs from densified arcs).
+    """
     n = len(pts)
     pos = neg = False
     for i in range(n):
@@ -329,7 +336,8 @@ def supershape_path(
     diameter: float | None = None,
 ) -> NDArray[np.float64]:
     """The superformula outline as a closed point path -- same parameters and sampling as the
-    bosl2 port's supershape() (which builds a polygon() from the identical path)."""
+    bosl2 port's supershape() (which builds a polygon() from the identical path).
+    """
     n_pts = n if n is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
     m2v = m2 if m2 is not None else m1
@@ -347,7 +355,8 @@ def supershape_path(
 
 def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
     """Evaluate a Bezier curve (any degree, from its control points) at parameter u in [0, 1]
-    -- de Casteljau."""
+    -- de Casteljau.
+    """
     pts = np.asarray(curve, dtype=float)
     while len(pts) > 1:
         pts = pts[:-1] + (pts[1:] - pts[:-1]) * u
@@ -361,7 +370,8 @@ def bezpath_points(
     endpoint: bool = True,
 ) -> NDArray[np.float64]:
     """Sample a Bezier path (degree-N segments sharing endpoints, len % n_degree == 1) into a point
-    array -- same shape as the bosl2 port's bezpath_curve()."""
+    array -- same shape as the bosl2 port's bezpath_curve().
+    """
     bez = as_points(bezpath)
     assert len(bez) % n_degree == 1, (
         f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -380,7 +390,8 @@ def bezpath_points(
 def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n: int = 90) -> NDArray[np.float64]:
     """The BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
     total length, and side arcs of radius arc_radius blending them -- as a closed point path.
-    Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density."""
+    Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
+    """
     assert length > 0
     assert length / 2 < arc_radius, "Side radius arc_radius must be larger than length/2"
     assert length > radius1 + radius2, "Length must be longer than radius1+radius2"
@@ -505,14 +516,16 @@ def _lerp_pt(a: _VecLike, b: _VecLike, t: float) -> NDArray[np.float64]:
 
 def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
     """Unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
-    byte-for-byte the bosl2 port's convention."""
+    byte-for-byte the bosl2 port's convention.
+    """
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
 
 
 def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> NDArray[np.float64]:
     """BOSL2 deriv(): numerical first derivative of vector-valued samples, with either a
     scalar step or a per-segment step list (the non-uniform variant path_tangents() feeds
-    with segment lengths)."""
+    with segment lengths).
+    """
     pts = np.asarray(data, dtype=float)
     n_pts = len(pts)
     assert n_pts >= 2
@@ -565,7 +578,8 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
 def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
     """BOSL2 path_tangents(): unit tangent at each path point (uniform=False weights the
-    derivative by segment lengths, which is what rabbit_clip() uses)."""
+    derivative by segment lengths, which is what rabbit_clip() uses).
+    """
     pts = as_points(path)
     if uniform:
         d = deriv(pts, closed=closed)
@@ -582,7 +596,8 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
 def _cubic_real_roots(p: list[float]) -> list[float]:
     """Real roots of a polynomial in power form (highest degree first), degree <= 3 --
     enough for path_to_bezpath()'s extreme-finding cubic. Closed-form (Cardano with the
-    trigonometric casework)."""
+    trigonometric casework).
+    """
     # trim leading (near-)zeros
     coeffs = list(p)
     while coeffs and abs(coeffs[0]) < 1e-14:
@@ -626,7 +641,8 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
 ) -> NDArray[np.float64]:
     """BOSL2 path_to_bezpath(): a cubic bezier path through the input points with the given
     (or derived) tangents, control-point lengths chosen so the curve deviates from each
-    segment by `size` (absolute) or `relsize` (fraction of segment length)."""
+    segment by `size` (absolute) or `relsize` (fraction of segment length).
+    """
     assert size is None or relsize is None, "Can't define both size and relsize"
     path = as_points(path)
     curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
@@ -690,7 +706,8 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
     """Tangent lines between two circles, each returned as a [point_on_circle1,
     point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
     indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
-    the circles don't overlap."""
+    the circles don't overlap.
+    """
     cp1 = np.asarray(cp1, dtype=float)
     cp2 = np.asarray(cp2, dtype=float)
     dist = float(np.linalg.norm(cp2 - cp1))
@@ -725,7 +742,8 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
 def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
     """The input open polyline shifted `delta` to the LEFT of its direction of travel, using
     per-vertex averaged normals -- exact for smooth densely-sampled curves (which is all
-    rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling)."""
+    rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling).
+    """
     pts = as_points(path)
     tang = path_tangents(pts, closed=False, uniform=False)
     left = np.stack([-tang[:, 1], tang[:, 0]], axis=1)
@@ -750,7 +768,8 @@ def total_length(path: ArrayLike, closed: bool = False) -> float:
 def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
     """The point(s) at the given arc-length distance(s) from the start of `path`, each as
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
-    requirement) as the bosl2 port's path_cut_points()."""
+    requirement) as the bosl2 port's path_cut_points().
+    """
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
         return path_cut_points(path, [cutdist], closed)
@@ -846,7 +865,8 @@ def round_corners(  # type: ignore[no-untyped-def]
     path: ArrayLike, radius=None, r=None, closed: bool = True, fn: float | None = None
 ) -> NDArray[np.float64]:
     """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each
-    vertex -- the bosl2 port's round_corners() (radius method), pure python."""
+    vertex -- the bosl2 port's round_corners() (radius method), pure python.
+    """
     path = as_points(path)
     n = len(path)
     assert n > 2, f"Path2D has length {n}. Length must be 3 or more."

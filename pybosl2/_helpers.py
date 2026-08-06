@@ -63,7 +63,8 @@ def scalar_vec3(value: Any, fill: float = 0.0) -> np.ndarray:
     """A scalar becomes ``[value, fill, fill]``; a vector is padded to length 3.
 
     BOSL2's ``scalar_vec3()`` -- used for direction vectors where a single value
-    fills a single axis."""
+    fills a single axis.
+    """
     if is_num(value):
         return np.array([float(value), float(fill), float(fill)])
     arr = list(value)
@@ -77,7 +78,8 @@ def scalar_vec3(value: Any, fill: float = 0.0) -> np.ndarray:
 
 def unit(vector: Any) -> np.ndarray:
     """Normalize *vector* to unit length.  Returns zero vector if zero-length (matching
-    ``pybosl2/transforms.py``'s ``_unit()`` convention)."""
+    ``pybosl2/transforms.py``'s ``_unit()`` convention).
+    """
     arr = np.asarray(vector, dtype=float)
     norm = float(np.linalg.norm(arr))
     return arr / norm if norm else arr
@@ -123,7 +125,8 @@ def frame_map4_yz(y_axis: Any, z_axis: Any) -> np.ndarray:
     """Rotation whose local +Y and +Z axes point along *y_axis* and *z_axis* (BOSL2 frame_map(y=, z=)).
 
     Different from ``frame_map4_xz``: this version takes Y and Z axes (used by
-    :mod:`pybosl2.miscellaneous`'s path_extrude2d)."""
+    :mod:`pybosl2.miscellaneous`'s path_extrude2d).
+    """
     y_unit, z_unit = (
         unit(np.asarray(y_axis, dtype=float)),
         unit(np.asarray(z_axis, dtype=float)),
@@ -141,9 +144,7 @@ def frame_map4_yz(y_axis: Any, z_axis: Any) -> np.ndarray:
 
 
 def union(shapes: Any) -> Any:
-    """
-    Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``).
-    """
+    """Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``)."""
     return reduce(operator.or_, shapes)
 
 
@@ -158,7 +159,8 @@ def unwrap(obj: Bosl2Solid | Bosl2Shape2D | Any) -> Any:
 
     Both are plain Python wrappers around a native handle, so anything handing an object
     *directly* to a native function (``hull()``, ``minkowski()``, ...) rather than calling a
-    method on it must unwrap first."""
+    method on it must unwrap first.
+    """
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -318,8 +320,7 @@ def arc_points(
     center: Sequence[float] = (0.0, 0.0),
     endpoint: bool = True,
 ) -> list[list[float]]:
-    """
-    *count* points along an arc of radius *radius* centered at *center*, from angle *start*
+    """*count* points along an arc of radius *radius* centered at *center*, from angle *start*
     sweeping *angle* degrees.
     """
     if not endpoint:

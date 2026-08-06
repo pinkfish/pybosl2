@@ -67,6 +67,7 @@ class TripodMounts:
 
                 from pybosl2.parts.tripod_mounts import TripodMounts
                 TripodMounts.manfrotto_rc2_plate().show()
+
         """
         if chamfer not in ("bot", "bottom", "all", "none"):
             raise ValueError('chamfer must be "all", "bottom", "bot", or "none"')

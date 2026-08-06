@@ -62,6 +62,7 @@ class Sliders:
 
                 from pybosl2.parts.sliders import Sliders
                 Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
+
         """
         full_width = w + 2 * wall
         full_height = h + base
@@ -124,6 +125,7 @@ class Sliders:
 
                 from pybosl2.parts.sliders import Sliders
                 Sliders.rail(l=100, w=10, h=10).show()
+
         """
         attack_ang, attack_len = 30, 2
         fudge = 1.177

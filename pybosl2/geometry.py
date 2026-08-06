@@ -60,6 +60,7 @@ def is_collinear(
 
     Returns:
         True if the three points are collinear within *eps*.
+
     """
     dx1 = point2.x - point1.x
     dy1 = point2.y - point1.y
@@ -98,6 +99,7 @@ def line_normal(
 
     Returns:
         A unit-length :class:`~pybosl2.points.Point` normal to the line.
+
     """
     return Point(unit([point1.y - point2.y, point2.x - point1.x]))
 
@@ -117,6 +119,7 @@ def line_closest_point(
 
     Returns:
         The closest point on the segment as an ndarray.
+
     """
     start = np.asarray(segment[0], dtype=float)
     end = np.asarray(segment[1], dtype=float)
@@ -169,6 +172,7 @@ def general_line_intersection(
         *t* and *u* are the parametric positions along *line1* and *line2*
         (0 at the first endpoint, 1 at the second).  Returns ``None``
         for parallel or coincident lines.
+
     """
     s1a = np.asarray(line1[0], dtype=float)
     s1b = np.asarray(line1[1], dtype=float)
@@ -211,6 +215,7 @@ def circle_circle_tangents(
         A list of ``(point_on_circle1, point_on_circle2)`` :class:`~pybosl2.points.Point` tuples.
         Returns up to 4 entries (2 external + 2 internal), 2 entries when
         only external tangents exist, or an empty list when no tangent can be drawn.
+
     """
     r1v: float = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 1.0)
     r2v: float = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 1.0)

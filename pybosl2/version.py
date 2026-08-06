@@ -42,6 +42,7 @@ class Version:
         major (int): The major (breaking-change) component.
         minor (int): The minor (feature) component.
         update (int): The update/patch component.
+
     """
 
     def __init__(self, version: str = __version__) -> None:

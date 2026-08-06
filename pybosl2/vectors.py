@@ -28,8 +28,7 @@ def is_vector(
     zero: bool | None = None,
     eps: float = EPSILON,
 ) -> bool:
-    """
-    True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or
+    """True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or
     zero-ness).
     """
     if isinstance(v, np.ndarray):

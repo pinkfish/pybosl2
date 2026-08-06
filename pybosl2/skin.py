@@ -190,7 +190,8 @@ class Sweepable:
         style: str = "min_edge",
     ) -> VNF | Bosl2Solid:
         """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF
-        or Bosl2Solid (BOSL2 sweep())."""
+        or Bosl2Solid (BOSL2 sweep()).
+        """
         return _sweep(
             [list(p) for p in cast("Path2D", self)],
             transforms,
@@ -249,9 +250,7 @@ def _xrot4(a: float) -> np.ndarray:
 
 
 def _segs(radius: float) -> int:
-    """
-    OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs()).
-    """
+    """OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs())."""
     return max(5, math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0)))
 
 
@@ -301,6 +300,7 @@ def _sweep(
         closed:     the sweep loops back on itself (no caps)
         caps:       cap the open ends (default: BUTT); supports decorative cap types
         style:      vnf_vertex_array quad-subdivision style
+
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     assert len(shape3) >= 3, "shape must be a path of at least 3 points."
@@ -367,6 +367,7 @@ def _path_sweep(
             square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
             helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
             Path3D(helix).path_sweep(square).polyhedron().show()
+
     """
     from pybosl2.path3d import Path3D
 
@@ -518,7 +519,8 @@ def slice_profiles(
     """Interpolate *slices* extra profiles between each consecutive pair (BOSL2 slice_profiles()).
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
-    lists; the interpolation is vertex-by-vertex."""
+    lists; the interpolation is vertex-by-vertex.
+    """
     sides = len(profiles)
     nseg = sides - (0 if closed else 1)
     count = list(slices) if isinstance(slices, (list, tuple, np.ndarray)) else [slices] * nseg
@@ -579,6 +581,7 @@ def _skin(
             circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
             square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
             skin([circle, square], slices=20, method="reindex", z=[0, 25]).polyhedron().show()
+
     """
     profiles = [list(p) for p in profiles]
     sides = len(profiles)
@@ -674,6 +677,7 @@ def _linear_sweep(
 
             square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
             Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()
+
     """
     hh = float(height if height is not None else (height if height is not None else 1))
     path = [[p[0], p[1]] for p in region]
@@ -743,6 +747,7 @@ def _rotate_sweep(
 
             profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]
             Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
+
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
     cap_specs = norm_caps(caps)
@@ -807,6 +812,7 @@ def _spiral_sweep(
 
             section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
             Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
+
     """
     assert height > 0 and turns != 0, "spiral_sweep(): need positive height and nonzero turns."
     rr1 = (
@@ -859,7 +865,8 @@ def subdivide_and_slice(
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
-    the profile lengths. Returns the stacked list of (equal-length) profiles."""
+    the profile lengths. Returns the stacked list of (equal-length) profiles.
+    """
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
 
@@ -977,6 +984,7 @@ def os_circle(
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+
     """
     r_val = radius if radius is not None else cast("float | None", kwargs.get("r"))
     h_val = height if height is not None else cast("float | None", kwargs.get("h"))
@@ -1005,6 +1013,7 @@ def os_smooth(
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+
     """
     r_val = radius if radius is not None else cast("float | None", kwargs.get("r"))
     k_val = curvature if curvature is not None else cast("float", kwargs.get("k", 0.5))
@@ -1035,6 +1044,7 @@ def os_teardrop(
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+
     """
     r_arg = radius if radius is not None else cast("float | None", kwargs.get("r"))
     h_arg = height if height is not None else cast("float | None", kwargs.get("h"))
@@ -1063,6 +1073,7 @@ def os_chamfer(
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+
     """
     if cut is not None:
         w = float(cut)
@@ -1093,6 +1104,7 @@ def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProf
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
+
     """
     pts = [[float(p[0]), float(p[1])] for p in profile]
     assert pts and pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
@@ -1133,6 +1145,7 @@ def _offset_sweep(
 
     Returns:
         A :class:`~pybosl2.vnf.VNF`.
+
     """
     from pybosl2.path2d import Path2D as _Path
 
@@ -1357,6 +1370,7 @@ def _rounded_prism(
 
     Returns:
         A :class:`~pybosl2.vnf.VNF`.
+
     """
     from pybosl2.path2d import Path2D as _Path
 
@@ -1640,6 +1654,7 @@ def _bent_cutout_mask(
         thickness: Radial thickness of the mask.
         path:      2-D path/polygon defining the cutout profile.
         style:     Subdivision style.
+
     """
     pts = [list(map(float, p)) for p in path]
     if not pts:
@@ -1706,6 +1721,7 @@ def _path_sweep2d(
             shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
             path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
             Path2D(path).path_sweep2d(shape).polyhedron().show()
+
     """
     from pybosl2.path2d import Path2D
 
@@ -1821,6 +1837,7 @@ def rot_resample(
         turns:   extra full turns to add at a gap (scalar or per-gap list)
         closed:  the transform list forms a loop (default False)
         method:  "length" (uniform screw-distance) or "count" (fixed samples per gap)
+
     """
     rotlist_extra = [np.asarray(t, dtype=float) for t in rotlist]
     assert smoothlen > 0 and smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."

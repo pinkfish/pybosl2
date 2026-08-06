@@ -135,7 +135,8 @@ def _thread_grid(
     Each column is a vertical stack of vertices for one angle: bottom axis point, the thread profile
     repeated up every turn, and the top axis point. Sweeping the columns around builds the whole
     rod (core + helical thread) as one closed, manifold polyhedron -- no CSG union of the thread
-    with a coaxial core (which Manifold cannot do cleanly)."""
+    with a coaxial core (which Manifold cannot do cleanly).
+    """
     prof = [[float(x), float(y)] for x, y in profile]
     start_steps = sides // starts
     direction = -1 if left_handed else 1
@@ -179,7 +180,8 @@ def _rod_solid(
 
     Each of the *starts* thread starts is one angular sector's vertex-array surface; the sectors are
     merged at the VNF level (not by CSG union, which Manifold cannot do on coaxial helical solids)
-    into one polyhedron, then trimmed to length with an intersection."""
+    into one polyhedron, then trimmed to length with an intersection.
+    """
     from pybosl2._helpers import frag_count, quantup
     from pybosl2.vnf import VNF
 
@@ -220,7 +222,6 @@ def _nut_solid(
     fs: float | None = None,
 ) -> Bosl2Solid:
     """A nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
-
     if shape == "hex":
         body = regular_prism(6, height=h, inner_diameter=nutwidth, fn=fn, fa=fa, fs=fs)
     elif shape == "square":
@@ -277,7 +278,8 @@ class Threading:
         fs: float | None = None,
     ) -> Bosl2Solid:
         """A threaded rod from an explicit 2-D thread *profile* (x in [-1/2, 1/2], y the depth
-        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod())."""
+        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod()).
+        """
         assert pitch > 0 and l > 0 and d > 0, "generic_threaded_rod(): d, l and pitch must be positive."
         return _rod_solid(d, l, pitch, profile, starts, left_handed, fn, fa, fs)
 
@@ -325,8 +327,7 @@ class Threading:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """
-        An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2
+        """An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2
         threaded_rod()).
 
         Examples:
@@ -336,6 +337,7 @@ class Threading:
 
                 from pybosl2.parts.threading import Threading
                 Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).show()
+
         """
         return _rod_solid(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
 
@@ -362,6 +364,7 @@ class Threading:
 
                 from pybosl2.parts.threading import Threading
                 Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).show()
+
         """
         return _nut_solid(
             nutwidth,
@@ -393,8 +396,7 @@ class Threading:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """
-        A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2
+        """A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2
         trapezoidal_threaded_rod()).
 
         Examples:
@@ -404,6 +406,7 @@ class Threading:
 
                 from pybosl2.parts.threading import Threading
                 Threading.trapezoidal_threaded_rod(d=20, l=40, pitch=4, fa=6, fs=1).show()
+
         """
         prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
         return _rod_solid(d, l, pitch, prof, starts, left_handed, fn, fa, fs)
@@ -464,6 +467,7 @@ class Threading:
 
                 from pybosl2.parts.threading import Threading
                 Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).show()
+
         """
         prof = _trapezoidal_profile(pitch, 29, thread_depth if thread_depth is not None else pitch / 2)
         return _rod_solid(d, l, pitch, prof, starts, left_handed, fn, fa, fs)

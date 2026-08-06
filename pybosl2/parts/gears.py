@@ -527,9 +527,7 @@ def _simple_tooth(
     interior: bool = False,
     center: bool = False,
 ) -> list[list[float]]:
-    """
-    A simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms.
-    """
+    """A simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms."""
     p = _pitch_radius(circ_pitch, teeth)
     c = _outer_radius_basic(circ_pitch, teeth, clearance, interior, 0, 0, 0)
     radius = _root_radius_basic(circ_pitch, teeth, clearance, interior, 0, 0)
@@ -743,8 +741,7 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> list[list[float]]:
-        """
-        The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
+        """The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
         _gear_tooth_profile()).
         """
         circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -789,6 +786,7 @@ class Gears:
 
                 from pybosl2.parts.gears import Gears
                 Gears.spur_gear2d(mod=5, teeth=30).linear_extrude(height=3).show()
+
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
@@ -858,6 +856,7 @@ class Gears:
 
                 from pybosl2.parts.gears import Gears
                 Gears.spur_gear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15).show()
+
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         pr = _pitch_radius(center, teeth, helical)
@@ -923,9 +922,7 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """
-        A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``.
-        """
+        """A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``."""
         return Gears.spur_gear(
             circ_pitch=circ_pitch,
             teeth=teeth,
@@ -974,6 +971,7 @@ class Gears:
 
                 from pybosl2.parts.gears import Gears
                 Gears.ring_gear(teeth=30, thickness=8, pressure_angle=14.5, helical=20).show()
+
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)

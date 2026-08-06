@@ -70,6 +70,7 @@ def _place_and_union(
 
     Returns:
         The unioned shapely geometry.
+
     """
     angle = math.degrees(math.atan2(tangent[1], tangent[0]))
     half = width / 2
@@ -125,6 +126,7 @@ def stroke_2d(
 
     Returns:
         A :class:`Path2D` of the stroked polygon outline.
+
     """
     from pybosl2.path2d import Path2D
 
@@ -179,6 +181,7 @@ def dashed_stroke_2d(
 
     Returns:
         A :class:`Region` of dash-polygon outlines.
+
     """
     from pybosl2.regions import Region
 
@@ -255,7 +258,6 @@ def _cut_path(
     closed: bool,  # noqa: ARG001
 ) -> list[list[list[float]]]:
     """Split a path at cut distances. Returns pairs of points as dash segments."""
-
     if not cuts:
         return [pts]
 

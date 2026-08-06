@@ -66,6 +66,7 @@ class _Metaball:
     Args:
         field: A vectorised ``(N, 3) → (N,)`` callable.
         neg: 1 for additive, -1 for subtractive.
+
     """
 
     def __init__(self, field: Callable[[np.ndarray], np.ndarray], neg: int = 1):
@@ -83,6 +84,7 @@ class _MetaballSpec:
     Args:
         transform: A 4×4 matrix or a 3-element position (translation), normalized to 4×4.
         metaball: The field primitive to place at that transform.
+
     """
 
     transform: np.ndarray = field(init=False)
@@ -135,6 +137,7 @@ def mb_sphere(
             VNF.from_metaballs(
                 spec, Bounds3D(-20, -20, -20, 20, 20, 20, 40, 40, 40), voxel_size=2
             ).polyhedron().show()
+
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert rr and rr > 0, "mb_sphere(): need a positive radius or diameter."
@@ -181,6 +184,7 @@ def mb_cuboid(
             VNF.from_metaballs(
                 spec, Bounds3D(-25, -15, -15, 25, 15, 15, 50, 30, 30), voxel_size=2
             ).polyhedron().show()
+
     """
     assert 0 <= squareness <= 1, "mb_cuboid(): squareness must be in [0, 1]."
     xp = _squircle_se_exponent(squareness)
@@ -232,6 +236,7 @@ def mb_torus(
             VNF.from_metaballs(
                 spec, Bounds3D(-20, -20, -10, 20, 20, 10, 40, 40, 20), voxel_size=2
             ).polyhedron().show()
+
     """
     rmaj, rmin = (
         (major_radius if major_radius is not None else (major_diameter / 2 if major_diameter is not None else None)),
@@ -271,6 +276,7 @@ def mb_capsule(
 
     Raises:
         AssertionError: If *height* or *radius* is missing, non-positive, or shaft too short.
+
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert height and rr and height > 0 and rr > 0, "mb_capsule(): need positive height and radius."
@@ -312,6 +318,7 @@ def mb_disk(
 
     Raises:
         AssertionError: If *height* or *radius* is missing, non-positive, or too thin.
+
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     assert height and rr and height > 0 and rr > 0, "mb_disk(): need positive height and radius."
@@ -350,6 +357,7 @@ def mb_octahedron(
 
     Raises:
         AssertionError: If *squareness* is not in ``[0, 1]``.
+
     """
     assert 0 <= squareness <= 1, "mb_octahedron(): squareness must be in [0, 1]."
     xp = _squircle_se_exponent(squareness)
@@ -403,6 +411,7 @@ def mb_connector(
 
     Raises:
         AssertionError: If *radius* is missing, non-positive, or *p1* equals *p2*.
+
     """
     from pybosl2.transforms import axis_angle_matrix, rot_from_to
 
@@ -468,6 +477,7 @@ def metaballs2d(
             ]
             paths = metaballs2d(spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2)
             Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
+
     """
     assert spec, "metaballs2d(): the spec is empty."
     from pybosl2.vnf import contour

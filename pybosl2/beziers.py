@@ -98,6 +98,7 @@ class Bezier:
             circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
             tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
             tube.polyhedron().show()
+
     """
 
     _points: np.ndarray
@@ -110,6 +111,7 @@ class Bezier:
 
         Args:
             control_points: A sequence of 2-D or 3-D control points, as nested lists or numpy arrays.
+
         """
         pts = np.asarray(control_points, dtype=float)
         if pts.size == 0:
@@ -141,6 +143,7 @@ class Bezier:
 
         Args:
             points: A sequence of 2-D or 3-D control points.
+
         """
         return cls(points)
 
@@ -170,6 +173,7 @@ class Bezier:
             An ndarray of evaluated points. For a scalar *u* the result is a
             1-D vector; for a list of *u* values the result is a 2-D array of
             row vectors.
+
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
         us = [u] if scalar else list(u)  # type: ignore[arg-type]
@@ -202,6 +206,7 @@ class Bezier:
 
             pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)
             pts.stroke(width=2).linear_extrude(height=3).show()
+
         """
         return self.points(lerpn(0, 1, splinesteps + 1, endpoint))
 
@@ -222,6 +227,7 @@ class Bezier:
 
         Raises:
             AssertionError: If *order* is not a non-negative integer.
+
         """
         assert isinstance(order, int) and order >= 0
         if order == 0:
@@ -245,6 +251,7 @@ class Bezier:
         Returns:
             An ndarray of unit tangent vectors. For a scalar *u* the result is
             a 1-D vector; for a list of *u* values the result is a 2-D array.
+
         """
         res = np.asarray(self.derivative(u, 1), dtype=float)
         if res.ndim == 1:
@@ -265,6 +272,7 @@ class Bezier:
             A float (for scalar *u*) or numpy array of curvature values. The
             curvature κ = ``|r' × r''|`` / ``|r'|³`` is the inverse radius of the
             tangent circle.
+
         """
         scalar = isinstance(u, (int, float, np.floating, np.integer))
         us = [u] if scalar else list(u)  # type: ignore[arg-type]
@@ -295,6 +303,7 @@ class Bezier:
         Returns:
             The parameter *u* in ``[0, 1]`` of the point on this curve closest
             to the target *pt*.
+
         """
         pt = np.asarray(pt, dtype=float)
         steps = len(self) * 3
@@ -335,6 +344,7 @@ class Bezier:
 
         Returns:
             The approximate arc length of the curve segment as a float.
+
         """
         from pybosl2.path2d import Path2D  # local: avoid importing the heavy path module at load time
         from pybosl2.path3d import Path3D
@@ -372,6 +382,7 @@ class Bezier:
         Returns:
             A list of parameter values *u* in ``[0, 1]`` where the curve
             crosses the infinite line defined by the two input points.
+
         """
         a = Bezier._matrix(len(self) - 1) @ self.array  # bezier algebraic coefficients
         line = np.asarray(line, dtype=float)
@@ -396,6 +407,7 @@ class Bezier:
 
         Returns:
             An ndarray of evaluated points for the given curve segment.
+
         """
         sub = self.array[curveind * n_degree : (curveind + 1) * n_degree + 1]
         return Bezier(sub).points(u)
@@ -425,6 +437,7 @@ class Bezier:
 
             bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])
             bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(height=3).show()
+
         """
         assert len(self) % n_degree == 1, (
             f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -467,6 +480,7 @@ class Bezier:
 
         Raises:
             ValueError: If no closest point could be found.
+
         """
         new_pt = np.asarray(pt, dtype=float)
         assert len(self) % n_degree == 1, (
@@ -499,6 +513,7 @@ class Bezier:
 
         Returns:
             The approximate total arc length of the bezier path as a float.
+
         """
         assert len(self) % n_degree == 1, (
             f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
@@ -529,6 +544,7 @@ class Bezier:
         Raises:
             AssertionError: If *axis* is not ``"X"`` or ``"Y"``, or if the
                 patch is not 2-D.
+
         """
         arr = self.array
         assert arr.shape[1] == 2, "close_to_axis() works only on 2-D bezier paths."
@@ -568,6 +584,7 @@ class Bezier:
 
         Raises:
             AssertionError: If the bezier is not 2-D.
+
         """
         arr = self.array
         assert arr.shape[1] == 2, "path_offset() works only on 2-D bezier paths."
@@ -609,6 +626,7 @@ class Bezier:
         Returns:
             A cubic :class:`Bezier` path interpolating every point of the
             input path.
+
         """
         return create_bezier(path, closed=closed, tangents=tangents, uniform=uniform, size=size, relsize=relsize)
 
@@ -686,6 +704,7 @@ class Bezier:
                 shape = [[cos(t), sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
                 path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])
                 path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
+
         """
         from pybosl2.path3d import Path3D
         from pybosl2.skin import path3d
@@ -742,6 +761,7 @@ class Bezier:
 
         Returns:
             A ``(2, dim)`` ndarray of ``[endpoint, control_point]``.
+
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
@@ -773,6 +793,7 @@ class Bezier:
         Returns:
             A ``(3, dim)`` ndarray of
             ``[approaching_cp, fixed_point, departing_cp]``.
+
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
@@ -811,6 +832,7 @@ class Bezier:
             A ``(3, dim)`` ndarray of
             ``[approaching_cp, fixed_point, departing_cp]``, with independent
             approach and departure directions.
+
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or (phi1 is None and phi2 is None), "phi1=/phi2= require a 3-D point"
@@ -840,6 +862,7 @@ class Bezier:
 
         Returns:
             A ``(2, dim)`` ndarray of ``[control_point, endpoint]``.
+
         """
         pt = np.asarray(pt, dtype=float)
         assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
@@ -871,6 +894,7 @@ class Bezier:
                 Bezier.end([10, 0, 5], 230, 1),
             ])
             path.debug(width=0.5)
+
         """
         result = _debug_tube(np.asarray(self.path_curve(n_degree=n_degree)), width / 2.0).color("cyan")
         result = result | _debug_tube(np.asarray([list(p) for p in self]), width / 2.0).color("green")
@@ -897,6 +921,7 @@ class Bezier:
         Returns:
             A new :class:`Bezier` with all control-point groups concatenated
             into a single flat control-point list.
+
         """
         if len(groups) > 0 and isinstance(groups[0], np.ndarray):
             return Bezier(np.concatenate(groups, axis=0))
@@ -986,6 +1011,7 @@ def create_bezier(
     Raises:
         AssertionError: If both *size* and *relsize* are specified, or if any
             path segment has zero length.
+
     """
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
@@ -1073,6 +1099,7 @@ class BezierPatch:
                 [[-50, 50, 0], [-16, 50, -20], [16, 50, 20], [50, 50, 0]],
             ]
             BezierPatch(patch).sheet([0, -6], splinesteps=16).polyhedron().show()
+
     """
 
     _rows: np.ndarray
@@ -1086,6 +1113,7 @@ class BezierPatch:
 
         Args:
             rows: A list of rows, each a list of ``[x, y, z]`` control points forming a rectangular patch.
+
         """
         pts = np.asarray(rows, dtype=float)
         if pts.size == 0:
@@ -1115,6 +1143,7 @@ class BezierPatch:
 
         Args:
             rows: A list of rows of 3-D control points.
+
         """
         return cls(rows)
 
@@ -1142,6 +1171,7 @@ class BezierPatch:
         Returns:
             True if *x* is a rectangular 2-D array of numeric point vectors
             with equal-length rows.
+
         """
         if not (isinstance(x, (list, tuple)) and len(x) > 0):
             return False
@@ -1182,6 +1212,7 @@ class BezierPatch:
             patch = BezierPatch.flat([100, 100], n_degree=3)
             pts = patch.points(0, [i / 16 for i in range(17)])
             pts.stroke(width=2).linear_extrude(height=3).show()
+
         """
         patch = self.array
         nrows, ncols = patch.shape[0], patch.shape[1]
@@ -1215,6 +1246,7 @@ class BezierPatch:
             An ndarray of unit normal vectors computed as the cross product of
             the *u* and *v* tangents. Scalar inputs return a single vector;
             list inputs return a grid of normals.
+
         """
         patch = self.array
         nrows, ncols = patch.shape[0], patch.shape[1]
@@ -1250,6 +1282,7 @@ class BezierPatch:
         Returns:
             A new :class:`BezierPatch` with reversed row order, suitable for
             flipping the mesh orientation.
+
         """
         return BezierPatch([list(reversed(row)) for row in self])  # type: ignore[arg-type]
 
@@ -1277,6 +1310,7 @@ class BezierPatch:
             patch = BezierPatch.flat([100, 100], n_degree=3)
             vnf = patch.vnf(splinesteps=16)
             vnf.polyhedron().show()
+
         """
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
         uvals = list(lerpn(0, 1, int(ss[0]) + 1))
@@ -1307,6 +1341,7 @@ class BezierPatch:
             p1 = BezierPatch.flat([50, 50], n_degree=3)
             p2 = BezierPatch.flat([50, 50], n_degree=2, trans=(60, 0, 0))
             BezierPatch.to_vnf([p1, p2], splinesteps=16).polyhedron().show()
+
         """
         if BezierPatch.is_patch(patches):
             return BezierPatch(patches).vnf(splinesteps, style)  # type: ignore[arg-type]
@@ -1344,6 +1379,7 @@ class BezierPatch:
 
             patch = BezierPatch.flat([100, 100], n_degree=3, spin=45)
             patch.vnf(splinesteps=16).polyhedron().show()
+
         """
         assert n_degree > 0
         sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
@@ -1386,6 +1422,7 @@ class BezierPatch:
 
             patch = BezierPatch.flat([100, 100], n_degree=3)
             patch.sheet([0, -6], splinesteps=16).polyhedron().show()
+
         """
         diameter = [0.0, -float(delta)] if isinstance(delta, (int, float)) else [float(delta[0]), float(delta[1])]
         ss = splinesteps if isinstance(splinesteps, (list, tuple, np.ndarray)) else (splinesteps, splinesteps)
@@ -1419,6 +1456,7 @@ class BezierPatch:
             A :class:`~pybosl2.vnf.VNF` mesh, or a ``(VNF, edges)`` tuple if
             *return_edges* is True, where *edges* is ``[left, right, top,
             bottom]`` point lists.
+
         """
         result = BezierPatch._vnf_degenerate(self.array, splinesteps, reverse, True)
         return result if return_edges else result[0]
@@ -1549,6 +1587,7 @@ class BezierPatch:
 
             patch = BezierPatch.flat([100, 100], n_degree=3)
             patch.debug(splinesteps=8, showcps=True, showpatch=True)
+
         """
         return debug_bezier_patches(
             [self],  # type: ignore[list-item]
@@ -1612,6 +1651,7 @@ def debug_bezier_patches(
     Returns:
         A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patch
         surfaces, control nets, and control-point markers.
+
     """
     from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
 

@@ -52,7 +52,8 @@ def _dual(
     faces: list[list[int]],
 ) -> tuple[list[list[float]], list[list[int]]]:
     """The dual polyhedron: new vertices are the (normalized) face centroids, new faces are the
-    rings of faces around each original vertex. Used to derive the dodecahedron from the icosahedron."""
+    rings of faces around each original vertex. Used to derive the dodecahedron from the icosahedron.
+    """
     verts_arr = np.asarray(verts, dtype=float)
     centroids = np.array([verts_arr[f].mean(axis=0) for f in faces])
     centroids = centroids / np.linalg.norm(centroids, axis=1)[:, None]
@@ -228,6 +229,7 @@ class Polyhedra:
 
                 from pybosl2.parts.polyhedra import Polyhedra, PlatonicSolid
                 Polyhedra.regular_polyhedron(PlatonicSolid.DODECAHEDRON, side=12).show()
+
         """
         key = Polyhedra._resolve(name)
         verts, faces, ratio = _SOLIDS[key]
@@ -323,6 +325,7 @@ class Polyhedra:
 
                 from pybosl2.parts.polyhedra import Polyhedra
                 Polyhedra.icosahedron(side=20).show()
+
         """
         return Polyhedra.regular_polyhedron(
             "icosahedron",

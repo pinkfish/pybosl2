@@ -460,6 +460,7 @@ def partition_path(
 
             wall = partition_path([40, "jigsaw", 10, "jigsaw yflip", 40], fn=24)
             wall.stroke(width=3).linear_extrude(height=30).show()
+
     """
     from pybosl2.path2d import Path2D
 
@@ -597,6 +598,7 @@ def partition_mask(
             from pybosl2.partitions import partition_mask
 
             (s3.cuboid([100, 100, 10]) & partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()
+
     """
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -643,8 +645,8 @@ def partition_cut_mask(
 
             mask = partition_cut_mask(height=10, cutsize=8, slop=0.3)
             mask.show()
-    """
 
+    """
     from pybosl2.shapes3d import Bosl2Solid
 
     cs = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator]
@@ -749,6 +751,7 @@ class Partitionable(ABC):
 
                 path = partition_path(["finger", 20, "finger"], seglen=25)
                 s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+
         """
         v3 = _as_vec3(v)
         if center is None:
@@ -900,6 +903,7 @@ class Partitionable(ABC):
 
                 halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
                 halves[0].show()
+
         """
         center_pt, size = self.bounds()  # type: ignore[attr-defined]
         cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]

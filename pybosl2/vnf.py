@@ -452,6 +452,7 @@ def contour(
                 return r
             paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)
             Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
+
     """
     bb, ps = _resolve_grid_2d(bounding_box, pixel_size, pixel_count, exact_bounds)
     xs, ys = _grid_axes_2d(bb, ps)
@@ -562,8 +563,7 @@ def _lofttri(
     reverse: bool,
     trimax: float,
 ) -> list[list[int]]:
-    """
-    Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2
+    """Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2
     _lofttri).
     """
     a1 = np.asarray(p1, dtype=float)
@@ -650,6 +650,7 @@ class VNF:
             grid = [[[x, y, 4 * math.sin(x / 6) * math.cos(y / 6)] for y in range(0, 60, 4)]
                     for x in range(0, 60, 4)]
             VNF.vertex_array(grid).polyhedron().show()
+
     """
 
     def __init__(self, vertices: list[list[float]] | None = None, faces: list[list[int]] | None = None) -> None:
@@ -686,7 +687,8 @@ class VNF:
         """Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward.
 
         Used to detect and fix inverted meshes (a swept/skinned surface whose winding came out
-        inside-out): ``vnf if vnf.volume() >= 0 else vnf.reverse()``."""
+        inside-out): ``vnf if vnf.volume() >= 0 else vnf.reverse()``.
+        """
         if not self.faces:
             return 0.0
         v = np.asarray(self.vertices, dtype=float)
@@ -735,6 +737,7 @@ class VNF:
             a = VNF.vertex_array([[ [0,0,0],[1,0,0] ], [ [0,1,0],[1,1,0] ]])
             b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])
             VNF.join([a, b]).polyhedron().show()
+
         """
         return cls.union(vnfs)
 
@@ -773,6 +776,7 @@ class VNF:
             )
             cut = cube_vnf.halfspace([0, 0, 1, 0], keep=True, closed=True)
             cut.polyhedron().show()
+
         """
         assert len(plane) == 4, "halfspace(): plane must be [A, B, C, D]."
         a, b, c, d = plane[0], plane[1], plane[2], plane[3]
@@ -886,6 +890,7 @@ class VNF:
             )
             above, below = cube_vnf.slice([0, 0, 1, 0], closed=True)
             above.polyhedron().show()
+
         """
         above = self.halfspace(plane, keep=True, closed=closed)
         below = self.halfspace(plane, keep=False, closed=closed)
@@ -919,6 +924,7 @@ class VNF:
             row_wrap: Close the row direction into a torus.
             reverse: Flip face winding.
             style: Triangulation method.
+
         """
         assert style in (
             "default",
@@ -1174,6 +1180,7 @@ class VNF:
                 Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),
                 voxel_size=2,
             ).polyhedron().show()
+
         """
         from pybosl2.path3d import Path3D
 
@@ -1312,6 +1319,7 @@ class VNF:
                 Bounds3D(-40, -20, -20, 40, 20, 20, 80, 40, 40),
                 voxel_size=2,
             ).polyhedron().show()
+
         """
         assert spec, "from_metaballs(): the spec is empty."
 
@@ -1393,6 +1401,7 @@ class VNF:
             closed:   the stack loops back to the first profile (default False)
             style:    vnf_vertex_array quad-subdivision style
             z:        per-profile Z heights, required when the profiles are 2-D
+
         """
         from pybosl2.skin import _skin
 

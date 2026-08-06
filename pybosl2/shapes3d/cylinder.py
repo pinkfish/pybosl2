@@ -180,6 +180,7 @@ def cylinder(
             from pybosl2 import shapes3d as s3
 
             s3.cylinder(height=30, radius=12, rounding=2).show()
+
     """
     return cyl(
         height=height,
@@ -344,6 +345,7 @@ def cyl(
 
             shape = cyl(radius=12, height=35, rounding=3)
             shape.show()
+
     """
     if texture is not None and texture != "none":
         raise NotImplementedError("texture= (VNF surface texturing) is not supported by this pure-Python port.")
@@ -575,6 +577,7 @@ def xcyl(
 
             shape = xcyl(radius=10, height=30)
             shape.show()
+
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -680,6 +683,7 @@ def ycyl(
 
             shape = ycyl(radius=10, height=30)
             shape.show()
+
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -776,8 +780,7 @@ def zcyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """
-    A cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for
+    """A cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for
     argument details.
 
     Examples:
@@ -787,6 +790,7 @@ def zcyl(
 
             shape = zcyl(radius=10, height=30)
             shape.show()
+
     """
     return cyl(
         height=height,
@@ -915,6 +919,7 @@ def tube(
 
             shape = tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
             shape.show()
+
     """
     height = height if height is not None else (length if length is not None else 1)
     orr1 = _pick_radius(
@@ -1065,6 +1070,7 @@ def cone(
             from pybosl2 import shapes3d as s3
 
             s3.cone(height=30, radius1=15, radius2=3, chamfer=2).show()
+
     """
     r1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     r2 = _pick_radius(radius1=radius2, diameter1=diameter2, dflt=0)

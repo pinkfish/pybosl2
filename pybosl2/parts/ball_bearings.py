@@ -887,6 +887,7 @@ class BallBearings:
 
                 from pybosl2.parts.ball_bearings import BearingType, BallBearings
                 BallBearings.ball_bearing(BearingType.BEARING_608).show()
+
         """
         if trade_size is not None:
             if isinstance(trade_size, str):

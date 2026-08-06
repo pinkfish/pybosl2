@@ -117,6 +117,7 @@ class Anchor(Enum):
         Raises:
             TypeError: For axis presets (``ALL``, ``NONE``, ``X``, ``Y``, ``Z``)
                        that don't represent a geometric point.
+
         """
         if isinstance(self.value, str):
             raise TypeError(f"Anchor.{self.name} is an axis preset, not a point -- use an edge/face/corner member")
@@ -140,6 +141,7 @@ class Anchor(Enum):
 
         Raises:
             TypeError: For axis presets (``ALL``, ``NONE``, ``X``, ``Y``, ``Z``).
+
         """
         v = self.vector
         return Point((v[0], v[1] + v[2]))
@@ -163,6 +165,7 @@ class Anchor(Enum):
 
         Raises:
             TypeError: For axis presets that don't represent a geometric point.
+
         """
         if isinstance(self.value, str):
             raise TypeError(f"Anchor.{self.name} is an axis preset, not iterable")
@@ -173,6 +176,7 @@ class Anchor(Enum):
 
         Raises:
             TypeError: For axis presets that don't represent a geometric point.
+
         """
         if isinstance(self.value, str):
             raise TypeError(f"Anchor.{self.name} is an axis preset, not indexable")
@@ -183,6 +187,7 @@ class Anchor(Enum):
 
         Raises:
             TypeError: For axis presets that don't represent a geometric point.
+
         """
         if isinstance(self.value, str):
             raise TypeError(f"Anchor.{self.name} is an axis preset, has no length")
@@ -312,6 +317,7 @@ def resolve_anchor(anchor: Anchor | list[int | float] | list[list[int]]) -> Anch
 
     Raises:
         ValueError: If the specifier is unrecognised or is a legacy string.
+
     """
     if isinstance(anchor, Anchor):
         return anchor
@@ -340,6 +346,7 @@ def _edge_set(
 
     Returns:
         A ``[[int×4],[int×4],[int×4]]`` edge matrix.
+
     """
     if isinstance(v, str):
         raise ValueError(f"Legacy string edge selection is not allowed: {v!r}")
@@ -372,6 +379,7 @@ def edges(
 
     Returns:
         A ``[[int×4],[int×4],[int×4]]`` edge matrix.
+
     """
     if except_ is None:
         except_ = []

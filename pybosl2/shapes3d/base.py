@@ -106,7 +106,8 @@ def _osphere(
 def _as_native_3d(obj: object) -> "PyOpenSCAD":
     """A raw native handle from *obj*: a :class:`Bosl2Solid` / ``Bosl2Shape2D`` wrapper, a native
     shape, or anything exposing ``geometry()`` (a :class:`~pybosl2.vnf.VNF`, a
-    :class:`~pybosl2.paths.Path2D`, a :class:`~pybosl2.regions.Region`)."""
+    :class:`~pybosl2.paths.Path2D`, a :class:`~pybosl2.regions.Region`).
+    """
     from pybosl2._helpers import unwrap
 
     unwrapped = unwrap(obj)
@@ -216,19 +217,22 @@ class CsgSolid(BaseShape):
                 from pybosl2 import shapes3d as s3
 
                 s3.cuboid([10, 20, 30]).repair().show()
+
         """
         return self._wrap(self.shape.repair())
 
     def wrap(self, radius: float, fn: int | None = None) -> "Bosl2Solid":
         """Wrap this solid around a cylinder of radius *radius*, bending +X into the cylinder's
-        circumference (native ``wrap()``). *fn* sets the facet count of the bend."""
+        circumference (native ``wrap()``). *fn* sets the facet count of the bend.
+        """
         if fn is not None:
             return self._wrap(self.shape.wrap(r=float(radius), fn=float(fn)))
         return self._wrap(self.shape.wrap(r=float(radius)))
 
     def pull(self, direction: "Sequence[float] | np.ndarray", distance: float) -> "Bosl2Solid":
         """Pull the part of the solid on the +*direction* side apart by *distance*, stretching the
-        material between (native ``pull()``)."""
+        material between (native ``pull()``).
+        """
         return self._wrap(self.shape.pull([float(x) for x in direction], float(distance)))
 
     def oversample(self, sides: int) -> "Bosl2Solid":
@@ -242,12 +246,14 @@ class CsgSolid(BaseShape):
 
                 bar = s3.cuboid([80, 5, 3])
                 bar.oversample(sides=4).wrap(radius=20).show()
+
         """
         return self._wrap(self.shape.oversample(int(sides)))
 
     def separate(self) -> "list[Bosl2Solid]":
         """Split a solid made of disconnected lumps into a list of its connected components
-        (native ``separate()``)."""
+        (native ``separate()``).
+        """
         return [self._wrap(part) for part in self.shape.separate()]
 
     def inside(self, point: "Sequence[float] | np.ndarray") -> bool:
@@ -274,6 +280,7 @@ class CsgSolid(BaseShape):
 
                 capsule = s3.sphere(radius=8).hull(s3.sphere(radius=8).up(30))
                 capsule.show()
+
         """
         return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o) for o in others]))
 
@@ -301,6 +308,7 @@ class CsgSolid(BaseShape):
 
                 part = s3.cuboid([30, 20, 10], rounding=3)
                 part.projection().offset(radius=2).linear_extrude(height=2).show()
+
         """
         from pybosl2.shapes2d import Bosl2Shape2D
 
@@ -367,6 +375,7 @@ class CsgSolid(BaseShape):
 
         Returns:
             A :class:`Bosl2Solid` union of all positioned copies.
+
         """
         import math
 
@@ -426,7 +435,8 @@ class CsgSolid(BaseShape):
     def _native_bounds(self) -> "tuple[list[float], list[float]] | None":
         """The object's axis-aligned bounding box as (mincorner, size), read from the native
         obj.position/obj.size. Returns None when those accessors aren't available (the numeric
-        test mock) or the geometry is empty/degenerate (native returns None)."""
+        test mock) or the geometry is empty/degenerate (native returns None).
+        """
         try:
             pos = self.shape.position
             sz = self.shape.size
@@ -473,7 +483,8 @@ class CsgSolid(BaseShape):
         purpose (a shape with an overhang, a mask positioned against a nominal box, or a cheap way
         to skip the meshing the native bbox needs). It is a min/max corner pair
         ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]`` (the same shape :meth:`Path2D.bounds` and
-        the native ``obj.bbox`` use)."""
+        the native ``obj.bbox`` use).
+        """
         if bbox is None:
             return self.bounds()
         arr = np.asarray(bbox, dtype=float)
@@ -494,6 +505,7 @@ class CsgSolid(BaseShape):
         Args:
             anchor: An :class:`Anchor` enum or a sequence of three floats.
             bbox: Optional override bounding box.
+
         """
         center, size = self._resolve_bounds(bbox)
         a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
@@ -510,6 +522,7 @@ class CsgSolid(BaseShape):
             from pybosl2 import shapes3d as s3, Anchor
 
             s3.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
+
         """
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1], -p[2]])
@@ -530,6 +543,7 @@ class CsgSolid(BaseShape):
             cube = s3.cuboid([30, 30, 10])
             knob = s3.sphere(radius=5)
             cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
+
         """
         p = self.anchor_point(anchor, bbox=bbox)
         csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
@@ -573,6 +587,7 @@ class CsgSolid(BaseShape):
             cube = s3.cuboid([30, 30, 10])
             label = s3.cuboid([10, 5, 5])
             cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
+
         """
         face = anchor.vector
         edge = Anchor.CENTER.vector if align is None else align.vector
@@ -619,6 +634,7 @@ class CsgSolid(BaseShape):
             cube = s3.cuboid([20, 30, 10])
             cyl = s3.cylinder(height=15, radius=4)
             cube.attach(Anchor.UP, cyl).show()
+
         """
         pa = parent_anchor.vector
         ca = -pa if child_anchor is None else child_anchor.vector
@@ -662,6 +678,7 @@ class CsgSolid(BaseShape):
             from pybosl2 import shapes3d as s3, Anchor
 
             s3.cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
+
         """
         from pybosl2.transforms import reorient as _reorient_matrix
 
@@ -683,6 +700,7 @@ class CsgSolid(BaseShape):
             from pybosl2 import shapes3d as s3
 
             s3.cylinder(height=30, radius=5).orient(s3.Anchor.TOP).show()
+
         """
         return self.reorient(anchor=Anchor.CENTER, spin=spin, orient=direction, bbox=bbox)
 
@@ -710,6 +728,7 @@ class CsgSolid(BaseShape):
             children:     the pre-built 3-D edge cutter
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
             tag:          override tag for attachment (default: AttachTag.REMOVE)
+
         """
         from pybosl2 import masking
 
@@ -760,6 +779,7 @@ class CsgSolid(BaseShape):
             r:            rounding radius alias
             d:            rounding diameter alias
             tag:          override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
+
         """
         from pybosl2 import masking
 
@@ -857,6 +877,7 @@ class CsgSolid(BaseShape):
             r:              rounding radius alias
             d:              rounding diameter alias
             tag:            override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
+
         """
         from pybosl2 import masking
 
@@ -967,7 +988,8 @@ class CsgSolid(BaseShape):
     def bounding_box(self, excess: float = 0) -> "Bosl2Solid":
         """The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
 
-        Uses the native bounding box, so it is exact and fast."""
+        Uses the native bounding box, so it is exact and fast.
+        """
         from pybosl2.shapes3d.cuboid import cuboid
 
         center, size = self.bounds()
@@ -976,7 +998,8 @@ class CsgSolid(BaseShape):
     def offset3d(self, radius: float, size: float = 1000, convexity: int = 10) -> "Bosl2Solid":
         """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
 
-        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly."""
+        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.
+        """
         _ = convexity
         from pythonscad import cube as _cube
         from pythonscad import minkowski as _mink
@@ -1000,7 +1023,8 @@ class CsgSolid(BaseShape):
         size: float = 1000,
     ) -> "Bosl2Solid":
         """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
-        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow."""
+        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.
+        """
         orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
         irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
         return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)
@@ -1100,6 +1124,7 @@ class CsgSolid(BaseShape):
 
             path = partition_path(["finger", "10x15", "finger"], seglen=25)
             s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+
         """
         v3 = np.asarray(v, dtype=float)
         if v3.shape[0] == 2:
@@ -1206,6 +1231,7 @@ class CsgSolid(BaseShape):
 
             halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
             halves[0].show()
+
         """
         from pybosl2.partitions import _partition_mask_shape
 
@@ -1273,7 +1299,8 @@ def _orient_rotate(shape: PyOpenSCAD, orient: Anchor | Sequence[float]) -> PyOpe
 def _rot_from_to(a: Sequence[float], b: Sequence[float]) -> "tuple[float, list[float]]":
     """(angle_degrees, axis) that rotates direction *a* onto direction *b*, for shape.rotate().
     Handles the parallel (no rotation) and antiparallel (180 deg about any perpendicular axis)
-    cases. Used by Bosl2Solid.attach() to point a child's mating face at a parent face."""
+    cases. Used by Bosl2Solid.attach() to point a child's mating face at a parent face.
+    """
     au, bu = unit(a), unit(b)
     diameter = max(-1.0, min(1.0, sum(au[i] * bu[i] for i in range(3))))
     if diameter > 1 - 1e-9:
@@ -1303,6 +1330,7 @@ def _resolve_center_anchor(
 
     Returns:
         The resolved anchor.
+
     """
     if center is not None:
         return Anchor.CENTER if center else default_if_false
@@ -1329,6 +1357,7 @@ def _finish3(
 
     Returns:
         A Bosl2Solid wrapping the finished geometry.
+
     """
     if offset[0] or offset[1] or offset[2]:
         shape = shape.translate(offset)

@@ -42,6 +42,7 @@ def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
 
     Returns:
         A flat list of :class:`Path2D` objects.
+
     """
     if geom.is_empty:
         return []
@@ -100,6 +101,7 @@ class Region:
                     [[20, 20], [60, 20], [60, 40], [20, 40]],
                 ])
                 region.geometry().linear_extrude(height=5).show()
+
     """
 
     def __init__(self, paths: Any = ()) -> None:
@@ -110,6 +112,7 @@ class Region:
                 single flat point list is treated as one outline.  A
                 ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also
                 accepted.
+
         """
         if isinstance(paths, (Polygon, MultiPolygon)):
             if paths.is_empty:
@@ -154,6 +157,7 @@ class Region:
 
         Returns:
             A list of :class:`Path2D` objects.
+
         """
         return _flatten_shapely_to_paths(self._polygon)
 
@@ -169,6 +173,7 @@ class Region:
 
         Returns:
             A ``shapely.Polygon`` or ``shapely.MultiPolygon``.
+
         """
         return self.geom
 
@@ -189,6 +194,7 @@ class Region:
 
         Returns:
             A :class:`Region` with the outline as the first path and holes as subsequent paths.
+
         """
         return cls([outline, *holes])
 
@@ -198,6 +204,7 @@ class Region:
 
         Returns:
             The first :class:`Path2D` in the region, which is the outer outline.
+
         """
         return self.paths[0] if self.paths else Path2D([])
 
@@ -207,6 +214,7 @@ class Region:
 
         Returns:
             All :class:`Path2D` objects after the first, which are the interior holes.
+
         """
         return self.paths[1:]
 
@@ -225,6 +233,7 @@ class Region:
 
         Returns:
             A new :class:`Region` with every path offset by the given parameters.
+
         """
         return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self.paths])
 
@@ -252,6 +261,7 @@ class Region:
 
         Returns:
             A new :class:`Region` with rounded corners on every path.
+
         """
         return Region(
             [
@@ -276,6 +286,7 @@ class Region:
 
         Returns:
             A new :class:`Region` with every path translated.
+
         """
         return Region([p.translate(v) for p in self.paths])
 
@@ -284,6 +295,7 @@ class Region:
 
         Returns:
             A numpy array ``[[min_x, min_y], [max_x, max_y]]``.
+
         """
         assert self.paths, "empty Region has no bounds"
         all_pts = np.vstack([p.array for p in self.paths])
@@ -295,6 +307,7 @@ class Region:
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
             operators and the extruders.
+
         """
         shape = self.outline.polygon()
         for hole in self.holes:
@@ -308,6 +321,7 @@ class Region:
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
+
         """
         return self.geometry().fill()
 
@@ -329,6 +343,7 @@ class Region:
 
         Raises:
             ValueError: If any passed :class:`Path2D` is not closed.
+
         """
         from shapely.ops import unary_union
 
@@ -381,6 +396,7 @@ class Region:
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or
             :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).
+
         """
         from pybosl2._backend import current_backend, get_backend
         from pybosl2.exceptions import UnsupportedByBackendError
@@ -422,6 +438,7 @@ class Region:
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no
             revolve).
+
         """
         return self.geometry().rotate_extrude(angle, fn=fn, fa=fa, fs=fs)
 
@@ -476,6 +493,7 @@ class Region:
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
+
         """
         import operator
         from functools import reduce
@@ -528,6 +546,7 @@ class Region:
                 a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
                 b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
                 a.intersection(b).geometry().linear_extrude(height=3).show()
+
         """
         if isinstance(other, Path2D):
             if not other.closed:
@@ -561,6 +580,7 @@ class Region:
                 a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
                 b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])
                 a.union(b).geometry().linear_extrude(height=3).show()
+
         """
         if isinstance(other, Path2D):
             if not other.closed:
@@ -594,6 +614,7 @@ class Region:
                 plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])
                 notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])
                 plate.difference(notch).geometry().linear_extrude(height=4).show()
+
         """
         if isinstance(other, Path2D):
             if not other.closed:
@@ -616,6 +637,7 @@ class Region:
 
         Returns:
             A :class:`Region` with the symmetric difference area.
+
         """
         if isinstance(other, Path2D):
             if not other.closed:
