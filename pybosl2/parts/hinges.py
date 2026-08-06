@@ -59,6 +59,7 @@ class Hinges:
                 from pybosl2.parts.hinges import Hinges
                 from pybosl2 import shapes3d as s3
                 (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).down(1.5)).show()
+
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         top = hingegap + 2 * thick / math.tan(math.radians(foldangle / 2))
@@ -127,6 +128,7 @@ class Hinges:
 
                 from pybosl2.parts.hinges import Hinges
                 Hinges.knuckle_hinge_pair(fold=90).show()
+
         """
         outer = Hinges.knuckle_hinge(
             length,
@@ -174,8 +176,7 @@ class Hinges:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """
-        A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
+        """A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
         snap_lock()).
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop

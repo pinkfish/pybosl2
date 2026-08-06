@@ -53,7 +53,8 @@ def _segs(r: float) -> int:
 def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:
     """A hexagonal ring of packing centres spaced *d* apart (BOSL2 _hex_offset_ring()).
 
-    ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points."""
+    ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points.
+    """
     if lev == 0:
         return [[0.0, 0.0]]
     r = lev * d  # hexagon circumradius; side length == r
@@ -72,7 +73,8 @@ def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:
 def _hex_offsets(n: int, d: float) -> list[list[float]]:
     """Centres for the optimal hex packing of at least *n* circles of spacing *d* (BOSL2 _hex_offsets()).
 
-    Fills out the final ring, so the result may hold more than *n* points."""
+    Fills out the final ring, so the result may hold more than *n* points.
+    """
     arr: list[list[float]] = []
     lev = 0
     while len(arr) < n:
@@ -91,8 +93,7 @@ class Wiring:
 
     @staticmethod
     def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
-        """
-        The centre points for the optimal hexagonal packing of at least *sides* circles spaced
+        """The centre points for the optimal hexagonal packing of at least *sides* circles spaced
         *diameter* apart.
         """
         return _hex_offsets(sides, diameter)
@@ -120,6 +121,7 @@ class Wiring:
                 from pybosl2.parts.wiring import Wiring
                 Wiring.wire_bundle([[50, 0, -50], [50, 50, -50], [0, 50, -50],
                                     [0, 0, -50], [0, 0, 0]], wires=13, rounding=10).show()
+
         """
         if wires < 1:
             raise ValueError("wire_bundle() needs at least one wire.")

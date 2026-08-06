@@ -117,6 +117,7 @@ def square(
             from pybosl2 import shapes2d as s2
 
             s2.square(20).linear_extrude(height=5).show()
+
     """
     assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
@@ -158,6 +159,7 @@ def rect(
         fn: arc smoothness overrides for rounded corners
         fa: arc smoothness overrides for rounded corners
         fs: arc smoothness overrides for rounded corners
+
     """
     rl = [float(rounding)] * 4 if isinstance(rounding, (int, float)) else [float(v) for v in rounding]
     cl = [float(chamfer)] * 4 if isinstance(chamfer, (int, float)) else [float(v) for v in chamfer]
@@ -205,6 +207,7 @@ def rect_path(
         For small radii this can emit one more point per corner than the real BOSL2 does
         (BOSL2 rounds the corner-arc segment count, this rounds up); the arc geometry is
         identical, only the sampling differs.
+
     """
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     path = _rect_path(sz, rounding=rounding, chamfer=chamfer, fn=fn, fa=fa, fs=fs)
@@ -223,6 +226,7 @@ def polygon(
         path:   polygon path
         anchor: anchor point (default CENTER)
         spin:   Z-axis rotation in degrees after anchor (default 0)
+
     """
     return _finish(_opolygon(path), anchor, spin)
 
@@ -337,6 +341,7 @@ def regular_ngon(
             from pybosl2 import shapes2d as s2
 
             s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()
+
     """
     assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
     assert sides >= 3
@@ -531,6 +536,7 @@ def right_triangle(
             from pybosl2 import shapes2d as s2
 
             s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()
+
     """
     assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
@@ -659,6 +665,7 @@ def trapezoid(
             from pybosl2 import shapes2d as s2
 
             s2.trapezoid(height=20, width1=30, width2=15).linear_extrude(height=5).show()
+
     """
     defined = sum(x is not None for x in (height, width1, width2, angle))
     assert defined == 3, "Must give exactly 3 of the arguments height, width1, width2, and angle."

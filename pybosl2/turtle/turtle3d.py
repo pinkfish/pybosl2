@@ -142,6 +142,7 @@ class Turtle3DState:
         step: The move-length scale factor.
         angle: The default turn angle in degrees.
         arcsteps: The number of arc subdivisions (0 means auto).
+
     """
 
     transforms: list[np.ndarray] = field(default_factory=lambda: [np.eye(4)])
@@ -185,6 +186,7 @@ class Turtle3D:
                 TurtleCommand(Tct.ARCLEFT, radius=3),
             ]).points()
             Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
+
     """
 
     def __init__(self, state: Any = RIGHT) -> None:
@@ -195,6 +197,7 @@ class Turtle3D:
 
         Returns:
             self.
+
         """
         for _ in range(int(repeat)):
             for idx, cmd in enumerate(commands):
@@ -220,6 +223,7 @@ class Turtle3D:
 
         Returns:
             A :class:`Bosl2Solid` representing the tubular stroke.
+
         """
         from pybosl2.path3d import Path3D
 
@@ -845,5 +849,6 @@ def turtle3d(
                 TurtleCommand(Tct.ARCLEFT, radius=3),
             ]).points()
             Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
+
     """
     return Turtle3D(state).run(commands, repeat)

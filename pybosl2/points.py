@@ -51,6 +51,7 @@ class Point(Sequence[float]):
             p3 = Point(10.0, 20.0, 5.0)
             assert not p3.is_2d
             assert len(p3) == 3
+
     """
 
     x: float
@@ -174,6 +175,7 @@ class Point(Sequence[float]):
 
         Raises:
             ValueError: If this point is 2‑D (cross product requires 3‑D vectors).
+
         """
         if self.is_2d:
             raise ValueError("cross() requires a 3‑D point")
@@ -191,6 +193,7 @@ class Point(Sequence[float]):
 
         Raises:
             ValueError: If the sequence has fewer than 2 or more than 3 elements.
+
         """
         arr = np.asarray(seq, dtype=float)
         if arr.shape[0] == 2:

@@ -358,6 +358,7 @@ class BottleCaps:
 
                 from pybosl2.parts.bottlecaps import BottleCaps
                 BottleCaps.pco1810_neck(fa=6).show()
+
         """
         return _build_neck(_PCO1810, _pco1810_profile(_PCO1810), bottom_half=True, fn=fn, fa=fa, fs=fs)
 
@@ -379,6 +380,7 @@ class BottleCaps:
 
                 from pybosl2.parts.bottlecaps import BottleCaps
                 BottleCaps.pco1810_cap(fa=6).show()
+
         """
         return _build_cap(_PCO1810, wall, texture, fn=fn, fa=fa, fs=fs)
 
@@ -393,6 +395,7 @@ class BottleCaps:
 
                 from pybosl2.parts.bottlecaps import BottleCaps
                 BottleCaps.pco1881_neck(fa=6).show()
+
         """
         return _build_neck(_PCO1881, _pco1881_profile(_PCO1881), bottom_half=False, fn=fn, fa=fa, fs=fs)
 
@@ -405,5 +408,6 @@ class BottleCaps:
         fs: float | None = None,
     ) -> Bosl2Solid:
         """A cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls
-        back to a plain wall (surface texturing is not in this port)."""
+        back to a plain wall (surface texturing is not in this port).
+        """
         return _build_cap(_PCO1881, wall, texture, fn=fn, fa=fa, fs=fs)

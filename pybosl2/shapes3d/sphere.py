@@ -99,6 +99,7 @@ def sphere(
 
             shape = sphere(radius=15)
             shape.show()
+
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     if circumscribe:
@@ -139,6 +140,7 @@ def spheroid(
             from pybosl2 import shapes3d as s3
 
             s3.spheroid(radius=15).show()
+
     """
     return sphere(
         radius=radius,
@@ -248,6 +250,7 @@ def teardrop(
 
             shape = teardrop(radius=8, angle=45, height=15)
             shape.show()
+
     """
     length = height if height is not None else 1.0
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -319,6 +322,7 @@ def onion(
             from pybosl2 import shapes3d as s3
 
             s3.onion(radius=15).show()
+
     """
     from pybosl2._helpers import arc_points as _arc_points
     from pybosl2._native import native

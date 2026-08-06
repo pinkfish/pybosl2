@@ -81,7 +81,8 @@ def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -
     """3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions:
     `a` a lone angle (degrees) with an explicit axis `v`, or (v is None) `a` a 3-vector of Euler
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
-    rotate([x, y, z]) uses."""
+    rotate([x, y, z]) uses.
+    """
     if v is not None:
         return _axis_angle_matrix(cast("float", a), v)
     ax, ay, az = a  # type: ignore[misc]
@@ -112,7 +113,8 @@ def _rounded_box_sdf(x: LVTree, y: LVTree, z: LVTree, size: list[float], r: floa
 
 def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str) -> tuple[list[list[float]], list[list[str]]]:
     """The per-edge treatment state for a single (amount, edge_set, mode) selection, as the
-    3x4 amounts/modes matrices _cuboid_edge_sdf() consumes (EDGE_OFFSETS row/column order)."""
+    3x4 amounts/modes matrices _cuboid_edge_sdf() consumes (EDGE_OFFSETS row/column order).
+    """
     amounts = [[amount if edge_set[a][i] else 0.0 for i in range(4)] for a in range(3)]
     modes = [[mode] * 4 for _ in range(3)]
     return amounts, modes
@@ -348,7 +350,8 @@ class SdfSolid(Distributable):
         """Reflect across the plane through the origin with normal `v` (`f(p) -> f(Mp)`, with
         M the Householder reflection), exact and free, matching the real mirror(). Drops
         cuboid_size/cuboid_center metadata, same rationale as rotate(): edge selectors are
-        pre-transform concepts."""
+        pre-transform concepts.
+        """
         nx, ny, nz = (float(a) for a in v)
         nlen = math.sqrt(nx * nx + ny * ny + nz * nz)
         assert nlen > 0, "mirror() normal must be nonzero"
@@ -430,7 +433,8 @@ class SdfSolid(Distributable):
 
         Exact -- the meshed surface IS the field's zero set. This is the supported bridge for mixing
         an SDF shape into CSG booleans (``csg_solid | sdf_solid.to_csg()``). Needs libfive at call
-        time (like any SDF meshing)."""
+        time (like any SDF meshing).
+        """
         from pybosl2.shapes3d import Bosl2Solid
 
         return Bosl2Solid(self.mesh())
@@ -641,6 +645,7 @@ class SdfSolid(Distributable):
         Raises:
             ~pybosl2.exceptions.UnsupportedByBackendError: always. Convert first
             (``shape.to_csg().projection()``) if a meshed projection is acceptable.
+
         """
         _ = cut
         from pybosl2.exceptions import UnsupportedByBackendError
@@ -662,7 +667,8 @@ class SdfSolid(Distributable):
 def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
     """Varargs-or-single-iterable: `union(a, b)` and `union([a, b])` both work, matching the
     two calling conventions the box libraries already mix (OpenSCAD-style children vs.
-    pybosl2-style list arguments)."""
+    pybosl2-style list arguments).
+    """
     if len(shapes) == 1 and isinstance(shapes[0], (list, tuple)):
         shapes = tuple(shapes[0])
     out = list(shapes)
@@ -676,7 +682,8 @@ def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
 def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list[Any]) -> LVTree:
     """Reduce `vals` with `op` as a balanced tree (depth log n) rather than a left fold
     (depth n) -- same node count either way, but libfive re-evaluates the whole expression
-    per sample point and shallow trees keep its interval pruning effective on wide unions."""
+    per sample point and shallow trees keep its interval pruning effective on wide unions.
+    """
     while len(vals) > 1:
         vals = [op(vals[i], vals[i + 1]) if i + 1 < len(vals) else vals[i] for i in range(0, len(vals), 2)]
     return vals[0]
@@ -689,7 +696,8 @@ def _support_points(points: ArrayLike, n_dirs: int) -> NDArray[np.float64]:
     The hull of the survivors is an inscribed approximation of the cloud's hull: exact at
     every vertex that is the unique maximizer of some kept direction (a cuboid's 8 corners
     all are, well before n_dirs reaches double digits), with error bounded by the direction
-    spacing for smooth clouds."""
+    spacing for smooth clouds.
+    """
     pts = np.asarray(points, dtype=float)
     i = np.arange(n_dirs)
     golden = math.pi * (3.0 - math.sqrt(5.0))
@@ -710,7 +718,8 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
     unit outward normals -- brute force over point triples (every non-degenerate triple whose
     plane has all points on one side is a hull face plane, deduplicated). O(n^4) in the point
     count, entirely fine for the tens-of-points sets convex_polyhedron()/hull() feed it, and
-    it happens once in Python at construction time, not per SDF evaluation."""
+    it happens once in Python at construction time, not per SDF evaluation.
+    """
     n = len(pts)
     scale = max(max(abs(v) for v in p) for p in pts) or 1.0
     eps = 1e-9 * scale
@@ -838,6 +847,7 @@ def cuboid(
             import pybosl2._sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, edges=Anchor.Z)
             shape.show()
+
     """
     if size is None:
         size = [1, 1, 1]
@@ -950,6 +960,7 @@ def wedge(
     Args:
         size:   [width, thickness, height]
         anchor: anchor point (default FRONT+LEFT+BOTTOM, matching pybosl2.shapes3d.wedge())
+
     """
     if size is None:
         size = [1, 1, 1]
@@ -996,6 +1007,7 @@ def sphere(
             import pybosl2._sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.sphere(radius=10)
             shape.show()
+
     """
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     sdf_fn = lambda x, y, z: lv.sqrt(x * x + y * y + z * z) - rad  # noqa: E731
@@ -1013,7 +1025,8 @@ def spheroid(
     res: int = 10,
 ) -> PyShape:
     """An approximate sphere; this pure-libfive port just builds a plain sphere() (matching
-    pybosl2.shapes3d.spheroid()'s own choice to ignore style/dual for its pure-Python port)."""
+    pybosl2.shapes3d.spheroid()'s own choice to ignore style/dual for its pure-Python port).
+    """
     return sphere(radius=radius, diameter=diameter, anchor=anchor, res=res)
 
 
@@ -1041,6 +1054,7 @@ def torus(
             import pybosl2._sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.torus(major_radius=15, minor_radius=5)
             shape.show()
+
     """
     _or = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
     _ir = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
@@ -1113,7 +1127,8 @@ def _cyl_edge_sdf(
     """_cylinder_sdf(), plus independent rounding/chamfer treatment of the bottom (amt1) and
     top (amt2) rim, using the same per-candidate-quadrant masking technique as
     pybosl2.shapes3d.cuboid() (but only 2 candidates -- top/bottom -- since the radial
-    coordinate has no sign ambiguity to select between, unlike a rectangle's 4 corners)."""
+    coordinate has no sign ambiguity to select between, unlike a rectangle's 4 corners).
+    """
     hb = h / 2
     wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
     candidates = []
@@ -1196,6 +1211,7 @@ def cyl(
             import pybosl2._sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cyl(height=20, radius=8, rounding=2)
             shape.show()
+
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -1463,7 +1479,8 @@ def pie_slice(
     """A pie slice (wedge of a cylinder/cone), as a libfive SDF: a cylinder intersected with
     an angular sector (built from 1-2 half-planes -- `angle` is a plain Python float fixed at
     construction time, so choosing intersection vs union of the two half-planes based on
-    `angle <= 180` is an ordinary Python conditional, not a per-point SDF branch)."""
+    `angle <= 180` is an ordinary Python conditional, not a per-point SDF branch).
+    """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
     rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=10)
@@ -1522,6 +1539,7 @@ def prismoid(
         shift:  [X,Y] shift of the top center relative to the bottom center
         anchor: anchor point (default BOTTOM)
         res:    libfive meshing resolution passed to frep() (default 10)
+
     """
     if shift is None:
         shift = [0, 0]
@@ -1579,6 +1597,7 @@ def rect_tube(
         inner_rounding: inner vertical-edge rounding radius (default: same as `rounding`)
         anchor:    anchor point (default BOTTOM)
         res:       libfive meshing resolution passed to frep() (default 10)
+
     """
     length = height if height is not None else (length if length is not None else 1)
     assert size is not None, "rect_tube(): must give size."
@@ -1761,6 +1780,7 @@ def polygon_prism(
         rounding_top:    top-rim treatment: >0 roundover radius, <0 flare, 0 square (default 0)
         rounding_bottom: bottom-rim treatment, same convention (default 0)
         res:             libfive meshing resolution passed to frep() (default 10)
+
     """
     if not isinstance(paths, (list, np.ndarray)):
         raise TypeError(f"polygon_prism(): paths must be a list of points or numpy array, got {type(paths).__name__}")
@@ -1868,6 +1888,7 @@ def teardrop(
             import pybosl2._sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.teardrop(height=10, radius=8)
             shape.show()
+
     """
     length = height if height is not None else 1
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
@@ -1973,6 +1994,7 @@ def heightfield(
         bottom: Z coordinate for the bottom of the object (default -20)
         maxz:   maximum height to model, taller values are clamped (default 99)
         res:    libfive meshing resolution passed to frep() (default 10)
+
     """
     if size is None:
         size = [100, 100]
@@ -2028,6 +2050,7 @@ def regular_prism(
         realign: rotate so a face centre (not vertex) faces +X (default False)
         anchor:  anchor point (default CENTER)
         res:     meshing resolution (default 10)
+
     """
     import math as _m
 
@@ -2250,6 +2273,7 @@ def stroke_3d(
 
     Returns:
         A :class:`PyShape` union of the tube segments.
+
     """
     import numpy as np
 

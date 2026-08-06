@@ -67,8 +67,7 @@ class NemaSteppers:
 
     @staticmethod
     def nema_motor_info(size: int) -> NemaSpec:
-        """
-        The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
+        """The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
         nema_motor_info()).
         """
         try:
@@ -97,6 +96,7 @@ class NemaSteppers:
 
                 from pybosl2.parts.nema_steppers import NemaSteppers
                 NemaSteppers.nema_stepper_motor(size=17).show()
+
         """
         s = NemaSteppers.nema_motor_info(size)
         if size < 23:

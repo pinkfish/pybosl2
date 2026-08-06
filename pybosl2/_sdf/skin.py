@@ -125,6 +125,7 @@ def _revolve_sdf(
         angle:    degrees to revolve (default 360 for full solid of revolution)
         _fn:      facet count for circular sampling (auto if None)
         res:      meshing resolution (default 10)
+
     """
     sf = shape2d._sdf_fn
     full_rev = abs(angle - 360.0) < 1e-9
@@ -178,6 +179,7 @@ def _linear_sweep_sdf(
         center:   centre the extrusion on Z (default: sits on z=0..height)
         slices:   number of intermediate slabs (auto-chosen if None)
         res:      meshing resolution (default 10)
+
     """
     _ = slices
     sf = shape2d._sdf_fn
@@ -244,6 +246,7 @@ def skin_sdf(
         shapes:  list of PyShape2D cross-sections, bottom to top
         z:       z-coordinates for each cross-section (must be strictly increasing)
         res:     meshing resolution (default 10)
+
     """
     assert len(shapes) >= 2, "skin_sdf(): need at least 2 profiles"
     assert len(shapes) == len(z), "skin_sdf(): shapes and z must have same length"
@@ -301,6 +304,7 @@ def mesh_to_vnf(shape: PyShape) -> tuple[list[list[float]], list[list[int]]]:
     Returns:
         ``(vertices, faces)`` where *vertices* is ``[[x,y,z], ...]`` and
         *faces* is ``[[i, j, k], ...]`` of vertex indices.
+
     """
     mesh = shape.mesh()
     # Access the underlying mesh data via the cached geometry object

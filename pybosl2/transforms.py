@@ -80,7 +80,8 @@ def rot_about_axis(
     """4x4 matrix rotating *angle* degrees about the line through *center* in direction *axis*.
 
     The 4x4 form of BOSL2's ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate
-    back."""
+    back.
+    """
     m = np.eye(4)
     m[:3, :3] = axis_angle_matrix(angle, axis)
     cpv = np.asarray(center, dtype=float)
@@ -89,8 +90,7 @@ def rot_about_axis(
 
 
 def rot_inverse(t: np.ndarray) -> np.ndarray:
-    """
-    Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
+    """Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
     un-translate.
     """
     t = np.asarray(t, dtype=float)
@@ -107,7 +107,8 @@ def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
     Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,
     *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the
-    complementary (>180 degree) rotation about the reversed axis is chosen."""
+    complementary (>180 degree) rotation about the reversed axis is chosen.
+    """
     from pybosl2.points import Point
 
     m = np.asarray(m, dtype=float)
@@ -167,6 +168,7 @@ def reorient(
         spin:   rotation about Z in degrees, applied after the anchor move (default 0)
         orient: direction the shape's UP is rotated onto (default UP)
         size:   [x, y, z] size the anchor is resolved against (default [0, 0, 0])
+
     """
     anchor = (0.0, 0.0, 0.0) if anchor is None else list(anchor.vector) if isinstance(anchor, Anchor) else anchor
     orient = (0.0, 0.0, 1.0) if orient is None else (list(orient.vector) if isinstance(orient, Anchor) else orient)

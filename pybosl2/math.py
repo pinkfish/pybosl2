@@ -130,8 +130,7 @@ def deriv(
 def deriv2(
     data: Sequence[float] | Sequence[Sequence[float]] | np.ndarray, height: float = 1, closed: bool = False
 ) -> np.ndarray:
-    """
-    Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an
+    """Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an
     ndarray.
     """
     arr = np.asarray(data, dtype=float)
@@ -224,6 +223,7 @@ def slerp(a: Sequence[float], b: Sequence[float], t: float) -> list[float]:
 
     Raises:
         ValueError: If either vector has zero length or the vectors are 180° apart.
+
     """
     na: float = _math.sqrt(sum(x * x for x in a))
     nb: float = _math.sqrt(sum(x * x for x in b))
@@ -264,6 +264,7 @@ def slerpn(
 
     Raises:
         ValueError: If either vector has zero length or the vectors are 180° apart.
+
     """
     na: float = _math.sqrt(sum(x * x for x in a))
     nb: float = _math.sqrt(sum(x * x for x in b))
@@ -299,6 +300,7 @@ def modang(x: float) -> float:
 
     Returns:
         The equivalent angle in [-180, 180).
+
     """
     ang: float = x % 360.0
     if ang >= 180.0:
@@ -322,6 +324,7 @@ def constrain(
 
     Returns:
         The constrained value.
+
     """
     result: float = v
     if minval is not None and result < minval:
@@ -343,6 +346,7 @@ def quant(v: float, unit: float) -> float:
 
     Raises:
         ValueError: If *unit* is not positive.
+
     """
     if unit <= 0.0:
         raise ValueError(f"Quantum must be positive, got {unit}")
@@ -360,6 +364,7 @@ def mean(v: Sequence[float]) -> float:
 
     Raises:
         ValueError: If *v* is empty.
+
     """
     if len(v) == 0:
         raise ValueError("Cannot compute mean of an empty sequence")

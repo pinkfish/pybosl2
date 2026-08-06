@@ -88,6 +88,7 @@ class Turtle2DState:
         step: The current step vector ``[dx, dy]`` controlling direction and length.
         angle: The default turn angle in degrees used when no explicit angle is given.
         arcsteps: The number of subdivisions for arc commands (0 means auto).
+
     """
 
     path: list[list[float]] = field(default_factory=lambda: [[0.0, 0.0]])
@@ -145,6 +146,7 @@ class Turtle2D:
             ]
             path = Turtle2D().run(cmds).points()
             path.stroke(width=3, closed=True).linear_extrude(height=4).show()
+
     """
 
     def __init__(self, state: Turtle2DState | None = None) -> None:
@@ -157,6 +159,7 @@ class Turtle2D:
 
         Returns:
             self.
+
         """
         for _ in range(int(repeat)):
             for idx, cmd in enumerate(commands):
@@ -182,6 +185,7 @@ class Turtle2D:
 
         Returns:
             A :class:`Path2D` of the stroked polygon outline.
+
         """
         path = self.points()
         if cap is not None:
@@ -199,6 +203,7 @@ class Turtle2D:
 
         Raises:
             ValueError: If *cmd* involves the z-axis or is an unknown command.
+
         """
         if cmd.cmd_type in _Z_AXIS_COMMANDS:
             if cmd.cmd_type == TurtleCommandType.XYZMOVE:
@@ -560,5 +565,6 @@ def turtle2d(
                 TurtleCommand(Tct.ARCLEFT, radius=8),
             ]).points()
             path.stroke(width=3, closed=True).linear_extrude(height=4).show()
+
     """
     return Turtle2D(state).run(commands, repeat)

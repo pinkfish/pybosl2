@@ -117,6 +117,7 @@ def dashed_stroke_3d(
 
     Returns:
         A :class:`Bosl2Solid` union of all dash tubes.
+
     """
     from pybosl2.shapes3d import Bosl2Solid
 

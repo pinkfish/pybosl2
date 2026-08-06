@@ -41,7 +41,8 @@ def _rect(x0: float, x1: float, y0: float, y1: float) -> Any:
 
 def _circle_2tangents(r: float, p1: list[float], p2: list[float], p3: list[float]) -> list[float]:
     """Centre of the circle of radius *r* tangent to segments p2->p1 and p2->p3 (BOSL2
-    circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here)."""
+    circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here).
+    """
     p1a, p2a, p3a = (np.asarray(p, dtype=float) for p in (p1, p2, p3))
     v1 = (p1a - p2a) / np.linalg.norm(p1a - p2a)
     v2 = (p3a - p2a) / np.linalg.norm(p3a - p2a)
@@ -78,6 +79,7 @@ class Walls:
 
                 from pybosl2.parts.walls import Walls
                 Walls.narrowing_strut(w=10, length=100, wall=5, angle=30).show()
+
         """
         height = wall + w / 2 / math.tan(math.radians(angle))
         profile = [[-w / 2, 0], [w / 2, 0], [w / 2, wall], [0, height], [-w / 2, wall]]
@@ -104,6 +106,7 @@ class Walls:
 
                 from pybosl2.parts.walls import Walls
                 Walls.sparse_wall(height=50, length=100, thick=4).show()
+
         """
         region = Walls._sparse_wall2d(height, length, maxang, strut, max_bridge)
         shape = region.linear_extrude(height=thick, center=True).rotate([0, 90, 0])
@@ -170,6 +173,7 @@ class Walls:
 
                 from pybosl2.parts.walls import Walls
                 Walls.sparse_cuboid(size=[50, 40, 10], dir="Y", strut=3).show()
+
         """
         sx, sy, sz = (float(v) for v in (size if not isinstance(size, (int, float)) else (size, size, size)))
         diameter = str(dir).upper()
@@ -201,6 +205,7 @@ class Walls:
 
                 from pybosl2.parts.walls import Walls
                 Walls.corrugated_wall(height=50, length=100, thick=5).show()
+
         """
         amplitude = (thick - wall) / 2
         period = min(15, thick * 2)
@@ -234,6 +239,7 @@ class Walls:
 
                 from pybosl2.parts.walls import Walls
                 Walls.thinning_wall(height=50, length=80, thick=4).show()
+
         """
         l1 = length[0] if isinstance(length, (list, tuple)) else length
         l2 = length[1] if isinstance(length, (list, tuple)) else length
@@ -363,6 +369,7 @@ class Walls:
 
                 from pybosl2.parts.walls import Walls
                 Walls.thinning_triangle(height=50, length=80, thick=4, center=True).show()
+
         """
         dang = math.degrees(math.atan(height / length))
         dlen = height / math.sin(math.radians(dang))

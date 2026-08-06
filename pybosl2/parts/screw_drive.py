@@ -49,8 +49,7 @@ __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 
 
 def _adj_ang_to_opp(adj: float, angle: float) -> float:
-    """
-    The opposite side of a right triangle given the adjacent side and angle (BOSL2
+    """The opposite side of a right triangle given the adjacent side and angle (BOSL2
     adj_ang_to_opp).
     """
     return adj * math.tan(math.radians(angle))
@@ -68,9 +67,7 @@ def _union(shapes: list[Any] | Any) -> Any:
 
 @dataclass(frozen=True)
 class PhillipsSpec:
-    """
-    Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`.
-    """
+    """Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`."""
 
     shaft: float  # shaft/outer diameter
     b: float  # cutout wing spacing radius
@@ -92,7 +89,8 @@ class TorxSpec:
 
     def as_tuple(self) -> tuple[float, float, float, float, float]:
         """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info``
-        list."""
+        list.
+        """
         return (self.outer_diameter, self.inner_diameter, self.depth, self.tip_rounding, self.inner_rounding)
 
 
@@ -224,6 +222,7 @@ class ScrewDrive:
                 from pybosl2.parts.screw_drive import ScrewDrive
                 from pybosl2 import shapes3d as s3
                 (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask(size="#2")).show()
+
         """
         if fn is None and fa is None and fs is None:
             fn = 36  # BOSL2 revolves the phillips body at a fixed $fn=36
@@ -263,8 +262,7 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_depth(size: str | int, diameter: float) -> float | None:
-        """
-        Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``
+        """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``
         (BOSL2 phillips_depth()).
         """
         spec = _PHILLIPS[_phillips_num(size)]
@@ -276,8 +274,7 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_diam(size: str | int, depth: float) -> float | None:
-        """
-        Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2
+        """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2
         phillips_diam()).
         """
         spec = _PHILLIPS[_phillips_num(size)]
@@ -307,9 +304,10 @@ class ScrewDrive:
 
     @staticmethod
     def torx_info(size: int) -> TorxSpec:
-        """
-        The :class:`TorxSpec` (outer_diameter/inner_diameter/depth/tip_rounding/inner_rounding) for a Torx *size* (BOSL2
-        torx_info()).
+        """Return the :class:`TorxSpec` for a given Torx *size*.
+
+        Maps to BOSL2 ``torx_info()``.  The spec holds outer_diameter, inner_diameter,
+        depth, tip_rounding, and inner_rounding.
         """
         try:
             return _TORX[int(size)]
@@ -373,6 +371,7 @@ class ScrewDrive:
 
                 from pybosl2.parts.screw_drive import ScrewDrive
                 ScrewDrive.torx_mask(size=30, l=10).show()
+
         """
         outer_diameter = ScrewDrive.torx_diam(size)
         solid = ScrewDrive._torx_profile(size).linear_extrude(height=l, center=center)
@@ -389,6 +388,7 @@ class ScrewDrive:
             l: length of drive mask.
             angle: taper angle of each face (default 2.5, from BOSL2's print tests).
             slop: enlarge the recess by ``2 * slop``.
+
         """
         if isinstance(size, str):
             size = int(size.replace("#", ""))

@@ -51,9 +51,7 @@ def _union(shapes: list[Any]) -> Any:
 
 
 def _cmask(length: float, chamfer: float, orient: str | None = None) -> Bosl2Solid:
-    """
-    chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis).
-    """
+    """chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
     m = Bosl2Solid(chamfer_edge_mask(length=length, chamfer=chamfer))
     if orient == "RIGHT":
         return m.rotate([0, 90, 0])
@@ -68,7 +66,8 @@ def _yflip_copy(offset: float) -> Any:
 
 def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int, tuple[float, float, float]]:
     """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip
-    (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces."""
+    (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces.
+    """
     x, y = float(vec[0]), float(vec[1])
     w, length, hh = extents
     if y < 0:  # FRONT (-Y): FWD itself
@@ -107,8 +106,7 @@ class CubeTruss:
         size: float | None = None,
         strut: float | None = None,
     ) -> float:
-        """
-        The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2
+        """The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2
         cubetruss_dist()).
         """
         size = CUBETRUSS_SIZE if size is None else size
@@ -133,6 +131,7 @@ class CubeTruss:
 
                 from pybosl2.parts.cubetruss import CubeTruss
                 CubeTruss.cubetruss_segment().show()
+
         """
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
@@ -192,6 +191,7 @@ class CubeTruss:
                 from pybosl2.parts.cubetruss import CubeTruss
                 from pybosl2.constants import FRONT
                 CubeTruss.cubetruss(extents=3, clips=FRONT).show()
+
         """
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
@@ -262,6 +262,7 @@ class CubeTruss:
 
                 from pybosl2.parts.cubetruss import CubeTruss
                 CubeTruss.cubetruss_support(extents=2).show()
+
         """
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
@@ -332,6 +333,7 @@ class CubeTruss:
 
                 from pybosl2.parts.cubetruss import CubeTruss
                 CubeTruss.cubetruss_corner(extents=2).show()
+
         """
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut

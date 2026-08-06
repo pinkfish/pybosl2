@@ -71,6 +71,7 @@ def rainbow_colors(
             b = cuboid([5, 5, 10]).color(cols[1]).right(8)
             c = cuboid([5, 5, 10]).color(cols[2]).right(16)
             (a | b | c).show()
+
     """
     if sides <= 0:
         return []
@@ -106,6 +107,7 @@ def rainbow(
     Returns:
         A list of coloured objects, one per element of *items*, each
         preserving its original 2-D or 3-D type.
+
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
@@ -154,6 +156,7 @@ class Colorable(ABC):
         Returns:
             This object with the colour applied, or ``self`` unchanged when both
             *c* and *alpha* are ``None``.
+
         """
         if c is None and alpha is None:
             return self
@@ -172,6 +175,7 @@ class Colorable(ABC):
         Returns:
             This object recoloured, or ``self`` unchanged when *c* is ``"default"``
             or ``None``.
+
         """
         if c is None or c == "default":
             return self
@@ -190,6 +194,7 @@ class Colorable(ABC):
         Returns:
             This object coloured, or ``self`` unchanged when *c* is ``"default"``
             or ``None``.
+
         """
         if c is None or c == "default":
             return self
@@ -209,6 +214,7 @@ class Colorable(ABC):
 
         Returns:
             This object coloured with the computed ``[R, G, B]`` value.
+
         """
         rgb = list(colorsys.hls_to_rgb(height / 360, length, s))
         return self._color_native(rgb, a)
@@ -227,6 +233,7 @@ class Colorable(ABC):
 
         Returns:
             This object coloured with the computed ``[R, G, B]`` value.
+
         """
         rgb = list(colorsys.hsv_to_rgb(height / 360, s, v))
         return self._color_native(rgb, a)
@@ -241,6 +248,7 @@ class Colorable(ABC):
         Returns:
             This object with the highlight modifier applied, or *self* unchanged
             when *highlight* is ``False``.
+
         """
         return self._highlight_native() if highlight else self
 
@@ -254,5 +262,6 @@ class Colorable(ABC):
         Returns:
             This object with the ghost modifier applied, or *self* unchanged
             when *ghost* is ``False``.
+
         """
         return self._ghost_native() if ghost else self

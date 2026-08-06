@@ -137,6 +137,7 @@ class Path(ABC):
 
         Returns:
             An ndarray of segment lengths.
+
         """
         ...
 
@@ -146,6 +147,7 @@ class Path(ABC):
 
         Returns:
             The total path length as a float.
+
         """
         ...
 
@@ -158,6 +160,7 @@ class Path(ABC):
 
         Returns:
             An ndarray of cumulative length fractions, from 0 to 1.
+
         """
         ...
 
@@ -171,6 +174,7 @@ class Path(ABC):
 
         Returns:
             A :class:`~pybosl2.points.Point` of the closest point on the path.
+
         """
         ...
 
@@ -184,6 +188,7 @@ class Path(ABC):
 
         Returns:
             An ndarray of unit tangent vectors, one per path point.
+
         """
         ...
 
@@ -200,6 +205,7 @@ class Path(ABC):
 
         Returns:
             An ndarray of unit normal vectors, one per path point.
+
         """
         ...
 
@@ -212,6 +218,7 @@ class Path(ABC):
 
         Returns:
             An ndarray of curvature values, one per path point.
+
         """
         ...
 
@@ -224,6 +231,7 @@ class Path(ABC):
 
         Returns:
             An ndarray of torsion values, one per path point.
+
         """
         ...
 
@@ -237,6 +245,7 @@ class Path(ABC):
 
         Returns:
             A list of subpath point lists.
+
         """
         ...
 
@@ -250,6 +259,7 @@ class Path(ABC):
 
         Returns:
             A list of subpath point lists.
+
         """
         ...
 
@@ -271,6 +281,7 @@ class Path(ABC):
 
         Returns:
             A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
+
         """
         ...
 
@@ -284,6 +295,7 @@ class Path(ABC):
 
         Returns:
             A list of :class:`CutPoint` entries, one per cut distance.
+
         """
         ...
 
@@ -299,6 +311,7 @@ class Path(ABC):
 
         Returns:
             A :class:`CutPoint` with the cut point and its next segment index.
+
         """
         ...
 
@@ -312,6 +325,7 @@ class Path(ABC):
 
         Returns:
             A list of normal vectors, one per cut point.
+
         """
         ...
 
@@ -327,6 +341,7 @@ class Path(ABC):
         Returns:
             A 2x3 ndarray of two basis vectors defining the local plane, or None if no
             non-collinear point is found.
+
         """
         ...
 
@@ -341,6 +356,7 @@ class Path(ABC):
 
         Returns:
             A list of direction vectors, one per cut point.
+
         """
         ...
 
@@ -366,6 +382,7 @@ class Path(ABC):
 
         Returns:
             A new path with the subdivided points.
+
         """
         ...
 
@@ -385,6 +402,7 @@ class Path(ABC):
 
         Returns:
             A list of uniformly resampled path points.
+
         """
         ...
 
@@ -401,6 +419,7 @@ class Path(ABC):
 
         Returns:
             A list of points representing the selected portion of the path.
+
         """
         ...
 
@@ -426,6 +445,7 @@ class Path(ABC):
 
         Returns:
             A :class:`Path2D` for 2-D strokes, :class:`Bosl2Solid` for 3-D.
+
         """
         ...
 
@@ -447,6 +467,7 @@ class Path(ABC):
 
         Returns:
             A :class:`Region` for 2-D, :class:`Bosl2Solid` for 3-D.
+
         """
         ...
 
@@ -460,6 +481,7 @@ class Path(ABC):
 
         Returns:
             A new path with collinear points removed.
+
         """
         ...
 
@@ -473,5 +495,6 @@ class Path(ABC):
 
         Returns:
             A new path with duplicate points removed.
+
         """
         ...

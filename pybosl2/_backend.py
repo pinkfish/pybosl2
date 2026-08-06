@@ -85,7 +85,8 @@ SDF_ONLY_FEATURES = frozenset(
 
 def supports(backend: str, feature: str) -> bool:
     """Whether *backend* can do *feature*. Backend-exclusive features are False on the other side;
-    everything else (the shared surface) is assumed supported."""
+    everything else (the shared surface) is assumed supported.
+    """
     if feature in CSG_ONLY_FEATURES:
         return backend == "csg"
     if feature in SDF_ONLY_FEATURES:
@@ -95,7 +96,8 @@ def supports(backend: str, feature: str) -> bool:
 
 def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError | None":
     """The :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the
-    OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling)."""
+    OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling).
+    """
     from pybosl2.exceptions import UnsupportedByBackendError
 
     if backend == "sdf" and name in CSG_ONLY_FEATURES:

@@ -62,7 +62,8 @@ __all__ = [
 
 def _as_native_2d(profile: object) -> Any:
     """A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
-    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to."""
+    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.
+    """
     from pybosl2._helpers import as_native_2d as _coerce
 
     return _coerce(profile)
@@ -70,7 +71,8 @@ def _as_native_2d(profile: object) -> Any:
 
 def _profile_factory(profile: object) -> Callable[[], Any]:
     """A zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time
-    (the "children" form, safe for frep handles); anything else is meshed once and reused."""
+    (the "children" form, safe for frep handles); anything else is meshed once and reused.
+    """
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -130,6 +132,7 @@ def extrude_from_to(
             from pybosl2 import shapes2d as s2, extrude_from_to
 
             extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30], twist=180, scale=2).show()
+
     """
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -180,6 +183,7 @@ def cylindrical_extrude(
             from pybosl2 import shapes2d as s2, cylindrical_extrude
 
             cylindrical_extrude(s2.circle(radius=8), inner_radius=25, outer_radius=30).show()
+
     """
     from pythonscad import square as _square
 
@@ -236,6 +240,7 @@ def chain_hull(*objects: object) -> Bosl2Solid:
             from pybosl2 import shapes3d as s3, chain_hull
 
             chain_hull([s3.sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
+
     """
     from pythonscad import hull as _hull
 
@@ -432,7 +437,8 @@ class Extrudable:
 
 class Miscellaneous(ABC):
     """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods
-    on :class:`~pybosl2.shapes3d.Bosl2Solid`."""
+    on :class:`~pybosl2.shapes3d.Bosl2Solid`.
+    """
 
     @abstractmethod
     def _wrap(self, new_shape: Any) -> "Bosl2Solid":  # pragma: no cover - provided by the host class (Bosl2Solid)
@@ -443,7 +449,8 @@ class Miscellaneous(ABC):
         """The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
 
         Uses the native bounding box, so it is exact and fast (BOSL2's projection/minkowski trick is
-        not needed here)."""
+        not needed here).
+        """
         from pybosl2.shapes3d import cuboid
 
         center, size = self.bounds()  # type: ignore[attr-defined]
@@ -452,7 +459,8 @@ class Miscellaneous(ABC):
     def offset3d(self, radius: float, size: float = 1000, convexity: int = 10) -> Bosl2Solid:
         """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
 
-        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly."""
+        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.
+        """
         _ = convexity
         from pythonscad import cube as _cube
         from pythonscad import minkowski as _mink
@@ -478,7 +486,8 @@ class Miscellaneous(ABC):
         size: float = 1000,
     ) -> Bosl2Solid:
         """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
-        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow."""
+        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.
+        """
         orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
         irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
         return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)

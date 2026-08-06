@@ -100,6 +100,7 @@ def _extend_knot_mult(mult: Sequence[int], nxt: int, length: int) -> list[int]:
 
     Returns:
         The extended multiplicity list.
+
     """
     out = list(mult)
     n = len(out)
@@ -122,6 +123,7 @@ def _extend_knot_vector(knots: Sequence[float], nxt: int, length: int) -> list[f
 
     Returns:
         The extended knot vector.
+
     """
     out = list(knots)
     while len(out) < length:
@@ -154,6 +156,7 @@ def _knot_multiplicities(
 
     Returns:
         One multiplicity per distinct knot value.
+
     """
     if nurbs_type == NurbsType.CLAMPED:
         base = list(mult) if mult is not None else [1] * (count - degree + 1)
@@ -188,6 +191,7 @@ def _knot_vector(
 
     Returns:
         The expanded knot vector.
+
     """
     if knots is None:
         mults = _knot_multiplicities(nurbs_type, degree, count, mult)
@@ -216,6 +220,7 @@ def _findspan(u: float, p: int, knot: Sequence[float], nctrl: int) -> int:
 
     Returns:
         The knot span index (clamped at the domain ends).
+
     """
     if u >= knot[nctrl]:
         return nctrl - 1
@@ -244,6 +249,7 @@ def _deboor(knot: Sequence[float], ctrl: Sequence[np.ndarray], u: float, p: int,
 
     Returns:
         The evaluated point as a numpy array.
+
     """
     diameter = [np.array(ctrl[k - p + j], dtype=float) for j in range(p + 1)]
     for r in range(1, p + 1):
@@ -310,6 +316,7 @@ def _sample_params(
 
     Returns:
         Parameter values in the curve's own knot domain.
+
     """
     if splinesteps is not None:
         assert splinesteps > 0, "splinesteps must be a positive integer."
@@ -355,6 +362,7 @@ def _curve_points(
 
     Returns:
         The evaluated points, one numpy array per parameter value.
+
     """
     assert splinesteps is None or u is None, "Must define exactly one of u and splinesteps."
     if splinesteps is None and u is None:
@@ -420,6 +428,7 @@ def _patch_grid(
 
     Returns:
         A grid (list of rows) of points.
+
     """
     if weights is not None:
         grid = _patch_grid(
@@ -488,6 +497,7 @@ def _patch_point(
 
     Returns:
         A single point.
+
     """
     if weights is not None:
         homogeneous = _patch_point(
@@ -527,6 +537,7 @@ def _nip(i: int, p: int, u: float, knot_vector: Sequence[float]) -> float:
 
     Returns:
         The basis function value ``N_{i,p}(u)``.
+
     """
     m = len(knot_vector) - 1
     if (i == 0 and u <= knot_vector[0]) or (i == m - p - 1 and u >= knot_vector[m]):
@@ -582,6 +593,7 @@ def _elevate_once(
 
     Returns:
         A tuple of ``(new_control_points, new_knot_vector, new_degree)``.
+
     """
     dim = len(ctrl[0])
     p_new = p + 1
@@ -615,6 +627,7 @@ def _elevation_knots(
 
     Returns:
         The knot vector without the clamped end padding.
+
     """
     if knots is None and mult is None:
         span = count - degree + 1 if nurbs_type == NurbsType.CLAMPED else count + degree + 1
@@ -655,6 +668,7 @@ def _elevate_curve(
 
     Returns:
         A tuple of ``(control, degree, knots, weights)``.
+
     """
     assert nurbs_type in (NurbsType.CLAMPED, NurbsType.OPEN), "degree elevation needs a CLAMPED or OPEN curve."
     assert times >= 0, "times must be zero or a positive integer."
@@ -724,6 +738,7 @@ class NurbsCurve:
 
             ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
             NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()
+
     """
 
     _control: np.ndarray
@@ -751,6 +766,7 @@ class NurbsCurve:
             knots: An explicit knot vector, or ``None`` for a uniform one.
             mult: Knot multiplicities, or ``None``.
             weights: Weights for a rational NURBS curve, or ``None``.
+
         """
         pts = np.array([[float(c) for c in p] for p in control], dtype=float)
         assert pts.ndim == 2, f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}"
@@ -821,6 +837,7 @@ class NurbsCurve:
 
         Returns:
             An ``(len(u), dim)`` ndarray of points.
+
         """
         return np.array(self._evaluate(u=u), dtype=float)
 
@@ -832,6 +849,7 @@ class NurbsCurve:
 
         Returns:
             A length-dim ndarray for the point at *u*.
+
         """
         return self._evaluate(u=[float(u)])[0]
 
@@ -858,6 +876,7 @@ class NurbsCurve:
 
                 ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
                 NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()
+
         """
         from pybosl2.path2d import Path2D
         from pybosl2.path3d import Path3D
@@ -883,6 +902,7 @@ class NurbsCurve:
 
         Raises:
             AssertionError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.
+
         """
         control, degree, knots, weights = _elevate_curve(
             self.to_list, self._degree, self._nurbs_type, self._knots, self._mult, self._weights, times
@@ -944,6 +964,7 @@ class NurbsPatch:
                 [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
             ]
             NurbsPatch(patch, (3, 3)).vnf().polyhedron().show()
+
     """
 
     _control: np.ndarray
@@ -971,6 +992,7 @@ class NurbsPatch:
             knots: Per-direction knot vectors ``(u_knots, v_knots)``.
             mult: Per-direction knot multiplicities ``(u_mult, v_mult)``.
             weights: A weight matrix the same size as *control*, or ``None``.
+
         """
         assert NurbsPatch.is_patch(control), "control must be a rectangular grid of points."
         pts = np.array(control, dtype=float)
@@ -1011,6 +1033,7 @@ class NurbsPatch:
 
         Returns:
             True if *x* is a rectangular 2-D array of point vectors with equal-length rows.
+
         """
         return bool(
             isinstance(x, (list, tuple, np.ndarray))
@@ -1057,6 +1080,7 @@ class NurbsPatch:
 
         Returns:
             A length-3 ndarray for the point at ``(u, v)``.
+
         """
         return np.array(
             _patch_point(self.to_list, u, v, self._degree, self._weights, self._nurbs_type, self._mult, self._knots),
@@ -1072,6 +1096,7 @@ class NurbsPatch:
 
         Returns:
             A ``(len(u), len(v), 3)`` ndarray of surface points.
+
         """
         return np.array(self._grid(u=u, v=v), dtype=float)
 
@@ -1083,6 +1108,7 @@ class NurbsPatch:
 
         Returns:
             A ``(rows, cols, 3)`` ndarray of surface points.
+
         """
         return np.array(self._grid(splinesteps=splinesteps), dtype=float)
 
@@ -1127,6 +1153,7 @@ class NurbsPatch:
                     [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
                 ]
                 NurbsPatch(patch, (3, 3)).vnf(splinesteps=(10, 10)).polyhedron().show()
+
         """
         from pybosl2.caps import CapType, norm_caps
 

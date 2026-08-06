@@ -66,6 +66,7 @@ def mask2d_roundover(
 
     Returns:
         A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
+
     """
     from pybosl2.path2d import Path2D
 
@@ -119,6 +120,7 @@ def rounding_edge_mask(
 
     Returns:
         A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
+
     """
     length = length if length is not None else (height if height is not None else 1.0)
     rad1 = (
@@ -160,6 +162,7 @@ def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float =
 
     Returns:
         A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
+
     """
     diamond = [[chamfer, 0.0], [0.0, chamfer], [-chamfer, 0.0], [0.0, -chamfer]]
     return _opolygon(diamond).linear_extrude(height=length + excess, center=True)  # type: ignore[no-any-return]
@@ -229,6 +232,7 @@ def edge_mask(
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
+
     """
     assert size is not None, "size= (the box's size) must be given"
     assert children is not None, "children= (the edge cutter) must be given"
@@ -270,6 +274,7 @@ def edge_profile(
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
+
     """
     _ = convexity
     assert size is not None, "size= (the box's size) must be given"
@@ -397,6 +402,7 @@ def corner_profile(
         fa: Arc smoothness overrides.
         fs: Arc smoothness overrides.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
+
     """
     _ = (children, convexity)
     if radius is None:
@@ -450,6 +456,7 @@ def face_profile(
         fa: Arc smoothness overrides.
         fs: Arc smoothness overrides.
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
+
     """
     if radius is None:
         assert diameter is not None, "face_profile(): must give radius or diameter"
@@ -512,6 +519,7 @@ def mask2d_chamfer(
         x: Chamfer width (X direction).
         y: Chamfer height (Y direction). Defaults to `x`.
         excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+
     """
     from pybosl2.path2d import Path2D
 
@@ -541,6 +549,7 @@ def mask2d_cove(
         fn: Arc smoothness overrides.
         fa: Arc smoothness overrides.
         fs: Arc smoothness overrides.
+
     """
     from pybosl2.path2d import Path2D
 
@@ -578,6 +587,7 @@ def mask2d_tear(
         fn: Arc smoothness overrides.
         fa: Arc smoothness overrides.
         fs: Arc smoothness overrides.
+
     """
     from pybosl2.path2d import Path2D
 
@@ -613,6 +623,7 @@ def mask2d_step(
         width: Step width.
         height: Step height.
         excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+
     """
     from pybosl2.path2d import Path2D
 
@@ -648,6 +659,7 @@ def mask2d_groove(
         fn: Arc smoothness overrides.
         fa: Arc smoothness overrides.
         fs: Arc smoothness overrides.
+
     """
     from pybosl2.path2d import Path2D
 
@@ -683,6 +695,7 @@ def mask3d_roundover(
         fn: Arc smoothness overrides.
         fa: Arc smoothness overrides.
         fs: Arc smoothness overrides.
+
     """
     from pybosl2.shapes3d import cuboid
 
@@ -713,6 +726,7 @@ def mask3d_chamfer(
         chamfer: Chamfer distance.
         size: Bounding box size (X, Y, Z).
         corners: Corners to select.
+
     """
     from pybosl2.shapes3d import cuboid
 
@@ -744,6 +758,7 @@ def mask3d_groove(
         depth: Groove depth.
         length: Groove length.
         chamfer: Groove chamfer offset.
+
     """
     g2d = mask2d_groove(width, depth, chamfer=chamfer)
     # Extrude along Z:

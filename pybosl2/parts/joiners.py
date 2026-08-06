@@ -71,6 +71,7 @@ class Joiners:
                 from pybosl2.parts.joiners import Joiners
                 (Joiners.dovetail("male", width=15, height=8, slide=30)
                  | Joiners.dovetail("female", width=15, height=8, slide=30).right(24)).show()
+
         """
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
@@ -116,6 +117,7 @@ class Joiners:
 
                 from pybosl2.parts.joiners import Joiners
                 Joiners.snap_pin().show()
+
         """
         _ = clearance
         shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)

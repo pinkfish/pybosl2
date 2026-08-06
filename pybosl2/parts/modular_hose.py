@@ -214,6 +214,7 @@ class ModularHose:
 
                 from pybosl2.parts.modular_hose import ModularHose
                 ModularHose.modular_hose(0.5, "segment").show()
+
         """
         ind = _size_index(size)
         cl = clearance if isinstance(clearance, (list, tuple)) else [clearance, clearance]
@@ -248,8 +249,7 @@ class ModularHose:
 
     @staticmethod
     def modular_hose_radius(size: float, outer: bool = False) -> float:
-        """
-        The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
+        """The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
         modular_hose_radius()).
         """
         big = _BIG[_size_index(size)]

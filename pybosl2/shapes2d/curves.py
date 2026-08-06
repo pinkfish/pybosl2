@@ -120,6 +120,7 @@ def star(
             from pybosl2 import shapes2d as s2
 
             s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=5).show()
+
     """
     rad = _pick_radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter)
     if rad is None:
@@ -184,6 +185,7 @@ def teardrop2d(
             from pybosl2 import shapes2d as s2
 
             s2.teardrop2d(radius=15, angle=45).linear_extrude(height=5).show()
+
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     if circumscribe:
@@ -252,6 +254,7 @@ def egg(
             from pybosl2 import shapes2d as s2
 
             s2.egg(length=30, radius1=10, radius2=8, arc_radius=20).linear_extrude(height=5).show()
+
     """
     radius1 = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else None)
     if radius1 is None:
@@ -374,6 +377,7 @@ def supershape(
             from pybosl2 import shapes2d as s2
 
             s2.supershape(m1=3, radius=20).linear_extrude(height=5).show()
+
     """
     n_pts = count if count is not None else math.ceil(360.0 / step)
     n1v = n1 if n1 is not None else 1
@@ -405,8 +409,7 @@ def _linearize_squareness(squareness: float) -> float:
 
 
 def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
-    """
-    The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size
+    """The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size
     *radius*.
     """
     s2a = abs(squareness * math.sin(math.radians(2 * angle)))
@@ -471,6 +474,7 @@ def squircle(
             from pybosl2 import shapes2d as s2
 
             s2.squircle(40, squareness=0.7).linear_extrude(height=5).show()
+
     """
     assert 0 <= squareness <= 1, "squircle(): squareness must be between 0 and 1."
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
@@ -494,5 +498,6 @@ def jittered_poly(path: Sequence[Sequence[float]], dist: float = 1 / 512) -> lis
     Args:
         path: the path to add jitter to
         dist: the amount to jitter points by (default 1/512)
+
     """
     return [[p[0] + random.uniform(-dist, dist), p[1] + random.uniform(-dist, dist)] for p in path]

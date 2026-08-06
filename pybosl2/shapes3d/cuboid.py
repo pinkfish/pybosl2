@@ -248,6 +248,7 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
             from pybosl2 import roof, shapes2d as s2
 
             roof(s2.square([20, 10]).shape).show()
+
     """
     return Bosl2Solid(Bosl2Solid._unwrap(shape).roof(method=method))
 
@@ -317,6 +318,7 @@ def cube(
             from pybosl2 import shapes3d as s3
 
             s3.cube(size=20, rounding=3).show()
+
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor: Anchor | Sequence[float] = anchor
@@ -397,6 +399,7 @@ def cuboid(
 
             shape = cuboid([40, 30, 20], rounding=5)
             shape.show()
+
     """
     if teardrop:
         raise NotImplementedError("cuboid(): teardrop= is not supported by this pure-Python port.")
@@ -525,6 +528,7 @@ def prismoid(
 
             shape = prismoid([40, 40], [20, 25], height=30)
             shape.show()
+
     """
     from pybosl2._helpers import rect_path as _rect_path
 
@@ -568,6 +572,7 @@ def octahedron(
             from pybosl2 import shapes3d as s3
 
             s3.octahedron(size=20).show()
+
     """
     s = size / 2
     pts = [[s, 0, 0], [-s, 0, 0], [0, s, 0], [0, -s, 0], [0, 0, s], [0, 0, -s]]
@@ -608,6 +613,7 @@ def wedge(
             from pybosl2 import shapes3d as s3
 
             s3.wedge([30, 20, 15]).show()
+
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = _resolve_center_anchor(center, anchor, [-1, -1, -1])
@@ -709,6 +715,7 @@ def rect_tube(
             from pybosl2 import shapes3d as s3
 
             s3.rect_tube(size=30, wall=3, height=20).show()
+
     """
     from pybosl2._helpers import rect_path as _rect_path
 
@@ -904,6 +911,7 @@ def regular_prism(
 
             shape = regular_prism(5, height=20, inner_radius=12, rounding=2)
             shape.show()
+
     """
     assert isinstance(sides, int) and sides > 2, f"regular_prism(): sides must be an integer >= 3, got {sides}"
     cos_half = math.cos(math.pi / sides)

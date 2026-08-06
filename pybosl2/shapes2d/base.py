@@ -89,8 +89,7 @@ def _arc_through_3(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    """
-    Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be
+    """Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be
     the long way around).
     """
     a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
@@ -434,6 +433,7 @@ class CsgShape2D(BaseShape):
                 from pybosl2 import shapes2d as s2
 
                 s2.star(tips=5, radius=30, inner_radius=15).offset(delta=4).linear_extrude(height=4).show()
+
         """
         assert (radius is None) != (delta is None), "offset(): give exactly one of radius= or delta=."
         kw: dict[str, Any] = {"r": radius} if radius is not None else {"delta": delta, "chamfer": chamfer}
@@ -458,6 +458,7 @@ class CsgShape2D(BaseShape):
                 from pybosl2 import shapes2d as s2
 
                 s2.square([10, 10], center=True).minkowski(s2.circle(radius=3)).linear_extrude(height=2).show()
+
         """
         from pythonscad import minkowski as _minkowski
 
@@ -478,6 +479,7 @@ class CsgShape2D(BaseShape):
 
                 plate = s2.square(40) - s2.circle(radius=8)
                 plate.fill().linear_extrude(height=2).show()
+
         """
         return self._wrap(_ofill(self.shape))
 
@@ -495,6 +497,7 @@ class CsgShape2D(BaseShape):
 
                 slot = s2.circle(radius=5).hull(s2.circle(radius=5).right(30))
                 slot.linear_extrude(height=3).show()
+
         """
         return Bosl2Shape2D(_ohull(self.shape, *[_as_native_2d(o) for o in others]))
 
@@ -536,6 +539,7 @@ class CsgShape2D(BaseShape):
                 from pybosl2 import shapes2d as s2
 
                 s2.circle(radius=15).linear_extrude(height=20).show()
+
         """
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -576,6 +580,7 @@ class CsgShape2D(BaseShape):
                 from pybosl2 import shapes2d as s2
 
                 s2.square(10).right(15).rotate_extrude().show()
+
         """
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -605,6 +610,7 @@ class CsgShape2D(BaseShape):
 
                 path = [[0, 0, 0], [20, 10, 10], [40, 0, 20], [60, 10, 30]]
                 s2.circle(radius=5).path_extrude(path).show()
+
         """
         from pybosl2.shapes3d import Bosl2Solid
 
@@ -659,6 +665,7 @@ class CsgShape2D(BaseShape):
 
         Returns:
             A :class:`Bosl2Shape2D` union of all positioned copies.
+
         """
         import math
 

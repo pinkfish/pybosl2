@@ -72,8 +72,7 @@ class LinearBearings:
 
     @staticmethod
     def lmxuu_info(size: int) -> LinearBearingSpec:
-        """
-        The :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2
+        """The :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2
         lmxuu_info()).
         """
         try:
@@ -101,6 +100,7 @@ class LinearBearings:
 
                 from pybosl2.parts.linear_bearings import LinearBearings
                 LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8).show()
+
         """
         body = _union(
             [

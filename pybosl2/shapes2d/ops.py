@@ -64,6 +64,7 @@ def fill(children: "Shape2DLike") -> Bosl2Shape2D:
     Args:
         children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a
                   :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)
+
     """
     return Bosl2Shape2D(_ofill(_as_native_2d(children)))
 
@@ -76,6 +77,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
         children: the 2-D shapes to hull -- any mix of ``Bosl2Shape2D``, native shapes,
                   :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.
                   A single list/tuple *of* shapes is also accepted.
+
     """
     items = list(children)
     if len(items) == 1 and not _is_child_2d(items[0]):
@@ -114,6 +116,7 @@ def round2d(
         fn: arc smoothness overrides
         fa: arc smoothness overrides
         fs: arc smoothness overrides
+
     """
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
@@ -148,6 +151,7 @@ def shell2d(
         fn: arc smoothness overrides
         fa: arc smoothness overrides
         fs: arc smoothness overrides
+
     """
     assert thickness is not None, "shell2d(): must give thickness"
     assert children is not None, "shell2d(): must give children"
@@ -215,6 +219,7 @@ def cross(
             from pybosl2 import shapes2d as s2
 
             s2.cross(size=30).linear_extrude(height=5).show()
+
     """
     sz = [float(size)] * 2 if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
     if arm_width is None:
@@ -275,6 +280,7 @@ def text(
         script:    script the text is in (default "latin")
         anchor:    vertical alignment fallback used when valign isn't given (default "baseline")
         spin:      Z-axis rotation in degrees (default 0)
+
     """
     h = halign if halign is not None else "center"
     v = valign if valign is not None else anchor

@@ -325,8 +325,7 @@ def xrot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """
-    Rotated copies around the X axis, optionally into a ring of radius *radius* (BOSL2
+    """Rotated copies around the X axis, optionally into a ring of radius *radius* (BOSL2
     xrot_copies()).
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
@@ -350,8 +349,7 @@ def yrot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """
-    Rotated copies around the Y axis, optionally into a ring of radius *radius* (BOSL2
+    """Rotated copies around the Y axis, optionally into a ring of radius *radius* (BOSL2
     yrot_copies()).
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
@@ -375,8 +373,7 @@ def zrot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """
-    Rotated copies around the Z axis, optionally into a ring of radius *radius* (BOSL2
+    """Rotated copies around the Z axis, optionally into a ring of radius *radius* (BOSL2
     zrot_copies()).
     """
     rr: float = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
@@ -630,6 +627,7 @@ class Distributable(ABC):
 
         Returns:
             The union (or list for paths) of copies at each offset.
+
         """
         offsets = vectors if vectors is not None else [Point(0, 0, 0)]
         return self._distribute([translate4(pos) for pos in offsets])
@@ -852,6 +850,7 @@ class Distributable(ABC):
 
         Returns:
             The union of all positioned children.
+
         """
         children = list(children)
         dir_arr = _vec3(dir, 0.0) if is_num(dir) else np.asarray(dir, dtype=float)
@@ -901,6 +900,7 @@ def xdistribute(
             from pybosl2.distributors import xdistribute
 
             xdistribute(spacing=15, children=[s3.cuboid([5,5,20]) for _ in range(5)]).show()
+
     """
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=RIGHT, length=length)
 

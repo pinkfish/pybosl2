@@ -32,6 +32,7 @@ class UnsupportedByBackendError(Bosl2Error):
         feature: short name of the unsupported operation (e.g. ``"attach"``, ``"smooth_union"``).
         backend: the active backend that cannot do it (``"csg"`` / ``"sdf"``).
         hint:    optional guidance (an alternative call, or which backend does support it).
+
     """
 
     def __init__(self, feature: str, backend: str, hint: str | None = None) -> None:
@@ -54,6 +55,7 @@ class CrossBackendError(Bosl2Error):
     Args:
         left:  backend of the left operand.
         right: backend of the right operand.
+
     """
 
     def __init__(self, left: str, right: str) -> None:

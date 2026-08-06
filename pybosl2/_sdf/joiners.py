@@ -40,7 +40,8 @@ def _attach(  # type: ignore[no-untyped-def]
 ) -> PyShape:
     """BOSL2 attachable() emulation for a shape whose declared bounding box has dimensions
     `size` and geometric center `center_off`: translate the anchor point to the origin,
-    spin around Z, then rotate UP toward `orient` -- the same order attachable() applies."""
+    spin around Z, then rotate UP toward `orient` -- the same order attachable() applies.
+    """
     a = [int(v) for v in anchor]
     anchor_pt = [center_off[i] + a[i] * size[i] / 2 for i in range(3)]
     if any(anchor_pt):

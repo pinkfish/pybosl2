@@ -49,7 +49,8 @@ class CsgBackend:
     def linear_extrude(self, paths: Any, height: float, **kwargs: Any) -> Any:
         """Extrude *paths* into an exact-CSG solid: the first outline with the rest cut out of it
         as holes, through the native ``linear_extrude()``. Accepts every native option
-        (``center``/``twist``/``scale``/``slices``/...)."""
+        (``center``/``twist``/``scale``/``slices``/...).
+        """
         from pybosl2.shapes2d import Bosl2Shape2D
         from pybosl2.shapes3d import Bosl2Solid
 

@@ -102,9 +102,7 @@ def _chamfcorner(points: Sequence[Sequence[float]], parm: Sequence[float]) -> li
 
 
 def _arc3d(center: Sequence[float], start: Sequence[float], end: Sequence[float], n: int) -> list[list[float]]:
-    """
-    *n* points along the short arc from *start* to *end* about *center* (slerp, any dimension).
-    """
+    """*n* points along the short arc from *start* to *end* about *center* (slerp, any dimension)."""
     c = np.asarray(center, dtype=float)
     v0, v1 = np.asarray(start, dtype=float) - c, np.asarray(end, dtype=float) - c
     dot_v: float = float(np.dot(v0, v1))
@@ -209,6 +207,7 @@ def _round_corners(
 
             path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])
             path.round_corners(method="circle", radius=3).polygon().linear_extrude(height=5).show()
+
     """
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
@@ -377,6 +376,7 @@ def _smooth_path(
 
             path = Path2D([[0, 0], [10, 5], [20, 0], [30, 10]])
             path.smooth_path(relsize=0.1).stroke(width=1).linear_extrude(height=3).show()
+
     """
     from pybosl2.beziers import create_bezier
     from pybosl2.path2d import Path2D
@@ -404,7 +404,8 @@ def _smooth_path(
 
 class Roundable:
     """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and
-    :class:`~pybosl2.paths.Path3D`."""
+    :class:`~pybosl2.paths.Path3D`.
+    """
 
     def round_corners(
         self,
@@ -689,6 +690,7 @@ def _path_join(
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.
+
     """
     from pybosl2.path2d import Path2D as _Path
     from pybosl2.path3d import Path3D as _Path3D
@@ -781,6 +783,7 @@ def _from_shapely(geom: "MultiPolygon") -> list[Path2D]:
 
     Returns:
         A list of :class:`~pybosl2.paths.Path2D` objects: outer ring, then holes.
+
     """
     from shapely.geometry import MultiPolygon, Polygon
 

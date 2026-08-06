@@ -80,7 +80,8 @@ def _heightfield_tris(pts: list[list[float]], i1: int, i2: int, i3: int, i4: int
     2 or 4 triangle faces, mirroring BOSL2 vnf_vertex_array()'s "default"/"alt"/"quincunx" quad
     styles. Winding direction is left unresolved here (both a plain "i1,i3,i2 & i1,i4,i3" split and
     its mirror are geometrically valid faces) -- see _heightfield_reorient(), which fixes winding
-    for the whole mesh in one pass instead of requiring every call site to work it out by hand."""
+    for the whole mesh in one pass instead of requiring every call site to work it out by hand.
+    """
     if style == "quincunx":
         i5 = len(pts)
         pts.append([(pts[i1][k] + pts[i2][k] + pts[i3][k] + pts[i4][k]) / 4 for k in range(3)])
@@ -256,7 +257,8 @@ def _heightfield_polyhedron(
 
 def _heightfield_range(rng: Sequence[float]) -> list[float]:
     """Expand this port's [start, step, stop] stand-in for an OpenSCAD [start:step:stop] range
-    literal into a plain list of values, inclusive of stop."""
+    literal into a plain list of values, inclusive of stop.
+    """
     start, step, stop = rng
     sides = int(round((stop - start) / step))
     return [start + i * step for i in range(sides + 1)]
@@ -288,6 +290,7 @@ def interior_fillet(
         anchor:  anchor point (default FRONT+LEFT)
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
+
     """
     from pybosl2._native import native
 
@@ -329,6 +332,7 @@ def heightfield(
         anchor:    anchor point (default CENTER)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
+
     """
     _ = convexity
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
@@ -458,6 +462,7 @@ def cylindrical_heightfield(
         anchor:    anchor point (default CENTER)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
+
     """
     _ = convexity
     l_val = length if length is not None else (height if height is not None else height)
@@ -569,6 +574,7 @@ def plot3d(
 
             s3.plot3d(lambda x, y: 6 * math.cos(math.hypot(x, y) / 6),
                       list(range(-30, 31, 3)), list(range(-30, 31, 3))).show()
+
     """
     from pybosl2.vnf import VNF
 
@@ -644,6 +650,7 @@ def plot_revolution(
             s3.plot_revolution(lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30),
                                angle=list(range(0, 361, 6)), z=list(range(0, 31, 2)),
                                radius1=12, radius2=8).show()
+
     """
     from pybosl2.vnf import VNF
 
@@ -732,6 +739,7 @@ def fillet(
             block = s3.cuboid([30, 30, 20])
             mask = s3.fillet(length=20, radius=6).right(15).forward(15)
             (block - mask).show()
+
     """
     from . import masking
 
@@ -808,6 +816,7 @@ def textured_tile(
 
             bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
             s3.textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
+
     """
     from pybosl2.texture import (
         TextureType,
@@ -898,6 +907,7 @@ def ruler(
         anchor:    anchor point (default LEFT+BACK+TOP)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
+
     """
     from pybosl2._native import native
 

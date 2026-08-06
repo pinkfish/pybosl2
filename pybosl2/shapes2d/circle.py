@@ -117,6 +117,7 @@ def circle(
             from pybosl2 import shapes2d as s2
 
             s2.circle(radius=15).linear_extrude(height=5).show()
+
     """
     if points is not None:
         center, rad = _circle_from_3pts(points)
@@ -188,6 +189,7 @@ def arc(
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).
+
     """
     # -- width + thickness: a circular segment through 3 points on/above the X axis ----------
     if width is not None and thickness is not None:
@@ -353,6 +355,7 @@ def ellipse(
             from pybosl2 import shapes2d as s2
 
             s2.ellipse(diameter=[30, 20]).linear_extrude(height=5).show()
+
     """
     _ = uniform
     if radius is not None:
@@ -409,6 +412,7 @@ def keyhole(
             from pybosl2 import shapes2d as s2
 
             s2.keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2).linear_extrude(height=4).show()
+
     """
     lv = float(length if length is not None else (_length if _length is not None else 15))
     r1v = float(radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5))
@@ -491,6 +495,7 @@ def ring(
             from pybosl2 import shapes2d as s2
 
             s2.ring(radius=20, ring_width=4).linear_extrude(height=5).show()
+
     """
     assert angle is None, "ring(): only the full-annulus form is ported (no angle=)."
     r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else None)
@@ -540,6 +545,7 @@ def glued_circles(
             from pybosl2 import shapes2d as s2
 
             s2.glued_circles(radius=10, spread=25, tangent=30).linear_extrude(height=5).show()
+
     """
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 10)
     cp1 = [spread / 2, 0.0]
@@ -616,6 +622,7 @@ def reuleaux_polygon(
             from pybosl2 import shapes2d as s2
 
             s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()
+
     """
     assert sides >= 3 and sides % 2 == 1
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)

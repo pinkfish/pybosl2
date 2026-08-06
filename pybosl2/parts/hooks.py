@@ -30,7 +30,8 @@ __all__ = ["Hooks"]
 
 def _circle_point_tangents(r: float, center: list[float], pt: list[float]) -> list[list[float]]:
     """The two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2
-    circle_point_tangents()). Points are 2-vectors ``[x, height]``."""
+    circle_point_tangents()). Points are 2-vectors ``[x, height]``.
+    """
     center_arr = np.asarray(center, dtype=float)
     pt_arr = np.asarray(pt, dtype=float)
     diameter = float(np.linalg.norm(pt_arr - center_arr))
@@ -102,6 +103,7 @@ class Hooks:
 
                 from pybosl2.parts.hooks import Hooks
                 Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20).show()
+
         """
         if fillet:
             raise NotImplementedError("ring_hook(): the base fillet is not yet ported; use fillet=0.")

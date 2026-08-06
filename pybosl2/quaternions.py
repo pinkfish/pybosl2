@@ -31,6 +31,7 @@ class Quaternion:
 
     Attributes:
         q: Quaternion 4-vector represented as a Numpy array
+
     """
 
     def __init__(self, w: float = 1.0, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None:
@@ -42,6 +43,7 @@ class Quaternion:
 
         Returns:
             The integer hash value.
+
         """
         return hash(tuple(self.q))
 

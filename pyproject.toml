@@ -83,6 +83,8 @@ ignore = ["D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
 "pybosl2/**" = ["PT", "D"]
+"pybosl2/vnf.py" = []
+"pybosl2/nurbs.py" = []
 "pybosl2/caps.py" = []
 "pybosl2/beziers.py" = []
 "pybosl2/path.py" = []

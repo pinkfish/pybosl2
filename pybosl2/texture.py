@@ -159,9 +159,7 @@ def _mv(off: list[float], pts: list[list[float]]) -> list[list[float]]:
 
 
 def _sqr(size: float | list[float], z: float = 0.0) -> list[list[float]]:
-    """
-    path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``).
-    """
+    """path3d of a square/rect anchored at the origin (BOSL2 square(), scalar or ``[w, height]``)."""
     w, height = (size, size) if isinstance(size, (int, float)) else (size[0], size[1])
     return [[0.0, 0.0, z], [w, 0.0, z], [w, height, z], [0.0, height, z]]
 
@@ -423,8 +421,7 @@ _TEX_FN_DEFAULT = 16  # BOSL2 _tex_fn_default()
 
 
 def _circle_xy(d: float, n: int) -> list[list[float]]:
-    """
-    *n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2
+    """*n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2
     circle()).
     """
     return [
@@ -455,7 +452,8 @@ def _sph(r: float, theta: float, phi: float) -> list[float]:
 
 def _base_faces(n: int, base0: int, border: float) -> list[list[int]]:
     """The four faces joining a quarter of the *n*-point rim to each base-square region; *base0* is the
-    index of the first base-square vertex (BOSL2's cones/dots base connection)."""
+    index of the first base-square vertex (BOSL2's cones/dots base connection).
+    """
     out = []
     for i in range(4):
         arc = [j % n for j in range((i + 1) * n // 4, i * n // 4 - 1, -1)]
@@ -666,17 +664,21 @@ def texture(
     docstring for which textures are ported.
 
     Returns
+    -------
          list[list[float]]:
             The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
 
     Raises
+    ------
         ValueError: If the texture name is not found or if both 'border' and 'inset' are provided.
 
     See Also
+    --------
         pybosl2.paths.Path2D.texture()
         pybosl2.paths.Path2D.texture_v()
         pybosl2.shapes3d.Bosl2Solid.texture()
         pybosl2.shapes3d.Bosl2Solid.texture_v()
+
     """
     if inset is not None and border is not None:
         raise ValueError("texture(): give 'border' or 'inset', not both.")
@@ -692,9 +694,7 @@ def texture(
 def _weld(
     verts: list[list[float]], faces: list[list[int]], tol: float = 1e-6
 ) -> tuple[list[list[float]], list[list[int]]]:
-    """
-    Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces.
-    """
+    """Merge coincident vertices (so tiled cells stitch along shared edges); drop degenerate faces."""
     idx: dict[tuple[int, int, int], int] = {}
     new_verts: list[list[float]] = []
     remap: list[int] = []
@@ -713,7 +713,8 @@ def _close_to_base(
     verts: list[list[float]], faces: list[list[int]], bottom: float
 ) -> tuple[list[list[float]], list[list[int]]]:
     """Close an open (top-only) surface into a solid by dropping its boundary loops to z=*bottom*
-    with side walls and a flat bottom cap."""
+    with side walls and a flat bottom cap.
+    """
     verts = [list(p) for p in verts]
     faces = [list(f) for f in faces]
     halfedges = set()
@@ -747,9 +748,7 @@ def _close_to_base(
 
 
 def is_watertight_topology(verts: list[list[float]], faces: list[list[int]]) -> bool:
-    """
-    True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold).
-    """
+    """True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold)."""
     _ = verts
     from collections import Counter
 
@@ -799,7 +798,8 @@ def vnf_tile_to_solid(
     inset: float = 0.0,
 ) -> tuple[list[list[float]], list[list[int]]]:
     """Tile a VNF texture cell over a *size* ``[x, y]`` rectangle *reps* ``[nx, ny]`` times and close
-    it into a watertight solid. Returns ``(verts, faces)`` for a polyhedron."""
+    it into a watertight solid. Returns ``(verts, faces)`` for a polyhedron.
+    """
     sx, sy = float(size[0]), float(size[1])
     nx, ny = int(reps[0]), int(reps[1])
     v: list[list[float]] = []
