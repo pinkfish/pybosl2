@@ -109,14 +109,14 @@ def test_is_nurbs_patch() -> None:
 
 
 def test_patch_points_grid_shape() -> None:
-    grid = nurbs_patch_points(PATCH, 3, splinesteps=3)
+    grid = nurbs_patch_points(PATCH, degree=(3, 3), splinesteps=(3, 3))
     assert len(grid) > 3
     assert len(grid[0]) > 3
     assert all(len(pt) == 3 for row in grid for pt in row)
 
 
 def test_patch_points_uv_form() -> None:
-    grid = nurbs_patch_points(PATCH, 3, u=[0, 0.5, 1], v=[0, 0.5, 1])
+    grid = nurbs_patch_points(PATCH, degree=(3, 3), u=[0, 0.5, 1], v=[0, 0.5, 1])
     assert len(grid) == 3
     assert len(grid[0]) == 3
     # the [0,0] corner interpolates the corner control point (clamped both ways)
@@ -124,23 +124,25 @@ def test_patch_points_uv_form() -> None:
 
 
 def test_patch_mixed_degree() -> None:
-    grid = nurbs_patch_points(PATCH, [3, 2], splinesteps=[2, 3])  # type: ignore[arg-type]
+    grid = nurbs_patch_points(PATCH, degree=(3, 2), splinesteps=(2, 3))  # type: ignore[arg-type]
     assert len(grid) > 0
     assert len(grid[0]) > 0
 
 
 def test_nurbs_vnf_returns_vnf() -> None:
-    assert isinstance(nurbs_vnf(PATCH, 3, splinesteps=4), VNF)
+    assert isinstance(nurbs_vnf(PATCH, degree=(3, 3), splinesteps=(4, 4)), VNF)
 
 
 def test_nurbs_vnf_parameter_list() -> None:
-    plist = [NurbsType.CLAMPED, 3, PATCH, None, None, None]
-    assert isinstance(nurbs_vnf(plist, splinesteps=4), VNF)
+    plist = [NurbsType.CLAMPED, (3, 3), PATCH, (None, None), (None, None), None]
+    assert isinstance(nurbs_vnf(plist, splinesteps=(4, 4)), VNF)  # type: ignore[arg-type]
 
 
 def test_nurbs_vnf_caps_require_closed_clamped() -> None:
     with pytest.raises(AssertionError):
-        nurbs_vnf(PATCH, 3, type=NurbsType.CLAMPED, caps=CapType.BUTT)  # both clamped -> no caps allowed
+        nurbs_vnf(
+            PATCH, degree=(3, 3), type=(NurbsType.CLAMPED, NurbsType.CLAMPED), caps=CapType.BUTT
+        )  # both clamped -> no caps allowed
 
 
 # -- degree elevation ---------------------------------------------------------------------
@@ -205,8 +207,8 @@ def test_patch_points_weighted_rational() -> None:
     """A weighted (rational) patch point differs from the unweighted evaluation."""
     w = [[1.0] * 4 for _ in range(4)]
     w[1][1] = 5.0
-    pt_w = nurbs_patch_point(PATCH, u=0.5, v=0.5, degree=3, weights=w)
-    pt = nurbs_patch_point(PATCH, u=0.5, v=0.5, degree=3)
+    pt_w = nurbs_patch_point(PATCH, u=0.5, v=0.5, degree=(3, 3), weights=w)
+    pt = nurbs_patch_point(PATCH, u=0.5, v=0.5, degree=(3, 3))
     assert len(pt_w) == 3
     assert all(isinstance(x, float) for x in pt_w)
     assert not np.allclose(pt_w, pt)
@@ -216,7 +218,9 @@ def test_nurbs_vnf_with_caps() -> None:
     """A ["clamped","closed"] patch can be capped with butt caps."""
     from pybosl2.caps import CapType
 
-    vnf = nurbs_vnf(PATCH, 3, splinesteps=4, type=[NurbsType.CLAMPED, NurbsType.CLOSED], caps=CapType.BUTT)
+    vnf = nurbs_vnf(
+        PATCH, degree=(3, 3), splinesteps=(4, 4), type=(NurbsType.CLAMPED, NurbsType.CLOSED), caps=CapType.BUTT
+    )
     assert isinstance(vnf, VNF)
     assert len(vnf.vertices) == 80
     assert len(vnf.faces) == 130
@@ -226,7 +230,9 @@ def test_nurbs_vnf_closed_caps() -> None:
     """A ["closed","clamped"] patch can be capped with butt caps (flipped internally)."""
     from pybosl2.caps import CapType
 
-    vnf = nurbs_vnf(PATCH, 3, splinesteps=4, type=[NurbsType.CLOSED, NurbsType.CLAMPED], caps=CapType.BUTT)
+    vnf = nurbs_vnf(
+        PATCH, degree=(3, 3), splinesteps=(4, 4), type=(NurbsType.CLOSED, NurbsType.CLAMPED), caps=CapType.BUTT
+    )
     assert isinstance(vnf, VNF)
     assert len(vnf.vertices) == 80
     assert len(vnf.faces) == 130
