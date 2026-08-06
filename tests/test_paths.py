@@ -50,6 +50,23 @@ def test_array_property() -> None:
     assert Path2D(UNIT).array.shape == (4, 2)
 
 
+def test_array_is_shared_and_read_only() -> None:
+    """The point array is handed out rather than rebuilt per access, so it must not be written to.
+
+    The path operations reach for it inside their loops; rebuilding it each time made them
+    quadratic in the point count. Sharing it is only safe while nobody writes through it, so it
+    comes back read-only -- a caller that needs to write takes a copy.
+    """
+    path = Path2D(SQUARE)
+    assert path.array is path.array  # the same array every time, not a fresh one
+    with pytest.raises(ValueError, match="read-only"):
+        path.array[0][0] = 99.0
+    source = np.array(SQUARE, dtype=float)  # and the path does not alias what it was built from
+    built = Path2D(source)
+    source[0][0] = 99.0
+    assert built.array[0][0] == 0.0
+
+
 # -- measurement --------------------------------------------------------------------------
 
 

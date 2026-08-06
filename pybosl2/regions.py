@@ -51,11 +51,9 @@ def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
     for poly in polys:
         if not isinstance(poly, Polygon):
             continue
-        exterior = list(poly.exterior.coords)[:-1]
-        paths.append(Path2D([[float(x), float(y)] for x, y in exterior]))
+        paths.append(Path2D(np.asarray(poly.exterior.coords)[:-1]))  # ring coords come out as an array
         for interior in poly.interiors:
-            ring = list(interior.coords)[:-1]
-            paths.append(Path2D([[float(x), float(y)] for x, y in ring]))
+            paths.append(Path2D(np.asarray(interior.coords)[:-1]))
     return paths
 
 
@@ -132,8 +130,8 @@ class Region:
             self._polygon = MultiPolygon()
             return
         paths_list = [p if isinstance(p, Path2D) else Path2D(p) for p in items]
-        outer = [(float(p[0]), float(p[1])) for p in paths_list[0]]
-        holes = [[(float(p[0]), float(p[1])) for p in h] for h in paths_list[1:]]
+        outer = paths_list[0]._points
+        holes = [h._points for h in paths_list[1:]]
         self._polygon = MultiPolygon([Polygon(outer, holes)])
 
     def __len__(self) -> int:

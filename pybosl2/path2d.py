@@ -55,7 +55,6 @@ from pybosl2.paths import (
 from pybosl2.points import Point
 from pybosl2.rounding import Roundable
 from pybosl2.skin import Sweepable
-from pybosl2.vectors import unit
 
 __all__ = ["Path2D", "MinkowskiJoin", "SelfIntersection"]
 
@@ -190,7 +189,8 @@ class _OffsetJoin:
         sweep = (end_deg - start_deg + 180) % 360 - 180
         steps = math.ceil(segments * abs(sweep) / 360) + 1
         theta = np.radians(start_deg + sweep * np.arange(steps) / (steps - 1))
-        return [_xy(p) for p in self.vertex + abs(self.amount) * np.column_stack((np.cos(theta), np.sin(theta)))]
+        arc = self.vertex + abs(self.amount) * np.column_stack((np.cos(theta), np.sin(theta)))
+        return arc.tolist()  # type: ignore[no-any-return]
 
     def chamfer(self) -> list[list[float]]:
         """The gap bridged by a flat cut across the corner.
@@ -246,9 +246,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
         """Initialize the instance."""
-        pts: np.ndarray = np.asarray(points, dtype=np.float64)
+        # A copy, not asarray: the array is frozen below and handed to every _points reader, so
+        # aliasing a caller's array here would freeze theirs too.
+        pts: np.ndarray = np.array(points, dtype=np.float64)
         if pts.size == 0:
             self._coords: list[tuple[float, float]] = []
+            self._array = np.array([], dtype=np.float64)  # shape (0,), as an empty path always had
             self._geom = LineString()
             self.closed = closed
             return
@@ -256,12 +259,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         assert pts.shape[1] == 2, f"Path2D needs [x, y] points, got shape {pts.shape}"
         assert pts.dtype == np.float64, f"Path2D needs float64 points, got {pts.dtype}"
         self.closed = closed
-        coords = [(float(p[0]), float(p[1])) for p in pts]
-        self._coords = coords
-        if len(coords) < 2:
-            self._geom = LineString()
-        else:
-            self._geom = LineString(coords)
+        pts.flags.writeable = False  # shared by every _points reader; see the property
+        self._array = pts
+        self._coords = [(x, y) for x, y in pts.tolist()]
+        self._geom = LineString(pts) if len(pts) >= 2 else LineString()
 
     @classmethod
     def catenary(
@@ -349,13 +350,21 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @property
     def _points(self) -> np.ndarray:
-        return np.array(self._coords, dtype=np.float64)
+        """The points as an (N, 2) array.
+
+        Held rather than rebuilt per access: the path operations reach for this inside their
+        loops, and rebuilding it each time made them quadratic in the point count. It is
+        read-only for that reason -- a caller that needs to write takes a ``.copy()``.
+        """
+        return self._array
 
     @_points.setter
     def _points(self, value: np.ndarray) -> None:
-        coords = [(float(p[0]), float(p[1])) for p in value]
-        self._coords = coords
-        self._geom = LineString(coords)
+        arr = np.array(value, dtype=np.float64)
+        arr.flags.writeable = False
+        self._array = arr
+        self._coords = [(x, y) for x, y in arr.tolist()]
+        self._geom = LineString(arr) if len(arr) >= 2 else LineString()
 
     @property
     def _shapely(self) -> LineString:
@@ -1689,11 +1698,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         if not self.closed:
             raise ValueError("union() requires a closed path. Close it with .close() first.")
-        polys = [_Polygon([(float(p[0]), float(p[1])) for p in self._points])]
+        polys = [_Polygon(self._points)]
         for other in others:
             if not other.closed:
                 raise ValueError("union() requires all paths to be closed.")
-            polys.append(_Polygon([(float(p[0]), float(p[1])) for p in other._points]))
+            polys.append(_Polygon(other._points))
         result = unary_union(polys)
         return Path2D._polygon_to_path(result)
 
@@ -1719,11 +1728,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         if not self.closed:
             raise ValueError("intersection() requires a closed path. Close it with .close() first.")
-        a = _Polygon([(float(p[0]), float(p[1])) for p in self._points])
+        a = _Polygon(self._points)
         for other in others:
             if not other.closed:
                 raise ValueError("intersection() requires all paths to be closed.")
-            a = a.intersection(_Polygon([(float(p[0]), float(p[1])) for p in other._points]))
+            a = a.intersection(_Polygon(other._points))
         return Path2D._polygon_to_path(a)
 
     def difference(self, other: "Path2D") -> "Path2D":
@@ -1748,8 +1757,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             raise ValueError("difference() requires a closed path. Close it with .close() first.")
         if not other.closed:
             raise ValueError("difference() requires 'other' to be closed.")
-        a = _Polygon([(float(p[0]), float(p[1])) for p in self._points])
-        b = _Polygon([(float(p[0]), float(p[1])) for p in other._points])
+        a = _Polygon(self._points)
+        b = _Polygon(other._points)
         return Path2D._polygon_to_path(a.difference(b))
 
     def symmetric_difference(self, other: "Path2D") -> "Path2D":
@@ -1774,8 +1783,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             raise ValueError("symmetric_difference() requires a closed path. Close it with .close() first.")
         if not other.closed:
             raise ValueError("symmetric_difference() requires 'other' to be closed.")
-        a = _Polygon([(float(p[0]), float(p[1])) for p in self._points])
-        b = _Polygon([(float(p[0]), float(p[1])) for p in other._points])
+        a = _Polygon(self._points)
+        b = _Polygon(other._points)
         return Path2D._polygon_to_path(a.symmetric_difference(b))
 
     def __or__(self, other: "Path2D") -> "Path2D":
@@ -1810,12 +1819,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if isinstance(result, GeometryCollection) or result.geom_type not in ("Polygon", "MultiPolygon"):
             raise ValueError(f"Boolean operation produced an invalid result: {result.geom_type}")
         if isinstance(result, _Polygon):
-            coords = list(result.exterior.coords)[:-1]
-            return Path2D([[float(x), float(y)] for x, y in coords], closed=True)
+            return Path2D(np.asarray(result.exterior.coords)[:-1], closed=True)
         # MultiPolygon: take the largest polygon
         largest = max(result.geoms, key=lambda g: g.area)
-        coords = list(largest.exterior.coords)[:-1]
-        return Path2D([[float(x), float(y)] for x, y in coords], closed=True)
+        return Path2D(np.asarray(largest.exterior.coords)[:-1], closed=True)
 
     # -- 2-D -> 3-D (both backends) --------------------------------------------------------
 
@@ -1990,43 +1997,46 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         p = Path2D._close_path(self._points, eps=eps) if closed else list(self._points)
         arr = np.asarray(p, dtype=float)
-        plen = len(arr)
         result: list[SelfIntersection] = []
-        for i in range(plen - 2):
-            a1, a2 = arr[i], arr[i + 1]
-            diameter = a2 - a1
-            seg_normal = np.asarray(unit([-diameter[1], diameter[0]], [0.0, 0.0]))
-            vals = arr @ seg_normal
-            ref = float(a1 @ seg_normal)
-            upper = plen - (2 if (i == 0 and closed) else 1)
-            js = np.arange(i + 2, upper + 1)
-            if len(js) == 0:
-                continue
-            diffs = vals[js] - ref
-            signals = np.where(np.abs(diffs) < eps, 0, np.sign(diffs))
-            if not (signals.max() >= 0 and signals.min() <= 0):
-                continue
-            upper2 = plen - (3 if (i == 0 and closed) else 2)
-            for j in range(i + 2, upper2 + 1):
-                if signals[j - i - 2] * signals[j - i - 1] <= 0:
-                    b1, b2 = arr[j].tolist(), arr[j + 1].tolist()
-                    isect = general_line_intersection(
-                        (Point(float(a1[0]), float(a1[1])), Point(float(a2[0]), float(a2[1]))),
-                        (Point(float(b1[0]), float(b1[1])), Point(float(b2[0]), float(b2[1]))),
-                        eps=eps,
-                    )
-                    if isect and -eps <= isect[1] <= 1 + eps and -eps <= isect[2] <= 1 + eps:
-                        pt = isect[0]
-                        result.append(
-                            SelfIntersection(
-                                pt,
-                                i,
-                                float(isect[1]),
-                                j,
-                                float(isect[2]),
-                            )
-                        )
+        for i, j in Path2D._crossing_candidates(arr, closed, eps):
+            a1, a2, b1, b2 = arr[i], arr[i + 1], arr[j], arr[j + 1]
+            isect = general_line_intersection(
+                (Point(float(a1[0]), float(a1[1])), Point(float(a2[0]), float(a2[1]))),
+                (Point(float(b1[0]), float(b1[1])), Point(float(b2[0]), float(b2[1]))),
+                eps=eps,
+            )
+            if isect and -eps <= isect[1] <= 1 + eps and -eps <= isect[2] <= 1 + eps:
+                result.append(SelfIntersection(isect[0], i, float(isect[1]), j, float(isect[2])))
         return result
+
+    @staticmethod
+    def _crossing_candidates(arr: np.ndarray, closed: bool, eps: float) -> list[tuple[int, int]]:
+        """Segment pairs close enough to cross, as ``(i, j)`` with ``j >= i + 2``, in path order.
+
+        Found through a spatial index rather than by walking every pair, which is what made
+        checking a detailed path for self-intersections quadratic. Neighbouring segments (and,
+        on a closed path, the pair sharing the closing point) are skipped, as they always meet.
+
+        Args:
+            arr: The path points, as an (N, 2) array, already closed if the path is.
+            closed: Whether the path is closed.
+            eps: How close counts as touching.
+
+        Returns:
+            The candidate segment-index pairs, ready for an exact intersection test.
+        """
+        plen = len(arr)
+        if plen < 4:
+            return []
+        segments = shapely.linestrings(np.stack([arr[:-1], arr[1:]], axis=1))
+        left, right = shapely.STRtree(segments).query(segments, predicate="dwithin", distance=eps)
+        pairs = np.stack([left, right], axis=1)
+        pairs = pairs[pairs[:, 1] >= pairs[:, 0] + 2]  # each pair once, never a neighbour
+        pairs = pairs[(pairs[:, 0] <= plen - 3) & (pairs[:, 1] <= plen - 2)]
+        if closed:  # the first and last segments always meet, at the closing point
+            pairs = pairs[~((pairs[:, 0] == 0) & (pairs[:, 1] == plen - 2))]
+        order = np.lexsort((pairs[:, 1], pairs[:, 0]))
+        return [(int(i), int(j)) for i, j in pairs[order]]
 
     def merge_collinear(self, closed: bool | None = None, eps: float = EPSILON) -> "Path2D":
         """Remove sequential collinear points and return a new path.
@@ -2131,6 +2141,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if closed is None:
             closed = self.closed
         subpaths = self._split_path_at_self_crossings(closed=closed, eps=eps)
+        outline = Path2D(self._points, closed=self.closed)  # built once, tested against per subpath
         out = []
         for subpath in subpaths:
             seg = Path2D._select(subpath, 0, 1)
@@ -2142,14 +2153,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             sides = [x / 2048 for x in ln]
             p1 = [mp[0] + sides[0], mp[1] + sides[1]]
             p2 = [mp[0] - sides[0], mp[1] - sides[1]]
-            p1in = (
-                Path2D._point_in_polygon(Point(float(p1[0]), float(p1[1])), Path2D(list(self._points)), nonzero=nonzero)
-                >= 0
-            )
-            p2in = (
-                Path2D._point_in_polygon(Point(float(p2[0]), float(p2[1])), Path2D(list(self._points)), nonzero=nonzero)
-                >= 0
-            )
+            p1in = Path2D._point_in_polygon(Point(float(p1[0]), float(p1[1])), outline, nonzero=nonzero) >= 0
+            p2in = Path2D._point_in_polygon(Point(float(p2[0]), float(p2[1])), outline, nonzero=nonzero) >= 0
             tag = "I" if (p1in and p2in) else "O"
             out.append([tag, subpath])
         return out
@@ -2234,18 +2239,26 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if len(kept) < 3:  # eroded down to its corner arcs: nothing left for corners to join
             return Path2D._buffered_offset(pts, amount, use_round, segments)
 
-        out: list[list[float]] = []
-        bridged: list[bool] = []
-        for join, adjacent in Path2D._offset_joins(pts, u_edge, normal, start, end, kept, amount):
-            # A corner only opens a gap to bridge when both its edges survived; where edges were
-            # dropped the two survivors are simply run on to meet each other.
-            if adjacent and join.opens_gap(sign):
-                corner = join.arc(segments) if use_round else join.chamfer() if chamfer else join.mitre()
-                bridged.extend([True] * len(corner))
+        # A corner only opens a gap to bridge when both its edges survived; where edges were
+        # dropped the two survivors are simply run on to meet each other. Corners that just close
+        # up are the common case and are already worked out in `corners`, so only the ones that
+        # need bridging or repairing are built one at a time.
+        neighbours = np.roll(kept, 1) + 1 == kept  # each survivor's predecessor was its neighbour
+        neighbours[0] = (int(kept[-1]) + 1) % len(pts) == int(kept[0])
+        plain = neighbours & ~opens[kept]
+        per_corner: list[list[list[float]]] = [[point] for point in corners[kept].tolist()]
+        needs_work = [False] * len(kept)
+        for k in np.flatnonzero(~plain):
+            index = int(k)
+            cur, prev = int(kept[index]), int(kept[index - 1])
+            join = Path2D._offset_join(pts, u_edge, normal, start, end, prev, cur, amount)
+            if (prev + 1) % len(pts) == cur:
+                per_corner[index] = join.arc(segments) if use_round else join.chamfer() if chamfer else join.mitre()
+                needs_work[index] = True
             else:
-                corner = join.mitre(limit=None if adjacent else _BRIDGE_MITRE_LIMIT)
-                bridged.extend([False] * len(corner))
-            out.extend(corner)
+                per_corner[index] = join.mitre(limit=_BRIDGE_MITRE_LIMIT)
+        out: list[list[float]] = [point for corner in per_corner for point in corner]
+        bridged: list[bool] = [flag for corner, flag in zip(per_corner, needs_work, strict=True) for _ in corner]
 
         # The bridging points are not on any offset edge, so they get the standoff check of their
         # own: on a detailed outline neighbouring corner arcs run into each other.
@@ -2265,16 +2278,17 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [_xy(point) for point in ring[differs]]
 
     @staticmethod
-    def _offset_joins(
+    def _offset_join(
         pts: np.ndarray,
         u_edge: np.ndarray,
         normal: np.ndarray,
         start: np.ndarray,
         end: np.ndarray,
-        kept: np.ndarray,
+        prev: int,
+        cur: int,
         amount: float,
-    ) -> "Iterator[tuple[_OffsetJoin, bool]]":
-        """Each corner of the surviving offset edges, in order.
+    ) -> "_OffsetJoin":
+        """Where offset edge *prev* meets offset edge *cur*.
 
         Args:
             pts: The outline being offset, as an (N, 2) array.
@@ -2282,28 +2296,23 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             normal: Offset normal of each edge.
             start: Start point of each offset edge.
             end: End point of each offset edge.
-            kept: Indices of the edges that survived the standoff check.
+            prev: Index of the incoming edge.
+            cur: Index of the outgoing edge.
             amount: The signed offset distance.
 
-        Yields:
-            The join between each pair of consecutive surviving edges, and whether those two
-            edges were neighbours on the original outline.
+        Returns:
+            The join between the two edges.
         """
-        for index, cur in enumerate(int(k) for k in kept):
-            prev = int(kept[index - 1])
-            yield (
-                _OffsetJoin(
-                    vertex=pts[cur],
-                    pt_in=end[prev],
-                    pt_out=start[cur],
-                    u_in=u_edge[prev],
-                    u_out=u_edge[cur],
-                    n_in=normal[prev],
-                    n_out=normal[cur],
-                    amount=amount,
-                ),
-                (prev + 1) % len(pts) == cur,
-            )
+        return _OffsetJoin(
+            vertex=pts[cur],
+            pt_in=end[prev],
+            pt_out=start[cur],
+            u_in=u_edge[prev],
+            u_out=u_edge[cur],
+            n_in=normal[prev],
+            n_out=normal[cur],
+            amount=amount,
+        )
 
     @staticmethod
     def _drop_degenerate_points(pts: np.ndarray) -> np.ndarray:
