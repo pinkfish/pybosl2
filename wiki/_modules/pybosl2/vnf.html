@@ -2419,7 +2419,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_face_array</span><span class="p">(</span><span class="n">faces</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The faces as an (N, sides) index array, or None when they are not all the same length.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the faces as an (N, sides) index array, or None when they are not all the same length.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">faces</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2914,6 +2914,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The face indices per cell.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span> <span class="o">=</span> <span class="n">parr</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i3</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i4</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;quad&quot;</span><span class="p">:</span>
@@ -2961,7 +2962,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_keep_real_faces</span><span class="p">(</span><span class="n">cells</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">],</span> <span class="n">verts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The faces of *cells* that enclose an area, wound to match *reverse*.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the faces of *cells* that enclose an area, wound to match *reverse*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cells: Face indices per cell, as :meth:`_cell_faces` returns them.</span>
@@ -2970,6 +2971,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The faces, in cell order, with the degenerate ones dropped.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">flat</span> <span class="o">=</span> <span class="n">cells</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">verts</span><span class="p">[</span><span class="n">flat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">verts</span><span class="p">[</span><span class="n">flat</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">verts</span><span class="p">[</span><span class="n">flat</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span>
@@ -3351,6 +3353,19 @@
 <span class="sd">            style:    vnf_vertex_array quad-subdivision style</span>
 <span class="sd">            z:        per-profile Z heights, required when the profiles are 2-D</span>
 
+<span class="sd">        Examples:</span>
+<span class="sd">            Skinning a round profile up to a square one (a lofted transition):</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                import math</span>
+<span class="sd">                import numpy as np</span>
+<span class="sd">                from pybosl2 import VNF</span>
+
+<span class="sd">                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
+<span class="sd">                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]</span>
+<span class="sd">                VNF.from_skin([circle, square], slices=20, method=&quot;reindex&quot;, z=[0, 25]).polyhedron().show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_skin</span>
 
@@ -3423,7 +3438,7 @@
 
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    8.2.3.
+    7.4.7.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
 

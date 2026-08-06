@@ -2845,7 +2845,7 @@
 <div class="viewcode-block" id="union">
 <a class="viewcode-back" href="../../solid.html#pybosl2.solid.union">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The union of *solids* on the active backend (all operands must share the active backend).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the union of *solids* on the active backend (all operands must share the active backend).&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 
@@ -2853,7 +2853,7 @@
 <div class="viewcode-block" id="difference">
 <a class="viewcode-back" href="../../solid.html#pybosl2.solid.difference">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The first solid minus the rest, on the active backend.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first solid minus the rest, on the active backend.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 
@@ -2861,7 +2861,7 @@
 <div class="viewcode-block" id="intersection">
 <a class="viewcode-back" href="../../solid.html#pybosl2.solid.intersection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The intersection of *solids* on the active backend.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the intersection of *solids* on the active backend.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 </code></pre></div>
@@ -2913,7 +2913,7 @@
 
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    8.2.3.
+    7.4.7.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
 

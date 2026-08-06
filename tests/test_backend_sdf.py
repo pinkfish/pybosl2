@@ -9,10 +9,6 @@
 Building an SDF shape is FFI-free (only ``.sdf()``/``.mesh()`` touch libfive), so the build/bounds/
 tag tests run anywhere; the mesh-pipeline test uses the numeric mock (as pysolidfive's own tests do)."""
 
-import importlib.util
-
-import pytest
-
 from pybosl2._backend import Solid, current_backend, get_backend, use_backend
 
 
@@ -48,19 +44,9 @@ def test_default_is_csg_and_context_selects_sdf() -> None:
     assert isinstance(sdf, Solid)  # one common contract
 
 
-def _libfive_available() -> bool:
-    try:
-        return importlib.util.find_spec("libfive") is not None
-    except (ImportError, ValueError):
-        return False
-
-
-@pytest.mark.skipif(
-    not _libfive_available(),
-    reason="SDF meshing needs the real libfive C extension (like CSG render tests need the app)",
-)
 def test_sdf_mesh_pipeline_runs() -> None:
-    # Build -> symbolic SDF field -> frep() mesh, end to end (mock frep returns a marker result).
+    # Build -> symbolic SDF field -> frep() mesh, end to end. This runs under the numeric mock too:
+    # it only asks that each stage hands something on, which the mock's marker frep() result does.
     with use_backend("sdf"):
         s = get_backend().construct("sphere", {"radius": 10})
         assert s.sdf() is not None  # type: ignore[attr-defined]  # libfive field

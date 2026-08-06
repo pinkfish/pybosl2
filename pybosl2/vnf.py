@@ -1539,6 +1539,19 @@ class VNF:
             style:    vnf_vertex_array quad-subdivision style
             z:        per-profile Z heights, required when the profiles are 2-D
 
+        Examples:
+            Skinning a round profile up to a square one (a lofted transition):
+
+            .. pythonscad-example::
+
+                import math
+                import numpy as np
+                from pybosl2 import VNF
+
+                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
+                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
+                VNF.from_skin([circle, square], slices=20, method="reindex", z=[0, 25]).polyhedron().show()
+
         """
         from pybosl2.skin import _skin
 

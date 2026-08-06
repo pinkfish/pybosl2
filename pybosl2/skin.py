@@ -84,7 +84,27 @@ class Sweepable:
         style: str = "min_edge",
         transforms: bool = False,
     ) -> VNF | Bosl2Solid | list[list[list[float]]]:
-        """Sweep *shape* along this path (BOSL2 path_sweep())."""
+        """Sweep *shape* along this path (BOSL2 path_sweep()).
+
+        *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
+        (using *normal* as a per-point normal list), or "natural" (the path's own normal). *twist*
+        (degrees) and *scale* (scalar, 2-vector, per-point vector, or Nx2) are interpolated along the
+        path. See BOSL2 path_sweep() for the full semantics.
+
+        Examples:
+            Sweeping a small square profile along a helical path into a solid:
+
+            .. pythonscad-example::
+
+                import math
+                import numpy as np
+                from pybosl2 import Path3D
+
+                square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
+                helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
+                Path3D(helix).path_sweep(square).polyhedron().show()
+
+        """
         return _path_sweep(
             shape,
             cast("Path2D | Path3D", self),
@@ -112,7 +132,25 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF | Bosl2Solid:
-        """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d())."""
+        """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d()).
+
+        For each point on the profile, the path is offset by its X coordinate and lifted to Z = Y,
+        producing a stack of profiles that are skinned into the final surface. Closed paths are
+        reversed automatically to maintain the same winding.
+
+        Examples:
+            A rounded bar swept along a wavy 2-D path:
+
+            .. pythonscad-example::
+
+                import math
+                from pybosl2 import Path2D
+
+                shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
+                path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
+                Path2D(path).path_sweep2d(shape).polyhedron().show()
+
+        """
         return _path_sweep2d(shape, cast("Path2D", self), closed=closed, caps=caps, style=style)
 
     def linear_sweep(
@@ -126,7 +164,23 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF | Bosl2Solid:
-        """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep())."""
+        """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep()).
+
+        The profile is duplicated at *slices* positions along the Z axis; at each level the points
+        are twisted (rotation around Z, degrees) and scaled (uniform scalar or 2-vector), then
+        shifted in XY. The slices are skinned into a VNF.
+
+        Examples:
+            A twisting, tapering square column:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
+                Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()
+
+        """
         return _linear_sweep(
             cast("Path2D", self),
             height=height,
@@ -147,7 +201,22 @@ class Sweepable:
         style: str = "min_edge",
         start: float = 0.0,
     ) -> VNF | Bosl2Solid:
-        """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep())."""
+        """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep()).
+
+        The profile is swept through *angle* degrees (default 360) around Z, starting at
+        *start* degrees. When *angle* < 360 the profile is capped at both ends.
+
+        Examples:
+            Revolving a rounded profile into a spool:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]
+                Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
+
+        """
         return _rotate_sweep(
             cast("Path2D", self),
             angle=angle,
@@ -169,7 +238,23 @@ class Sweepable:
         center: bool = True,
         style: str = "min_edge",
     ) -> VNF | Bosl2Solid:
-        """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep())."""
+        """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep()).
+
+        The profile follows a helical path of *height* and *radius* (or separate start/end radii)
+        over *turns* revolutions. Unlike rotate_sweep, the profile also gains height, producing
+        a coil.
+
+        Examples:
+            A rectangular-section coil spring:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
+                Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
+
+        """
         return _spiral_sweep(
             cast("Path2D", self),
             height,
@@ -356,26 +441,9 @@ def _path_sweep(
     style: str = "min_edge",
     transforms: bool = False,
 ) -> VNF | Bosl2Solid | list[list[list[float]]]:
-    """Sweep the 2-D *shape* along the 2-D/3-D *path*, returning a VNF, Bosl2Solid, or transform list.
+    """Sweep the 2-D *shape* along the 2-D/3-D *path* (internal implementation).
 
-    *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
-    (using *normal* as a per-point normal list), or "natural" (the path's own normal). *twist*
-    (degrees) and *scale* (scalar, 2-vector, per-point vector, or Nx2) are interpolated along the
-    path. See BOSL2 path_sweep() for the full semantics.
-
-    Examples:
-        Sweeping a small square profile along a helical path into a solid:
-
-        .. pythonscad-example::
-
-            import math
-            import numpy as np
-            from pybosl2 import Path3D
-
-            square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
-            helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
-            Path3D(helix).path_sweep(square).polyhedron().show()
-
+    Public API: use :meth:`Sweepable.path_sweep` instead of calling this directly.
     """
     from pybosl2.path3d import Path3D
 
@@ -555,41 +623,9 @@ def _skin(
     style: str = "min_edge",
     z: Sequence[float] | None = None,
 ) -> VNF | Bosl2Solid:
-    """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.
+    """Blend a stack of 2-D/3-D profiles into a skinned surface (internal implementation).
 
-    Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are
-    inserted between each pair to smooth the transition. Profiles of differing point counts are
-    resampled up to the largest (via :meth:`Path2D.subdivide_path`).
-
-    Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a :class:`~pybosl2.shapes3d.Bosl2Solid`
-    with the endcap geometry unioned to the body.
-
-    Args:
-        profiles: list of >= 2 closed profiles (each a list of points). If 2-D, give matching *z*.
-        slices:   number of interpolated profiles inserted between each pair (int or per-gap list)
-        refine:   subdivide every profile by this factor before skinning (default 1)
-        method:   "direct" (connect vertex i to vertex i) or "reindex" (rotate each profile to
-                  best-align with the previous). The "distance"/"tangent" vertex-matching methods
-                  are not ported.
-        sampling: "length" or "segment" resampling (default "length")
-        caps:     cap the ends; supports decorative cap types
-        closed:   the stack loops back to the first profile (default False)
-        style:    vnf_vertex_array quad-subdivision style
-        z:        per-profile Z heights, required when the profiles are 2-D
-
-    Examples:
-        Skinning a round profile up to a square one (a lofted transition):
-
-        .. pythonscad-example::
-
-            import math
-            import numpy as np
-            from pybosl2 import skin
-
-            circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
-            square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
-            skin([circle, square], slices=20, method="reindex", z=[0, 25]).polyhedron().show()
-
+    Public API: use :meth:`VNF.from_skin` instead of calling this directly.
     """
     profiles = [list(p) for p in profiles]
     sides = len(profiles)
@@ -661,32 +697,9 @@ def _linear_sweep(
     style: str = "default",
     center: bool | None = None,
 ) -> VNF | Bosl2Solid:
-    """Extrude a 2-D outline to *height* with optional twist / scale / shift (BOSL2 linear_sweep()).
+    """Extrude a 2-D outline to *height* with optional twist / scale / shift (internal implementation).
 
-    A single closed outline (a Path2D or point list) is supported -- for a region with holes use a
-    native ``linear_extrude`` instead. The bottom sits on Z=0 unless *center* is True.
-
-    Args:
-        region: the 2-D outline to extrude (a closed path)
-        height: extrusion height (aliases: *height*; default 1)
-        twist:  total twist over the height, in degrees (default 0)
-        scale:  scale of the top relative to the bottom (scalar or [x, y]; default 1)
-        shift:  [x, y] offset of the top relative to the bottom (default [0, 0])
-        slices: number of intermediate layers (default: enough for ~5 deg of twist each)
-        caps:   cap the ends (default True); bool or [bool, bool]
-        center: center the extrusion on Z (default False -> base on Z=0)
-        style:  vnf_vertex_array quad-subdivision style
-
-    Examples:
-        A twisting, tapering square column:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D
-
-            square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
-            Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()
-
+    Public API: use :meth:`Sweepable.linear_sweep` instead of calling this directly.
     """
     hh = float(height if height is not None else (height if height is not None else 1))
     path = [[p[0], p[1]] for p in region]
@@ -734,29 +747,9 @@ def _rotate_sweep(
     style: str = "min_edge",
     start: float = 0.0,
 ) -> VNF | Bosl2Solid:
-    """Revolve a 2-D *shape* (in the X+ half-plane, x=radius, y=height) around the Z axis (BOSL2 rotate_sweep()).
+    """Revolve a 2-D *shape* around the Z axis (internal implementation).
 
-    A closed *shape* profile makes a solid of revolution; an open path with *caps* is first closed
-    to the axis. A full 360-degree revolution loops seamlessly; a partial angle end-caps the sweep.
-
-    Args:
-        shape:  the 2-D profile to revolve (x >= 0)
-        angle:  revolution angle in degrees, 0 < angle <= 360 (default 360)
-        caps:   end-cap a partial revolution / close an open profile to the axis (default: angle < 360)
-        closed: legacy inverse of *caps* (give one or the other)
-        style:  vnf_vertex_array quad-subdivision style
-        start:  starting angle in degrees (default 0)
-
-    Examples:
-        Revolving a rounded profile into a spool:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D
-
-            profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]
-            Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
-
+    Public API: use :meth:`Sweepable.rotate_sweep` instead of calling this directly.
     """
     assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
     cap_specs = norm_caps(caps)
@@ -798,34 +791,9 @@ def _spiral_sweep(
     center: bool = True,
     style: str = "min_edge",
 ) -> VNF | Bosl2Solid:
-    """Sweep a 2-D cross-section *poly* along a helix (BOSL2 spiral_sweep(), without lead-in tapers).
+    """Sweep a 2-D cross-section *poly* along a helix (internal implementation).
 
-    *poly*'s X is the radial offset from the helix radius and its Y is the vertical offset, so a
-    small wire cross-section becomes a spring/thread. The lead-in taper options are not ported.
-
-    Args:
-        poly:  the 2-D wire cross-section (closed path)
-        height:     total height of the spiral
-        radius:   helix radius (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
-        diameter:   helix diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
-        turns: number of turns (default 1)
-        radius1: starting radius for a conical spiral.
-        radius2: ending radius for a conical spiral.
-        diameter1: starting diameter for a conical spiral.
-        diameter2: ending diameter for a conical spiral.
-        center: center the spiral on Z (default True)
-        style: vnf_vertex_array quad-subdivision style
-
-    Examples:
-        A rectangular-section coil spring:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D
-
-            section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
-            Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
-
+    Public API: use :meth:`Sweepable.spiral_sweep` instead of calling this directly.
     """
     assert height > 0, "spiral_sweep(): need positive height and nonzero turns."
     assert turns != 0, "spiral_sweep(): need positive height and nonzero turns."
@@ -1714,34 +1682,9 @@ def _path_sweep2d(
     quality: int = 1,
     style: str = "min_edge",
 ) -> VNF | Bosl2Solid:
-    """Sweep a 2-D *shape* along a 2-D *path*, mapping the shape's Y to Z (BOSL2 path_sweep2d()).
+    """Sweep a 2-D *shape* along a 2-D *path* (internal implementation).
 
-    Both *shape* and *path* are 2-D :class:`~pybosl2.paths.Path2D` objects (coerced from point lists).
-    Each shape point offsets the path by its X and lifts it to its Y, so a shape with a wide X
-    range becomes a wall of varying width along the path. Unlike :func:`path_sweep`, moderate local
-    concavity is handled by the offset (mitre joins); an offset large enough to collapse a feature
-    of the path will still fold, so keep the shape's X extent below the path's tightest radius.
-
-    Args:
-        shape:  the 2-D cross-section (a closed path); its X is the offset from the path, its Y the height
-        path:   the 2-D path to sweep along
-        closed: the path is a closed loop (default False)
-        caps:   cap the open ends (default: True for open, False for closed)
-        quality: accepted for signature parity (unused -- the mitre offset needs no quality knob)
-        style:  vnf_vertex_array quad-subdivision style
-
-    Examples:
-        A rounded bar swept along a wavy 2-D path:
-
-        .. pythonscad-example::
-
-            import math
-            from pybosl2 import Path2D
-
-            shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
-            path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
-            Path2D(path).path_sweep2d(shape).polyhedron().show()
-
+    Public API: use :meth:`Sweepable.path_sweep2d` instead of calling this directly.
     """
     from pybosl2.path2d import Path2D
 

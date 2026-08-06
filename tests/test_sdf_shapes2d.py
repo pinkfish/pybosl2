@@ -295,10 +295,18 @@ class TestTrapezoid2D:
 class TestKeyhole2D:
     """keyhole2d -- keyhole slot SDF via polygon2d()."""
 
-    @pytest.mark.skip(reason="keyhole polygon self-intersects with the current outline generator")
     def test_keyhole_builds(self) -> None:
+        # small circle at the origin, large one *length* below it, joined by the tangent shoulders
         shape = sdf_s2d.keyhole2d(length=20, radius1=5, radius2=10).extrude(4).mesh()
-        assert shape.sample(0, 0, 2) < 0, "inside the large circle"
+        assert shape.sample(0, 0, 2) < 0, "inside the small circle"
+        assert shape.sample(0, -20, 2) < 0, "inside the large circle"
+        assert shape.sample(0, -10, 2) < 0, "inside the shoulders between them"
+        assert shape.sample(9, 0, 2) > 0, "clear of the small circle"
+        assert shape.sample(0, 12, 2) > 0, "above the small circle"
+
+    def test_keyhole_shoulder_radius_unsupported(self) -> None:
+        with pytest.raises(NotImplementedError, match="shoulder_radius"):
+            sdf_s2d.keyhole2d(length=20, radius1=5, radius2=10, shoulder_radius=2)
 
     def test_keyhole_short_length_rejected(self) -> None:
         with pytest.raises(AssertionError):

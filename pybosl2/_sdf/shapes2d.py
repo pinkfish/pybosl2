@@ -843,37 +843,29 @@ def keyhole2d(
     r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
     r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
     assert length > 0, "keyhole2d(): length must be positive."
-    assert length >= max(r1v, r2v), "keyhole2d(): length must be positive."
+    assert length >= max(r1v, r2v), "keyhole2d(): length must be at least the larger radius."
+    if shoulder_radius:
+        # The straight sides below run tangent to both circles, so the outline is already smooth
+        # where they meet -- there is no corner for a shoulder fillet to round off.
+        raise NotImplementedError("keyhole2d(): shoulder_radius is not supported by the SDF keyhole.")
 
-    # Build profile: two circles connected by tangent lines (shoulders)
-    sh = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
-    cp1, cp2 = [0.0, 0.0], [0.0, -length]
-    minr, maxr = min(r1v, r2v) + sh, max(r1v, r2v) + sh
-    dy = _m.sqrt(max(maxr * maxr - minr * minr, 0))
-    spt1 = [cp1[0] + minr, cp1[1] - dy] if r1v > r2v else [cp2[0] + minr, cp2[1] + dy]
-    spt2 = [-spt1[0], spt1[1]]
+    # The outline is the two circles' OUTER arcs joined by their external tangent lines. Each
+    # tangent touches its circle at +-phi off the centre-to-centre axis, so the arc kept on the
+    # near circle spans 360-2*phi and the one on the far circle spans 2*phi -- together a full
+    # turn, which is what makes the ring close without crossing itself.
+    cp1, cp2 = (0.0, 0.0), (0.0, -length)
+    base = -90.0  # direction from cp1 to cp2
+    phi = _m.degrees(_m.acos(max(-1.0, min(1.0, (r1v - r2v) / length))))
 
-    # Sample arcs and lines
     steps = max(12, res * 4)
     pts = []
-    if r1v > r2v:
-        pts.append(spt1)
+    for centre, radius, start, sweep in (
+        (cp1, r1v, base + phi, 360.0 - 2.0 * phi),
+        (cp2, r2v, base - phi, 2.0 * phi),
+    ):
         for i in range(steps):
-            a = _m.radians(90 - 90 * i / (steps - 1))
-            pts.append([cp2[0] + r2v * _m.cos(a), cp2[1] - r2v * _m.sin(a)])
-        pts.append(spt2)
-        for i in range(steps):
-            a = _m.radians(270 - 90 * i / (steps - 1))
-            pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] - r1v * _m.sin(a)])
-    else:
-        pts.append(spt1)
-        for i in range(steps):
-            a = _m.radians(90 + 90 * i / (steps - 1))
-            pts.append([cp2[0] + r2v * _m.cos(a), cp2[1] + r2v * _m.sin(a)])
-        pts.append(spt2)
-        for i in range(steps):
-            a = _m.radians(270 + 90 * i / (steps - 1))
-            pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] + r1v * _m.sin(a)])
+            a = _m.radians(start + sweep * i / (steps - 1))
+            pts.append([centre[0] + radius * _m.cos(a), centre[1] + radius * _m.sin(a)])
 
     return polygon2d(pts, res=res)
 

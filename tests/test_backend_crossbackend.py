@@ -9,20 +9,11 @@
 Boolean ops require operands to share a backend (else CrossBackendError with conversion guidance);
 SDF->CSG is an exact mesh->polyhedron bridge, CSG->SDF is unsupported."""
 
-import importlib.util
-
 import pytest
 
 from pybosl2 import solid
 from pybosl2._backend import Solid, use_backend
 from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
-
-
-def _libfive_available() -> bool:
-    try:
-        return importlib.util.find_spec("libfive") is not None
-    except (ImportError, ValueError):
-        return False
 
 
 def _csg_sphere() -> Solid:
@@ -68,12 +59,10 @@ def test_csg_to_sdf_is_unsupported() -> None:
     assert ei.value.feature == "to_sdf"
 
 
-@pytest.mark.skipif(
-    not _libfive_available(),
-    reason="SDF->CSG conversion meshes via libfive (not installed here)",
-)
-def test_sdf_to_csg_meshes_into_a_csg_solid() -> None:
-    csg = _sdf_sphere().to_csg()  # type: ignore[attr-defined]
-    assert csg.backend == "csg"
-    # and it can now be combined with other CSG solids without error
-    assert (csg | solid.cube(5)).backend == "csg"  # type: ignore[attr-defined]
+# The happy path of SDF->CSG (to_csg() meshing a field into a real CSG solid) has no test here.
+# It needs the real libfive C extension to produce a mesh the native layer will accept, and libfive
+# ships only inside the full PythonSCAD app -- there is no pip distribution, so no environment this
+# suite runs in can exercise it and a test here could only ever skip. Covering it for real means a
+# render-style test driven through tests/render_stl.py's app binary. What *is* testable without
+# libfive is covered above: to_csg() on a CSG solid is a no-op, csg.to_sdf() raises, and the
+# cross-backend error points at to_csg().

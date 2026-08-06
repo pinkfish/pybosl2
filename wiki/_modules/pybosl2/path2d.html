@@ -1895,6 +1895,7 @@
 <span class="sd">        n_in: Offset normal of the incoming edge.</span>
 <span class="sd">        n_out: Offset normal of the outgoing edge.</span>
 <span class="sd">        amount: The signed offset distance.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">vertex</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
@@ -1912,15 +1913,16 @@
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_out</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">opens_gap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sign</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;True if the offset pulls the two edges apart here, leaving a gap to bridge.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the offset pulls the two edges apart here, leaving a gap to bridge.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            sign: 1 for a counter-clockwise outline, -1 for a clockwise one.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cross</span> <span class="o">*</span> <span class="n">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">amount</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">mitre</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The two offset edges run on to their intersection: a sharp corner.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the sharp corner at the intersection of the two offset edges.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            limit: Cap on the corner&#39;s reach, as a multiple of the offset distance. Two edges</span>
@@ -1931,6 +1933,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The single corner point, or both edge ends when the edges are parallel or reach</span>
 <span class="sd">            past *limit*.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">denom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cross</span>
         <span class="n">ends</span> <span class="o">=</span> <span class="p">[</span><span class="n">_xy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_in</span><span class="p">),</span> <span class="n">_xy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_out</span><span class="p">)]</span>
@@ -1944,13 +1947,14 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">_xy</span><span class="p">(</span><span class="n">corner</span><span class="p">)]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">arc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The gap bridged by an arc of radius ``|amount|`` around the corner.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the gap bridged by an arc of radius ``|amount|`` around the corner.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            segments: Facet count for a full circle at this radius.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The points along the arc, from *pt_in* round to *pt_out*.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">start_deg</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_in</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_in</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
         <span class="n">end_deg</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pt_out</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">pt_out</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertex</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
@@ -1961,10 +1965,11 @@
         <span class="k">return</span> <span class="n">arc</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">chamfer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The gap bridged by a flat cut across the corner.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the gap bridged by a flat cut across the corner.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The two points where the offset edges meet the chamfer.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bisector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_in</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_out</span>
         <span class="n">blen</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">bisector</span><span class="p">))</span>
@@ -4046,6 +4051,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The candidate segment-index pairs, ready for an exact intersection test.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">plen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">plen</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
@@ -4225,6 +4231,7 @@
 <span class="sd">            fs: Minimum size for circle fragments.</span>
 <span class="sd">            same_length: Return the raw corner construction, one point per input point, skipping</span>
 <span class="sd">                the fold repair that would drop points (``delta``, no chamfer).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -4303,7 +4310,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_drop_repeated_points</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The ring with points that repeat their neighbour removed.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ring with points that repeat their neighbour removed.&quot;&quot;&quot;</span>
         <span class="n">ring</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">differs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ring</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">EPSILON</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">_xy</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">[</span><span class="n">differs</span><span class="p">]]</span>
@@ -4333,6 +4340,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The join between the two edges.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_OffsetJoin</span><span class="p">(</span>
             <span class="n">vertex</span><span class="o">=</span><span class="n">pts</span><span class="p">[</span><span class="n">cur</span><span class="p">],</span>
@@ -4347,13 +4355,14 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_drop_degenerate_points</span><span class="p">(</span><span class="n">pts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The outline with zero-length segments removed, for offsetting.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the outline with zero-length segments removed, for offsetting.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            pts: The outline points, as an (N, 2) array.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The points that start a real segment.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">pts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">EPSILON</span>
         <span class="k">if</span> <span class="n">keep</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
@@ -4377,6 +4386,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            One corner point per edge, as an (E, 2) array.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">u_in</span><span class="p">,</span> <span class="n">u_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">u_edge</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">u_edge</span>
         <span class="n">pt_in</span><span class="p">,</span> <span class="n">pt_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">start</span>
@@ -4410,6 +4420,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A boolean mask over the edges.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">edges</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">linestrings</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">gap</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_distance_from_outline</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
@@ -4434,6 +4445,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A boolean mask over *points*.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">wanted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
@@ -4457,6 +4469,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The distance from each geometry to the outline.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ring</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="p">[:</span><span class="mi">1</span><span class="p">]])</span>
         <span class="n">segments</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">linestrings</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">ring</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ring</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
@@ -4465,12 +4478,12 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_ring_is_simple</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;True if the closed ring through *points* does not cross itself.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the closed ring through *points* does not cross itself.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">LineString</span><span class="p">([</span><span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">is_simple</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_buffered_offset</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">use_round</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The offset as an exact buffer, for the shapes the corner construction cannot express.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the offset as an exact buffer, for the shapes the corner construction cannot express.</span>
 
 <span class="sd">        Two cases end up here: an outline eroded so far that it is all corner arcs and no edges</span>
 <span class="sd">        survive, and one the offset breaks into separate pieces, where joining the survivors up</span>
@@ -4488,6 +4501,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AssertionError: If the offset leaves nothing at all.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="p">[:</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">polygon</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
@@ -5117,7 +5131,7 @@
 
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    8.2.3.
+    7.4.7.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
 
