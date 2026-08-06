@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+"""The texture() named-texture engine (BOSL2 skin.scad)."""
+
 # LibFile: pybosl2/texture.py
 #    Port of BOSL2's texture() engine from skin.scad: the named-texture table that
 #    :func:`~pybosl2.shapes3d.textured_tile` (and, in BOSL2, the textured sweeps) build from.
@@ -421,8 +423,9 @@ _TEX_FN_DEFAULT = 16  # BOSL2 _tex_fn_default()
 
 
 def _circle_xy(d: float, n: int) -> list[list[float]]:
-    """*n* points of a circle of diameter *d* centred at the origin, starting east (BOSL2
-    circle()).
+    """Generate *n* points of a circle of diameter *d* centred at the origin, starting east.
+
+    BOSL2 circle().
     """
     return [
         [
@@ -434,7 +437,10 @@ def _circle_xy(d: float, n: int) -> list[list[float]]:
 
 
 def _square_pts(border: float) -> list[list[float]]:
-    """The tile base: the unit square, subdivided to 8 points if *border*>0 else its 4 corners."""
+    """Generate the tile base: the unit square, subdivided by *border*.
+
+    Subdivided to 8 points if *border*>0 else its 4 corners.
+    """
     if border > 0:  # subdivide_path(square(1), refine=2)
         return [[0, 0], [0.5, 0], [1, 0], [1, 0.5], [1, 1], [0.5, 1], [0, 1], [0, 0.5]]
     return [[0, 0], [1, 0], [1, 1], [0, 1]]
@@ -451,8 +457,9 @@ def _sph(r: float, theta: float, phi: float) -> list[float]:
 
 
 def _base_faces(n: int, base0: int, border: float) -> list[list[int]]:
-    """The four faces joining a quarter of the *n*-point rim to each base-square region; *base0* is the
-    index of the first base-square vertex (BOSL2's cones/dots base connection).
+    """Generate the faces joining a quarter of the *n*-point rim to each base-square region.
+
+    *base0* is the index of the first base-square vertex (BOSL2's cones/dots base connection).
     """
     out = []
     for i in range(4):
@@ -625,6 +632,8 @@ TEXTURES: dict[str, tuple[Callable[..., list[list[float]] | tuple[list[list[floa
 
 
 class TextureType(Enum):
+    """Enumeration of named texture types."""
+
     RIBS = "ribs"
     TRUNC_RIBS = "trunc_ribs"
     WAVE_RIBS = "wave_ribs"
@@ -657,11 +666,13 @@ def texture(
     inset: float | None = None,
     fn: int | None = None,
 ) -> list[list[float]] | tuple[list[list[float]], list[list[int]]]:
-    """The named texture *tex* -- a height-field array or a VNF tile ``(verts, faces)`` (BOSL2 texture()).
+    """Look up the named texture *tex*.
 
-    *sides* sets the resolution of the parametric height-field textures; *border*/*gap* shape the VNF-tile
-    textures; *roughness* perturbs ``bricks``. Pass a name from :data:`TEXTURES`. See the module
-    docstring for which textures are ported.
+    Returns a height-field array or a VNF tile ``(verts, faces)``.
+
+    BOSL2 texture(). *sides* sets the resolution of the parametric height-field textures;
+    *border*/*gap* shape the VNF-tile textures; *roughness* perturbs ``bricks``. Pass a name
+    from :data:`TEXTURES`. See the module docstring for which textures are ported.
 
     Returns
     -------
@@ -712,8 +723,9 @@ def _weld(
 def _close_to_base(
     verts: list[list[float]], faces: list[list[int]], bottom: float
 ) -> tuple[list[list[float]], list[list[int]]]:
-    """Close an open (top-only) surface into a solid by dropping its boundary loops to z=*bottom*
-    with side walls and a flat bottom cap.
+    """Close an open (top-only) surface into a solid.
+
+    Drops boundary loops to z=*bottom* with side walls and a flat bottom cap.
     """
     verts = [list(p) for p in verts]
     faces = [list(f) for f in faces]
@@ -748,7 +760,7 @@ def _close_to_base(
 
 
 def is_watertight_topology(verts: list[list[float]], faces: list[list[int]]) -> bool:
-    """True if every undirected edge of *faces* is shared by exactly two faces (a closed manifold)."""
+    """Check if every undirected edge of *faces* is shared by exactly two faces (a closed manifold)."""
     _ = verts
     from collections import Counter
 
@@ -797,8 +809,9 @@ def vnf_tile_to_solid(
     tex_depth: float = 1.0,
     inset: float = 0.0,
 ) -> tuple[list[list[float]], list[list[int]]]:
-    """Tile a VNF texture cell over a *size* ``[x, y]`` rectangle *reps* ``[nx, ny]`` times and close
-    it into a watertight solid. Returns ``(verts, faces)`` for a polyhedron.
+    """Tile a VNF texture cell over a *size* ``[x, y]`` rectangle and close into a watertight solid.
+
+    Returns ``(verts, faces)`` for a polyhedron.
     """
     sx, sy = float(size[0]), float(size[1])
     nx, ny = int(reps[0]), int(reps[1])
@@ -817,7 +830,7 @@ def vnf_tile_to_solid(
 
 
 def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], list[list[int]]]) -> bool:
-    """True if *tex* is a height-field: a 2-D array whose entries are plain numbers."""
+    """Check if *tex* is a height-field: a 2-D array whose entries are plain numbers."""
     try:
         row = tex[0]
         return not isinstance(row[0], (list, tuple, np.ndarray))
@@ -826,7 +839,7 @@ def is_heightfield_texture(tex: list[list[float]] | tuple[list[list[float]], lis
 
 
 def is_vnf_texture(tex: object) -> bool:
-    """True if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors."""
+    """Check if *tex* is a VNF tile: ``(verts, faces)`` with verts a list of 3-vectors."""
     try:
         verts: Any
         faces: Any

@@ -65,7 +65,7 @@ def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
 
 
 def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
-    """Standard Rodrigues' rotation matrix for `deg` degrees around `axis` (need not be unit)."""
+    """Return the Rodrigues' rotation matrix for `deg` degrees around `axis` (need not be unit)."""
     angle = math.radians(deg)
     n = math.sqrt(sum(a * a for a in axis))
     ax, ay, az = (a / n for a in axis)
@@ -78,7 +78,8 @@ def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
 
 
 def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -> list[list[float]]:
-    """3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions:
+    """Return a 3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions.
+
     `a` a lone angle (degrees) with an explicit axis `v`, or (v is None) `a` a 3-vector of Euler
     angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
     rotate([x, y, z]) uses.
@@ -93,13 +94,14 @@ def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -
 
 
 def _rounded_box_sdf(x: LVTree, y: LVTree, z: LVTree, size: list[float], r: float) -> LVTree:
-    """Exact SDF for a box uniformly rounded on every edge and corner: the Minkowski sum of a
-    box (shrunk by `r` on every side) with a sphere of radius `r` -- the same construction
-    pybosl2.shapes3d.cuboid() itself special-cases via a real minkowski() for edges="ALL". Unlike
-    _cuboid_edge_sdf()'s general per-axis-plane composition (max() of three independently
-    rounded-rectangle extrusions, which only *approximates* the true corner blend and leaves a
-    visible seam where the three rounded faces meet), this is a single closed-form expression
-    with an exact, seamless spherical corner -- no per-axis composition, so no seam.
+    """Return the exact SDF for a box uniformly rounded on every edge and corner.
+
+    The Minkowski sum of a box (shrunk by `r` on every side) with a sphere of radius `r` -- the
+    same construction pybosl2.shapes3d.cuboid() itself special-cases via a real minkowski() for
+    edges="ALL". Unlike _cuboid_edge_sdf()'s general per-axis-plane composition (max() of three
+    independently rounded-rectangle extrusions, which only *approximates* the true corner blend and
+    leaves a visible seam where the three rounded faces meet), this is a single closed-form
+    expression with an exact, seamless spherical corner -- no per-axis composition, so no seam.
     """
     hx, hy, hz = [s / 2 - r for s in size]
     qx = lv.abs(x) - hx
@@ -112,8 +114,9 @@ def _rounded_box_sdf(x: LVTree, y: LVTree, z: LVTree, size: list[float], r: floa
 
 
 def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str) -> tuple[list[list[float]], list[list[str]]]:
-    """The per-edge treatment state for a single (amount, edge_set, mode) selection, as the
-    3x4 amounts/modes matrices _cuboid_edge_sdf() consumes (EDGE_OFFSETS row/column order).
+    """Return the per-edge treatment state for a single (amount, edge_set, mode) selection.
+
+    The 3x4 amounts/modes matrices _cuboid_edge_sdf() consumes (EDGE_OFFSETS row/column order).
     """
     amounts = [[amount if edge_set[a][i] else 0.0 for i in range(4)] for a in range(3)]
     modes = [[mode] * 4 for _ in range(3)]
@@ -123,8 +126,8 @@ def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str) -> tuple
 def _cuboid_edge_sdf(
     x: LVTree, y: LVTree, z: LVTree, size: list[float], amounts: list[list[float]], modes: list[list[str]]
 ) -> LVTree:
-    """The cuboid SDF (as an explicit function of the given x/y/z trees, so callers can pass
-    shifted coordinates to compose translation) with an independent treatment per edge:
+    """Return the cuboid SDF with independent per-edge treatment.
+
     `amounts[axis][i]` (rounding radius or chamfer size, per `modes[axis][i]`) in EDGE_OFFSETS
     order. Everything is folded into ONE evaluation -- chaining several treatments by
     max()-ing full cuboid SDFs (the old .round()/.chamfer() composition) leaves their zero
@@ -151,9 +154,10 @@ def _cuboid_edge_sdf(
 
 
 class SdfSolid(Distributable):
-    """Wraps a libfive SDF, kept as a *symbolic* function of (x, y, z) rather than an
-    already-evaluated tree or an already-meshed solid, plus the bounding box (`mn`/`mx`)
-    frep() needs and (for cuboid-shaped instances) enough metadata to add more edge
+    """Wrap a libfive SDF kept as a *symbolic* function of (x, y, z).
+
+    Rather than an already-evaluated tree or an already-meshed solid, plus the bounding box
+    (`mn`/`mx`) frep() needs and (for cuboid-shaped instances) enough metadata to add more edge
     treatments after the fact.
 
     Extra controls beyond a bare `frep()` call:
@@ -232,7 +236,7 @@ class SdfSolid(Distributable):
         )
 
     def sdf(self) -> LVTree:
-        """The fully-evaluated libfive expression tree, at the real coordinate trees."""
+        """Return the fully-evaluated libfive expression tree at the real coordinate trees."""
         return self._sdf_fn(lv.x(), lv.y(), lv.z())
 
     def bounds(self) -> tuple[list[float], list[float]]:
@@ -298,8 +302,9 @@ class SdfSolid(Distributable):
         )
 
     def rotate(self, a: float | Sequence[float], v: list[float] | None = None) -> PyShape:
-        """Rotate the SDF itself (`f(p) -> f(R^-1 p)`), exact and free -- no meshing involved,
-        so (like translate()) a shape can still be .round()ed/.chamfer()ed/composed afterward
+        """Rotate the SDF itself (`f(p) -> f(R^-1 p)`), exact and free -- no meshing involved.
+
+        So (like translate()) a shape can still be .round()ed/.chamfer()ed/composed afterward
         without forcing an early mesh. Matches the real rotate(obj, a, v)'s two calling
         conventions: `rotate(angle, axis)`, or `rotate([x, y, z])` for Euler angles.
 
@@ -330,7 +335,8 @@ class SdfSolid(Distributable):
         return self._wrap(new_fn, new_mn, new_mx)
 
     def scale(self, v: float | Sequence[float]) -> PyShape:
-        """Scale the SDF (`f(p) -> s_min * f(p / s)`), exact zero set, no meshing involved --
+        """Scale the SDF (`f(p) -> s_min * f(p / s)`), exact zero set, no meshing involved.
+
         `v` a single factor or a per-axis [sx, sy, sz], matching the real scale(). The value is
         renormalized by the smallest factor so it stays a conservative (never-overestimating)
         distance under non-uniform scaling; for uniform scaling it stays exact. Drops
@@ -347,8 +353,9 @@ class SdfSolid(Distributable):
         return self._wrap(new_fn, new_mn, new_mx)
 
     def mirror(self, v: list[float]) -> PyShape:
-        """Reflect across the plane through the origin with normal `v` (`f(p) -> f(Mp)`, with
-        M the Householder reflection), exact and free, matching the real mirror(). Drops
+        """Reflect across the plane through the origin with normal `v`, exact and free.
+
+        `f(p) -> f(Mp)`, with M the Householder reflection, matching the real mirror(). Drops
         cuboid_size/cuboid_center metadata, same rationale as rotate(): edge selectors are
         pre-transform concepts.
         """
@@ -425,7 +432,7 @@ class SdfSolid(Distributable):
         return [self.multmatrix(m) for m in mats]
 
     def to_sdf(self) -> PyShape:
-        """This solid is already on the SDF backend -- returns self (the converter no-op)."""
+        """Return self since the solid is already on the SDF backend (converter no-op)."""
         return self
 
     def to_csg(self) -> Any:
@@ -485,7 +492,7 @@ class SdfSolid(Distributable):
 
     @staticmethod
     def union(*shapes: PyShape) -> PyShape:
-        """The union of the given PyShapes (min() of their SDFs), as one PyShape.
+        """Return the union of the given PyShapes (min() of their SDFs), as one PyShape.
 
         Accepts either varargs or a single list.
         """
@@ -503,7 +510,7 @@ class SdfSolid(Distributable):
 
     @staticmethod
     def intersection(*shapes: PyShape) -> PyShape:
-        """The intersection of the given PyShapes (max() of their SDFs), as one PyShape.
+        """Return the intersection of the given PyShapes (max() of their SDFs), as one PyShape.
 
         Accepts either varargs or a single list.
         """
@@ -582,7 +589,10 @@ class SdfSolid(Distributable):
     # -- hull / projection: the counterparts of Bosl2Solid's, on the SDF side ------------------
 
     def hull(self, *others: Any, directions: int = 64, res: int | None = None) -> PyShape:
-        """The convex hull of this shape, optionally together with *others* (BOSL2 hull())."""
+        """Return the convex hull of this shape, optionally together with *others*.
+
+        See pybosl2.shapes3d.hull() for the equivalent BOSL2 hull().
+        """
         args = list(self) + list(others) if isinstance(self, (list, tuple)) else [self] + list(others)
 
         if len(args) == 1 and isinstance(args[0], (list, tuple)) and args[0] and isinstance(args[0][0], PyShape):
@@ -665,9 +675,10 @@ class SdfSolid(Distributable):
 
 
 def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
-    """Varargs-or-single-iterable: `union(a, b)` and `union([a, b])` both work, matching the
-    two calling conventions the box libraries already mix (OpenSCAD-style children vs.
-    pybosl2-style list arguments).
+    """Return a list of PyShapes from varargs-or-single-iterable input.
+
+    `union(a, b)` and `union([a, b])` both work, matching the two calling conventions the
+    box libraries already mix (OpenSCAD-style children vs. pybosl2-style list arguments).
     """
     if len(shapes) == 1 and isinstance(shapes[0], (list, tuple)):
         shapes = tuple(shapes[0])
@@ -680,8 +691,9 @@ def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
 
 
 def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list[Any]) -> LVTree:
-    """Reduce `vals` with `op` as a balanced tree (depth log n) rather than a left fold
-    (depth n) -- same node count either way, but libfive re-evaluates the whole expression
+    """Reduce `vals` with `op` as a balanced tree (depth log n) rather than a left fold.
+
+    Depth n: same node count either way, but libfive re-evaluates the whole expression
     per sample point and shallow trees keep its interval pruning effective on wide unions.
     """
     while len(vals) > 1:
@@ -690,9 +702,10 @@ def _balanced(op: Callable[[LVTree, LVTree], LVTree], vals: list[Any]) -> LVTree
 
 
 def _support_points(points: ArrayLike, n_dirs: int) -> NDArray[np.float64]:
-    """Decimate a point cloud to at most `n_dirs + 6` extreme (support) points: for each of
-    `n_dirs` directions spread over the sphere (a Fibonacci lattice, plus the 6 axis
-    directions so bounding-box extremes always survive), keep the farthest point along it.
+    """Decimate a point cloud to at most `n_dirs + 6` extreme (support) points.
+
+    For each of `n_dirs` directions spread over the sphere (a Fibonacci lattice, plus the 6
+    axis directions so bounding-box extremes always survive), keep the farthest point along it.
     The hull of the survivors is an inscribed approximation of the cloud's hull: exact at
     every vertex that is the unique maximizer of some kept direction (a cuboid's 8 corners
     all are, well before n_dirs reaches double digits), with error bounded by the direction
@@ -714,11 +727,13 @@ def _support_points(points: ArrayLike, n_dirs: int) -> NDArray[np.float64]:
 
 
 def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, float]]:
-    """The supporting planes of the convex hull of `pts`, as (nx, ny, nz, offset) tuples with
-    unit outward normals -- brute force over point triples (every non-degenerate triple whose
-    plane has all points on one side is a hull face plane, deduplicated). O(n^4) in the point
-    count, entirely fine for the tens-of-points sets convex_polyhedron()/hull() feed it, and
-    it happens once in Python at construction time, not per SDF evaluation.
+    """Return the supporting planes of the convex hull of `pts`.
+
+    As (nx, ny, nz, offset) tuples with unit outward normals -- brute force over point triples
+    (every non-degenerate triple whose plane has all points on one side is a hull face plane,
+    deduplicated). O(n^4) in the point count, entirely fine for the tens-of-points sets
+    convex_polyhedron()/hull() feed it, and it happens once in Python at construction time,
+    not per SDF evaluation.
     """
     n = len(pts)
     scale = max(max(abs(v) for v in p) for p in pts) or 1.0
@@ -760,12 +775,13 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
 def _cuboid_flare_sdf(
     x: LVTree, y: LVTree, z: LVTree, size: list[float], r: float, edge_set: list[list[int]]
 ) -> LVTree:
-    """The cuboid SDF with BOSL2's negative-rounding treatment (an external cove flare) on the
-    selected X/Y-axis edges: the top/bottom face extends outward by `r` in the horizontal
-    direction, then a concave quarter-arc sweeps back to the side face -- exactly BOSL2's
-    construction (an added edge block with a cylinder of radius `r`, centered `r` outward
-    horizontally and `r` inward vertically from the edge, carved out of it). Z-axis edges are
-    rejected by cuboid() itself, matching BOSL2's own assert.
+    """Return the cuboid SDF with BOSL2's negative-rounding treatment on the selected edges.
+
+    An external cove flare on the selected X/Y-axis edges: the top/bottom face extends outward
+    by `r` in the horizontal direction, then a concave quarter-arc sweeps back to the side
+    face -- exactly BOSL2's construction (an added edge block with a cylinder of radius `r`,
+    centered `r` outward horizontally and `r` inward vertically from the edge, carved out of
+    it). Z-axis edges are rejected by cuboid() itself, matching BOSL2's own assert.
     """
     p = [x, y, z]
     b = [s / 2 for s in size]
@@ -803,11 +819,13 @@ def cuboid(
     res: int = 10,
     anchor: "Sequence[float]" = CENTER,
 ) -> PyShape:
-    """A cuboid with optional per-edge rounding or chamfering, built as a libfive signed
-    distance function (F-Rep) and returned as a PyShape (meshed lazily, via frep(), on first
-    use) -- see pybosl2.shapes3d.cuboid() for the equivalent BOSL2-style mesh-CSG version
-    (identical `edges=`/`except_edges=` semantics; both accept the same edge selector values,
-    since pybosl2._sdf.edges's edge-set resolver is a byte-for-byte copy of pybosl2's own).
+    """Return a cuboid with optional per-edge rounding or chamfering as a libfive SDF.
+
+    Built as a libfive signed distance function (F-Rep) and returned as a PyShape (meshed
+    lazily, via frep(), on first use) -- see pybosl2.shapes3d.cuboid() for the equivalent
+    BOSL2-style mesh-CSG version (identical `edges=`/`except_edges=` semantics; both accept
+    the same edge selector values, since pybosl2._sdf.edges's edge-set resolver is a
+    byte-for-byte copy of pybosl2's own).
 
     `rounding` and `chamfer` are mutually exclusive in a single call (matching
     pybosl2.shapes3d.cuboid()); to mix both on different edges of the same cuboid, chain
@@ -898,7 +916,7 @@ def cuboid(
 
 
 def cube(size: float | list[float] = 1, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape:
-    """A cube, as a plain (unrounded) libfive SDF. See cuboid() for rounding/chamfering."""
+    """Return a cube, as a plain (unrounded) libfive SDF. See cuboid() for rounding/chamfering."""
     return cuboid(size=size, anchor=anchor, res=res)
 
 
@@ -908,7 +926,7 @@ def cube(size: float | list[float] = 1, anchor: "Sequence[float]" = CENTER, res:
 
 
 def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 10) -> PyShape:
-    """An octahedron with axis-aligned points (`|x|+|y|+|z| <= size/2`), as a libfive SDF."""
+    """Return an octahedron with axis-aligned points (`|x|+|y|+|z| <= size/2`), as a libfive SDF."""
     s = size / 2
     sdf_fn = lambda x, y, z: lv.abs(x) + lv.abs(y) + lv.abs(z) - s  # noqa: E731
     shape = PyShape(sdf_fn, [-s, -s, -s], [s, s, s], res)
@@ -920,12 +938,13 @@ def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 1
 
 
 def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
-    """The convex hull of `points` as a libfive SDF: the max of the hull faces' signed
-    half-space distances -- the 3-D analogue of polygon_extrude()'s half-plane form, with the
-    same documented value tradeoff (exact perpendicular distance at faces, sign-correct
-    underestimate out past edges/vertices). Covers the dice-style solids (tetrahedron,
-    dodecahedron, icosahedron, trapezohedron, ...) that shapes3d.py builds, without needing
-    BOSL2's polyhedra.scad or a mesh hull().
+    """Return the convex hull of `points` as a libfive SDF.
+
+    The max of the hull faces' signed half-space distances -- the 3-D analogue of
+    polygon_extrude()'s half-plane form, with the same documented value tradeoff (exact
+    perpendicular distance at faces, sign-correct underestimate out past edges/vertices).
+    Covers the dice-style solids (tetrahedron, dodecahedron, icosahedron, trapezohedron, ...)
+    that shapes3d.py builds, without needing BOSL2's polyhedra.scad or a mesh hull().
 
     Face planes come from a brute-force hull: every non-degenerate point triple whose plane has
     all points on one side is a supporting plane (deduplicated). That's O(n^4) in the point
@@ -955,11 +974,12 @@ def wedge(
     anchor: "Sequence[float] | None" = None,
     res: int = 10,
 ) -> PyShape:
-    """A 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, as a libfive SDF.
+    """Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, as a libfive SDF.
 
     Args:
         size:   [width, thickness, height]
         anchor: anchor point (default FRONT+LEFT+BOTTOM, matching pybosl2.shapes3d.wedge())
+        res: libfive meshing resolution passed to frep() (default 10)
 
     """
     if size is None:
@@ -999,7 +1019,7 @@ def sphere(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A sphere, as a libfive SDF (`length(p) - r`).
+    """Return a sphere, as a libfive SDF (`length(p) - r`).
 
     Examples:
         .. pythonscad-example::
@@ -1024,8 +1044,10 @@ def spheroid(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """An approximate sphere; this pure-libfive port just builds a plain sphere() (matching
-    pybosl2.shapes3d.spheroid()'s own choice to ignore style/dual for its pure-Python port).
+    """Return an approximate sphere as a libfive SDF.
+
+    This pure-libfive port just builds a plain sphere() (matching pybosl2.shapes3d.spheroid()'s
+    own choice to ignore style/dual for its pure-Python port).
     """
     return sphere(radius=radius, diameter=diameter, anchor=anchor, res=res)
 
@@ -1042,7 +1064,9 @@ def torus(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A torus (donut) shape, as a libfive SDF (`length(vec2(length(p.xy)-major_radius, p.z)) - minor_radius`).
+    """Return a torus (donut) shape, as a libfive SDF.
+
+    The SDF is `length(vec2(length(p.xy)-major_radius, p.z)) - minor_radius`.
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
     keyword `or`; it is exposed here as `outer_radius` instead. See pybosl2.shapes3d.torus() for
@@ -1094,10 +1118,12 @@ def torus(
 
 
 def _wall_line_sdf(rxy: LVTree, z: LVTree, radius1: float, radius2: float, hb: float) -> LVTree:
-    """Signed distance to the infinite line through `(radius1, -hb)` and `(radius2, hb)` in the
-    `(rxy, z)` half-plane -- the slanted wall of a cylinder/cone, exact for the wall itself;
-    intersecting (max()) with the top/bottom slabs (see _cylinder_sdf()) caps it off, with the
-    same corner-region approximation already documented for cuboid()'s per-axis composition.
+    """Return the signed distance to the infinite line for the slanted wall of a cylinder/cone.
+
+    Goes through `(radius1, -hb)` and `(radius2, hb)` in the `(rxy, z)` half-plane -- exact for
+    the wall itself; intersecting (max()) with the top/bottom slabs (see _cylinder_sdf()) caps
+    it off, with the same corner-region approximation already documented for cuboid()'s per-axis
+    composition.
     """
     dr, dz = radius2 - radius1, 2 * hb
     nlen = math.hypot(dr, dz)
@@ -1124,10 +1150,11 @@ def _cylinder_sdf(
 def _cyl_edge_sdf(
     axial: LVTree, radial: LVTree, h: float, radius1: float, radius2: float, amt1: float, amt2: float, mode: str
 ) -> LVTree:
-    """_cylinder_sdf(), plus independent rounding/chamfer treatment of the bottom (amt1) and
-    top (amt2) rim, using the same per-candidate-quadrant masking technique as
-    pybosl2.shapes3d.cuboid() (but only 2 candidates -- top/bottom -- since the radial
-    coordinate has no sign ambiguity to select between, unlike a rectangle's 4 corners).
+    """Return _cylinder_sdf() plus independent rounding/chamfer treatment of the bottom and top rims.
+
+    Uses the same per-candidate-quadrant masking technique as pybosl2.shapes3d.cuboid() (but
+    only 2 candidates -- top/bottom -- since the radial coordinate has no sign ambiguity to
+    select between, unlike a rectangle's 4 corners).
     """
     hb = h / 2
     wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
@@ -1161,7 +1188,7 @@ def cylinder(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering."""
+    """Return a cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering."""
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
     rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
@@ -1197,7 +1224,8 @@ def cyl(
     anchor: "Sequence[float] | None" = None,
     res: int = 10,
 ) -> PyShape:
-    """A cylinder/cone with optional rounding or chamfering of its end rims, as a libfive SDF.
+    """Return a cylinder/cone with optional rounding or chamfering of its end rims, as a libfive SDF.
+
     See pybosl2.shapes3d.cyl() for the full BOSL2-style version this mirrors (circum=/realign=/
     texture= aren't supported here; shift= is, for oblique cones, but not combined with
     rounding/chamfer).
@@ -1311,7 +1339,7 @@ def xcyl(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A cylinder oriented along the X axis. See cyl() for argument details."""
+    """Return a cylinder oriented along the X axis. See cyl() for argument details."""
     return _cyl_axis(
         0,
         height,
@@ -1351,7 +1379,7 @@ def ycyl(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A cylinder oriented along the Y axis. See cyl() for argument details."""
+    """Return a cylinder oriented along the Y axis. See cyl() for argument details."""
     return _cyl_axis(
         1,
         height,
@@ -1391,7 +1419,7 @@ def zcyl(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A cylinder oriented along the Z axis (same as cyl()). See cyl() for argument details."""
+    """Return a cylinder oriented along the Z axis (same as cyl()). See cyl() for argument details."""
     return _cyl_axis(
         2,
         height,
@@ -1432,7 +1460,7 @@ def tube(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A hollow cylindrical tube (outer cylinder minus inner cylinder), as a libfive SDF.
+    """Return a hollow cylindrical tube (outer cylinder minus inner cylinder), as a libfive SDF.
 
     Note: BOSL2's outer-radius parameters are named `or`/`or1`/`or2`; exposed here as
     `outer_radius`/`outer_r1`/`outer_r2` since `or` is a Python keyword.
@@ -1476,10 +1504,12 @@ def pie_slice(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A pie slice (wedge of a cylinder/cone), as a libfive SDF: a cylinder intersected with
-    an angular sector (built from 1-2 half-planes -- `angle` is a plain Python float fixed at
-    construction time, so choosing intersection vs union of the two half-planes based on
-    `angle <= 180` is an ordinary Python conditional, not a per-point SDF branch).
+    """Return a pie slice (wedge of a cylinder/cone), as a libfive SDF.
+
+    A cylinder intersected with an angular sector (built from 1-2 half-planes -- `angle` is a
+    plain Python float fixed at construction time, so choosing intersection vs union of the two
+    half-planes based on `angle <= 180` is an ordinary Python conditional, not a per-point SDF
+    branch).
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
@@ -1519,7 +1549,7 @@ def prismoid(
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
 ) -> PyShape:
-    """A rectangular prismoid (truncated pyramid), as a libfive SDF.
+    """Return a rectangular prismoid (truncated pyramid), as a libfive SDF.
 
     CAVEAT: unlike pybosl2.shapes3d.prismoid(), this pure-libfive port does not support
     rounding/chamfer of the vertical edges (deriving an exact SDF for a *tapered* box's
@@ -1580,7 +1610,7 @@ def rect_tube(
     anchor: "Sequence[float]" = BOTTOM,
     res: int = 10,
 ) -> PyShape:
-    """A rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF
+    """Return a rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF.
     (outer rounded-rect-extrusion minus inner rounded-rect-extrusion, reusing
     pybosl2.shapes3d.cuboid()'s per-edge machinery for each). Only the 4 vertical edges are
     ever rounded (`edges=Anchor.Z`, matching the "rounded rectangular tube" look BOSL2's own
@@ -1638,8 +1668,9 @@ def interior_fillet(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A shape to fillet an interior corner between two faces meeting at `angle` degrees, as a
-    libfive SDF: the wedge between the two faces, minus a cylindrical arc of radius `radius`
+    """Return an interior-fillet cutter for a corner between two faces meeting at `angle` degrees.
+
+    As a libfive SDF: the wedge between the two faces, minus a cylindrical arc of radius `radius`
     positioned so it's tangent to both. Extruded along Y for length `length`.
 
     CAVEAT: simplified relative to pybosl2.shapes3d.interior_fillet() -- no `overlap=` flap (an
@@ -1679,8 +1710,9 @@ def rounding_edge_mask(
     excess: float = 0.1,
     res: int = 10,
 ) -> PyShape:
-    """A standalone 3-D edge-rounding CUTTER of length `length`, as a libfive SDF, for subtracting
-    from another PyShape to round over a sharp 90-degree edge that isn't part of a cuboid()'s
+    """Return a standalone 3-D edge-rounding CUTTER of length `length`, as a libfive SDF.
+
+    For subtracting from another PyShape to round over a sharp 90-degree edge that isn't part of a cuboid()'s
     own edge/corner treatment -- e.g. an edge exposed by an earlier cut, or any other edge you'diameter
     otherwise position by hand. Matches pybosl2.masking.rounding_edge_mask()'s local-frame
     convention exactly (same `.rotate(...).translate(...)` call sites work unchanged): origin at
@@ -1708,8 +1740,9 @@ def rounding_edge_mask(
 
 
 def polygon_extrude(pts: ArrayLike, length: float, res: int = 10) -> PyShape:
-    """Extrude an arbitrary CONVEX 2-D polygon `pts` (either winding order) along Z by
-    `length`, centered -- for a custom edge-profile cutter with no simple closed form (like
+    """Return a linear extrusion of a CONVEX 2-D polygon as a 3-D libfive SDF.
+
+    Extrudes `pts` along Z by `length`, centered -- for a custom edge-profile cutter with no
     pybosl2.shapes3d.Bosl2Solid.edge_profile_asym()'s `children=` path, but swept here by hand
     with an explicit rotate()/translate() rather than an automatic per-edge sweep).
 
@@ -1756,8 +1789,10 @@ def polygon_prism(
     rounding_bottom: float = 0,
     res: int = 10,
 ) -> PyShape:
-    """Extrude an arbitrary SIMPLE polygon (convex or concave -- exact 2-D SDF via
-    _polygon_sdf_xy(), unlike polygon_extrude()'s convex-only half-planes) from z=0 up to z=height,
+    """Extrude an arbitrary SIMPLE polygon as a 3-D libfive SDF.
+
+    The polygon (convex or concave) uses _polygon_sdf_xy() for exact 2-D SDF, unlike
+    polygon_extrude()'s convex-only half-planes. Extrudes from z=0 up to z=height,
     with optional circular treatments on each end rim -- the same job as real BOSL2's
     offset_sweep(path, height=height, bottom=os_circle(b), top=os_circle(t)), and the same sign
     convention for the radii: positive is a convex roundover eased into the rim, negative is an
@@ -2033,23 +2068,28 @@ def regular_prism(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A regular num_sides-gon prism (equilateral, equiangular cross-section), as a libfive SDF
-    built on polygon_prism(). Mirrors pybosl2.shapes3d.regular_prism().
+    """Return a regular num_sides-gon prism (equilateral, equiangular cross-section), as a libfive SDF.
+
+    Built on polygon_prism(). Mirrors pybosl2.shapes3d.regular_prism().
 
     Size is controlled by one of the radius/diameter/side parameters, in BOSL2 priority order:
     inner_radius/inner_diameter > outer_radius/outer_diameter > r/d > side.  The ``or``/``outer_radius``
     keyword collision with the Python keyword ``or`` is resolved as ``outer_radius`` here.
 
     Args:
-        num_sides:       number of sides (default 6)
-        h/l:     prism height (default 1)
-        r/d:     radius/diameter to the vertices
-        outer_radius/outer_diameter: outer radius/diameter (BOSL2 ``or``)
-        inner_radius/inner_diameter:   inner radius/diameter (apothem to face centres)
-        side:    length of each side
-        realign: rotate so a face centre (not vertex) faces +X (default False)
-        anchor:  anchor point (default CENTER)
-        res:     meshing resolution (default 10)
+        num_sides:                    number of sides (default 6)
+        height:                       prism height (default 1)
+        length:                       prism height (default 1)
+        radius:                       radius to the vertices
+        diameter:                     diameter to the vertices
+        outer_radius:                 outer radius (BOSL2 ``or``)
+        outer_diameter:               outer diameter
+        inner_radius:                 inner radius (apothem to face centres)
+        inner_diameter:               inner diameter
+        side:                         length of each side
+        realign:                      rotate so a face centre (not vertex) faces +X (default False)
+        anchor:                       anchor point (default CENTER)
+        res:                          meshing resolution (default 10)
 
     """
     import math as _m

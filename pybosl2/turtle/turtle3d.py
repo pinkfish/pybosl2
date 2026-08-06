@@ -17,6 +17,8 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
+"""3-D turtle graphics (the Turtle class)."""
+
 from __future__ import annotations
 
 import math

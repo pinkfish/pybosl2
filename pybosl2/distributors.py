@@ -27,6 +27,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies."""
+
 from __future__ import annotations
 
 import math
@@ -564,17 +566,17 @@ def mirror_copy(
 
 
 def xflip_copy(offset: float = 0, x: float = 0) -> list[np.ndarray]:
-    """The original plus a copy mirrored across the X=*x* plane (BOSL2 xflip_copy())."""
+    """Return the original plus a copy mirrored across the X=*x* plane."""
     return mirror_copy(v=[1, 0, 0], offset=offset, center=[x, 0, 0])
 
 
 def yflip_copy(offset: float = 0, y: float = 0) -> list[np.ndarray]:
-    """The original plus a copy mirrored across the Y=*y* plane (BOSL2 yflip_copy())."""
+    """Return the original plus a copy mirrored across the Y=*y* plane."""
     return mirror_copy(v=[0, 1, 0], offset=offset, center=[0, y, 0])
 
 
 def zflip_copy(offset: float = 0, z: float = 0) -> list[np.ndarray]:
-    """The original plus a copy mirrored across the Z=*z* plane (BOSL2 zflip_copy())."""
+    """Return the original plus a copy mirrored across the Z=*z* plane."""
     return mirror_copy(v=[0, 0, 1], offset=offset, center=[0, 0, z])
 
 
@@ -584,7 +586,7 @@ def zflip_copy(offset: float = 0, z: float = 0) -> list[np.ndarray]:
 
 
 class DistributableMatrix:
-    """Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices)."""
+    """Return Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices)."""
 
     line_copies = staticmethod(line_copies)  # -> list[np.ndarray]
     xcopies = staticmethod(xcopies)  # -> list[np.ndarray]
@@ -605,7 +607,7 @@ class DistributableMatrix:
 
 
 class Distributable(ABC):
-    """Mixin adding the distributors.scad copiers as methods.
+    """Return Mixin adding the distributors.scad copiers as methods.
 
     Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`, and
     :class:`~pybosl2.paths.Path3D`. Each copier returns a ``list`` of positioned copies;
@@ -813,15 +815,15 @@ class Distributable(ABC):
         return self._distribute(mirror_copy(v, offset, center))
 
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[_CopyType]:
-        """This object plus a copy mirrored across the X=*x* plane."""
+        """Return This object plus a copy mirrored across the X=*x* plane."""
         return self._distribute(xflip_copy(offset, x))
 
     def yflip_copy(self, offset: float = 0, y: float = 0) -> list[_CopyType]:
-        """This object plus a copy mirrored across the Y=*y* plane."""
+        """Return This object plus a copy mirrored across the Y=*y* plane."""
         return self._distribute(yflip_copy(offset, y))
 
     def zflip_copy(self, offset: float = 0, z: float = 0) -> list[_CopyType]:
-        """This object plus a copy mirrored across the Z=*z* plane."""
+        """Return This object plus a copy mirrored across the Z=*z* plane."""
         return self._distribute(zflip_copy(offset, z))
 
     # ---------------------------------------------------------------------------

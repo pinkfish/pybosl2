@@ -105,7 +105,7 @@ class Region:
     """
 
     def __init__(self, paths: Any = ()) -> None:
-        """Creates a region from path outlines or a shapely geometry.
+        """Create a region from path outlines or a shapely geometry.
 
         Args:
             paths: The outlines; each is coerced to a :class:`Path2D`. A
@@ -137,7 +137,7 @@ class Region:
         self._polygon = MultiPolygon([Polygon(outer, holes)])
 
     def __len__(self) -> int:
-        """Number of paths in the region."""
+        """Return the number of paths in the region."""
         return len(self.paths)
 
     def __getitem__(self, index: int | slice) -> Path2D | list[Path2D]:
@@ -183,7 +183,7 @@ class Region:
         outline: Path2D,
         *holes: Path2D,
     ) -> "Region":
-        """A region from an outline plus hole outlines.
+        """Create a region from an outline plus hole outlines.
 
         Convenience constructor. Equivalent to ``Region([outline, *holes])``.
         See :meth:`__init__` for the full constructor.
@@ -291,7 +291,7 @@ class Region:
         return Region([p.translate(v) for p in self.paths])
 
     def bounds(self) -> np.ndarray:
-        """The bounding box over every path in the region.
+        """Return the bounding box over every path in the region.
 
         Returns:
             A numpy array ``[[min_x, min_y], [max_x, max_y]]``.
@@ -327,7 +327,7 @@ class Region:
 
     @classmethod
     def hull(cls, *others: Region | Path2D) -> "Region":
-        """The 2-D convex hull of all the given regions and paths.
+        """Return the 2-D convex hull of all the given regions and paths.
 
         Uses shapely :func:`~shapely.convex_hull` on the union of all input
         geometries. Accepts a flat list or multiple arguments::
@@ -392,6 +392,13 @@ class Region:
 
         Args:
             height: The extrusion height along +Z.
+            center: Extrude symmetrically along Z if True (default False).
+            twist: Twist angle in degrees over the full height (default 0).
+            scale: Scale factor for the top cross-section (default 1.0).
+            slices: Number of intermediate layers for twist/scale (auto if None).
+            fn: Smoothness override for the angular resolution.
+            fa: Smoothness override for the minimum angle.
+            fs: Smoothness override for the minimum segment length.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or
@@ -526,7 +533,7 @@ class Region:
     # -----------------------------------------------------------------------------------
 
     def intersection(self, other: Region | Path2D) -> "Region":
-        """The 2-D intersection of this region with *other* (the area they share).
+        """Return the 2-D intersection of this region with *other (the area they share).
 
         Uses shapely for exact polygon coordinates.
 
@@ -560,7 +567,7 @@ class Region:
         return r
 
     def union(self, other: Region | Path2D) -> "Region":
-        """The 2-D union of this region and *other* (all area covered by either).
+        """Return the 2-D union of this region and *other (all area covered by either).
 
         Uses shapely for exact polygon coordinates.
 
@@ -594,7 +601,7 @@ class Region:
         return r
 
     def difference(self, other: Region | Path2D) -> "Region":
-        """The 2-D difference: *self* with the area of *other* subtracted.
+        """Return the 2-D difference: *self with the area of *other subtracted.
 
         Uses shapely for exact polygon coordinates.
 
@@ -628,7 +635,7 @@ class Region:
         return r
 
     def symmetric_difference(self, other: Region | Path2D) -> "Region":
-        """The 2-D symmetric difference (XOR): area in either region but not both.
+        """Return the 2-D symmetric difference (XOR): area in either region but not both.
 
         Uses shapely for exact polygon coordinates.
 
@@ -652,20 +659,21 @@ class Region:
 
     # Operator overloads for convenience (mirror Bosl2Shape2D's &/|/- operators).
     def __and__(self, other: Region | Path2D) -> "Region":
-        """``a & b``  →  ``a.intersection(b)``."""
+        """Return ``self & other``, equivalent to ``self.intersection(other)``."""
         return self.intersection(other)
 
     def __or__(self, other: Region | Path2D) -> "Region":
-        """``a | b``  →  ``a.union(b)``."""
+        """Return ``self | other``, equivalent to ``self.union(other)``."""
         return self.union(other)
 
     def __sub__(self, other: Region | Path2D) -> "Region":
-        """``a - b``  →  ``a.difference(b)``."""
+        """Return ``self - other``, equivalent to ``self.difference(other)``."""
         return self.difference(other)
 
     def __xor__(self, other: Region | Path2D) -> "Region":
-        """``a ^ b``  →  ``a.symmetric_difference(b)``."""
+        """Return ``self ^ other``, equivalent to ``self.symmetric_difference(other)``."""
         return self.symmetric_difference(other)
 
     def __repr__(self) -> str:
+        """Return a string representation of the region."""
         return f"Region({len(self.paths)} paths: {[len(p) for p in self.paths]})"
