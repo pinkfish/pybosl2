@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import unwrap
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.enums import AttachTag
@@ -779,7 +780,7 @@ class CsgSolid(BaseShape):
         t: AttachTag | str = AttachTag.REMOVE if tag is None else tag
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
-        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        out.attachments.append(Bosl2Solid(unwrap(cutter_shape)).tag(t))
         if t == AttachTag.REMOVE:
             out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
         return out
@@ -847,7 +848,7 @@ class CsgSolid(BaseShape):
 
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
-        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        out.attachments.append(Bosl2Solid(unwrap(cutter_shape)).tag(t))
         if t == AttachTag.REMOVE:
             out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
         return out
@@ -951,7 +952,7 @@ class CsgSolid(BaseShape):
 
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
-        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        out.attachments.append(Bosl2Solid(unwrap(cutter_shape)).tag(t))
         if t == AttachTag.REMOVE:
             out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
         return out
@@ -1011,7 +1012,7 @@ class CsgSolid(BaseShape):
 
         out = self._wrap(self.shape)
         out.attachments = list(self.attachments)
-        out.attachments.append(Bosl2Solid(cutter_shape).tag(t))
+        out.attachments.append(Bosl2Solid(unwrap(cutter_shape)).tag(t))
         if t == AttachTag.REMOVE:
             out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
         return out

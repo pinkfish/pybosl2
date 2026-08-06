@@ -324,7 +324,7 @@ _SQ20 = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
 
 
 def test_os_circle_returns_dict() -> None:
-    d = os_circle(r=3)
+    d = os_circle(radius=3)
     assert isinstance(d, OSProfile)
     assert d["type"] == "circle"
     assert d["r"] == 3.0
@@ -333,12 +333,12 @@ def test_os_circle_returns_dict() -> None:
 
 
 def test_os_circle_explicit_h() -> None:
-    d = os_circle(r=5, h=2)
+    d = os_circle(radius=5, height=2)
     assert d["h"] == 2.0
 
 
 def test_os_circle_negative_r() -> None:
-    d = os_circle(r=-4)
+    d = os_circle(radius=-4)
     assert d["r"] == -4.0
     assert d["h"] == 4.0
 
@@ -402,20 +402,20 @@ def test_os_smooth_fields() -> None:
     assert d1["k"] == 0.5
     assert d1["r_sign"] == 1.0
 
-    d2 = os_smooth(r=-2, k=0.3)
+    d2 = os_smooth(radius=-2, curvature=0.3)
     assert d2["cut"] == 2.0
     assert d2["k"] == 0.3
     assert d2["r_sign"] == -1.0
 
 
 def test_os_teardrop_fields() -> None:
-    d1 = os_teardrop(r=3)
+    d1 = os_teardrop(radius=3)
     assert d1["type"] == "teardrop"
     assert d1["r"] == 3.0
     assert d1["h"] == 3.0
     assert d1["max_angle"] == 45.0
 
-    d2 = os_teardrop(cut=2, h=4, max_angle=30.0)
+    d2 = os_teardrop(cut=2, height=4, max_angle=30.0)
     assert d2["r"] == 2.0
     assert d2["h"] == 4.0
     assert d2["max_angle"] == 30.0

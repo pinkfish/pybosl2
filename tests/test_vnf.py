@@ -557,8 +557,10 @@ def test_vnf_geometry() -> None:
     )
     assert len(vnf.vertices) == 0
     assert len(vnf.faces) == 0
-    result = vnf.geometry()
-    assert result is not None
+    # A single wrapped row spans no quads, so there is nothing to hand to the native polyhedron():
+    # it rejects an empty point list, and geometry() says so in VNF terms.
+    with pytest.raises(ValueError, match="no geometry to build"):
+        vnf.geometry()
 
 
 def test_vnf_from_field_cube() -> None:

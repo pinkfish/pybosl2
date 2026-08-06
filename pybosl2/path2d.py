@@ -127,6 +127,7 @@ class _OffsetJoin:
         n_in: Offset normal of the incoming edge.
         n_out: Offset normal of the outgoing edge.
         amount: The signed offset distance.
+
     """
 
     vertex: np.ndarray
@@ -144,15 +145,16 @@ class _OffsetJoin:
         return float(self.u_in[0] * self.u_out[1] - self.u_in[1] * self.u_out[0])
 
     def opens_gap(self, sign: float) -> bool:
-        """True if the offset pulls the two edges apart here, leaving a gap to bridge.
+        """Return True if the offset pulls the two edges apart here, leaving a gap to bridge.
 
         Args:
             sign: 1 for a counter-clockwise outline, -1 for a clockwise one.
+
         """
         return self._cross * sign * self.amount > 0
 
     def mitre(self, limit: float | None = None) -> list[list[float]]:
-        """The two offset edges run on to their intersection: a sharp corner.
+        """Return the sharp corner at the intersection of the two offset edges.
 
         Args:
             limit: Cap on the corner's reach, as a multiple of the offset distance. Two edges
@@ -163,6 +165,7 @@ class _OffsetJoin:
         Returns:
             The single corner point, or both edge ends when the edges are parallel or reach
             past *limit*.
+
         """
         denom = self._cross
         ends = [_xy(self.pt_in), _xy(self.pt_out)]
@@ -176,13 +179,14 @@ class _OffsetJoin:
         return [_xy(corner)]
 
     def arc(self, segments: int) -> list[list[float]]:
-        """The gap bridged by an arc of radius ``|amount|`` around the corner.
+        """Return the gap bridged by an arc of radius ``|amount|`` around the corner.
 
         Args:
             segments: Facet count for a full circle at this radius.
 
         Returns:
             The points along the arc, from *pt_in* round to *pt_out*.
+
         """
         start_deg = math.degrees(math.atan2(self.pt_in[1] - self.vertex[1], self.pt_in[0] - self.vertex[0]))
         end_deg = math.degrees(math.atan2(self.pt_out[1] - self.vertex[1], self.pt_out[0] - self.vertex[0]))
@@ -193,10 +197,11 @@ class _OffsetJoin:
         return arc.tolist()  # type: ignore[no-any-return]
 
     def chamfer(self) -> list[list[float]]:
-        """The gap bridged by a flat cut across the corner.
+        """Return the gap bridged by a flat cut across the corner.
 
         Returns:
             The two points where the offset edges meet the chamfer.
+
         """
         bisector = self.n_in + self.n_out
         blen = float(np.linalg.norm(bisector))
@@ -1585,7 +1590,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 from pybosl2 import Path2D, MinkowskiJoin
 
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
-                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.ROUND) \\
+                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.ROUND) \
                     .polygon().linear_extrude(height=3).show()
 
             Sharp mitered corners:
@@ -1595,7 +1600,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 from pybosl2 import Path2D, MinkowskiJoin
 
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
-                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.MITRE) \\
+                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.MITRE) \
                     .polygon().linear_extrude(height=3).show()
 
             Flat bevel (chamfered) corners:
@@ -1605,7 +1610,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 from pybosl2 import Path2D, MinkowskiJoin
 
                 base = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]])
-                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.BEVEL) \\
+                base.minkowski_sum_circle(radius=5, join=MinkowskiJoin.BEVEL) \
                     .polygon().linear_extrude(height=3).show()
 
         """
@@ -2087,6 +2092,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             The candidate segment-index pairs, ready for an exact intersection test.
+
         """
         plen = len(arr)
         if plen < 4:
@@ -2257,6 +2263,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             fs: Minimum size for circle fragments.
             same_length: Return the raw corner construction, one point per input point, skipping
                 the fold repair that would drop points (``delta``, no chamfer).
+
         """
         if closed is None:
             closed = self.closed
@@ -2335,7 +2342,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _drop_repeated_points(points: list[list[float]]) -> list[list[float]]:
-        """The ring with points that repeat their neighbour removed."""
+        """Return the ring with points that repeat their neighbour removed."""
         ring = np.asarray(points, dtype=float)
         differs = np.abs(ring - np.roll(ring, -1, axis=0)).max(axis=1) > EPSILON
         return [_xy(point) for point in ring[differs]]
@@ -2365,6 +2372,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             The join between the two edges.
+
         """
         return _OffsetJoin(
             vertex=pts[cur],
@@ -2379,13 +2387,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _drop_degenerate_points(pts: np.ndarray) -> np.ndarray:
-        """The outline with zero-length segments removed, for offsetting.
+        """Return the outline with zero-length segments removed, for offsetting.
 
         Args:
             pts: The outline points, as an (N, 2) array.
 
         Returns:
             The points that start a real segment.
+
         """
         keep = np.linalg.norm(np.roll(pts, -1, axis=0) - pts, axis=1) > EPSILON
         if keep.all():
@@ -2409,6 +2418,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             One corner point per edge, as an (E, 2) array.
+
         """
         u_in, u_out = np.roll(u_edge, 1, axis=0), u_edge
         pt_in, pt_out = np.roll(end, 1, axis=0), start
@@ -2442,6 +2452,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A boolean mask over the edges.
+
         """
         edges = shapely.linestrings(np.stack([start, end], axis=1))
         gap = Path2D._distance_from_outline(edges, source)
@@ -2466,6 +2477,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             A boolean mask over *points*.
+
         """
         keep = np.ones(len(points), dtype=bool)
         wanted = np.asarray(check, dtype=bool)
@@ -2489,6 +2501,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Returns:
             The distance from each geometry to the outline.
+
         """
         ring = np.vstack([source, source[:1]])
         segments = shapely.linestrings(np.stack([ring[:-1], ring[1:]], axis=1))
@@ -2497,12 +2510,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @staticmethod
     def _ring_is_simple(points: list[list[float]]) -> bool:
-        """True if the closed ring through *points* does not cross itself."""
+        """Return True if the closed ring through *points* does not cross itself."""
         return bool(LineString([*points, points[0]]).is_simple)
 
     @staticmethod
     def _buffered_offset(source: np.ndarray, amount: float, use_round: bool, segments: int) -> list[list[float]]:
-        """The offset as an exact buffer, for the shapes the corner construction cannot express.
+        """Return the offset as an exact buffer, for the shapes the corner construction cannot express.
 
         Two cases end up here: an outline eroded so far that it is all corner arcs and no edges
         survive, and one the offset breaks into separate pieces, where joining the survivors up
@@ -2520,6 +2533,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Raises:
             AssertionError: If the offset leaves nothing at all.
+
         """
         polygon = Polygon(np.vstack([source, source[:1]]).tolist())
         if not polygon.is_valid:

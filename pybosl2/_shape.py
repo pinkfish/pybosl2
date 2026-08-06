@@ -29,6 +29,12 @@ from pybosl2.enums import AttachTag
 
 __all__ = ["BaseShape", "diff", "intersect"]
 
+
+def _is_angle(value: object) -> bool:
+    """Return True if *value* is a bare rotation angle (a real number, and not a bool)."""
+    return isinstance(value, numbers.Real) and not isinstance(value, bool)
+
+
 _NATIVE_PASSTHROUGH = frozenset(
     {
         "linear_extrude",
@@ -182,8 +188,12 @@ class BaseShape(Colorable, Distributable):
     move = translate
 
     def rotate(self, *a: object, **k: object) -> Self:
-        if len(a) == 1 and isinstance(a[0], numbers.Real) and not isinstance(a[0], bool) and "v" not in k:
-            a = ([0.0, 0.0, float(a[0])],)
+        # The native rotate() only takes a 3-vector, so a bare angle is spun about +Z. Both spellings
+        # OpenSCAD accepts for it -- positional and ``a=`` -- need the same widening.
+        if len(a) == 1 and _is_angle(a[0]) and "v" not in k:
+            a = ([0.0, 0.0, float(a[0])],)  # type: ignore[arg-type]
+        elif not a and _is_angle(k.get("a")) and "v" not in k:
+            k = {**k, "a": [0.0, 0.0, float(k["a"])]}  # type: ignore[arg-type]
         out = self._wrap(self.shape.rotate(*a, **k))  # type: ignore[attr-defined]
         out.attachments = [att.rotate(*a, **k) for att in self.attachments]
         return out

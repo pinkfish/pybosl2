@@ -87,15 +87,15 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 2
    :caption: Foundational
 
-    Color <color>
-    Constants <constants>
-    Distributors <distributors>
-    Enums <enums>
-    Masking <masking>
-    Partitions <partitions>
-    Solid <solid>
-    Texture <texture>
-    Transforms <transforms>
+    Colour operators (Colorable mixin) via Python's colorsys module <color>
+    Constants provided by BOSL2 (BOSL2 constants.scad) <constants>
+    Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies <distributors>
+    Strongly-typed enums for pybosl2 <enums>
+    Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d) <masking>
+    Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints) <partitions>
+    Statically typed shape constructors and backend-neutral solid facade <solid>
+    The texture() named-texture engine (BOSL2 skin.scad) <texture>
+    Affine-matrix reorient/apply and polar_to_xy (BOSL2 transforms.scad, coords.scad) <transforms>
     Drawing <drawing>
     2-D Shapes <shapes2d>
     3-D Shapes <shapes3d>
@@ -106,52 +106,52 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :caption: Paths, regions & surfaces
 
     Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad) <beziers>
-    Isosurface <isosurface>
-    Nurbs <nurbs>
+    Metaball field primitives for VNF isosurface meshing (BOSL2 metaballs3d.scad) <isosurface>
+    NURBS curve/surface evaluation and meshing (de Boor) <nurbs>
     Abstract :class:`Path` base class for 2-D and 3-D path types <paths>
     Object API for 2-D paths and regions <regions>
-    Rounding <rounding>
-    Skin <skin>
-    Turtle3D <turtle3d>
-    Vnf <vnf>
+    Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad) <rounding>
+    Surface generators: sweep, path_sweep, skin, linear_sweep, rotate_sweep, spiral_sweep (BOSL2 skin.scad) <skin>
+    3-D turtle graphics (the Turtle class) <turtle3d>
+    VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad) <vnf>
 
 .. toctree::
    :maxdepth: 2
    :caption: Math & geometry
 
-    Geometry <geometry>
-    Math <math>
-    Quaternions <quaternions>
-    Vectors <vectors>
+    Points, lines and polygon geometry helpers (BOSL2 geometry.scad) <geometry>
+    General numeric helpers and numerical calculus (BOSL2 math.scad) <math>
+    Class-based Quaternion representation and mathematics for 3-D rotations <quaternions>
+    Vector predicates and scalar-vector operations (BOSL2 vectors.scad) <vectors>
 
 .. toctree::
    :maxdepth: 2
    :caption: Parts library
 
-    Ball Bearings &#128736; <ball_bearings>
-    Bottlecaps &#128736; <bottlecaps>
-    Cubetruss &#128736; <cubetruss>
-    Gears &#128736; <gears>
-    Hinges &#128736; <hinges>
-    Hooks &#128736; <hooks>
-    Joiners &#128736; <joiners>
-    Linear Bearings &#128736; <linear_bearings>
-    Modular Hose &#128736; <modular_hose>
-    Nema Steppers &#128736; <nema_steppers>
-    Polyhedra &#128736; <polyhedra>
-    Screw Drive &#128736; <screw_drive>
-    Screws <screws>
-    Sliders &#128736; <sliders>
-    Threading &#128736; <threading>
-    Tripod Mounts &#128736; <tripod_mounts>
-    Walls &#128736; <walls>
-    Wiring &#128736; <wiring>
+    Standard ball-bearing cartridge models &#128736; <ball_bearings>
+    PCO-1810 / PCO-1881 bottle necks and caps &#128736; <bottlecaps>
+    Modular cubical truss segments and trusses &#128736; <cubetruss>
+    Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm &#128736; <gears>
+    Living (folding) hinges, knuckle hinges, and snap connectors &#128736; <hinges>
+    Hooks and hook-like parts (the ring hook) &#128736; <hooks>
+    Dovetail joints and snap-pin connectors &#128736; <joiners>
+    Linear (LMxUU) ball bearings and their pillow-block housings &#128736; <linear_bearings>
+    Modular (Loc-Line style) ball-and-socket hose segments &#128736; <modular_hose>
+    NEMA stepper-motor models and mounting masks &#128736; <nema_steppers>
+    The five Platonic solids as watertight polyhedra &#128736; <polyhedra>
+    Phillips, hex, Torx and Robertson driver-recess masks &#128736; <screw_drive>
+    Metric screws, nuts and screw holes built on the threading port <screws>
+    V-groove sliders and rails &#128736; <sliders>
+    Screw threading: threaded rods and nuts (ISO/trapezoidal/acme/square/buttress) &#128736; <threading>
+    Tripod mount plates: RC2 &#128736; <tripod_mounts>
+    FDM-optimised walls: sparse, corrugated, thinning and struts &#128736; <walls>
+    Routed bundles of wires &#128736; <wiring>
 
 .. toctree::
    :maxdepth: 2
    :caption: Extras
 
-    Miscellaneous <miscellaneous>
+    Extrusions, bounding box, chain hull, and minkowski-based transforms <miscellaneous>
 
 .. toctree::
    :maxdepth: 1

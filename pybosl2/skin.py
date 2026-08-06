@@ -984,8 +984,6 @@ def os_circle(
     radius: float | None = None,
     height: float | None = None,
     extra: float = 0.0,
-    r: float | None = None,
-    h: float | None = None,
 ) -> OSProfile:
     """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
 
@@ -1004,14 +1002,13 @@ def os_circle(
                 less than half the extrusion height.
         extra:  Extra extension beyond the nominal arc (useful to close tiny gaps
                 from floating-point rounding; default 0).
-        **kwargs: Additional keyword arguments (e.g. ``r`` for radius, ``h`` for height).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    r_val = radius if radius is not None else r  # r/h are BOSL2's names for radius/height
-    h_val = height if height is not None else h
+    r_val = radius
+    h_val = height
     assert r_val is not None, "os_circle(): radius is required."
     h_res = float(h_val) if h_val is not None else abs(float(r_val))
     return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
@@ -1020,10 +1017,8 @@ def os_circle(
 def os_smooth(
     cut: float | None = None,
     radius: float | None = None,
-    curvature: float | None = None,
+    curvature: float = 0.5,
     extra: float = 0.0,
-    r: float | None = None,
-    k: float | None = None,
 ) -> OSProfile:
     """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
 
@@ -1035,14 +1030,13 @@ def os_smooth(
         radius:    Alternative to ``cut`` (aliases it).
         curvature: Smoothness/curvature match parameter between 0 and 1 (default 0.5).
         extra:     Extra extension beyond the nominal curve (default 0).
-        **kwargs: Additional keyword arguments (e.g. ``r`` for radius, ``k`` for curvature).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    r_val = radius if radius is not None else r  # r/k are BOSL2's names for radius/curvature
-    k_val = curvature if curvature is not None else (k if k is not None else 0.5)
+    r_val = radius
+    k_val = curvature
     val = float(cut) if cut is not None else (float(r_val) if r_val is not None else 1.0)
     sign = 1.0 if val >= 0 else -1.0
     return OSProfile(type=OSType.SMOOTH, cut=abs(val), curvature=float(k_val), radius_sign=sign, extra=float(extra))
@@ -1054,8 +1048,6 @@ def os_teardrop(
     cut: float | None = None,
     max_angle: float = 45.0,
     extra: float = 0.0,
-    r: float | None = None,
-    h: float | None = None,
 ) -> OSProfile:
     """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
 
@@ -1068,14 +1060,13 @@ def os_teardrop(
         cut:       Alternative to ``radius`` (aliases it).
         max_angle: Curvature transition angle relative to the wall (default 45.0).
         extra:     Extra extension beyond the nominal curve (default 0).
-        **kwargs: Additional keyword arguments (e.g. ``r`` for radius, ``h`` for height).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    r_arg = radius if radius is not None else r  # r/h are BOSL2's names for radius/height
-    h_arg = height if height is not None else h
+    r_arg = radius
+    h_arg = height
     r_val = float(r_arg) if r_arg is not None else (float(cut) if cut is not None else 1.0)
     h_val = float(h_arg) if h_arg is not None else abs(r_val)
     return OSProfile(type=OSType.TEARDROP, radius=r_val, height=h_val, max_angle=float(max_angle), extra=float(extra))
@@ -1397,7 +1388,8 @@ def _rounded_prism(
         steps:       Arc slices for top/bottom rim treatments.
         caps:        Cap bottom/top.
         style:       Subdivision style.
-        **kwargs: Additional keyword arguments (e.g. ``joint_bot``, ``k_sides``).
+        joint_bot:   Alias for *joint_bottom*, provided for BOSL2 compatibility.
+        k_sides:     Alias for *curvature_sides*, provided for BOSL2 compatibility.
 
     Returns:
         A :class:`~pybosl2.vnf.VNF`.

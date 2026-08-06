@@ -9,10 +9,16 @@
 # The pybosl2 package imports FFI-free (native primitives are lazy handles from pybosl2/_native.py), so
 # the modules load without `pythonscad`; the FFI is only needed once a test actually *constructs*
 # geometry. The supported setup is a venv with the real `pythonscad` wheel installed (`pip install
-# -e .[test]`), which provides genuine `pythonscad`/`openscad` modules. If that wheel is not
-# installed, we fall back to pybosl2's own numeric mock (tests/mock_libfive.py) so the pure-Python
-# suite can still run without PythonSCAD at all. The mock is owned by this package -- no reach into
-# the sibling pysolidfive package's test tree.
+# -e .[test]`), which provides genuine `pythonscad`/`openscad` modules. Whatever is missing falls
+# back to pybosl2's own numeric mock (tests/mock_libfive.py) so the pure-Python suite can still run
+# without PythonSCAD at all. The mock is owned by this package -- no reach into the sibling
+# pysolidfive package's test tree.
+#
+# mock_libfive.install() stands in for each native module INDEPENDENTLY, so importing it here is
+# always safe: with the wheel present it only fills in `libfive` (which ships in no extra) and
+# leaves the real pythonscad/openscad alone. Gating the whole mock on libfive's absence, as this
+# used to, meant the wheel was always shadowed by bbox-less stubs and every geometry assertion in
+# the suite quietly ran against the mock.
 
 import importlib.util
 import os
@@ -39,15 +45,7 @@ def _install_mock() -> bool:
     return True
 
 
-def _libfive_installed() -> bool:
-    """True if the real `libfive` module is importable in this interpreter."""
-    try:
-        return importlib.util.find_spec("libfive") is not None
-    except (ImportError, ValueError):
-        return False
-
-
-if (not _pythonscad_installed() or not _libfive_installed()) and not _install_mock():
+if not _install_mock() and not _pythonscad_installed():
     import pytest
 
     pytest.skip(

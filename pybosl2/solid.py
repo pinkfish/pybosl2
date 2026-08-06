@@ -1018,15 +1018,15 @@ def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> 
 
 
 def union(*solids: Solid) -> Solid:
-    """The union of *solids* on the active backend (all operands must share the active backend)."""
+    """Return the union of *solids* on the active backend (all operands must share the active backend)."""
     return get_backend().union(solids)
 
 
 def difference(*solids: Solid) -> Solid:
-    """The first solid minus the rest, on the active backend."""
+    """Return the first solid minus the rest, on the active backend."""
     return get_backend().difference(solids)
 
 
 def intersection(*solids: Solid) -> Solid:
-    """The intersection of *solids* on the active backend."""
+    """Return the intersection of *solids* on the active backend."""
     return get_backend().intersection(solids)
