@@ -432,8 +432,8 @@ class Quaternion:
 
     def _rotate_quaternion(self, q: Quaternion) -> Quaternion:
         """Rotate a quaternion vector representation."""
-        self._normalise()
-        return self * q * self.conjugate
+        unit = self.normalised  # read-only: rotating a vector does not renormalise this quaternion
+        return unit * q * unit.conjugate
 
     def rotate(self, vector: Any) -> Any:
         """Rotate a 3D vector by the quaternion."""
@@ -517,19 +517,23 @@ class Quaternion:
 
     @classmethod
     def slerp(cls, q0: Quaternion, q1: Quaternion, amount: float = 0.5) -> Quaternion:
-        """Spherical Linear Interpolation between unit quaternions."""
-        q0._fast_normalise()
-        q1._fast_normalise()
+        """Spherical Linear Interpolation between unit quaternions.
+
+        The endpoints are normalised (and one may be negated, to take the short way round) on
+        copies: interpolating between two rotations does not change either of them.
+        """
+        start = q0.normalised
+        end = q1.normalised
         amount = np.clip(amount, 0, 1)
 
-        dot = np.dot(q0.q, q1.q)
+        dot = np.dot(start.q, end.q)
 
         if dot < 0.0:
-            q0.q = -q0.q
+            start = -start
             dot = -dot
 
         if dot > 0.9995:
-            qr = Quaternion.from_array(q0.q + amount * (q1.q - q0.q))
+            qr = Quaternion.from_array(start.q + amount * (end.q - start.q))
             qr._fast_normalise()
             return qr
 
@@ -541,7 +545,7 @@ class Quaternion:
 
         s0 = np.cos(theta) - dot * sin_theta / sin_theta_0
         s1 = sin_theta / sin_theta_0
-        qr = Quaternion.from_array((s0 * q0.q) + (s1 * q1.q))
+        qr = Quaternion.from_array((s0 * start.q) + (s1 * end.q))
         qr._fast_normalise()
         return qr
 
@@ -577,8 +581,8 @@ class Quaternion:
     @property
     def rotation_matrix(self) -> np.ndarray:
         """Get 3x3 rotation matrix representation."""
-        self._normalise()
-        product_matrix = np.dot(self._q_matrix(), self._q_bar_matrix().conj().transpose())
+        unit = self.normalised
+        product_matrix = np.dot(unit._q_matrix(), unit._q_bar_matrix().conj().transpose())
         return cast("np.ndarray", product_matrix[1:][:, 1:])
 
     @property
@@ -591,12 +595,10 @@ class Quaternion:
     @property
     def yaw_pitch_roll(self) -> tuple[float, float, float]:
         """Get Yaw, Pitch, Roll angles (in radians)."""
-        self._normalise()
-        yaw = np.arctan2(2 * (self.q[0] * self.q[3] - self.q[1] * self.q[2]), 1 - 2 * (self.q[2] ** 2 + self.q[3] ** 2))
-        pitch = np.arcsin(2 * (self.q[0] * self.q[2] + self.q[3] * self.q[1]))
-        roll = np.arctan2(
-            2 * (self.q[0] * self.q[1] - self.q[2] * self.q[3]), 1 - 2 * (self.q[1] ** 2 + self.q[2] ** 2)
-        )
+        q = self.normalised.q
+        yaw = np.arctan2(2 * (q[0] * q[3] - q[1] * q[2]), 1 - 2 * (q[2] ** 2 + q[3] ** 2))
+        pitch = np.arcsin(2 * (q[0] * q[2] + q[3] * q[1]))
+        roll = np.arctan2(2 * (q[0] * q[1] - q[2] * q[3]), 1 - 2 * (q[1] ** 2 + q[2] ** 2))
         return yaw, pitch, roll
 
     def _wrap_angle(self, theta: float) -> float:
@@ -610,12 +612,11 @@ class Quaternion:
         """Get the rotation axis."""
         undef = np.zeros(3) if undefined is None else undefined
         tolerance = 1e-17
-        self._normalise()
-        norm = np.linalg.norm(self.vector)
+        vector = self.normalised.vector
+        norm = np.linalg.norm(vector)
         if norm < tolerance:
             return undef
-        else:
-            return cast("np.ndarray", self.vector / norm)
+        return cast("np.ndarray", vector / norm)
 
     @property
     def axis(self) -> np.ndarray:
@@ -625,9 +626,9 @@ class Quaternion:
     @property
     def angle(self) -> float:
         """Get angle of rotation in radians."""
-        self._normalise()
-        norm = np.linalg.norm(self.vector)
-        return self._wrap_angle(2.0 * atan2(norm, self.scalar))
+        unit = self.normalised
+        norm = np.linalg.norm(unit.vector)
+        return self._wrap_angle(2.0 * atan2(norm, unit.scalar))
 
     @property
     def degrees(self) -> float:

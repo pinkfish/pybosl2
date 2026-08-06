@@ -30,6 +30,8 @@ def native(name: str) -> Callable[..., Any]:
     _ocube`` at every call site, but defers ``import pythonscad`` until geometry is first built.
     """
 
+    # forwards to whichever native function `name` picks out, so this one keeps a generic
+    # signature: the typed parameter lists live on the pybosl2 functions that call through it
     def _call(*args: Any, **kwargs: Any) -> Any:
         fn = _cache.get(name)
         if fn is None:

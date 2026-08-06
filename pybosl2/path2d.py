@@ -17,7 +17,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -1163,12 +1163,24 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
 
-    def subdivide(self, **kwargs: Any) -> "Path2D":
+    def subdivide(
+        self,
+        num_copies: int | None = None,
+        refine: float | None = None,
+        maxlen: float | None = None,
+        exact: bool = True,
+        closed: bool | None = None,
+    ) -> "Path2D":
         """Insert points along the path.
 
+        Give exactly one of *num_copies*, *refine* or *maxlen*.
+
         Args:
-            **kwargs: Passed through to the subdivide kernel; must include exactly one of
-                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
+            num_copies: Target total number of points.
+            refine: Multiply the current point count by this.
+            maxlen: Cap on the spacing between points.
+            exact: Hit the target count exactly rather than approximately.
+            closed: Override the instance's closed flag.
 
         Returns:
             A new :class:`Path2D` with additional interpolated points.
@@ -1183,21 +1195,25 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result.stroke(width=1).linear_extrude(height=4).show()
 
         """
-        if "num_copies" in kwargs:
-            kwargs.setdefault("points", kwargs.pop("num_copies"))
-        if "refine" in kwargs:
-            r = kwargs.pop("refine")
-            kwargs.setdefault("points", int(len(self._points) * r))
-        kwargs.pop("method", None)
-        return self.subdivide_path(**kwargs)
+        points = num_copies if num_copies is not None else None
+        if points is None and refine is not None:
+            points = int(len(self._points) * refine)
+        return cast("Path2D", self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed))
 
-    def resample(self, **kwargs: Any) -> "Path2D":
+    def resample(
+        self,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        closed: bool | None = None,
+    ) -> "Path2D":
         """Resample to evenly spaced points.
 
-        Accepts *num_copies* (target point count) or *spacing* (approximate spacing between points).
+        Give exactly one of *num_copies* or *spacing*.
 
         Args:
-            **kwargs: Must include exactly one of *num_copies* or *spacing*.
+            num_copies: Target number of points.
+            spacing: Approximate spacing between points.
+            closed: Override the instance's closed flag.
 
         Returns:
             A new :class:`Path2D` with uniformly resampled points.
@@ -1212,9 +1228,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 sampled.stroke(width=1).linear_extrude(height=2).show()
 
         """
-        if "num_copies" in kwargs:
-            kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
-        return self.resample_path(**kwargs)
+        return cast("Path2D", self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed))
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list[Path2D]:
         """Split this 2-D path into subpaths wherever it crosses itself.
@@ -1826,7 +1840,21 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     # -- 2-D -> 3-D (both backends) --------------------------------------------------------
 
-    def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
+    def linear_extrude(
+        self,
+        height: float,
+        center: bool | None = None,
+        twist: float | None = None,
+        scale: float | Sequence[float] | None = None,
+        slices: int | None = None,
+        convexity: int | None = None,
+        rounding_top: float | None = None,
+        rounding_bottom: float | None = None,
+        res: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Solid":
         """Extrude this path *height* along +Z into a 3-D solid.
 
         The extrusion uses whichever backend is active: a
@@ -1844,7 +1872,17 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         Args:
             height: The extrusion height along +Z.
-            **kwargs: Backend-specific extrusion options (center, twist, scale, slices, etc.).
+            center: Centre the result on z=0 rather than starting at z=0.
+            twist: Degrees to rotate the top face relative to the bottom (CSG only).
+            scale: Scale of the top face, a scalar or ``[x, y]`` (CSG only).
+            slices: Number of intermediate layers (CSG only).
+            convexity: Rendering hint for self-overlapping cross-sections (CSG only).
+            rounding_top: Rim roundover at the top (SDF only).
+            rounding_bottom: Rim roundover at the bottom (SDF only).
+            res: Field resolution (SDF only).
+            fn: Arc smoothness override (CSG only).
+            fa: Arc smoothness override (CSG only).
+            fs: Arc smoothness override (CSG only).
 
         Examples:
             .. pythonscad-example::
@@ -1855,18 +1893,43 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 plate.linear_extrude(height=4).show()
 
         """
-        from pybosl2._backend import get_backend
+        from pybosl2._backend import get_backend, given_arguments
 
-        return get_backend().linear_extrude([self], height, **kwargs)
+        arguments = given_arguments(
+            {
+                "center": center,
+                "twist": twist,
+                "scale": scale,
+                "slices": slices,
+                "convexity": convexity,
+                "rounding_top": rounding_top,
+                "rounding_bottom": rounding_bottom,
+                "res": res,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+            }
+        )
+        return get_backend().linear_extrude([self], height, arguments)
 
-    def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
+    def rotate_extrude(
+        self,
+        angle: float = 360.0,
+        convexity: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Bosl2Solid":
         """Revolve this path about the Y axis into a 3-D solid.
 
         See :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
 
         Args:
             angle: The sweep angle in degrees (default 360 for a full revolution).
-            **kwargs: Additional options forwarded to the backend extruder.
+            convexity: Rendering hint for self-overlapping cross-sections.
+            fn: Arc smoothness override.
+            fa: Arc smoothness override.
+            fs: Arc smoothness override.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -1878,7 +1941,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         self._require_csg("rotate_extrude")
-        return self.polygon().rotate_extrude(angle, **kwargs)
+        return self.polygon().rotate_extrude(angle, convexity=convexity, fn=fn, fa=fa, fs=fs)
 
     def debug_polygon(self, size: float = 1, vertices: bool = True) -> Any:
         """Return a debug view of this polygon.

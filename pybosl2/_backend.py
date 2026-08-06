@@ -29,11 +29,25 @@ from typing import TYPE_CHECKING, Any, Iterator, Protocol, runtime_checkable
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
 
+
+def given_arguments(arguments: dict[str, Any]) -> dict[str, Any]:
+    """Just the arguments the caller actually gave.
+
+    The backends take different parameter sets, so only what was asked for is forwarded through
+    :meth:`SolidBackend.construct` -- a backend never sees an option it has no notion of, and
+    each keeps its own defaults.
+    """
+    return {name: value for name, value in arguments.items() if value is not None}
+
+
 __all__ = [
     "BackendName",
+    "given_arguments",
     "current_backend",
     "set_default_backend",
     "use_backend",
@@ -219,7 +233,7 @@ class Solid(Protocol):
     def __and__(self, other: "Solid") -> "Solid": ...
     def __sub__(self, other: "Solid") -> "Solid": ...
     def translate(self, v: Any) -> "Solid": ...
-    def rotate(self, *args: Any, **kwargs: Any) -> "Solid": ...
+    def rotate(self, a: Any = None, v: Any = None) -> "Solid": ...
     def scale(self, v: Any) -> "Solid": ...
     def mirror(self, v: Any) -> "Solid": ...
     def bounds(self) -> Any: ...
@@ -235,16 +249,20 @@ class SolidBackend(Protocol):
 
     name: str
 
-    def construct(self, shape: str, *args: Any, **kwargs: Any) -> Solid:
-        """Build the named shape constructor (e.g. ``"torus"``) in this backend's idiom."""
+    def construct(self, shape: str, arguments: Mapping[str, Any]) -> Solid:
+        """Build the named shape constructor (e.g. ``"torus"``) in this backend's idiom.
+
+        *arguments* holds just the parameters the caller gave, so a backend never has to accept
+        an option it has no notion of (see :func:`pybosl2.solid._given`).
+        """
         ...
 
-    def polyhedron(self, *args: Any, **kwargs: Any) -> Solid: ...
+    def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Solid: ...
     def union(self, solids: Any) -> Solid: ...
     def difference(self, solids: Any) -> Solid: ...
     def intersection(self, solids: Any) -> Solid: ...
 
-    def linear_extrude(self, paths: Any, height: float, **kwargs: Any) -> Solid:
+    def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> Solid:
         """Extrude 2-D outlines (a list of ``[[x, y], ...]`` paths) *height* along +Z.
 
         This is the one 2-D -> 3-D entry point both backends can express, and it takes raw point
@@ -262,7 +280,6 @@ class SolidBackend(Protocol):
         closed: bool | None = None,
         endcap1: CapSpec | None = None,
         endcap2: CapSpec | None = None,
-        **kwargs: Any,
     ) -> Solid:
         """3-D tube along *path*."""
         ...

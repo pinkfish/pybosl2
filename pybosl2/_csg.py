@@ -17,6 +17,8 @@ import operator
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
 
@@ -31,25 +33,27 @@ class CsgBackend:
 
     name = "csg"
 
-    def construct(self, shape: str, *args: Any, **kwargs: Any) -> Any:
+    def construct(self, shape: str, arguments: Mapping[str, Any]) -> Any:
         """Build the named shape via pybosl2.shapes3d (the CSG constructors)."""
         import pybosl2.shapes3d as _m
 
         fn = getattr(_m, shape, None)
         if not callable(fn):
             raise ValueError(f"the csg backend has no shape constructor {shape!r}")
-        return fn(*args, **kwargs)
+        return fn(**arguments)
 
-    def polyhedron(self, points: Any, faces: Any, **kwargs: Any) -> Any:
+    def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Any:
         from pybosl2._native import native
         from pybosl2.shapes3d import Bosl2Solid
 
-        return Bosl2Solid(native("polyhedron")(points, faces, **kwargs))
+        if convexity is None:
+            return Bosl2Solid(native("polyhedron")(points, faces))
+        return Bosl2Solid(native("polyhedron")(points, faces, convexity=convexity))
 
-    def linear_extrude(self, paths: Any, height: float, **kwargs: Any) -> Any:
-        """Extrude *paths* into an exact-CSG solid: the first outline with the rest cut out of it.
+    def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> Any:
+        """Extrude *paths* into an exact-CSG solid: the first outline, the rest cut out as holes.
 
-        as holes, through the native ``linear_extrude()``. Accepts every native option
+        Goes through the native ``linear_extrude()`` and accepts every native option
         (``center``/``twist``/``scale``/``slices``/...).
         """
         from pybosl2.shapes2d import Bosl2Shape2D
@@ -61,7 +65,7 @@ class CsgBackend:
         shape = Bosl2Shape2D(_polygon(outlines[0]))
         for hole in outlines[1:]:
             shape = shape - Bosl2Shape2D(_polygon(hole))
-        solid = shape.linear_extrude(height, **kwargs)
+        solid = shape.linear_extrude(height, **arguments)
         return solid if isinstance(solid, Bosl2Solid) else Bosl2Solid(solid)
 
     def union(self, solids: Any) -> Any:
@@ -80,7 +84,6 @@ class CsgBackend:
         closed: bool | None = None,
         endcap1: CapSpec | None = None,
         endcap2: CapSpec | None = None,
-        **_: Any,
     ) -> Any:
         """3-D tube along *path* via the CSG stroke_3d."""
         from pybosl2._stroke3d import stroke_3d

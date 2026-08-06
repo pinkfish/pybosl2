@@ -19,7 +19,11 @@ from pybosl2._backend import Solid, current_backend, get_backend, use_backend
 def test_sdf_backend_registers_and_builds_primitives() -> None:
     b = get_backend("sdf")
     assert b.name == "sdf"
-    built = (b.construct("sphere", radius=10), b.construct("cube", 10), b.construct("cylinder", height=20, radius=5))
+    built = (
+        b.construct("sphere", {"radius": 10}),
+        b.construct("cube", {"size": 10}),
+        b.construct("cylinder", {"height": 20, "radius": 5}),
+    )
     for shape in built:
         assert shape.backend == "sdf"
         assert isinstance(shape, Solid)
@@ -27,15 +31,15 @@ def test_sdf_backend_registers_and_builds_primitives() -> None:
 
 def test_sdf_sphere_bounds_match_the_requested_size() -> None:
     with use_backend("sdf"):
-        _center, size = get_backend().construct("sphere", radius=10).bounds()
+        _center, size = get_backend().construct("sphere", {"radius": 10}).bounds()
     assert [round(s) for s in size] == [20, 20, 20]  # exact, cheap -- no meshing needed
 
 
 def test_default_is_csg_and_context_selects_sdf() -> None:
     assert current_backend() == "csg"
-    csg = get_backend().construct("sphere", radius=10)
+    csg = get_backend().construct("sphere", {"radius": 10})
     with use_backend("sdf"):
-        sdf = get_backend().construct("sphere", radius=10)
+        sdf = get_backend().construct("sphere", {"radius": 10})
     assert csg.backend == "csg"
     assert sdf.backend == "sdf"
     assert type(csg).__name__ == "CsgSolid"
@@ -58,7 +62,7 @@ def _libfive_available() -> bool:
 def test_sdf_mesh_pipeline_runs() -> None:
     # Build -> symbolic SDF field -> frep() mesh, end to end (mock frep returns a marker result).
     with use_backend("sdf"):
-        s = get_backend().construct("sphere", radius=10)
+        s = get_backend().construct("sphere", {"radius": 10})
         assert s.sdf() is not None  # type: ignore[attr-defined]  # libfive field
         assert s.mesh() is not None  # type: ignore[attr-defined]  # frep() realized it
 

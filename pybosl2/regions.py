@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
+from pybosl2.caps import CapSpec, CapType
 from pybosl2.path2d import Path2D
 from pybosl2.shapes3d import text3d
 
@@ -413,16 +414,22 @@ class Region:
                 hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "
                 "the outline and subtract the holes' own extrusions, or build it on the csg backend.",
             )
+        from pybosl2._backend import given_arguments
+
         return get_backend().linear_extrude(
             list(self.paths),
             height,
-            center=center,
-            twist=twist,
-            scale=scale,
-            slices=slices,
-            fn=fn,
-            fa=fa,
-            fs=fs,
+            given_arguments(
+                {
+                    "center": center,
+                    "twist": twist,
+                    "scale": scale,
+                    "slices": slices,
+                    "fn": fn,
+                    "fa": fa,
+                    "fs": fs,
+                }
+            ),
         )
 
     def rotate_extrude(
@@ -451,12 +458,27 @@ class Region:
         self,
         width: float = 1,
         closed: bool | None = None,  # noqa: ARG002
-        **kwargs: Any,
+        endcap1: CapType | CapSpec = CapType.ROUND,
+        endcap2: CapType | CapSpec = CapType.ROUND,
+        joints: CapType | CapSpec = CapType.ROUND,
     ) -> Region:
-        """Stroke every path in the region (closed) and return the union as a Region."""
+        """Stroke every path in the region (closed) and return the union as a Region.
+
+        Args:
+            width: Stroke width.
+            closed: Accepted for signature parity; a region's paths are always stroked closed.
+            endcap1: Cap style for the start of each path.
+            endcap2: Cap style for the end of each path.
+            joints: Cap style where segments meet.
+
+        Returns:
+            A :class:`Region` of the stroked outlines.
+        """
         from pybosl2._stroke2d import stroke_2d
 
-        polygons = [stroke_2d(p, width=width, closed=True, **kwargs) for p in self.paths]
+        polygons = [
+            stroke_2d(p, width=width, closed=True, endcap1=endcap1, endcap2=endcap2, joints=joints) for p in self.paths
+        ]
         if not polygons:
             return Region([])
         return Region(polygons)

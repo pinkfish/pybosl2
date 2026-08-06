@@ -14,7 +14,7 @@ and transforms while omitting inherently 2-D operations (polygon, area, offset).
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any, Iterator, cast
 
 import numpy as np
 
@@ -959,12 +959,24 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         return self.__class__(Path2D._deduplicate(self._points, closed=self.closed))
 
-    def subdivide(self, **kwargs: Any) -> "Path3D":
+    def subdivide(
+        self,
+        num_copies: int | None = None,
+        refine: float | None = None,
+        maxlen: float | None = None,
+        exact: bool = True,
+        closed: bool | None = None,
+    ) -> "Path3D":
         """Insert points along the path.
 
+        Give exactly one of *num_copies*, *refine* or *maxlen*.
+
         Args:
-            **kwargs: Passed through to the subdivide kernel; must include exactly one of
-                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).
+            num_copies: Target total number of points.
+            refine: Multiply the current point count by this.
+            maxlen: Cap on the spacing between points.
+            exact: Hit the target count exactly rather than approximately.
+            closed: Override the instance's closed flag.
 
         Returns:
             A new :class:`Path3D` with additional interpolated points.
@@ -981,19 +993,25 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result.stroke(width=1).show()
 
         """
-        if "num_copies" in kwargs:
-            kwargs.setdefault("points", kwargs.pop("num_copies"))
-        if "refine" in kwargs:
-            r = kwargs.pop("refine")
-            kwargs.setdefault("points", int(len(self._points) * r))
-        kwargs.pop("method", None)
-        return self.subdivide_path(**kwargs)
+        points = num_copies if num_copies is not None else None
+        if points is None and refine is not None:
+            points = int(len(self._points) * refine)
+        return cast("Path3D", self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed))
 
-    def resample(self, **kwargs: Any) -> "Path3D":
+    def resample(
+        self,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        closed: bool | None = None,
+    ) -> "Path3D":
         """Resample to evenly spaced points.
 
+        Give exactly one of *num_copies* or *spacing*.
+
         Args:
-            **kwargs: Must include exactly one of *num_copies* or *spacing*.
+            num_copies: Target number of points.
+            spacing: Approximate spacing between points.
+            closed: Override the instance's closed flag.
 
         Returns:
             A new :class:`Path3D` with uniformly resampled points.
@@ -1010,9 +1028,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result.stroke(width=1).show()
 
         """
-        if "num_copies" in kwargs:
-            kwargs.setdefault("num_copies", kwargs.pop("num_copies"))
-        return self.resample_path(**kwargs)
+        return cast("Path3D", self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed))
 
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros).
