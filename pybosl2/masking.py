@@ -209,7 +209,12 @@ def _extrude_mask_along_edge(
     size: tuple[float, float, float],
     vec: Point,
 ) -> "Bosl2Solid":
-    shape = _opolygon(mask_path).linear_extrude(height=length, center=True)
+    from pybosl2.shapes3d import Bosl2Solid
+
+    # Wrapped, not the bare native handle the native polygon()/linear_extrude() pair hands back:
+    # edge_profile()'s cutter is combined with corner_profile()'s (a real Bosl2Solid) in
+    # face_profile(), and the native ``|`` rejects a wrapper on its right-hand side.
+    shape = Bosl2Solid(_opolygon(mask_path).linear_extrude(height=length, center=True))
     return _orient_mask_along_edge(shape, size, vec)
 
 

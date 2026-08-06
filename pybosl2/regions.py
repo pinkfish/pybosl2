@@ -182,9 +182,9 @@ class Region:
         outline: Path2D,
         *holes: Path2D,
     ) -> "Region":
-        """Create a region from an outline plus hole outlines.
+        r"""Create a region from an outline plus hole outlines.
 
-        Convenience constructor. Equivalent to ``Region([outline, *holes])``.
+        Convenience constructor. Equivalent to ``Region([outline, \\*holes])``.
         See :meth:`__init__` for the full constructor.
 
         Args:
@@ -473,6 +473,7 @@ class Region:
 
         Returns:
             A :class:`Region` of the stroked outlines.
+
         """
         from pybosl2._stroke2d import stroke_2d
 
@@ -553,7 +554,7 @@ class Region:
     # -----------------------------------------------------------------------------------
 
     def intersection(self, other: Region | Path2D) -> "Region":
-        """Return the 2-D intersection of this region with *other (the area they share).
+        """Return the 2-D intersection of this region with other (the area they share).
 
         Uses shapely for exact polygon coordinates.
 
@@ -587,7 +588,7 @@ class Region:
         return r
 
     def union(self, other: Region | Path2D) -> "Region":
-        """Return the 2-D union of this region and *other (all area covered by either).
+        """Return the 2-D union of this region and other (all area covered by either).
 
         Uses shapely for exact polygon coordinates.
 
@@ -621,7 +622,7 @@ class Region:
         return r
 
     def difference(self, other: Region | Path2D) -> "Region":
-        """Return the 2-D difference: *self with the area of *other subtracted.
+        """Return the 2-D difference: self with the area of other subtracted.
 
         Uses shapely for exact polygon coordinates.
 

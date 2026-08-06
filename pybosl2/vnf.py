@@ -651,7 +651,7 @@ def _norms(vectors: NDArray[np.float64]) -> NDArray[np.float64]:
 
 
 def _face_array(faces: Sequence[Sequence[int]]) -> NDArray[np.intp] | None:
-    """The faces as an (N, sides) index array, or None when they are not all the same length."""
+    """Return the faces as an (N, sides) index array, or None when they are not all the same length."""
     if not faces:
         return None
     try:
@@ -1117,6 +1117,7 @@ class VNF:
 
         Returns:
             The face indices per cell.
+
         """
         p1, p2, p3, p4 = parr[i1], parr[i2], parr[i3], parr[i4]
         if style == "quad":
@@ -1164,7 +1165,7 @@ class VNF:
 
     @staticmethod
     def _keep_real_faces(cells: NDArray[np.intp], verts: NDArray[np.float64], reverse: bool) -> list[list[int]]:
-        """The faces of *cells* that enclose an area, wound to match *reverse*.
+        """Return the faces of *cells* that enclose an area, wound to match *reverse*.
 
         Args:
             cells: Face indices per cell, as :meth:`_cell_faces` returns them.
@@ -1173,6 +1174,7 @@ class VNF:
 
         Returns:
             The faces, in cell order, with the degenerate ones dropped.
+
         """
         flat = cells.reshape(-1, cells.shape[2])
         a, b, c = verts[flat[:, 0]], verts[flat[:, 1]], verts[flat[:, 2]]
@@ -1253,6 +1255,13 @@ class VNF:
         """
         from pythonscad import polyhedron as _polyhedron
 
+        # The native polyhedron() rejects an empty point list with a bare "There must at least be
+        # one point in the polyhedron"; say which VNF that came from instead.
+        if not self.vertices or not self.faces:
+            raise ValueError(
+                f"polyhedron(): this VNF has no geometry to build "
+                f"({len(self.vertices)} vertices, {len(self.faces)} faces)."
+            )
         return _polyhedron(points=self.vertices, faces=[f[::-1] for f in self.faces], convexity=10)
 
     def geometry(self) -> Any:

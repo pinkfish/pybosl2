@@ -6,11 +6,21 @@
 
 # mypy: ignore_errors
 
+import importlib
 import math
 import sys
 import types
 from collections.abc import Sequence
 from typing import Any
+
+
+def _is_real(name: str) -> bool:
+    """True if *name* imports for real -- i.e. it is not missing and not one of our own stand-ins."""
+    try:
+        module = importlib.import_module(name)
+    except Exception:
+        return False
+    return not getattr(module, "_pybosl2_mock", False)
 
 
 class Tree:
@@ -618,17 +628,59 @@ def _mock_rotate_extrude(shape, *_a, **_k) -> Any:
 def install():
     """Patch sys.modules with mock `libfive`/`pythonscad`/`openscad` modules, so `import pysolidfive`
     (and its `pybosl2.shapes2d`/`pybosl2.shapes3d` imports) succeed without a real PythonSCAD app.
-    Idempotent -- safe to call more than once (e.g. from multiple test modules)."""
-    libfive_mock = types.ModuleType("libfive")
-    for name in ["Tree", "x", "y", "z", "sqrt", "square", "abs", "max", "min", "atan2"]:
-        setattr(libfive_mock, name, globals()[name])
-    sys.modules["libfive"] = libfive_mock
+    Idempotent -- safe to call more than once (e.g. from multiple test modules).
 
+    Each module is stood in for INDEPENDENTLY, and only when the real one is missing. libfive ships
+    in no extra, so it is almost always mocked; standing in for pythonscad/openscad on that account
+    too would hide the real wheel behind bbox-less stubs, silently downgrading every geometry
+    assertion in the suite to a mock one (which is exactly what used to happen)."""
+    if not _is_real("libfive"):
+        libfive_mock = types.ModuleType("libfive")
+        libfive_mock._pybosl2_mock = True
+        for name in ["Tree", "x", "y", "z", "sqrt", "square", "abs", "max", "min", "atan2"]:
+            setattr(libfive_mock, name, globals()[name])
+        sys.modules["libfive"] = libfive_mock
+        # frep() is handed the Tree objects libfive just built, so the two have to come from the
+        # same world: with a mocked libfive, the real wheel's frep() rejects them outright
+        # ("Unknown frep expression type"). Everything else on pythonscad stays real.
+        if _is_real("pythonscad"):
+            _shim_frep()
+
+    if not _is_real("pythonscad"):
+        _install_pythonscad_mock()
+    if not _is_real("openscad"):
+        _install_openscad_mock()
+
+
+class _FrepShim(types.ModuleType):
+    """The real `pythonscad`, with only frep() swapped for the mock's -- see install()."""
+
+    _pybosl2_frep_shim = True
+
+    def __init__(self, real):
+        super().__init__("pythonscad")
+        self.__dict__["_real"] = real
+        self.__dict__["frep"] = frep
+
+    def __getattr__(self, name):
+        return getattr(self.__dict__["_real"], name)
+
+
+def _shim_frep():
+    """Route frep() to the mock while leaving the rest of the real wheel in place. Idempotent."""
+    real = sys.modules.get("pythonscad") or importlib.import_module("pythonscad")
+    if getattr(real, "_pybosl2_frep_shim", False):
+        return
+    sys.modules["pythonscad"] = _FrepShim(real)
+
+
+def _install_pythonscad_mock():
     # pythonscad: frep() is real (routes to _FrepResult above). The 3-D primitives return an
     # _AabbSolid that tracks its bounding box (so pybosl2's bbox-backed anchoring is numerically
     # testable); the 2-D/other builders return a permissive bbox-less _AabbSolid. pysolidfive
     # itself never calls any of these (it only builds SDFs and calls frep()).
     pythonscad_mock = types.ModuleType("pythonscad")
+    pythonscad_mock._pybosl2_mock = True
     pythonscad_mock.frep = frep  # type: ignore[attr-defined]
     pythonscad_mock.cube = _mock_cube  # type: ignore[attr-defined]
     pythonscad_mock.cylinder = _mock_cylinder  # type: ignore[attr-defined]
@@ -649,10 +701,13 @@ def install():
         setattr(pythonscad_mock, name, lambda *_a, **_k: _AabbSolid())
     sys.modules["pythonscad"] = pythonscad_mock
 
+
+def _install_openscad_mock():
     # openscad: PyOpenSCAD needs to exist (pybosl2/shapes3d.py imports the name for a type hint).
     # The geometry free functions imported by name (cap_box_polygon.py does
     # `from openscad import hull, polygon`) get the same AABB-aware stand-ins.
     openscad_mock = types.ModuleType("openscad")
+    openscad_mock._pybosl2_mock = True
     openscad_mock.PyOpenSCAD = _AabbSolid
     openscad_mock.PyOpenSCADVector = list
     openscad_mock.cube = _mock_cube

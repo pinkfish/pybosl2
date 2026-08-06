@@ -391,10 +391,14 @@ def test_bounds_follow_a_translate() -> None:
 
 
 def test_bounds_raises_without_a_box_or_a_native_bbox() -> None:
-    shape = Bosl2Shape2D(s2.square(10).shape)
+    # A bbox-less stand-in rather than a real shape: against the real app every native 2-D shape
+    # reports a bounding box, so wrapping one could never reach bounds()' last resort.
+    class BboxLessShape:
+        size = None
+        position = None
+
+    shape = Bosl2Shape2D(BboxLessShape())
     shape.size = None
-    if shape.shape.size is not None:
-        pytest.skip("the native bbox is available, so bounds() never needs the fallback")
     with pytest.raises(ValueError, match="no native bounding box and no tracked size"):
         shape.bounds()
 
@@ -539,7 +543,9 @@ def test_minkowski_linear_extrude() -> None:
 @needs_native_2d_bbox
 def test_minkowski_grows_bounding_box() -> None:
     a = s2.square([10, 10], center=True)
-    result = a.minkowski(s2.circle(radius=3))
+    # fn=64 so the disc really is round: at the default fragment count a radius-3 circle is a
+    # 10-gon measuring 6 x 5.71, and the sum would grow by the apothem, not the radius, in Y.
+    result = a.minkowski(s2.circle(radius=3, fn=64))
     np.testing.assert_allclose(result.shape.size, [16, 16], atol=0.1)
 
 

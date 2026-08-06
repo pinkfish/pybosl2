@@ -690,6 +690,7 @@ def _path_join(
         curvature: Continuous curvature (smooth) parameter for joints.
         relocate:  Merge consecutive endpoints if they are close (default True).
         closed:    Close the resulting joined path (default False).
+        k:         Acronym alias for *curvature*.
         **kwargs: Additional keyword arguments (e.g. ``k`` for curvature).
 
     Returns:
