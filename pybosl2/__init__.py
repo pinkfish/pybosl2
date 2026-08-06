@@ -128,11 +128,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     # bezier / NURBS
     "Bezier": ("pybosl2.beziers", "Bezier"),
     "BezierPatch": ("pybosl2.beziers", "BezierPatch"),
-    "nurbs_curve": ("pybosl2.nurbs", "nurbs_curve"),
-    "nurbs_patch_points": ("pybosl2.nurbs", "nurbs_patch_points"),
-    "nurbs_vnf": ("pybosl2.nurbs", "nurbs_vnf"),
-    "is_nurbs_patch": ("pybosl2.nurbs", "is_nurbs_patch"),
-    "nurbs_elevate_degree": ("pybosl2.nurbs", "nurbs_elevate_degree"),
+    "NurbsType": ("pybosl2.nurbs", "NurbsType"),
+    "NurbsCurve": ("pybosl2.nurbs", "NurbsCurve"),
+    "NurbsPatch": ("pybosl2.nurbs", "NurbsPatch"),
     "turtle2d": ("pybosl2.turtle", "turtle2d"),
     "turtle3d": ("pybosl2.turtle", "turtle3d"),
     # partitioning

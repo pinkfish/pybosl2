@@ -925,7 +925,7 @@ def test_nurbs_curve_spans_control_points(tmp_path):
     setup = "ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]\n"
     m = _render(
         tmp_path,
-        "nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3)",
+        "NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3)",
         setup=setup,
         name="nurbscurve",
     )
@@ -943,7 +943,7 @@ def test_nurbs_surface_patch(tmp_path):
     )
     m = _render(
         tmp_path,
-        "nurbs_vnf(patch, 3, splinesteps=8).polyhedron()",
+        "NurbsPatch(patch, (3, 3)).vnf(splinesteps=(8, 8)).polyhedron()",
         setup=setup,
         name="nurbspatch",
     )
@@ -1233,7 +1233,7 @@ def test_nurbs_rational_sphere_is_watertight(tmp_path):
     )
     m = _render(
         tmp_path,
-        "nurbs_vnf(patch, 3, weights=weights, knots=[None, vknots], splinesteps=12).polyhedron()",
+        "NurbsPatch(patch, (3, 3), weights=weights, knots=(None, vknots)).vnf(splinesteps=(12, 12)).polyhedron()",
         setup=setup,
         name="nurbssphere",
     )
