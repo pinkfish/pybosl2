@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+"""Affine-matrix reorient/apply and polar_to_xy (BOSL2 transforms.scad, coords.scad)."""
+
 from __future__ import annotations
 
 # LibFile: pybosl2/transforms.py
@@ -90,7 +92,8 @@ def rot_about_axis(
 
 
 def rot_inverse(t: np.ndarray) -> np.ndarray:
-    """Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,
+    """Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,.
+
     un-translate.
     """
     t = np.asarray(t, dtype=float)
@@ -146,7 +149,7 @@ def reorient(
     orient: Anchor | Sequence[float] | np.ndarray | None = None,
     size: Sequence[float] | np.ndarray | None = None,
 ) -> list[list[float]]:
-    """The 4x4 matrix that reorients a cuboid of *size* onto *anchor*/*spin*/*orient*.
+    """Return the 4x4 matrix that reorients a cuboid of *size* onto *anchor*/*spin*/*orient*.
 
     The Python equivalent of BOSL2's ``reorient(anchor, spin, orient, size)``, for feeding
     PythonSCAD's ``.multmatrix()``. Composed as

@@ -18,6 +18,8 @@
 # DocCategory: internal
 # FileGroup: BOSL2
 
+"""Package version metadata and the Version class."""
+
 from __future__ import annotations
 
 # The default version baked into the code. The release GitHub workflow rewrites
@@ -46,6 +48,7 @@ class Version:
     """
 
     def __init__(self, version: str = __version__) -> None:
+        """Initialize the instance."""
         parts = str(version).strip().lstrip("vV").split(".")
         if len(parts) < 3:
             parts = parts + ["0"] * (3 - len(parts))
@@ -60,16 +63,19 @@ class Version:
         return f"{self.major}.{self.minor}.{self.update}"
 
     def as_tuple(self) -> tuple[int, int, int]:
-        """The version as a ``(major, minor, update)`` tuple, handy for comparisons."""
+        """Return the version as a ``(major, minor, update)`` tuple, handy for comparisons."""
         return (self.major, self.minor, self.update)
 
     def __str__(self) -> str:
+        """Return a string representation."""
         return self.string
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         return f"Version({self.string!r})"
 
     def __eq__(self, other: object) -> bool:
+        """Return whether two objects are equal."""
         if isinstance(other, str):
             other = Version(other)
         if isinstance(other, Version):
@@ -77,13 +83,16 @@ class Version:
         return NotImplemented
 
     def __lt__(self, other: "Version | str") -> bool:
+        """Return whether this is less than other."""
         other = other if isinstance(other, Version) else Version(other)
         return self.as_tuple() < other.as_tuple()
 
     def __le__(self, other: "Version | str") -> bool:
+        """Return whether this is less than or equal to other."""
         return self < other or self == other
 
     def __hash__(self) -> int:
+        """Return a hash value."""
         return hash(self.as_tuple())
 
 

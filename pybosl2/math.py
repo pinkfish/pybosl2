@@ -15,6 +15,7 @@
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
+"""General numeric helpers and numerical calculus (BOSL2 math.scad)."""
 
 import math as _math
 from collections.abc import Sequence
@@ -40,7 +41,8 @@ def lerpn(
     sides: int,
     endpoint: bool = True,
 ) -> np.ndarray:
-    """Return *sides* points linearly interpolated between *a* and *b*, as an (sides, dim) ndarray
+    """Return *sides* points linearly interpolated between *a* and *b*, as an (sides, dim) ndarray.
+
     (or a length-sides 1-D ndarray for scalar *a*/*b*).
 
     If endpoint is True, the last returned point equals *b*; otherwise the
@@ -130,7 +132,8 @@ def deriv(
 def deriv2(
     data: Sequence[float] | Sequence[Sequence[float]] | np.ndarray, height: float = 1, closed: bool = False
 ) -> np.ndarray:
-    """Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an
+    """Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an.
+
     ndarray.
     """
     arr = np.asarray(data, dtype=float)

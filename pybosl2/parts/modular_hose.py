@@ -15,6 +15,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Modular (Loc-Line style) ball-and-socket hose segments."""
+
 from __future__ import annotations
 
 import math
@@ -201,7 +203,7 @@ class ModularHose:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).
+        """Return a modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).
 
         *size* is 0.25, 0.5 or 0.75 (the 1/4", 1/2", 3/4" hose families). *type* is ``"ball"``/
         ``"small"`` (the ball end), ``"socket"``/``"big"`` (the socket end), or ``"segment"`` (a full
@@ -249,7 +251,8 @@ class ModularHose:
 
     @staticmethod
     def modular_hose_radius(size: float, outer: bool = False) -> float:
-        """The inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
+        """Return the inner (bore) or *outer* radius of a modular hose of *size* (BOSL2.
+
         modular_hose_radius()).
         """
         big = _BIG[_size_index(size)]

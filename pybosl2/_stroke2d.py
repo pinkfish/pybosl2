@@ -39,7 +39,7 @@ def _ensure_closed(pts: Sequence[Sequence[float]], closed: bool | None, path_clo
 
 
 def _needs_decorative_cap(cap: CapSpec) -> bool:
-    """True if this cap type produces a decorative polygon rather than a simple buffer end style."""
+    """Return True if this cap type produces a decorative polygon rather than a simple buffer end style."""
     ct = cap.cap_type
     return ct not in (CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SQUARE, CapType.CIRCLE, CapType.SPHERE)
 

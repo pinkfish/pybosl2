@@ -15,6 +15,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d)."""
+
 from __future__ import annotations
 
 import math
@@ -53,7 +55,7 @@ def mask2d_roundover(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Path2D":
-    """The 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.
+    """Return the 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.
 
     Args:
         radius: Rounding radius.
@@ -102,7 +104,7 @@ def rounding_edge_mask(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Bosl2Solid":
-    """A standalone 3-D edge-rounding cutter of length *length*, for manual positioning.
+    """Return a standalone 3-D edge-rounding cutter of length *length*, for manual positioning.
 
     Args:
         length: Length of the cutter along its axis (default 1).
@@ -151,7 +153,7 @@ def rounding_edge_mask(
 
 
 def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float = 0.1) -> "Bosl2Solid":
-    """A standalone 3-D edge-chamfer cutter of length *length*.
+    """Return a standalone 3-D edge-chamfer cutter of length *length*.
 
     A diamond bar (square prism rotated 45°) centered on its own Z axis.
 
@@ -513,7 +515,7 @@ def mask2d_chamfer(
     y: float | None = None,
     excess: float = 0.01,
 ) -> "Path2D":
-    """The 2-D L-shaped cutter cross-section for chamfering a 90-degree edge.
+    """Return the 2-D L-shaped cutter cross-section for chamfering a 90-degree edge.
 
     Args:
         x: Chamfer width (X direction).
@@ -541,7 +543,7 @@ def mask2d_cove(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Path2D":
-    """The 2-D L-shaped cutter cross-section for a concave corner fillet (cove).
+    """Return the 2-D L-shaped cutter cross-section for a concave corner fillet (cove).
 
     Args:
         radius: Cove radius.
@@ -579,7 +581,7 @@ def mask2d_tear(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Path2D":
-    """The 2-D L-shaped cutter cross-section with a teardrop-shaped profile.
+    """Return the 2-D L-shaped cutter cross-section with a teardrop-shaped profile.
 
     Args:
         r: Radius of the teardrop circle.
@@ -617,7 +619,7 @@ def mask2d_step(
     height: float,
     excess: float = 0.01,
 ) -> "Path2D":
-    """The 2-D cutter cross-section for cutting a step profile in a corner.
+    """Return the 2-D cutter cross-section for cutting a step profile in a corner.
 
     Args:
         width: Step width.
@@ -648,7 +650,7 @@ def mask2d_groove(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Path2D":
-    """The 2-D cutter cross-section for cutting a slot or groove.
+    """Return the 2-D cutter cross-section for cutting a slot or groove.
 
     Args:
         width: Groove width.

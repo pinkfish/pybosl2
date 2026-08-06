@@ -23,6 +23,8 @@
 #    per-tolerance thread-class diameters.
 #
 # FileSummary: Metric screws, nuts and screw holes built on the threading port.
+
+"""Metric screws, nuts and screw holes built on the threading port."""
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
@@ -66,7 +68,8 @@ _THREAD_ALIAS = {
 
 @dataclass(frozen=True)
 class ThreadPitches:
-    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is
+    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is.
+
     undefined.
     """
 
@@ -76,7 +79,8 @@ class ThreadPitches:
     super_fine: float | None = None
 
     def pitch(self, thread: str = "coarse") -> float:
-        """The pitch for a thread class (``"coarse"``/``"fine"``/``"extra-fine"``/``"super-fine"``),
+        """Return the pitch for a thread class (``"coarse"``/``"fine"``/``"extra-fine"``/``"super-fine"``),.
+
         falling back to coarse if the requested class is undefined for this size.
         """
         return getattr(self, _THREAD_ALIAS.get(str(thread).lower(), "coarse")) or self.coarse
@@ -419,7 +423,7 @@ class Screws:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
+        """Return a metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
 
         *length* is the shaft length below the head (for a flat head, below the surface). Set
         ``thread="none"`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
@@ -544,7 +548,7 @@ class Screws:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A hex or square nut with a threaded hole matching *spec* (BOSL2 nut()).
+        """Return a hex or square nut with a threaded hole matching *spec* (BOSL2 nut()).
 
         *thickness* is ``"normal"``, ``"thin"``, ``"thick"`` or a number (mm). *nutwidth* overrides
         the standard across-flats width. *slop* adds radial clearance to the threaded hole.
@@ -579,7 +583,8 @@ class Screws:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or
+        """Return a hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or.
+
         counterbore.
 
         Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``

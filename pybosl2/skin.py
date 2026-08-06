@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # DocCategory: Paths, regions & surfaces
 
+"""Surface generators: sweep, path_sweep, skin, linear_sweep, rotate_sweep, spiral_sweep (BOSL2 skin.scad)."""
+
 #    Pure-Python port of the surface generators from BOSL2's skin.scad, building
 #    VNFs (pybosl2/vnf.py) that render via polyhedron(). No osuse()/BOSL2 runtime
 #    dependency.
@@ -189,7 +191,8 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: str = "min_edge",
     ) -> VNF | Bosl2Solid:
-        """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF
+        """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.
+
         or Bosl2Solid (BOSL2 sweep()).
         """
         return _sweep(
@@ -259,7 +262,7 @@ def frame_map(
     y: Sequence[float] | None = None,
     z: Sequence[float] | None = None,
 ) -> np.ndarray:
-    """The 4x4 rotation whose columns are the given orthonormal axes (BOSL2 frame_map()).
+    """Return the 4x4 rotation whose columns are the given orthonormal axes (BOSL2 frame_map()).
 
     Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product.
     """
@@ -267,15 +270,20 @@ def frame_map(
     yu = _u(y) if y is not None else None
     zu = _u(z) if z is not None else None
     if xu is None:
-        assert yu is not None and zu is not None
+        assert yu is not None
+        assert zu is not None
         xu = np.cross(yu, zu)
     elif yu is None:
-        assert zu is not None and xu is not None
+        assert zu is not None
+        assert xu is not None
         yu = np.cross(zu, xu)
     elif zu is None:
-        assert xu is not None and yu is not None
+        assert xu is not None
+        assert yu is not None
         zu = np.cross(xu, yu)
-    assert xu is not None and yu is not None and zu is not None
+    assert xu is not None
+    assert yu is not None
+    assert zu is not None
     m = np.eye(4)
     m[:3, :3] = np.column_stack([xu, yu, zu])
     return m
@@ -599,7 +607,8 @@ def _skin(
 
     dim = len(profiles[0][0])
     if dim == 2:
-        assert z is not None and len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
+        assert z is not None, "skin(): 2-D profiles need a matching-length z list."
+        assert len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
         profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
     from pybosl2.path3d import Path3D
@@ -800,6 +809,10 @@ def _spiral_sweep(
         radius:   helix radius (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
         diameter:   helix diameter (or per-end radius1/radius2 / diameter1/diameter2 for a conical spiral)
         turns: number of turns (default 1)
+        radius1: starting radius for a conical spiral.
+        radius2: ending radius for a conical spiral.
+        diameter1: starting diameter for a conical spiral.
+        diameter2: ending diameter for a conical spiral.
         center: center the spiral on Z (default True)
         style: vnf_vertex_array quad-subdivision style
 
@@ -814,7 +827,8 @@ def _spiral_sweep(
             Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
 
     """
-    assert height > 0 and turns != 0, "spiral_sweep(): need positive height and nonzero turns."
+    assert height > 0, "spiral_sweep(): need positive height and nonzero turns."
+    assert turns != 0, "spiral_sweep(): need positive height and nonzero turns."
     rr1 = (
         radius1
         if radius1 is not None
@@ -894,6 +908,8 @@ def subdivide_and_slice(
 
 
 class OSType(Enum):
+    """Offset sweep profile type."""
+
     CIRCLE = "circle"
     SMOOTH = "smooth"
     TEARDROP = "teardrop"
@@ -923,6 +939,7 @@ class OSProfile:
     points: list[list[float]] = field(default_factory=list[list[float]])
 
     def get(self, key: str, default: object = None) -> object:
+        """Return the value for key or a default."""
         if key == "type":
             return self.type.value
         mapping = {
@@ -937,6 +954,7 @@ class OSProfile:
         return default
 
     def __getitem__(self, key: str) -> object:
+        """Return the item for key."""
         if key == "type":
             return self.type.value
         mapping = {
@@ -951,6 +969,7 @@ class OSProfile:
         raise KeyError(key)
 
     def __contains__(self, key: str) -> bool:
+        """Return whether key is in this object."""
         mapping = {
             "r": "radius",
             "h": "height",
@@ -981,6 +1000,7 @@ def os_circle(
                 less than half the extrusion height.
         extra:  Extra extension beyond the nominal arc (useful to close tiny gaps
                 from floating-point rounding; default 0).
+        **kwargs: Additional keyword arguments (e.g. ``r`` for radius, ``h`` for height).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
@@ -1010,6 +1030,7 @@ def os_smooth(
         radius:    Alternative to ``cut`` (aliases it).
         curvature: Smoothness/curvature match parameter between 0 and 1 (default 0.5).
         extra:     Extra extension beyond the nominal curve (default 0).
+        **kwargs: Additional keyword arguments (e.g. ``r`` for radius, ``k`` for curvature).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
@@ -1041,6 +1062,7 @@ def os_teardrop(
         cut:       Alternative to ``radius`` (aliases it).
         max_angle: Curvature transition angle relative to the wall (default 45.0).
         extra:     Extra extension beyond the nominal curve (default 0).
+        **kwargs: Additional keyword arguments (e.g. ``r`` for radius, ``h`` for height).
 
     Returns:
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
@@ -1092,7 +1114,7 @@ def os_flat() -> OSProfile:
 
 
 def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProfile:
-    """Custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
+    """Return a custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
 
     Accepts a list of 2D points `[[x, y], ...]` defining the profile:
     - `x` is the inward radial offset (meaning `delta = -x`).
@@ -1107,7 +1129,8 @@ def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProf
 
     """
     pts = [[float(p[0]), float(p[1])] for p in profile]
-    assert pts and pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
+    assert pts, "os_profile(): First point of the profile must be [0, 0]."
+    assert pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
     return OSProfile(type=OSType.PROFILE, points=pts, extra=float(extra))
 
 
@@ -1367,6 +1390,7 @@ def _rounded_prism(
         steps:       Arc slices for top/bottom rim treatments.
         caps:        Cap bottom/top.
         style:       Subdivision style.
+        **kwargs: Additional keyword arguments (e.g. ``joint_bot``, ``k_sides``).
 
     Returns:
         A :class:`~pybosl2.vnf.VNF`.
@@ -1840,7 +1864,8 @@ def rot_resample(
 
     """
     rotlist_extra = [np.asarray(t, dtype=float) for t in rotlist]
-    assert smoothlen > 0 and smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."
+    assert smoothlen > 0, "rot_resample(): smoothlen must be a positive odd integer."
+    assert smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."
     assert method in ("length", "count")
     m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)

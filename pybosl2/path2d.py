@@ -130,6 +130,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     """
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
+        """Initialize the instance."""
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
             self._coords: list[tuple[float, float]] = []
@@ -155,7 +156,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         sides: int = 100,
         angle: float | None = None,
     ) -> Path2D:
-        """The catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.
+        """Return the catenary (hanging-chain) curve of the given *width*, as a :class:`~pybosl2.paths.Path2D`.
 
         Give exactly one of *droop* (how far the middle hangs below the endpoints) or *angle* (the
         slope in degrees at the endpoints). The curve passes through ``[-width/2, 0]`` and
@@ -180,7 +181,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
         assert width > 0, "catenary() needs width > 0."
-        assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
+        assert isinstance(sides, int), "catenary() needs a positive integer sides."
+        assert sides > 0, "catenary() needs a positive integer sides."
         given = droop if droop is not None else angle
         assert given is not None
         sgn = int(math.copysign(1, given))
@@ -246,18 +248,22 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self._geom
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._points)
 
     def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
+        """Return the item at index."""
         result = self._points[key]
         if isinstance(key, int):
             return Point.from_seq(result)
         return result
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._points)
 
     def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
+        """Return a numpy array representation."""
         if copy:
             return self._points.copy()
         return self._points
@@ -340,7 +346,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return cum / total if total > 1e-12 else np.zeros(len(coords), dtype=np.float64)
 
     def closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
-        """The closest point on the path to *pt*.
+        """Return the closest point on the path to *pt*.
 
         Uses Shapely projection for 2-D accuracy.
 
@@ -361,7 +367,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(proj.x), float(proj.y))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
-        """Normalized tangent vector at each point of the path.
+        """Return normalized tangent vector at each point of the path.
 
         Args:
             closed: Override the instance's closed flag.
@@ -694,6 +700,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         closed: bool | None = None,
         method: SubdivideMethod = SubdivideMethod.LENGTH,
     ) -> "Path2D":
+        """Subdivide the path into more points."""
         if closed is None:
             closed = self.closed
         assert points_per_segment is None or method == SubdivideMethod.SEGMENT, (
@@ -758,6 +765,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         spacing: float | None = None,
         closed: bool | None = None,
     ) -> "Path2D":
+        """Resample the path with evenly spaced points."""
         if closed is None:
             closed = self.closed
         ls = self._shapely
@@ -846,7 +854,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return float(poly.area)
 
     def is_clockwise(self) -> bool:
-        """True if the polygon winds clockwise (negative signed area)."""
+        """Return True if the polygon winds clockwise (negative signed area)."""
         return self.area(signed=True) < 0
 
     def perimeter(self) -> float:
@@ -854,7 +862,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return float(self._shapely.length)
 
     def contains(self, point: Sequence[float]) -> bool:
-        """True if *point* is inside the closed polygon (on the boundary counts as inside).
+        """Return True if *point* is inside the closed polygon (on the boundary counts as inside).
 
         Containment is only meaningful for a closed polygon, so an open path (``closed=False``)
         always returns False rather than testing.
@@ -884,11 +892,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @property
     def is_closed(self) -> bool:
-        """True if the first and last points of the path coincide."""
+        """Return True if the first and last points of the path coincide."""
         return bool(Path2D._is_closed_path(self._points))
 
     def is_simple(self) -> bool:
-        """True if the path does not self-intersect."""
+        """Return True if the path does not self-intersect."""
         if self.closed:
             if len(self._points) < 3:
                 return True
@@ -979,7 +987,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(Path2D._cleanup_path(self), closed=self.closed)
 
     def reverse(self) -> "Path2D":
-        """The same outline wound the other way.
+        """Return the same outline wound the other way.
 
         Returns a new Path2D with all points in reverse order, flipping the
         winding direction (clockwise becomes counter-clockwise and vice-versa).
@@ -1218,7 +1226,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # -- conversion ------------------------------------------------------------------------
 
     def to_region(self) -> "Region":
-        """This path as a single-outline Region.
+        """Convert this path into a single-outline Region.
 
         Returns a :class:`~pybosl2.regions.Region` containing just this
         path as its only outline. Useful as a gateway to 2-D Boolean
@@ -1288,7 +1296,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             )
 
     def polygon(self) -> "Bosl2Shape2D":
-        """This path as 2-D geometry (crosses the FFI as plain floats).
+        """Return this path as 2-D geometry (crosses the FFI as plain floats).
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
@@ -1324,9 +1332,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.polygon()
 
     def fill(self) -> "Bosl2Shape2D":
-        """This path as 2-D geometry with every hole filled in -- only the outermost outline
+        """Return this path as 2-D geometry with every hole filled in -- only the outermost outline survives.
 
-        survives (OpenSCAD ``fill()``). For a self-intersecting path this closes up the interior
+        (OpenSCAD ``fill()``). For a self-intersecting path this closes up the interior
         loops that ``polygon()`` would leave as holes.
 
         Returns:
@@ -1336,7 +1344,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.polygon().fill()
 
     def minkowski_sum(self, other: "Path2D") -> "Path2D":
-        """The 2-D Minkowski sum of this closed path and *other*.
+        """Return the 2-D Minkowski sum of this closed path and *other*.
 
         Adds *other* (a closed 2‑D polygon) to every point of this path,
         producing the swept outline as a single closed :class:`Path2D`.
@@ -1384,7 +1392,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         single_sided: bool = False,
         quad_segs: int = 16,
     ) -> "Path2D":
-        """The Minkowski sum of this closed path with a circle of *radius*.
+        r"""Return the Minkowski sum of this closed path with a circle of *radius*.
 
         Uses shapely :meth:`~shapely.geometry.Polygon.buffer` for an
         efficient offset with configurable corner style. Positive *radius*
@@ -1502,7 +1510,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return cls(pts, closed=True)
 
     def hull(self, *others: "Path2D | Region") -> "Path2D":
-        """The 2-D convex hull of this path and all the given closed paths and regions.
+        """Return the 2-D convex hull of this path and all the given closed paths and regions.
 
         Uses shapely to compute the convex hull of the union of all input
         geometries and returns the hull as a single closed :class:`Path2D`.
@@ -1525,7 +1533,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Path2D([])
 
     def union(self, *others: "Path2D") -> "Path2D":
-        """The 2-D union of this closed path with *others*.
+        """Return the 2-D union of this closed path with *others*.
 
         Converts all paths to :class:`~shapely.geometry.Polygon` objects,
         computes the Boolean union, and returns the result as a single
@@ -1555,7 +1563,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Path2D._polygon_to_path(result)
 
     def intersection(self, *others: "Path2D") -> "Path2D":
-        """The 2-D intersection of this closed path with *others*.
+        """Return the 2-D intersection of this closed path with *others*.
 
         Converts all paths to :class:`~shapely.geometry.Polygon` objects,
         computes the Boolean intersection, and returns the common area as
@@ -1584,7 +1592,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Path2D._polygon_to_path(a)
 
     def difference(self, other: "Path2D") -> "Path2D":
-        """The 2-D difference: *self* minus *other*.
+        """Return the 2-D difference: *self* minus *other*.
 
         Subtracts *other* from this path using shapely Boolean difference.
         Requires both paths to be closed.
@@ -1610,7 +1618,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Path2D._polygon_to_path(a.difference(b))
 
     def symmetric_difference(self, other: "Path2D") -> "Path2D":
-        """The 2-D symmetric difference (XOR) of this path and *other*.
+        """Return the 2-D symmetric difference (XOR) of this path and *other*.
 
         Returns the area in either path but not both. Requires both paths
         to be closed.
@@ -1636,19 +1644,19 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Path2D._polygon_to_path(a.symmetric_difference(b))
 
     def __or__(self, other: "Path2D") -> "Path2D":
-        """``a | b``  →  ``a.union(b)``."""
+        """Return ``a | b``  →  ``a.union(b)``."""
         return self.union(other)
 
     def __and__(self, other: "Path2D") -> "Path2D":
-        """``a & b``  →  ``a.intersection(b)``."""
+        """Return ``a & b``  →  ``a.intersection(b)``."""
         return self.intersection(other)
 
     def __sub__(self, other: "Path2D") -> "Path2D":
-        """``a - b``  →  ``a.difference(b)``."""
+        """Return ``a - b``  →  ``a.difference(b)``."""
         return self.difference(other)
 
     def __xor__(self, other: "Path2D") -> "Path2D":
-        """``a ^ b``  →  ``a.symmetric_difference(b)``."""
+        """Return ``a ^ b``  →  ``a.symmetric_difference(b)``."""
         return self.symmetric_difference(other)
 
     @staticmethod
@@ -1677,9 +1685,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # -- 2-D -> 3-D (both backends) --------------------------------------------------------
 
     def linear_extrude(self, height: float, **kwargs: Any) -> "Solid":
-        """Extrude this path *height* along +Z into a 3-D solid, on whichever backend is
+        """Extrude this path *height* along +Z into a 3-D solid.
 
-        active: a :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
+        The extrusion uses whichever backend is active: a
+        :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
         :class:`~pybosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
 
             plate = Path2D(pts).linear_extrude(height=4)          # -> Bosl2Solid
@@ -1709,9 +1718,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return get_backend().linear_extrude([self], height, **kwargs)
 
     def rotate_extrude(self, angle: float = 360.0, **kwargs: Any) -> "Bosl2Solid":
-        """Revolve this path about the Y axis into a 3-D solid; see
+        """Revolve this path about the Y axis into a 3-D solid.
 
-        :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
+        See :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
 
         Args:
             angle: The sweep angle in degrees (default 360 for a full revolution).
@@ -1730,9 +1739,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.polygon().rotate_extrude(angle, **kwargs)
 
     def debug_polygon(self, size: float = 1, vertices: bool = True) -> Any:
-        """A debug view of this polygon: the filled outline (as a thin flat solid) with each vertex
+        """Return a debug view of this polygon.
 
-        labelled by its index in red (BOSL2 debug_polygon()). Set *size* for the label size.
+        The filled outline (as a thin flat solid) with each vertex labelled by its index
+        in red (BOSL2 debug_polygon()). Set *size* for the label size.
 
         Args:
             size: Label size for the vertex indices.
@@ -1826,6 +1836,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return out
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         return f"Path2D({len(self)} pts, closed={self.closed})"
 
     # ======================================================================================
@@ -1928,7 +1939,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(pts, closed=self.closed)
 
     def is_path_simple(self, closed: bool | None = None, eps: float = EPSILON) -> bool:
-        """True if the 2D path has no self-intersections (repeated points are not intersections).
+        """Return True if the 2D path has no self-intersections (repeated points are not intersections).
 
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
@@ -2294,7 +2305,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def _is_closed_path(
         path: Sequence[Sequence[float]] | np.ndarray | "Path2D" | "Path3D", eps: float = EPSILON
     ) -> bool:
-        """True if the first and last points of path coincide.
+        """Return True if the first and last points of path coincide.
 
         Args:
             path: A path to check for closure.

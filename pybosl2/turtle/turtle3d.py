@@ -17,6 +17,8 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
+"""3-D turtle graphics (the Turtle class)."""
+
 from __future__ import annotations
 
 import math
@@ -47,6 +49,8 @@ __all__ = ["turtle3d", "Turtle3D", "Turtle3DState", "TurtleCommand", "TurtleComm
 
 
 class TurtleCommandType(Enum):
+    """Turtle movement command type."""
+
     MOVE = "move"
     UNTILX = "untilx"
     UNTILY = "untily"
@@ -190,6 +194,7 @@ class Turtle3D:
     """
 
     def __init__(self, state: Any = RIGHT) -> None:
+        """Initialize the instance."""
         self._state = Turtle3D._init_state(state)
 
     def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Turtle3D:
@@ -205,7 +210,7 @@ class Turtle3D:
         return self
 
     def points(self) -> list[list[float]]:
-        """The de-duplicated list of 3-D points the turtle has visited."""
+        """Return the de-duplicated list of 3-D points the turtle has visited."""
         return Turtle3D._dedup([Turtle3D._apply(T, [0, 0, 0]) for T in self._state.transforms])
 
     def stroke(
@@ -233,7 +238,7 @@ class Turtle3D:
         return path.stroke(width=width, closed=closed)
 
     def transforms(self) -> list[np.ndarray]:
-        """The list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
+        """Return the list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
         return [self._state.transforms[i] @ self._state.pre_transforms[i] for i in range(len(self._state.transforms))]
 
     def full_state(self) -> Turtle3DState:
@@ -566,7 +571,9 @@ class Turtle3D:
             if absangle is None:
                 rel = np.eye(4) if rel_angle == 0 else Turtle3D._axis_rot4(relaxis, rel_angle, center)
                 return last_xform @ flip @ Turtle3D._trans4([move, 0, 0]) @ rel  # type: ignore[no-any-return]
-            assert absangle is not None and abscenter is not None and vshift is not None
+            assert absangle is not None
+            assert abscenter is not None
+            assert vshift is not None
             return Turtle3D._trans4(shift + vshift) @ Turtle3D._axis_rot4(absaxis, absangle, abscenter) @ rot_part  # type: ignore[no-any-return]
 
         rollval = cmd.roll if isinstance(cmd.roll, (int, float)) else 0
@@ -610,7 +617,8 @@ class Turtle3D:
                 rel = np.eye(4) if rel_angle == 0 else Turtle3D._axis_rot4(relaxis, frac * rel_angle, center)
                 xform = last_xform @ flip @ Turtle3D._trans4([frac * move, 0, 0]) @ rel @ Turtle3D._xrot4(frac * roll)
             else:
-                assert abscenter is not None and vshift is not None
+                assert abscenter is not None
+                assert vshift is not None
                 xform = (
                     Turtle3D._trans4(shift + vshift * frac)
                     @ Turtle3D._axis_rot4(absaxis, frac * absangle, abscenter)

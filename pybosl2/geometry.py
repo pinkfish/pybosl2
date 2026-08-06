@@ -14,6 +14,8 @@
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
+"""Points, lines and polygon geometry helpers (BOSL2 geometry.scad)."""
+
 from __future__ import annotations
 
 import math
@@ -50,7 +52,7 @@ def is_collinear(
     point3: Point,
     eps: float = EPSILON,
 ) -> bool:
-    """True if three points lie on a common line (works in 2-D or 3-D).
+    """Return True if three points lie on a common line (works in 2-D or 3-D).
 
     Args:
         point1: First point.
@@ -88,7 +90,7 @@ def line_normal(
     point1: Point,
     point2: Point,
 ) -> Point:
-    """Unit 2-D normal vector perpendicular to the line direction, pointing left.
+    """Return the unit 2-D normal vector perpendicular to the line direction, pointing left.
 
     Returns a :class:`~pybosl2.points.Point` of length 2, perpendicular to
     the line from *point1* to *point2*.

@@ -15,6 +15,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""NEMA stepper-motor models and mounting masks."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -67,7 +69,8 @@ class NemaSteppers:
 
     @staticmethod
     def nema_motor_info(size: int) -> NemaSpec:
-        """The :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
+        """Return the :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2.
+
         nema_motor_info()).
         """
         try:
@@ -84,7 +87,7 @@ class NemaSteppers:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
+        """Return a model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
 
         The motor's mounting face is at ``z = 0`` with the body below it and the plinth and *shaft_len*
         shaft projecting up; the four mounting holes are drilled into the face.
@@ -156,7 +159,7 @@ class NemaSteppers:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """The mounting cutout for a NEMA *size* motor -- difference it from a plate (BOSL2 nema_mount_mask()).
+        """Return the mounting cutout for a NEMA *size* motor -- difference it from a plate (BOSL2 nema_mount_mask()).
 
         Cuts the four screw holes and (``atype="full"``) the central plinth clearance. A slot length
         *length* > 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).

@@ -23,6 +23,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints)."""
+
 from __future__ import annotations
 
 import math
@@ -119,7 +121,7 @@ def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 
 
 def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Path2D:
-    """The simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
+    """Return the simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import arc
 
@@ -447,6 +449,9 @@ def partition_path(
         altpath:  optional base path the pattern is redirected along
         seglen:   default length for named sections (default 25)
         segwidth: default width for named sections (default 25)
+        fn:       number of fragments for circle resolution.
+        fa:       minimum fragment angle for circle resolution.
+        fs:       minimum fragment size for circle resolution.
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` (closed when *y* is given).
@@ -573,7 +578,7 @@ def partition_mask(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A mask to remove half of an object, leaving an interlocking edge (BOSL2 partition_mask()).
+    """Return a mask to remove half of an object, leaving an interlocking edge (BOSL2 partition_mask()).
 
     Intersect it with (or subtract it from) a solid to keep the half within *w* of the cut plane.
     Pair a plain mask with an ``inverse=True`` one to split a part into two mating pieces.
@@ -588,6 +593,9 @@ def partition_mask(
         cutpath_centered: keep the pattern centered (default True)
         inverse: build the mating (inverted) mask
         slop: shrink the mask by this much for a printer-fit clearance
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     Examples:
         A jigsaw-pattern mask for a 100×100×10 mm part:
@@ -632,7 +640,7 @@ def partition_cut_mask(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A thin mask to cut an object into two mating pieces (BOSL2 partition_cut_mask()).
+    """Return a thin mask to cut an object into two mating pieces (BOSL2 partition_cut_mask()).
 
     Subtract it from a solid to split it along the cut path with a *slop*-wide kerf.
 

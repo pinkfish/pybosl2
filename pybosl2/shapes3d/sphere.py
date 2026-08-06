@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Spheres, spheroids, onions and teardrops."""
+
 from __future__ import annotations
 
 import math
@@ -76,7 +78,7 @@ def sphere(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A sphere, built with the builtin sphere(), with BOSL2-style anchor/spin/orient support.
+    """Return a sphere, built with the builtin sphere(), with BOSL2-style anchor/spin/orient support.
 
     Note: `style=` is accepted for signature compatibility but not applied; the
     builtin sphere() is used directly.
@@ -121,7 +123,7 @@ def spheroid(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """An approximate sphere; this pure-Python port just builds a plain sphere() (style/dual are ignored).
+    """Return an approximate sphere; this pure-Python port just builds a plain sphere() (style/dual are ignored).
 
     Args:
         radius:      radius of the spheroid
@@ -163,7 +165,8 @@ def _teardrop2d_path(
     realign: bool,
     sides: int,
 ) -> list[list[float]]:
-    """The 2-D (X,Y) outline of a BOSL2-style teardrop2d(): a circle of radius *radius* capped by a
+    """Return the 2-D (X,Y) outline of a BOSL2-style teardrop2d(): a circle of radius *radius* capped by a.
+
     point (or, if *cap_height* truncates it, a flat top) formed by two walls tangent to the circle at
     +-*angle* degrees from the Y axis. *sides* is the segment count for a full circle of this radius
     (as from _frag_count()); *realign* is approximated by toggling the parity of the round

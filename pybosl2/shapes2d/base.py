@@ -9,6 +9,8 @@
 # DocCategory: internal
 # FileGroup: BOSL2
 
+"""Base 2D shape wrapper class and anchoring/mathematical helper functions."""
+
 from __future__ import annotations
 
 import math
@@ -89,8 +91,9 @@ def _arc_through_3(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    """Arc around *center* from *point_start* to *point_end*, sweeping through *point_mid* (may be
-    the long way around).
+    """Arc around *center* from *point_start* to *point_end*, sweeping through.
+
+    *point_mid* (may be the long way around).
     """
     a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
     am = math.degrees(math.atan2(point_mid[1] - center[1], point_mid[0] - center[0]))
@@ -147,7 +150,7 @@ def _v_theta(vec: Sequence[float]) -> float:
 
 
 def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
-    """The 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
+    """Return the 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
     return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])
 
 
@@ -157,7 +160,7 @@ def _sign(value: float) -> int:
 
 
 def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: Sequence[float]) -> float:
-    """The angle in degrees at vertex *b* of the corner a-b-c."""
+    """Return the angle in degrees at vertex *b* of the corner a-b-c."""
     vax = float(point_a[0]) - float(point_b[0])
     vay = float(point_a[1]) - float(point_b[1])
     vcx = float(point_c[0]) - float(point_b[0])
@@ -191,8 +194,11 @@ def _finish(
 
 
 class CsgShape2D(BaseShape):
-    """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent, chainable API that
-    :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids. Every shape constructor in this file
+    """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent,.
+
+    chainable API that :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids.
+
+    Every shape constructor in this file
     returns one of these, as do :meth:`~pybosl2.paths.Path2D.polygon` and
     :meth:`~pybosl2.regions.Region.geometry`.
 
@@ -230,6 +236,7 @@ class CsgShape2D(BaseShape):
         anchor: Anchor | Sequence[float] | None = None,
         _bbox: tuple[list[float], list[float]] | None = None,
     ):
+        """Initialize the instance."""
         self.shape = shape
         #: nominal [x, y] size for the shapes that have a genuine box size, else None
         self.size = None if size is None else [float(v) for v in size][:2]
@@ -269,6 +276,7 @@ class CsgShape2D(BaseShape):
         return out
 
     def translate(self, v: Sequence[float]) -> "CsgShape2D":
+        """Translate the shape by a vector."""
         out = super().translate(v)
         if self._bbox is not None:
             v_float = [float(x) for x in v]
@@ -280,6 +288,7 @@ class CsgShape2D(BaseShape):
         return out
 
     def rotate(self, *a: object, **k: object) -> "CsgShape2D":
+        """Rotate the shape."""
         out = super().rotate(*a, **k)
         if self._bbox is not None:
             angle = 0.0
@@ -305,6 +314,7 @@ class CsgShape2D(BaseShape):
         return out
 
     def scale(self, v: float | Sequence[float]) -> "CsgShape2D":
+        """Scale the shape."""
         out = super().scale(v)
         if self._bbox is not None:
             sv = [float(v), float(v)] if isinstance(v, (int, float)) else [float(x) for x in v]
@@ -329,11 +339,13 @@ class CsgShape2D(BaseShape):
     def anchor_point(
         self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None
     ) -> list[float]:
+        """Return the 2D point for the given anchor."""
         center, size = self._resolve_bounds(bbox)
         a = list(anchor.vector_2d) if isinstance(anchor, Anchor) else list(anchor)
         return [center[i] + a[i] * size[i] / 2 for i in range(2)]
 
     def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "CsgShape2D":
+        """Move the shape so that the given anchor is at the origin."""
         p = self.anchor_point(anchor, bbox=bbox)
         moved = self.translate([-p[0], -p[1]])
         if moved.size is not None and isinstance(anchor, Anchor):
@@ -341,6 +353,7 @@ class CsgShape2D(BaseShape):
         return moved
 
     def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "CsgShape2D":
+        """Position a child at the given anchor of the parent."""
         p = self.anchor_point(anchor, bbox=bbox)
         cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
         placed = cshape.translate(p)
@@ -358,6 +371,7 @@ class CsgShape2D(BaseShape):
         overlap: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "CsgShape2D":
+        """Align a child to an edge of the parent."""
         face = list(anchor.vector_2d)
         edge = list(Anchor.CENTER.vector_2d) if align is None else list(align.vector_2d)
         factor = -1.0 if inside else 1.0
@@ -382,6 +396,7 @@ class CsgShape2D(BaseShape):
         spin: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "CsgShape2D":
+        """Attach a child to the parent at the given anchors."""
         pa = list(parent_anchor.vector_2d)
         ca = [-pa[0], -pa[1]] if child_anchor is None else list(child_anchor.vector_2d)
         cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
@@ -404,11 +419,11 @@ class CsgShape2D(BaseShape):
     spin = BaseShape.rotate
 
     def xflip(self, x: float = 0.0) -> "Bosl2Shape2D":
-        """Mirror across the vertical line at *x* (BOSL2 xflip())."""
+        """Mirror across the vertical line at *x*."""
         return self.translate([-x, 0.0]).mirror([1, 0]).translate([x, 0.0])
 
     def yflip(self, y: float = 0.0) -> "Bosl2Shape2D":
-        """Mirror across the horizontal line at *y* (BOSL2 yflip())."""
+        """Mirror across the horizontal line at *y*."""
         return self.translate([0.0, -y]).mirror([0, 1]).translate([0.0, y])
 
     # ---- 2-D operators ----
@@ -466,8 +481,7 @@ class CsgShape2D(BaseShape):
         return self._wrap(result)
 
     def fill(self) -> "Bosl2Shape2D":
-        """This shape with every hole filled in -- only the outermost outline survives
-        (OpenSCAD ``fill()``).
+        """Return this shape with every hole filled in -- only the outermost outline survives (OpenSCAD ``fill()``).
 
         Useful for recovering the solid footprint of a shape you have already punched holes in,
         e.g. to build a backing plate for it, or to close up the interior loops of ``text()``.
@@ -484,7 +498,7 @@ class CsgShape2D(BaseShape):
         return self._wrap(_ofill(self.shape))
 
     def hull(self, *others: "Shape2DLike") -> "Bosl2Shape2D":
-        """The convex hull of this shape (OpenSCAD ``hull()``).
+        """Return the convex hull of this shape (OpenSCAD ``hull()``).
 
         With arguments, the hull of this shape *together with* each of *others* -- any mix of
         ``Bosl2Shape2D``, native 2-D shapes, :class:`~pybosl2.paths.Path2D` /
@@ -597,8 +611,9 @@ class CsgShape2D(BaseShape):
         return Bosl2Solid(self.shape.rotate_extrude(**kw))
 
     def path_extrude(self, path: Path3D, **kwargs: Any) -> "Bosl2Solid":
-        """Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D` or point list), via
-        the native ``path_extrude()``.
+        """Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D`.
+
+        or point list), via the native ``path_extrude()``.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -637,7 +652,10 @@ class CsgShape2D(BaseShape):
         result = []
         for m in mats:
             m4 = np.asarray(m, dtype=float)
-            assert abs(float(m4[2, 3])) < 1e-9 and abs(float(m4[2, 2]) - 1.0) < 1e-9, (
+            assert abs(float(m4[2, 3])) < 1e-9, (
+                "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
+            )
+            assert abs(float(m4[2, 2]) - 1.0) < 1e-9, (
                 "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
             )
             copy = self.shape.multmatrix(m4.tolist())
@@ -717,9 +735,10 @@ class CsgShape2D(BaseShape):
     # ---- bounding box ----
 
     def bounds(self) -> "tuple[list[float], list[float]]":
-        """This shape's axis-aligned bounding box as ``(center, size)`` -- both ``[x, y]`` float
-        lists in the shape's current frame (the 2-D form of
-        :meth:`~pybosl2.shapes3d.Bosl2Solid.bounds`).
+        """Return this shape's axis-aligned bounding box as ``(center, size)``.
+
+        -- both ``[x, y]`` float lists in the shape's current frame (the
+        2-D form of :meth:`~pybosl2.shapes3d.Bosl2Solid.bounds`).
 
         Prefers the native bbox, which always reflects the current geometry; falls back to the
         tracked nominal size/anchor when the native accessors aren't available (the numeric test

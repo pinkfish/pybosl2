@@ -18,6 +18,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Standard ball-bearing cartridge models."""
+
 from __future__ import annotations
 
 import math

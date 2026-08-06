@@ -17,6 +17,8 @@
 # FileSummary: Top-level convenience re-exports (lazy) for the pybosl2 BOSL2 toolkit.
 # FileGroup: BOSL2
 
+"""Top-level convenience re-exports (lazy) for the pybosl2 BOSL2 toolkit."""
+
 from pybosl2.version import Version, __version__, version
 
 # All other exports are lazy — the sub-module is only imported when

@@ -27,6 +27,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies."""
+
 from __future__ import annotations
 
 import math
@@ -92,7 +94,7 @@ def line_copies(
     p2: Point | None = None,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Translation matrices evenly spread along a line (BOSL2 line_copies())."""
+    """Return translation matrices evenly spread along a line."""
     if length is not None:
         ll = _vec3(length, 0.0)
     elif spacing is not None and num_copies is not None:
@@ -149,7 +151,7 @@ def xcopies(
     start_pos: float | Point | None = None,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Copies spread along the X axis (BOSL2 xcopies())."""
+    """Return copies spread along the X axis."""
     return _axis_copies(
         RIGHT.vector,
         spacing,
@@ -165,7 +167,7 @@ def ycopies(
     start_pos: float | Point | None = None,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Copies spread along the Y axis (BOSL2 ycopies())."""
+    """Return copies spread along the Y axis."""
     return _axis_copies(BACK.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
 
 
@@ -175,7 +177,7 @@ def zcopies(
     start_pos: float | Point | None = None,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Copies spread along the Z axis (BOSL2 zcopies())."""
+    """Return copies spread along the Z axis."""
     return _axis_copies(UP.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
 
 
@@ -188,15 +190,16 @@ def grid_copies(
     axes: str = "xy",
     num_copies: int | Sequence[int] | np.ndarray | None = None,
 ) -> list[np.ndarray]:
-    """Copies laid out in a square or staggered (hex) grid (BOSL2 grid_copies())."""
+    """Return copies laid out in a square or staggered (hex) grid."""
     assert stagger in (
         False,
         True,
         "alt",
     ), "grid_copies(): stagger must be False, True or 'alt'."
-    assert len(axes) == 2 and axes[0] in "xyz" and axes[1] in "xyz" and axes[0] != axes[1], (
-        "grid_copies(): invalid axes."
-    )
+    assert len(axes) == 2, "grid_copies(): invalid axes."
+    assert axes[0] in "xyz", "grid_copies(): invalid axes."
+    assert axes[1] in "xyz", "grid_copies(): invalid axes."
+    assert axes[0] != axes[1], "grid_copies(): invalid axes."
     ai: dict[str, int] = {"x": 0, "y": 1, "z": 2}
 
     def permax(pt: Sequence[float]) -> np.ndarray:
@@ -291,7 +294,7 @@ def rot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Rotated copies about an axis, optionally offset into a ring (BOSL2 rot_copies())."""
+    """Return rotated copies about an axis, optionally offset into a ring."""
     assert subrot or np.linalg.norm(_vec3(delta, 0.0)) > 0, (
         "rot_copies(): subrot can only be False when delta is nonzero."
     )
@@ -325,9 +328,7 @@ def xrot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Rotated copies around the X axis, optionally into a ring of radius *radius* (BOSL2
-    xrot_copies()).
-    """
+    """Return rotated copies around the X axis, optionally into a ring of radius *radius*."""
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
     return rot_copies(
         rots=rots,
@@ -349,9 +350,7 @@ def yrot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Rotated copies around the Y axis, optionally into a ring of radius *radius* (BOSL2
-    yrot_copies()).
-    """
+    """Return rotated copies around the Y axis, optionally into a ring of radius *radius*."""
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
     return rot_copies(
         rots=rots,
@@ -373,9 +372,7 @@ def zrot_copies(
     subrot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Rotated copies around the Z axis, optionally into a ring of radius *radius* (BOSL2
-    zrot_copies()).
-    """
+    """Return rotated copies around the Z axis, optionally into a ring of radius *radius*."""
     rr: float = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
     return rot_copies(
         rots=rots,
@@ -400,7 +397,7 @@ def arc_copies(
     rot: bool = True,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Copies spread along an (elliptical) arc in the XY plane (BOSL2 arc_copies())."""
+    """Return copies spread along an (elliptical) arc in the XY plane."""
     rxv = (
         radius_x
         if radius_x is not None
@@ -454,7 +451,7 @@ def sphere_copies(
     scale: Sequence[float] = (1, 1, 1),
     perp: bool = True,
 ) -> list[np.ndarray]:
-    """Copies spread over a sphere/ellipsoid by the golden-spiral method (BOSL2 sphere_copies())."""
+    """Return copies spread over a sphere/ellipsoid by the golden-spiral method."""
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 50)
     cnt = math.ceil(num_copies / (cone_ang / 180))
     scalev = _vec3(scale, 1.0)
@@ -485,7 +482,7 @@ def path_copies(
     closed: bool | None = None,
     num_copies: int = 1,
 ) -> list[np.ndarray]:
-    """Copies placed along *path*, oriented to it (BOSL2 path_copies())."""
+    """Return copies placed along *path*, oriented to it."""
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
 
@@ -513,7 +510,8 @@ def path_copies(
             distances = sorted((e - center) % length for e in ptlist)
         else:
             distances = [e + length / 2 - center for e in ptlist]
-    assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
+    assert min(distances) >= -1e-9, "path_copies(): copies don't fit on the path."
+    assert max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
     distances = [min(max(dst, 0.0), length) for dst in distances]
     cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
@@ -545,7 +543,7 @@ def mirror_copy(
     offset: float = 0,
     center: bool | list[float] | None = None,
 ) -> list[np.ndarray]:
-    """The original plus a mirrored copy across the plane with normal *v* (BOSL2 mirror_copy())."""
+    """Return the original plus a mirrored copy across the plane with normal *v*."""
     nv = np.asarray(v, dtype=float)
     nv_norm = float(np.linalg.norm(nv))
     nv = nv / nv_norm if nv_norm else nv
@@ -564,17 +562,17 @@ def mirror_copy(
 
 
 def xflip_copy(offset: float = 0, x: float = 0) -> list[np.ndarray]:
-    """The original plus a copy mirrored across the X=*x* plane (BOSL2 xflip_copy())."""
+    """Return the original plus a copy mirrored across the X=*x* plane."""
     return mirror_copy(v=[1, 0, 0], offset=offset, center=[x, 0, 0])
 
 
 def yflip_copy(offset: float = 0, y: float = 0) -> list[np.ndarray]:
-    """The original plus a copy mirrored across the Y=*y* plane (BOSL2 yflip_copy())."""
+    """Return the original plus a copy mirrored across the Y=*y* plane."""
     return mirror_copy(v=[0, 1, 0], offset=offset, center=[0, y, 0])
 
 
 def zflip_copy(offset: float = 0, z: float = 0) -> list[np.ndarray]:
-    """The original plus a copy mirrored across the Z=*z* plane (BOSL2 zflip_copy())."""
+    """Return the original plus a copy mirrored across the Z=*z* plane."""
     return mirror_copy(v=[0, 0, 1], offset=offset, center=[0, 0, z])
 
 
@@ -584,7 +582,7 @@ def zflip_copy(offset: float = 0, z: float = 0) -> list[np.ndarray]:
 
 
 class DistributableMatrix:
-    """Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices)."""
+    """Return Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices)."""
 
     line_copies = staticmethod(line_copies)  # -> list[np.ndarray]
     xcopies = staticmethod(xcopies)  # -> list[np.ndarray]
@@ -605,7 +603,7 @@ class DistributableMatrix:
 
 
 class Distributable(ABC):
-    """Mixin adding the distributors.scad copiers as methods.
+    """Return Mixin adding the distributors.scad copiers as methods.
 
     Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`, and
     :class:`~pybosl2.paths.Path3D`. Each copier returns a ``list`` of positioned copies;
@@ -640,7 +638,7 @@ class Distributable(ABC):
         p2: Point | None = None,
         num_copies: int = 1,
     ) -> list[_CopyType]:
-        """Copies spread along a line (BOSL2 line_copies)."""
+        """Return copies spread along a line."""
         return self._distribute(line_copies(spacing, length, p1, p2, num_copies=num_copies))
 
     def xcopies(
@@ -650,7 +648,7 @@ class Distributable(ABC):
         start_pos: float | Point | None = None,
         num_copies: int = 1,
     ) -> list[_CopyType]:
-        """Copies spread along the X axis (BOSL2 xcopies)."""
+        """Return copies spread along the X axis."""
         return self._distribute(_axis_copies(RIGHT.vector, spacing, length, start_pos, num_copies=num_copies))
 
     def ycopies(
@@ -660,7 +658,7 @@ class Distributable(ABC):
         start_pos: float | Point | None = None,
         num_copies: int = 1,
     ) -> list[_CopyType]:
-        """Copies spread along the Y axis (BOSL2 ycopies)."""
+        """Return copies spread along the Y axis."""
         return self._distribute(_axis_copies(BACK.vector, spacing, length, start_pos, num_copies=num_copies))
 
     def zcopies(
@@ -670,7 +668,7 @@ class Distributable(ABC):
         start_pos: float | Point | None = None,
         num_copies: int = 1,
     ) -> list[_CopyType]:
-        """Copies spread along the Z axis (BOSL2 zcopies)."""
+        """Return copies spread along the Z axis."""
         return self._distribute(_axis_copies(UP.vector, spacing, length, start_pos, num_copies=num_copies))
 
     def grid_copies(
@@ -683,7 +681,7 @@ class Distributable(ABC):
         axes: str = "xy",
         num_copies: int | Sequence[int] | np.ndarray | None = None,
     ) -> list[_CopyType]:
-        """Copies in a square or staggered (hex) grid."""
+        """Return copies in a square or staggered (hex) grid."""
         return self._distribute(grid_copies(spacing, size, stagger, inside, nonzero, axes, num_copies))
 
     def rot_copies(
@@ -752,7 +750,7 @@ class Distributable(ABC):
         rot: bool = True,
         num_copies: int = 1,
     ) -> list[_CopyType]:
-        """Copies spread along an (elliptical) arc in the XY plane."""
+        """Return copies spread along an (elliptical) arc in the XY plane."""
         return self._distribute(
             arc_copies(
                 radius,
@@ -777,7 +775,7 @@ class Distributable(ABC):
         scale: Sequence[float] = (1, 1, 1),
         perp: bool = True,
     ) -> list[_CopyType]:
-        """Copies spread over a sphere/ellipsoid surface."""
+        """Return copies spread over a sphere/ellipsoid surface."""
         return self._distribute(sphere_copies(num_copies, radius, diameter, cone_ang, scale, perp))
 
     def path_copies(
@@ -790,7 +788,7 @@ class Distributable(ABC):
         closed: bool | None = None,
         num_copies: int = 1,
     ) -> list[_CopyType]:
-        """Copies placed along *path*, oriented to it."""
+        """Return copies placed along *path*, oriented to it."""
         return self._distribute(
             path_copies(
                 path,
@@ -809,19 +807,19 @@ class Distributable(ABC):
         offset: float = 0,
         center: bool | list[float] | None = None,
     ) -> list[_CopyType]:
-        """This object plus a copy mirrored across the plane with normal *v*."""
+        """Return this object plus a copy mirrored across the plane with normal *v*."""
         return self._distribute(mirror_copy(v, offset, center))
 
     def xflip_copy(self, offset: float = 0, x: float = 0) -> list[_CopyType]:
-        """This object plus a copy mirrored across the X=*x* plane."""
+        """Return This object plus a copy mirrored across the X=*x* plane."""
         return self._distribute(xflip_copy(offset, x))
 
     def yflip_copy(self, offset: float = 0, y: float = 0) -> list[_CopyType]:
-        """This object plus a copy mirrored across the Y=*y* plane."""
+        """Return This object plus a copy mirrored across the Y=*y* plane."""
         return self._distribute(yflip_copy(offset, y))
 
     def zflip_copy(self, offset: float = 0, z: float = 0) -> list[_CopyType]:
-        """This object plus a copy mirrored across the Z=*z* plane."""
+        """Return This object plus a copy mirrored across the Z=*z* plane."""
         return self._distribute(zflip_copy(offset, z))
 
     # ---------------------------------------------------------------------------
@@ -891,7 +889,7 @@ def xdistribute(
     sizes: list[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
-    """Distribute distinct children along the X axis (BOSL2 xdistribute()).
+    """Distribute distinct children along the X axis.
 
     Examples:
         .. pythonscad-example::
@@ -911,7 +909,7 @@ def ydistribute(
     sizes: list[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
-    """Distribute distinct children along the Y axis (BOSL2 ydistribute())."""
+    """Distribute distinct children along the Y axis."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=BACK, length=length)
 
 
@@ -921,5 +919,5 @@ def zdistribute(
     sizes: list[float] | None = None,
     length: float | None = None,
 ) -> BaseShape:
-    """Distribute distinct children along the Z axis (BOSL2 zdistribute())."""
+    """Distribute distinct children along the Z axis."""
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=UP, length=length)

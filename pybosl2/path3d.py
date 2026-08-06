@@ -80,6 +80,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     """
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
+        """Initialize the instance."""
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
             self._points: np.ndarray = np.empty((0, 3), dtype=np.float64)
@@ -104,7 +105,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         diameter1: float | None = None,
         diameter2: float | None = None,
     ) -> Path3D:
-        """A 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
+        """Return a 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
 
         Returned as a :class:`~pybosl2.paths.Path3D` (the 3-D path object), so it carries the 3-D
         transforms/measurements and feeds straight into stroke or ``path_sweep``. Give
@@ -144,7 +145,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if angle is not None and length != 0:
             dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
         else:
-            assert length is not None and turns is not None  # else-branch only reached with both set
+            assert length is not None
+            assert turns is not None
             dz = length / abs(turns)
         if turns is not None:
             maxtheta = 360.0 * turns
@@ -166,18 +168,22 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return cls(out, closed=False)
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._points)
 
     def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
+        """Return the item at index."""
         result = self._points[key]
         if isinstance(key, int):
             return Point.from_seq(result)
         return result
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._points)
 
     def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
+        """Return a numpy array representation."""
         if copy:
             return self._points.copy()
         return self._points
@@ -257,7 +263,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return cum / cum[-1] if cum[-1] > 1e-12 else np.zeros(len(self._points), dtype=np.float64)
 
     def closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
-        """The closest point on the path to *pt*.
+        """Return the closest point on the path to *pt*.
 
         Args:
             pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
@@ -292,7 +298,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(r[0]), float(r[1]), float(r[2]))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
-        """Normalized tangent vector at each point of the path, as a list of :class:`~pybosl2.points.Vector` values.
+        """Return normalized tangent vector at each point of the path, as a list.
+
+        of :class:`~pybosl2.points.Vector` values.
 
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
@@ -317,7 +325,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [Point([float(r[0]), float(r[1]), float(r[2])]) for r in result]
 
     def normals(self, tangents: "list[Point] | None" = None, closed: bool | None = None) -> "list[Point]":
-        """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
+        """Return normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
         principal normal estimated via the triple-product cross.
@@ -628,7 +636,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             if not closed:
                 out.append(pts_arr[-1])
             return self.__class__(out, closed=self.closed)
-        assert isinstance(points, (int, float)) and points > 0, "Parameter sides must be positive number"
+        assert isinstance(points, (int, float)), "Parameter sides must be positive number"
+        assert points > 0, "Parameter sides must be positive number"
         count = len(pts_arr) - (0 if closed else 1)
         if method_val == "segment":
             add_guess: Any = [(points - len(pts_arr)) / count] * count
@@ -1054,8 +1063,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.__class__(self._points * s, closed=self.closed)
 
     def rotate(self, a: "float | Sequence[float]", v: Sequence[float] | None = None) -> "Path3D":
-        """Rotate the points. ``rotate(angle, axis)`` spins about *axis*; ``rotate(angle)`` about +Z;
+        """Rotate the points.
 
+        ``rotate(angle, axis)`` spins about *axis*; ``rotate(angle)`` about +Z;
         ``rotate([rx, ry, rz])`` applies the OpenSCAD X-then-Y-then-Z Euler rotation.
 
         Args:
@@ -1329,6 +1339,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return results
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         return f"Path3D({len(self)} pts, closed={self.closed})"
 
 
@@ -1343,6 +1354,7 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
     """Reconstruct sub-paths from the output of path_path_cut_points().
 
     Args:
+        points: The path point array.
         cutlist: Output from path_path_cut_points(), a list of :class:`CutPoint` entries.
         closed: Whether the path is closed.
 
@@ -1405,6 +1417,7 @@ def _path_cut_points(
     Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
 
     Args:
+        points: The path point array.
         cutdist: A single distance or a list of ascending distances from the start.
         closed: Override the instance's closed flag; uses ``self.closed`` by default.
         direction: If True, also include direction and normal at each cut point.
@@ -1458,6 +1471,7 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
     """Walk the path accumulating distance until each cut distance is reached.
 
     Args:
+        points: The path point array.
         dists: Ordered list of distances from the start at which to cut.
         closed: Whether the path is closed.
 
@@ -1487,6 +1501,7 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
     """Find the single cut point at distance dist from segment ind.
 
     Args:
+        points: The path point array.
         dist: Distance along the path from the given segment index.
         closed: Whether the path is closed.
         ind: The segment index to start searching from.
@@ -1525,6 +1540,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Poin
     """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
     Args:
+        points: The path point array.
         ind: Index of the first point defining the plane.
         i: Index of the search start for the third non-collinear point.
         closed: Whether the path is closed.
@@ -1556,6 +1572,7 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
     """Compute direction vectors at each cut point (blended from adjacent segments).
 
     Args:
+        points: The path point array.
         cuts: List of cut entries from path_path_cut_points().
         closed: Whether the path is closed.
         eps: Epsilon for numerical comparisons.

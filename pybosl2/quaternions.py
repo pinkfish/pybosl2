@@ -9,6 +9,8 @@
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
+"""Class-based Quaternion representation and mathematics for 3-D rotations."""
+
 from __future__ import annotations
 
 import math
@@ -184,7 +186,7 @@ class Quaternion:
         return self == Quaternion(0.0)
 
     def __eq__(self, other: object) -> bool:
-        """Returns true if each element matches within tolerance."""
+        """Return true if each element matches within tolerance."""
         if isinstance(other, Quaternion):
             r_tol = 1.0e-13
             a_tol = 1.0e-14
@@ -213,7 +215,7 @@ class Quaternion:
         return self.norm
 
     def _cast_other(self, other: Any) -> Quaternion:
-        """Helper to cast other types to Quaternion."""
+        """Cast other types to Quaternion."""
         if isinstance(other, Quaternion):
             return other
         if isinstance(other, (int, float)):
@@ -287,7 +289,7 @@ class Quaternion:
         return self._cast_other(other) * self.inverse
 
     def __truediv__(self, other: Any) -> Quaternion:
-        """True division."""
+        """Return the result of true division."""
         return self.__div__(other)
 
     def __itruediv__(self, other: Any) -> Self:
@@ -731,7 +733,7 @@ def quaternion(
     rpy: Sequence[float] | None = None,
     matrix: Sequence[Sequence[float]] | None = None,
 ) -> list[float]:
-    """Constructs a 4-element quaternion [x, y, z, w].
+    """Construct a 4-element quaternion [x, y, z, w].
 
     If no arguments are provided, returns the identity quaternion [0, 0, 0, 1].
     All angles are specified in degrees.
@@ -766,13 +768,13 @@ def quaternion(
 
 
 def quaternion_to_matrix(q: Sequence[float]) -> list[list[float]]:
-    """Converts a quaternion to a 3x3 rotation matrix."""
+    """Convert a quaternion to a 3x3 rotation matrix."""
     quat = Quaternion.from_array([q[3], q[0], q[1], q[2]])
     return quat.rotation_matrix.tolist()  # type: ignore[no-any-return]
 
 
 def quaternion_to_axis(q: Sequence[float]) -> tuple[float, list[float]]:
-    """Converts a quaternion to its angle and rotation axis representation."""
+    """Convert a quaternion to its angle and rotation axis representation."""
     quat = Quaternion.from_array([q[3], q[0], q[1], q[2]])
     return float(quat.degrees), quat.axis.tolist()
 
@@ -786,7 +788,7 @@ def quaternion_mult(q1: Sequence[float], q2: Sequence[float]) -> list[float]:
 
 
 def quaternion_slerp(q1: Sequence[float], q2: Sequence[float], t: float) -> list[float]:
-    """Performs spherical linear interpolation (SLERP) between two quaternions."""
+    """Perform spherical linear interpolation (SLERP) between two quaternions."""
     quat1 = Quaternion.from_array([q1[3], q1[0], q1[1], q1[2]])
     quat2 = Quaternion.from_array([q2[3], q2[0], q2[1], q2[2]])
     res = Quaternion.slerp(quat1, quat2, t)

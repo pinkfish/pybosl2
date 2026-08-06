@@ -32,6 +32,8 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
+"""NURBS curve/surface evaluation and meshing (de Boor)."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Sequence, TypeVar
@@ -146,7 +148,7 @@ def _knot_multiplicities(
     count: int,
     mult: Sequence[int] | None,
 ) -> list[int]:
-    """The knot multiplicities of a uniform knot vector.
+    """Return the knot multiplicities of a uniform knot vector.
 
     Args:
         nurbs_type: The boundary condition of the curve.
@@ -176,7 +178,7 @@ def _knot_vector(
     mult: Sequence[int] | None,
     knots: Sequence[float] | None,
 ) -> list[float]:
-    """The full (expanded) knot vector used to evaluate a curve.
+    """Return the full (expanded) knot vector used to evaluate a curve.
 
     With no explicit *knots* the vector is uniform, built from the multiplicities
     of :func:`_knot_multiplicities`.  With explicit *knots* the vector is expanded
@@ -304,7 +306,7 @@ def _sample_params(
     splinesteps: int | None,
     u: Sequence[float] | None,
 ) -> list[float]:
-    """The parameter values at which to evaluate a curve.
+    """Return the parameter values at which to evaluate a curve.
 
     Args:
         knot: The expanded knot vector.
@@ -347,7 +349,7 @@ def _curve_points(
     nurbs_type: NurbsType = NurbsType.CLAMPED,
     knots: Sequence[float] | None = None,
 ) -> list[np.ndarray]:
-    """The raw points on a NURBS curve as numpy arrays; the kernel behind :class:`NurbsCurve`.
+    """Return the raw points on a NURBS curve as numpy arrays; the kernel behind :class:`NurbsCurve`.
 
     Args:
         control: The control points.
@@ -527,7 +529,7 @@ def _patch_point(
 
 
 def _nip(i: int, p: int, u: float, knot_vector: Sequence[float]) -> float:
-    """The i-th B-spline basis function of degree *p* at *u*.
+    """Return the i-th B-spline basis function of degree *p* at *u*.
 
     Args:
         i: The basis function index.
@@ -616,7 +618,7 @@ def _elevation_knots(
     knots: Sequence[float] | None,
     mult: Sequence[int] | None,
 ) -> list[float]:
-    """The compact knot vector a curve is elevated on.
+    """Return the compact knot vector a curve is elevated on.
 
     Args:
         count: The number of control points.
@@ -771,7 +773,8 @@ class NurbsCurve:
         pts = np.array([[float(c) for c in p] for p in control], dtype=float)
         assert pts.ndim == 2, f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}"
         assert pts.shape[1] in (2, 3), f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point"
-        assert isinstance(degree, int) and degree >= 1, f"degree must be a positive integer, got {degree!r}"
+        assert isinstance(degree, int), f"degree must be a positive integer, got {degree!r}"
+        assert degree >= 1, f"degree must be a positive integer, got {degree!r}"
         assert isinstance(nurbs_type, NurbsType), f"unknown NURBS type: {nurbs_type!r}"
         assert nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1, (
             f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points"
@@ -786,15 +789,19 @@ class NurbsCurve:
         self._weights = [float(w) for w in weights] if weights is not None else None
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._control)
 
     def __getitem__(self, index: int | slice) -> np.ndarray:
+        """Return the item at index."""
         return self._control[index]
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._control)
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         return f"NurbsCurve({self._control.tolist()}, {self._degree}, {self._nurbs_type})"
 
     @property
@@ -911,7 +918,7 @@ class NurbsCurve:
         return NurbsCurve(control, degree, self._nurbs_type, knots, mult, weights)
 
     def _evaluate(self, splinesteps: int | None = None, u: Sequence[float] | None = None) -> list[np.ndarray]:
-        """The raw evaluated points for *splinesteps* samples per span, or at the parameters *u*."""
+        """Return the raw evaluated points for *splinesteps* samples per span, or at the parameters *u*."""
         return _curve_points(
             self.to_list,
             self._degree,
@@ -1012,15 +1019,19 @@ class NurbsPatch:
         self._weights = [[float(w) for w in row] for row in weights] if weights is not None else None
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._control)
 
     def __getitem__(self, index: int | slice) -> np.ndarray:
+        """Return the item at index."""
         return self._control[index]
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._control)
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         rows, cols = self._control.shape[:2]
         return f"NurbsPatch(<{rows}x{cols} grid>, {self._degree}, {self._nurbs_type})"
 
@@ -1182,7 +1193,7 @@ class NurbsPatch:
         u: Sequence[float] | None = None,
         v: Sequence[float] | None = None,
     ) -> list[list[list[float]]]:
-        """The sampled grid of surface points, by splinesteps or at explicit parameters."""
+        """Return the sampled grid of surface points, by splinesteps or at explicit parameters."""
         return _patch_grid(
             self.to_list,
             self._degree,

@@ -21,6 +21,8 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
+"""VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad)."""
+
 from __future__ import annotations
 
 import math
@@ -563,8 +565,9 @@ def _lofttri(
     reverse: bool,
     trimax: float,
 ) -> list[list[int]]:
-    """Triangulate between two rows (possibly unequal length) by shortest new edge (BOSL2
-    _lofttri).
+    """Triangulate between two rows (possibly unequal length) by shortest new edge.
+
+    BOSL2 _lofttri.
     """
     a1 = np.asarray(p1, dtype=float)
     a2 = np.asarray(p2, dtype=float)
@@ -654,13 +657,16 @@ class VNF:
     """
 
     def __init__(self, vertices: list[list[float]] | None = None, faces: list[list[int]] | None = None) -> None:
+        """Initialize the VNF with vertices and faces."""
         self.vertices = [[float(x) for x in v] for v in (vertices or [])]
         self.faces = [[int(i) for i in f] for f in (faces or [])]
 
     def __repr__(self) -> str:
+        """Return a string representation of the VNF."""
         return f"VNF({len(self.vertices)} verts, {len(self.faces)} faces)"
 
     def __bool__(self) -> bool:
+        """Check if the VNF has any faces."""
         return len(self.faces) > 0
 
     def bounds(self) -> Bounds3D:
@@ -680,7 +686,7 @@ class VNF:
         )
 
     def reverse(self) -> "VNF":
-        """A copy with every face wound the other way (flips the surface normals)."""
+        """Return a copy with every face wound the other way (flips the surface normals)."""
         return VNF(self.vertices, [f[::-1] for f in self.faces])
 
     def volume(self) -> float:
@@ -1128,7 +1134,7 @@ class VNF:
         return _polyhedron(points=pts, faces=faces, convexity=10)
 
     def geometry(self) -> Any:
-        """Alias of :meth:`polyhedron`, matching Path2D/Region's geometry() surface."""
+        """Return the VNF as native polyhedron geometry, matching Path2D/Region's geometry() surface."""
         return self.polyhedron()
 
     @classmethod

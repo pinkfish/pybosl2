@@ -22,6 +22,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Modular cubical truss segments and trusses."""
+
 from __future__ import annotations
 
 import math
@@ -65,7 +67,8 @@ def _yflip_copy(offset: float) -> Any:
 
 
 def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int, tuple[float, float, float]]:
-    """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip
+    """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip.
+
     (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces.
     """
     x, y = float(vec[0]), float(vec[1])
@@ -84,7 +87,7 @@ def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int
 def _octagon_tunnel(
     size: float, strut: float, h: float, fn: int | None = None, fa: float | None = None, fs: float | None = None
 ) -> Bosl2Solid:
-    """A long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
+    """Return a long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
     oct_d = (min(h, size) - 2 * strut) / math.cos(math.radians(180 / 8))
     return regular_prism(8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
         [0, 0, 180 / 8]
@@ -106,7 +109,8 @@ class CubeTruss:
         size: float | None = None,
         strut: float | None = None,
     ) -> float:
-        """The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2
+        """Return the length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2.
+
         cubetruss_dist()).
         """
         size = CUBETRUSS_SIZE if size is None else size
@@ -122,7 +126,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A single cubetruss cube segment (BOSL2 cubetruss_segment()).
+        """Return a single cubetruss cube segment (BOSL2 cubetruss_segment()).
 
         Examples:
             A braced segment:
@@ -177,7 +181,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A truss assembled from a grid of cube segments (BOSL2 cubetruss()).
+        """Return a truss assembled from a grid of cube segments (BOSL2 cubetruss()).
 
         *extents* is the number of cubes long, or an ``[X, Y, Z]`` count. *clips* adds end clips on
         the named faces -- each a direction vector ``FRONT``/``BACK``/``LEFT``/``RIGHT`` (or a list
@@ -251,7 +255,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A diagonal support truss -- a block cut on the diagonal and lightened (BOSL2 cubetruss_support()).
+        """Return a diagonal support truss -- a block cut on the diagonal and lightened (BOSL2 cubetruss_support()).
 
         *extents* is the vertical segment count, or an ``[X, Y, Z]`` count.
 
@@ -320,7 +324,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A corner truss with arms jutting out in one or more directions (BOSL2 cubetruss_corner()).
+        """Return a corner truss with arms jutting out in one or more directions (BOSL2 cubetruss_corner()).
 
         *height* is the central column height in cubes. *extents* is a scalar (equal arms in +X, +Y and
         +Z) or a length-<=5 vector giving the arm lengths in the +X, +Y, -X, -Y and +Z directions.
@@ -376,7 +380,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A pair of snap clips for the end of a truss (BOSL2 cubetruss_clip())."""
+        """Return a pair of snap clips for the end of a truss (BOSL2 cubetruss_clip())."""
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         clipthick = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -444,7 +448,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A foot that clips onto the bottom of a truss for support (BOSL2 cubetruss_foot())."""
+        """Return a foot that clips onto the bottom of a truss for support (BOSL2 cubetruss_foot())."""
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         clipthick = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -529,7 +533,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A U-shaped clip that joins two trusses face to face (BOSL2 cubetruss_uclip())."""
+        """Return a U-shaped clip that joins two trusses face to face (BOSL2 cubetruss_uclip())."""
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         clipthick = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -572,7 +576,7 @@ class CubeTruss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A joiner that clips two trusses end to end (BOSL2 cubetruss_joiner())."""
+        """Return a joiner that clips two trusses end to end (BOSL2 cubetruss_joiner())."""
         size = CUBETRUSS_SIZE if size is None else size
         strut = CUBETRUSS_STRUT_SIZE if strut is None else strut
         clipthick = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick

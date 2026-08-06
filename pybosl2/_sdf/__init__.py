@@ -38,7 +38,8 @@ class SdfBackend:
         return fn(*args, **kwargs)  # type: ignore[no-any-return]
 
     def polyhedron(self, points: Any, faces: Any = None, **kwargs: Any) -> _s.PyShape:
-        """The convex hull of `points` as an SDF. `faces` is accepted for signature-compatibility
+        """Return the convex hull of `points` as an SDF. `faces` is accepted for signature-compatibility.
+
         with the CSG backend but ignored -- the SDF backend builds only the convex polyhedron.
         """
         _ = faces

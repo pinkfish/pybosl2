@@ -8,6 +8,8 @@
 # FileSummary: Statically typed shape constructors and backend-neutral solid facade.
 # FileGroup: BOSL2
 
+"""Statically typed shape constructors and backend-neutral solid facade."""
+
 # The backend-neutral solid facade: unified shape constructors that build on whichever backend is
 # active (``"csg"`` by default, ``"sdf"`` under ``use_backend("sdf")``). Each returns a common
 # :class:`~pybosl2._backend.Solid` -- a CsgSolid on the CSG backend, an SdfSolid on the SDF backend --
@@ -93,7 +95,7 @@ __all__ = [
 
 
 def cube(*args: Any, **kwargs: Any) -> Solid:
-    """A cube on the active backend.
+    """Return a cube on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -101,7 +103,7 @@ def cube(*args: Any, **kwargs: Any) -> Solid:
 
 
 def cuboid(*args: Any, **kwargs: Any) -> Solid:
-    """A cuboid on the active backend.
+    """Return a cuboid on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -109,7 +111,7 @@ def cuboid(*args: Any, **kwargs: Any) -> Solid:
 
 
 def cyl(*args: Any, **kwargs: Any) -> Solid:
-    """A cyl on the active backend.
+    """Return a cyl on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -117,7 +119,7 @@ def cyl(*args: Any, **kwargs: Any) -> Solid:
 
 
 def cylinder(*args: Any, **kwargs: Any) -> Solid:
-    """A cylinder on the active backend.
+    """Return a cylinder on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -125,7 +127,7 @@ def cylinder(*args: Any, **kwargs: Any) -> Solid:
 
 
 def octahedron(*args: Any, **kwargs: Any) -> Solid:
-    """An octahedron on the active backend.
+    """Return an octahedron on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -133,7 +135,7 @@ def octahedron(*args: Any, **kwargs: Any) -> Solid:
 
 
 def onion(*args: Any, **kwargs: Any) -> Solid:
-    """An onion on the active backend.
+    """Return an onion on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -141,7 +143,7 @@ def onion(*args: Any, **kwargs: Any) -> Solid:
 
 
 def pie_slice(*args: Any, **kwargs: Any) -> Solid:
-    """A pie_slice on the active backend.
+    """Return a pie_slice on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -149,7 +151,7 @@ def pie_slice(*args: Any, **kwargs: Any) -> Solid:
 
 
 def prismoid(*args: Any, **kwargs: Any) -> Solid:
-    """A prismoid on the active backend.
+    """Return a prismoid on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -157,7 +159,7 @@ def prismoid(*args: Any, **kwargs: Any) -> Solid:
 
 
 def rect_tube(*args: Any, **kwargs: Any) -> Solid:
-    """A rect_tube on the active backend.
+    """Return a rect_tube on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -165,7 +167,7 @@ def rect_tube(*args: Any, **kwargs: Any) -> Solid:
 
 
 def regular_prism(*args: Any, **kwargs: Any) -> Solid:
-    """A regular_prism on the active backend.
+    """Return a regular_prism on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -173,7 +175,7 @@ def regular_prism(*args: Any, **kwargs: Any) -> Solid:
 
 
 def sphere(*args: Any, **kwargs: Any) -> Solid:
-    """A sphere on the active backend.
+    """Return a sphere on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -181,7 +183,7 @@ def sphere(*args: Any, **kwargs: Any) -> Solid:
 
 
 def spheroid(*args: Any, **kwargs: Any) -> Solid:
-    """A spheroid on the active backend.
+    """Return a spheroid on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -189,7 +191,7 @@ def spheroid(*args: Any, **kwargs: Any) -> Solid:
 
 
 def teardrop(*args: Any, **kwargs: Any) -> Solid:
-    """A teardrop on the active backend.
+    """Return a teardrop on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -197,7 +199,7 @@ def teardrop(*args: Any, **kwargs: Any) -> Solid:
 
 
 def torus(*args: Any, **kwargs: Any) -> Solid:
-    """A torus on the active backend.
+    """Return a torus on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -205,7 +207,7 @@ def torus(*args: Any, **kwargs: Any) -> Solid:
 
 
 def tube(*args: Any, **kwargs: Any) -> Solid:
-    """A tube on the active backend.
+    """Return a tube on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -213,7 +215,7 @@ def tube(*args: Any, **kwargs: Any) -> Solid:
 
 
 def wedge(*args: Any, **kwargs: Any) -> Solid:
-    """A wedge on the active backend.
+    """Return a wedge on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -221,7 +223,7 @@ def wedge(*args: Any, **kwargs: Any) -> Solid:
 
 
 def xcyl(*args: Any, **kwargs: Any) -> Solid:
-    """An xcyl on the active backend.
+    """Return an xcyl on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -229,7 +231,7 @@ def xcyl(*args: Any, **kwargs: Any) -> Solid:
 
 
 def ycyl(*args: Any, **kwargs: Any) -> Solid:
-    """A ycyl on the active backend.
+    """Return a ycyl on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -237,7 +239,7 @@ def ycyl(*args: Any, **kwargs: Any) -> Solid:
 
 
 def zcyl(*args: Any, **kwargs: Any) -> Solid:
-    """A zcyl on the active backend.
+    """Return a zcyl on the active backend.
 
     See :func:`use_backend`; identical call, backend-appropriate realization.
     """
@@ -245,7 +247,7 @@ def zcyl(*args: Any, **kwargs: Any) -> Solid:
 
 
 def polyhedron(points: Any, faces: Any = None, **kwargs: Any) -> Solid:
-    """A polyhedron on the active backend.
+    """Return a polyhedron on the active backend.
 
     Backends differ on what a polyhedron means (this is not part of the shared primitive surface):
     the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF backend
@@ -255,15 +257,15 @@ def polyhedron(points: Any, faces: Any = None, **kwargs: Any) -> Solid:
 
 
 def union(*solids: Solid) -> Solid:
-    """The union of *solids* on the active backend (all operands must share the active backend)."""
+    """Return the union of *solids* on the active backend (all operands must share the active backend)."""
     return get_backend().union(solids)
 
 
 def difference(*solids: Solid) -> Solid:
-    """The first solid minus the rest, on the active backend."""
+    """Return the first solid minus the rest, on the active backend."""
     return get_backend().difference(solids)
 
 
 def intersection(*solids: Solid) -> Solid:
-    """The intersection of *solids* on the active backend."""
+    """Return the intersection of *solids* on the active backend."""
     return get_backend().intersection(solids)

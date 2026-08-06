@@ -84,7 +84,8 @@ SDF_ONLY_FEATURES = frozenset(
 
 
 def supports(backend: str, feature: str) -> bool:
-    """Whether *backend* can do *feature*. Backend-exclusive features are False on the other side;
+    """Whether *backend* can do *feature*. Backend-exclusive features are False on the other side.
+
     everything else (the shared surface) is assumed supported.
     """
     if feature in CSG_ONLY_FEATURES:
@@ -95,7 +96,8 @@ def supports(backend: str, feature: str) -> bool:
 
 
 def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError | None":
-    """The :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the
+    """Return the :class:`~pybosl2.exceptions.UnsupportedByBackendError` to raise if *name* is exclusive to the.
+
     OTHER backend, else ``None`` (so the caller can fall through to normal attribute handling).
     """
     from pybosl2.exceptions import UnsupportedByBackendError
@@ -148,12 +150,12 @@ def _validate(name: str) -> None:
 
 
 def known_backends() -> tuple[str, ...]:
-    """The registered backend names."""
+    """Return the registered backend names."""
     return tuple(sorted(_KNOWN))
 
 
 def current_backend() -> str:
-    """The backend active in this context (default ``"csg"``)."""
+    """Return the backend active in this context (default ``"csg"``)."""
     return _current.get() or _default
 
 
@@ -182,7 +184,7 @@ def register_backend(name: str, impl: "SolidBackend") -> None:
 
 
 def get_backend(name: str | None = None) -> "SolidBackend":
-    """The :class:`SolidBackend` implementation for *name* (default: the active backend).
+    """Return the :class:`SolidBackend` implementation for *name* (default: the active backend).
 
     The two built-in backends register themselves on first use (importing them is FFI-free -- the
     native runtime is only touched when geometry is actually realized).

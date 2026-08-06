@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Attachable cubes, cylinders, spheres, text and rulers (BOSL2 shapes3d.scad)."""
+
 from __future__ import annotations
 
 from .base import Bosl2Solid

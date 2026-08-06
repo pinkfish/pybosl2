@@ -4,6 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+"""BOSL2 parts library."""
+
 # pybosl2.parts — BOSL2 parts library
 #
 # Each module provides a class with class-method factories (e.g. Gears.spur_gear()).

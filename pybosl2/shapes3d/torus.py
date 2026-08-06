@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Toruses and pie slice shapes."""
+
 from __future__ import annotations
 
 import math
@@ -170,6 +172,7 @@ def torus(
         outer_diameter:     outer diameter of the torus (use with inner_radius or inner_diameter)
         inner_diameter:     inside diameter of the torus (use with outer_radius or outer_diameter)
         anchor: anchor point (default CENTER)
+        spin: Z-axis rotation in degrees (default 0)
         orient: direction to rotate the top towards, after spin (default UP)
         fn: arc smoothness overrides
         fa: arc smoothness overrides

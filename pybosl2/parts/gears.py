@@ -28,6 +28,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm."""
+
 from __future__ import annotations
 
 import math
@@ -527,7 +529,7 @@ def _simple_tooth(
     interior: bool = False,
     center: bool = False,
 ) -> list[list[float]]:
-    """A simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms."""
+    """Return a simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms."""
     p = _pitch_radius(circ_pitch, teeth)
     c = _outer_radius_basic(circ_pitch, teeth, clearance, interior, 0, 0, 0)
     radius = _root_radius_basic(circ_pitch, teeth, clearance, interior, 0, 0)
@@ -741,7 +743,8 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> list[list[float]]:
-        """The 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
+        """Return the 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2.
+
         _gear_tooth_profile()).
         """
         circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -777,7 +780,7 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> Bosl2Shape2D:
-        """A 2-D involute spur gear outline (BOSL2 spur_gear2d()).
+        """Return a 2-D involute spur gear outline (BOSL2 spur_gear2d()).
 
         Examples:
             A 30-tooth metric gear:
@@ -847,7 +850,9 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A 3-D involute spur gear -- helical and/or herringbone, with an optional shaft bore (BOSL2 spur_gear()).
+        """Return a 3-D involute spur gear -- helical and/or herringbone, with an optional.
+
+        shaft bore (BOSL2 spur_gear()).
 
         Examples:
             A helical gear with a shaft bore:
@@ -922,7 +927,7 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``."""
+        """Return a herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``."""
         return Gears.spur_gear(
             circ_pitch=circ_pitch,
             teeth=teeth,
@@ -964,7 +969,7 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """An internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2 ring_gear()).
+        """Return an internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2 ring_gear()).
 
         Examples:
             .. pythonscad-example::
@@ -1032,7 +1037,7 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> Bosl2Shape2D:
-        """A 2-D involute rack outline -- a straight bar of teeth (BOSL2 rack2d())."""
+        """Return a 2-D involute rack outline -- a straight bar of teeth (BOSL2 rack2d())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         path = Gears._rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
@@ -1052,7 +1057,7 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> Bosl2Solid:
-        """A 3-D rack: a linear toothed bar a gear rolls along (BOSL2 rack())."""
+        """Return a 3-D rack: a linear toothed bar a gear rolls along (BOSL2 rack())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         diameter = _dedendum(center, clearance)
@@ -1127,7 +1132,7 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A (potentially spiral) involute bevel gear (BOSL2 bevel_gear())."""
+        """Return a (potentially spiral) involute bevel gear (BOSL2 bevel_gear())."""
         _ = hide
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         slices = 1 if cutter_radius == 0 else slices
@@ -1217,7 +1222,7 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> Bosl2Solid:
-        """A worm (a screw that meshes a worm gear) (BOSL2 worm())."""
+        """Return a worm (a screw that meshes a worm gear) (BOSL2 worm())."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         rack = Gears._rack2d_path(center, starts, diameter, pressure_angle, backlash, clearance)[1:-1]
         polars = [[360 * px / center / starts, py + diameter / 2] for px, py in rack]
@@ -1268,7 +1273,7 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A worm gear, hobbed to mesh a matching :meth:`worm` (BOSL2 worm_gear())."""
+        """Return a worm gear, hobbed to mesh a matching :meth:`worm` (BOSL2 worm_gear())."""
         assert 10 <= worm_arc <= 60, "worm_gear(): worm_arc must be between 10 and 60 degrees."
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         p = _pitch_radius(center, teeth)

@@ -64,6 +64,7 @@ class Point(Sequence[float]):
         y: float | None = None,
         z: float | None = None,
     ) -> None:
+        """Initialize the instance."""
         if isinstance(x, Point):
             self.x, self.y, self.z = x.x, x.y, x.z
         elif isinstance(x, (int, float)):
@@ -87,9 +88,11 @@ class Point(Sequence[float]):
         return self.z is None
 
     def __iter__(self) -> Iterator[float]:
+        """Return an iterator."""
         return iter((self.x, self.y, self.z) if not self.is_2d else (self.x, self.y))  # type: ignore[arg-type]
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return 2 if self.is_2d else 3
 
     @overload
@@ -98,6 +101,7 @@ class Point(Sequence[float]):
     def __getitem__(self, index: slice) -> Sequence[float]: ...
 
     def __getitem__(self, index: int | slice) -> float | Sequence[float]:
+        """Return the item at index."""
         if isinstance(index, slice):
             return tuple(self)[index]
         if self.is_2d:
@@ -106,11 +110,13 @@ class Point(Sequence[float]):
         return (self.x, self.y, self.z)[index]
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         if self.is_2d:
             return f"Point({self.x!r}, {self.y!r})"
         return f"Point({self.x!r}, {self.y!r}, {self.z!r})"
 
     def __array__(self, dtype: None = None, copy: None = None) -> np.ndarray:
+        """Return a numpy array representation."""
         if self.is_2d:
             arr = [self.x, self.y]
         else:
@@ -119,21 +125,27 @@ class Point(Sequence[float]):
         return np.array(arr, dtype=dtype or float)
 
     def __add__(self, other: Sequence[float] | np.ndarray) -> Point:
+        """Return self + other."""
         return Point.from_seq(np.asarray(self) + np.asarray(other, dtype=float))
 
     def __radd__(self, other: Sequence[float] | np.ndarray) -> Point:
+        """Return other + self."""
         return Point.from_seq(np.asarray(other, dtype=float) + np.asarray(self))
 
     def __sub__(self, other: Sequence[float] | np.ndarray) -> Point:
+        """Return self - other."""
         return Point.from_seq(np.asarray(self) - np.asarray(other, dtype=float))
 
     def __rsub__(self, other: Sequence[float] | np.ndarray) -> Point:
+        """Return other - self."""
         return Point.from_seq(np.asarray(other, dtype=float) - np.asarray(self))
 
     def __neg__(self) -> Point:
+        """Return -self."""
         return Point.from_seq(-np.asarray(self))
 
     def __eq__(self, other: object) -> bool:
+        """Return whether two objects are equal."""
         if isinstance(other, Point):
             if self.is_2d != other.is_2d:
                 return False
@@ -145,21 +157,27 @@ class Point(Sequence[float]):
         return bool(np.allclose(np.asarray(self), np.asarray(other, dtype=float)))
 
     def __truediv__(self, scalar: float) -> Point:
+        """Return self / scalar."""
         return Point.from_seq(np.asarray(self) / scalar)
 
     def __rtruediv__(self, scalar: float) -> Point:
+        """Return scalar / self."""
         return Point.from_seq(scalar / np.asarray(self))
 
     def __mul__(self, scalar: float) -> Point:
+        """Return self * scalar."""
         return Point.from_seq(np.asarray(self) * scalar)
 
     def __rmul__(self, scalar: float) -> Point:
+        """Return scalar * self."""
         return Point.from_seq(np.asarray(self) * scalar)
 
     def __abs__(self) -> float:
+        """Return the absolute value."""
         return float(np.linalg.norm(np.asarray(self)))
 
     def __copy__(self) -> Point:
+        """Return a shallow copy."""
         return Point(self.x, self.y, self.z)
 
     def copy(self) -> Point:

@@ -9,6 +9,8 @@
 # FileSummary: Strongly-typed enums for pybosl2.
 # FileGroup: BOSL2
 
+"""Strongly-typed enums for pybosl2."""
+
 from enum import StrEnum
 
 

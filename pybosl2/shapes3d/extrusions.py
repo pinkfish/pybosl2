@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Text3d, path_text, cross and extrusion-related math helpers."""
+
 from __future__ import annotations
 
 import math
@@ -57,7 +59,8 @@ else:
 
 
 def _interior_fillet_path(radius: float, angle: float, overlap: float, sides: int) -> list[list[float]]:
-    """The 2-D cross-section of an interior_fillet(): the wedge bounded by the corner point, the
+    """Return the 2-D cross-section of an interior_fillet(): the wedge bounded by the corner point, the.
+
     two tangent points on each wall (distance radius/tan(angle/2) from the corner), and the concave arc
     of radius *radius* joining them (center at distance radius/sin(angle/2) from the corner along the
     bisector) -- the generalization to arbitrary *angle* of the classic `cube() - cylinder()`
@@ -95,7 +98,8 @@ def _interior_fillet_path(radius: float, angle: float, overlap: float, sides: in
 
 
 def _text3d_anchor_vec(anchor: "Anchor | Sequence[float] | str") -> list[float]:
-    """Extracts a 3-vector from an `anchor` argument that may be a plain vector or (to
+    """Extract a 3-vector from an `anchor` argument that may be a plain vector or (to.
+
     accommodate this port's unusual `anchor: str = "baseline[-1,0,-1]"` default) a string
     with a bracketed `[x,y,z]` vector embedded in it. Falls back to LEFT if no vector can
     be found in a string anchor, matching BOSL2's own `default(anchor, center?CENTER:LEFT)`.
@@ -116,7 +120,8 @@ def _frame_map(
     y: Sequence[float] | None = None,
     z: Sequence[float] | None = None,
 ) -> list[list[float]]:
-    """Port of BOSL2's frame_map(): builds the 4x4 change-of-basis matrix whose columns are
+    """Port of BOSL2's frame_map(): builds the 4x4 change-of-basis matrix whose columns are.
+
     the (up to) two given unit axes plus the third axis completed via cross product, matching
     BOSL2's exact axis-completion rules (used by path_text() to orient each glyph).
     """
@@ -146,7 +151,8 @@ def _point3d(v: Sequence[float]) -> list[float]:
 def _cut_interp(
     pathcut: list[Any], path: Sequence[Sequence[float]] | Path2D | Path3D, data: Sequence[Sequence[float]]
 ) -> list[list[float]]:
-    """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array
+    """Port of BOSL2's `_cut_interp()`: linearly interpolates a per-path-vertex vector array.
+
     `data` to the fractional position of each `cut_points()` cut point.
     """
     out = []
@@ -164,7 +170,8 @@ def _cut_interp(
 def _path_text_bcast_dir(
     v: object, dim: int, path: Sequence[Sequence[float]] | Path2D | Path3D, label: str
 ) -> list[list[float]] | None:
-    """Broadcasts a `normal=`/`top=` argument (undefined, a single vector, or a per-path-point
+    """Broadcasts a `normal=`/`top=` argument (undefined, a single vector, or a per-path-point.
+
     list of vectors) to a list of one vector per path point, mirroring BOSL2's normalok/topok
     argument checks (including the "3-vector with z==0 on a 2d path" compatibility form).
     """
@@ -215,6 +222,9 @@ def text3d(
         anchor:    anchor point (default "baseline")
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     Examples:
         .. pythonscad-example::
@@ -282,6 +292,9 @@ def path_text(
         reverse:     reverse the letters if true (default False, 3-D paths only)
         textmetrics: use the experimental textmetrics feature when lettersize is not given (default False)
         kern:        scalar or array giving per-letter size adjustments (default 0)
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     """
     # Imported lazily (only path_text() needs it) so that everything else in this file stays
@@ -405,7 +418,7 @@ def cross(
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
 ) -> Bosl2Solid:
-    """A 3-D cross (plus) shape: two perpendicular centred rectangular prisms.
+    """Return a 3-D cross (plus) shape: two perpendicular centred rectangular prisms.
 
     Builds from the 2‑D :func:`~pybosl2.shapes2d.cross` polygon linear-extruded to *height*.
 
@@ -433,7 +446,8 @@ def cross(
 
     """
     h = height if height is not None else length
-    assert h and h > 0, "cross(): need a positive height or length."
+    assert h, "cross(): need a positive height or length."
+    assert h > 0, "cross(): need a positive height or length."
     use_center = center if center is not None else True
     use_anchor = anchor
     if center is not None:

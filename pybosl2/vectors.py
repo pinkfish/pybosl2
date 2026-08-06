@@ -13,6 +13,8 @@
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
+"""Vector predicates and scalar-vector operations (BOSL2 vectors.scad)."""
+
 import math
 from collections.abc import Sequence
 
@@ -28,8 +30,9 @@ def is_vector(
     zero: bool | None = None,
     eps: float = EPSILON,
 ) -> bool:
-    """True if *v* is a list/tuple/ndarray of finite numbers (optionally of a given length and/or
-    zero-ness).
+    """Check if *v* is a list/tuple/ndarray of finite numbers.
+
+    Optionally of a given length and/or zero-ness.
     """
     if isinstance(v, np.ndarray):
         if v.ndim != 1 or v.size == 0:

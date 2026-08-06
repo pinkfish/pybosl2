@@ -38,7 +38,8 @@ def _attach(  # type: ignore[no-untyped-def]
     spin: float,
     orient,
 ) -> PyShape:
-    """BOSL2 attachable() emulation for a shape whose declared bounding box has dimensions
+    """BOSL2 attachable() emulation for a shape whose declared bounding box has dimensions.
+
     `size` and geometric center `center_off`: translate the anchor point to the origin,
     spin around Z, then rotate UP toward `orient` -- the same order attachable() applies.
     """
@@ -83,7 +84,8 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     orient=(0, 0, 1),
     res: int = 10,
 ) -> PyShape:
-    """A knuckle hinge: alternating cylinder segments (with a pin hole) on an arm, mounted
+    """Return a knuckle hinge: alternating cylinder segments (with a pin hole) on an arm, mounted.
+
     along the +X axis -- BOSL2 hinges.scad's knuckle_hinge, ported for the parameter subset
     this toolkit uses: arm_angle=90, arm_height=0, no end rounding, plain numeric pin, and
     no print-in-place cones. `inner=True` gives the segment set that meshes into the
@@ -91,8 +93,10 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     same declared bounding box the original uses.
     """
     _ = fill
-    assert arm_angle == 90 and arm_height == 0, "only the arm_angle=90/arm_height=0 variant is ported"
-    assert isinstance(segs, int) and segs >= 2
+    assert arm_angle == 90, "only the arm_angle=90/arm_height=0 variant is ported"
+    assert arm_height == 0, "only the arm_angle=90/arm_height=0 variant is ported"
+    assert isinstance(segs, int)
+    assert segs >= 2
     assert offset >= knuckle_diam / 2, "offset must be at least the knuckle radius"
 
     segs1 = math.ceil(segs / 2)
@@ -151,7 +155,8 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     spin: float = 0,
     res: int = 10,
 ) -> PyShape:
-    """A rabbit-ear snap clip ("pin") or its matching cavity ("socket") -- a port of BOSL2
+    """Return a rabbit-ear snap clip ("pin") or its matching cavity ("socket") -- a port of BOSL2.
+
     joiners.scad's rabbit_clip (same path construction, bezier smoothing, and attachable
     anchoring; the "double" type isn't ported since nothing here uses it).
     """

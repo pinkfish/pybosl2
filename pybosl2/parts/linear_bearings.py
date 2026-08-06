@@ -15,6 +15,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Linear (LMxUU) ball bearings and their pillow-block housings."""
+
 from __future__ import annotations
 
 import math
@@ -72,7 +74,8 @@ class LinearBearings:
 
     @staticmethod
     def lmxuu_info(size: int) -> LinearBearingSpec:
-        """The :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2
+        """Return the :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2.
+
         lmxuu_info()).
         """
         try:
@@ -90,7 +93,9 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A generic linear ball-bearing cartridge, bore *inner_diameter* / outer *outer_diameter* / length *length*
+        """Return a generic linear ball-bearing cartridge, bore.
+
+        *inner_diameter* / outer *outer_diameter* / length *length*
         (BOSL2 linear_bearing()).
 
         Examples:
@@ -143,7 +148,7 @@ class LinearBearings:
 
     @staticmethod
     def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> Bosl2Solid:
-        """A standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmxuu_bearing())."""
+        """Return a standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmxuu_bearing())."""
         spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing(
             length=spec.length, inner_diameter=size, outer_diameter=spec.outer_diameter, color=color
@@ -162,8 +167,9 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A pillow-block housing that clamps a linear bearing (bore *diameter*, length *length*) to a plate (BOSL2
-        linear_bearing_housing()).
+        """Return a pillow-block housing that clamps a linear bearing (bore.
+
+        *diameter*, length *length*) to a plate (BOSL2 linear_bearing_housing()).
 
         The teardrop bore prints without support; the split *gap* and a *screwsize* clamp screw
         through the tabs let it grip the bearing.
@@ -211,7 +217,7 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmxuu_housing())."""
+        """Return a pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmxuu_housing())."""
         spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing_housing(
             diameter=spec.outer_diameter,

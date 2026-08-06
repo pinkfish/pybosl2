@@ -13,6 +13,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""V-groove sliders and rails."""
+
 from __future__ import annotations
 
 import math
@@ -53,7 +55,7 @@ class Sliders:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A slider that rides in a matching :meth:`rail` V-groove (BOSL2 slider()).
+        """Return a slider that rides in a matching :meth:`rail` V-groove (BOSL2 slider()).
 
         Examples:
             A slider:
@@ -116,7 +118,7 @@ class Sliders:
         chamfer: float = 1.0,
         angle: float = 30,
     ) -> Bosl2Solid:
-        """A V-groove rail for a :meth:`slider` (BOSL2 rail()).
+        """Return a V-groove rail for a :meth:`slider` (BOSL2 rail()).
 
         Examples:
             A rail:
