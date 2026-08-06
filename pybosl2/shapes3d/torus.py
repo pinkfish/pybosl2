@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Toruses and pie slice shapes."""
+
 from __future__ import annotations
 
 import math

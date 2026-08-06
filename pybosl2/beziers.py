@@ -126,15 +126,19 @@ class Bezier:
             self._points = pts
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._points)
 
     def __getitem__(self, index: int | slice) -> np.ndarray:
+        """Return the item at index."""
         return self._points[index]
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._points)
 
     def __repr__(self) -> str:
+        """Return a string representation."""
         return f"Bezier({self._points.tolist()})"
 
     @classmethod
@@ -239,7 +243,7 @@ class Bezier:
         return Bezier(dpts).derivative(u, order - 1)
 
     def tangent(self, u: float | Sequence[float] | np.ndarray) -> np.ndarray:
-        """Unit tangent vector(s) at parameter(s) *u*.
+        """Return unit tangent vector(s) at parameter(s) *u*.
 
         Returns an ndarray of normalized derivative vectors. For a scalar *u*
         the result is a 1-D vector; for a list of *u* values the result is
@@ -287,7 +291,7 @@ class Bezier:
         return out[0] if scalar else np.array(out)  # type: ignore[return-value]
 
     def closest_point(self, pt: np.ndarray, max_err: float = 0.01, u: float = 0.0, end_u: float = 1.0) -> float:
-        """The parameter *u* of the point on this curve closest to *pt*.
+        """Return the parameter *u* of the point on this curve closest to *pt*.
 
         Uses recursive bisection to find the curve parameter that minimizes
         distance to the target point within *max_err* tolerance. The search
@@ -370,7 +374,7 @@ class Bezier:
         return total
 
     def line_intersection(self, line: np.ndarray) -> list[float]:
-        """The *u* values where this 2-D curve crosses *line* (two points).
+        """Return the *u* values where this 2-D curve crosses *line* (two points).
 
         Computes the intersection parameters in [0, 1] by finding the real
         roots of the algebraic equation that expresses the signed distance
@@ -747,7 +751,7 @@ class Bezier:
     def begin(
         pt: np.ndarray, angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
     ) -> np.ndarray:
-        """Starting endpoint and control point of a cubic bezier path.
+        """Return the starting endpoint and control point of a cubic bezier path.
 
         Returns a (2, dim) ndarray of [endpoint, control_point]. For 2-D
         points *angle* is a scalar angle; for 3-D points *angle* is a scalar angle
@@ -1129,12 +1133,15 @@ class BezierPatch:
             self._rows = pts
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._rows)
 
     def __getitem__(self, index: int | slice) -> np.ndarray:
+        """Return the item at index."""
         return self._rows[index]
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._rows)
 
     @classmethod
@@ -1232,7 +1239,7 @@ class BezierPatch:
         return self.points(u, [v])[:, 0, :]  # type: ignore[list-item]
 
     def normals(self, u: float | Sequence[float] | np.ndarray, v: float | Sequence[float] | np.ndarray) -> np.ndarray:
-        """Unit surface normal(s) at parameter(s) *u*, *v*.
+        """Return unit surface normal(s) at parameter(s) *u*, *v*.
 
         Same shape rules as :meth:`points`: scalar inputs return a single
         normal vector, while list inputs return a grid of normals computed

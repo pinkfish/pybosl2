@@ -102,21 +102,27 @@ class Path(ABC):
         return super().__new__(cls)
 
     @abstractmethod
-    def __init__(self, points: Sequence[Sequence[float]], closed: bool = True) -> None: ...
+    def __init__(self, points: Sequence[Sequence[float]], closed: bool = True) -> None:
+        """Initialize the instance."""
+        ...
 
     def __len__(self) -> int:
+        """Return the number of items."""
         return len(self._points)
 
     def __getitem__(self, key: int | slice | tuple[int, ...]) -> np.ndarray | Point:
+        """Return the item at index."""
         result = self._points[key]
         if isinstance(key, int):
             return Point.from_seq(result)
         return result
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Return an iterator."""
         return iter(self._points)
 
     def __eq__(self, other: object) -> bool:
+        """Return whether two objects are equal."""
         if not isinstance(other, Path):
             return NotImplemented
         return bool(np.allclose(self._points, other._points)) and self.closed == other.closed
@@ -166,7 +172,7 @@ class Path(ABC):
 
     @abstractmethod
     def closest_point(self, pt: Point | Sequence[float], closed: bool | None = None) -> Point:
-        """The closest point on the path to *pt*.
+        """Return the closest point on the path to *pt*.
 
         Args:
             pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.
@@ -180,7 +186,7 @@ class Path(ABC):
 
     @abstractmethod
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> list[Point]:
-        """Normalized tangent vector at each point of the path, as an ndarray.
+        """Return normalized tangent vector at each point of the path, as an ndarray.
 
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
@@ -194,7 +200,7 @@ class Path(ABC):
 
     @abstractmethod
     def normals(self, tangents: list[Point] | None = None, closed: bool | None = None) -> list[Point]:
-        """Normal vector (perpendicular to tangent, in the plane of the curve) at each point.
+        """Return normal vector (perpendicular to tangent, in the plane of the curve) at each point.
 
         For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the
         principal normal estimated via the triple-product cross.

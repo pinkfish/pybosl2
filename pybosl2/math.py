@@ -15,6 +15,7 @@
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
+"""General numeric helpers and numerical calculus (BOSL2 math.scad)."""
 
 import math as _math
 from collections.abc import Sequence

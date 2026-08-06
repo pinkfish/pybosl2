@@ -24,7 +24,7 @@ _cache: dict[str, Callable[..., Any]] = {}
 
 
 def native(name: str) -> Callable[..., Any]:
-    """A lazy callable proxying ``pythonscad.<name>``; imports the FFI on the first call.
+    """Return a lazy callable proxying ``pythonscad.<name>``; imports the FFI on the first call.
 
     ``_ocube = native("cube")`` at module level behaves like ``from pythonscad import cube as
     _ocube`` at every call site, but defers ``import pythonscad`` until geometry is first built.

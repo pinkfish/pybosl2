@@ -13,6 +13,8 @@
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
+"""Vector predicates and scalar-vector operations (BOSL2 vectors.scad)."""
+
 import math
 from collections.abc import Sequence
 

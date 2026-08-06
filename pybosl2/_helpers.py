@@ -36,7 +36,7 @@ import numpy as np
 
 
 def is_num(value: Any) -> bool:
-    """True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool."""
+    """Return True if *value* is a numeric scalar (int, float, or numpy numeric), excluding bool."""
     return isinstance(value, (int, float, np.integer, np.floating)) and not isinstance(value, bool)
 
 
@@ -60,7 +60,7 @@ def vec3(vector: Any) -> np.ndarray:
 
 
 def scalar_vec3(value: Any, fill: float = 0.0) -> np.ndarray:
-    """A scalar becomes ``[value, fill, fill]``; a vector is padded to length 3.
+    """Return ``[value, fill, fill]`` for a scalar; pad a vector to length 3.
 
     BOSL2's ``scalar_vec3()`` -- used for direction vectors where a single value
     fills a single axis.
@@ -200,8 +200,8 @@ def frag_count(
     fa: float | None = None,
     fs: float | None = None,
 ) -> int:
-    """Number of polygon segments to approximate a circle of radius *radius*, mirroring OpenSCAD's
-    $fn/$fa/$fs rules.
+    """Return the number of polygon segments to approximate a circle of radius *radius*, mirroring
+    OpenSCAD's $fn/$fa/$fs rules.
     """
     if fn is not None and fn >= 3:
         return int(math.floor(fn))
@@ -405,8 +405,8 @@ def rect_path(
 
 
 def as_native_2d(obj: Any) -> Any:
-    """A raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape, a
-    :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
+    """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
+    a :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
     """
     unwrapped = unwrap(obj)
     if unwrapped is not obj:  # a Bosl2Shape2D / Bosl2Solid wrapper
@@ -423,7 +423,7 @@ def as_native_2d(obj: Any) -> Any:
 
 
 def is_child_2d(obj: Any) -> bool:
-    """True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
+    """Return True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
     native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
     """
     if not isinstance(obj, (list, tuple)):

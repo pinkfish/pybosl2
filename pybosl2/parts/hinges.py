@@ -18,6 +18,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Living (folding) hinges, knuckle hinges, and snap connectors."""
+
 from __future__ import annotations
 
 import math
@@ -46,7 +48,8 @@ class Hinges:
         hingegap: float | None = None,
         slop: float = 0.0,
     ) -> Bosl2Solid:
-        """A wedge mask to difference out of a plate to make a print-in-place living hinge (BOSL2 living_hinge_mask()).
+        """Return a wedge mask to difference out of a plate to make a print-in-place
+        living hinge (BOSL2 living_hinge_mask()).
 
         Centre it on the bottom of a plate of thickness *thick*; it leaves ``2*layerheight`` of
         material as the flexible hinge, and a V-groove wide enough to fold *foldangle* degrees.
@@ -176,7 +179,7 @@ class Hinges:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
+        """Return a snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
         snap_lock()).
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
@@ -198,7 +201,7 @@ class Hinges:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """The receiving socket for a :meth:`snap_lock` tab (BOSL2 snap_socket())."""
+        """Return the receiving socket for a :meth:`snap_lock` tab (BOSL2 snap_socket())."""
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hingegap / 2
         post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)

@@ -17,6 +17,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Colour operators (Colorable mixin) via Python's colorsys module."""
+
 from __future__ import annotations
 
 import colorsys

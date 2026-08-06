@@ -19,6 +19,8 @@
 #
 #
 
+"""Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad)."""
+
 from __future__ import annotations
 
 import math
@@ -50,7 +52,7 @@ __all__ = [
 
 
 def _vector_angle3(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
-    """The angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
+    """Return the angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
     va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
     vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
     cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
@@ -65,7 +67,7 @@ def _smooth_bez_fill(points: Sequence[Sequence[float]], k: float) -> list[list[f
 def _bezcorner(
     points: Sequence[Sequence[float]], parm: float | Sequence[float], fn: int = 0, fs: float = 2.0
 ) -> list[list[float]]:
-    """A continuous-curvature (bezier) corner (BOSL2 _bezcorner())."""
+    """Return a continuous-curvature (bezier) corner (BOSL2 _bezcorner())."""
     from pybosl2.beziers import Bezier
 
     if isinstance(parm, (list, tuple, np.ndarray)):
@@ -89,7 +91,7 @@ def _bezcorner(
 
 
 def _chamfcorner(points: Sequence[Sequence[float]], parm: Sequence[float]) -> list[list[float]]:
-    """A straight chamfer across a corner (BOSL2 _chamfcorner())."""
+    """Return a straight chamfer across a corner (BOSL2 _chamfcorner())."""
     diameter = float(parm[0])
     p1 = [float(points[1][i]) for i in range(len(points[1]))]
     dim = len(p1)
@@ -125,7 +127,7 @@ def _circlecorner(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    """A circular-arc corner (BOSL2 _circlecorner())."""
+    """Return a circular-arc corner (BOSL2 _circlecorner())."""
     from pybosl2._helpers import frag_count as _frag_count
     from pybosl2.shapes2d import arc
 
@@ -528,7 +530,7 @@ class Roundable:
         style: str = "min_edge",
         **kwargs: object,
     ) -> object:
-        """Rounded prism between this path and a top path (BOSL2 rounded_prism())."""
+        """Return the rounded prism between this path and a top path (BOSL2 rounded_prism())."""
         from pybosl2.skin import _rounded_prism as _rp
 
         j_bot = (

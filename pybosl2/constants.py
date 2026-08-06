@@ -19,6 +19,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Constants provided by BOSL2 (BOSL2 constants.scad)."""
+
 from pybosl2._edges_lang import Anchor
 
 # ---------------------------------------------------------------------------

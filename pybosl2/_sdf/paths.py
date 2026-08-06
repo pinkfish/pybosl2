@@ -51,7 +51,7 @@ def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.
 
 
 def as_points(pts: ArrayLike) -> NDArray[np.float64]:
-    """The library-wide normalization for 2-D point paths: an (n, 2) float array. Accepts
+    """Return the library-wide normalization for 2-D point paths: an (n, 2) float array. Accepts
     any array-like (lists, tuples, arrays, Vec-ish rows). Per the project convention, path
     data is numpy everywhere INSIDE the libraries -- but must be `.tolist()`ed before
     crossing any native boundary (frep bounds, polygon(), translate(), the osuse FFI):
@@ -210,7 +210,7 @@ def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _
 
 
 def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
-    """Indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices --
+    """Return indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices --
     a wrap-aware pass dropping every vertex that turns clockwise (or is collinear) between its
     surviving neighbours.
     """
@@ -256,7 +256,7 @@ def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
 
 
 def _is_convex(pts: NDArray[np.float64]) -> bool:
-    """True if the simple polygon `pts` is convex: every consecutive edge pair turns the same
+    """Return True if the simple polygon `pts` is convex: every consecutive edge pair turns the same
     way (cross products all >= 0 or all <= 0, tolerating collinear runs from densified arcs).
     """
     n = len(pts)
@@ -316,7 +316,7 @@ def superformula(
     a: float,
     b: float,
 ) -> float:
-    """The superformula radius at angle `theta` (degrees)."""
+    """Return the superformula radius at angle `theta` (degrees)."""
     t1 = abs(math.cos(math.radians(m1 * theta / 4)) / a) ** n2
     t2 = abs(math.sin(math.radians(m2 * theta / 4)) / b) ** n3
     return (t1 + t2) ** (-1.0 / n1)  # type: ignore[no-any-return]
@@ -335,7 +335,7 @@ def supershape_path(
     radius: float | None = None,
     diameter: float | None = None,
 ) -> NDArray[np.float64]:
-    """The superformula outline as a closed point path -- same parameters and sampling as the
+    """Return the superformula outline as a closed point path -- same parameters and sampling as the
     bosl2 port's supershape() (which builds a polygon() from the identical path).
     """
     n_pts = n if n is not None else math.ceil(360.0 / step)
@@ -388,7 +388,7 @@ def bezpath_points(
 
 
 def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n: int = 90) -> NDArray[np.float64]:
-    """The BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
+    """Return the BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
     total length, and side arcs of radius arc_radius blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
     """
@@ -515,7 +515,7 @@ def _lerp_pt(a: _VecLike, b: _VecLike, t: float) -> NDArray[np.float64]:
 
 
 def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
-    """Unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
+    """Return the unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
     byte-for-byte the bosl2 port's convention.
     """
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
@@ -740,7 +740,7 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
 
 
 def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
-    """The input open polyline shifted `delta` to the LEFT of its direction of travel, using
+    """Return the input open polyline shifted `delta` to the LEFT of its direction of travel, using
     per-vertex averaged normals -- exact for smooth densely-sampled curves (which is all
     rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling).
     """
@@ -766,7 +766,7 @@ def total_length(path: ArrayLike, closed: bool = False) -> float:
 
 
 def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
-    """The point(s) at the given arc-length distance(s) from the start of `path`, each as
+    """Return the point(s) at the given arc-length distance(s) from the start of `path`, each as
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
     requirement) as the bosl2 port's path_cut_points().
     """
@@ -808,13 +808,13 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
 
 
 def path_normals(path: ArrayLike, closed: bool = False) -> NDArray[np.float64]:
-    """The 2-D normal (to the RIGHT of travel, matching the bosl2 port) at each path point."""
+    """Return the 2-D normal (to the RIGHT of travel, matching the bosl2 port) at each path point."""
     tangents = path_tangents(path, closed=closed)
     return np.stack([tangents[:, 1], -tangents[:, 0]], axis=1)
 
 
 def _frag_count(r: float, fn: float | None = None, fa: float | None = None, fs: float | None = None) -> int:
-    """Number of segments approximating a circle of radius `r` (OpenSCAD's $fn/$fa/$fs rules)."""
+    """Return the number of segments approximating a circle of radius `r` (OpenSCAD's $fn/$fa/$fs rules)."""
     if fn is not None and fn >= 3:
         return int(math.floor(fn))
     fa = fa if fa else 12.0

@@ -22,6 +22,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Phillips, hex, Torx and Robertson driver-recess masks."""
+
 from __future__ import annotations
 
 import math
@@ -49,7 +51,7 @@ __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 
 
 def _adj_ang_to_opp(adj: float, angle: float) -> float:
-    """The opposite side of a right triangle given the adjacent side and angle (BOSL2
+    """Return the opposite side of a right triangle given the adjacent side and angle (BOSL2
     adj_ang_to_opp).
     """
     return adj * math.tan(math.radians(angle))
@@ -111,14 +113,17 @@ class RobertsonSpec:
 
     @property
     def m(self) -> float:
+        """Return the average m value."""
         return (self.m_min + self.m_max) / 2
 
     @property
     def t(self) -> float:
+        """Return the average t value."""
         return (self.t_min + self.t_max) / 2
 
     @property
     def f(self) -> float:
+        """Return the average f value."""
         return (self.f_min + self.f_max) / 2
 
 
@@ -205,7 +210,7 @@ class ScrewDrive:
         fs: float | None = None,
         l: float | None = None,  # noqa: ARG004, E741
     ) -> Bosl2Solid:
-        """A Phillips driver-recess mask for the given Phillips *size* (BOSL2 phillips_mask()).
+        """Return a Phillips driver-recess mask for the given Phillips *size* (BOSL2 phillips_mask()).
 
         Args:
             size: bit size as ``"#0"``..``"#4"`` or an integer ``0``..``4``.
@@ -289,7 +294,7 @@ class ScrewDrive:
 
     @staticmethod
     def hex_drive_mask(size: float, l: float, slop: float = 0.0, center: bool = False) -> Bosl2Solid:  # noqa: E741
-        """A hex (Allen) driver-recess mask, *size* across flats, *l* tall (BOSL2 hex_drive_mask()).
+        """Return a hex (Allen) driver-recess mask, *size* across flats, *l* tall (BOSL2 hex_drive_mask()).
 
         The recess is slightly oversized per the ISO standard; *slop* enlarges it by a further
         ``2 * slop``.
@@ -326,7 +331,7 @@ class ScrewDrive:
 
     @staticmethod
     def torx_mask2d(size: int) -> Bosl2Solid:
-        """The 2-D profile of a Torx *size* driver (BOSL2 torx_mask2d())."""
+        """Return the 2-D profile of a Torx *size* driver (BOSL2 torx_mask2d())."""
         return Bosl2Solid(ScrewDrive._torx_profile(size))
 
     @staticmethod
@@ -362,7 +367,7 @@ class ScrewDrive:
 
     @staticmethod
     def torx_mask(size: int, l: float = 5.0, center: bool = False) -> Bosl2Solid:  # noqa: E741
-        """A Torx driver-recess mask: the 2-D profile extruded *l* tall (BOSL2 torx_mask()).
+        """Return a Torx driver-recess mask: the 2-D profile extruded *l* tall (BOSL2 torx_mask()).
 
         Examples:
             A T30 Torx tip:
@@ -381,7 +386,7 @@ class ScrewDrive:
 
     @staticmethod
     def robertson_mask(size: str | int, l: float | None = None, angle: float = 2.5, slop: float = 0.0) -> Bosl2Solid:  # noqa: E741
-        """A Robertson/square driver-recess mask for square-drive *size* ``0``..``4`` (BOSL2 robertson_mask()).
+        """Return a Robertson/square driver-recess mask for square-drive *size* ``0``..``4`` (BOSL2 robertson_mask()).
 
         Args:
             size: square-drive size, as ``"#2"`` / ``"2"`` or integer ``2``.

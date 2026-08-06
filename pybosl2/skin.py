@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # DocCategory: Paths, regions & surfaces
 
+"""Surface generators: sweep, path_sweep, skin, linear_sweep, rotate_sweep, spiral_sweep (BOSL2 skin.scad)."""
+
 #    Pure-Python port of the surface generators from BOSL2's skin.scad, building
 #    VNFs (pybosl2/vnf.py) that render via polyhedron(). No osuse()/BOSL2 runtime
 #    dependency.
@@ -259,7 +261,7 @@ def frame_map(
     y: Sequence[float] | None = None,
     z: Sequence[float] | None = None,
 ) -> np.ndarray:
-    """The 4x4 rotation whose columns are the given orthonormal axes (BOSL2 frame_map()).
+    """Return the 4x4 rotation whose columns are the given orthonormal axes (BOSL2 frame_map()).
 
     Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product.
     """
@@ -894,6 +896,8 @@ def subdivide_and_slice(
 
 
 class OSType(Enum):
+    """Offset sweep profile type."""
+
     CIRCLE = "circle"
     SMOOTH = "smooth"
     TEARDROP = "teardrop"
@@ -923,6 +927,7 @@ class OSProfile:
     points: list[list[float]] = field(default_factory=list[list[float]])
 
     def get(self, key: str, default: object = None) -> object:
+        """Return the value for key or a default."""
         if key == "type":
             return self.type.value
         mapping = {
@@ -937,6 +942,7 @@ class OSProfile:
         return default
 
     def __getitem__(self, key: str) -> object:
+        """Return the item for key."""
         if key == "type":
             return self.type.value
         mapping = {
@@ -951,6 +957,7 @@ class OSProfile:
         raise KeyError(key)
 
     def __contains__(self, key: str) -> bool:
+        """Return whether key is in this object."""
         mapping = {
             "r": "radius",
             "h": "height",
@@ -1092,7 +1099,7 @@ def os_flat() -> OSProfile:
 
 
 def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProfile:
-    """Custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
+    """Return a custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
 
     Accepts a list of 2D points `[[x, y], ...]` defining the profile:
     - `x` is the inward radial offset (meaning `delta = -x`).

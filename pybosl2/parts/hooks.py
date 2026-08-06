@@ -14,6 +14,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Hooks and hook-like parts (the ring hook)."""
+
 from __future__ import annotations
 
 import math
@@ -29,7 +31,7 @@ __all__ = ["Hooks"]
 
 
 def _circle_point_tangents(r: float, center: list[float], pt: list[float]) -> list[list[float]]:
-    """The two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2
+    """Return the two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2
     circle_point_tangents()). Points are 2-vectors ``[x, height]``.
     """
     center_arr = np.asarray(center, dtype=float)
@@ -81,7 +83,7 @@ class Hooks:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2
+        """Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2
         ring_hook()).
 
         *base_size* is the ``[x, y]`` of the mounting base, which sits on ``z = 0``; *hole_z* the
@@ -174,7 +176,7 @@ def _hole_cutter(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """The solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
+    """Return the solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
     length_ = w + 2
     if custom:
         pts = [[float(p[0]), float(p[1])] for p in hole]

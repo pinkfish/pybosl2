@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Circles, ellipses, arcs, keyholes and rings."""
+
 from __future__ import annotations
 
 import math
@@ -93,7 +95,7 @@ def circle(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A circle, built with the builtin circle(), by radius/diameter, or fit to points.
+    """Return a circle, built with the builtin circle(), by radius/diameter, or fit to points.
 
     If `corner` is given three 2-D points, the circle is centered to be tangent to both
     segments of that path, on the inside corner. If `points` is given three 2-D points,
@@ -153,7 +155,7 @@ def arc(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Path2D:
-    """A 2-D arc, returned as a :class:`~pybosl2.paths.Path2D` of points (BOSL2's ``arc()``).
+    """Return a 2-D arc, returned as a :class:`~pybosl2.paths.Path2D` of points (BOSL2's ``arc()``).
 
     All of BOSL2's 2-D arc specifications are supported (3-D arcs, which project onto a plane,
     are not):
@@ -333,7 +335,7 @@ def ellipse(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """An ellipse (approximated as a polygon), built directly with polygon().
+    """Return an ellipse (approximated as a polygon), built directly with polygon().
 
     Note: `uniform` (equal-length approximating segments) is not implemented; segments are
     evenly spaced by angle instead.
@@ -394,7 +396,7 @@ def keyhole(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A keyhole slot -- a small circle joined to a larger one by tangent shoulders (BOSL2 keyhole()).
+    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders (BOSL2 keyhole()).
 
     Args:
         length:         overall length between the two circle centers (default 15)
@@ -471,7 +473,7 @@ def ring(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A 2-D ring (annulus) between two concentric radii (BOSL2 ring(), full-annulus form).
+    """Return a 2-D ring (annulus) between two concentric radii (BOSL2 ring(), full-annulus form).
 
     Give either both radii (*radius1*/*radius2* or *diameter1*/*diameter2*) or one radius plus
     *ring_width*. The arc / 3-point / corner / width+thickness forms of BOSL2 ``ring()`` are
@@ -604,7 +606,7 @@ def reuleaux_polygon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A Reuleaux polygon (constant-width curved-side shape), built directly with polygon().
+    """Return a Reuleaux polygon (constant-width curved-side shape), built directly with polygon().
 
     Args:
         sides:    number of "sides"; must be an odd positive number (default 3)

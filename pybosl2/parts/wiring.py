@@ -14,6 +14,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Routed bundles of wires."""
+
 from __future__ import annotations
 
 import math
@@ -51,7 +53,7 @@ def _segs(r: float) -> int:
 
 
 def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:
-    """A hexagonal ring of packing centres spaced *d* apart (BOSL2 _hex_offset_ring()).
+    """Return a hexagonal ring of packing centres spaced *d* apart (BOSL2 _hex_offset_ring()).
 
     ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points.
     """
@@ -93,7 +95,7 @@ class Wiring:
 
     @staticmethod
     def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
-        """The centre points for the optimal hexagonal packing of at least *sides* circles spaced
+        """Return the centre points for the optimal hexagonal packing of at least *sides* circles spaced
         *diameter* apart.
         """
         return _hex_offsets(sides, diameter)
@@ -107,7 +109,8 @@ class Wiring:
         wirenum: int = 0,
         corner_steps: int = 15,
     ) -> Bosl2Solid:
-        """A bundle of *wires* round wires that follow *path*, its corners rounded to *rounding* (BOSL2 wire_bundle()).
+        """Return a bundle of *wires* round wires that follow *path*, its
+        corners rounded to *rounding* (BOSL2 wire_bundle()).
 
         The wires are hex-packed in the bundle cross-section and each is coloured from the 17-entry
         table (re-used, offset by *wirenum*, if there are more than 17). *wirediam* is each wire's

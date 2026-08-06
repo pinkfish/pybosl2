@@ -17,6 +17,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""Dovetail joints and snap-pin connectors."""
+
 from __future__ import annotations
 
 import math
@@ -56,7 +58,7 @@ class Joiners:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A dovetail joint that slides along Y and flares upward in X (BOSL2 dovetail()).
+        """Return a dovetail joint that slides along Y and flares upward in X (BOSL2 dovetail()).
 
         The male form is a tenon you attach to a part; the female form is the same shape enlarged by
         *slop* for you to difference out as the mating socket. A dovetail resists pulling apart across
@@ -104,7 +106,7 @@ class Joiners:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A press-and-click snap pin: a slotted shaft with a barbed head (BOSL2 snap_pin()).
+        """Return a press-and-click snap pin: a slotted shaft with a barbed head (BOSL2 snap_pin()).
 
         Push it head-first through a hole (or a :meth:`snap_pin_socket`); the slot lets the barb
         compress and spring back to lock. *nub_depth* is the barb overhang, *snap* its height, and
@@ -146,7 +148,8 @@ class Joiners:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """The mating socket mask for a :meth:`snap_pin` -- difference it out of a part (BOSL2 snap_pin_socket()).
+        """Return the mating socket mask for a :meth:`snap_pin` -- difference it
+        out of a part (BOSL2 snap_pin_socket()).
 
         A clearance bore with a relief groove that the pin's barb clicks into.
         """

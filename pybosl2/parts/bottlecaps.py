@@ -25,6 +25,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""PCO-1810 / PCO-1881 bottle necks and caps."""
+
 from __future__ import annotations
 
 import math
@@ -248,7 +250,7 @@ def _pco1881_profile(diameter: BottleThreadSpec) -> Any:
 def _neck_thread(
     diameter: BottleThreadSpec, fn: int | None = None, fa: float | None = None, fs: float | None = None
 ) -> Bosl2Solid:
-    """The neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).
+    """Return the neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).
 
     The lead-in ``taper`` BOSL2 applies is not reproduced (this port's thread_helix has no taper).
     """
@@ -301,6 +303,8 @@ def _build_neck(
 
 
 class BottleCapTexture(Enum):
+    """Bottle cap texture style."""
+
     NONE = "none"
     RIBS = "ribs"
     CHECKERS = "checkers"
@@ -349,7 +353,7 @@ class BottleCaps:
 
     @staticmethod
     def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
-        """A PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).
+        """Return a PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).
 
         Examples:
             A standard PCO 1810 bottle neck (28 mm):
@@ -370,7 +374,7 @@ class BottleCaps:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls
+        """Return a cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls
         back to a plain wall (surface texturing is not in this port).
 
         Examples:
@@ -386,7 +390,7 @@ class BottleCaps:
 
     @staticmethod
     def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
-        """A PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).
+        """Return a PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).
 
         Examples:
             A standard PCO 1881 bottle neck (38 mm):
@@ -407,7 +411,7 @@ class BottleCaps:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """A cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls
+        """Return a cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls
         back to a plain wall (surface texturing is not in this port).
         """
         return _build_cap(_PCO1881, wall, texture, fn=fn, fa=fa, fs=fs)

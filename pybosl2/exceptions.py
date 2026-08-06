@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # DocCategory: internal
 
+"""Exceptions for the dual-backend (CSG / SDF) solid system."""
+
 # Exceptions for the dual-backend (CSG / SDF) solid system. pybosl2 realizes solids through either
 # the exact-CSG backend (PythonSCAD, the default) or the F-Rep/signed-distance backend (libfive).
 # These errors make the two failure modes of a two-backend world explicit: asking a backend for a
@@ -36,6 +38,7 @@ class UnsupportedByBackendError(Bosl2Error):
     """
 
     def __init__(self, feature: str, backend: str, hint: str | None = None) -> None:
+        """Initialize the instance."""
         self.feature = feature
         self.backend = backend
         self.hint = hint
@@ -59,6 +62,7 @@ class CrossBackendError(Bosl2Error):
     """
 
     def __init__(self, left: str, right: str) -> None:
+        """Initialize the instance."""
         self.left = left
         self.right = right
         super().__init__(

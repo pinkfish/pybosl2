@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Cylinders, cones, shear cylinders and pipe shapes."""
+
 from __future__ import annotations
 
 import math
@@ -104,7 +106,7 @@ def cylinder(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """A cylinder with optional chamfering/rounding of its end rims, built with
+    """Return a cylinder with optional chamfering/rounding of its end rims, built with
     cube()/cylinder()/sphere()/rotate_extrude().
 
     Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
@@ -269,7 +271,7 @@ def cyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """A cylinder with optional chamfering/rounding of its end rims, built with
+    """Return a cylinder with optional chamfering/rounding of its end rims, built with
     cube()/cylinder()/sphere()/rotate_extrude().
 
     Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
@@ -474,6 +476,7 @@ def cyl_profile(
     teardrop: float | bool = False,
     clip_angle: float = 90.0,
 ) -> list[list[float]]:
+    """Generate a 2D cylinder profile with optional rounding and chamfering."""
     from pybosl2._helpers import arc_points as _arc_points
 
     eff_clip = float(clip_angle)
@@ -568,7 +571,7 @@ def xcyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """A cylinder oriented along the X axis. See cyl() for argument details.
+    """Return a cylinder oriented along the X axis. See cyl() for argument details.
 
     Examples:
         .. pythonscad-example::
@@ -674,7 +677,7 @@ def ycyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """A cylinder oriented along the Y axis. See cyl() for argument details.
+    """Return a cylinder oriented along the Y axis. See cyl() for argument details.
 
     Examples:
         .. pythonscad-example::
@@ -780,7 +783,7 @@ def zcyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """A cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for
+    """Return a cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for
     argument details.
 
     Examples:
@@ -1018,7 +1021,7 @@ def cone(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A cone/truncated cone with optional chamfering or rounding of the end rims.
+    """Return a cone/truncated cone with optional chamfering or rounding of the end rims.
 
     Convenience wrapper around :func:`cyl` / :func:`cylinder` with ``radius2=0`` by default
     for a pointed cone, or with explicit ``radius2`` for a truncated (frustum) form.

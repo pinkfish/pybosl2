@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Rectangles, squares, polygons, ngons and trapezoid shapes."""
+
 from __future__ import annotations
 
 import math
@@ -98,7 +100,7 @@ def square(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A rectangle, built via polygon() with BOSL2-style anchor/spin support.
+    """Return a rectangle, built via polygon() with BOSL2-style anchor/spin support.
 
     Args:
         size:     size of the square; a scalar uses the same size for X and Y
@@ -145,7 +147,7 @@ def rect(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A rectangle with optional rounded or chamfered corners.
+    """Return a rectangle with optional rounded or chamfered corners.
 
     Note: negative rounding/chamfer (BOSL2's "external roundover spikes") is not supported here.
 
@@ -187,7 +189,7 @@ def rect_path(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    """The *points* of a (optionally rounded/chamfered) rectangle -- BOSL2's ``rect()`` in its
+    """Return the *points* of a (optionally rounded/chamfered) rectangle -- BOSL2's ``rect()`` in its
     function form, as opposed to :func:`rect` which returns 2-D geometry (a :class:`Bosl2Shape2D`).
 
     Use this when the rectangle is an input to further path math (e.g. a profile fed to
@@ -220,7 +222,7 @@ def polygon(
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
 ) -> Bosl2Shape2D:
-    """A polygon, built with the builtin polygon(), with anchor/spin support.
+    """Return a polygon, built with the builtin polygon(), with anchor/spin support.
 
     Args:
         path:   polygon path
@@ -310,7 +312,7 @@ def regular_ngon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A regular N-gon (equilateral, equiangular polygon), built directly with polygon().
+    """Return a regular N-gon (equilateral, equiangular polygon), built directly with polygon().
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
     keyword `or`; it is exposed here as `outer_radius` instead.
@@ -399,7 +401,7 @@ def pentagon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A regular pentagon. See regular_ngon() for argument details."""
+    """Return a regular pentagon. See regular_ngon() for argument details."""
     return regular_ngon(
         sides=5,
         radius=radius,
@@ -441,7 +443,7 @@ def hexagon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A regular hexagon. See regular_ngon() for argument details."""
+    """Return a regular hexagon. See regular_ngon() for argument details."""
     return regular_ngon(
         sides=6,
         radius=radius,
@@ -483,7 +485,7 @@ def octagon(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A regular octagon. See regular_ngon() for argument details."""
+    """Return a regular octagon. See regular_ngon() for argument details."""
     return regular_ngon(
         sides=8,
         radius=radius,
@@ -517,7 +519,7 @@ def right_triangle(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A right triangle, built directly with polygon().
+    """Return a right triangle, built directly with polygon().
 
     Args:
         size:     [width, length] of the right triangle
@@ -642,7 +644,7 @@ def trapezoid(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A trapezoid with parallel front and back sides, built directly with polygon().
+    """Return a trapezoid with parallel front and back sides, built directly with polygon().
 
     Args:
         height:   Y-axis height of the trapezoid

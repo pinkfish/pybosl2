@@ -21,6 +21,8 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
+"""VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad)."""
+
 from __future__ import annotations
 
 import math

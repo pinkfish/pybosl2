@@ -49,6 +49,8 @@ __all__ = ["turtle3d", "Turtle3D", "Turtle3DState", "TurtleCommand", "TurtleComm
 
 
 class TurtleCommandType(Enum):
+    """Turtle movement command type."""
+
     MOVE = "move"
     UNTILX = "untilx"
     UNTILY = "untily"
@@ -192,6 +194,7 @@ class Turtle3D:
     """
 
     def __init__(self, state: Any = RIGHT) -> None:
+        """Initialize the instance."""
         self._state = Turtle3D._init_state(state)
 
     def run(self, commands: Sequence[TurtleCommand], repeat: int = 1) -> Turtle3D:
@@ -207,7 +210,7 @@ class Turtle3D:
         return self
 
     def points(self) -> list[list[float]]:
-        """The de-duplicated list of 3-D points the turtle has visited."""
+        """Return the de-duplicated list of 3-D points the turtle has visited."""
         return Turtle3D._dedup([Turtle3D._apply(T, [0, 0, 0]) for T in self._state.transforms])
 
     def stroke(
@@ -235,7 +238,7 @@ class Turtle3D:
         return path.stroke(width=width, closed=closed)
 
     def transforms(self) -> list[np.ndarray]:
-        """The list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
+        """Return the list of 4x4 transforms (position + orientation) for sweeping a profile along the path."""
         return [self._state.transforms[i] @ self._state.pre_transforms[i] for i in range(len(self._state.transforms))]
 
     def full_state(self) -> Turtle3DState:

@@ -24,6 +24,8 @@
 # DocCategory: Extras
 # FileGroup: BOSL2
 
+"""Extrusions, bounding box, chain hull, and minkowski-based transforms."""
+
 from __future__ import annotations
 
 import math
@@ -61,7 +63,7 @@ __all__ = [
 
 
 def _as_native_2d(profile: object) -> Any:
-    """A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
+    """Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
     a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.
     """
     from pybosl2._helpers import as_native_2d as _coerce
@@ -70,7 +72,7 @@ def _as_native_2d(profile: object) -> Any:
 
 
 def _profile_factory(profile: object) -> Callable[[], Any]:
-    """A zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time
+    """Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time
     (the "children" form, safe for frep handles); anything else is meshed once and reused.
     """
     from pybosl2.shapes2d import Bosl2Shape2D
@@ -446,7 +448,7 @@ class Miscellaneous(ABC):
         raise NotImplementedError
 
     def bounding_box(self, excess: float = 0) -> Bosl2Solid:
-        """The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
+        """Return the smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
 
         Uses the native bounding box, so it is exact and fast (BOSL2's projection/minkowski trick is
         not needed here).
@@ -493,7 +495,7 @@ class Miscellaneous(ABC):
         return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)
 
     def chain_hull(self, *others: object) -> Bosl2Solid:
-        """This solid chain-hulled with *others*, in order (see :func:`chain_hull`)."""
+        """Return this solid chain-hulled with *others*, in order (see :func:`chain_hull`)."""
         return chain_hull(self, *others)
 
     def minkowski_difference(self, *diffs: object, size: float = 1000) -> Bosl2Solid:

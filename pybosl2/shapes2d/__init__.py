@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""2D primitives, polygons, curves, text and rounding (BOSL2 shapes2d.scad)."""
+
 from __future__ import annotations
 
 from pybosl2._helpers import AnchorType

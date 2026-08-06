@@ -266,7 +266,7 @@ class SdfShape2D:
         return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
 
     def outline(self, width: float) -> PyShape2D:
-        """The centered outline strip of this shape's boundary: |d| - width/2."""
+        """Return the centered outline strip of this shape's boundary: |d| - width/2."""
         fn = self._sdf_fn
         new_fn = lambda x, y: lv.abs(fn(x, y)) - width / 2  # noqa: E731
         g = width / 2
@@ -376,7 +376,7 @@ class SdfShape2D:
 
 
 def circle2d(radius: float | None = None, diameter: float | None = None, res: int = 10) -> PyShape2D:
-    """A circle at the origin -- the exact SDF `length(p) - radius`."""
+    """Return a circle at the origin -- the exact SDF `length(p) - radius`."""
     rad = _radius(radius=radius, diameter=diameter, dflt=1)
     return PyShape2D(lambda x, y: _lv_hypot(x, y) - rad, [-rad, -rad], [rad, rad], res)
 
@@ -388,7 +388,7 @@ def rect2d(  # type: ignore[no-untyped-def]
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape2D:
-    """An axis-aligned rectangle with optional corner rounding or chamfering -- a single radius
+    """Return an axis-aligned rectangle with optional corner rounding or chamfering -- a single radius
     for all four corners, or a per-corner list in BOSL2 rect() order ([X+Y+, X-Y+, X-Y-, X+Y-],
     counterclockwise from the +x+y corner), reusing the same per-corner quadrant SDF the 3-D
     cuboid edge machinery is built on. `anchor` uses the usual direction-vector convention.
@@ -430,7 +430,7 @@ def supershape2d(
     diameter: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """A superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
+    """Return a superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
     parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d().
     """
     return polygon2d(
@@ -440,7 +440,7 @@ def supershape2d(
 
 
 def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
-    """An arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
+    """Return an arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention).
     """
@@ -516,7 +516,7 @@ def stroke2d(
     closed: bool = False,
     res: int = 10,
 ) -> PyShape2D:
-    """A path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
+    """Return a path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
     the min over the segments' capsule SDFs (distance-to-segment minus width/2).
     """
     pts = as_points(path)
@@ -547,7 +547,7 @@ def stroke2d(
 
 
 def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
-    """The convex hull of a set of discs [(x, y, r), ...] -- the SDF equivalent of the
+    """Return the convex hull of a set of discs [(x, y, r), ...] -- the SDF equivalent of the
     hull(circle().translate(), circle().translate(), ...) idiom all over shapes.py. EXACT for
     equal radii (the true distance to the centers' convex hull, minus r -- computed with the
     branchless exact-convex form, so the rounded corners are genuine arcs, not the sharp
@@ -604,7 +604,7 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-
 
 
 def square2d(size: float | Sequence[float] = 10, anchor: Sequence[float] = CENTER, res: int = 10) -> PyShape2D:
-    """A square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d()."""
+    """Return a square of the given *size* (scalar or ``[w, h]``). Delegates to rect2d()."""
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else list(size)
     return rect2d(sz, anchor=anchor, res=res)
 
@@ -614,7 +614,7 @@ def ellipse2d(
     diameter: float | Sequence[float] | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """An ellipse with semi-axes *radius* (``[rx, ry]``) or full diameters *diameter* (``[dx, dy]``).
+    """Return an ellipse with semi-axes *radius* (``[rx, ry]``) or full diameters *diameter* (``[dx, dy]``).
     Built by non-uniformly scaling a unit circle SDF, which gives an exact algebraic distance
     whose zero-isosurface is the desired ellipse.
     """
@@ -650,7 +650,7 @@ def regular_ngon2d(
     realign: bool = False,
     res: int = 10,
 ) -> PyShape2D:
-    """A regular num_sides-gon (triangle, square, pentagon, hexagon, ...) as a signed-distance field.
+    """Return a regular num_sides-gon (triangle, square, pentagon, hexagon, ...) as a signed-distance field.
 
     Size is controlled by one of the radius/diameter/side parameters:
     ``inner_radius``/``inner_diameter`` > ``outer_radius``/``outer_diameter`` > ``radius``/``diameter`` > ``side``.
@@ -713,7 +713,7 @@ def star2d(
     realign: bool = False,
     res: int = 10,
 ) -> PyShape2D:
-    """An num_sides-pointed star polygon as a signed-distance field.
+    """Return a num_sides-pointed star polygon as a signed-distance field.
 
     Args:
         num_sides:       number of stellate tips (default 5)
@@ -761,7 +761,7 @@ def trapezoid2d(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape2D:
-    """A trapezoid with parallel front and back sides, as a signed-distance field.
+    """Return a trapezoid with parallel front and back sides, as a signed-distance field.
 
     Args:
         height:    Y-axis height
@@ -805,7 +805,7 @@ def keyhole2d(
     diameter2: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """A keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an
+    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an
     SDF-based polygon.
 
     Args:

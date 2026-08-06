@@ -16,6 +16,8 @@
 # DocCategory: internal
 # FileGroup: BOSL2
 
+"""Heightfields, function plots, fillets, textured tiles and the ruler annotation."""
+
 from __future__ import annotations
 
 import math
@@ -554,7 +556,7 @@ def plot3d(
     base: float = 1,
     style: str = "default",
 ) -> Bosl2Solid:
-    """A surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values (BOSL2 plot3d()).
+    """Return a surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values (BOSL2 plot3d()).
 
     Args:
         f:     a callable ``f(x, y) -> z``
@@ -616,7 +618,7 @@ def plot_revolution(
     horiz: bool = False,
     style: str = "min_edge",
 ) -> Bosl2Solid:
-    """A surface of revolution whose radius is modulated by ``radius = f(angle, z)`` (BOSL2 plot_revolution()).
+    """Return a surface of revolution whose radius is modulated by ``radius = f(angle, z)`` (BOSL2 plot_revolution()).
 
     The profile is either a straight taper (*z* plus *radius1*/*radius2*) or an explicit 2-D *path* of
     ``[radius, z]`` points; ``f(theta, z)`` displaces each profile point along its normal (or radially,
@@ -724,7 +726,7 @@ def fillet(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """A concave edge-fillet mask of length *length* and radius *radius* (BOSL2 fillet()).
+    """Return a concave edge-fillet mask of length *length* and radius *radius* (BOSL2 fillet()).
 
     A cutter you subtract to round a 90-degree edge (the concave complement of a rounded corner).
     Positioned manually like ``rounding_edge_mask`` -- origin at the sharp edge, +X/+Y into the
@@ -782,7 +784,7 @@ def textured_tile(
     roughness: Any = None,
     fn: int | None = None,
 ) -> Bosl2Solid:
-    """A rectangular tile carrying a repeated *texture* (BOSL2 textured_tile()).
+    """Return a rectangular tile carrying a repeated *texture* (BOSL2 textured_tile()).
 
     *texture* is either a **name** from the ported :func:`~pybosl2.texture.texture` engine (e.g.
     ``"pyramids"``, ``"diamonds"``, ``"hills"``, ``"bricks"``, ``"pyramids_vnf"``), a raw **height-field**

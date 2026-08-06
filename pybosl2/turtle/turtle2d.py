@@ -150,6 +150,7 @@ class Turtle2D:
     """
 
     def __init__(self, state: Turtle2DState | None = None) -> None:
+        """Initialize the instance."""
         self._state = state if state is not None else Turtle2DState()
 
     # -- public API ----------------------------------------------------------

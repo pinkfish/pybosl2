@@ -156,7 +156,7 @@ class CapSpec:
     path: Sequence[Sequence[float]] | None = None
 
     def __post_init__(self) -> None:
-        pass
+        """Post-initialization hook."""
 
 
 # ---------------------------------------------------------------------------
@@ -236,7 +236,7 @@ def normalize_one(cap: CapType | CapSpec | str) -> CapSpec:
 
 
 def has_decorative_caps(cap_specs: list[CapSpec]) -> bool:
-    """True if any endcap is a decorative (non-flat/non-dome/non-none) type."""
+    """Return True if any endcap is a decorative (non-flat/non-dome/non-none) type."""
     _basic = frozenset({CapType.NONE, CapType.BUTT, CapType.ROUND, CapType.SPHERE})
     return any(cs.cap_type not in _basic for cs in cap_specs)
 
@@ -289,7 +289,7 @@ def vnf_with_decorative_caps(
 
 
 def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
-    """The local-frame polygon(s) for an endcap (BOSL2 ``_shape_path()``).
+    """Return the local-frame polygon(s) for an endcap (BOSL2 ``_shape_path()``).
 
     Dimensions are taken directly from the :class:`CapSpec` which has
     already been resolved by :func:`normalize_one` against

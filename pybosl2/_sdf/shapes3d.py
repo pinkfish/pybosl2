@@ -1909,7 +1909,7 @@ def teardrop(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """A teardrop shape (useful for 3-D-printable horizontal holes), as a libfive SDF: the
+    """Return a teardrop shape (useful for 3-D-printable horizontal holes), as a libfive SDF: the
     union of a circle and a "roof" of two planes meeting at the apex, tangent to the circle,
     extruded along Y for thickness `h`.
 
@@ -1974,7 +1974,7 @@ def onion(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """An onion-dome shape (a sphere with a conical cap), as a libfive SDF: the union of a
+    """Return an onion-dome shape (a sphere with a conical cap), as a libfive SDF: the union of a
     sphere and a cone tangent to it, revolved around Z.
 
     CAVEAT: simplified relative to pybosl2.shapes3d.onion() -- no `circum=`/`realign=` support.
@@ -2013,7 +2013,7 @@ def heightfield(
     maxz: float = 99,
     res: int = 10,
 ) -> PyShape:
-    """A 3-D surface from a height function, as a libfive SDF.
+    """Return a 3-D surface from a height function, as a libfive SDF.
 
     CAVEAT: unlike pybosl2.shapes3d.heightfield(), `data` must be a *callable* `f(x, y) -> z`
     built from ordinary arithmetic/libfive-supported math (it gets called directly with

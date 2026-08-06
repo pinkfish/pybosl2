@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Boolean operations, offsets, text and cross helpers."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -70,7 +72,7 @@ def fill(children: "Shape2DLike") -> Bosl2Shape2D:
 
 
 def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
-    """The 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of
+    """Return the 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of
     :meth:`Bosl2Shape2D.hull`).
 
     Args:
@@ -100,7 +102,7 @@ def round2d(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Rounds the concave and/or convex corners of arbitrary 2-D children, via chained .offset() calls.
+    """Round the concave and/or convex corners of arbitrary 2-D children, via chained .offset() calls.
 
     Giving `radius` rounds all corners; `inner_radius` alone rounds only concave corners;
     `outer_radius` alone rounds only convex corners; giving both rounds each to a different
@@ -136,7 +138,7 @@ def shell2d(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Creates a hollow shell from 2-D children, with optional rounding.
+    """Create a hollow shell from 2-D children, with optional rounding.
 
     Note: BOSL2's outer-radius parameter is named `or`, exposed here as `outer_radius`.
 
@@ -200,7 +202,7 @@ def cross(
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
 ) -> Bosl2Shape2D:
-    """A 2-D cross (plus) shape: two perpendicular centred rectangles.
+    """Return a 2-D cross (plus) shape: two perpendicular centred rectangles.
 
     Args:
         size:      overall size, a scalar square or ``[width, length]`` (default ``[10, 10]``).

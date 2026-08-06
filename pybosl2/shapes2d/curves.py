@@ -9,6 +9,8 @@
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
+"""Stars, teardrops, eggs, squircles and supershapes."""
+
 from __future__ import annotations
 
 import math
@@ -93,7 +95,7 @@ def star(
     spin: float = 0,
     atype: str | AnchorType = AnchorType.HULL,
 ) -> Bosl2Shape2D:
-    """An N-pointed star polygon, built directly with polygon().
+    """Return an N-pointed star polygon, built directly with polygon().
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
     keyword `or`; it is exposed here as `outer_radius` instead.
@@ -162,7 +164,7 @@ def teardrop2d(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().
+    """Return a 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().
 
     Note: `circumscribe` is approximated the same way as the inscribed case here.
 
@@ -232,7 +234,7 @@ def egg(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """An egg-shaped 2-D outline, made of two circles joined by tangent arcs, built directly with polygon().
+    """Return an egg-shaped 2-D outline, made of two circles joined by tangent arcs, built directly with polygon().
 
     Args:
         length:       length of the egg
@@ -353,7 +355,7 @@ def supershape(
     spin: float = 0,
     atype: str | AnchorType = AnchorType.HULL,
 ) -> Bosl2Shape2D:
-    """A 2-D shape from the superformula, built directly with polygon().
+    """Return a 2-D shape from the superformula, built directly with polygon().
 
     Args:
         step:   angle step size for sampling the superformula (smaller = slower, more accurate) (default 0.5)
@@ -409,7 +411,7 @@ def _linearize_squareness(squareness: float) -> float:
 
 
 def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
-    """The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size
+    """Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size
     *radius*.
     """
     s2a = abs(squareness * math.sin(math.radians(2 * angle)))
@@ -453,7 +455,7 @@ def squircle(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """A squircle -- a rounded square that morphs between a square and a circle (BOSL2 squircle()).
+    """Return a squircle -- a rounded square that morphs between a square and a circle (BOSL2 squircle()).
 
     *squareness* runs 0 (a circle) to 1 (a square). Only the default ``"fg"`` (Fong-Garcia) style
     is ported; the ``"superellipse"`` and ``"bezier"`` styles are not.
@@ -491,7 +493,7 @@ def squircle(
 
 
 def jittered_poly(path: Sequence[Sequence[float]], dist: float = 1 / 512) -> list[list[float]]:
-    """Adds tiny random jitter to a path's points.
+    """Add tiny random jitter to a path's points.
 
     Used to work around rendering artifacts from exactly-overlapping coplanar faces.
 

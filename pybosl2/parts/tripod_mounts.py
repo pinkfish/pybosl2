@@ -9,6 +9,8 @@
 # FileSummary: Tripod mount plates: RC2.
 # FileGroup: BOSL2
 
+"""Tripod mount plates: RC2."""
+
 from __future__ import annotations
 
 import math
@@ -44,7 +46,7 @@ class TripodMounts:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Creates a Manfrotto RC2 tripod quick release mount plate (BOSL2 manfrotto_rc2_plate()).
+        """Create a Manfrotto RC2 tripod quick release mount plate (BOSL2 manfrotto_rc2_plate()).
 
         The *chamfer* argument lets you control whether the model edges are chamfered.
         By default all edges are chamfered ("all"), but you can set it to "bot" or "bottom"

@@ -18,6 +18,8 @@
 # DocCategory: Parts library
 # FileGroup: BOSL2
 
+"""FDM-optimised walls: sparse, corrugated, thinning and struts."""
+
 from __future__ import annotations
 
 import math
@@ -35,7 +37,7 @@ __all__ = ["Walls"]
 
 
 def _rect(x0: float, x1: float, y0: float, y1: float) -> Any:
-    """A native 2D axis-aligned rectangle from two opposite corners."""
+    """Return a native 2D axis-aligned rectangle from two opposite corners."""
     return _opolygon([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
 
 
@@ -67,7 +69,7 @@ class Walls:
 
     @staticmethod
     def narrowing_strut(w: float = 10, length: float = 100, wall: float = 5, angle: float = 30) -> Bosl2Solid:
-        """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2
+        """Return a strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2
         narrowing_strut()).
 
         The triangular top converges at *angle* so the strut can brace an overhang without needing
@@ -95,7 +97,8 @@ class Walls:
         strut: float = 5,
         max_bridge: float = 20,
     ) -> Bosl2Solid:
-        """An open, X-cross-braced rectangular wall that saves material and prints support-free (BOSL2 sparse_wall()).
+        """Return an open, X-cross-braced rectangular wall that saves material
+        and prints support-free (BOSL2 sparse_wall()).
 
         A solid border of width *strut* frames a lattice of diagonal braces, each kept under *maxang*
         from vertical (so it needs no support) and spaced so no bridge exceeds *max_bridge*. The wall
@@ -114,7 +117,7 @@ class Walls:
 
     @staticmethod
     def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bridge: float) -> Any:
-        """The 2D cross-braced pattern, in the (X=h, Y=length) plane (BOSL2 sparse_wall2d())."""
+        """Return the 2D cross-braced pattern, in the (X=h, Y=length) plane (BOSL2 sparse_wall2d())."""
         zoff = h / 2 - strut / 2
         yoff = length / 2 - strut / 2
         maxa = math.radians(maxang)
@@ -163,7 +166,7 @@ class Walls:
         maxang: float = 30,
         max_bridge: float = 20,
     ) -> Bosl2Solid:
-        """A solid cuboid whose interior is X-cross-braced along *dir* ("X", "Y" or "Z") (BOSL2 sparse_cuboid()).
+        """Return a solid cuboid whose interior is X-cross-braced along *dir* ("X", "Y" or "Z") (BOSL2 sparse_cuboid()).
 
         A drop-in for :func:`~pybosl2.shapes3d.cuboid` when the part would benefit from the sparse
         lattice; *dir* is the axis the diagonal braces (and the through-gaps) run along.
@@ -195,7 +198,8 @@ class Walls:
         strut: float = 5,
         wall: float = 2,
     ) -> Bosl2Solid:
-        """A corrugated wall: a solid border framing a sinusoidal sheet of thickness *wall* (BOSL2 corrugated_wall()).
+        """Return a corrugated wall: a solid border framing a sinusoidal sheet
+        of thickness *wall* (BOSL2 corrugated_wall()).
 
         The corrugation waves back and forth across the *thick* thickness as it runs along the length,
         which stiffens a thin wall. *strut* is the width of the solid top/bottom/end border.
@@ -228,7 +232,8 @@ class Walls:
         strut: float | None = None,
         wall: float | None = None,
     ) -> Bosl2Solid:
-        """A rectangular wall that thins to *wall* in the middle while the edges stay *thick* (BOSL2 thinning_wall()).
+        """Return a rectangular wall that thins to *wall* in the middle while
+        the edges stay *thick* (BOSL2 thinning_wall()).
 
         Angled shoulders (kept under *angle*) join the thick border to the thin centre so nothing
         overhangs. *length* may be a single length or ``(bottom, top)`` for a trapezoidal wall. The diagonal
@@ -358,7 +363,7 @@ class Walls:
         diagonly: bool = False,
         center: bool | None = None,
     ) -> Bosl2Solid:
-        """A right-triangular wall with thick edges thinning to *wall* in the middle (BOSL2 thinning_triangle()).
+        """Return a right-triangular wall with thick edges thinning to *wall* in the middle (BOSL2 thinning_triangle()).
 
         The hypotenuse rises from the front-bottom to the back-top. *diagonly* keeps only the
         hypotenuse edge thick; *center* centres the shape (otherwise it rests on ``z = 0`` at the

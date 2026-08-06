@@ -16,6 +16,8 @@
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
+"""Metaball field primitives for VNF isosurface meshing (BOSL2 metaballs3d.scad)."""
+
 from __future__ import annotations
 
 import math
@@ -111,7 +113,7 @@ def mb_sphere(
     negative: bool = False,
     diameter: float | None = None,
 ) -> _Metaball:
-    """A spherical metaball field.
+    """Return a spherical metaball field.
 
     Args:
         radius: Sphere radius (mutually exclusive with *diameter*).
@@ -157,7 +159,7 @@ def mb_cuboid(
     influence: float = 1,
     negative: bool = False,
 ) -> _Metaball:
-    """A rounded-cuboid metaball field.
+    """Return a rounded-cuboid metaball field.
 
     Args:
         size: A scalar (cube edge) or ``(dx, dy, dz)`` tuple.
@@ -208,7 +210,7 @@ def mb_torus(
     major_diameter: float | None = None,
     minor_diameter: float | None = None,
 ) -> _Metaball:
-    """A torus metaball field.
+    """Return a torus metaball field.
 
     Args:
         major_radius: Distance from the origin to the tube centre.
@@ -261,7 +263,7 @@ def mb_capsule(
     negative: bool = False,
     diameter: float | None = None,
 ) -> _Metaball:
-    """A capsule (round-ended cylinder) metaball field.
+    """Return a capsule (round-ended cylinder) metaball field.
 
     Args:
         height: Total length including rounded ends.
@@ -303,7 +305,7 @@ def mb_disk(
     negative: bool = False,
     diameter: float | None = None,
 ) -> _Metaball:
-    """A rounded-edge disk metaball field.
+    """Return a rounded-edge disk metaball field.
 
     Args:
         height: Disk thickness.
@@ -343,7 +345,7 @@ def mb_octahedron(
     influence: float = 1,
     negative: bool = False,
 ) -> _Metaball:
-    """A rounded-octahedron metaball field.
+    """Return a rounded-octahedron metaball field.
 
     Args:
         size: A scalar (circumscribed cube edge) or ``(dx, dy, dz)`` tuple.
@@ -395,7 +397,7 @@ def mb_connector(
     negative: bool = False,
     diameter: float | None = None,
 ) -> _Metaball:
-    """A capsule metaball field spanning from *p1* to *p2*.
+    """Return a capsule metaball field spanning from *p1* to *p2*.
 
     Args:
         p1: Start :class:`~pybosl2.points.Point`.
