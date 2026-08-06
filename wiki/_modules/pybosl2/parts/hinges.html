@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1803,6 +1828,7 @@
 <span class="sd">                from pybosl2.parts.hinges import Hinges</span>
 <span class="sd">                from pybosl2 import shapes3d as s3</span>
 <span class="sd">                (s3.cuboid([100, 40, 3]) - Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).down(1.5)).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hingegap</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
         <span class="n">top</span> <span class="o">=</span> <span class="n">hingegap</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">foldangle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
@@ -1877,6 +1903,7 @@
 
 <span class="sd">                from pybosl2.parts.hinges import Hinges</span>
 <span class="sd">                Hinges.knuckle_hinge_pair(fold=90).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outer</span> <span class="o">=</span> <span class="n">Hinges</span><span class="o">.</span><span class="n">knuckle_hinge</span><span class="p">(</span>
             <span class="n">length</span><span class="p">,</span>
@@ -1927,8 +1954,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2</span>
 <span class="sd">        snap_lock()).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hingegap</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
@@ -2040,6 +2066,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

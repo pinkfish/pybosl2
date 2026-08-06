@@ -16,6 +16,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
 
@@ -30,31 +32,27 @@ class SdfBackend:
 
     name = "sdf"
 
-    def construct(self, shape: str, *args: Any, **kwargs: Any) -> _s.PyShape:
+    #: Parameters this backend spells differently from the BOSL2 names the facade uses.
+    _OWN_NAMES = {"sides": "num_sides"}
+
+    def construct(self, shape: str, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Build the named shape via the vendored SDF constructors (pybosl2._sdf.shapes3d)."""
         fn = getattr(_s, shape, None)
         if not callable(fn):
             raise ValueError(f"the sdf backend has no shape constructor {shape!r}")
-        return fn(*args, **kwargs)  # type: ignore[no-any-return]
+        named = {self._OWN_NAMES.get(name, name): value for name, value in arguments.items()}
+        return fn(**named)  # type: ignore[no-any-return]
 
-    def polyhedron(self, points: Any, faces: Any = None, **kwargs: Any) -> _s.PyShape:
-        """Return the convex hull of `points` as an SDF. `faces` is accepted for signature-compatibility.
+    def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> _s.PyShape:
+        """Return the convex hull of `points` as an SDF.
 
-        with the CSG backend but ignored -- the SDF backend builds only the convex polyhedron.
+        `faces` is accepted for signature-compatibility with the CSG backend but ignored -- the SDF
+        backend builds only the convex polyhedron.
         """
-        _ = faces
-        return _s.convex_polyhedron(points, **kwargs)
+        _ = faces, convexity  # neither shapes a distance field
+        return _s.convex_polyhedron(points)
 
-    def linear_extrude(
-        self,
-        paths: Any,
-        height: float,
-        center: bool = False,
-        rounding_top: float = 0,
-        rounding_bottom: float = 0,
-        res: int = 10,
-        **kwargs: Any,
-    ) -> _s.PyShape:
+    def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Extrude *paths* into an SDF prism via :func:`~pybosl2._sdf.shapes3d.polygon_prism`.
 
         *paths* is one outline or a list of DISJOINT outlines -- the SDF prism is the min (union)
@@ -66,8 +64,13 @@ class SdfBackend:
         """
         from pybosl2.exceptions import UnsupportedByBackendError
 
+        options = dict(arguments)
+        center = bool(options.pop("center", False))
+        rounding_top = float(options.pop("rounding_top", 0))
+        rounding_bottom = float(options.pop("rounding_bottom", 0))
+        res = int(options.pop("res", 10))
         for name in ("twist", "scale", "slices", "convexity", "fa", "fn", "fs"):
-            if kwargs.pop(name, None) not in (None, 0, 1, False):
+            if options.pop(name, None) not in (None, 0, 1, False):
                 raise UnsupportedByBackendError(
                     f"linear_extrude({name}=)",
                     "sdf",
@@ -75,7 +78,7 @@ class SdfBackend:
                     "the csg backend for a twisted/tapered extrusion, or sweep it with "
                     "pybosl2._sdf.shapes3d.path_sweep(twist=...).",
                 )
-        assert not kwargs, f"linear_extrude(): the sdf backend has no {sorted(kwargs)} option(s)."
+        assert not options, f"linear_extrude(): the sdf backend has no {sorted(options)} option(s)."
         shape = _s.polygon_prism(
             paths,
             height,
@@ -100,7 +103,6 @@ class SdfBackend:
         closed: bool | None = None,
         endcap1: CapSpec | None = None,
         endcap2: CapSpec | None = None,
-        **_: Any,
     ) -> _s.PyShape:
         """3-D stroke via the SDF backend's own cylinder/sphere primitives."""
         return _s.stroke_3d(path, width=width, closed=closed, endcap1=endcap1, endcap2=endcap2)

@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1806,8 +1831,7 @@
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ThreadPitches</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is</span>
 <span class="sd">    undefined.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1818,7 +1842,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The pitch for a thread class (``&quot;coarse&quot;``/``&quot;fine&quot;``/``&quot;extra-fine&quot;``/``&quot;super-fine&quot;``),</span>
-<span class="sd">        falling back to coarse if the requested class is undefined for this size.&quot;&quot;&quot;</span>
+<span class="sd">        falling back to coarse if the requested class is undefined for this size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_THREAD_ALIAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;coarse&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse</span>
 
 
@@ -1832,9 +1857,7 @@
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SocketHead</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2.&quot;&quot;&quot;</span>
 
     <span class="n">head_d</span><span class="p">:</span> <span class="nb">float</span>
     <span class="n">hex_drive</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># hex drive across-flats</span>
@@ -2180,8 +2203,8 @@
 
 <span class="sd">                from pybosl2.parts.screws import Screws</span>
 <span class="sd">                Screws.screw(&quot;M6&quot;, length=20, head=&quot;socket&quot;, drive=&quot;hex&quot;).show()</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">info</span> <span class="o">=</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_info</span><span class="p">(</span>
             <span class="n">spec</span><span class="p">,</span>
             <span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span>
@@ -2227,7 +2250,6 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the screw head from resolved dimensions.&quot;&quot;&quot;</span>
-
         <span class="n">head</span> <span class="o">=</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -2263,7 +2285,6 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the drive recess from resolved dimensions.&quot;&quot;&quot;</span>
-
         <span class="n">drive</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;drive&quot;</span><span class="p">)</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;drive_size&quot;</span><span class="p">)</span>
         <span class="n">depth</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;drive_depth&quot;</span><span class="p">)</span>
@@ -2310,6 +2331,7 @@
 
 <span class="sd">                from pybosl2.parts.screws import Screws</span>
 <span class="sd">                Screws.nut(&quot;M8&quot;).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Threading</span>
 
@@ -2350,8 +2372,8 @@
 <span class="sd">                from pybosl2.parts.screws import Screws</span>
 <span class="sd">                from pybosl2 import shapes3d as s3</span>
 <span class="sd">                (s3.cuboid([20, 20, 10]) - Screws.screw_hole(&quot;M6&quot;, length=10, head=&quot;socket&quot;, fit=&quot;normal&quot;)).show()</span>
-<span class="sd">        &quot;&quot;&quot;</span>
 
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">use_thread</span> <span class="o">=</span> <span class="n">thread</span> <span class="ow">and</span> <span class="n">thread</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">d</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="n">_parse_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="s2">&quot;coarse&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">use_thread</span> <span class="k">else</span> <span class="n">thread</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">use_thread</span><span class="p">:</span>
@@ -2402,9 +2424,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_nut_dims</span><span class="p">(</span><span class="n">diam</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Resolve a nut&#39;s ``(across-flats width, thickness)`` for the given size and thickness class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a nut&#39;s ``(across-flats width, thickness)`` for the given size and thickness class.&quot;&quot;&quot;</span>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">_closest</span><span class="p">(</span><span class="n">_NUT</span><span class="p">,</span> <span class="n">diam</span><span class="p">)</span>
     <span class="n">width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">nutwidth</span><span class="p">)</span> <span class="k">if</span> <span class="n">nutwidth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">spec</span><span class="o">.</span><span class="n">width</span>
     <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2487,6 +2507,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

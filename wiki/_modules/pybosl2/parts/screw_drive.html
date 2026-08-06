@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1789,8 +1814,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_adj_ang_to_opp</span><span class="p">(</span><span class="n">adj</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The opposite side of a right triangle given the adjacent side and angle (BOSL2</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The opposite side of a right triangle given the adjacent side and angle (BOSL2</span>
 <span class="sd">    adj_ang_to_opp).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">adj</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
@@ -1808,9 +1832,7 @@
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PhillipsSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Phillips recess geometry for one bit size (ISO 4757). See :func:`ScrewDrive.phillips_mask`.&quot;&quot;&quot;</span>
 
     <span class="n">shaft</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># shaft/outer diameter</span>
     <span class="n">b</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># cutout wing spacing radius</span>
@@ -1832,7 +1854,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">as_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info``</span>
-<span class="sd">        list.&quot;&quot;&quot;</span>
+<span class="sd">        list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tip_rounding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inner_rounding</span><span class="p">)</span>
 
 
@@ -1968,6 +1991,7 @@
 <span class="sd">                from pybosl2.parts.screw_drive import ScrewDrive</span>
 <span class="sd">                from pybosl2 import shapes3d as s3</span>
 <span class="sd">                (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask(size=&quot;#2&quot;)).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="mi">36</span>  <span class="c1"># BOSL2 revolves the phillips body at a fixed $fn=36</span>
@@ -2010,8 +2034,7 @@
 <a class="viewcode-back" href="../../../screw_drive.html#pybosl2.parts.screw_drive.ScrewDrive.phillips_depth">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">phillips_depth</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``</span>
 <span class="sd">        (BOSL2 phillips_depth()).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">_PHILLIPS</span><span class="p">[</span><span class="n">_phillips_num</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
@@ -2026,8 +2049,7 @@
 <a class="viewcode-back" href="../../../screw_drive.html#pybosl2.parts.screw_drive.ScrewDrive.phillips_diam">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">phillips_diam</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2</span>
 <span class="sd">        phillips_diam()).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">_PHILLIPS</span><span class="p">[</span><span class="n">_phillips_num</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
@@ -2063,9 +2085,10 @@
 <a class="viewcode-back" href="../../../screw_drive.html#pybosl2.parts.screw_drive.ScrewDrive.torx_info">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">torx_info</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TorxSpec</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The :class:`TorxSpec` (outer_diameter/inner_diameter/depth/tip_rounding/inner_rounding) for a Torx *size* (BOSL2</span>
-<span class="sd">        torx_info()).</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the :class:`TorxSpec` for a given Torx *size*.</span>
+
+<span class="sd">        Maps to BOSL2 ``torx_info()``.  The spec holds outer_diameter, inner_diameter,</span>
+<span class="sd">        depth, tip_rounding, and inner_rounding.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_TORX</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
@@ -2141,6 +2164,7 @@
 
 <span class="sd">                from pybosl2.parts.screw_drive import ScrewDrive</span>
 <span class="sd">                ScrewDrive.torx_mask(size=30, l=10).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outer_diameter</span> <span class="o">=</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">torx_diam</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="n">solid</span> <span class="o">=</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">_torx_profile</span><span class="p">(</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">)</span>
@@ -2160,6 +2184,7 @@
 <span class="sd">            l: length of drive mask.</span>
 <span class="sd">            angle: taper angle of each face (default 2.5, from BOSL2&#39;s print tests).</span>
 <span class="sd">            slop: enlarge the recess by ``2 * slop``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
@@ -2254,6 +2279,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

@@ -27,16 +27,22 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import (
     Solid,
     current_backend,
     get_backend,
+    given_arguments,
     set_default_backend,
     use_backend,
 )
 from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from pybosl2._edges_lang import Anchor, EdgeAtom
 
 _SHARED_3D = (
     "cube",
@@ -91,181 +97,936 @@ __all__ = [
     "Solid",
     "CrossBackendError",
     "UnsupportedByBackendError",
+    "given_arguments",
 ]
 
 
-def cube(*args: Any, **kwargs: Any) -> Solid:
+def cube(
+    size: float | Sequence[float] | None = None,
+    *,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a cube on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.cube`).
     """
-    return get_backend().construct("cube", *args, **kwargs)
+    return get_backend().construct(
+        "cube",
+        given_arguments(
+            {
+                "size": size,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def cuboid(*args: Any, **kwargs: Any) -> Solid:
+def cuboid(
+    size: float | Sequence[float] | None = None,
+    *,
+    chamfer: float | None = None,
+    rounding: float | None = None,
+    edges: EdgeAtom | list[EdgeAtom] | None = None,
+    except_edges: list[EdgeAtom] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a cuboid on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.cuboid`).
     """
-    return get_backend().construct("cuboid", *args, **kwargs)
+    return get_backend().construct(
+        "cuboid",
+        given_arguments(
+            {
+                "size": size,
+                "chamfer": chamfer,
+                "rounding": rounding,
+                "edges": edges,
+                "except_edges": except_edges,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def cyl(*args: Any, **kwargs: Any) -> Solid:
+def cyl(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    center: bool | None = None,
+    length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    shift: Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a cyl on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.cyl`).
     """
-    return get_backend().construct("cyl", *args, **kwargs)
+    return get_backend().construct(
+        "cyl",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "center": center,
+                "length": length,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "rounding": rounding,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
+                "shift": shift,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def cylinder(*args: Any, **kwargs: Any) -> Solid:
+def cylinder(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    center: bool | None = None,
+    length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a cylinder on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.cylinder`).
     """
-    return get_backend().construct("cylinder", *args, **kwargs)
+    return get_backend().construct(
+        "cylinder",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "center": center,
+                "length": length,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def octahedron(*args: Any, **kwargs: Any) -> Solid:
+def octahedron(
+    size: float | None = None,
+    *,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return an octahedron on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.octahedron`).
     """
-    return get_backend().construct("octahedron", *args, **kwargs)
+    return get_backend().construct(
+        "octahedron", given_arguments({"size": size, "anchor": anchor, "spin": spin, "orient": orient, "res": res})
+    )
 
 
-def onion(*args: Any, **kwargs: Any) -> Solid:
+def onion(
+    radius: float | None = None,
+    *,
+    angle: float | None = None,
+    cap_height: float | None = None,
+    diameter: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return an onion on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.onion`).
     """
-    return get_backend().construct("onion", *args, **kwargs)
+    return get_backend().construct(
+        "onion",
+        given_arguments(
+            {
+                "radius": radius,
+                "angle": angle,
+                "cap_height": cap_height,
+                "diameter": diameter,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def pie_slice(*args: Any, **kwargs: Any) -> Solid:
+def pie_slice(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    angle: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    length: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a pie_slice on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.pie_slice`).
     """
-    return get_backend().construct("pie_slice", *args, **kwargs)
+    return get_backend().construct(
+        "pie_slice",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "angle": angle,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "length": length,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def prismoid(*args: Any, **kwargs: Any) -> Solid:
+def prismoid(
+    size1: Sequence[float] | None = None,
+    size2: Sequence[float] | None = None,
+    *,
+    height: float | None = None,
+    shift: Sequence[float] | None = None,
+    length: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a prismoid on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.prismoid`).
     """
-    return get_backend().construct("prismoid", *args, **kwargs)
+    return get_backend().construct(
+        "prismoid",
+        given_arguments(
+            {
+                "size1": size1,
+                "size2": size2,
+                "height": height,
+                "shift": shift,
+                "length": length,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def rect_tube(*args: Any, **kwargs: Any) -> Solid:
+def rect_tube(
+    height: float | None = None,
+    size: float | Sequence[float] | None = None,
+    *,
+    isize: float | Sequence[float] | None = None,
+    wall: float | None = None,
+    rounding: float | Sequence[float] | None = None,
+    inner_rounding: float | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    length: float | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a rect_tube on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.rect_tube`).
     """
-    return get_backend().construct("rect_tube", *args, **kwargs)
+    return get_backend().construct(
+        "rect_tube",
+        given_arguments(
+            {
+                "height": height,
+                "size": size,
+                "isize": isize,
+                "wall": wall,
+                "rounding": rounding,
+                "inner_rounding": inner_rounding,
+                "anchor": anchor,
+                "length": length,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "res": res,
+            }
+        ),
+    )
 
 
-def regular_prism(*args: Any, **kwargs: Any) -> Solid:
+def regular_prism(
+    sides: int | None = None,
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    diameter: float | None = None,
+    inner_radius: float | None = None,
+    inner_diameter: float | None = None,
+    side: float | None = None,
+    length: float | None = None,
+    realign: bool | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a regular_prism on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.regular_prism`).
     """
-    return get_backend().construct("regular_prism", *args, **kwargs)
+    return get_backend().construct(
+        "regular_prism",
+        given_arguments(
+            {
+                "sides": sides,
+                "height": height,
+                "radius": radius,
+                "diameter": diameter,
+                "inner_radius": inner_radius,
+                "inner_diameter": inner_diameter,
+                "side": side,
+                "length": length,
+                "realign": realign,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def sphere(*args: Any, **kwargs: Any) -> Solid:
+def sphere(
+    radius: float | None = None,
+    *,
+    diameter: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a sphere on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.sphere`).
     """
-    return get_backend().construct("sphere", *args, **kwargs)
+    return get_backend().construct(
+        "sphere",
+        given_arguments(
+            {
+                "radius": radius,
+                "diameter": diameter,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def spheroid(*args: Any, **kwargs: Any) -> Solid:
+def spheroid(
+    radius: float | None = None,
+    *,
+    diameter: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a spheroid on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.spheroid`).
     """
-    return get_backend().construct("spheroid", *args, **kwargs)
+    return get_backend().construct(
+        "spheroid",
+        given_arguments(
+            {
+                "radius": radius,
+                "diameter": diameter,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def teardrop(*args: Any, **kwargs: Any) -> Solid:
+def teardrop(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    angle: float | None = None,
+    cap_height: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a teardrop on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.teardrop`).
     """
-    return get_backend().construct("teardrop", *args, **kwargs)
+    return get_backend().construct(
+        "teardrop",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "angle": angle,
+                "cap_height": cap_height,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "anchor": anchor,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def torus(*args: Any, **kwargs: Any) -> Solid:
+def torus(
+    major_radius: float | None = None,
+    minor_radius: float | None = None,
+    *,
+    major_diameter: float | None = None,
+    minor_diameter: float | None = None,
+    outer_radius: float | None = None,
+    inner_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a torus on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.torus`).
     """
-    return get_backend().construct("torus", *args, **kwargs)
+    return get_backend().construct(
+        "torus",
+        given_arguments(
+            {
+                "major_radius": major_radius,
+                "minor_radius": minor_radius,
+                "major_diameter": major_diameter,
+                "minor_diameter": minor_diameter,
+                "outer_radius": outer_radius,
+                "inner_radius": inner_radius,
+                "outer_diameter": outer_diameter,
+                "inner_diameter": inner_diameter,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def tube(*args: Any, **kwargs: Any) -> Solid:
+def tube(
+    height: float | None = None,
+    outer_radius: float | None = None,
+    *,
+    inner_radius: float | None = None,
+    outer_diameter: float | None = None,
+    inner_diameter: float | None = None,
+    wall: float | None = None,
+    length: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a tube on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.tube`).
     """
-    return get_backend().construct("tube", *args, **kwargs)
+    return get_backend().construct(
+        "tube",
+        given_arguments(
+            {
+                "height": height,
+                "outer_radius": outer_radius,
+                "inner_radius": inner_radius,
+                "outer_diameter": outer_diameter,
+                "inner_diameter": inner_diameter,
+                "wall": wall,
+                "length": length,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def wedge(*args: Any, **kwargs: Any) -> Solid:
+def wedge(
+    size: Sequence[float] | None = None,
+    *,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a wedge on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.wedge`).
     """
-    return get_backend().construct("wedge", *args, **kwargs)
+    return get_backend().construct(
+        "wedge",
+        given_arguments({"size": size, "anchor": anchor, "center": center, "spin": spin, "orient": orient, "res": res}),
+    )
 
 
-def xcyl(*args: Any, **kwargs: Any) -> Solid:
-    """Return an xcyl on the active backend.
+def xcyl(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
+    """Return a xcyl on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.xcyl`).
     """
-    return get_backend().construct("xcyl", *args, **kwargs)
+    return get_backend().construct(
+        "xcyl",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "length": length,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "rounding": rounding,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def ycyl(*args: Any, **kwargs: Any) -> Solid:
+def ycyl(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a ycyl on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.ycyl`).
     """
-    return get_backend().construct("ycyl", *args, **kwargs)
+    return get_backend().construct(
+        "ycyl",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "length": length,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "rounding": rounding,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def zcyl(*args: Any, **kwargs: Any) -> Solid:
+def zcyl(
+    height: float | None = None,
+    radius: float | None = None,
+    *,
+    length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    diameter: float | None = None,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    anchor: Anchor | Sequence[float] | None = None,
+    center: bool | None = None,
+    spin: float | None = None,
+    orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Solid:
     """Return a zcyl on the active backend.
 
-    See :func:`use_backend`; identical call, backend-appropriate realization.
+    See :func:`use_backend`; identical call, backend-appropriate realization. Only the
+    arguments actually given are passed on, so each backend sees the ones it knows:
+    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG
+    backend's. Anything outside this shared set lives on the backend's own constructor
+    (:func:`pybosl2.shapes3d.zcyl`).
     """
-    return get_backend().construct("zcyl", *args, **kwargs)
+    return get_backend().construct(
+        "zcyl",
+        given_arguments(
+            {
+                "height": height,
+                "radius": radius,
+                "length": length,
+                "radius1": radius1,
+                "radius2": radius2,
+                "diameter": diameter,
+                "diameter1": diameter1,
+                "diameter2": diameter2,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "rounding": rounding,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
+                "anchor": anchor,
+                "center": center,
+                "spin": spin,
+                "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
+                "res": res,
+            }
+        ),
+    )
 
 
-def polyhedron(points: Any, faces: Any = None, **kwargs: Any) -> Solid:
+def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> Solid:
     """Return a polyhedron on the active backend.
 
     Backends differ on what a polyhedron means (this is not part of the shared primitive surface):
     the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF backend
     ignores *faces* and builds the convex hull of *points* as a distance field.
     """
-    return get_backend().polyhedron(points, faces, **kwargs)
+    return get_backend().polyhedron(points, faces, convexity=convexity)
 
 
 def union(*solids: Solid) -> Solid:
-    """Return the union of *solids* on the active backend (all operands must share the active backend)."""
+    """The union of *solids* on the active backend (all operands must share the active backend)."""
     return get_backend().union(solids)
 
 
 def difference(*solids: Solid) -> Solid:
-    """Return the first solid minus the rest, on the active backend."""
+    """The first solid minus the rest, on the active backend."""
     return get_backend().difference(solids)
 
 
 def intersection(*solids: Solid) -> Solid:
-    """Return the intersection of *solids* on the active backend."""
+    """The intersection of *solids* on the active backend."""
     return get_backend().intersection(solids)

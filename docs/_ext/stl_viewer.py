@@ -15,6 +15,14 @@
 #    with three.js (loaded as ES modules from a CDN via esm.sh, so no importmap or vendored
 #    bundle is needed) and needs no build-finished asset copying.
 #
+#    The directive only emits a placeholder ``<div class="stl-viewer" data-stl-uri="...">``; all the
+#    three.js work lives in the single page-wide module ``docs/_static/stl_viewer.js``. That split is
+#    deliberate: an API page can hold dozens of examples (paths.html has 36), and the previous
+#    one-inline-script-and-one-WebGLRenderer-per-viewer layout exhausted the browser's live-WebGL
+#    -context limit, so contexts were force-lost and canvases flashed blank. The shared runtime uses
+#    one context for the whole page, loads meshes only as they scroll into view, and redraws a
+#    viewer only when it actually changed.
+#
 #    ``pybosl2/docs/_ext/pybosl2_example.py`` reuses :func:`stl_viewer_html` to show an interactive
 #    viewer for each rendered example's exported STL, right beside its source and a download link.
 #
@@ -23,68 +31,16 @@
 from __future__ import annotations
 
 import json
-from uuid import uuid4
+from html import escape
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
-# three.js pulled from esm.sh, which rewrites the addon modules' bare ``import ... from "three"``
-# to the matching pinned build, so STLLoader/OrbitControls share the same THREE instance without
-# needing a page-level importmap.
-_THREE = "https://esm.sh/three@0.160.0"
-
-_TEMPLATE = """
-<div class="stl-viewer" id="{vid}" style="width:{width};height:{height};border:1px solid #ddd;\
-border-radius:4px;background:{background};touch-action:none"></div>
-<script type="module">
-import * as THREE from "{three}";
-import {{ STLLoader }} from "{three}/examples/jsm/loaders/STLLoader.js";
-import {{ OrbitControls }} from "{three}/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("{vid}");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("{background}");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({{ antialias: true }});
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {{
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}}
-
-new STLLoader().load("{uri}", function (geo) {{
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({{
-    color: "{color}", specular: 0x222222, shininess: 25, flatShading: false,
-  }}));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() {{ requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }})();
-}}, undefined, function (err) {{
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-}});
-window.addEventListener("resize", resize);
-</script>
-"""
+_TEMPLATE = (
+    '<div class="stl-viewer" data-stl-uri="{uri}" data-stl-color="{color}" style="{style}">'
+    '<div class="stl-viewer-status">Loading 3-D preview&hellip;</div>'
+    "</div>"
+)
 
 
 def stl_viewer_html(
@@ -92,17 +48,19 @@ def stl_viewer_html(
     width: str = "100%",
     height: str = "360px",
     color: str = "#6f9ac9",
-    background: str = "#f7f7f9",
+    background: str = "",
 ) -> str:
-    """The raw HTML embedding an interactive three.js viewer for the STL at *uri*."""
+    """The raw HTML placeholder that ``_static/stl_viewer.js`` turns into a viewer for *uri*.
+
+    *background* defaults to empty, which leaves the panel colour to the stylesheet's theme-aware
+    ``.stl-viewer`` rule (the viewer renders with a transparent clear colour, so the element's own
+    background shows through and follows the light/dark toggle).
+    """
+    style = f"width:{width};height:{height}"
+    if background:
+        style += f";background:{background}"
     return _TEMPLATE.format(
-        vid="stlviewer-" + uuid4().hex,
-        uri=uri,
-        three=_THREE,
-        width=width,
-        height=height,
-        color=color,
-        background=background,
+        uri=escape(uri, quote=True), color=escape(color, quote=True), style=escape(style, quote=True)
     )
 
 
@@ -118,7 +76,8 @@ def spec_viewer_html(
     - uri:  relative URL to the STL file
     - metrics: optional dict with "ntris", "volume", "watertight", "size_x", "size_y", "size_z"
 
-    The actual viewer logic is in ``docs/_static/spec_viewer.js``.
+    The actual viewer logic is in ``_specgen.py``'s ``_RST_SCRIPT`` template (the spec sheets run
+    their own single-viewer script, not the multi-viewer runtime in ``docs/_static/stl_viewer.js``).
     """
     return json.dumps(variants)
 
@@ -141,11 +100,15 @@ class STLDirective(Directive):
             width=self.options.get("width", "100%"),
             height=self.options.get("height", "360px"),
             color=self.options.get("color", "#6f9ac9"),
-            background=self.options.get("background", "#f7f7f9"),
+            background=self.options.get("background", ""),
         )
         return [nodes.raw("", html, format="html")]
 
 
 def setup(app) -> dict:
     app.add_directive("stl", STLDirective)
+    # The shared runtime and its styling ride along on every page; the module is a no-op on pages
+    # without a .stl-viewer element. ``type="module"`` also makes it defer, so the DOM is ready.
+    app.add_js_file("stl_viewer.js", type="module")
+    app.add_css_file("stl_viewer.css")
     return {"version": "0.1", "parallel_read_safe": True, "parallel_write_safe": True}

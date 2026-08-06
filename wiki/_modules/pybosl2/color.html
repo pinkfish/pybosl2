@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1813,6 +1838,7 @@
 <span class="sd">            b = cuboid([5, 5, 10]).color(cols[1]).right(8)</span>
 <span class="sd">            c = cuboid([5, 5, 10]).color(cols[2]).right(16)</span>
 <span class="sd">            (a | b | c).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -1851,6 +1877,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of coloured objects, one per element of *items*, each</span>
 <span class="sd">        preserving its original 2-D or 3-D type.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
     <span class="n">colors</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">maxhues</span><span class="o">=</span><span class="n">maxhues</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
@@ -1904,6 +1931,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object with the colour applied, or ``self`` unchanged when both</span>
 <span class="sd">            *c* and *alpha* are ``None``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1925,6 +1953,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object recoloured, or ``self`` unchanged when *c* is ``&quot;default&quot;``</span>
 <span class="sd">            or ``None``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1946,6 +1975,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured, or ``self`` unchanged when *c* is ``&quot;default&quot;``</span>
 <span class="sd">            or ``None``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1968,6 +1998,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured with the computed ``[R, G, B]`` value.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rgb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colorsys</span><span class="o">.</span><span class="n">hls_to_rgb</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
@@ -1989,6 +2020,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured with the computed ``[R, G, B]`` value.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rgb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
@@ -2006,6 +2038,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object with the highlight modifier applied, or *self* unchanged</span>
 <span class="sd">            when *highlight* is ``False``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_highlight_native</span><span class="p">()</span> <span class="k">if</span> <span class="n">highlight</span> <span class="k">else</span> <span class="bp">self</span></div>
 
@@ -2022,6 +2055,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object with the ghost modifier applied, or *self* unchanged</span>
 <span class="sd">            when *ghost* is ``False``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ghost_native</span><span class="p">()</span> <span class="k">if</span> <span class="n">ghost</span> <span class="k">else</span> <span class="bp">self</span></div>
 </div>
@@ -2096,6 +2130,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

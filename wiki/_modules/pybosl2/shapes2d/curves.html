@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1862,6 +1887,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1929,6 +1955,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.teardrop2d(radius=15, angle=45).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">circumscribe</span><span class="p">:</span>
@@ -2000,6 +2027,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.egg(length=30, radius1=10, radius2=8, arc_radius=20).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">radius1</span> <span class="o">=</span> <span class="n">radius1</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2125,6 +2153,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.supershape(m1=3, radius=20).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">n_pts</span> <span class="o">=</span> <span class="n">count</span> <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">360.0</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span>
     <span class="n">n1v</span> <span class="o">=</span> <span class="n">n1</span> <span class="k">if</span> <span class="n">n1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span>
@@ -2159,8 +2188,7 @@
 <div class="viewcode-block" id="squircle_radius_fg">
 <a class="viewcode-back" href="../../../curves.html#pybosl2.shapes2d.curves.squircle_radius_fg">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">squircle_radius_fg</span><span class="p">(</span><span class="n">squareness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size</span>
 <span class="sd">    *radius*.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s2a</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">squareness</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">angle</span><span class="p">)))</span>
@@ -2228,6 +2256,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.squircle(40, squareness=0.7).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">squareness</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;squircle(): squareness must be between 0 and 1.&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
@@ -2254,6 +2283,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        path: the path to add jitter to</span>
 <span class="sd">        dist: the amount to jitter points by (default 1/512)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">dist</span><span class="p">,</span> <span class="n">dist</span><span class="p">),</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">dist</span><span class="p">,</span> <span class="n">dist</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span></div>
 
@@ -2327,6 +2357,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

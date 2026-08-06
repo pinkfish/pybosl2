@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1806,6 +1831,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a</span>
 <span class="sd">                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_ofill</span><span class="p">(</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">children</span><span class="p">)))</span></div>
 
@@ -1821,6 +1847,7 @@
 <span class="sd">        children: the 2-D shapes to hull -- any mix of ``Bosl2Shape2D``, native shapes,</span>
 <span class="sd">                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.</span>
 <span class="sd">                  A single list/tuple *of* shapes is also accepted.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_child_2d</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
@@ -1862,6 +1889,7 @@
 <span class="sd">        fn: arc smoothness overrides</span>
 <span class="sd">        fa: arc smoothness overrides</span>
 <span class="sd">        fs: arc smoothness overrides</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">orad</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">irad</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
@@ -1899,6 +1927,7 @@
 <span class="sd">        fn: arc smoothness overrides</span>
 <span class="sd">        fa: arc smoothness overrides</span>
 <span class="sd">        fs: arc smoothness overrides</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;shell2d(): must give thickness&quot;</span>
     <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;shell2d(): must give children&quot;</span>
@@ -1969,6 +1998,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.cross(size=30).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
     <span class="k">if</span> <span class="n">arm_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2032,6 +2062,7 @@
 <span class="sd">        script:    script the text is in (default &quot;latin&quot;)</span>
 <span class="sd">        anchor:    vertical alignment fallback used when valign isn&#39;t given (default &quot;baseline&quot;)</span>
 <span class="sd">        spin:      Z-axis rotation in degrees (default 0)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">halign</span> <span class="k">if</span> <span class="n">halign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;center&quot;</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">valign</span> <span class="k">if</span> <span class="n">valign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">anchor</span>
@@ -2121,6 +2152,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

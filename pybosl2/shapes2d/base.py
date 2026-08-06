@@ -525,7 +525,9 @@ class CsgShape2D(BaseShape):
         scale: "float | Sequence[float]" = 1,
         slices: int | None = None,
         convexity: int | None = None,
-        **kwargs: Any,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Bosl2Solid":
         """Extrude this 2-D shape *height* along +Z into a 3-D solid.
 
@@ -536,7 +538,9 @@ class CsgShape2D(BaseShape):
             scale:     scale factor of the top face, a scalar or [x, y] (default 1)
             slices:    number of intermediate layers (default: from the twist)
             convexity: rendering hint for self-overlapping cross-sections
-            kwargs:    any further native ``linear_extrude()`` parameter (``origin``, ``fn``, ...)
+            fn:        arc smoothness override
+            fa:        arc smoothness override
+            fs:        arc smoothness override
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -563,11 +567,9 @@ class CsgShape2D(BaseShape):
             "twist": twist,
             "scale": scale,
         }
-        if slices is not None:
-            kw["slices"] = slices
-        if convexity is not None:
-            kw["convexity"] = convexity
-        kw.update(kwargs)
+        for name, value in (("slices", slices), ("convexity", convexity), ("fn", fn), ("fa", fa), ("fs", fs)):
+            if value is not None:
+                kw[name] = value
         size = None if self.size is None else [self.size[0], self.size[1], float(height)]
         return Bosl2Solid(self.shape.linear_extrude(**kw), size=size)
 
@@ -578,7 +580,6 @@ class CsgShape2D(BaseShape):
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-        **kwargs: Any,
     ) -> "Bosl2Solid":
         """Revolve this 2-D shape about the Y axis into a 3-D solid (OpenSCAD ``rotate_extrude()``).
 
@@ -607,13 +608,12 @@ class CsgShape2D(BaseShape):
         ):
             if value is not None:
                 kw[name] = value
-        kw.update(kwargs)
         return Bosl2Solid(self.shape.rotate_extrude(**kw))
 
-    def path_extrude(self, path: Path3D, **kwargs: Any) -> "Bosl2Solid":
-        """Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D`.
+    def path_extrude(self, path: Path3D, convexity: int | None = None) -> "Bosl2Solid":
+        """Sweep this 2-D shape along *path* via the native ``path_extrude()``.
 
-        or point list), via the native ``path_extrude()``.
+        *path* is a :class:`~pybosl2.paths.Path3D` or a point list.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
@@ -630,7 +630,9 @@ class CsgShape2D(BaseShape):
         from pybosl2.shapes3d import Bosl2Solid
 
         pts = [[float(c) for c in p] for p in path]
-        return Bosl2Solid(self.shape.path_extrude(pts, **kwargs))
+        if convexity is None:
+            return Bosl2Solid(self.shape.path_extrude(pts))
+        return Bosl2Solid(self.shape.path_extrude(pts, convexity=convexity))
 
     # ---- colour (pybosl2/color.py) ----
 

@@ -38,6 +38,8 @@ from pybosl2.bounds import Bounds2D, Bounds3D
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
+    from numpy.typing import NDArray
+
     from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.isosurface import _MetaballSpec
     from pybosl2.path3d import Path3D
@@ -615,6 +617,61 @@ def _lofttri(
     return tris
 
 
+def _rows_as_float(rows: Any) -> list[list[float]]:
+    """Rows of plain floats.
+
+    An array converts in one C-level pass; rows that are already plain floats only need copying.
+    Converting a list of lists *through* numpy is slower than either, so it is not used here.
+    """
+    if rows is None or len(rows) == 0:
+        return []
+    if isinstance(rows, np.ndarray):
+        return rows.astype(float, copy=False).tolist()  # type: ignore[no-any-return]
+    first = rows[0]
+    if type(first) is list and (not first or type(first[0]) is float):
+        return [list(r) for r in rows]
+    return [[float(x) for x in r] for r in rows]
+
+
+def _rows_as_int(rows: Any) -> list[list[int]]:
+    """Rows of plain ints, converted the same way as :func:`_rows_as_float`."""
+    if rows is None or len(rows) == 0:
+        return []
+    if isinstance(rows, np.ndarray):
+        return rows.astype(np.intp, copy=False).tolist()  # type: ignore[no-any-return]
+    first = rows[0]
+    if type(first) is list and (not first or type(first[0]) is int):
+        return [list(r) for r in rows]
+    return [[int(i) for i in r] for r in rows]
+
+
+def _norms(vectors: NDArray[np.float64]) -> NDArray[np.float64]:
+    """Length of each row vector."""
+    return np.sqrt(np.einsum("ij,ij->i", vectors, vectors))
+
+
+def _face_array(faces: Sequence[Sequence[int]]) -> NDArray[np.intp] | None:
+    """The faces as an (N, sides) index array, or None when they are not all the same length."""
+    if not faces:
+        return None
+    try:
+        arr = np.asarray(faces, dtype=np.intp)
+    except (TypeError, ValueError):
+        return None
+    return arr if arr.ndim == 2 else None
+
+
+def _fan_triangles(faces: Sequence[Sequence[int]]) -> NDArray[np.intp]:
+    """Every face fan-triangulated, as an (N, 3) array of vertex indices."""
+    arr = _face_array(faces)
+    if arr is not None and arr.shape[1] >= 3:
+        return np.concatenate(
+            [np.stack([arr[:, 0], arr[:, k], arr[:, k + 1]], axis=1) for k in range(1, arr.shape[1] - 1)]
+        )
+    tris = [(f[0], f[k], f[k + 1]) for f in faces for k in range(1, len(f) - 1)]
+    return np.asarray(tris, dtype=np.intp) if tris else np.empty((0, 3), dtype=np.intp)
+
+
 class VnfStyle(str, Enum):
     """Triangulation style for :meth:`VNF.vertex_array`."""
 
@@ -658,8 +715,8 @@ class VNF:
 
     def __init__(self, vertices: list[list[float]] | None = None, faces: list[list[int]] | None = None) -> None:
         """Initialize the VNF with vertices and faces."""
-        self.vertices = [[float(x) for x in v] for v in (vertices or [])]
-        self.faces = [[int(i) for i in f] for f in (faces or [])]
+        self.vertices = _rows_as_float(vertices)
+        self.faces = _rows_as_int(faces)
 
     def __repr__(self) -> str:
         """Return a string representation of the VNF."""
@@ -695,15 +752,12 @@ class VNF:
         Used to detect and fix inverted meshes (a swept/skinned surface whose winding came out
         inside-out): ``vnf if vnf.volume() >= 0 else vnf.reverse()``.
         """
-        if not self.faces:
+        tris = _fan_triangles(self.faces)  # every face fan-triangulated, all at once
+        if not len(tris):
             return 0.0
         v = np.asarray(self.vertices, dtype=float)
-        total = 0.0
-        for f in self.faces:  # fan-triangulate each (possibly n-gon) face
-            a = v[f[0]]
-            for k in range(1, len(f) - 1):
-                total += float(np.dot(a, np.cross(v[f[k]], v[f[k + 1]])))
-        return total / 6.0
+        a, b, c = v[tris[:, 0]], v[tris[:, 1]], v[tris[:, 2]]
+        return float(np.einsum("ij,ij->i", a, np.cross(b, c)).sum()) / 6.0
 
     @classmethod
     def union(cls, vnfs: list["VNF"]) -> "VNF":
@@ -715,9 +769,7 @@ class VNF:
         faces: list[Any] = []
         off = 0
         for v in vnfs:
-            for f in v.faces:
-                if len(f) >= 3:
-                    faces.append([off + j for j in f])
+            faces.extend([off + j for j in f] for f in v.faces if len(f) >= 3)
             verts.extend(v.vertices)
             off += len(v.vertices)
         return cls(verts, faces)
@@ -971,21 +1023,26 @@ class VNF:
         if (make_cap1 or make_cap2) and row_wrap:
             raise AssertionError("cannot combine caps with row_wrap")
 
-        pts = [p for row in grid for p in row]  # flattened, row-major
-        parr = np.asarray(pts, dtype=float)
-        pcnt = len(pts)
+        parr = np.asarray(grid, dtype=float).reshape(rows * cols, -1)  # flattened, row-major
+        pcnt = rows * cols
         colcnt = cols - (0 if col_wrap else 1)
         rowcnt = rows - (0 if row_wrap else 1)
 
         def idx(r: int, c: int) -> int:
             return (r % rows) * cols + (c % cols)
 
-        verts = [list(p) for p in pts]
+        # the four corner indices of every cell, in row-major cell order
+        cell_r = np.repeat(np.arange(rowcnt), colcnt)
+        cell_c = np.tile(np.arange(colcnt), rowcnt)
+        i1 = (cell_r % rows) * cols + (cell_c % cols)
+        i2 = ((cell_r + 1) % rows) * cols + (cell_c % cols)
+        i3 = ((cell_r + 1) % rows) * cols + ((cell_c + 1) % cols)
+        i4 = (cell_r % rows) * cols + ((cell_c + 1) % cols)
+
+        verts = parr.tolist()
         if style == "quincunx":
-            for r in range(rowcnt):
-                for c in range(colcnt):
-                    corners = parr[[idx(r, c), idx(r + 1, c), idx(r + 1, c + 1), idx(r, c + 1)]]
-                    verts.append(corners.mean(axis=0).tolist())
+            centres = (parr[i1] + parr[i2] + parr[i3] + parr[i4]) / 4.0
+            verts.extend(centres.tolist())
 
         vertsarr = np.asarray(verts, dtype=float)
         faces: list[Any] = []
@@ -1022,46 +1079,106 @@ class VNF:
             else:
                 faces.append(_count(cols, (rows - 1) * cols, reverse=reverse))
 
-        for r in range(rowcnt):
-            for c in range(colcnt):
-                i1, i2, i3, i4 = (
-                    idx(r, c),
-                    idx(r + 1, c),
-                    idx(r + 1, c + 1),
-                    idx(r, c + 1),
-                )
-                p1, p2, p3, p4 = parr[i1], parr[i2], parr[i3], parr[i4]
-                if style == "quincunx":
-                    i5 = pcnt + r * colcnt + c
-                    cell = [[i1, i5, i2], [i2, i5, i3], [i3, i5, i4], [i4, i5, i1]]
-                elif style == "min_area":
-                    area42 = np.linalg.norm(np.cross(p2 - p1, p4 - p1)) + np.linalg.norm(np.cross(p4 - p3, p2 - p3))
-                    area13 = np.linalg.norm(np.cross(p1 - p4, p3 - p4)) + np.linalg.norm(np.cross(p3 - p2, p1 - p2))
-                    cell = [[i1, i4, i2], [i2, i4, i3]] if area42 < area13 + _EPS else [[i1, i3, i2], [i1, i4, i3]]
-                elif style == "min_edge":
-                    d42 = np.linalg.norm(p4 - p2)
-                    d13 = np.linalg.norm(p1 - p3)
-                    cell = [[i1, i4, i2], [i2, i4, i3]] if d42 < d13 + _EPS else [[i1, i3, i2], [i1, i4, i3]]
-                elif style in ("convex", "concave"):
-                    sides = (-1 if reverse else 1) * np.cross(p2 - p1, p3 - p1)
-                    if not np.any(sides):
-                        cell = [[i1, i4, i3]]
-                    else:
-                        above = (sides @ p4 > sides @ p1) if style == "convex" else (sides @ p4 <= sides @ p1)
-                        cell = [[i1, i4, i2], [i2, i4, i3]] if above else [[i1, i3, i2], [i1, i4, i3]]
-                elif style == "quad":
-                    cell = [[i1, i2, i3, i4]]
-                elif (
-                    style == "alt" or (style == "flip1" and (r + c) % 2 == 0) or (style == "flip2" and (r + c) % 2 == 1)
-                ):
-                    cell = [[i1, i4, i2], [i2, i4, i3]]
-                else:  # default
-                    cell = [[i1, i3, i2], [i1, i4, i3]]
-                for face in cell:
-                    a, b, cc = vertsarr[face[0]], vertsarr[face[1]], vertsarr[face[2]]
-                    if np.linalg.norm(np.cross(b - a, cc - a)) > _EPS:  # drop degenerate faces
-                        faces.append(face[::-1] if reverse else face)
+        cells = VNF._cell_faces(style, parr, i1, i2, i3, i4, cell_r, cell_c, pcnt, colcnt, reverse)
+        faces.extend(VNF._keep_real_faces(cells, vertsarr, reverse))
         return cls(verts, faces)
+
+    @staticmethod
+    def _cell_faces(
+        style: str,
+        parr: NDArray[np.float64],
+        i1: NDArray[np.intp],
+        i2: NDArray[np.intp],
+        i3: NDArray[np.intp],
+        i4: NDArray[np.intp],
+        cell_r: NDArray[np.intp],
+        cell_c: NDArray[np.intp],
+        pcnt: int,
+        colcnt: int,
+        reverse: bool,
+    ) -> NDArray[np.intp]:
+        """Which way each grid cell is cut, for every cell at once.
+
+        Returns a ``(cells, faces_per_cell, indices_per_face)`` array in the same order the cells
+        are walked -- row-major, and within a cell in the order the style lays the faces down.
+
+        Args:
+            style: The triangulation style.
+            parr: The grid points, flattened row-major.
+            i1: Index of each cell's first corner (and *i2*, *i3*, *i4* the rest, going round).
+            i2: Index of each cell's second corner.
+            i3: Index of each cell's third corner.
+            i4: Index of each cell's fourth corner.
+            cell_r: Grid row of each cell.
+            cell_c: Grid column of each cell.
+            pcnt: How many grid points there are (where the quincunx centres start).
+            colcnt: How many cells per row.
+            reverse: Whether the faces are being wound the other way.
+
+        Returns:
+            The face indices per cell.
+        """
+        p1, p2, p3, p4 = parr[i1], parr[i2], parr[i3], parr[i4]
+        if style == "quad":
+            return np.stack([np.stack([i1, i2, i3, i4], axis=1)], axis=1)
+        if style == "quincunx":
+            i5 = pcnt + cell_r * colcnt + cell_c
+            return np.stack(
+                [
+                    np.stack([i1, i5, i2], axis=1),
+                    np.stack([i2, i5, i3], axis=1),
+                    np.stack([i3, i5, i4], axis=1),
+                    np.stack([i4, i5, i1], axis=1),
+                ],
+                axis=1,
+            )
+
+        alt = np.stack([np.stack([i1, i4, i2], axis=1), np.stack([i2, i4, i3], axis=1)], axis=1)
+        default = np.stack([np.stack([i1, i3, i2], axis=1), np.stack([i1, i4, i3], axis=1)], axis=1)
+        if style == "min_area":
+            area42 = _norms(np.cross(p2 - p1, p4 - p1)) + _norms(np.cross(p4 - p3, p2 - p3))
+            area13 = _norms(np.cross(p1 - p4, p3 - p4)) + _norms(np.cross(p3 - p2, p1 - p2))
+            use_alt = area42 < area13 + _EPS
+        elif style == "min_edge":
+            use_alt = _norms(p4 - p2) < _norms(p1 - p3) + _EPS
+        elif style in ("convex", "concave"):
+            sides = (-1 if reverse else 1) * np.cross(p2 - p1, p3 - p1)
+            dot4 = np.einsum("ij,ij->i", sides, p4)
+            dot1 = np.einsum("ij,ij->i", sides, p1)
+            use_alt = dot4 > dot1 if style == "convex" else dot4 <= dot1
+            flat = ~np.any(sides, axis=1)  # a cell with no normal collapses to one triangle
+            if flat.any():
+                cells = np.where(use_alt[:, None, None], alt, default)
+                cells[flat, 0] = np.stack([i1, i4, i3], axis=1)[flat]
+                cells[flat, 1] = i1[flat][:, None]  # a single repeated corner: dropped as degenerate
+                return cells
+        elif style == "alt":
+            use_alt = np.ones(len(i1), dtype=bool)
+        elif style == "flip1":
+            use_alt = (cell_r + cell_c) % 2 == 0
+        elif style == "flip2":
+            use_alt = (cell_r + cell_c) % 2 == 1
+        else:  # default
+            use_alt = np.zeros(len(i1), dtype=bool)
+        return np.where(use_alt[:, None, None], alt, default)
+
+    @staticmethod
+    def _keep_real_faces(cells: NDArray[np.intp], verts: NDArray[np.float64], reverse: bool) -> list[list[int]]:
+        """The faces of *cells* that enclose an area, wound to match *reverse*.
+
+        Args:
+            cells: Face indices per cell, as :meth:`_cell_faces` returns them.
+            verts: The vertex positions the indices point into.
+            reverse: If True, each face comes back wound the other way.
+
+        Returns:
+            The faces, in cell order, with the degenerate ones dropped.
+        """
+        flat = cells.reshape(-1, cells.shape[2])
+        a, b, c = verts[flat[:, 0]], verts[flat[:, 1]], verts[flat[:, 2]]
+        keep = _norms(np.cross(b - a, c - a)) > _EPS
+        kept = flat[keep]
+        return (kept[:, ::-1] if reverse else kept).tolist()  # type: ignore[no-any-return]
 
     @classmethod
     def tri_array(
@@ -1136,9 +1253,7 @@ class VNF:
         """
         from pythonscad import polyhedron as _polyhedron
 
-        pts = [[float(x) for x in v] for v in self.vertices]
-        faces = [[int(i) for i in reversed(f)] for f in self.faces]
-        return _polyhedron(points=pts, faces=faces, convexity=10)
+        return _polyhedron(points=self.vertices, faces=[f[::-1] for f in self.faces], convexity=10)
 
     def geometry(self) -> Any:
         """Return the VNF as native polyhedron geometry, matching Path2D/Region's geometry() surface."""

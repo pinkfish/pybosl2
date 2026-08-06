@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1760,6 +1785,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text3d</span>
 
@@ -1782,6 +1808,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A flat list of :class:`Path2D` objects.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -1790,11 +1817,9 @@
     <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">exterior</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">exterior</span><span class="p">]))</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>  <span class="c1"># ring coords come out as an array</span>
         <span class="k">for</span> <span class="n">interior</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
-            <span class="n">ring</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">]))</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">paths</span>
 
 
@@ -1842,6 +1867,7 @@
 <span class="sd">                    [[20, 20], [60, 20], [60, 40], [20, 40]],</span>
 <span class="sd">                ])</span>
 <span class="sd">                region.geometry().linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1852,6 +1878,7 @@
 <span class="sd">                single flat point list is treated as one outline.  A</span>
 <span class="sd">                ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also</span>
 <span class="sd">                accepted.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="p">(</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">paths</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
@@ -1871,8 +1898,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span> <span class="o">=</span> <span class="n">MultiPolygon</span><span class="p">()</span>
             <span class="k">return</span>
         <span class="n">paths_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
-        <span class="n">outer</span> <span class="o">=</span> <span class="p">[(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-        <span class="n">holes</span> <span class="o">=</span> <span class="p">[[(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">h</span><span class="p">]</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">paths_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+        <span class="n">outer</span> <span class="o">=</span> <span class="n">paths_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_points</span>
+        <span class="n">holes</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">_points</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">paths_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span> <span class="o">=</span> <span class="n">MultiPolygon</span><span class="p">([</span><span class="n">Polygon</span><span class="p">(</span><span class="n">outer</span><span class="p">,</span> <span class="n">holes</span><span class="p">)])</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1896,6 +1923,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`Path2D` objects.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_flatten_shapely_to_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="p">)</span>
 
@@ -1913,6 +1941,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``shapely.Polygon`` or ``shapely.MultiPolygon``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span></div>
 
@@ -1936,6 +1965,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` with the outline as the first path and holes as subsequent paths.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">([</span><span class="n">outline</span><span class="p">,</span> <span class="o">*</span><span class="n">holes</span><span class="p">])</span></div>
 
@@ -1946,6 +1976,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The first :class:`Path2D` in the region, which is the outer outline.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">([])</span>
 
@@ -1955,6 +1986,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            All :class:`Path2D` objects after the first, which are the interior holes.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
@@ -1975,6 +2007,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with every path offset by the given parameters.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">])</span></div>
 
@@ -2005,6 +2038,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with rounded corners on every path.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">(</span>
             <span class="p">[</span>
@@ -2032,6 +2066,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with every path translated.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">])</span></div>
 
@@ -2043,6 +2078,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A numpy array ``[[min_x, min_y], [max_x, max_y]]``.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="s2">&quot;empty Region has no bounds&quot;</span>
         <span class="n">all_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">array</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">])</span>
@@ -2057,6 +2093,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D</span>
 <span class="sd">            operators and the extruders.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outline</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">hole</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">holes</span><span class="p">:</span>
@@ -2073,6 +2110,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span></div>
 
@@ -2097,6 +2135,7 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If any passed :class:`Path2D` is not closed.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span>
 
@@ -2152,6 +2191,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or</span>
 <span class="sd">            :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_backend</span><span class="p">,</span> <span class="n">get_backend</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnsupportedByBackendError</span>
@@ -2163,16 +2203,22 @@
                 <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;the sdf prism unions its outlines&#39; fields, so it cannot cut holes. Extrude &quot;</span>
                 <span class="s2">&quot;the outline and subtract the holes&#39; own extrusions, or build it on the csg backend.&quot;</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">given_arguments</span>
+
         <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span>
             <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">),</span>
             <span class="n">height</span><span class="p">,</span>
-            <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
-            <span class="n">twist</span><span class="o">=</span><span class="n">twist</span><span class="p">,</span>
-            <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
-            <span class="n">slices</span><span class="o">=</span><span class="n">slices</span><span class="p">,</span>
-            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
-            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
-            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="n">given_arguments</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                    <span class="s2">&quot;twist&quot;</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
+                    <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+                    <span class="s2">&quot;slices&quot;</span><span class="p">:</span> <span class="n">slices</span><span class="p">,</span>
+                    <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                    <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                    <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">),</span>
         <span class="p">)</span></div>
 
 
@@ -2196,6 +2242,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no</span>
 <span class="sd">            revolve).</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
@@ -2206,12 +2253,27 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: ARG002</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+        <span class="n">endcap1</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
+        <span class="n">endcap2</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
+        <span class="n">joints</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Region</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stroke every path in the region (closed) and return the union as a Region.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stroke every path in the region (closed) and return the union as a Region.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            width: Stroke width.</span>
+<span class="sd">            closed: Accepted for signature parity; a region&#39;s paths are always stroked closed.</span>
+<span class="sd">            endcap1: Cap style for the start of each path.</span>
+<span class="sd">            endcap2: Cap style for the end of each path.</span>
+<span class="sd">            joints: Cap style where segments meet.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`Region` of the stroked outlines.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">stroke_2d</span>
 
-        <span class="n">polygons</span> <span class="o">=</span> <span class="p">[</span><span class="n">stroke_2d</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">]</span>
+        <span class="n">polygons</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">stroke_2d</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">endcap1</span><span class="o">=</span><span class="n">endcap1</span><span class="p">,</span> <span class="n">endcap2</span><span class="o">=</span><span class="n">endcap2</span><span class="p">,</span> <span class="n">joints</span><span class="o">=</span><span class="n">joints</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span>
+        <span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">polygons</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Region</span><span class="p">([])</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">(</span><span class="n">polygons</span><span class="p">)</span></div>
@@ -2259,6 +2321,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
@@ -2314,6 +2377,7 @@
 <span class="sd">                a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])</span>
 <span class="sd">                b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])</span>
 <span class="sd">                a.intersection(b).geometry().linear_extrude(height=3).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
@@ -2350,6 +2414,7 @@
 <span class="sd">                a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])</span>
 <span class="sd">                b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])</span>
 <span class="sd">                a.union(b).geometry().linear_extrude(height=3).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
@@ -2386,6 +2451,7 @@
 <span class="sd">                plate = Region([[0, 0], [60, 0], [60, 40], [0, 40]])</span>
 <span class="sd">                notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])</span>
 <span class="sd">                plate.difference(notch).geometry().linear_extrude(height=4).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
@@ -2411,6 +2477,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` with the symmetric difference area.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
@@ -2514,6 +2581,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

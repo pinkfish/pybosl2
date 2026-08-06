@@ -82,6 +82,7 @@ class BaseShape(Colorable, Distributable):
     """
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
+        # the data model hands class-creation keywords through here; nothing of ours reads them
         super().__init_subclass__(**kwargs)
 
     @property
@@ -304,6 +305,8 @@ class BaseShape(Colorable, Distributable):
             )
         native_cls = type(shape)
 
+        # a passthrough to a native method this wrapper does not model, so it takes whatever the
+        # native one does; anything pybosl2 gives a signature to is a real method, not this path
         def _forward(*args: object, **kwargs: object) -> object:
             result = attr(*args, **kwargs)
             if isinstance(result, native_cls):

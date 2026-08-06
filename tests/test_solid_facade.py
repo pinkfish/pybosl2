@@ -56,4 +56,4 @@ def test_facade_construct_rejects_unknown_shape() -> None:
     from pybosl2._backend import get_backend
 
     with pytest.raises(ValueError, match="no shape constructor"):
-        get_backend().construct("definitely_not_a_shape")
+        get_backend().construct("definitely_not_a_shape", {})

@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1875,7 +1900,8 @@
 <span class="sd">    Each column is a vertical stack of vertices for one angle: bottom axis point, the thread profile</span>
 <span class="sd">    repeated up every turn, and the top axis point. Sweeping the columns around builds the whole</span>
 <span class="sd">    rod (core + helical thread) as one closed, manifold polyhedron -- no CSG union of the thread</span>
-<span class="sd">    with a coaxial core (which Manifold cannot do cleanly).&quot;&quot;&quot;</span>
+<span class="sd">    with a coaxial core (which Manifold cannot do cleanly).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">prof</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">]</span>
     <span class="n">start_steps</span> <span class="o">=</span> <span class="n">sides</span> <span class="o">//</span> <span class="n">starts</span>
     <span class="n">direction</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">left_handed</span> <span class="k">else</span> <span class="mi">1</span>
@@ -1919,7 +1945,8 @@
 
 <span class="sd">    Each of the *starts* thread starts is one angular sector&#39;s vertex-array surface; the sectors are</span>
 <span class="sd">    merged at the VNF level (not by CSG union, which Manifold cannot do on coaxial helical solids)</span>
-<span class="sd">    into one polyhedron, then trimmed to length with an intersection.&quot;&quot;&quot;</span>
+<span class="sd">    into one polyhedron, then trimmed to length with an intersection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span><span class="p">,</span> <span class="n">quantup</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
 
@@ -1934,7 +1961,10 @@
         <span class="n">off</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts</span><span class="p">)</span>
         <span class="n">verts</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rv</span><span class="p">]</span>
         <span class="n">faces</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">i</span> <span class="o">+</span> <span class="n">off</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">vnf</span><span class="o">.</span><span class="n">faces</span><span class="p">]</span>
-    <span class="n">thread</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">VNF</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
+    <span class="c1"># the helical surface comes out wound inwards, so the merged VNF is flipped back before it</span>
+    <span class="c1"># becomes a solid -- an inside-out thread inverts every cut it is used for</span>
+    <span class="n">surface</span> <span class="o">=</span> <span class="n">VNF</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>
+    <span class="n">thread</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">((</span><span class="n">surface</span> <span class="k">if</span> <span class="n">surface</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">surface</span><span class="o">.</span><span class="n">reverse</span><span class="p">())</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">thread</span> <span class="o">&amp;</span> <span class="n">cyl</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
 
 
@@ -1960,7 +1990,6 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A nut: a hex/square body with a threaded hole cut by a matching thread &#39;tap&#39;.&quot;&quot;&quot;</span>
-
     <span class="k">if</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;hex&quot;</span><span class="p">:</span>
         <span class="n">body</span> <span class="o">=</span> <span class="n">regular_prism</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="n">nutwidth</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">shape</span> <span class="o">==</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span>
@@ -2021,7 +2050,8 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A threaded rod from an explicit 2-D thread *profile* (x in [-1/2, 1/2], y the depth</span>
-<span class="sd">        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod()).&quot;&quot;&quot;</span>
+<span class="sd">        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod()).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;generic_threaded_rod(): d, l and pitch must be positive.&quot;</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
@@ -2075,8 +2105,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;An ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2</span>
 <span class="sd">        threaded_rod()).</span>
 
 <span class="sd">        Examples:</span>
@@ -2086,6 +2115,7 @@
 
 <span class="sd">                from pybosl2.parts.threading import Threading</span>
 <span class="sd">                Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
 
@@ -2115,6 +2145,7 @@
 
 <span class="sd">                from pybosl2.parts.threading import Threading</span>
 <span class="sd">                Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_nut_solid</span><span class="p">(</span>
             <span class="n">nutwidth</span><span class="p">,</span>
@@ -2149,8 +2180,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2</span>
 <span class="sd">        trapezoidal_threaded_rod()).</span>
 
 <span class="sd">        Examples:</span>
@@ -2160,6 +2190,7 @@
 
 <span class="sd">                from pybosl2.parts.threading import Threading</span>
 <span class="sd">                Threading.trapezoidal_threaded_rod(d=20, l=40, pitch=4, fa=6, fs=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">thread_angle</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
@@ -2226,6 +2257,7 @@
 
 <span class="sd">                from pybosl2.parts.threading import Threading</span>
 <span class="sd">                Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prof</span> <span class="o">=</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_rod_solid</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">prof</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span></div>
@@ -2499,6 +2531,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

@@ -115,7 +115,7 @@ def test_negative_roundover_keep() -> None:
 def test_sdf_backend_error() -> None:
     """Verify that calling attachment/tagging methods on the SDF backend raises UnsupportedByBackendError."""
     with use_backend("sdf"):
-        s = get_backend().construct("sphere", radius=10)
+        s = get_backend().construct("sphere", {"radius": 10})
         with pytest.raises(UnsupportedByBackendError):
             s.attach(Anchor.TOP, s)
         with pytest.raises(UnsupportedByBackendError):

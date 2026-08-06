@@ -981,7 +981,11 @@ class OSProfile:
 
 
 def os_circle(
-    radius: float | None = None, height: float | None = None, extra: float = 0.0, **kwargs: object
+    radius: float | None = None,
+    height: float | None = None,
+    extra: float = 0.0,
+    r: float | None = None,
+    h: float | None = None,
 ) -> OSProfile:
     """Circular roundover/flare profile for :func:`offset_sweep` (BOSL2 ``os_circle()``).
 
@@ -1006,8 +1010,8 @@ def os_circle(
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    r_val = radius if radius is not None else cast("float | None", kwargs.get("r"))
-    h_val = height if height is not None else cast("float | None", kwargs.get("h"))
+    r_val = radius if radius is not None else r  # r/h are BOSL2's names for radius/height
+    h_val = height if height is not None else h
     assert r_val is not None, "os_circle(): radius is required."
     h_res = float(h_val) if h_val is not None else abs(float(r_val))
     return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
@@ -1018,7 +1022,8 @@ def os_smooth(
     radius: float | None = None,
     curvature: float | None = None,
     extra: float = 0.0,
-    **kwargs: object,
+    r: float | None = None,
+    k: float | None = None,
 ) -> OSProfile:
     """Continuous curvature (Bézier) profile for :func:`offset_sweep` (BOSL2 ``os_smooth()``).
 
@@ -1036,8 +1041,8 @@ def os_smooth(
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    r_val = radius if radius is not None else cast("float | None", kwargs.get("r"))
-    k_val = curvature if curvature is not None else cast("float", kwargs.get("k", 0.5))
+    r_val = radius if radius is not None else r  # r/k are BOSL2's names for radius/curvature
+    k_val = curvature if curvature is not None else (k if k is not None else 0.5)
     val = float(cut) if cut is not None else (float(r_val) if r_val is not None else 1.0)
     sign = 1.0 if val >= 0 else -1.0
     return OSProfile(type=OSType.SMOOTH, cut=abs(val), curvature=float(k_val), radius_sign=sign, extra=float(extra))
@@ -1049,7 +1054,8 @@ def os_teardrop(
     cut: float | None = None,
     max_angle: float = 45.0,
     extra: float = 0.0,
-    **kwargs: object,
+    r: float | None = None,
+    h: float | None = None,
 ) -> OSProfile:
     """Teardrop profile for :func:`offset_sweep` to avoid overhangs in 3D printing (BOSL2 ``os_teardrop()``).
 
@@ -1068,8 +1074,8 @@ def os_teardrop(
         A descriptor ``OSProfile`` consumed by :func:`offset_sweep`.
 
     """
-    r_arg = radius if radius is not None else cast("float | None", kwargs.get("r"))
-    h_arg = height if height is not None else cast("float | None", kwargs.get("h"))
+    r_arg = radius if radius is not None else r  # r/h are BOSL2's names for radius/height
+    h_arg = height if height is not None else h
     r_val = float(r_arg) if r_arg is not None else (float(cut) if cut is not None else 1.0)
     h_val = float(h_arg) if h_arg is not None else abs(r_val)
     return OSProfile(type=OSType.TEARDROP, radius=r_val, height=h_val, max_angle=float(max_angle), extra=float(extra))
@@ -1375,7 +1381,8 @@ def _rounded_prism(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: str = "min_edge",
-    **kwargs: object,
+    joint_bot: float | dict[str, object] | None = None,
+    k_sides: float | list[float] | None = None,
 ) -> VNF | Bosl2Solid:
     """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
 
@@ -1398,8 +1405,9 @@ def _rounded_prism(
     """
     from pybosl2.path2d import Path2D as _Path
 
-    joint_bot = joint_bottom if joint_bottom is not None else kwargs.get("joint_bot")
-    k_sides = curvature_sides if curvature_sides is not None else kwargs.get("k_sides")
+    # joint_bot / k_sides are BOSL2's names for joint_bottom / curvature_sides
+    joint_bot = joint_bottom if joint_bottom is not None else joint_bot
+    k_sides = curvature_sides if curvature_sides is not None else k_sides
 
     # Coerce/normalize top and height
     if top is None:
@@ -1417,16 +1425,12 @@ def _rounded_prism(
     if joint_sides is not None:
         from pybosl2.rounding import _round_corners as _rc
 
-        m_sides = "smooth" if k_sides is not None else "circle"
-        kwargs_sides: dict[str, Any] = {"method": m_sides}
-        if m_sides == "smooth":
-            kwargs_sides["joint"] = joint_sides
-            kwargs_sides["curvature"] = k_sides
+        if k_sides is not None:  # a curvature turns the side rounding into a smooth join
+            b_rounded = _rc(b_2d, method="smooth", joint=joint_sides, curvature=k_sides)
+            t_rounded = _rc(t_2d, method="smooth", joint=joint_sides, curvature=k_sides)
         else:
-            kwargs_sides["radius"] = joint_sides
-
-        b_rounded = _rc(b_2d, **kwargs_sides)
-        t_rounded = _rc(t_2d, **kwargs_sides)
+            b_rounded = _rc(b_2d, method="circle", radius=joint_sides)
+            t_rounded = _rc(t_2d, method="circle", radius=joint_sides)
     else:
         b_rounded = b_2d
         t_rounded = t_2d

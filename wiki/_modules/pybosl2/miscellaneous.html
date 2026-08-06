@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1802,7 +1827,8 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,</span>
-<span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.&quot;&quot;&quot;</span>
+<span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_native_2d</span> <span class="k">as</span> <span class="n">_coerce</span>
 
     <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
@@ -1810,7 +1836,8 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time</span>
-<span class="sd">    (the &quot;children&quot; form, safe for frep handles); anything else is meshed once and reused.&quot;&quot;&quot;</span>
+<span class="sd">    (the &quot;children&quot; form, safe for frep handles); anything else is meshed once and reused.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -1872,6 +1899,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2, extrude_from_to</span>
 
 <span class="sd">            extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30], twist=180, scale=2).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -1925,6 +1953,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2, cylindrical_extrude</span>
 
 <span class="sd">            cylindrical_extrude(s2.circle(radius=8), inner_radius=25, outer_radius=30).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_square</span>
 
@@ -1984,6 +2013,7 @@
 <span class="sd">            from pybosl2 import shapes3d as s3, chain_hull</span>
 
 <span class="sd">            chain_hull([s3.sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">hull</span> <span class="k">as</span> <span class="n">_hull</span>
 
@@ -2195,7 +2225,8 @@
 <a class="viewcode-back" href="../../miscellaneous.html#pybosl2.miscellaneous.Miscellaneous">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Miscellaneous</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods</span>
-<span class="sd">    on :class:`~pybosl2.shapes3d.Bosl2Solid`.&quot;&quot;&quot;</span>
+<span class="sd">    on :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_shape</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>  <span class="c1"># pragma: no cover - provided by the host class (Bosl2Solid)</span>
@@ -2208,7 +2239,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).</span>
 
 <span class="sd">        Uses the native bounding box, so it is exact and fast (BOSL2&#39;s projection/minkowski trick is</span>
-<span class="sd">        not needed here).&quot;&quot;&quot;</span>
+<span class="sd">        not needed here).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
 
         <span class="n">center</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
@@ -2220,7 +2252,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">offset3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).</span>
 
-<span class="sd">        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.&quot;&quot;&quot;</span>
+<span class="sd">        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_mink</span>
@@ -2249,7 +2282,8 @@
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,</span>
-<span class="sd">        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.&quot;&quot;&quot;</span>
+<span class="sd">        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">orr</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">irr</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="o">-</span><span class="n">irr</span> <span class="o">-</span> <span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">irr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
@@ -2339,6 +2373,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

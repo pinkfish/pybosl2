@@ -247,9 +247,13 @@ def test_path_methods_on_path_object() -> None:
 
 
 def test_round_corners_per_corner_size() -> None:
+    """A list radius rounds each corner by its own amount."""
     p = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]], closed=True)
-    result = p.round_corners(radius=5, size=[3, 5, 7, 10], closed=True)
+    result = p.round_corners(radius=[3, 5, 7, 10], closed=True)
     assert isinstance(result, Path2D)
+    # each corner is cut back by its own radius, so this is not the same as one radius for all
+    assert result.area() != p.round_corners(radius=5, closed=True).area()
+    assert result.area() < p.area()
 
 
 def test_smooth_path_with_tangents() -> None:
