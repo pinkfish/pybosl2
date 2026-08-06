@@ -145,7 +145,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if angle is not None and length != 0:
             dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
         else:
-            assert length is not None and turns is not None  # else-branch only reached with both set
+            assert length is not None
+            assert turns is not None
             dz = length / abs(turns)
         if turns is not None:
             maxtheta = 360.0 * turns
@@ -297,7 +298,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(r[0]), float(r[1]), float(r[2]))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
-        """Return normalized tangent vector at each point of the path, as a list
+        """Return normalized tangent vector at each point of the path, as a list.
+
         of :class:`~pybosl2.points.Vector` values.
 
         Args:
@@ -634,7 +636,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             if not closed:
                 out.append(pts_arr[-1])
             return self.__class__(out, closed=self.closed)
-        assert isinstance(points, (int, float)) and points > 0, "Parameter sides must be positive number"
+        assert isinstance(points, (int, float)), "Parameter sides must be positive number"
+        assert points > 0, "Parameter sides must be positive number"
         count = len(pts_arr) - (0 if closed else 1)
         if method_val == "segment":
             add_guess: Any = [(points - len(pts_arr)) / count] * count
@@ -1351,6 +1354,7 @@ def _path_cut_getpaths(points: np.ndarray, closed: bool, cutlist: list[CutPoint]
     """Reconstruct sub-paths from the output of path_path_cut_points().
 
     Args:
+        points: The path point array.
         cutlist: Output from path_path_cut_points(), a list of :class:`CutPoint` entries.
         closed: Whether the path is closed.
 
@@ -1413,6 +1417,7 @@ def _path_cut_points(
     Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).
 
     Args:
+        points: The path point array.
         cutdist: A single distance or a list of ascending distances from the start.
         closed: Override the instance's closed flag; uses ``self.closed`` by default.
         direction: If True, also include direction and normal at each cut point.
@@ -1466,6 +1471,7 @@ def _path_cut_points_recurse(points: np.ndarray, closed: bool, dists: Sequence[f
     """Walk the path accumulating distance until each cut distance is reached.
 
     Args:
+        points: The path point array.
         dists: Ordered list of distances from the start at which to cut.
         closed: Whether the path is closed.
 
@@ -1495,6 +1501,7 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
     """Find the single cut point at distance dist from segment ind.
 
     Args:
+        points: The path point array.
         dist: Distance along the path from the given segment index.
         closed: Whether the path is closed.
         ind: The segment index to start searching from.
@@ -1533,6 +1540,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Poin
     """Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.
 
     Args:
+        points: The path point array.
         ind: Index of the first point defining the plane.
         i: Index of the search start for the third non-collinear point.
         closed: Whether the path is closed.
@@ -1564,6 +1572,7 @@ def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: 
     """Compute direction vectors at each cut point (blended from adjacent segments).
 
     Args:
+        points: The path point array.
         cuts: List of cut entries from path_path_cut_points().
         closed: Whether the path is closed.
         eps: Epsilon for numerical comparisons.

@@ -251,7 +251,8 @@ class ModularHose:
 
     @staticmethod
     def modular_hose_radius(size: float, outer: bool = False) -> float:
-        """Return the inner (bore) or *outer* radius of a modular hose of *size* (BOSL2
+        """Return the inner (bore) or *outer* radius of a modular hose of *size* (BOSL2.
+
         modular_hose_radius()).
         """
         big = _BIG[_size_index(size)]

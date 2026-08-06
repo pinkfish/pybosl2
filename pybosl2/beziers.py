@@ -233,7 +233,8 @@ class Bezier:
             AssertionError: If *order* is not a non-negative integer.
 
         """
-        assert isinstance(order, int) and order >= 0
+        assert isinstance(order, int)
+        assert order >= 0
         if order == 0:
             return self.points(u)
         sides = len(self) - 1

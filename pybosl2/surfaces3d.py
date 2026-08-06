@@ -78,7 +78,8 @@ def _heightfield_tri_area(pts: Sequence[Sequence[float]], tri: Sequence[int]) ->
 
 
 def _heightfield_tris(pts: list[list[float]], i1: int, i2: int, i3: int, i4: int, style: str) -> list[list[int]]:
-    """Split a quad (corners i1,i2,i3,i4 at grid positions (r,c),(r+1,c),(r+1,c+1),(r,c+1)) into
+    """Split a quad (corners i1,i2,i3,i4 at grid positions (r,c),(r+1,c),(r+1,c+1),(r,c+1)) into.
+
     2 or 4 triangle faces, mirroring BOSL2 vnf_vertex_array()'s "default"/"alt"/"quincunx" quad
     styles. Winding direction is left unresolved here (both a plain "i1,i3,i2 & i1,i4,i3" split and
     its mirror are geometrically valid faces) -- see _heightfield_reorient(), which fixes winding
@@ -125,7 +126,8 @@ def _heightfield_dedupe(
 
 
 def _heightfield_reorient(pts: Sequence[Sequence[float]], faces: list[list[int]]) -> list[list[int]]:
-    """Flood-fill the face list to one globally-consistent winding (every shared edge used in
+    """Flood-fill the face list to one globally-consistent winding (every shared edge used in.
+
     opposite directions by its two faces), then flip everything if needed so the winding matches
     OpenSCAD's polyhedron() convention (clockwise as seen from outside).
 
@@ -185,7 +187,8 @@ def _heightfield_reorient(pts: Sequence[Sequence[float]], faces: list[list[int]]
 def _heightfield_reorient_tris(
     pts: Sequence[Sequence[float]], faces: Sequence[Sequence[int]]
 ) -> list[list[int]] | None:
-    """Vectorized reorientation for an all-triangle mesh: pair shared edges with numpy, resolve one
+    """Vectorized reorientation for an all-triangle mesh: pair shared edges with numpy, resolve one.
+
     globally-consistent winding with a path-compressed union-find over relative face parity, then a
     signed-volume flip to OpenSCAD's outward convention. Equivalent winding to the flood-fill in
     :func:`_heightfield_reorient` (verified to render identically in PythonSCAD) and faster. Returns
@@ -258,7 +261,8 @@ def _heightfield_polyhedron(
 
 
 def _heightfield_range(rng: Sequence[float]) -> list[float]:
-    """Expand this port's [start, step, stop] stand-in for an OpenSCAD [start:step:stop] range
+    """Expand this port's [start, step, stop] stand-in for an OpenSCAD [start:step:stop] range.
+
     literal into a plain list of values, inclusive of stop.
     """
     start, step, stop = rng
@@ -468,15 +472,18 @@ def cylindrical_heightfield(
     """
     _ = convexity
     l_val = length if length is not None else (height if height is not None else height)
-    assert l_val is not None and l_val > 0, "Must supply one of length= or height= as a finite positive number."
+    assert l_val is not None, "Must supply one of length= or height= as a finite positive number."
+    assert l_val > 0, "Must supply one of length= or height= as a finite positive number."
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter)
     r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter)
-    assert r1v is not None and r1v > 0, (
+    assert r1v is not None, (
         "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
     )
-    assert r2v is not None and r2v > 0, (
+    assert r1v > 0, "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
+    assert r2v is not None, (
         "Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number."
     )
+    assert r2v > 0, "Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number."
     assert base > 0, "base= must be a finite positive number."
 
     style_key = style if style in ("alt", "quincunx") else "default"
@@ -560,7 +567,8 @@ def plot3d(
 
     Args:
         f:     a callable ``f(x, y) -> z``
-        x, y:  strictly increasing lists of sample coordinates
+        x:     strictly increasing list of X-axis sample coordinates.
+        y:     strictly increasing list of Y-axis sample coordinates.
         zclip: [zmin, zmax] to clamp the surface (default no clip)
         zspan: [zmin, zmax] to rescale the surface height into (default no rescale)
         base:  thickness of solid base below the surface; 0 gives just the (open) surface (default 1)
@@ -583,7 +591,8 @@ def plot3d(
     xs, ys = list(x), list(y)
     zlo, zhi = zclip if zclip is not None else [-math.inf, math.inf]
     data = [[[float(xi), float(yi), min(max(float(f(xi, yi)), zlo), zhi)] for yi in ys] for xi in xs]
-    assert len(data) > 1 and len(data[0]) > 1, "plot3d(): x and y must each give at least 2 points."
+    assert len(data) > 1, "plot3d(): x and y must each give at least 2 points."
+    assert len(data[0]) > 1, "plot3d(): x and y must each give at least 2 points."
     if zspan is not None:
         allz = [p[2] for row in data for p in row]
         minv, maxv = min(allz), max(allz)
@@ -680,9 +689,9 @@ def plot_revolution(
         prof = [[float(p[0]), float(p[1])] for p in path]
     else:
         zs = list(z)  # type: ignore[arg-type]
-        assert r1v is not None and r2v is not None and len(zs) > 1, (
-            "plot_revolution(): give z with radius1 and radius2 (or a path)."
-        )
+        assert r1v is not None, "plot_revolution(): give z with radius1 and radius2 (or a path)."
+        assert r2v is not None, "plot_revolution(): give z with radius1 and radius2 (or a path)."
+        assert len(zs) > 1, "plot_revolution(): give z with radius1 and radius2 (or a path)."
         z0, z1 = zs[0], zs[-1]
         prof = [[r1v + (r2v - r1v) * (zz - z0) / (z1 - z0), zz] for zz in zs]
     normals = (
@@ -799,7 +808,11 @@ def textured_tile(
         tex_depth: how far the texture is raised (default 1); negative inverts it
         tex_inset: lower the texture into the surface by this fraction (True == full depth)
         style:     vnf_vertex_array quad-subdivision style (height-field textures only)
-        sides/border/gap/roughness: parameters forwarded to :func:`~pybosl2.texture.texture` for a named texture
+        sides: number of sides for named texture geometry.
+        border: border width for named textures.
+        fn: number of fragments for circle resolution in named textures.
+        gap: spacing between texture elements for named textures.
+        roughness: roughness parameter for named textures.
 
     Examples:
         A named pyramid texture:
@@ -909,6 +922,9 @@ def ruler(
         anchor:    anchor point (default LEFT+BACK+TOP)
         spin:      Z-axis rotation in degrees (default 0)
         orient:    direction to rotate the top towards (default UP)
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     """
     from pybosl2._native import native

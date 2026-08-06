@@ -196,9 +196,10 @@ def grid_copies(
         True,
         "alt",
     ), "grid_copies(): stagger must be False, True or 'alt'."
-    assert len(axes) == 2 and axes[0] in "xyz" and axes[1] in "xyz" and axes[0] != axes[1], (
-        "grid_copies(): invalid axes."
-    )
+    assert len(axes) == 2, "grid_copies(): invalid axes."
+    assert axes[0] in "xyz", "grid_copies(): invalid axes."
+    assert axes[1] in "xyz", "grid_copies(): invalid axes."
+    assert axes[0] != axes[1], "grid_copies(): invalid axes."
     ai: dict[str, int] = {"x": 0, "y": 1, "z": 2}
 
     def permax(pt: Sequence[float]) -> np.ndarray:
@@ -509,7 +510,8 @@ def path_copies(
             distances = sorted((e - center) % length for e in ptlist)
         else:
             distances = [e + length / 2 - center for e in ptlist]
-    assert min(distances) >= -1e-9 and max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
+    assert min(distances) >= -1e-9, "path_copies(): copies don't fit on the path."
+    assert max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
     distances = [min(max(dst, 0.0), length) for dst in distances]
     cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2

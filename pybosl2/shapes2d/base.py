@@ -91,8 +91,10 @@ def _arc_through_3(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    """Arc around *center* from *point_start* to *point_end*, sweeping through
-    *point_mid* (may be the long way around)."""
+    """Arc around *center* from *point_start* to *point_end*, sweeping through.
+
+    *point_mid* (may be the long way around).
+    """
     a0 = math.degrees(math.atan2(point_start[1] - center[1], point_start[0] - center[0]))
     am = math.degrees(math.atan2(point_mid[1] - center[1], point_mid[0] - center[0]))
     a1 = math.degrees(math.atan2(point_end[1] - center[1], point_end[0] - center[0]))
@@ -192,7 +194,8 @@ def _finish(
 
 
 class CsgShape2D(BaseShape):
-    """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent,
+    """Wraps a native PyOpenSCAD **2-D** shape, giving it the same fluent,.
+
     chainable API that :class:`~pybosl2.shapes3d.Bosl2Solid` gives 3-D solids.
 
     Every shape constructor in this file
@@ -608,7 +611,8 @@ class CsgShape2D(BaseShape):
         return Bosl2Solid(self.shape.rotate_extrude(**kw))
 
     def path_extrude(self, path: Path3D, **kwargs: Any) -> "Bosl2Solid":
-        """Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D`
+        """Sweep this 2-D shape along *path* (a :class:`~pybosl2.paths.Path3D`.
+
         or point list), via the native ``path_extrude()``.
 
         Returns:
@@ -648,7 +652,10 @@ class CsgShape2D(BaseShape):
         result = []
         for m in mats:
             m4 = np.asarray(m, dtype=float)
-            assert abs(float(m4[2, 3])) < 1e-9 and abs(float(m4[2, 2]) - 1.0) < 1e-9, (
+            assert abs(float(m4[2, 3])) < 1e-9, (
+                "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
+            )
+            assert abs(float(m4[2, 2]) - 1.0) < 1e-9, (
                 "this copier moves the 2-D shape out of the XY plane; extrude it to 3-D first"
             )
             copy = self.shape.multmatrix(m4.tolist())
@@ -728,7 +735,8 @@ class CsgShape2D(BaseShape):
     # ---- bounding box ----
 
     def bounds(self) -> "tuple[list[float], list[float]]":
-        """Return this shape's axis-aligned bounding box as ``(center, size)``
+        """Return this shape's axis-aligned bounding box as ``(center, size)``.
+
         -- both ``[x, y]`` float lists in the shape's current frame (the
         2-D form of :meth:`~pybosl2.shapes3d.Bosl2Solid.bounds`).
 

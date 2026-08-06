@@ -188,6 +188,9 @@ def arc(
         clockwise:        for the two-point form, take the long way / a given handedness
         counterclockwise: for the two-point form, take the long way / a given handedness
         endpoint:   include the final point (default True)
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` (closed when *wedge* is set).
@@ -213,7 +216,8 @@ def arc(
             Point(corner[0][0], corner[0][1]), Point(corner[1][0], corner[1][1]), Point(corner[2][0], corner[2][1])
         ), "Collinear corner does not define an arc"
         rad = _pick_radius(radius=radius, diameter=diameter)
-        assert rad is not None and rad > 0, "arc(corner=) needs radius= or diameter="
+        assert rad is not None, "arc(corner=) needs radius= or diameter="
+        assert rad > 0, "arc(corner=) needs radius= or diameter="
         p0, p1, p2 = corner
         v1 = unit([float(p0[0]) - float(p1[0]), float(p0[1]) - float(p1[1])])
         v2 = unit([float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])])
@@ -345,6 +349,7 @@ def ellipse(
         diameter: diameter of the circle, or pair giving the full X/Y axis lengths
         realign:  shift the first polygon point off the X+ axis (default False)
         circumscribe: circumscribe rather than inscribe the ideal ellipse (default False)
+        uniform:  use equal-length approximating segments (not implemented; evenly spaced by angle)
         anchor:   anchor point (default CENTER)
         spin:     Z-axis rotation in degrees after anchor (default 0)
         fn: arc smoothness overrides
@@ -407,6 +412,9 @@ def keyhole(
         shoulder_radius: fillet radius where the shoulders meet the circles (default 0)
         anchor: standard BOSL2 2-D anchor / spin
         spin:   standard BOSL2 2-D anchor / spin
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     Examples:
         .. pythonscad-example::
@@ -419,7 +427,8 @@ def keyhole(
     lv = float(length if length is not None else (_length if _length is not None else 15))
     r1v = float(radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5))
     r2v = float(radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10))
-    assert lv > 0 and lv >= max(r1v, r2v), "keyhole(): length must be positive and at least max(radius1, radius2)."
+    assert lv > 0, "keyhole(): length must be positive and at least max(radius1, radius2)."
+    assert lv >= max(r1v, r2v), "keyhole(): length must be positive and at least max(radius1, radius2)."
     shoulder_radius = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
     cp1, cp2 = [0.0, 0.0], [0.0, -lv]
     minr, maxr = min(r1v, r2v) + shoulder_radius, max(r1v, r2v) + shoulder_radius
@@ -488,8 +497,12 @@ def ring(
         diameter:   one radius plus the wall width
         ring_width: one radius plus the wall width
         sides:    number of sides (overrides the smoothness overrides)
+        angle:    sweep angle in degrees (only the full-annulus form is ported; angle must be None)
         anchor: standard BOSL2 2-D anchor / spin
         spin:   standard BOSL2 2-D anchor / spin
+        fn: number of fragments for circle resolution.
+        fa: minimum fragment angle for circle resolution.
+        fs: minimum fragment size for circle resolution.
 
     Examples:
         .. pythonscad-example::
@@ -506,11 +519,11 @@ def ring(
     if r1v is not None and r2v is not None:
         inner, outer = min(r1v, r2v), max(r1v, r2v)
     else:
-        assert rv is not None and ring_width is not None, (
-            "ring(): give (radius1 and radius2) or (radius and ring_width)."
-        )
+        assert rv is not None, "ring(): give (radius1 and radius2) or (radius and ring_width)."
+        assert ring_width is not None, "ring(): give (radius1 and radius2) or (radius and ring_width)."
         inner, outer = min(rv, rv + ring_width), max(rv, rv + ring_width)
-    assert inner != outer and outer > 0, "ring(): zero (or invalid) width."
+    assert inner != outer, "ring(): zero (or invalid) width."
+    assert outer > 0, "ring(): zero (or invalid) width."
     fnv = sides if sides is not None else fn
     shape = circle(radius=outer, fn=fnv, fa=fa, fs=fs) - circle(radius=inner, fn=fnv, fa=fa, fs=fs)
     offset = _anchor_offset_box([2 * outer, 2 * outer], anchor)
@@ -626,7 +639,8 @@ def reuleaux_polygon(
             s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()
 
     """
-    assert sides >= 3 and sides % 2 == 1
+    assert sides >= 3
+    assert sides % 2 == 1
     rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
     ssegs = max(3, math.ceil(_frag_count(rad, fn, fa, fs) / sides))
     slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / sides))

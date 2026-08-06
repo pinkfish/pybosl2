@@ -51,7 +51,8 @@ __all__ = ["ScrewDrive", "PhillipsSpec", "TorxSpec", "RobertsonSpec"]
 
 
 def _adj_ang_to_opp(adj: float, angle: float) -> float:
-    """Return the opposite side of a right triangle given the adjacent side and angle (BOSL2
+    """Return the opposite side of a right triangle given the adjacent side and angle (BOSL2.
+
     adj_ang_to_opp).
     """
     return adj * math.tan(math.radians(angle))
@@ -90,7 +91,8 @@ class TorxSpec:
     inner_rounding: float  # inner rounding radius
 
     def as_tuple(self) -> tuple[float, float, float, float, float]:
-        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info``
+        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info``.
+
         list.
         """
         return (self.outer_diameter, self.inner_diameter, self.depth, self.tip_rounding, self.inner_rounding)
@@ -218,6 +220,7 @@ class ScrewDrive:
             fn: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
             fa: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
             fs: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
+            l: overall length of the recess, overriding the computed length from the spec.
 
         Examples:
             A #2 Phillips recess cut into a tapered head:
@@ -267,7 +270,8 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_depth(size: str | int, diameter: float) -> float | None:
-        """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``
+        """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``.
+
         (BOSL2 phillips_depth()).
         """
         spec = _PHILLIPS[_phillips_num(size)]
@@ -279,7 +283,8 @@ class ScrewDrive:
 
     @staticmethod
     def phillips_diam(size: str | int, depth: float) -> float | None:
-        """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2
+        """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2.
+
         phillips_diam()).
         """
         spec = _PHILLIPS[_phillips_num(size)]

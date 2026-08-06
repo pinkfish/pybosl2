@@ -48,7 +48,8 @@ class Hinges:
         hingegap: float | None = None,
         slop: float = 0.0,
     ) -> Bosl2Solid:
-        """Return a wedge mask to difference out of a plate to make a print-in-place
+        """Return a wedge mask to difference out of a plate to make a print-in-place.
+
         living hinge (BOSL2 living_hinge_mask()).
 
         Centre it on the bottom of a plate of thickness *thick*; it leaves ``2*layerheight`` of
@@ -179,7 +180,8 @@ class Hinges:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2
+        """Return a snap-lock tab (a ridge on a post) that clicks into a :meth:`snap_socket` (BOSL2.
+
         snap_lock()).
         """
         hingegap = (layerheight if hingegap is None else hingegap) + 2 * slop

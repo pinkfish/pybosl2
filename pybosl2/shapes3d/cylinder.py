@@ -106,7 +106,8 @@ def cylinder(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """Return a cylinder with optional chamfering/rounding of its end rims, built with
+    """Return a cylinder with optional chamfering/rounding of its end rims, built with.
+
     cube()/cylinder()/sphere()/rotate_extrude().
 
     Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
@@ -271,7 +272,8 @@ def cyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """Return a cylinder with optional chamfering/rounding of its end rims, built with
+    """Return a cylinder with optional chamfering/rounding of its end rims, built with.
+
     cube()/cylinder()/sphere()/rotate_extrude().
 
     Positive rounding is built as a minkowski() of a shorter cylinder with a sphere at each
@@ -783,7 +785,8 @@ def zcyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Bosl2Solid:
-    """Return a cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for
+    """Return a cylinder oriented along the Z axis (same as cyl() with default orientation). See cyl() for.
+
     argument details.
 
     Examples:
@@ -958,10 +961,12 @@ def tube(
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
     irad1 = irr1 if irr1 is not None else (orr1 - wall_v if orr1 is not None else None)
     irad2 = irr2 if irr2 is not None else (orr2 - wall_v if orr2 is not None else None)
-    assert rad1 is not None and rad2 is not None and irad1 is not None and irad2 is not None, (
-        "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    )
-    assert irad1 <= rad1 and irad2 <= rad2, "tube(): inner radius is larger than outer radius."
+    assert rad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert rad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert irad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert irad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert irad1 <= rad1, "tube(): inner radius is larger than outer radius."
+    assert irad2 <= rad2, "tube(): inner radius is larger than outer radius."
     use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     # Build outer and inner cylinders via cyl() for chamfer/rounding support

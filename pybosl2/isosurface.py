@@ -142,7 +142,8 @@ def mb_sphere(
 
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
-    assert rr and rr > 0, "mb_sphere(): need a positive radius or diameter."
+    assert rr, "mb_sphere(): need a positive radius or diameter."
+    assert rr > 0, "mb_sphere(): need a positive radius or diameter."
     neg = -1 if negative else 1
 
     def field(pts: np.ndarray) -> np.ndarray:
@@ -244,7 +245,10 @@ def mb_torus(
         (major_radius if major_radius is not None else (major_diameter / 2 if major_diameter is not None else None)),
         (minor_radius if minor_radius is not None else (minor_diameter / 2 if minor_diameter is not None else None)),
     )
-    assert rmaj and rmin and rmaj > 0 and rmin > 0, "mb_torus(): need positive major_radius and minor_radius."
+    assert rmaj, "mb_torus(): need positive major_radius and minor_radius."
+    assert rmin, "mb_torus(): need positive major_radius and minor_radius."
+    assert rmaj > 0, "mb_torus(): need positive major_radius and minor_radius."
+    assert rmin > 0, "mb_torus(): need positive major_radius and minor_radius."
     neg = -1 if negative else 1
 
     def field(pts: np.ndarray) -> np.ndarray:
@@ -281,7 +285,10 @@ def mb_capsule(
 
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
-    assert height and rr and height > 0 and rr > 0, "mb_capsule(): need positive height and radius."
+    assert height, "mb_capsule(): need positive height and radius."
+    assert rr, "mb_capsule(): need positive height and radius."
+    assert height > 0, "mb_capsule(): need positive height and radius."
+    assert rr > 0, "mb_capsule(): need positive height and radius."
     hl = (height - 2 * rr) / 2
     assert hl > 0, "mb_capsule(): total length must exceed the two rounded ends."
     neg = -1 if negative else 1
@@ -323,7 +330,10 @@ def mb_disk(
 
     """
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
-    assert height and rr and height > 0 and rr > 0, "mb_disk(): need positive height and radius."
+    assert height, "mb_disk(): need positive height and radius."
+    assert rr, "mb_disk(): need positive height and radius."
+    assert height > 0, "mb_disk(): need positive height and radius."
+    assert rr > 0, "mb_disk(): need positive height and radius."
     hl = height / 2
     ri = rr - hl
     assert ri > 0, "mb_disk(): diameter must exceed the thickness."
@@ -419,7 +429,9 @@ def mb_connector(
 
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
-    assert rr and rr > 0 and not np.array_equal(a, b), "mb_connector(): need distinct points and positive radius."
+    assert rr, "mb_connector(): need distinct points and positive radius."
+    assert rr > 0, "mb_connector(): need distinct points and positive radius."
+    assert not np.array_equal(a, b), "mb_connector(): need distinct points and positive radius."
     neg = -1 if negative else 1
     dc: np.ndarray = b - a
     height: float = float(np.linalg.norm(dc)) / 2

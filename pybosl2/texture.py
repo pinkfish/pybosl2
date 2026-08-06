@@ -247,7 +247,8 @@ def _tex_trunc_ribs_vnf(
 ) -> tuple[list[list[float]], list[list[int]]]:
     b = (border if border is not None else 0.25) * 2
     g = gap if gap is not None else 0.25
-    assert b >= 0 and g >= 0, "trunc_ribs_vnf requires gap>=0 and border>=0."
+    assert b >= 0, "trunc_ribs_vnf requires gap>=0 and border>=0."
+    assert g >= 0, "trunc_ribs_vnf requires gap>=0 and border>=0."
     assert g + b <= 1, "trunc_ribs_vnf requires 2*border+gap <= 1."
     verts = _mv([0.5, 0.5], _rect(1 - g, 1, 0)) + _mv([0.5, 0.5], _rect(1 - g - b, 1, 1)) + _sq(1)
     faces = [[4, 7, 3, 0], [1, 2, 6, 5]]
@@ -263,7 +264,9 @@ def _tex_bricks_vnf(
 ) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.05
     g = gap if gap is not None else 0.05
-    assert b >= 0 and g > 0 and g + b < 0.5, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
+    assert b >= 0, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
+    assert g > 0, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
+    assert g + b < 0.5, "bricks_vnf requires border>=0, gap>0, gap+border<0.5."
     verts = (
         _sqr(1)
         + _mv([g / 2, g / 2, 0], _sqr([1 - g, 0.5 - g]))

@@ -68,7 +68,8 @@ _THREAD_ALIAS = {
 
 @dataclass(frozen=True)
 class ThreadPitches:
-    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is
+    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is.
+
     undefined.
     """
 
@@ -78,7 +79,8 @@ class ThreadPitches:
     super_fine: float | None = None
 
     def pitch(self, thread: str = "coarse") -> float:
-        """Return the pitch for a thread class (``"coarse"``/``"fine"``/``"extra-fine"``/``"super-fine"``),
+        """Return the pitch for a thread class (``"coarse"``/``"fine"``/``"extra-fine"``/``"super-fine"``),.
+
         falling back to coarse if the requested class is undefined for this size.
         """
         return getattr(self, _THREAD_ALIAS.get(str(thread).lower(), "coarse")) or self.coarse
@@ -581,7 +583,8 @@ class Screws:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or
+        """Return a hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or.
+
         counterbore.
 
         Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``

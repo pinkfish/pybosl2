@@ -95,7 +95,8 @@ class Wiring:
 
     @staticmethod
     def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
-        """Return the centre points for the optimal hexagonal packing of at least *sides* circles spaced
+        """Return the centre points for the optimal hexagonal packing of at least *sides* circles spaced.
+
         *diameter* apart.
         """
         return _hex_offsets(sides, diameter)
@@ -109,7 +110,8 @@ class Wiring:
         wirenum: int = 0,
         corner_steps: int = 15,
     ) -> Bosl2Solid:
-        """Return a bundle of *wires* round wires that follow *path*, its
+        """Return a bundle of *wires* round wires that follow *path*, its.
+
         corners rounded to *rounding* (BOSL2 wire_bundle()).
 
         The wires are hex-packed in the bundle cross-section and each is coloured from the 17-entry

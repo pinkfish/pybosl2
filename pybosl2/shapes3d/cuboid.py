@@ -380,6 +380,7 @@ def cuboid(
         edges:        edges to mask (default ``"ALL"``)
         except_edges: edges to explicitly not mask (BOSL2's `except=` synonym; `except` is a Python keyword)
         trimcorners:  round/chamfer corners where three treated edges meet (default True)
+        teardrop:     enable teardrop rounding (not supported by this pure-Python port)
         anchor:       anchor point (default Anchor.CENTER)
         spin:         Z-axis rotation in degrees (default 0)
         orient:       direction to rotate the top towards (default Anchor.TOP)
@@ -770,14 +771,14 @@ def rect_tube(
         if i2 is not None
         else ([s2[0] - 2 * wall, s2[1] - 2 * wall] if (wall is not None and s2 is not None) else None)
     )
-    assert size1_v is not None and size2_v is not None, "rect_tube(): bad size/size1/size2 argument."
-    assert isize1_v is not None and isize2_v is not None, "rect_tube(): bad isize/isize1/isize2 argument."
-    assert isize1_v[0] < size1_v[0] and isize1_v[1] < size1_v[1], (
-        "rect_tube(): inner size is larger than outer size at the bottom."
-    )
-    assert isize2_v[0] < size2_v[0] and isize2_v[1] < size2_v[1], (
-        "rect_tube(): inner size is larger than outer size at the top."
-    )
+    assert size1_v is not None, "rect_tube(): bad size/size1/size2 argument."
+    assert size2_v is not None, "rect_tube(): bad size/size1/size2 argument."
+    assert isize1_v is not None, "rect_tube(): bad isize/isize1/isize2 argument."
+    assert isize2_v is not None, "rect_tube(): bad isize/isize1/isize2 argument."
+    assert isize1_v[0] < size1_v[0], "rect_tube(): inner size is larger than outer size at the bottom."
+    assert isize1_v[1] < size1_v[1], "rect_tube(): inner size is larger than outer size at the bottom."
+    assert isize2_v[0] < size2_v[0], "rect_tube(): inner size is larger than outer size at the top."
+    assert isize2_v[1] < size2_v[1], "rect_tube(): inner size is larger than outer size at the top."
 
     rounding1_v = force4f(rounding1 if rounding1 is not None else rounding)
     rounding2_v = force4f(rounding2 if rounding2 is not None else rounding)
@@ -858,7 +859,8 @@ def regular_prism(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """Return a regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon
+    """Return a regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon.
+
     cross-section extruded along Z, with optional per-end chamfer or rounding. Built the same
     way cyl() is (native cylinder with fn=sides for the plain case; a revolved half-profile with
     fn=sides for chamfered/rounded ends), so it shares cyl()'s exact rim geometry.
@@ -915,7 +917,8 @@ def regular_prism(
             shape.show()
 
     """
-    assert isinstance(sides, int) and sides > 2, f"regular_prism(): sides must be an integer >= 3, got {sides}"
+    assert isinstance(sides, int), f"regular_prism(): sides must be an integer >= 3, got {sides}"
+    assert sides > 2, f"regular_prism(): sides must be an integer >= 3, got {sides}"
     cos_half = math.cos(math.pi / sides)
 
     def circumradius(spec_r: float | None) -> float:

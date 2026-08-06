@@ -55,7 +55,8 @@ def _dual(
     verts: list[list[float]],
     faces: list[list[int]],
 ) -> tuple[list[list[float]], list[list[int]]]:
-    """Return the dual polyhedron: new vertices are the (normalized) face centroids, new faces are the
+    """Return the dual polyhedron: new vertices are the (normalized) face centroids, new faces are the.
+
     rings of faces around each original vertex. Used to derive the dodecahedron from the icosahedron.
     """
     verts_arr = np.asarray(verts, dtype=float)
@@ -220,7 +221,8 @@ class Polyhedra:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> Bosl2Solid:
-        """Return a Platonic solid, sized by circumradius *radius*, diameter
+        """Return a Platonic solid, sized by circumradius *radius*, diameter.
+
         *diameter*, inradius *inner_radius*, or *side* (BOSL2
         regular_polyhedron()).
 

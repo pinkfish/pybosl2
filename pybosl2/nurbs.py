@@ -773,7 +773,8 @@ class NurbsCurve:
         pts = np.array([[float(c) for c in p] for p in control], dtype=float)
         assert pts.ndim == 2, f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}"
         assert pts.shape[1] in (2, 3), f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point"
-        assert isinstance(degree, int) and degree >= 1, f"degree must be a positive integer, got {degree!r}"
+        assert isinstance(degree, int), f"degree must be a positive integer, got {degree!r}"
+        assert degree >= 1, f"degree must be a positive integer, got {degree!r}"
         assert isinstance(nurbs_type, NurbsType), f"unknown NURBS type: {nurbs_type!r}"
         assert nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1, (
             f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points"

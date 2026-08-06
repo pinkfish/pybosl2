@@ -47,7 +47,8 @@ from pybosl2._sdf.shapes3d import PyShape
 
 
 class SdfShape2D:
-    """A lazy 2-D shape: a symbolic signed-distance function of (x, y) plus bounds -- the flat
+    """A lazy 2-D shape: a symbolic signed-distance function of (x, y) plus bounds -- the flat.
+
     sibling of PyShape, for building lid-pattern shapes (shapes.py/tesselations.py) entirely in
     SDF-land. Compose with translate/rotate/scale/mirror, the boolean operators, and the two
     ops SDFs do BETTER than polygon math: offset() (a single subtraction -- exact, rounded,
@@ -82,12 +83,15 @@ class SdfShape2D:
         )
 
     def rotate(self, a: float | list[float]) -> PyShape2D:
-        """Rotate by `a` degrees around the origin -- a plain scalar, or the native
+        """Rotate by `a` degrees around the origin -- a plain scalar, or the native.
+
         [0, 0, a] vector spelling (only z-rotation makes sense for a 2-D shape; the x/y
         components must be 0), so migrated call sites keep working unchanged.
         """
         if isinstance(a, (list, tuple)):
-            assert len(a) == 3 and not a[0] and not a[1], f"2-D rotate only supports [0, 0, angle], got {a}"
+            assert len(a) == 3, f"2-D rotate only supports [0, 0, angle], got {a}"
+            assert not a[0], f"2-D rotate only supports [0, 0, angle], got {a}"
+            assert not a[1], f"2-D rotate only supports [0, 0, angle], got {a}"
             a = a[2]
         angle = math.radians(a)
         c, s = math.cos(angle), math.sin(angle)
@@ -239,7 +243,8 @@ class SdfShape2D:
 
     @staticmethod
     def union(shapes: list[PyShape2D]) -> PyShape2D:
-        """Union of many shapes as a balanced pairwise tree. A linear `a | b | c | ...` chain
+        """Union of many shapes as a balanced pairwise tree. A linear `a | b | c | ...` chain.
+
         nests one lambda per piece, so composing hundreds of pieces (a dense tiling, say)
         overflows Python's recursion limit when the SDF is finally evaluated -- the tree keeps
         the evaluation depth at log2(n) instead.
@@ -255,7 +260,8 @@ class SdfShape2D:
     # ---- the ops SDFs are uniquely good at ----
 
     def offset(self, delta: float = 0, radius: float | None = None) -> PyShape2D:
-        """Grow (positive) or shrink (negative) by a distance -- one subtraction on the SDF, no
+        """Grow (positive) or shrink (negative) by a distance -- one subtraction on the SDF, no.
+
         polygon offsetting/self-intersection cleanup. Growth is round-style (matching native
         offset(radius=...)); accepts either the delta= or radius= spelling since they coincide here.
         """
@@ -283,6 +289,7 @@ class SdfShape2D:
         res: int | None = None,
     ) -> PyShape:
         """Extrude to a specific height along Z (base at z=0, or centered), returning a PyShape.
+
         The optional rim treatments follow polygon_prism()'s convention (positive roundover,
         negative flare) and reuse the same construction, over this shape's own SDF.
         """
@@ -364,7 +371,8 @@ class SdfShape2D:
     linear_sweep = linear_sweep_sdf
 
     def linear_extrude(self, height: float, center: bool = False) -> PyShape:
-        """Native-spelling alias for extrude(), so migrated 2-D shapes keep working at existing
+        """Native-spelling alias for extrude(), so migrated 2-D shapes keep working at existing.
+
         `.linear_extrude(height=...)` call sites.
         """
         return self.extrude(height, center=center)
@@ -388,7 +396,8 @@ def rect2d(  # type: ignore[no-untyped-def]
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape2D:
-    """Return an axis-aligned rectangle with optional corner rounding or chamfering -- a single radius
+    """Return an axis-aligned rectangle with optional corner rounding or chamfering -- a single radius.
+
     for all four corners, or a per-corner list in BOSL2 rect() order ([X+Y+, X-Y+, X-Y-, X+Y-],
     counterclockwise from the +x+y corner), reusing the same per-corner quadrant SDF the 3-D
     cuboid edge machinery is built on. `anchor` uses the usual direction-vector convention.
@@ -430,7 +439,8 @@ def supershape2d(
     diameter: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """Return a superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same
+    """Return a superformula shape -- the outline sampled in plain Python (pysolidfive._paths, same.
+
     parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d().
     """
     return polygon2d(
@@ -440,7 +450,8 @@ def supershape2d(
 
 
 def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
-    """Return an arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency
+    """Return an arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency.
+
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
     Accepts any array-like path spelling (per the numpy-paths convention).
     """
@@ -461,7 +472,8 @@ def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PySh
 
 
 def region2d(paths: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
-    """BOSL2-style REGION data as a PyShape2D: a list of simple outlines with even-odd nesting
+    """BOSL2-style REGION data as a PyShape2D: a list of simple outlines with even-odd nesting.
+
     semantics -- an outline inside another outline is a hole, an outline inside a hole is an
     island, and so on -- exactly what the real-BOSL2 region functions (make_region/union/
     difference/offset_stroke/...) hand back and what the native `region()` helper in
@@ -516,7 +528,8 @@ def stroke2d(
     closed: bool = False,
     res: int = 10,
 ) -> PyShape2D:
-    """Return a path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as
+    """Return a path drawn with round caps and joins (BOSL2 stroke()'s default look) -- exactly, as.
+
     the min over the segments' capsule SDFs (distance-to-segment minus width/2).
     """
     pts = as_points(path)
@@ -547,7 +560,8 @@ def stroke2d(
 
 
 def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
-    """Return the convex hull of a set of discs [(x, y, r), ...] -- the SDF equivalent of the
+    """Return the convex hull of a set of discs [(x, y, r), ...] -- the SDF equivalent of the.
+
     hull(circle().translate(), circle().translate(), ...) idiom all over shapes.py. EXACT for
     equal radii (the true distance to the centers' convex hull, minus r -- computed with the
     branchless exact-convex form, so the rounded corners are genuine arcs, not the sharp
@@ -615,6 +629,7 @@ def ellipse2d(
     res: int = 10,
 ) -> PyShape2D:
     """Return an ellipse with semi-axes *radius* (``[rx, ry]``) or full diameters *diameter* (``[dx, dy]``).
+
     Built by non-uniformly scaling a unit circle SDF, which gives an exact algebraic distance
     whose zero-isosurface is the desired ellipse.
     """
@@ -717,9 +732,11 @@ def star2d(
 
     Args:
         num_sides:       number of stellate tips (default 5)
-        radius/outer_radius: radius to the tips (BOSL2 ``or``)
+        radius: radius to the tips
+        outer_radius: radius to the tips (BOSL2 ``or``)
         inner_radius:      radius to the inner corners
-        diameter/outer_diameter:    diameter to the tips
+        diameter:    diameter to the tips
+        outer_diameter:    diameter to the tips
         inner_diameter:      diameter to the inner corners
         step:    compute inner radius by drawing a line ``step`` tips around
         realign: put edge midpoint on +X instead of tip (default False)
@@ -785,7 +802,9 @@ def trapezoid2d(
         width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
     if width2 is None:
         width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
-    assert width1 >= 0 and width2 >= 0 and height > 0, "Degenerate trapezoid geometry."
+    assert width1 >= 0, "Degenerate trapezoid geometry."
+    assert width2 >= 0, "Degenerate trapezoid geometry."
+    assert height > 0, "Degenerate trapezoid geometry."
 
     pts = [
         [width2 / 2 + shift, height / 2],
@@ -805,7 +824,8 @@ def keyhole2d(
     diameter2: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an
+    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an.
+
     SDF-based polygon.
 
     Args:
@@ -822,7 +842,8 @@ def keyhole2d(
 
     r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
     r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
-    assert length > 0 and length >= max(r1v, r2v), "keyhole2d(): length must be positive."
+    assert length > 0, "keyhole2d(): length must be positive."
+    assert length >= max(r1v, r2v), "keyhole2d(): length must be positive."
 
     # Build profile: two circles connected by tangent lines (shoulders)
     sh = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2

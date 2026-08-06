@@ -234,20 +234,25 @@ class CsgSolid(BaseShape):
         return self._wrap(self.shape.repair())
 
     def wrap(self, radius: float, fn: int | None = None) -> "Bosl2Solid":
-        """Wrap this solid around a cylinder of radius *radius*, bending +X into
+        """Wrap this solid around a cylinder of radius *radius*, bending +X into.
+
         the cylinder's circumference (native ``wrap()``). *fn* sets the
-        facet count of the bend."""
+        facet count of the bend.
+        """
         if fn is not None:
             return self._wrap(self.shape.wrap(r=float(radius), fn=float(fn)))
         return self._wrap(self.shape.wrap(r=float(radius)))
 
     def pull(self, direction: "Sequence[float] | np.ndarray", distance: float) -> "Bosl2Solid":
-        """Pull the part of the solid on the +*direction* side apart by
-        *distance*, stretching the material between (native ``pull()``)."""
+        """Pull the part of the solid on the +*direction* side apart by.
+
+        *distance*, stretching the material between (native ``pull()``).
+        """
         return self._wrap(self.shape.pull([float(x) for x in direction], float(distance)))
 
     def oversample(self, sides: int) -> "Bosl2Solid":
-        """Subdivide every mesh facet *sides*-fold, e.g. before :meth:`wrap`
+        """Subdivide every mesh facet *sides*-fold, e.g. before :meth:`wrap`.
+
         so the bend is smooth (native ``oversample()``).
 
         Examples:
@@ -378,7 +383,7 @@ class CsgSolid(BaseShape):
             path: A :class:`~pybosl2.path3d.Path3D`.
             num_copies: Number of copies.
             spacing: Distance between copies.
-            sp: Starting position along the path.
+            start_pos: Starting position along the path.
             dist: Explicit list of distances from path start.
             rotate_children: If True, rotate each copy to align with the path.
 
@@ -442,10 +447,12 @@ class CsgSolid(BaseShape):
     # when present, is used first as a no-meshing fast path.
 
     def _native_bounds(self) -> "tuple[list[float], list[float]] | None":
-        """Return the object's axis-aligned bounding box as (mincorner, size),
+        """Return the object's axis-aligned bounding box as (mincorner, size),.
+
         read from the native obj.position/obj.size. Returns None when
         those accessors aren't available (the numeric test mock) or the
-        geometry is empty/degenerate (native returns None)."""
+        geometry is empty/degenerate (native returns None).
+        """
         try:
             pos = self.shape.position
             sz = self.shape.size
@@ -463,7 +470,8 @@ class CsgSolid(BaseShape):
         return mincorner, size
 
     def bounds(self) -> "tuple[list[float], list[float]]":
-        """Return this object's axis-aligned bounding box as (center, size) --
+        """Return this object's axis-aligned bounding box as (center, size) --.
+
         both plain [x, y, z] float lists in the object's CURRENT
         coordinate frame (after any translate/rotate/CSG).
 
@@ -486,14 +494,16 @@ class CsgSolid(BaseShape):
         )
 
     def _resolve_bounds(self, bbox: Sequence[Sequence[float]] | None = None) -> "tuple[list[float], list[float]]":
-        """Return (center, size) for anchoring: from a passed-in *bbox*
+        """Return (center, size) for anchoring: from a passed-in *bbox*.
+
         override if given, else the object's native bounding box
         (:meth:`bounds`). *bbox* overrides the object's own box -- useful
         when the native bbox is wrong for the purpose (a shape with an
         overhang, a mask positioned against a nominal box, or a cheap way
         to skip the meshing the native bbox needs). It is a min/max corner
         pair ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]`` (the same
-        shape :meth:`Path2D.bounds` and the native ``obj.bbox`` use)."""
+        shape :meth:`Path2D.bounds` and the native ``obj.bbox`` use).
+        """
         if bbox is None:
             return self.bounds()
         arr = np.asarray(bbox, dtype=float)
@@ -505,7 +515,8 @@ class CsgSolid(BaseShape):
     def anchor_point(
         self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None
     ) -> list[float]:
-        """Return the [x, y, z] point on this object's bounding box for the
+        """Return the [x, y, z] point on this object's bounding box for the.
+
         given anchor, in the object's current coordinate frame: center +
         anchor * size / 2. Works on any object.
 
@@ -522,7 +533,8 @@ class CsgSolid(BaseShape):
         return [center[i] + a[i] * size[i] / 2 for i in range(3)]
 
     def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
-        """Return this object translated so its bounding-box `anchor` point
+        """Return this object translated so its bounding-box `anchor` point.
+
         sits at the origin. Re-anchors any object by its bbox after the
         fact (cube()/cuboid() only do this at construction, and only for
         cuboids). Pass *bbox* to use a supplied box.
@@ -542,7 +554,8 @@ class CsgSolid(BaseShape):
         return moved
 
     def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
-        """Place `child` so its local origin lands on this object's
+        """Place `child` so its local origin lands on this object's.
+
         bounding-box `anchor` point, keeping the child's own orientation,
         and return self unioned with the placed child. `child` may be a
         Bosl2Solid or a raw native solid.
@@ -574,7 +587,8 @@ class CsgSolid(BaseShape):
         overlap: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
-        """Place `child` on this object's `anchor` face and return self
+        """Place `child` on this object's `anchor` face and return self.
+
         unioned with it. Like attach() it mates a child face to a parent
         face, but WITHOUT reorienting the child -- the child keeps its own
         axes and is merely translated.
@@ -591,6 +605,7 @@ class CsgSolid(BaseShape):
             align:   edge/corner within the face to sit flush against (default: centered)
             inside:  place the child inside the parent instead of outside (default False)
             overlap: pull the child toward the parent along the face normal by this much
+            bbox: optional override bounding box ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]``.
 
         Examples:
         .. pythonscad-example::
@@ -626,7 +641,8 @@ class CsgSolid(BaseShape):
         spin: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
-        """Orient and place `child` so its `child_anchor` face mates flush
+        """Orient and place `child` so its `child_anchor` face mates flush.
+
         against this object's `parent_anchor` face, then return self
         unioned with the placed child. Both anchor points come from the
         native bounding boxes, so neither object needs its size passed
@@ -639,6 +655,7 @@ class CsgSolid(BaseShape):
                            face OPPOSITE parent_anchor, so the two mate naturally)
             overlap:       pull the child in by this much along the mating axis (default 0)
             spin:          spin the child about the mating axis, in degrees (default 0)
+            bbox: optional override bounding box ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]``.
 
         Examples:
         .. pythonscad-example::
@@ -1038,9 +1055,11 @@ class CsgSolid(BaseShape):
         inner_radius: float | None = None,
         size: float = 1000,
     ) -> "Bosl2Solid":
-        """Round the corners of this solid: *radius* rounds all,
+        """Round the corners of this solid: *radius* rounds all,.
+
         *outer_radius* only convex, *inner_radius* only concave. Uses
-        ``offset3d`` three times and is extremely slow."""
+        ``offset3d`` three times and is extremely slow.
+        """
         orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
         irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
         return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)

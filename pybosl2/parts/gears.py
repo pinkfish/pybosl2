@@ -743,7 +743,8 @@ class Gears:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> list[list[float]]:
-        """Return the 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2
+        """Return the 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2.
+
         _gear_tooth_profile()).
         """
         circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
@@ -849,7 +850,8 @@ class Gears:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a 3-D involute spur gear -- helical and/or herringbone, with an optional
+        """Return a 3-D involute spur gear -- helical and/or herringbone, with an optional.
+
         shaft bore (BOSL2 spur_gear()).
 
         Examples:

@@ -74,7 +74,8 @@ class LinearBearings:
 
     @staticmethod
     def lmxuu_info(size: int) -> LinearBearingSpec:
-        """Return the :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2
+        """Return the :class:`LinearBearingSpec` (outer_diameter, length) for a standard LMxUU size (BOSL2.
+
         lmxuu_info()).
         """
         try:
@@ -92,7 +93,8 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a generic linear ball-bearing cartridge, bore
+        """Return a generic linear ball-bearing cartridge, bore.
+
         *inner_diameter* / outer *outer_diameter* / length *length*
         (BOSL2 linear_bearing()).
 
@@ -165,7 +167,8 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a pillow-block housing that clamps a linear bearing (bore
+        """Return a pillow-block housing that clamps a linear bearing (bore.
+
         *diameter*, length *length*) to a plate (BOSL2 linear_bearing_housing()).
 
         The teardrop bore prints without support; the split *gap* and a *screwsize* clamp screw

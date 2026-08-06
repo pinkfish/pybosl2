@@ -47,7 +47,8 @@ class CsgBackend:
         return Bosl2Solid(native("polyhedron")(points, faces, **kwargs))
 
     def linear_extrude(self, paths: Any, height: float, **kwargs: Any) -> Any:
-        """Extrude *paths* into an exact-CSG solid: the first outline with the rest cut out of it
+        """Extrude *paths* into an exact-CSG solid: the first outline with the rest cut out of it.
+
         as holes, through the native ``linear_extrude()``. Accepts every native option
         (``center``/``twist``/``scale``/``slices``/...).
         """

@@ -148,7 +148,8 @@ class Joiners:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return the mating socket mask for a :meth:`snap_pin` -- difference it
+        """Return the mating socket mask for a :meth:`snap_pin` -- difference it.
+
         out of a part (BOSL2 snap_pin_socket()).
 
         A clearance bore with a relief groove that the pin's barb clicks into.

@@ -374,7 +374,8 @@ class BottleCaps:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls
+        """Return a cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls.
+
         back to a plain wall (surface texturing is not in this port).
 
         Examples:
@@ -411,7 +412,8 @@ class BottleCaps:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls
+        """Return a cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls.
+
         back to a plain wall (surface texturing is not in this port).
         """
         return _build_cap(_PCO1881, wall, texture, fn=fn, fa=fa, fs=fs)

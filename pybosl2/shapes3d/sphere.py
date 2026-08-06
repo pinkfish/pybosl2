@@ -165,7 +165,8 @@ def _teardrop2d_path(
     realign: bool,
     sides: int,
 ) -> list[list[float]]:
-    """Return the 2-D (X,Y) outline of a BOSL2-style teardrop2d(): a circle of radius *radius* capped by a
+    """Return the 2-D (X,Y) outline of a BOSL2-style teardrop2d(): a circle of radius *radius* capped by a.
+
     point (or, if *cap_height* truncates it, a flat top) formed by two walls tangent to the circle at
     +-*angle* degrees from the Y axis. *sides* is the segment count for a full circle of this radius
     (as from _frag_count()); *realign* is approximated by toggling the parity of the round

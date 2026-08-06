@@ -82,12 +82,6 @@ select = ["N", "E", "F", "I", "B", "SIM", "RUF100", "A", "C4", "CPY", "PIE", "PY
 ignore = ["D203", "D213", "D402"]
 
 [tool.ruff.lint.per-file-ignores]
-"pybosl2/**" = ["PT", "D"]
-"pybosl2/vnf.py" = []
-"pybosl2/nurbs.py" = []
-"pybosl2/caps.py" = []
-"pybosl2/beziers.py" = []
-"pybosl2/path.py" = []
 "docs/**" = ["PT", "D"]
 "tests/**" = ["D"]
 "pysolidfive/**" = ["PT", "D"]

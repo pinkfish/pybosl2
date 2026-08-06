@@ -411,7 +411,8 @@ def _linearize_squareness(squareness: float) -> float:
 
 
 def squircle_radius_fg(squareness: float, radius: float, angle: float) -> float:
-    """Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size
+    """Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.
+
     *radius*.
     """
     s2a = abs(squareness * math.sin(math.radians(2 * angle)))

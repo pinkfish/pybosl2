@@ -181,7 +181,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
         assert width > 0, "catenary() needs width > 0."
-        assert isinstance(sides, int) and sides > 0, "catenary() needs a positive integer sides."
+        assert isinstance(sides, int), "catenary() needs a positive integer sides."
+        assert sides > 0, "catenary() needs a positive integer sides."
         given = droop if droop is not None else angle
         assert given is not None
         sgn = int(math.copysign(1, given))

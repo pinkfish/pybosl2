@@ -69,7 +69,8 @@ class NemaSteppers:
 
     @staticmethod
     def nema_motor_info(size: int) -> NemaSpec:
-        """Return the :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2
+        """Return the :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2.
+
         nema_motor_info()).
         """
         try:

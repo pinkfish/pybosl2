@@ -36,7 +36,8 @@ if TYPE_CHECKING:
 
 
 def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:  # type: ignore[type-arg]
-    """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a
+    """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a.
+
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
     region2d() accept).
     """
@@ -51,7 +52,8 @@ def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.
 
 
 def as_points(pts: ArrayLike) -> NDArray[np.float64]:
-    """Return the library-wide normalization for 2-D point paths: an (n, 2) float array. Accepts
+    """Return the library-wide normalization for 2-D point paths: an (n, 2) float array. Accepts.
+
     any array-like (lists, tuples, arrays, Vec-ish rows). Per the project convention, path
     data is numpy everywhere INSIDE the libraries -- but must be `.tolist()`ed before
     crossing any native boundary (frep bounds, polygon(), translate(), the osuse FFI):
@@ -80,7 +82,8 @@ def _radius(
     diameter: float | None = None,
     dflt: float = 1,
 ) -> float:
-    """_pick_radius(), guaranteed non-None since `dflt` is always a real number here -- unlike
+    """_pick_radius(), guaranteed non-None since `dflt` is always a real number here -- unlike.
+
     _pick_radius() itself, whose `dflt: None` default means its return type is `float | None`
     even when a caller always passes a concrete `dflt`. Not for callers that genuinely need to
     tell "not specified" apart from a real radius (see torus()/tube(), which call
@@ -104,7 +107,8 @@ def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:
 
 
 def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | list[str]) -> float:
-    """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent
+    """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent.
+
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
     all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
     `amount` is indexed the same way as pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
@@ -134,7 +138,8 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
 
 
 def _polygon_sdf_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
-    """Signed distance to an arbitrary SIMPLE polygon (convex or concave, either winding order)
+    """Signed distance to an arbitrary SIMPLE polygon (convex or concave, either winding order).
+
     at the 2-D point (x, y) -- unlike polygon_extrude()'s max-of-half-planes (convex only),
     this handles concave outlines correctly. The zero set (the actual surface, and therefore
     the sign) is exact; the *value* is exact perpendicular distance near every face and a
@@ -162,7 +167,8 @@ def _ccw(pts: NDArray[np.float64]) -> NDArray[np.float64]:
 
 
 def _halfplane_max_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64]) -> LVTree:
-    """Max of signed half-plane distances over a CCW convex polygon's edges (zero-length edges
+    """Max of signed half-plane distances over a CCW convex polygon's edges (zero-length edges.
+
     skipped, tolerating duplicate points from densified/offset path data).
     """
     d = None
@@ -210,7 +216,8 @@ def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _
 
 
 def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
-    """Return indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices --
+    """Return indices (into `ccw_pts`, in CCW boundary order) of the polygon's convex hull vertices --.
+
     a wrap-aware pass dropping every vertex that turns clockwise (or is collinear) between its
     surviving neighbours.
     """
@@ -235,7 +242,8 @@ def _convex_hull_indices(ccw_pts: NDArray[np.float64]) -> list[int]:
 
 
 def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
-    """UNSIGNED squared distance to the polygon outline `pts` at (x, y): the min over per-edge
+    """UNSIGNED squared distance to the polygon outline `pts` at (x, y): the min over per-edge.
+
     point-to-segment distances (the segment clamp is just min/max -- no atan2/winding needed,
     so unlike the signed form this stays branch-cut-free everywhere).
     """
@@ -256,7 +264,8 @@ def _polygon_dist2_xy(x: LVTree, y: LVTree, pts: ArrayLike) -> LVTree:
 
 
 def _is_convex(pts: NDArray[np.float64]) -> bool:
-    """Return True if the simple polygon `pts` is convex: every consecutive edge pair turns the same
+    """Return True if the simple polygon `pts` is convex: every consecutive edge pair turns the same.
+
     way (cross products all >= 0 or all <= 0, tolerating collinear runs from densified arcs).
     """
     n = len(pts)
@@ -335,7 +344,8 @@ def supershape_path(
     radius: float | None = None,
     diameter: float | None = None,
 ) -> NDArray[np.float64]:
-    """Return the superformula outline as a closed point path -- same parameters and sampling as the
+    """Return the superformula outline as a closed point path -- same parameters and sampling as the.
+
     bosl2 port's supershape() (which builds a polygon() from the identical path).
     """
     n_pts = n if n is not None else math.ceil(360.0 / step)
@@ -354,7 +364,8 @@ def supershape_path(
 
 
 def bezier_points(curve: ArrayLike, u: float) -> NDArray[np.float64]:
-    """Evaluate a Bezier curve (any degree, from its control points) at parameter u in [0, 1]
+    """Evaluate a Bezier curve (any degree, from its control points) at parameter u in [0, 1].
+
     -- de Casteljau.
     """
     pts = np.asarray(curve, dtype=float)
@@ -369,7 +380,8 @@ def bezpath_points(
     n_degree: int = 3,
     endpoint: bool = True,
 ) -> NDArray[np.float64]:
-    """Sample a Bezier path (degree-N segments sharing endpoints, len % n_degree == 1) into a point
+    """Sample a Bezier path (degree-N segments sharing endpoints, len % n_degree == 1) into a point.
+
     array -- same shape as the bosl2 port's bezpath_curve().
     """
     bez = as_points(bezpath)
@@ -388,7 +400,8 @@ def bezpath_points(
 
 
 def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n: int = 90) -> NDArray[np.float64]:
-    """Return the BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a
+    """Return the BOSL2-style egg outline: two end circles of radius radius1 (left) and radius2 (right), a.
+
     total length, and side arcs of radius arc_radius blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
     """
@@ -515,14 +528,16 @@ def _lerp_pt(a: _VecLike, b: _VecLike, t: float) -> NDArray[np.float64]:
 
 
 def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]:
-    """Return the unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --
+    """Return the unit 2-D normal (perpendicular, to the LEFT of travel) of the line through p1, p2 --.
+
     byte-for-byte the bosl2 port's convention.
     """
     return _v_unit([p1[1] - p2[1], p2[0] - p1[0]])
 
 
 def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> NDArray[np.float64]:
-    """BOSL2 deriv(): numerical first derivative of vector-valued samples, with either a
+    """BOSL2 deriv(): numerical first derivative of vector-valued samples, with either a.
+
     scalar step or a per-segment step list (the non-uniform variant path_tangents() feeds
     with segment lengths).
     """
@@ -577,7 +592,8 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
 
 def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
-    """BOSL2 path_tangents(): unit tangent at each path point (uniform=False weights the
+    """BOSL2 path_tangents(): unit tangent at each path point (uniform=False weights the.
+
     derivative by segment lengths, which is what rabbit_clip() uses).
     """
     pts = as_points(path)
@@ -594,7 +610,8 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
 
 
 def _cubic_real_roots(p: list[float]) -> list[float]:
-    """Real roots of a polynomial in power form (highest degree first), degree <= 3 --
+    """Real roots of a polynomial in power form (highest degree first), degree <= 3 --.
+
     enough for path_to_bezpath()'s extreme-finding cubic. Closed-form (Cardano with the
     trigonometric casework).
     """
@@ -639,7 +656,8 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
     size=None,
     relsize=None,
 ) -> NDArray[np.float64]:
-    """BOSL2 path_to_bezpath(): a cubic bezier path through the input points with the given
+    """BOSL2 path_to_bezpath(): a cubic bezier path through the input points with the given.
+
     (or derived) tangents, control-point lengths chosen so the curve deviates from each
     segment by `size` (absolute) or `relsize` (fraction of segment length).
     """
@@ -703,7 +721,8 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
 
 
 def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: ArrayLike) -> NDArray[np.float64]:
-    """Tangent lines between two circles, each returned as a [point_on_circle1,
+    """Tangent lines between two circles, each returned as a [point_on_circle1,.
+
     point_on_circle2] pair -- same construction and ORDERING as bosl2's port (rabbit_clip()
     indexes [0][1], so the ordering matters): 2 external tangents, then 2 internal ones if
     the circles don't overlap.
@@ -740,7 +759,8 @@ def circle_circle_tangents(radius1: float, cp1: ArrayLike, radius2: float, cp2: 
 
 
 def offset_polyline(path: ArrayLike, delta: float) -> NDArray[np.float64]:
-    """Return the input open polyline shifted `delta` to the LEFT of its direction of travel, using
+    """Return the input open polyline shifted `delta` to the LEFT of its direction of travel, using.
+
     per-vertex averaged normals -- exact for smooth densely-sampled curves (which is all
     rabbit_clip() feeds it; it is NOT a general polygon offset with joint handling).
     """
@@ -766,7 +786,8 @@ def total_length(path: ArrayLike, closed: bool = False) -> float:
 
 
 def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool = False) -> list[list[Any]] | None:
-    """Return the point(s) at the given arc-length distance(s) from the start of `path`, each as
+    """Return the point(s) at the given arc-length distance(s) from the start of `path`, each as.
+
     [point, next_index] (point is an ndarray) -- same return shape (and increasing-distances
     requirement) as the bosl2 port's path_cut_points().
     """
@@ -864,7 +885,8 @@ def _circlecorner(
 def round_corners(  # type: ignore[no-untyped-def]
     path: ArrayLike, radius=None, r=None, closed: bool = True, fn: float | None = None
 ) -> NDArray[np.float64]:
-    """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each
+    """Round every corner of a 2-D path to the given radius, inserting a tangent arc at each.
+
     vertex -- the bosl2 port's round_corners() (radius method), pure python.
     """
     path = as_points(path)

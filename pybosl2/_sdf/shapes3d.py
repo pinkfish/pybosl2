@@ -548,7 +548,10 @@ class SdfSolid(Distributable):
 
     def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: str) -> PyShape:
         assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pybosl2._sdf.cuboid())"
-        assert self.cuboid_edge_amounts is not None and self.cuboid_edge_modes is not None, (
+        assert self.cuboid_edge_amounts is not None, (
+            f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
+        )
+        assert self.cuboid_edge_modes is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
         )
         edge_set = resolve_edges(edges, except_edges or [])
@@ -614,9 +617,8 @@ class SdfSolid(Distributable):
                 pts = np.asarray(a, dtype=float)
                 if pts.ndim == 1:
                     pts = pts.reshape(1, -1)
-                assert pts.ndim == 2 and pts.shape[1] == 3, (
-                    f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
-                )
+                assert pts.ndim == 2, f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
+                assert pts.shape[1] == 3, f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
                 entries.append(("points", pts))
                 for i in range(3):
                     mn[i] = min(mn[i], float(pts[:, i].min()))
@@ -1256,7 +1258,8 @@ def cyl(
     mode, amt1, amt2 = ("chamfer", c1v, c2v) if (c1v or c2v) else ("round", r1v, r2v)
 
     if shift is not None and (shift[0] or shift[1]):
-        assert not (amt1 or amt2), "shift= cannot be combined with rounding/chamfer"
+        assert not amt1, "shift= cannot be combined with rounding/chamfer"
+        assert not amt2, "shift= cannot be combined with rounding/chamfer"
         sdf_fn = lambda x, y, z: _cylinder_sdf(x, y, z, length, rad1, rad2, shift)  # noqa: E731
     else:
         sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode)  # noqa: E731
@@ -1475,9 +1478,10 @@ def tube(
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
     irad1 = irr1 if irr1 is not None else (orr1 - wall_v if orr1 is not None else None)
     irad2 = irr2 if irr2 is not None else (orr2 - wall_v if orr2 is not None else None)
-    assert rad1 is not None and rad2 is not None and irad1 is not None and irad2 is not None, (
-        "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    )
+    assert rad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert rad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert irad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    assert irad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
 
     sdf_fn = lambda x, y, z: lv.max(  # noqa: E731
         _cylinder_sdf(x, y, z, length, rad1, rad2),
@@ -1611,6 +1615,7 @@ def rect_tube(
     res: int = 10,
 ) -> PyShape:
     """Return a rectangular tube (a rectangle with a rectangular hole through it), as a libfive SDF.
+
     (outer rounded-rect-extrusion minus inner rounded-rect-extrusion, reusing
     pybosl2.shapes3d.cuboid()'s per-edge machinery for each). Only the 4 vertical edges are
     ever rounded (`edges=Anchor.Z`, matching the "rounded rectangular tube" look BOSL2's own
@@ -1824,9 +1829,8 @@ def polygon_prism(
     for p in path_list:
         assert len(p) >= 3, f"polygon_prism(): every path needs >= 3 points, got {len(p)}"
     assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
-    assert abs(rounding_top) < height and abs(rounding_bottom) < height, (
-        "polygon_prism(): rim treatments must be smaller than height"
-    )
+    assert abs(rounding_top) < height, "polygon_prism(): rim treatments must be smaller than height"
+    assert abs(rounding_bottom) < height, "polygon_prism(): rim treatments must be smaller than height"
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d2d = None
@@ -1909,7 +1913,8 @@ def teardrop(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """Return a teardrop shape (useful for 3-D-printable horizontal holes), as a libfive SDF: the
+    """Return a teardrop shape (useful for 3-D-printable horizontal holes), as a libfive SDF: the.
+
     union of a circle and a "roof" of two planes meeting at the apex, tangent to the circle,
     extruded along Y for thickness `h`.
 
@@ -1974,7 +1979,8 @@ def onion(
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
 ) -> PyShape:
-    """Return an onion-dome shape (a sphere with a conical cap), as a libfive SDF: the union of a
+    """Return an onion-dome shape (a sphere with a conical cap), as a libfive SDF: the union of a.
+
     sphere and a cone tangent to it, revolved around Z.
 
     CAVEAT: simplified relative to pybosl2.shapes3d.onion() -- no `circum=`/`realign=` support.
@@ -2174,7 +2180,8 @@ def _rmf_frames(points: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.floa
 
 
 def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float = 0.0) -> PyShape:
-    """Sweep a 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`
+    """Sweep a 2-D `profile` (list of ``[u, v]`` cross-section points) along a 3-D `path`.
+
     (a list of ``[x, y, z]`` points -- 2-D points are lifted to ``z = 0``), as a libfive SDF.
 
     At each path sample the profile is placed in a rotation-minimizing frame (see

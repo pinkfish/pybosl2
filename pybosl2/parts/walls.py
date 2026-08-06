@@ -42,7 +42,8 @@ def _rect(x0: float, x1: float, y0: float, y1: float) -> Any:
 
 
 def _circle_2tangents(r: float, p1: list[float], p2: list[float], p3: list[float]) -> list[float]:
-    """Centre of the circle of radius *r* tangent to segments p2->p1 and p2->p3 (BOSL2
+    """Centre of the circle of radius *r* tangent to segments p2->p1 and p2->p3 (BOSL2.
+
     circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here).
     """
     p1a, p2a, p3a = (np.asarray(p, dtype=float) for p in (p1, p2, p3))
@@ -69,7 +70,8 @@ class Walls:
 
     @staticmethod
     def narrowing_strut(w: float = 10, length: float = 100, wall: float = 5, angle: float = 30) -> Bosl2Solid:
-        """Return a strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2
+        """Return a strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2.
+
         narrowing_strut()).
 
         The triangular top converges at *angle* so the strut can brace an overhang without needing
@@ -97,7 +99,8 @@ class Walls:
         strut: float = 5,
         max_bridge: float = 20,
     ) -> Bosl2Solid:
-        """Return an open, X-cross-braced rectangular wall that saves material
+        """Return an open, X-cross-braced rectangular wall that saves material.
+
         and prints support-free (BOSL2 sparse_wall()).
 
         A solid border of width *strut* frames a lattice of diagonal braces, each kept under *maxang*
@@ -198,7 +201,8 @@ class Walls:
         strut: float = 5,
         wall: float = 2,
     ) -> Bosl2Solid:
-        """Return a corrugated wall: a solid border framing a sinusoidal sheet
+        """Return a corrugated wall: a solid border framing a sinusoidal sheet.
+
         of thickness *wall* (BOSL2 corrugated_wall()).
 
         The corrugation waves back and forth across the *thick* thickness as it runs along the length,
@@ -232,7 +236,8 @@ class Walls:
         strut: float | None = None,
         wall: float | None = None,
     ) -> Bosl2Solid:
-        """Return a rectangular wall that thins to *wall* in the middle while
+        """Return a rectangular wall that thins to *wall* in the middle while.
+
         the edges stay *thick* (BOSL2 thinning_wall()).
 
         Angled shoulders (kept under *angle*) join the thick border to the thin centre so nothing

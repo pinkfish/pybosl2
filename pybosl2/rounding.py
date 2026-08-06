@@ -261,7 +261,10 @@ def _round_corners(
         if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
             dk.append([0.0])
             continue
-        assert not (np.allclose(p0, p1, rtol=0, atol=EPSILON) or np.allclose(p1, p2, rtol=0, atol=EPSILON)), (
+        assert not np.allclose(p0, p1, rtol=0, atol=EPSILON), (
+            f"Repeated point in path at index {i} with nonzero rounding."
+        )
+        assert not np.allclose(p1, p2, rtol=0, atol=EPSILON), (
             f"Repeated point in path at index {i} with nonzero rounding."
         )
         angle = _vector_angle3(p0, p1, p2) / 2
@@ -405,7 +408,8 @@ def _smooth_path(
 
 
 class Roundable:
-    """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and
+    """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and.
+
     :class:`~pybosl2.paths.Path3D`.
     """
 
@@ -689,6 +693,7 @@ def _path_join(
         curvature: Continuous curvature (smooth) parameter for joints.
         relocate:  Merge consecutive endpoints if they are close (default True).
         closed:    Close the resulting joined path (default False).
+        **kwargs: Additional keyword arguments (e.g. ``k`` for curvature).
 
     Returns:
         A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.

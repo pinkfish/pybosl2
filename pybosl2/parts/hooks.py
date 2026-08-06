@@ -31,7 +31,8 @@ __all__ = ["Hooks"]
 
 
 def _circle_point_tangents(r: float, center: list[float], pt: list[float]) -> list[list[float]]:
-    """Return the two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2
+    """Return the two tangent points on a circle (centre *center*, radius *r*) from external point *pt* (BOSL2.
+
     circle_point_tangents()). Points are 2-vectors ``[x, height]``.
     """
     center_arr = np.asarray(center, dtype=float)
@@ -83,7 +84,8 @@ class Hooks:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2
+        """Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2.
+
         ring_hook()).
 
         *base_size* is the ``[x, y]`` of the mounting base, which sits on ``z = 0``; *hole_z* the

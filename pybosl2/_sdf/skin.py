@@ -163,7 +163,8 @@ def _linear_sweep_sdf(
     slices: int | None = None,
     res: int = 10,
 ) -> PyShape:
-    """Extrude a 2-D SDF shape vertically with optional twist, scale, and XY shift,
+    """Extrude a 2-D SDF shape vertically with optional twist, scale, and XY shift,.
+
     returning a 3-D PyShape.
 
     The extrusion is built as a union of thin prismatic slabs, each one using the 2-D
@@ -235,7 +236,8 @@ def skin_sdf(
     z: Sequence[float],
     res: int = 10,
 ) -> PyShape:
-    """Loft a solid between stacked 2-D SDF cross-sections at specified Z heights,
+    """Loft a solid between stacked 2-D SDF cross-sections at specified Z heights,.
+
     returning a 3-D PyShape.
 
     For a query point in 3-D, the signed distance is computed by projecting the point

@@ -77,7 +77,8 @@ def scalar_vec3(value: Any, fill: float = 0.0) -> np.ndarray:
 
 
 def unit(vector: Any) -> np.ndarray:
-    """Normalize *vector* to unit length.  Returns zero vector if zero-length (matching
+    """Normalize *vector* to unit length.  Returns zero vector if zero-length (matching.
+
     ``pybosl2/transforms.py``'s ``_unit()`` convention).
     """
     arr = np.asarray(vector, dtype=float)
@@ -154,7 +155,8 @@ def union(shapes: Any) -> Any:
 
 
 def unwrap(obj: Bosl2Solid | Bosl2Shape2D | Any) -> Any:
-    """Extract the native shape from a :class:`~pybosl2.shapes3d.Bosl2Solid` (3-D) or
+    """Extract the native shape from a :class:`~pybosl2.shapes3d.Bosl2Solid` (3-D) or.
+
     :class:`~pybosl2.shapes2d.Bosl2Shape2D` (2-D) wrapper, or return *obj* as-is.
 
     Both are plain Python wrappers around a native handle, so anything handing an object
@@ -200,7 +202,8 @@ def frag_count(
     fa: float | None = None,
     fs: float | None = None,
 ) -> int:
-    """Return the number of polygon segments to approximate a circle of radius *radius*, mirroring
+    """Return the number of polygon segments to approximate a circle of radius *radius*, mirroring.
+
     OpenSCAD's $fn/$fa/$fs rules.
     """
     if fn is not None and fn >= 3:
@@ -219,7 +222,8 @@ def pick_radius(
     diameter: float | None = None,
     dflt: float | None = None,
 ) -> Any:
-    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) >
+    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) >.
+
     dflt.
     """
     if radius1 is not None:
@@ -320,7 +324,8 @@ def arc_points(
     center: Sequence[float] = (0.0, 0.0),
     endpoint: bool = True,
 ) -> list[list[float]]:
-    """*count* points along an arc of radius *radius* centered at *center*, from angle *start*
+    """*count* points along an arc of radius *radius* centered at *center*, from angle *start*.
+
     sweeping *angle* degrees.
     """
     if not endpoint:
@@ -405,7 +410,8 @@ def rect_path(
 
 
 def as_native_2d(obj: Any) -> Any:
-    """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
+    """Return a raw native 2-D handle from *obj*: a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
+
     a :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a plain point list.
     """
     unwrapped = unwrap(obj)
@@ -423,7 +429,8 @@ def as_native_2d(obj: Any) -> Any:
 
 
 def is_child_2d(obj: Any) -> bool:
-    """Return True if *obj* is a single 2-D child rather than a container of children -- a wrapper or
+    """Return True if *obj* is a single 2-D child rather than a container of children -- a wrapper or.
+
     native shape, a Path2D/Region (which are ``list`` subclasses), or a ``[[x, y], ...]`` list.
     """
     if not isinstance(obj, (list, tuple)):

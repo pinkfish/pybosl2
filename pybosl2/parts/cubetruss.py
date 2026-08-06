@@ -67,7 +67,8 @@ def _yflip_copy(offset: float) -> Any:
 
 
 def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int, tuple[float, float, float]]:
-    """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip
+    """For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip.
+
     (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces.
     """
     x, y = float(vec[0]), float(vec[1])
@@ -108,7 +109,8 @@ class CubeTruss:
         size: float | None = None,
         strut: float | None = None,
     ) -> float:
-        """Return the length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2
+        """Return the length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2.
+
         cubetruss_dist()).
         """
         size = CUBETRUSS_SIZE if size is None else size

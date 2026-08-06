@@ -4,7 +4,8 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Concrete base for Bosl2Shape2D and Bosl2Solid, implementing all shared
+"""Concrete base for Bosl2Shape2D and Bosl2Solid, implementing all shared.
+
 transform, CSG, colour, and distributor methods that were previously
 duplicated across both subclasses.
 """
@@ -68,7 +69,8 @@ _NATIVE_PASSTHROUGH = frozenset(
 
 
 class BaseShape(Colorable, Distributable):
-    """Concrete base providing transforms, directional moves, CSG operators,
+    """Concrete base providing transforms, directional moves, CSG operators,.
+
     colour, and distributor methods shared by both 2-D and 3-D shapes.
 
     Every shared method that was duplicated across

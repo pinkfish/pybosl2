@@ -571,7 +571,9 @@ class Turtle3D:
             if absangle is None:
                 rel = np.eye(4) if rel_angle == 0 else Turtle3D._axis_rot4(relaxis, rel_angle, center)
                 return last_xform @ flip @ Turtle3D._trans4([move, 0, 0]) @ rel  # type: ignore[no-any-return]
-            assert absangle is not None and abscenter is not None and vshift is not None
+            assert absangle is not None
+            assert abscenter is not None
+            assert vshift is not None
             return Turtle3D._trans4(shift + vshift) @ Turtle3D._axis_rot4(absaxis, absangle, abscenter) @ rot_part  # type: ignore[no-any-return]
 
         rollval = cmd.roll if isinstance(cmd.roll, (int, float)) else 0
@@ -615,7 +617,8 @@ class Turtle3D:
                 rel = np.eye(4) if rel_angle == 0 else Turtle3D._axis_rot4(relaxis, frac * rel_angle, center)
                 xform = last_xform @ flip @ Turtle3D._trans4([frac * move, 0, 0]) @ rel @ Turtle3D._xrot4(frac * roll)
             else:
-                assert abscenter is not None and vshift is not None
+                assert abscenter is not None
+                assert vshift is not None
                 xform = (
                     Turtle3D._trans4(shift + vshift * frac)
                     @ Turtle3D._axis_rot4(absaxis, frac * absangle, abscenter)

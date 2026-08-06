@@ -63,7 +63,8 @@ __all__ = [
 
 
 def _as_native_2d(profile: object) -> Any:
-    """Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,
+    """Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.
+
     a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.
     """
     from pybosl2._helpers import as_native_2d as _coerce
@@ -72,7 +73,8 @@ def _as_native_2d(profile: object) -> Any:
 
 
 def _profile_factory(profile: object) -> Callable[[], Any]:
-    """Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time
+    """Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.
+
     (the "children" form, safe for frep handles); anything else is meshed once and reused.
     """
     from pybosl2.shapes2d import Bosl2Shape2D
@@ -173,7 +175,8 @@ def cylindrical_extrude(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2
+    """Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2.
+
     cylindrical_extrude()).
 
     Chops the profile into vertical facets and extrudes each radially. Handy for embossing text
@@ -194,9 +197,10 @@ def cylindrical_extrude(
 
     irv = inner_radius if inner_radius is not None else (inner_diameter / 2 if inner_diameter is not None else None)
     orv = outer_radius if outer_radius is not None else (outer_diameter / 2 if outer_diameter is not None else None)
-    assert irv is not None and orv is not None and irv > 0 and orv > 0, (
-        "cylindrical_extrude(): give positive inner and outer radius/diameter."
-    )
+    assert irv is not None, "cylindrical_extrude(): give positive inner and outer radius/diameter."
+    assert orv is not None, "cylindrical_extrude(): give positive inner and outer radius/diameter."
+    assert irv > 0, "cylindrical_extrude(): give positive inner and outer radius/diameter."
+    assert orv > 0, "cylindrical_extrude(): give positive inner and outer radius/diameter."
     circumf = 2 * math.pi * orv
     if size is None:
         size = [circumf, 1000.0]
@@ -290,7 +294,8 @@ def _native_bounds(shape: Any) -> tuple[list[float], list[float]]:
 
 
 class Extrudable:
-    """Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and
+    """Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and.
+
     :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead
     of OpenSCAD children (a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory).
     """
@@ -438,7 +443,8 @@ class Extrudable:
 
 
 class Miscellaneous(ABC):
-    """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods
+    """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods.
+
     on :class:`~pybosl2.shapes3d.Bosl2Solid`.
     """
 
@@ -487,7 +493,8 @@ class Miscellaneous(ABC):
         inner_radius: float | None = None,
         size: float = 1000,
     ) -> Bosl2Solid:
-        """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,
+        """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,.
+
         *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.
         """
         orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
