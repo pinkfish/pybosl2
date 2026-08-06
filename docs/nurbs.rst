@@ -1,21 +1,27 @@
 NURBS: curves & surfaces
 ========================
 
-Pure-Python port of the NURBS **evaluation** API from BOSL2's ``nurbs.scad``: evaluate a NURBS
-curve, sample a NURBS surface patch, mesh a patch into a VNF, and elevate a curve's degree. All
-three flavours -- ``"clamped"``, ``"open"`` and ``"closed"`` -- are supported, with weights
-(rational NURBS), knot multiplicities, and explicit knot vectors.
+Pure-Python port of the NURBS **evaluation** API from BOSL2's ``nurbs.scad``, as two classes:
+:class:`~pybosl2.nurbs.NurbsCurve` (evaluate a curve, sample it into a path, raise its degree) and
+:class:`~pybosl2.nurbs.NurbsPatch` (sample a surface, mesh it into a VNF). All three flavours --
+``CLAMPED``, ``OPEN`` and ``CLOSED`` -- are supported, with weights (rational NURBS), knot
+multiplicities, and explicit knot vectors.
 
-:func:`~pybosl2.nurbs` returns a :class:`~pybosl2.paths` (2-D control points) or
-:class:`~pybosl2._sdf.skin.path3d` (3-D), so the result carries the full path/extrude/stroke API;
-:func:`~pybosl2.nurbs` returns a :class:`~pybosl2.vnf`. The classic rational-NURBS sphere is
+Each object owns its whole definition, so operations chain off it instead of threading six
+arguments through free functions::
+
+    NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3)
+    NurbsCurve(ctrl, 3).elevate_degree().point(0.5)
+    NurbsPatch(patch, (3, 3)).vnf(splinesteps=(8, 8)).polyhedron()
+
+``NurbsCurve.curve()`` returns a :class:`~pybosl2.path2d.Path2D` (2-D control points) or a
+:class:`~pybosl2.path3d.Path3D` (3-D), so the result carries the full path/extrude/stroke API, and
+``NurbsPatch.vnf()`` returns a :class:`~pybosl2.vnf.VNF`. The classic rational-NURBS sphere is
 rendered and checked for real in ``tests/test_stl_render.py``.
 
-Curves take ordinary arguments (``control``, ``degree``, ``nurbs_type``, ``knots``, ``mult``,
-``weights``), or a :class:`~pybosl2.nurbs.NurbsCurve` value object that bundles them -- which is
-what ``nurbs_elevate_degree`` returns. Surface functions take a ``(u, v)`` pair for each
-per-direction argument: ``degree=(3, 3)``, ``splinesteps=(16, 16)``, ``knots=(u_knots, v_knots)``,
-and so on.
+Every per-direction setting on a patch is a ``(u, v)`` pair: ``degree=(3, 3)``,
+``splinesteps=(16, 16)``, ``knots=(u_knots, v_knots)``, and so on. The curve/patch definition is
+read-only once constructed -- build a new object to change it.
 
 Coverage of BOSL2 ``nurbs.scad``
 --------------------------------
@@ -29,24 +35,25 @@ Coverage of BOSL2 ``nurbs.scad``
      - Notes
    * - ``nurbs_curve``
      - ported
-     - :func:`~pybosl2.nurbs` -- clamped/open/closed, weights, mult, explicit knots,
-       ``splinesteps`` or ``u``. Returns a Path2D / Path3D; ``nurbs_curve_point`` evaluates
-       a single parameter value.
+     - :class:`~pybosl2.nurbs.NurbsCurve` -- clamped/open/closed, weights, mult, explicit knots.
+       ``curve(splinesteps)`` samples the whole curve into a path; ``point(u)`` / ``points(u)``
+       evaluate chosen parameters.
    * - ``nurbs_patch_points``
      - ported
-     - :func:`~pybosl2.nurbs` -- sample a surface on a grid (``splinesteps`` or
-       ``u``/``v``); per-direction degree/type/mult/knots.
+     - :class:`~pybosl2.nurbs.NurbsPatch` -- ``surface(splinesteps)`` samples a uniform grid,
+       ``points(u, v)`` a chosen one, ``point(u, v)`` a single point; per-direction
+       degree/type/mult/knots.
    * - ``nurbs_vnf``
      - ported
-     - :func:`~pybosl2.nurbs` -- mesh a patch (built on ``vnf_vertex_array``), with
+     - ``NurbsPatch.vnf()`` -- mesh a patch (built on ``vnf_vertex_array``), with
        ``style`` / ``reverse`` / ``caps``.
    * - ``nurbs_elevate_degree``
      - ported
-     - :func:`~pybosl2.nurbs` -- raise a clamped/open curve's degree (collocation
-       at Greville points); returns a :class:`~pybosl2.nurbs.NurbsCurve`.
+     - ``NurbsCurve.elevate_degree()`` -- raise a clamped/open curve's degree (collocation
+       at Greville points); returns a new :class:`~pybosl2.nurbs.NurbsCurve`.
    * - ``is_nurbs_patch``
      - ported
-     - :func:`~pybosl2.nurbs`.
+     - ``NurbsPatch.is_patch()``.
    * - ``nurbs_interp`` / ``nurbs_interp_surface``
      - not ported
      - the constrained least-squares *interpolation* solvers (fit a NURBS through given points with
@@ -63,16 +70,16 @@ A cubic clamped NURBS curve, swept into a tube:
 
 .. pythonscad-example::
 
-    from pybosl2 import nurbs_curve
+    from pybosl2 import NurbsCurve
 
     ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
-    nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()
+    NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()
 
 A cubic B-spline surface patch meshed into a sheet:
 
 .. pythonscad-example::
 
-    from pybosl2 import nurbs_vnf
+    from pybosl2 import NurbsPatch
 
     patch = [
         [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
@@ -80,13 +87,13 @@ A cubic B-spline surface patch meshed into a sheet:
         [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
         [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
     ]
-    nurbs_vnf(patch, (3, 3), splinesteps=(10, 10)).polyhedron().show()
+    NurbsPatch(patch, (3, 3)).vnf(splinesteps=(10, 10)).polyhedron().show()
 
 A sphere as a rational NURBS surface (weights + repeated knots):
 
 .. pythonscad-example::
 
-    from pybosl2 import nurbs_vnf
+    from pybosl2 import NurbsPatch
 
     patch = [[[0, 0, 1]] * 7,
              [[2, 0, 1], [2, 4, 1], [-2, 4, 1], [-2, 0, 1], [-2, -4, 1], [2, -4, 1], [2, 0, 1]],
@@ -94,8 +101,8 @@ A sphere as a rational NURBS surface (weights + repeated knots):
              [[0, 0, -1]] * 7]
     weights = [[w / 9 for w in row] for row in
                [[9, 3, 3, 9, 3, 3, 9], [3, 1, 1, 3, 1, 1, 3], [3, 1, 1, 3, 1, 1, 3], [9, 3, 3, 9, 3, 3, 9]]]
-    nurbs_vnf(patch, (3, 3), weights=weights, knots=(None, [0, 0.5, 0.5, 0.5, 1]),
-              splinesteps=(12, 12)).polyhedron().show()
+    NurbsPatch(patch, (3, 3), weights=weights,
+               knots=(None, [0, 0.5, 0.5, 0.5, 1])).vnf(splinesteps=(12, 12)).polyhedron().show()
 
 API reference
 -------------

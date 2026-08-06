@@ -5,21 +5,24 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # LibFile: pybosl2/nurbs.py
-#    Pure-Python port of the NURBS *evaluation* API from BOSL2's nurbs.scad: evaluate a NURBS
-#    curve (:func:`nurbs_curve`), sample a NURBS surface patch (:func:`nurbs_patch_points`), and
-#    mesh a patch into a VNF (:func:`nurbs_vnf`), plus the :func:`is_nurbs_patch` /
-#    :func:`nurbs_elevate_degree` helpers. All three flavours -- clamped, open and closed -- with
-#    weights (rational NURBS), knot multiplicities, and explicit knot vectors are supported.
+#    Pure-Python port of the NURBS *evaluation* API from BOSL2's nurbs.scad, as two classes:
+#    :class:`NurbsCurve` (evaluate a curve, sample it into a path, raise its degree) and
+#    :class:`NurbsPatch` (sample a surface, mesh it into a VNF). All three flavours -- clamped,
+#    open and closed -- with weights (rational NURBS), knot multiplicities, and explicit knot
+#    vectors are supported.
+#
+#    A curve or patch carries its own definition, so operations chain off the object rather than
+#    threading six arguments through free functions::
+#
+#        NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3)
+#        NurbsCurve(ctrl, 3).elevate_degree().curve()
+#        NurbsPatch(patch, (3, 3)).vnf(splinesteps=(8, 8)).polyhedron()
 #
 #    The evaluation kernel is the standard de Boor algorithm on a knot vector built exactly as
 #    BOSL2 builds it; the meshed results (including the classic rational-NURBS sphere) are rendered
-#    and measured in tests/test_stl_render.py. :func:`nurbs_curve` returns a :class:`~pybosl2.paths.Path2D` (2-D
-#    control points) or :class:`~pybosl2.paths.Path3D` (3-D), and :func:`nurbs_vnf` returns a
-#    :class:`~pybosl2.vnf.VNF`.
-#
-#    Curves are described either by plain arguments (control points, degree, knots, ...) or by a
-#    :class:`NurbsCurve` value object, which is what :func:`nurbs_elevate_degree` returns. Surfaces
-#    take per-direction ``(u, v)`` pairs for degree, type, splinesteps, mult and knots.
+#    and measured in tests/test_stl_render.py. :meth:`NurbsCurve.curve` returns a
+#    :class:`~pybosl2.path2d.Path2D` (2-D control points) or :class:`~pybosl2.path3d.Path3D` (3-D),
+#    and :meth:`NurbsPatch.vnf` returns a :class:`~pybosl2.vnf.VNF`.
 #
 #    NOT ported (a large follow-up): the interpolation solvers ``nurbs_interp`` /
 #    ``nurbs_interp_surface`` (constrained least-squares fitting) and the ``debug_nurbs`` display
@@ -31,14 +34,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Sequence, TypeVar
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.paths import Path
 
 import math
-from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
@@ -56,13 +60,7 @@ _T = TypeVar("_T")
 __all__ = [
     "NurbsType",
     "NurbsCurve",
-    "nurbs_curve",
-    "nurbs_curve_point",
-    "nurbs_patch_points",
-    "nurbs_patch_point",
-    "nurbs_vnf",
-    "nurbs_elevate_degree",
-    "is_nurbs_patch",
+    "NurbsPatch",
 ]
 
 
@@ -279,6 +277,14 @@ def _column(grid: Sequence[Sequence[_T]], index: int) -> list[_T]:
     return [row[index] for row in grid]
 
 
+def _copy_pair(pair: tuple[Sequence[_T] | None, Sequence[_T] | None]) -> tuple[list[_T] | None, list[_T] | None]:
+    """Copy a per-direction ``(u, v)`` pair of optional sequences, so callers cannot mutate it."""
+    return (
+        list(pair[0]) if pair[0] is not None else None,
+        list(pair[1]) if pair[1] is not None else None,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Section: curve evaluation
 # ---------------------------------------------------------------------------
@@ -334,7 +340,7 @@ def _curve_points(
     nurbs_type: NurbsType = NurbsType.CLAMPED,
     knots: Sequence[float] | None = None,
 ) -> list[np.ndarray]:
-    """The raw points on a NURBS curve as numpy arrays; the kernel behind :func:`nurbs_curve`.
+    """The raw points on a NURBS curve as numpy arrays; the kernel behind :class:`NurbsCurve`.
 
     Args:
         control: The control points.
@@ -379,291 +385,61 @@ def _curve_points(
     return [_deboor(knot, ctrl, val, degree, _findspan(val, degree, knot, count)) for val in params]
 
 
-def nurbs_curve(
-    control: Path | Sequence[Sequence[float]],
-    degree: int,
-    splinesteps: int | None = None,
-    u: Sequence[float] | None = None,
-    mult: Sequence[int] | None = None,
-    weights: Sequence[float] | None = None,
-    nurbs_type: NurbsType = NurbsType.CLAMPED,
-    knots: Sequence[float] | None = None,
-) -> Path:
-    """Evaluate a NURBS curve, returning its points as a path.
-
-    This is the core curve evaluator — equivalent to BOSL2's ``nurbs_curve()``.
-    Give either *splinesteps* (uniform samples between knots, with a sample at
-    every knot) or *u* (parameter values in ``[0, 1]``).  *weights* makes it a
-    rational NURBS; *mult* / *knots* give knot multiplicities or an explicit
-    knot vector.  For a single point use :func:`nurbs_curve_point`.
-
-    Args:
-        control: Control points — a sequence of ``[x,y]`` or ``[x,y,z]`` points.
-        degree: The curve degree.
-        splinesteps: Number of samples per knot span.  Mutually exclusive with
-                     *u*; when both are omitted this defaults to 16.
-        u: Explicit parameter values in ``[0, 1]``.  Mutually exclusive with
-           *splinesteps*.
-        mult: Knot multiplicities.
-        weights: Weights for rational NURBS.  Must match the number of control points.
-        nurbs_type: The boundary condition — :attr:`NurbsType.CLAMPED` (default),
-                    :attr:`NurbsType.OPEN`, or :attr:`NurbsType.CLOSED`.
-        knots: Explicit knot vector.
-
-    Returns:
-        A :class:`~pybosl2.path2d.Path2D` (2-D control points) or
-        :class:`~pybosl2.path3d.Path3D` (3-D control points).
-
-    Raises:
-        AssertionError: If both *splinesteps* and *u* are given, or if the
-                        control points don't match the degree requirements.
-
-    Examples:
-        A cubic clamped NURBS curve through five control points, swept into a tube:
-
-        .. pythonscad-example::
-
-            from pybosl2 import nurbs_curve
-
-            ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
-            nurbs_curve(ctrl, 3, splinesteps=12).stroke(width=3).show()
-    """
-    from pybosl2.path2d import Path2D
-    from pybosl2.path3d import Path3D
-
-    pts = _curve_points(
-        [[float(c) for c in p] for p in control],
-        degree,
-        splinesteps=splinesteps,
-        u=u,
-        mult=mult,
-        weights=weights,
-        nurbs_type=nurbs_type,
-        knots=knots,
-    )
-    dim = len(pts[0])
-    assert dim in (2, 3), "control points must be 2-D or 3-D."
-    closed = nurbs_type == NurbsType.CLOSED
-    if dim == 2:
-        return Path2D([[float(p[0]), float(p[1])] for p in pts], closed=closed)
-    return Path3D([[float(p[0]), float(p[1]), float(p[2])] for p in pts], closed=closed)
-
-
-def nurbs_curve_point(
-    control: Path | Sequence[Sequence[float]],
-    u: float,
-    degree: int,
-    mult: Sequence[int] | None = None,
-    weights: Sequence[float] | None = None,
-    nurbs_type: NurbsType = NurbsType.CLAMPED,
-    knots: Sequence[float] | None = None,
-) -> list[float]:
-    """Evaluate a NURBS curve at a single parameter value.
-
-    The single-point counterpart of :func:`nurbs_curve`: same curve definition,
-    but *u* is one parameter in ``[0, 1]`` and the result is one point.
-
-    Args:
-        control: Control points — a sequence of ``[x,y]`` or ``[x,y,z]`` points.
-        u: The parameter value in ``[0, 1]``.
-        degree: The curve degree.
-        mult: Knot multiplicities.
-        weights: Weights for rational NURBS.
-        nurbs_type: The boundary condition.
-        knots: Explicit knot vector.
-
-    Returns:
-        A single point as a list of coordinates.
-    """
-    pts = _curve_points(
-        [[float(c) for c in p] for p in control],
-        degree,
-        u=[float(u)],
-        mult=mult,
-        weights=weights,
-        nurbs_type=nurbs_type,
-        knots=knots,
-    )
-    return [float(c) for c in pts[0]]
-
-
 # ---------------------------------------------------------------------------
-# Section: curve value object
+# Section: surface evaluation
 # ---------------------------------------------------------------------------
 
 
-@dataclass(frozen=True)
-class NurbsCurve:
-    """A complete NURBS curve definition: control points plus their knot structure.
-
-    Bundles everything :func:`nurbs_curve` needs into one value, so a curve can be
-    passed around, elevated, and evaluated without carrying six loose arguments.
-    :func:`nurbs_elevate_degree` returns one of these.
-
-    Args:
-        control: The control points.
-        degree: The curve degree.
-        nurbs_type: The boundary condition (default :attr:`NurbsType.CLAMPED`).
-        knots: An explicit knot vector, or ``None`` for a uniform one.
-        mult: Knot multiplicities, or ``None``.
-        weights: Weights for a rational NURBS curve, or ``None``.
-
-    Examples:
-        Building a curve definition and sweeping the sampled path into a tube:
-
-        .. pythonscad-example::
-
-            from pybosl2 import NurbsCurve
-
-            ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
-            NurbsCurve(ctrl, 3).points(splinesteps=12).stroke(width=3).show()
-    """
-
-    control: list[list[float]]
-    degree: int
-    nurbs_type: NurbsType = NurbsType.CLAMPED
-    knots: list[float] | None = None
-    mult: list[int] | None = None
-    weights: list[float] | None = None
-
-    def points(self, splinesteps: int = 16) -> Path:
-        """Sample this curve into a path.
-
-        Args:
-            splinesteps: Number of samples per knot span (default 16).
-
-        Returns:
-            A :class:`~pybosl2.path2d.Path2D` or :class:`~pybosl2.path3d.Path3D`.
-
-        Examples:
-            .. pythonscad-example::
-
-                from pybosl2 import NurbsCurve
-
-                curve = NurbsCurve([[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0]], 3)
-                curve.points(splinesteps=16).stroke(width=3).show()
-        """
-        return nurbs_curve(
-            self.control,
-            self.degree,
-            splinesteps=splinesteps,
-            mult=self.mult,
-            weights=self.weights,
-            nurbs_type=self.nurbs_type,
-            knots=self.knots,
-        )
-
-    def point(self, u: float) -> list[float]:
-        """Evaluate this curve at a single parameter value.
-
-        Args:
-            u: The parameter value in ``[0, 1]``.
-
-        Returns:
-            A single point as a list of coordinates.
-        """
-        return nurbs_curve_point(
-            self.control,
-            u,
-            self.degree,
-            mult=self.mult,
-            weights=self.weights,
-            nurbs_type=self.nurbs_type,
-            knots=self.knots,
-        )
-
-    def elevate_degree(self, times: int = 1) -> NurbsCurve:
-        """Raise this curve's degree, keeping its shape.
-
-        Args:
-            times: How many times to elevate the degree (default 1).
-
-        Returns:
-            A new :class:`NurbsCurve` of degree ``self.degree + times``.
-        """
-        return nurbs_elevate_degree(
-            self.control,
-            self.degree,
-            knots=self.knots,
-            nurbs_type=self.nurbs_type,
-            times=times,
-            weights=self.weights,
-            mult=self.mult,
-        )
-
-
-# ---------------------------------------------------------------------------
-# Section: surfaces
-# ---------------------------------------------------------------------------
-
-
-def is_nurbs_patch(x: object) -> bool:
-    """
-    True if *x* looks like a NURBS patch: a rectangular 2-D array of points (BOSL2
-    is_nurbs_patch()).
-    """
-    return bool(
-        isinstance(x, (list, tuple))
-        and len(x)
-        and isinstance(x[0], (list, tuple))
-        and len(x[0])
-        and isinstance(x[0][0], (list, tuple, np.ndarray))
-        and len(x[0]) == len(x[-1])
-    )
-
-
-def nurbs_patch_points(
-    patch: Sequence[Sequence[Sequence[float]]],
-    degree: tuple[int, int] = (3, 3),
-    splinesteps: tuple[int, int] = (16, 16),
-    u: Sequence[float] | None = None,
-    v: Sequence[float] | None = None,
-    weights: Sequence[Sequence[float]] | None = None,
-    nurbs_type: tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),
-    mult: tuple[Sequence[int] | None, Sequence[int] | None] = (None, None),
-    knots: tuple[Sequence[float] | None, Sequence[float] | None] = (None, None),
+def _patch_grid(
+    control: Sequence[Sequence[PointLike]],
+    degree: tuple[int, int],
+    splinesteps: tuple[int, int],
+    u: Sequence[float] | None,
+    v: Sequence[float] | None,
+    weights: Sequence[Sequence[float]] | None,
+    nurbs_type: tuple[NurbsType, NurbsType],
+    mult: tuple[Sequence[int] | None, Sequence[int] | None],
+    knots: tuple[Sequence[float] | None, Sequence[float] | None],
 ) -> list[list[list[float]]]:
-    """Sample a NURBS surface patch on a grid of points.
+    """Sample a patch of control points on a grid; the kernel behind :class:`NurbsPatch`.
 
-    Evaluates a NURBS surface — the equivalent of BOSL2's ``nurbs_patch_points()``.
-    The patch is swept column-wise (U direction) then row-wise (V direction).
-    Every per-direction argument is a ``(u, v)`` pair.  For single-point
-    evaluation use :func:`nurbs_patch_point`.
+    Each control column is swept as a U curve, then each resulting row is swept
+    as a V curve.  A direction uses its explicit parameter list when given, and
+    its *splinesteps* entry otherwise.
 
     Args:
-        patch: A rectangular array of control points.
-        degree: Per-direction degree ``(u_degree, v_degree)`` (default ``(3,3)``).
-        splinesteps: Per-direction samples ``(u_steps, v_steps)`` (default ``(16,16)``).
-        u: Explicit parameter values along U (replaces the U component of *splinesteps*).
-        v: Explicit parameter values along V (replaces the V component of *splinesteps*).
-        weights: A matrix the same size as *patch* for rational NURBS weighting.
-        nurbs_type: Per-direction boundary condition ``(u_type, v_type)``.
-        mult: Per-direction knot multiplicities ``(u_mult, v_mult)``.
-        knots: Per-direction knot vectors ``(u_knots, v_knots)``.
+        control: The rectangular grid of control points.
+        degree: Per-direction degree ``(u_degree, v_degree)``.
+        splinesteps: Per-direction samples per knot span.
+        u: Explicit parameter values along U, or ``None``.
+        v: Explicit parameter values along V, or ``None``.
+        weights: A weight matrix the same size as *control*, or ``None``.
+        nurbs_type: Per-direction boundary condition.
+        mult: Per-direction knot multiplicities.
+        knots: Per-direction knot vectors.
 
     Returns:
-        A grid (list of rows) of ``[x, y, z]`` points.
+        A grid (list of rows) of points.
     """
     if weights is not None:
-        grid = nurbs_patch_points(
-            [_homogeneous(row, wrow) for row, wrow in zip(patch, weights, strict=True)],
+        grid = _patch_grid(
+            [_homogeneous(row, wrow) for row, wrow in zip(control, weights, strict=True)],
             degree,
             splinesteps,
             u,
             v,
-            nurbs_type=nurbs_type,
-            mult=mult,
-            knots=knots,
+            None,
+            nurbs_type,
+            mult,
+            knots,
         )
         return [[_dehomogenise(pt) for pt in row] for row in grid]
 
     u_steps = None if u is not None else splinesteps[0]
     v_steps = None if v is not None else splinesteps[1]
-
-    # sweep each control-column as a u-curve, then each resulting row as a v-curve
     columns = [
         _curve_points(
-            _column(patch, j),
+            _column(control, j),
             degree[0],
             splinesteps=u_steps,
             u=u,
@@ -671,7 +447,7 @@ def nurbs_patch_points(
             nurbs_type=nurbs_type[0],
             knots=knots[0],
         )
-        for j in range(len(patch[0]))
+        for j in range(len(control[0]))
     ]
     out: list[list[list[float]]] = []
     for i in range(len(columns[0])):
@@ -688,135 +464,51 @@ def nurbs_patch_points(
     return out
 
 
-def nurbs_patch_point(
-    patch: Sequence[Sequence[Sequence[float]]],
+def _patch_point(
+    control: Sequence[Sequence[PointLike]],
     u: float,
     v: float,
-    degree: tuple[int, int] = (3, 3),
-    weights: Sequence[Sequence[float]] | None = None,
-    nurbs_type: tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),
-    mult: tuple[Sequence[int] | None, Sequence[int] | None] = (None, None),
-    knots: tuple[Sequence[float] | None, Sequence[float] | None] = (None, None),
+    degree: tuple[int, int],
+    weights: Sequence[Sequence[float]] | None,
+    nurbs_type: tuple[NurbsType, NurbsType],
+    mult: tuple[Sequence[int] | None, Sequence[int] | None],
+    knots: tuple[Sequence[float] | None, Sequence[float] | None],
 ) -> list[float]:
-    """Evaluate a NURBS surface patch at a single (u, v) parameter pair.
+    """Evaluate a patch of control points at one ``(u, v)`` pair.
 
     Args:
-        patch: A rectangular array of control points.
-        u: Parameter value along U in ``[0, 1]``.
-        v: Parameter value along V in ``[0, 1]``.
-        degree: Per-direction degree ``(u_degree, v_degree)`` (default ``(3,3)``).
-        weights: A weight matrix for rational NURBS.
-        nurbs_type: Per-direction boundary condition ``(u_type, v_type)``.
-        mult: Per-direction knot multiplicities ``(u_mult, v_mult)``.
-        knots: Per-direction knot vectors ``(u_knots, v_knots)``.
+        control: The rectangular grid of control points.
+        u: The parameter along U in ``[0, 1]``.
+        v: The parameter along V in ``[0, 1]``.
+        degree: Per-direction degree ``(u_degree, v_degree)``.
+        weights: A weight matrix the same size as *control*, or ``None``.
+        nurbs_type: Per-direction boundary condition.
+        mult: Per-direction knot multiplicities.
+        knots: Per-direction knot vectors.
 
     Returns:
-        A single ``[x, y, z]`` point.
+        A single point.
     """
     if weights is not None:
-        point = nurbs_patch_point(
-            [_homogeneous(row, wrow) for row, wrow in zip(patch, weights, strict=True)],
+        homogeneous = _patch_point(
+            [_homogeneous(row, wrow) for row, wrow in zip(control, weights, strict=True)],
             u,
             v,
             degree,
-            nurbs_type=nurbs_type,
-            mult=mult,
-            knots=knots,
+            None,
+            nurbs_type,
+            mult,
+            knots,
         )
-        return _dehomogenise(point)
+        return _dehomogenise(homogeneous)
 
     # collapse each control row along V, then the resulting column along U
     inner = [
-        _curve_points(row, degree[1], u=[v], mult=mult[1], nurbs_type=nurbs_type[1], knots=knots[1])[0] for row in patch
+        _curve_points(row, degree[1], u=[v], mult=mult[1], nurbs_type=nurbs_type[1], knots=knots[1])[0]
+        for row in control
     ]
-    surface_point = _curve_points(inner, degree[0], u=[u], mult=mult[0], nurbs_type=nurbs_type[0], knots=knots[0])[0]
-    return [float(c) for c in surface_point]
-
-
-def nurbs_vnf(
-    patch: Sequence[Sequence[Sequence[float]]],
-    degree: tuple[int, int] = (3, 3),
-    splinesteps: tuple[int, int] = (16, 16),
-    weights: Sequence[Sequence[float]] | None = None,
-    nurbs_type: tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),
-    mult: tuple[Sequence[int] | None, Sequence[int] | None] = (None, None),
-    knots: tuple[Sequence[float] | None, Sequence[float] | None] = (None, None),
-    style: VnfStyle = VnfStyle.DEFAULT,
-    reverse: bool = False,
-    caps: "CapsSpec | None" = None,
-) -> VNF:
-    """Mesh a NURBS surface patch into a ``[vertices, faces]`` VNF.
-
-    Samples the patch with :func:`nurbs_patch_points` and builds the mesh using
-    :meth:`~pybosl2.vnf.VNF.vertex_array`.  Row/column wrapping is determined
-    by *nurbs_type* — ``CLOSED`` directions produce a continuous tube or torus.
-
-    Args:
-        patch: A rectangular array of control points.
-        degree: Per-direction degree ``(u_degree, v_degree)``.
-        splinesteps: Per-direction samples per knot span (default ``(16,16)``).
-        weights: A weight matrix as for :func:`nurbs_patch_points`.
-        nurbs_type: Per-direction boundary condition ``(u_type, v_type)``.
-        mult: Knot multiplicities as for :func:`nurbs_patch_points`.
-        knots: Knot vectors as for :func:`nurbs_patch_points`.
-        style: :meth:`~pybosl2.vnf.VNF.vertex_array` triangulation style.
-        reverse: If True, flip every face normal.
-        caps: A :data:`~pybosl2.caps.CapsSpec` to cap a
-              ``(CLAMPED, CLOSED)`` or ``(CLOSED, CLAMPED)`` surface.
-              ``None`` means no caps.
-
-    Returns:
-        A :class:`~pybosl2.vnf.VNF`.
-
-    Raises:
-        AssertionError: If *caps* are requested on a type that doesn't support
-                        caps (must be paired ``CLAMPED``/``CLOSED`` or the reverse).
-
-    Examples:
-        A cubic B-spline surface patch meshed into a solid:
-
-        .. pythonscad-example::
-
-            from pybosl2 import nurbs_vnf
-
-            patch = [
-                [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
-                [[-50, 16, 20], [-16, 16, 40], [16, 16, 40], [50, 16, 20]],
-                [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
-                [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
-            ]
-            nurbs_vnf(patch, (3, 3)).polyhedron().show()
-    """
-    from pybosl2.caps import CapType, norm_caps
-
-    assert is_nurbs_patch(patch), "patch must be a rectangular array of points."
-
-    cap_specs: list["CapSpec"] = norm_caps(caps if caps is not None else CapType.NONE)
-    havecaps = any(cs.cap_type != CapType.NONE for cs in cap_specs)
-    cappable = ((NurbsType.CLAMPED, NurbsType.CLOSED), (NurbsType.CLOSED, NurbsType.CLAMPED))
-    assert not havecaps or tuple(nurbs_type) in cappable, "caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED)."
-
-    # caps close the column-wrapped ends, so a closed U direction is transposed into V
-    flip = havecaps and nurbs_type[0] == NurbsType.CLOSED
-    pts = nurbs_patch_points(
-        patch,
-        degree=degree,
-        splinesteps=splinesteps,
-        weights=weights,
-        nurbs_type=nurbs_type,
-        mult=mult,
-        knots=knots,
-    )
-    if flip:
-        pts = [list(row) for row in zip(*pts, strict=False)]
-    return VNF.vertex_array(
-        pts,
-        style=style,
-        row_wrap=nurbs_type[1 if flip else 0] == NurbsType.CLOSED,
-        col_wrap=nurbs_type[0 if flip else 1] == NurbsType.CLOSED,
-        reverse=reverse,
-        caps=cap_specs if havecaps else None,
-    )
+    point = _curve_points(inner, degree[0], u=[u], mult=mult[0], nurbs_type=nurbs_type[0], knots=knots[0])[0]
+    return [float(c) for c in point]
 
 
 # ---------------------------------------------------------------------------
@@ -938,70 +630,52 @@ def _elevation_knots(
     return expanded[degree : len(expanded) - degree] if nurbs_type == NurbsType.CLAMPED else expanded
 
 
-def nurbs_elevate_degree(
+def _elevate_curve(
     control: Sequence[Sequence[float]],
     degree: int,
-    knots: Sequence[float] | None = None,
-    nurbs_type: NurbsType = NurbsType.CLAMPED,
-    times: int = 1,
-    weights: Sequence[float] | None = None,
-    mult: Sequence[int] | None = None,
-) -> NurbsCurve:
-    """Raise a NURBS/B-spline curve's degree by *times*.
+    nurbs_type: NurbsType,
+    knots: Sequence[float] | None,
+    mult: Sequence[int] | None,
+    weights: Sequence[float] | None,
+    times: int,
+) -> tuple[list[list[float]], int, list[float] | None, list[float] | None]:
+    """Raise a curve's degree *times* times, preserving its shape.
 
-    Elevates the curve degree while preserving its shape.  Only
-    :attr:`NurbsType.CLAMPED` and :attr:`NurbsType.OPEN` splines are
-    supported (as in BOSL2).  Rational curves are elevated in homogeneous
-    space and de-homogenised.
+    Rational curves are elevated in homogeneous space and de-homogenised, so the
+    returned weights belong to the returned control points.
 
     Args:
         control: The control points.
         degree: The current degree.
-        knots: The current knot vector.
-        nurbs_type: The boundary condition — must be :attr:`NurbsType.CLAMPED`
-                    or :attr:`NurbsType.OPEN`.
-        times: How many times to elevate (default 1).  ``times=0`` returns the
-               input unchanged.
-        weights: Weights for a rational NURBS curve.
-        mult: Knot multiplicities.
+        nurbs_type: The boundary condition (``CLAMPED`` or ``OPEN``).
+        knots: The current knot vector, or ``None`` for a uniform one.
+        mult: Knot multiplicities, or ``None``.
+        weights: Weights for a rational curve, or ``None``.
+        times: How many times to elevate; 0 returns the input unchanged.
 
     Returns:
-        A :class:`NurbsCurve` holding the elevated curve.
-
-    Raises:
-        AssertionError: If *nurbs_type* is not ``CLAMPED`` or ``OPEN``, or if
-                        *times* is negative.
+        A tuple of ``(control, degree, knots, weights)``.
     """
-    assert nurbs_type in (NurbsType.CLAMPED, NurbsType.OPEN), (
-        "nurbs_elevate_degree: nurbs_type must be CLAMPED or OPEN."
-    )
+    assert nurbs_type in (NurbsType.CLAMPED, NurbsType.OPEN), "degree elevation needs a CLAMPED or OPEN curve."
     assert times >= 0, "times must be zero or a positive integer."
     points = [[float(c) for c in p] for p in control]
     if times == 0:
-        return NurbsCurve(
-            control=points,
-            degree=degree,
-            nurbs_type=nurbs_type,
-            knots=[float(k) for k in knots] if knots is not None else None,
-            mult=[int(m) for m in mult] if mult is not None else None,
-            weights=[float(w) for w in weights] if weights is not None else None,
+        return (
+            points,
+            degree,
+            [float(k) for k in knots] if knots is not None else None,
+            [float(w) for w in weights] if weights is not None else None,
         )
 
     if weights is not None:
-        elevated = nurbs_elevate_degree(
-            _homogeneous(points, weights),
-            degree,
-            knots=knots,
-            nurbs_type=nurbs_type,
-            times=times,
-            mult=mult,
+        homogeneous, new_degree, new_knots, _ = _elevate_curve(
+            _homogeneous(points, weights), degree, nurbs_type, knots, mult, None, times
         )
-        return NurbsCurve(
-            control=[_dehomogenise(pt) for pt in elevated.control],
-            degree=elevated.degree,
-            nurbs_type=nurbs_type,
-            knots=elevated.knots,
-            weights=[float(pt[-1]) for pt in elevated.control],
+        return (
+            [_dehomogenise(pt) for pt in homogeneous],
+            new_degree,
+            new_knots,
+            [float(pt[-1]) for pt in homogeneous],
         )
 
     compact = _elevation_knots(len(points), degree, nurbs_type, knots, mult)
@@ -1009,5 +683,487 @@ def nurbs_elevate_degree(
     new_ctrl, new_full, new_degree = _elevate_once(points, degree, full)
     new_knots = new_full[degree + 1 : len(new_full) - degree - 1] if nurbs_type == NurbsType.CLAMPED else new_full
     if times == 1:
-        return NurbsCurve(control=new_ctrl, degree=new_degree, nurbs_type=nurbs_type, knots=new_knots)
-    return nurbs_elevate_degree(new_ctrl, new_degree, new_knots, nurbs_type=nurbs_type, times=times - 1)
+        return new_ctrl, new_degree, new_knots, None
+    return _elevate_curve(new_ctrl, new_degree, nurbs_type, new_knots, None, None, times - 1)
+
+
+# ---------------------------------------------------------------------------
+# Section: NURBS curve
+# ---------------------------------------------------------------------------
+
+
+class NurbsCurve:
+    """A NURBS curve: control points plus their knot structure, with every operation as a method.
+
+    The object owns its whole definition -- degree, boundary condition, knot vector, knot
+    multiplicities and rational weights -- so operations chain off it instead of repeating six
+    arguments at every call (BOSL2's ``nurbs_curve()`` / ``nurbs_elevate_degree()``)::
+
+        NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3)
+        NurbsCurve(ctrl, 3).elevate_degree(2).point(0.5)
+
+    Evaluate at chosen parameters with :meth:`point` / :meth:`points`, sample the whole curve into
+    a path with :meth:`curve`, and raise the degree (keeping the shape) with :meth:`elevate_degree`.
+    Indexing, iteration and ``len()`` walk the control points.
+
+    Args:
+        control: The control points -- a sequence of ``[x,y]`` or ``[x,y,z]`` points.
+        degree: The curve degree.
+        nurbs_type: The boundary condition -- :attr:`NurbsType.CLAMPED` (the default),
+                    :attr:`NurbsType.OPEN` or :attr:`NurbsType.CLOSED`.
+        knots: An explicit knot vector, or ``None`` for a uniform one.
+        mult: Knot multiplicities, or ``None``.
+        weights: Weights for a rational NURBS curve, or ``None``.
+
+    Examples:
+        A cubic clamped NURBS curve through five control points, swept into a tube:
+
+        .. pythonscad-example::
+
+            from pybosl2 import NurbsCurve
+
+            ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
+            NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()
+    """
+
+    _control: np.ndarray
+    _degree: int
+    _nurbs_type: NurbsType
+    _knots: list[float] | None
+    _mult: list[int] | None
+    _weights: list[float] | None
+
+    def __init__(
+        self,
+        control: Path | Sequence[Sequence[float]] | np.ndarray,
+        degree: int,
+        nurbs_type: NurbsType = NurbsType.CLAMPED,
+        knots: Sequence[float] | None = None,
+        mult: Sequence[int] | None = None,
+        weights: Sequence[float] | None = None,
+    ) -> None:
+        """Initialize a NURBS curve from its control points and knot structure.
+
+        Args:
+            control: A sequence of 2-D or 3-D control points (lists, a Path, or a numpy array).
+            degree: The curve degree.
+            nurbs_type: The boundary condition.
+            knots: An explicit knot vector, or ``None`` for a uniform one.
+            mult: Knot multiplicities, or ``None``.
+            weights: Weights for a rational NURBS curve, or ``None``.
+        """
+        pts = np.array([[float(c) for c in p] for p in control], dtype=float)
+        assert pts.ndim == 2, f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}"
+        assert pts.shape[1] in (2, 3), f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point"
+        assert isinstance(degree, int) and degree >= 1, f"degree must be a positive integer, got {degree!r}"
+        assert isinstance(nurbs_type, NurbsType), f"unknown NURBS type: {nurbs_type!r}"
+        assert nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1, (
+            f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points"
+        )
+        assert weights is None or len(weights) == pts.shape[0], "weights must match the number of control points."
+        pts.flags.writeable = False  # the definition is fixed once built; make a new curve to change it
+        self._control = pts
+        self._degree = degree
+        self._nurbs_type = nurbs_type
+        self._knots = [float(k) for k in knots] if knots is not None else None
+        self._mult = [int(m) for m in mult] if mult is not None else None
+        self._weights = [float(w) for w in weights] if weights is not None else None
+
+    def __len__(self) -> int:
+        return len(self._control)
+
+    def __getitem__(self, index: int | slice) -> np.ndarray:
+        return self._control[index]
+
+    def __iter__(self) -> Iterator[np.ndarray]:
+        return iter(self._control)
+
+    def __repr__(self) -> str:
+        return f"NurbsCurve({self._control.tolist()}, {self._degree}, {self._nurbs_type})"
+
+    @property
+    def array(self) -> np.ndarray:
+        """The control points as an (N, dim) numpy array."""
+        return self._control
+
+    @property
+    def to_list(self) -> list[list[float]]:
+        """The control points as a plain list."""
+        return self._control.tolist()  # type: ignore[no-any-return]
+
+    @property
+    def degree(self) -> int:
+        """The curve degree."""
+        return self._degree
+
+    @property
+    def nurbs_type(self) -> NurbsType:
+        """The boundary condition of the curve."""
+        return self._nurbs_type
+
+    @property
+    def knots(self) -> list[float] | None:
+        """The explicit knot vector, or ``None`` when the curve uses a uniform one."""
+        return list(self._knots) if self._knots is not None else None
+
+    @property
+    def weights(self) -> list[float] | None:
+        """The rational weights, or ``None`` for a non-rational curve."""
+        return list(self._weights) if self._weights is not None else None
+
+    # -- evaluation ------------------------------------------------------------------------
+
+    def points(self, u: Sequence[float]) -> np.ndarray:
+        """Evaluate the curve at each parameter in *u*.
+
+        Args:
+            u: Parameter values, each in ``[0, 1]``.
+
+        Returns:
+            An ``(len(u), dim)`` ndarray of points.
+        """
+        return np.array(self._evaluate(u=u), dtype=float)
+
+    def point(self, u: float) -> np.ndarray:
+        """Evaluate the curve at a single parameter value.
+
+        Args:
+            u: The parameter value in ``[0, 1]``.
+
+        Returns:
+            A length-dim ndarray for the point at *u*.
+        """
+        return self._evaluate(u=[float(u)])[0]
+
+    def curve(self, splinesteps: int = 16) -> Path:
+        """Sample the whole curve into a path.
+
+        Takes *splinesteps* uniform samples between every pair of knots, plus a sample at every knot, which is
+        BOSL2's ``nurbs_curve(..., splinesteps=)`` behaviour.  Closed curves come back as closed
+        paths.
+
+        Args:
+            splinesteps: Number of samples per knot span (default 16).
+
+        Returns:
+            A :class:`~pybosl2.path2d.Path2D` for 2-D control points, or a
+            :class:`~pybosl2.path3d.Path3D` for 3-D ones.
+
+        Examples:
+            Sampling a cubic curve and sweeping it into a tube:
+
+            .. pythonscad-example::
+
+                from pybosl2 import NurbsCurve
+
+                ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]
+                NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()
+        """
+        from pybosl2.path2d import Path2D
+        from pybosl2.path3d import Path3D
+
+        pts = self._evaluate(splinesteps=splinesteps)
+        closed = self._nurbs_type == NurbsType.CLOSED
+        if self._control.shape[1] == 2:
+            return Path2D([[float(p[0]), float(p[1])] for p in pts], closed=closed)
+        return Path3D([[float(p[0]), float(p[1]), float(p[2])] for p in pts], closed=closed)
+
+    def elevate_degree(self, times: int = 1) -> NurbsCurve:
+        """Raise the curve's degree, keeping its shape.
+
+        Only :attr:`NurbsType.CLAMPED` and :attr:`NurbsType.OPEN` curves can be elevated (as in
+        BOSL2).  The result carries the knot vector the elevated curve needs, so it evaluates to
+        the same points as this one.
+
+        Args:
+            times: How many times to elevate (default 1); 0 returns an equivalent curve.
+
+        Returns:
+            A new :class:`NurbsCurve` of degree ``self.degree + times``.
+
+        Raises:
+            AssertionError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.
+        """
+        control, degree, knots, weights = _elevate_curve(
+            self.to_list, self._degree, self._nurbs_type, self._knots, self._mult, self._weights, times
+        )
+        mult = self._mult if times == 0 else None
+        return NurbsCurve(control, degree, self._nurbs_type, knots, mult, weights)
+
+    def _evaluate(self, splinesteps: int | None = None, u: Sequence[float] | None = None) -> list[np.ndarray]:
+        """The raw evaluated points for *splinesteps* samples per span, or at the parameters *u*."""
+        return _curve_points(
+            self.to_list,
+            self._degree,
+            splinesteps=splinesteps,
+            u=u,
+            mult=self._mult,
+            weights=self._weights,
+            nurbs_type=self._nurbs_type,
+            knots=self._knots,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Section: NURBS surface patch
+# ---------------------------------------------------------------------------
+
+
+class NurbsPatch:
+    """A NURBS surface patch: a rectangular grid of control points, with its knot structure.
+
+    The surface counterpart of :class:`NurbsCurve` (BOSL2's ``nurbs_patch_points()`` /
+    ``nurbs_vnf()``).  Every per-direction setting is a ``(u, v)`` pair -- degree, boundary
+    condition, knot multiplicities, knot vectors and splinesteps::
+
+        NurbsPatch(patch, (3, 3)).vnf(splinesteps=(8, 8)).polyhedron()
+
+    Evaluate single points with :meth:`point`, a grid of chosen parameters with :meth:`points`,
+    a uniformly sampled grid with :meth:`surface`, and mesh it with :meth:`vnf`.  Indexing,
+    iteration and ``len()`` walk the control-point rows.
+
+    Args:
+        control: A rectangular grid (rows of ``[x,y,z]`` control points).
+        degree: Per-direction degree ``(u_degree, v_degree)`` (default ``(3,3)``).
+        nurbs_type: Per-direction boundary condition ``(u_type, v_type)``.
+        knots: Per-direction knot vectors ``(u_knots, v_knots)``.
+        mult: Per-direction knot multiplicities ``(u_mult, v_mult)``.
+        weights: A weight matrix the same size as *control* for rational NURBS, or ``None``.
+
+    Examples:
+        A cubic B-spline surface patch meshed into a solid:
+
+        .. pythonscad-example::
+
+            from pybosl2 import NurbsPatch
+
+            patch = [
+                [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
+                [[-50, 16, 20], [-16, 16, 40], [16, 16, 40], [50, 16, 20]],
+                [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
+                [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
+            ]
+            NurbsPatch(patch, (3, 3)).vnf().polyhedron().show()
+    """
+
+    _control: np.ndarray
+    _degree: tuple[int, int]
+    _nurbs_type: tuple[NurbsType, NurbsType]
+    _knots: tuple[list[float] | None, list[float] | None]
+    _mult: tuple[list[int] | None, list[int] | None]
+    _weights: list[list[float]] | None
+
+    def __init__(
+        self,
+        control: Sequence[Sequence[Sequence[float]]] | np.ndarray,
+        degree: tuple[int, int] = (3, 3),
+        nurbs_type: tuple[NurbsType, NurbsType] = (NurbsType.CLAMPED, NurbsType.CLAMPED),
+        knots: tuple[Sequence[float] | None, Sequence[float] | None] = (None, None),
+        mult: tuple[Sequence[int] | None, Sequence[int] | None] = (None, None),
+        weights: Sequence[Sequence[float]] | None = None,
+    ) -> None:
+        """Initialize a NURBS patch from a grid of control points and its knot structure.
+
+        Args:
+            control: A rectangular grid of 3-D control points.
+            degree: Per-direction degree ``(u_degree, v_degree)``.
+            nurbs_type: Per-direction boundary condition ``(u_type, v_type)``.
+            knots: Per-direction knot vectors ``(u_knots, v_knots)``.
+            mult: Per-direction knot multiplicities ``(u_mult, v_mult)``.
+            weights: A weight matrix the same size as *control*, or ``None``.
+        """
+        assert NurbsPatch.is_patch(control), "control must be a rectangular grid of points."
+        pts = np.array(control, dtype=float)
+        assert pts.ndim == 3, f"patch must be a 3-D array (rows x cols x dim), got shape {pts.shape}"
+        assert pts.shape[2] == 3, f"patch control points must be 3-D, got {pts.shape[2]} components"
+        assert all(isinstance(d, int) and d >= 1 for d in degree), f"degree must be positive integers, got {degree!r}"
+        assert all(isinstance(t, NurbsType) for t in nurbs_type), f"unknown NURBS type: {nurbs_type!r}"
+        assert weights is None or np.asarray(weights, dtype=float).shape == pts.shape[:2], (
+            "weights must be the same size as the control-point grid."
+        )
+        pts.flags.writeable = False  # the definition is fixed once built; make a new patch to change it
+        self._control = pts
+        self._degree = (degree[0], degree[1])
+        self._nurbs_type = (nurbs_type[0], nurbs_type[1])
+        self._knots = _copy_pair(knots)
+        self._mult = _copy_pair(mult)
+        self._weights = [[float(w) for w in row] for row in weights] if weights is not None else None
+
+    def __len__(self) -> int:
+        return len(self._control)
+
+    def __getitem__(self, index: int | slice) -> np.ndarray:
+        return self._control[index]
+
+    def __iter__(self) -> Iterator[np.ndarray]:
+        return iter(self._control)
+
+    def __repr__(self) -> str:
+        rows, cols = self._control.shape[:2]
+        return f"NurbsPatch(<{rows}x{cols} grid>, {self._degree}, {self._nurbs_type})"
+
+    @staticmethod
+    def is_patch(x: Any) -> bool:
+        """Check if *x* looks like a NURBS patch (BOSL2 ``is_nurbs_patch()``).
+
+        Args:
+            x: The object to test.
+
+        Returns:
+            True if *x* is a rectangular 2-D array of point vectors with equal-length rows.
+        """
+        return bool(
+            isinstance(x, (list, tuple, np.ndarray))
+            and len(x)
+            and isinstance(x[0], (list, tuple, np.ndarray))
+            and len(x[0])
+            and isinstance(x[0][0], (list, tuple, np.ndarray))
+            and len(x[0]) == len(x[-1])
+        )
+
+    @property
+    def array(self) -> np.ndarray:
+        """The control points as a (rows, cols, 3) numpy array."""
+        return self._control
+
+    @property
+    def to_list(self) -> list[list[list[float]]]:
+        """The control-point grid as a plain list of rows."""
+        return self._control.tolist()  # type: ignore[no-any-return]
+
+    @property
+    def degree(self) -> tuple[int, int]:
+        """The per-direction degree ``(u_degree, v_degree)``."""
+        return self._degree
+
+    @property
+    def nurbs_type(self) -> tuple[NurbsType, NurbsType]:
+        """The per-direction boundary condition ``(u_type, v_type)``."""
+        return self._nurbs_type
+
+    @property
+    def weights(self) -> list[list[float]] | None:
+        """The rational weight matrix, or ``None`` for a non-rational patch."""
+        return [list(row) for row in self._weights] if self._weights is not None else None
+
+    # -- evaluation ------------------------------------------------------------------------
+
+    def point(self, u: float, v: float) -> np.ndarray:
+        """Evaluate the surface at a single ``(u, v)`` parameter pair.
+
+        Args:
+            u: The parameter along U in ``[0, 1]``.
+            v: The parameter along V in ``[0, 1]``.
+
+        Returns:
+            A length-3 ndarray for the point at ``(u, v)``.
+        """
+        return np.array(
+            _patch_point(self.to_list, u, v, self._degree, self._weights, self._nurbs_type, self._mult, self._knots),
+            dtype=float,
+        )
+
+    def points(self, u: Sequence[float], v: Sequence[float]) -> np.ndarray:
+        """Evaluate the surface on the grid of parameters *u* x *v*.
+
+        Args:
+            u: Parameter values along U, each in ``[0, 1]``.
+            v: Parameter values along V, each in ``[0, 1]``.
+
+        Returns:
+            A ``(len(u), len(v), 3)`` ndarray of surface points.
+        """
+        return np.array(self._grid(u=u, v=v), dtype=float)
+
+    def surface(self, splinesteps: tuple[int, int] = (16, 16)) -> np.ndarray:
+        """Sample the whole surface on a uniform grid.
+
+        Args:
+            splinesteps: Per-direction samples per knot span (default ``(16,16)``).
+
+        Returns:
+            A ``(rows, cols, 3)`` ndarray of surface points.
+        """
+        return np.array(self._grid(splinesteps=splinesteps), dtype=float)
+
+    def vnf(
+        self,
+        splinesteps: tuple[int, int] = (16, 16),
+        style: VnfStyle = VnfStyle.DEFAULT,
+        reverse: bool = False,
+        caps: "CapsSpec | None" = None,
+    ) -> VNF:
+        """Mesh the surface into a VNF.
+
+        Samples the patch with :meth:`surface` and builds the mesh with
+        :meth:`~pybosl2.vnf.VNF.vertex_array`.  Wrapping follows the boundary condition --
+        ``CLOSED`` directions produce a continuous tube or torus.
+
+        Args:
+            splinesteps: Per-direction samples per knot span (default ``(16,16)``).
+            style: :meth:`~pybosl2.vnf.VNF.vertex_array` triangulation style.
+            reverse: If True, flip every face normal.
+            caps: A :data:`~pybosl2.caps.CapsSpec` closing the open ends of a
+                  ``(CLAMPED, CLOSED)`` or ``(CLOSED, CLAMPED)`` surface; ``None`` for no caps.
+
+        Returns:
+            A :class:`~pybosl2.vnf.VNF`.
+
+        Raises:
+            AssertionError: If *caps* are requested on a patch that isn't paired
+                            ``CLAMPED``/``CLOSED`` (or the reverse).
+
+        Examples:
+            Meshing a cubic B-spline patch into a solid:
+
+            .. pythonscad-example::
+
+                from pybosl2 import NurbsPatch
+
+                patch = [
+                    [[-50, 50, 0], [-16, 50, 20], [16, 50, 20], [50, 50, 0]],
+                    [[-50, 16, 20], [-16, 16, 40], [16, 16, 40], [50, 16, 20]],
+                    [[-50, -16, 20], [-16, -16, 40], [16, -16, 40], [50, -16, 20]],
+                    [[-50, -50, 0], [-16, -50, 20], [16, -50, 20], [50, -50, 0]],
+                ]
+                NurbsPatch(patch, (3, 3)).vnf(splinesteps=(10, 10)).polyhedron().show()
+        """
+        from pybosl2.caps import CapType, norm_caps
+
+        cap_specs: list["CapSpec"] = norm_caps(caps if caps is not None else CapType.NONE)
+        havecaps = any(cs.cap_type != CapType.NONE for cs in cap_specs)
+        cappable = ((NurbsType.CLAMPED, NurbsType.CLOSED), (NurbsType.CLOSED, NurbsType.CLAMPED))
+        assert not havecaps or self._nurbs_type in cappable, "caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED)."
+
+        # caps close the column-wrapped ends, so a closed U direction is transposed into V
+        flip = havecaps and self._nurbs_type[0] == NurbsType.CLOSED
+        pts = self._grid(splinesteps=splinesteps)
+        if flip:
+            pts = [list(row) for row in zip(*pts, strict=False)]
+        return VNF.vertex_array(
+            pts,
+            style=style,
+            row_wrap=self._nurbs_type[1 if flip else 0] == NurbsType.CLOSED,
+            col_wrap=self._nurbs_type[0 if flip else 1] == NurbsType.CLOSED,
+            reverse=reverse,
+            caps=cap_specs if havecaps else None,
+        )
+
+    def _grid(
+        self,
+        splinesteps: tuple[int, int] = (16, 16),
+        u: Sequence[float] | None = None,
+        v: Sequence[float] | None = None,
+    ) -> list[list[list[float]]]:
+        """The sampled grid of surface points, by splinesteps or at explicit parameters."""
+        return _patch_grid(
+            self.to_list,
+            self._degree,
+            splinesteps,
+            u,
+            v,
+            self._weights,
+            self._nurbs_type,
+            self._mult,
+            self._knots,
+        )
