@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1887,6 +1912,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of segment lengths.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1899,6 +1925,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The total path length as a float.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1914,6 +1941,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of cumulative length fractions, from 0 to 1.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1930,6 +1958,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.points.Point` of the closest point on the path.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1946,6 +1975,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of unit tangent vectors, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1965,6 +1995,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of unit normal vectors, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1980,6 +2011,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of curvature values, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -1995,6 +2027,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of torsion values, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2011,6 +2044,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of subpath point lists.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2027,6 +2061,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of subpath point lists.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2051,6 +2086,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`CutPoint` or :class:`` entries, one per cut distance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2067,6 +2103,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`CutPoint` entries, one per cut distance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2085,6 +2122,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`CutPoint` with the cut point and its next segment index.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2101,6 +2139,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of normal vectors, one per cut point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2119,6 +2158,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A 2x3 ndarray of two basis vectors defining the local plane, or None if no</span>
 <span class="sd">            non-collinear point is found.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2136,6 +2176,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of direction vectors, one per cut point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2164,6 +2205,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new path with the subdivided points.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2186,6 +2228,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of uniformly resampled path points.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2205,6 +2248,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of points representing the selected portion of the path.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2233,6 +2277,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Path2D` for 2-D strokes, :class:`Bosl2Solid` for 3-D.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2257,6 +2302,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` for 2-D, :class:`Bosl2Solid` for 3-D.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2273,6 +2319,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new path with collinear points removed.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
@@ -2289,6 +2336,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new path with duplicate points removed.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 </div>
@@ -2363,6 +2411,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

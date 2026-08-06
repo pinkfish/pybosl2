@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1806,6 +1831,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        field: A vectorised ``(N, 3) → (N,)`` callable.</span>
 <span class="sd">        neg: 1 for additive, -1 for subtractive.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">neg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
@@ -1823,6 +1849,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        transform: A 4×4 matrix or a 3-element position (translation), normalized to 4×4.</span>
 <span class="sd">        metaball: The field primitive to place at that transform.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">transform</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -1877,6 +1904,7 @@
 <span class="sd">            VNF.from_metaballs(</span>
 <span class="sd">                spec, Bounds3D(-20, -20, -20, 20, 20, 20, 40, 40, 40), voxel_size=2</span>
 <span class="sd">            ).polyhedron().show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">rr</span> <span class="ow">and</span> <span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;mb_sphere(): need a positive radius or diameter.&quot;</span>
@@ -1926,6 +1954,7 @@
 <span class="sd">            VNF.from_metaballs(</span>
 <span class="sd">                spec, Bounds3D(-25, -15, -15, 25, 15, 15, 50, 30, 30), voxel_size=2</span>
 <span class="sd">            ).polyhedron().show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">squareness</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;mb_cuboid(): squareness must be in [0, 1].&quot;</span>
     <span class="n">xp</span> <span class="o">=</span> <span class="n">_squircle_se_exponent</span><span class="p">(</span><span class="n">squareness</span><span class="p">)</span>
@@ -1980,6 +2009,7 @@
 <span class="sd">            VNF.from_metaballs(</span>
 <span class="sd">                spec, Bounds3D(-20, -20, -10, 20, 20, 10, 40, 40, 20), voxel_size=2</span>
 <span class="sd">            ).polyhedron().show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rmaj</span><span class="p">,</span> <span class="n">rmin</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="n">major_radius</span> <span class="k">if</span> <span class="n">major_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">major_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">major_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)),</span>
@@ -2022,6 +2052,7 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AssertionError: If *height* or *radius* is missing, non-positive, or shaft too short.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">height</span> <span class="ow">and</span> <span class="n">rr</span> <span class="ow">and</span> <span class="n">height</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;mb_capsule(): need positive height and radius.&quot;</span>
@@ -2066,6 +2097,7 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AssertionError: If *height* or *radius* is missing, non-positive, or too thin.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">height</span> <span class="ow">and</span> <span class="n">rr</span> <span class="ow">and</span> <span class="n">height</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;mb_disk(): need positive height and radius.&quot;</span>
@@ -2107,6 +2139,7 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AssertionError: If *squareness* is not in ``[0, 1]``.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">squareness</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;mb_octahedron(): squareness must be in [0, 1].&quot;</span>
     <span class="n">xp</span> <span class="o">=</span> <span class="n">_squircle_se_exponent</span><span class="p">(</span><span class="n">squareness</span><span class="p">)</span>
@@ -2163,6 +2196,7 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        AssertionError: If *radius* is missing, non-positive, or *p1* equals *p2*.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span><span class="p">,</span> <span class="n">rot_from_to</span>
 
@@ -2231,6 +2265,7 @@
 <span class="sd">            ]</span>
 <span class="sd">            paths = metaballs2d(spec, Bounds2D(-40, -20, 40, 20, 80, 40), pixel_size=2)</span>
 <span class="sd">            Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="n">spec</span><span class="p">,</span> <span class="s2">&quot;metaballs2d(): the spec is empty.&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">contour</span>
@@ -2343,6 +2378,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

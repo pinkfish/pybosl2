@@ -414,13 +414,13 @@
   },
   "pco1810-cap": {
    "tris": 932,
-   "vol": "3,952.8",
+   "vol": "4,793.7",
    "bbox": "33\u00d733\u00d716",
    "wt": true
   },
   "pco1881-neck": {
-   "tris": 3806,
-   "vol": "3,258.7",
+   "tris": 3934,
+   "vol": "3,465.0",
    "bbox": "33\u00d733\u00d722",
    "wt": true
   }
@@ -577,21 +577,21 @@
  },
  "tripod_mounts": {
   "rc2-all": {
-   "tris": 308,
-   "vol": "22,855.6",
-   "bbox": "42\u00d752\u00d711",
-   "wt": false
+   "tris": 112,
+   "vol": "19,569.5",
+   "bbox": "42\u00d752\u00d710",
+   "wt": true
   },
   "rc2-bot": {
-   "tris": 126,
-   "vol": "22,865.9",
-   "bbox": "42\u00d752\u00d711",
-   "wt": false
+   "tris": 88,
+   "vol": "19,581.0",
+   "bbox": "42\u00d752\u00d710",
+   "wt": true
   },
   "rc2-none": {
-   "tris": 46,
-   "vol": "22,878.6",
-   "bbox": "42\u00d752\u00d711",
+   "tris": 72,
+   "vol": "19,591.9",
+   "bbox": "42\u00d752\u00d710",
    "wt": true
   }
  }

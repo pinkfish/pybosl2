@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1773,6 +1798,7 @@
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        q: Quaternion 4-vector represented as a Numpy array</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1784,6 +1810,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The integer hash value.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">))</span>
 
@@ -2191,8 +2218,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_rotate_quaternion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quaternion</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate a quaternion vector representation.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_normalise</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">conjugate</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalised</span>  <span class="c1"># read-only: rotating a vector does not renormalise this quaternion</span>
+        <span class="k">return</span> <span class="n">unit</span> <span class="o">*</span> <span class="n">q</span> <span class="o">*</span> <span class="n">unit</span><span class="o">.</span><span class="n">conjugate</span>
 
 <div class="viewcode-block" id="Quaternion.rotate">
 <a class="viewcode-back" href="../../quaternions.html#pybosl2.quaternions.Quaternion.rotate">[docs]</a>
@@ -2308,19 +2335,23 @@
 <a class="viewcode-back" href="../../quaternions.html#pybosl2.quaternions.Quaternion.slerp">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">slerp</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">q0</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">,</span> <span class="n">q1</span><span class="p">:</span> <span class="n">Quaternion</span><span class="p">,</span> <span class="n">amount</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quaternion</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Spherical Linear Interpolation between unit quaternions.&quot;&quot;&quot;</span>
-        <span class="n">q0</span><span class="o">.</span><span class="n">_fast_normalise</span><span class="p">()</span>
-        <span class="n">q1</span><span class="o">.</span><span class="n">_fast_normalise</span><span class="p">()</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Spherical Linear Interpolation between unit quaternions.</span>
+
+<span class="sd">        The endpoints are normalised (and one may be negated, to take the short way round) on</span>
+<span class="sd">        copies: interpolating between two rotations does not change either of them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">q0</span><span class="o">.</span><span class="n">normalised</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">q1</span><span class="o">.</span><span class="n">normalised</span>
         <span class="n">amount</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">amount</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">dot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">q0</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">q1</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+        <span class="n">dot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">q</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">dot</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-            <span class="n">q0</span><span class="o">.</span><span class="n">q</span> <span class="o">=</span> <span class="o">-</span><span class="n">q0</span><span class="o">.</span><span class="n">q</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="o">-</span><span class="n">start</span>
             <span class="n">dot</span> <span class="o">=</span> <span class="o">-</span><span class="n">dot</span>
 
         <span class="k">if</span> <span class="n">dot</span> <span class="o">&gt;</span> <span class="mf">0.9995</span><span class="p">:</span>
-            <span class="n">qr</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">q0</span><span class="o">.</span><span class="n">q</span> <span class="o">+</span> <span class="n">amount</span> <span class="o">*</span> <span class="p">(</span><span class="n">q1</span><span class="o">.</span><span class="n">q</span> <span class="o">-</span> <span class="n">q0</span><span class="o">.</span><span class="n">q</span><span class="p">))</span>
+            <span class="n">qr</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">q</span> <span class="o">+</span> <span class="n">amount</span> <span class="o">*</span> <span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">q</span> <span class="o">-</span> <span class="n">start</span><span class="o">.</span><span class="n">q</span><span class="p">))</span>
             <span class="n">qr</span><span class="o">.</span><span class="n">_fast_normalise</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">qr</span>
 
@@ -2332,7 +2363,7 @@
 
         <span class="n">s0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">-</span> <span class="n">dot</span> <span class="o">*</span> <span class="n">sin_theta</span> <span class="o">/</span> <span class="n">sin_theta_0</span>
         <span class="n">s1</span> <span class="o">=</span> <span class="n">sin_theta</span> <span class="o">/</span> <span class="n">sin_theta_0</span>
-        <span class="n">qr</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">from_array</span><span class="p">((</span><span class="n">s0</span> <span class="o">*</span> <span class="n">q0</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">s1</span> <span class="o">*</span> <span class="n">q1</span><span class="o">.</span><span class="n">q</span><span class="p">))</span>
+        <span class="n">qr</span> <span class="o">=</span> <span class="n">Quaternion</span><span class="o">.</span><span class="n">from_array</span><span class="p">((</span><span class="n">s0</span> <span class="o">*</span> <span class="n">start</span><span class="o">.</span><span class="n">q</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">s1</span> <span class="o">*</span> <span class="n">end</span><span class="o">.</span><span class="n">q</span><span class="p">))</span>
         <span class="n">qr</span><span class="o">.</span><span class="n">_fast_normalise</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">qr</span></div>
 
@@ -2378,8 +2409,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get 3x3 rotation matrix representation.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_normalise</span><span class="p">()</span>
-        <span class="n">product_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_q_matrix</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_bar_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalised</span>
+        <span class="n">product_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">_q_matrix</span><span class="p">(),</span> <span class="n">unit</span><span class="o">.</span><span class="n">_q_bar_matrix</span><span class="p">()</span><span class="o">.</span><span class="n">conj</span><span class="p">()</span><span class="o">.</span><span class="n">transpose</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;np.ndarray&quot;</span><span class="p">,</span> <span class="n">product_matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:][:,</span> <span class="mi">1</span><span class="p">:])</span>
 
     <span class="nd">@property</span>
@@ -2392,12 +2423,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">yaw_pitch_roll</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get Yaw, Pitch, Roll angles (in radians).&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_normalise</span><span class="p">()</span>
-        <span class="n">yaw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="n">pitch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">roll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
-            <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalised</span><span class="o">.</span><span class="n">q</span>
+        <span class="n">yaw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">pitch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">roll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">q</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">q</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">q</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">yaw</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">roll</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2413,12 +2442,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the rotation axis.&quot;&quot;&quot;</span>
         <span class="n">undef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">undefined</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">undefined</span>
         <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">1e-17</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_normalise</span><span class="p">()</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalised</span><span class="o">.</span><span class="n">vector</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">norm</span> <span class="o">&lt;</span> <span class="n">tolerance</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">undef</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;np.ndarray&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector</span> <span class="o">/</span> <span class="n">norm</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;np.ndarray&quot;</span><span class="p">,</span> <span class="n">vector</span> <span class="o">/</span> <span class="n">norm</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -2429,9 +2457,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get angle of rotation in radians.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_normalise</span><span class="p">()</span>
-        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_angle</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">atan2</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scalar</span><span class="p">))</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalised</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">unit</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap_angle</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">atan2</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">unit</span><span class="o">.</span><span class="n">scalar</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">degrees</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2699,6 +2727,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

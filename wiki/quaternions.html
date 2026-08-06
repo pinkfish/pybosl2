@@ -39,6 +39,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -3012,6 +3013,30 @@
 
 
     <li class="md-nav__item">
+      <a href="tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="walls.html" class="md-nav__link">
 
 
@@ -5105,6 +5130,8 @@ or as unit quaternions to represent rotations in 3D space.</p>
 <dt class="sig sig-object highlight py" id="pybosl2.quaternions.Quaternion.slerp">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">slerp</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.quaternions.Quaternion.slerp.q0" title="pybosl2.quaternions.Quaternion.slerp.q0 (Python parameter)"><span class="n"><span class="pre">q0</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.quaternions.Quaternion.slerp.q1" title="pybosl2.quaternions.Quaternion.slerp.q1 (Python parameter)"><span class="n"><span class="pre">q1</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.quaternions.Quaternion.slerp.amount" title="pybosl2.quaternions.Quaternion.slerp.amount (Python parameter)"><span class="n"><span class="pre">amount</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.5</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/quaternions.html#Quaternion.slerp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.quaternions.Quaternion.slerp" title="Link to this definition">¶</a></dt>
 <dd><p>Spherical Linear Interpolation between unit quaternions.</p>
+<p>The endpoints are normalised (and one may be negated, to take the short way round) on
+copies: interpolating between two rotations does not change either of them.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.quaternions.Quaternion.slerp-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.quaternions.Quaternion.slerp-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -5554,6 +5581,7 @@ All angles are specified in degrees.</p>
 
 
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="_static/stl_viewer.js?v=cb630fdb"></script>
 
   </body>
 </html>

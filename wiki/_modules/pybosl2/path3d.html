@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1754,7 +1779,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -1818,6 +1843,7 @@
 
 <span class="sd">            coil = Path3D.helix(turns=3, height=60, radius=20).resample(num_copies=120)</span>
 <span class="sd">            coil.stroke(width=4).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1875,6 +1901,7 @@
 <span class="sd">                from pybosl2 import Path3D</span>
 
 <span class="sd">                Path3D.helix(turns=2.5, height=100, radius=30).stroke(width=3).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">r1v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">r2v</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1930,7 +1957,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The points as an (N, 3) numpy array, for doing your own vectorised maths.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            An (N, 3) float64 numpy array.&quot;&quot;&quot;</span>
+<span class="sd">            An (N, 3) float64 numpy array.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
 
     <span class="nd">@property</span>
@@ -1938,7 +1967,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The points as a list of ``[x, y, z]`` plain-Python-float triples.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A list of ``[x, y, z]`` triples.&quot;&quot;&quot;</span>
+<span class="sd">            A list of ``[x, y, z]`` triples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span>
 
 <div class="viewcode-block" id="Path3D.from_list">
@@ -1953,6 +1984,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` instance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">lst</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span></div>
 
@@ -1969,6 +2001,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of segment lengths.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -1988,6 +2021,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of cumulative length fractions, from 0 to 1.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2012,6 +2046,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.points.Point` of the closest point on the path.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2049,6 +2084,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of unit tangent vectors, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2079,6 +2115,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of unit normal vectors, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2113,6 +2150,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of curvature values, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2135,6 +2173,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of torsion values, one per path point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2173,6 +2212,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                pieces = path3d.cut(15)</span>
 <span class="sd">                pieces[0].stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2196,6 +2236,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`Path3D` subpaths.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sub_paths</span> <span class="o">=</span> <span class="n">_path_cut_getpaths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">cutlist</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span> <span class="k">for</span> <span class="n">pts</span> <span class="ow">in</span> <span class="n">sub_paths</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type]</span></div>
@@ -2221,6 +2262,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`CutPoint` entries, one per cut distance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2238,6 +2280,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`CutPoint` entries, one per cut distance.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_path_cut_points_recurse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">dists</span><span class="p">)</span></div>
 
@@ -2255,6 +2298,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`CutPoint` with the cut point and its next segment index.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_path_cut_single</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">ind</span><span class="o">=</span><span class="n">ind</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span></div>
 
@@ -2274,6 +2318,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`~pybosl2.points.Vector` normal vectors, one per cut point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
@@ -2319,6 +2364,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of two :class:`~pybosl2.points.Vector` basis vectors defining the local plane.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_path_plane</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
 
@@ -2335,6 +2381,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`Vector` direction vectors, one per cut point.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_path_cuts_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">cuts</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span></div>
 
@@ -2376,6 +2423,7 @@
 
 <span class="sd">                coil = Path3D.helix(turns=3, height=60, radius=20).subdivide_path(points=200)</span>
 <span class="sd">                coil.stroke(width=4).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2461,6 +2509,7 @@
 
 <span class="sd">                coil = Path3D.helix(turns=3, height=60, radius=20).resample_path(num_copies=120)</span>
 <span class="sd">                coil.stroke(width=4).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2509,6 +2558,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                mid = path3d.select(0, 0.5, 2, 0.5)</span>
 <span class="sd">                mid.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2537,6 +2587,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.bounds.Bounds3D` enclosing all path points.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
         <span class="n">min_pt</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -2560,7 +2611,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Total length along the path.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            The total path length as a float.&quot;&quot;&quot;</span>
+<span class="sd">            The total path length as a float.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
         <span class="n">diffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -2576,6 +2629,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            True if the path endpoints are coincident, False otherwise.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">))</span></div>
 
@@ -2601,6 +2655,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0]], closed=False)</span>
 <span class="sd">                loop = path3d.close()</span>
 <span class="sd">                loop.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_close_path</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
@@ -2626,6 +2681,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 0, 0]])</span>
 <span class="sd">                result = path3d.cleanup()</span>
 <span class="sd">                result.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
@@ -2650,6 +2706,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.reverse()</span>
 <span class="sd">                result.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
@@ -2676,6 +2733,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [15, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.merge_collinear()</span>
 <span class="sd">                result.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2726,6 +2784,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.deduplicate()</span>
 <span class="sd">                result.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
@@ -2739,18 +2798,32 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Drop consecutive repeated points.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A new :class:`Path3D` with duplicate points removed.&quot;&quot;&quot;</span>
+<span class="sd">            A new :class:`Path3D` with duplicate points removed.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Path3D.subdivide">
 <a class="viewcode-back" href="../../paths.html#pybosl2.path3d.Path3D.subdivide">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">subdivide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">subdivide</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">maxlen</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">exact</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert points along the path.</span>
 
+<span class="sd">        Give exactly one of *num_copies*, *refine* or *maxlen*.</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            **kwargs: Passed through to the subdivide kernel; must include exactly one of</span>
-<span class="sd">                *num_copies* (target count), *refine* (multiplier), or *maxlen* (spacing cap).</span>
+<span class="sd">            num_copies: Target total number of points.</span>
+<span class="sd">            refine: Multiply the current point count by this.</span>
+<span class="sd">            maxlen: Cap on the spacing between points.</span>
+<span class="sd">            exact: Hit the target count exactly rather than approximately.</span>
+<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` with additional interpolated points.</span>
@@ -2765,23 +2838,30 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.subdivide(num_copies=100)</span>
 <span class="sd">                result.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;num_copies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">))</span>
-        <span class="k">if</span> <span class="s2">&quot;refine&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">r</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;refine&quot;</span><span class="p">)</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">))</span>
-        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">num_copies</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">refine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span> <span class="o">*</span> <span class="n">refine</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path3D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">maxlen</span><span class="o">=</span><span class="n">maxlen</span><span class="p">,</span> <span class="n">exact</span><span class="o">=</span><span class="n">exact</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Path3D.resample">
 <a class="viewcode-back" href="../../paths.html#pybosl2.path3d.Path3D.resample">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resample</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Path3D&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resample to evenly spaced points.</span>
 
+<span class="sd">        Give exactly one of *num_copies* or *spacing*.</span>
+
 <span class="sd">        Args:</span>
-<span class="sd">            **kwargs: Must include exactly one of *num_copies* or *spacing*.</span>
+<span class="sd">            num_copies: Target number of points.</span>
+<span class="sd">            spacing: Approximate spacing between points.</span>
+<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` with uniformly resampled points.</span>
@@ -2796,10 +2876,9 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.resample(num_copies=50)</span>
 <span class="sd">                result.stroke(width=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;num_copies&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;num_copies&quot;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">resample_path</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path3D&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">resample_path</span><span class="p">(</span><span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Path3D.translate">
@@ -2821,6 +2900,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.translate([10, 5, 15])</span>
 <span class="sd">                result.stroke(width=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
         <span class="n">va</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -2849,6 +2929,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.scale(2)</span>
 <span class="sd">                result.stroke(width=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">*</span> <span class="n">s</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
@@ -2876,6 +2957,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.rotate(45, v=[0, 0, 1])</span>
 <span class="sd">                result.stroke(width=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span>
 
@@ -2913,6 +2995,7 @@
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 0], [0, 20, 0]])</span>
 <span class="sd">                result = path3d.mirror([1, 0, 0])</span>
 <span class="sd">                result.stroke(width=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="n">sides</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
@@ -2929,6 +3012,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` shifted right.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
 
@@ -2943,6 +3027,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` shifted left.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="o">-</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
 
@@ -2957,6 +3042,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` shifted back.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
 
@@ -2971,6 +3057,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` shifted forward.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span></div>
 
@@ -2987,6 +3074,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` shifted up.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span></div>
 
@@ -3001,6 +3089,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Path3D` shifted down.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">z</span><span class="p">])</span></div>
 
@@ -3023,6 +3112,7 @@
 <span class="sd">                sweep_path = Path3D.helix(turns=3, height=60, radius=20)</span>
 <span class="sd">                flat = sweep_path.path2d()</span>
 <span class="sd">                flat.stroke(width=2).linear_extrude(height=1).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
@@ -3065,6 +3155,7 @@
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])</span>
 <span class="sd">                path3d.stroke(width=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_backend</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">normalize_one</span>
@@ -3129,6 +3220,7 @@
 
 <span class="sd">                path3d = Path3D([[0, 0, 0], [30, 0, 0], [30, 20, 10], [0, 20, 0]])</span>
 <span class="sd">                path3d.dashed_stroke(dashpat=[5, 2]).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">dashed_stroke_3d</span>
 
@@ -3172,6 +3264,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of subpath point lists.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cuts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cutlist</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3234,6 +3327,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`CutPoint` or :class:`` entries, one per cut distance.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">long_enough</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">long_enough</span><span class="p">,</span> <span class="p">(</span>
@@ -3285,6 +3379,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`CutPoint` entries, one per cut distance.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">pind</span> <span class="o">=</span> <span class="mi">0</span>
@@ -3315,6 +3410,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`CutPoint` with the cut point and its next segment index.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ind</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">):</span>
@@ -3354,6 +3450,7 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If no non-collinear point is found within the search range.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">lower</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">:</span>
@@ -3381,6 +3478,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`Vector` direction vectors, one per cut point.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">zeros</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -3506,6 +3604,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

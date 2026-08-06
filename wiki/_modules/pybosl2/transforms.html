@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1831,7 +1856,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;4x4 matrix rotating *angle* degrees about the line through *center* in direction *axis*.</span>
 
 <span class="sd">    The 4x4 form of BOSL2&#39;s ``rot(a=, v=, center=)``: translate *center* to the origin, rotate, translate</span>
-<span class="sd">    back.&quot;&quot;&quot;</span>
+<span class="sd">    back.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
     <span class="n">m</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">axis_angle_matrix</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">axis</span><span class="p">)</span>
     <span class="n">cpv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1843,8 +1869,7 @@
 <div class="viewcode-block" id="rot_inverse">
 <a class="viewcode-back" href="../../transforms.html#pybosl2.transforms.rot_inverse">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rot_inverse</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,</span>
 <span class="sd">    un-translate.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1864,7 +1889,8 @@
 <span class="sd">    Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the</span>
 <span class="sd">    line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,</span>
 <span class="sd">    *center* and the axial translation are returned as :class:`~pybosl2.constants.Vector`. With *long*, the</span>
-<span class="sd">    complementary (&gt;180 degree) rotation about the reversed axis is chosen.&quot;&quot;&quot;</span>
+<span class="sd">    complementary (&gt;180 degree) rotation about the reversed axis is chosen.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 
     <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1927,6 +1953,7 @@
 <span class="sd">        spin:   rotation about Z in degrees, applied after the anchor move (default 0)</span>
 <span class="sd">        orient: direction the shape&#39;s UP is rotated onto (default UP)</span>
 <span class="sd">        size:   [x, y, z] size the anchor is resolved against (default [0, 0, 0])</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">anchor</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">anchor</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">anchor</span><span class="p">,</span> <span class="n">Anchor</span><span class="p">)</span> <span class="k">else</span> <span class="n">anchor</span>
     <span class="n">orient</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">orient</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">orient</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">orient</span><span class="p">,</span> <span class="n">Anchor</span><span class="p">)</span> <span class="k">else</span> <span class="n">orient</span><span class="p">)</span>
@@ -2044,6 +2071,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

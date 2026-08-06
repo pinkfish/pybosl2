@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1932,14 +1957,22 @@
     <span class="p">)</span>
     <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cutters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># The flare is a bar along each treated edge plus a block filling each corner between them</span>
+    <span class="c1"># (BOSL2 cuboid(), negative chamfer/rounding). They are placed on one offset so the bars and</span>
+    <span class="c1"># blocks share whole faces: a piece standing a hair proud of its neighbour, or overlapping</span>
+    <span class="c1"># across its face, leaves faces that cannot merge and a union that is no longer manifold.</span>
+    <span class="n">adj</span> <span class="o">=</span> <span class="p">[</span><span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">,</span> <span class="o">-</span><span class="n">ard</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">edge_set</span><span class="p">[</span><span class="n">axis</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">vec</span> <span class="o">=</span> <span class="n">EDGE_OFFSETS</span><span class="p">[</span><span class="n">axis</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">adj</span> <span class="o">=</span> <span class="p">[</span><span class="n">ard</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">ard</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="n">ard</span><span class="p">]</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="n">vec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">adj</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-                <span class="n">box</span> <span class="o">=</span> <span class="n">_rotate_to_axis</span><span class="p">(</span><span class="n">_ocube</span><span class="p">([</span><span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">,</span> <span class="n">sz</span><span class="p">[</span><span class="n">axis</span><span class="p">]],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">axis</span><span class="p">)</span>
-                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                <span class="c1"># built with its long side already on *axis* rather than rotated onto it: a</span>
+                <span class="c1"># rotation leaves the bar&#39;s faces a rounding error off the body&#39;s, and faces that</span>
+                <span class="c1"># are nearly-but-not-quite coincident cannot merge, leaving the union non-manifold</span>
+                <span class="n">bar</span> <span class="o">=</span> <span class="p">[</span><span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">]</span>
+                <span class="n">bar</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">sz</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
+                <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ocube</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
                 <span class="n">adj2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ard</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ard</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">ard</span><span class="p">]</span>
                 <span class="n">t2</span> <span class="o">=</span> <span class="p">[</span><span class="n">vec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">adj2</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
                 <span class="k">if</span> <span class="n">is_chamfer</span><span class="p">:</span>
@@ -1957,9 +1990,10 @@
                 <span class="k">for</span> <span class="n">xa</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
                     <span class="n">ce</span> <span class="o">=</span> <span class="n">_corner_edges</span><span class="p">(</span><span class="n">edge_set</span><span class="p">,</span> <span class="p">[</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">])</span>
                     <span class="k">if</span> <span class="n">ce</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">ce</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="n">adj3</span> <span class="o">=</span> <span class="p">[</span><span class="n">ard</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">ard</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span> <span class="o">-</span><span class="n">ard</span><span class="p">]</span>
-                        <span class="n">t3</span> <span class="o">=</span> <span class="p">[[</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">adj3</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-                        <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ocube</span><span class="p">([</span><span class="n">ard</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">ard</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">ard</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">t3</span><span class="p">))</span>
+                        <span class="c1"># sized and placed exactly like the bars it fills between, so the three</span>
+                        <span class="c1"># pieces share whole faces instead of overlapping across them</span>
+                        <span class="n">t3</span> <span class="o">=</span> <span class="p">[[</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">adj</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+                        <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ocube</span><span class="p">([</span><span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">t3</span><span class="p">))</span>
     <span class="n">edge_union</span> <span class="o">=</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
         <span class="n">edge_union</span> <span class="o">=</span> <span class="n">edge_union</span> <span class="o">|</span> <span class="n">p</span>
@@ -1990,6 +2024,7 @@
 <span class="sd">            from pybosl2 import roof, shapes2d as s2</span>
 
 <span class="sd">            roof(s2.square([20, 10]).shape).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">Bosl2Solid</span><span class="o">.</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">roof</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">))</span></div>
 
@@ -2062,6 +2097,7 @@
 <span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.cube(size=20, rounding=3).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="n">use_anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">anchor</span>
@@ -2145,6 +2181,7 @@
 
 <span class="sd">            shape = cuboid([40, 30, 20], rounding=5)</span>
 <span class="sd">            shape.show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">teardrop</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;cuboid(): teardrop= is not supported by this pure-Python port.&quot;</span><span class="p">)</span>
@@ -2276,6 +2313,7 @@
 
 <span class="sd">            shape = prismoid([40, 40], [20, 25], height=30)</span>
 <span class="sd">            shape.show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect_path</span> <span class="k">as</span> <span class="n">_rect_path</span>
 
@@ -2322,6 +2360,7 @@
 <span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.octahedron(size=20).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]]</span>
@@ -2365,6 +2404,7 @@
 <span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.wedge([30, 20, 15]).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -2469,6 +2509,7 @@
 <span class="sd">            from pybosl2 import shapes3d as s3</span>
 
 <span class="sd">            s3.rect_tube(size=30, wall=3, height=20).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect_path</span> <span class="k">as</span> <span class="n">_rect_path</span>
 
@@ -2667,6 +2708,7 @@
 
 <span class="sd">            shape = regular_prism(5, height=20, inner_radius=12, rounding=2)</span>
 <span class="sd">            shape.show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">cos_half</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)</span>
@@ -2799,6 +2841,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

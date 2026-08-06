@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1781,7 +1806,8 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_circle_2tangents</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">p2</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">p3</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Centre of the circle of radius *r* tangent to segments p2-&gt;p1 and p2-&gt;p3 (BOSL2</span>
-<span class="sd">    circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here).&quot;&quot;&quot;</span>
+<span class="sd">    circle_2tangents()[0]); the corner is at *p2*. Points are 3-vectors (the y component is 0 here).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p1a</span><span class="p">,</span> <span class="n">p2a</span><span class="p">,</span> <span class="n">p3a</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">))</span>
     <span class="n">v1</span> <span class="o">=</span> <span class="p">(</span><span class="n">p1a</span> <span class="o">-</span> <span class="n">p2a</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p1a</span> <span class="o">-</span> <span class="n">p2a</span><span class="p">)</span>
     <span class="n">v2</span> <span class="o">=</span> <span class="p">(</span><span class="n">p3a</span> <span class="o">-</span> <span class="n">p2a</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p3a</span> <span class="o">-</span> <span class="n">p2a</span><span class="p">)</span>
@@ -1822,6 +1848,7 @@
 
 <span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.narrowing_strut(w=10, length=100, wall=5, angle=30).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">height</span> <span class="o">=</span> <span class="n">wall</span> <span class="o">+</span> <span class="n">w</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wall</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">wall</span><span class="p">]]</span>
@@ -1851,6 +1878,7 @@
 
 <span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.sparse_wall(height=50, length=100, thick=4).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">region</span> <span class="o">=</span> <span class="n">Walls</span><span class="o">.</span><span class="n">_sparse_wall2d</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">maxang</span><span class="p">,</span> <span class="n">strut</span><span class="p">,</span> <span class="n">max_bridge</span><span class="p">)</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
@@ -1920,6 +1948,7 @@
 
 <span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.sparse_cuboid(size=[50, 40, 10], dir=&quot;Y&quot;, strut=3).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">size</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)))</span>
         <span class="n">diameter</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -1954,6 +1983,7 @@
 
 <span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.corrugated_wall(height=50, length=100, thick=5).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">amplitude</span> <span class="o">=</span> <span class="p">(</span><span class="n">thick</span> <span class="o">-</span> <span class="n">wall</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">period</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">thick</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
@@ -1990,6 +2020,7 @@
 
 <span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.thinning_wall(height=50, length=80, thick=4).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">l1</span> <span class="o">=</span> <span class="n">length</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">length</span>
         <span class="n">l2</span> <span class="o">=</span> <span class="n">length</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="n">length</span>
@@ -2122,6 +2153,7 @@
 
 <span class="sd">                from pybosl2.parts.walls import Walls</span>
 <span class="sd">                Walls.thinning_triangle(height=50, length=80, thick=4, center=True).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dang</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="n">length</span><span class="p">))</span>
         <span class="n">dlen</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">dang</span><span class="p">))</span>
@@ -2215,6 +2247,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

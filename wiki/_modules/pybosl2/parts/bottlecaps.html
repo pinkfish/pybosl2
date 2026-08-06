@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -2102,6 +2127,7 @@
 
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1810_neck(fa=6).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_build_neck</span><span class="p">(</span><span class="n">_PCO1810</span><span class="p">,</span> <span class="n">_pco1810_profile</span><span class="p">(</span><span class="n">_PCO1810</span><span class="p">),</span> <span class="n">bottom_half</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
@@ -2126,6 +2152,7 @@
 
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1810_cap(fa=6).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_build_cap</span><span class="p">(</span><span class="n">_PCO1810</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">texture</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
@@ -2143,6 +2170,7 @@
 
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1881_neck(fa=6).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_build_neck</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">,</span> <span class="n">_pco1881_profile</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">),</span> <span class="n">bottom_half</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
@@ -2158,7 +2186,8 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;A cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``&quot;none&quot;`` falls</span>
-<span class="sd">        back to a plain wall (surface texturing is not in this port).&quot;&quot;&quot;</span>
+<span class="sd">        back to a plain wall (surface texturing is not in this port).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_build_cap</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">texture</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 </div>
 
@@ -2232,6 +2261,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

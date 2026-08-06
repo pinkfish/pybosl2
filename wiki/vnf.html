@@ -39,6 +39,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -2194,6 +2195,30 @@
 
 
     <li class="md-nav__item">
+      <a href="tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="walls.html" class="md-nav__link">
 
 
@@ -3105,57 +3130,7 @@ primitives with <a class="reference internal" href="#pybosl2.vnf.VNF.from_metaba
 <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-bf02a167adbf44bfa7b0612e05d0f761" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-bf02a167adbf44bfa7b0612e05d0f761");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/1a440a0de294fe91.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/1a440a0de294fe91.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/1a440a0de294fe91.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/1a440a0de294fe91.stl">⬇ Download STL mesh</a></p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.bounds">
 <span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.bounds" title="Link to this definition">¶</a></dt>
@@ -3321,29 +3296,30 @@ halfspace and <em>vnf_below</em> is the negative halfspace.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.vertex_array">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.points" title="pybosl2.vnf.VNF.vertex_array.points (Python parameter)"><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.cap1" title="pybosl2.vnf.VNF.vertex_array.cap1 (Python parameter)"><span class="n"><span class="pre">cap1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.cap2" title="pybosl2.vnf.VNF.vertex_array.cap2 (Python parameter)"><span class="n"><span class="pre">cap2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="pybosl2.vnf.VNF.vertex_array.col_wrap (Python parameter)"><span class="n"><span class="pre">col_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="pybosl2.vnf.VNF.vertex_array.row_wrap (Python parameter)"><span class="n"><span class="pre">row_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="pybosl2.vnf.VNF.vertex_array.reverse (Python parameter)"><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.style" title="pybosl2.vnf.VNF.vertex_array.style (Python parameter)"><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;default&#39;</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.points" title="pybosl2.vnf.VNF.vertex_array.points (Python parameter) — Input grid points."><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.caps" title="pybosl2.vnf.VNF.vertex_array.caps (Python parameter) — Cap specification for both ends: a single CapType, CapSpec, or a two-element pair [cap_start, cap_end]. Pass None (the default) for no caps."><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="pybosl2.vnf.VNF.vertex_array.col_wrap (Python parameter) — Close the column direction into a tube."><span class="n"><span class="pre">col_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="pybosl2.vnf.VNF.vertex_array.row_wrap (Python parameter) — Close the row direction into a torus."><span class="n"><span class="pre">row_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="pybosl2.vnf.VNF.vertex_array.reverse (Python parameter) — Flip face winding."><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.style" title="pybosl2.vnf.VNF.vertex_array.style (Python parameter) — Triangulation method."><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;default&#39;</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
 <dd><p>Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</p>
 <p>Each grid cell becomes triangles (or a quad) chosen by <em>style</em>: “default”, “alt”,
 “min_edge”, “min_area”, “convex”, “concave”, “quincunx”, “quad”, “flip1”, “flip2”.
-<em>col_wrap</em>/<em>row_wrap</em> close the grid into a tube/torus; <em>cap1</em>/<em>cap2</em> close the
-column-wrapped ends with <code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code> styles;
+<em>col_wrap</em>/<em>row_wrap</em> close the grid into a tube/torus; <em>caps</em> closes the
+column-wrapped ends with <code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code> or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CapSpec</span></code> styles (see <code class="xref py py-data docutils literal notranslate"><span class="pre">CapsSpec</span></code>).
 <em>reverse</em> flips face winding. Degenerate (zero-area) faces are dropped.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.vnf.VNF.vertex_array-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.vnf.VNF.vertex_array.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.points" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.vnf.VNF.vertex_array.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.points" title="Permalink to this definition">¶</a></dt><dd><p>Input grid points.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.cap1"><span class="sig-name descname">cap1</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapType | CapSpec | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.cap1" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.vnf.VNF.vertex_array.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.caps" title="Permalink to this definition">¶</a></dt><dd><p>Cap specification for both ends: a single <code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CapSpec</span></code>, or a two-element pair <code class="docutils literal notranslate"><span class="pre">[cap_start,</span> <span class="pre">cap_end]</span></code>.
+Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) for no caps.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.cap2"><span class="sig-name descname">cap2</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapType | CapSpec | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.cap2" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.vnf.VNF.vertex_array.col_wrap"><span class="sig-name descname">col_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="Permalink to this definition">¶</a></dt><dd><p>Close the column direction into a tube.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.col_wrap"><span class="sig-name descname">col_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.vnf.VNF.vertex_array.row_wrap"><span class="sig-name descname">row_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="Permalink to this definition">¶</a></dt><dd><p>Close the row direction into a torus.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.row_wrap"><span class="sig-name descname">row_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.vnf.VNF.vertex_array.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="Permalink to this definition">¶</a></dt><dd><p>Flip face winding.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="Permalink to this definition">¶</a></dt><dd><p></p>
-</dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | <a class="reference internal" href="#pybosl2.vnf.VnfStyle" title="pybosl2.vnf.VnfStyle (Python class) — Bases: str, Enum">VnfStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | <a class="reference internal" href="#pybosl2.vnf.VnfStyle" title="pybosl2.vnf.VnfStyle (Python class) — Bases: str, Enum">VnfStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p>Triangulation method.</p>
 </dd>
 </dl>
 </dd>
@@ -3390,6 +3366,11 @@ meshes triangular / irregular point arrays (what the degenerate bezier patches p
 <dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.polyhedron">
 <span class="sig-name descname"><span class="pre">polyhedron</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.polyhedron" title="Link to this definition">¶</a></dt>
 <dd><p>Native geometry for this VNF via PythonSCAD’s <code class="docutils literal notranslate"><span class="pre">polyhedron(points=,</span> <span class="pre">faces=)</span></code>.</p>
+<p>A VNF winds its faces counter-clockwise seen from outside (so <a class="reference internal" href="#pybosl2.vnf.VNF.volume" title="pybosl2.vnf.VNF.volume (Python method) — Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward."><code class="xref py py-meth docutils literal notranslate"><span class="pre">volume()</span></code></a> is positive
+for a solid); <code class="docutils literal notranslate"><span class="pre">polyhedron()</span></code> wants them the other way round, so each face is reversed
+on the way out. Handing them over as-is builds the solid inside out – it still looks
+right on its own, but every union or difference with it then does the opposite of what
+it should.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.vnf.VNF.polyhedron-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.polyhedron-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><em>Any</em></p>
@@ -3653,57 +3634,7 @@ paths, each being a list of <code class="docutils literal notranslate"><span cla
 <span class="n">Path2D</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-
-<div class="stl-viewer" id="stlviewer-085f0605715945a4b4a4e36da3241f8f" style="width:100%;height:360px;border:1px solid #ddd;border-radius:4px;background:#f7f7f9;touch-action:none"></div>
-<script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
-
-const el = document.getElementById("stlviewer-085f0605715945a4b4a4e36da3241f8f");
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#f7f7f9");
-const camera = new THREE.PerspectiveCamera(40, 1, 0.01, 1e6);
-camera.up.set(0, 0, 1);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(window.devicePixelRatio);
-el.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-const key = new THREE.DirectionalLight(0xffffff, 0.85); key.position.set(1, 0.6, 1); scene.add(key);
-const fill = new THREE.DirectionalLight(0xffffff, 0.4); fill.position.set(-1, -0.8, 0.5); scene.add(fill);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
-function resize() {
-  const w = el.clientWidth, h = el.clientHeight;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / Math.max(1, h);
-  camera.updateProjectionMatrix();
-}
-
-new STLLoader().load("_stl/7863282ff05ed4f0.stl", function (geo) {
-  geo.computeVertexNormals();
-  geo.computeBoundingBox();
-  const center = new THREE.Vector3(); geo.boundingBox.getCenter(center);
-  const size = new THREE.Vector3(); geo.boundingBox.getSize(size);
-  geo.translate(-center.x, -center.y, -center.z);
-  const mesh = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({
-    color: "#6f9ac9", specular: 0x222222, shininess: 25, flatShading: false,
-  }));
-  scene.add(mesh);
-  const r = Math.max(size.x, size.y, size.z) || 1;
-  camera.position.set(r * 1.3, -r * 1.7, r * 1.1);
-  controls.target.set(0, 0, 0);
-  resize();
-  (function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); })();
-}, undefined, function (err) {
-  el.innerHTML = '<p style="padding:1em;color:#a00">Could not load STL (serve the docs over HTTP to view).</p>';
-});
-window.addEventListener("resize", resize);
-</script>
-<p><a class="reference external" href="_stl/7863282ff05ed4f0.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/7863282ff05ed4f0.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7863282ff05ed4f0.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 
@@ -3812,6 +3743,7 @@ window.addEventListener("resize", resize);
 
 
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="_static/stl_viewer.js?v=cb630fdb"></script>
 
   </body>
 </html>

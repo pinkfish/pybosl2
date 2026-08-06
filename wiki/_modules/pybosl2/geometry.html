@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../walls.html" class="md-nav__link">
 
 
@@ -1802,6 +1827,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        True if the three points are collinear within *eps*.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">dx1</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span>
     <span class="n">dy1</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">y</span>
@@ -1843,6 +1869,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A unit-length :class:`~pybosl2.points.Point` normal to the line.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">unit</span><span class="p">([</span><span class="n">point1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point2</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">point2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span><span class="p">]))</span></div>
 
@@ -1865,6 +1892,7 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The closest point on the segment as an ndarray.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1920,6 +1948,7 @@
 <span class="sd">        *t* and *u* are the parametric positions along *line1* and *line2*</span>
 <span class="sd">        (0 at the first endpoint, 1 at the second).  Returns ``None``</span>
 <span class="sd">        for parallel or coincident lines.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s1a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">s1b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1965,6 +1994,7 @@
 <span class="sd">        A list of ``(point_on_circle1, point_on_circle2)`` :class:`~pybosl2.points.Point` tuples.</span>
 <span class="sd">        Returns up to 4 entries (2 external + 2 internal), 2 entries when</span>
 <span class="sd">        only external tangents exist, or an empty list when no tangent can be drawn.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">r1v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius1</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="n">r2v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius2</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
@@ -2072,6 +2102,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

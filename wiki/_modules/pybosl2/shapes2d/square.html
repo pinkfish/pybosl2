@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1859,6 +1884,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.square(20).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">rounding</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">chamfer</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;Cannot set both rounding and chamfer at the same time.&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
@@ -1903,6 +1929,7 @@
 <span class="sd">        fn: arc smoothness overrides for rounded corners</span>
 <span class="sd">        fa: arc smoothness overrides for rounded corners</span>
 <span class="sd">        fs: arc smoothness overrides for rounded corners</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">rounding</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">4</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rounding</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rounding</span><span class="p">]</span>
     <span class="n">cl</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">chamfer</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">4</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">chamfer</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">chamfer</span><span class="p">]</span>
@@ -1953,6 +1980,7 @@
 <span class="sd">        For small radii this can emit one more point per corner than the real BOSL2 does</span>
 <span class="sd">        (BOSL2 rounds the corner-arc segment count, this rounds up); the arc geometry is</span>
 <span class="sd">        identical, only the sampling differs.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_rect_path</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
@@ -1974,6 +2002,7 @@
 <span class="sd">        path:   polygon path</span>
 <span class="sd">        anchor: anchor point (default CENTER)</span>
 <span class="sd">        spin:   Z-axis rotation in degrees after anchor (default 0)</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="p">)</span></div>
 
@@ -2091,6 +2120,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">rounding</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">chamfer</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;Cannot set both rounding and chamfer at the same time.&quot;</span>
     <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">3</span>
@@ -2297,6 +2327,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">rounding</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">chamfer</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;Cannot set both rounding and chamfer at the same time.&quot;</span>
     <span class="n">sz</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="n">size</span>
@@ -2428,6 +2459,7 @@
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
 <span class="sd">            s2.trapezoid(height=20, width1=30, width2=15).linear_extrude(height=5).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">defined</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width1</span><span class="p">,</span> <span class="n">width2</span><span class="p">,</span> <span class="n">angle</span><span class="p">))</span>
     <span class="k">assert</span> <span class="n">defined</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Must give exactly 3 of the arguments height, width1, width2, and angle.&quot;</span>
@@ -2516,6 +2548,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>

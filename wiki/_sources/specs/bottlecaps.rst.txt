@@ -42,7 +42,7 @@ bottlecaps
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "pco1810-neck", "label": "PCO 1810 neck", "uri": "_stl/bottlecaps-pco1810-neck.stl", "code": "BottleCaps.pco1810_neck(fa=6)", "part": "pco1810_neck(fa=6)", "tris": 4130, "vol": "4,358.5", "bbox": "33\u00d733\u00d726", "wt": true}, {"id": "pco1810-cap", "label": "PCO 1810 cap", "uri": "_stl/bottlecaps-pco1810-cap.stl", "code": "BottleCaps.pco1810_cap(fa=6)", "part": "pco1810_cap(fa=6)", "tris": 932, "vol": "3,952.8", "bbox": "33\u00d733\u00d716", "wt": true}, {"id": "pco1881-neck", "label": "PCO 1881 neck", "uri": "_stl/bottlecaps-pco1881-neck.stl", "code": "BottleCaps.pco1881_neck(fa=6)", "part": "pco1881_neck(fa=6)", "tris": 3806, "vol": "3,258.7", "bbox": "33\u00d733\u00d722", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "pco1810-neck", "label": "PCO 1810 neck", "uri": "_stl/bottlecaps-pco1810-neck.stl", "code": "BottleCaps.pco1810_neck(fa=6)", "part": "pco1810_neck(fa=6)", "tris": 4130, "vol": "4,358.5", "bbox": "33\u00d733\u00d726", "wt": true}, {"id": "pco1810-cap", "label": "PCO 1810 cap", "uri": "_stl/bottlecaps-pco1810-cap.stl", "code": "BottleCaps.pco1810_cap(fa=6)", "part": "pco1810_cap(fa=6)", "tris": 932, "vol": "4,793.7", "bbox": "33\u00d733\u00d716", "wt": true}, {"id": "pco1881-neck", "label": "PCO 1881 neck", "uri": "_stl/bottlecaps-pco1881-neck.stl", "code": "BottleCaps.pco1881_neck(fa=6)", "part": "pco1881_neck(fa=6)", "tris": 3934, "vol": "3,465.0", "bbox": "33\u00d733\u00d722", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://esm.sh/three@0.160.0";
     import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
@@ -62,17 +62,20 @@ bottlecaps
 
       function resize() {
         const w = box.clientWidth, h = box.clientHeight || 300;
-        renderer.setSize(w, h, false);
+        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
+        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
+        // box (overflow:hidden) shows only its top-left corner.
+        renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
       }
 
       function initThree() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(38, 1, 0.01, 1e6);
+        camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
         camera.up.set(0, 0, 1);
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         box.appendChild(renderer.domElement);
         scene.add(new THREE.AmbientLight(0xffffff, 0.7));
         const k = new THREE.DirectionalLight(0xffffff, 0.85);
@@ -109,6 +112,11 @@ bottlecaps
           scene.add(mesh);
           const r = Math.max(s.x, s.y, s.z) || 1;
           camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          // Depth range tied to the model: a fixed 0.01/1e6 span leaves so little depth precision
+          // that big parts z-fight and shimmer while orbiting.
+          camera.near = r / 100;
+          camera.far = r * 100;
+          camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");

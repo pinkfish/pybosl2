@@ -35,6 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=9f43e219" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1504,6 +1505,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../../tripod_mounts.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Tripod Mounts &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../../walls.html" class="md-nav__link">
 
 
@@ -1791,9 +1816,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cmask</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">orient</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -&gt; X axis, BACK -&gt; Y axis).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -&gt; X axis, BACK -&gt; Y axis).&quot;&quot;&quot;</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">chamfer_edge_mask</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">orient</span> <span class="o">==</span> <span class="s2">&quot;RIGHT&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
@@ -1808,7 +1831,8 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_clip_placement</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">extents</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;For a face direction *vec*, return (z-rotation, rotated [X,Y,Z] extents) placing a clip</span>
-<span class="sd">    (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces.&quot;&quot;&quot;</span>
+<span class="sd">    (BOSL2 rot(from=FWD, to=vec)). Supports the four horizontal cardinal faces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">w</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">hh</span> <span class="o">=</span> <span class="n">extents</span>
     <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># FRONT (-Y): FWD itself</span>
@@ -1851,8 +1875,7 @@
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The length of a truss *cubes* long, plus *gaps* extra strut-widths (BOSL2</span>
 <span class="sd">        cubetruss_dist()).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
@@ -1880,6 +1903,7 @@
 
 <span class="sd">                from pybosl2.parts.cubetruss import CubeTruss</span>
 <span class="sd">                CubeTruss.cubetruss_segment().show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
         <span class="n">strut</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
@@ -1942,6 +1966,7 @@
 <span class="sd">                from pybosl2.parts.cubetruss import CubeTruss</span>
 <span class="sd">                from pybosl2.constants import FRONT</span>
 <span class="sd">                CubeTruss.cubetruss(extents=3, clips=FRONT).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
         <span class="n">strut</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
@@ -2015,6 +2040,7 @@
 
 <span class="sd">                from pybosl2.parts.cubetruss import CubeTruss</span>
 <span class="sd">                CubeTruss.cubetruss_support(extents=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
         <span class="n">strut</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
@@ -2088,6 +2114,7 @@
 
 <span class="sd">                from pybosl2.parts.cubetruss import CubeTruss</span>
 <span class="sd">                CubeTruss.cubetruss_corner(extents=2).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">CUBETRUSS_SIZE</span> <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">size</span>
         <span class="n">strut</span> <span class="o">=</span> <span class="n">CUBETRUSS_STRUT_SIZE</span> <span class="k">if</span> <span class="n">strut</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">strut</span>
@@ -2465,6 +2492,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=c0074402"></script>
 
   </body>
 </html>
