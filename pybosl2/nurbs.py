@@ -73,16 +73,16 @@ class NurbsType(Enum):
     """NURBS curve/surface boundary condition.
 
     Determines how the knot vector is built and whether the curve/surface wraps.
-
-    Attributes:
-        CLAMPED: Clamped (end-point-interpolating) — the default.
-        OPEN:     Open (non-interpolating) B-spline.
-        CLOSED:   Closed (periodic) — start and end connect.
     """
 
     CLAMPED = "clamped"
+    """Clamped (end-point-interpolating) — the default."""
+
     OPEN = "open"
+    """Open (non-interpolating) B-spline."""
+
     CLOSED = "closed"
+    """Closed (periodic) — start and end connect."""
 
 
 # ---------------------------------------------------------------------------
