@@ -120,35 +120,58 @@ class TripodMounts:
             [p_neg3[0] - 10.0, p_neg3[1] - flat_height],
         ]
 
-        # 1. Main body linear sweep:
+        # 1. Main body: sweep the dovetail profile. orient() leaves it centred on its bounding
+        # box; BOSL2 anchors the dovetail as a prismoid whose top face is offset by `shift`
+        # (the top face is 0.32 mm right of the bottom one), which sits the body half of that
+        # offset to the left of the anchor box.
+        shift = 0.64115 / 2
         body = Bosl2Solid(pts.linear_sweep(height=length).polyhedron()).orient(Anchor.FRONT)  # type: ignore[union-attr]
-        body = body.down(thickness / 2)
+        body = body.left(shift / 2)
+        # where the profile's own origin (its bottom-left corner) lands, so the cutouts below can
+        # be placed in the same coordinates the profile was drawn in
+        profile_x = -botwid / 2 - shift / 2
+        profile_z = -thickness / 2
 
-        # Apply centering translation to align the attachable box centered around origin:
-        center_trans = [-botwid / 2 + 0.64115 / 2, length / 2, 0.0]
-        body = body.translate(center_trans)
-
-        # 2. Subtract cutouts:
+        # 2. Subtract the end relief notches: corner_space wide from the left face, cut in from
+        # each end, through the full thickness. The 0.01 slop keeps the cutter faces clear of the
+        # body's, which would otherwise leave coincident faces behind.
         c_space_y = (length - innerlen) / 2
-        cut1 = cuboid(
+        notch = cuboid(
             [corner_space, c_space_y, thickness + 0.02],
             chamfer=-chsize,
             edges=Anchor.ALL if chamf_top else Anchor.TOP,
-            anchor=Anchor.TOP_FRONT_LEFT,
             fn=fn,
             fa=fa,
             fs=fs,
-        ).translate([-botwid / 2 + 0.64115 / 2 - 0.01, -length / 2 - 0.01, -thickness / 2 - 0.01])
+        ).translate(
+            [
+                profile_x - 0.01 + corner_space / 2,
+                length / 2 + 0.01 - c_space_y / 2,
+                0.0,
+            ]
+        )
+        body = body - (notch | notch.scale([1, -1, 1]))
 
-        cut1_all = cut1 | cut1.scale([1, 1, -1])
-        body = body - cut1_all
-
+        # 3. Subtract the facet down the left edge: the facet polygon is drawn in the profile's
+        # own coordinates, so it is placed back onto them.
         cutout_len = 26.0
+        facet_x = [p[0] for p in facet]
+        facet_y = [p[1] for p in facet]
         cut2 = Bosl2Solid(Path2D(facet).linear_sweep(height=cutout_len).polyhedron()).orient(Anchor.FRONT)  # type: ignore[union-attr]
-        cut2 = cut2.translate([-botwid / 2 + 0.64115 / 2, length / 2 - left_top, 0.0])
+        cut2 = cut2.translate(
+            [
+                profile_x + (min(facet_x) + max(facet_x)) / 2,
+                0.0,
+                profile_z + (min(facet_y) + max(facet_y)) / 2,
+            ]
+        )
         body = body - cut2
 
-        # 3. Add edge masks if chamfering is requested:
+        # 4. Chamfer the edges. The masks run along the body's own edges, so they are placed on
+        # the same shifted box the body occupies. (BOSL2 also masks the notch rims here, but
+        # those masks slide along their own axis and cut nothing, so they are left out.)
+        mask_box = (botwid, length, thickness)
+        mask_center = Point([-shift / 2, 0.0, 0.0])
         if chamf_bot:
             body = edge_mask(  # type: ignore[assignment]
                 body,
@@ -160,21 +183,11 @@ class TripodMounts:
                     Anchor.TOP_RIGHT,
                     Anchor.BOTTOM_RIGHT,
                 ],
-                size=(botwid, length, thickness),
+                size=mask_box,
+                center=mask_center,
                 children=chamfer_edge_mask(length, chsize),
             )
             assert body is not None
-            tl_cutter = edge_mask(
-                body,
-                Anchor.TOP_LEFT,
-                size=(botwid, length, thickness),
-                children=chamfer_edge_mask(length, chsize),
-                return_cutter=True,
-            )
-            if tl_cutter is not None:
-                c1 = tl_cutter.right(corner_space)
-                c2 = tl_cutter.down((length - innerlen) / 2)
-                body = body - (c1 | c1.scale([1, 1, -1]) | c2 | c2.scale([1, 1, -1]))
 
         if chamf_top:
             body = edge_mask(  # type: ignore[assignment]
@@ -185,7 +198,8 @@ class TripodMounts:
                     Anchor.TOP_BACK,
                     Anchor.BOTTOM_BACK,
                 ],
-                size=(botwid, length, thickness),
+                size=mask_box,
+                center=mask_center,
                 children=chamfer_edge_mask(length, chsize),
             )
             assert body is not None

@@ -196,7 +196,10 @@ def _rod_solid(
         off = len(verts)
         verts += [list(v) for v in rv]
         faces += [[i + off for i in f] for f in vnf.faces]
-    thread = Bosl2Solid(VNF(verts, faces).polyhedron())
+    # the helical surface comes out wound inwards, so the merged VNF is flipped back before it
+    # becomes a solid -- an inside-out thread inverts every cut it is used for
+    surface = VNF(verts, faces)
+    thread = Bosl2Solid((surface if surface.volume() >= 0 else surface.reverse()).polyhedron())
     return thread & cyl(height=length, radius=radius + 1, fn=fn, fa=fa, fs=fs)
 
 

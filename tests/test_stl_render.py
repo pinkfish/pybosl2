@@ -1573,6 +1573,43 @@ def test_cuboid_edges_rounding(tmp_path):
     np.testing.assert_allclose(m.size, [40, 30, 20], atol=0.5)
 
 
+def test_cuboid_negative_chamfer_is_manifold(tmp_path):
+    # a negative chamfer flares the edges outwards; the flare is pieced together from bars and
+    # corner blocks, which used to be left standing a hair proud of each other, so the union kept
+    # both surfaces and the solid came out non-manifold. Volume checked against BOSL2's own render.
+    m = _render(
+        tmp_path,
+        "s3.cuboid([25, 4.75, 10.52], chamfer=-0.5, edges=Anchor.ALL)",
+        name="cuboid_negchamf",
+    )
+    assert m.watertight
+    assert math.isclose(m.volume, 1264.458, rel_tol=1e-4)  # BOSL2 cuboid(chamfer=-0.5, edges="ALL")
+    np.testing.assert_allclose(m.size, [26, 5.75, 10.52], atol=1e-3)  # flared by the chamfer
+
+
+def test_cuboid_negative_rounding_is_manifold(tmp_path):
+    m = _render(
+        tmp_path,
+        "s3.cuboid([25, 4.75, 10.52], rounding=-0.5, edges=Anchor.ALL, fn=16)",
+        name="cuboid_neground",
+    )
+    assert m.watertight
+    assert math.isclose(m.volume, 1256.341, rel_tol=1e-4)  # BOSL2 cuboid(rounding=-0.5, edges="ALL")
+
+
+def test_swept_solid_is_not_inside_out(tmp_path):
+    # a VNF-built solid handed to polyhedron() as-is comes out inside out: it exports fine on its
+    # own, but cutting with it then adds material instead of removing it.
+    m = _render(
+        tmp_path,
+        "s3.cuboid([20, 20, 6]) - Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]])"
+        ".linear_sweep(height=20, center=True).polyhedron()",
+        name="sweep_cut",
+    )
+    assert m.watertight
+    assert math.isclose(m.volume, 20 * 20 * 6 - 10 * 10 * 6, rel_tol=1e-6)  # the cut removed a 10x10 hole
+
+
 def test_cylinder_chamfered(tmp_path):
     m = _render_golden(tmp_path, "s3.cyl(height=20, radius=5, chamfer=2, fn=64)", name="cyl_chamf")
     assert m.volume > 0
@@ -1713,6 +1750,11 @@ def test_tripod_rc2_plate_builds(tmp_path):
     )
     assert m.watertight
     assert m.volume > 0
+    # the plate is a dovetail with a relief notch cut in at each end and a facet down one side --
+    # pinned against BOSL2's own render of manfrotto_rc2_plate(), which is 19549 mm^3
+    np.testing.assert_allclose(m.size, [42.4, 52.5, 10.5], atol=1e-3)
+    np.testing.assert_allclose(m.bbmin, [-21.36, -26.25, -5.25], atol=0.01)  # centred on its anchor box
+    assert math.isclose(m.volume, 19549.11, rel_tol=2e-3)
 
 
 def test_sdf_backend_real_render(tmp_path):

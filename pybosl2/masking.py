@@ -245,7 +245,7 @@ def edge_mask(
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return None if return_cutter else body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    cutter = cutter.translate(list(center) if center is not None else _anchor_offset_box3(size, anchor))
     if return_cutter:
         return cutter
     return body - cutter
@@ -290,7 +290,7 @@ def edge_profile(
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return None if return_cutter else body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    cutter = cutter.translate(list(center) if center is not None else _anchor_offset_box3(size, anchor))
     if return_cutter:
         return cutter
     return body - cutter
@@ -418,7 +418,7 @@ def corner_profile(
             cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return None if return_cutter else body
-    cutter = cutter.translate(center if center is not None else _anchor_offset_box3(size, anchor))
+    cutter = cutter.translate(list(center) if center is not None else _anchor_offset_box3(size, anchor))
     if return_cutter:
         return cutter
     return body - cutter

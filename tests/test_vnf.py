@@ -195,6 +195,32 @@ def test_vnf_polyhedron_helper() -> None:
     assert solid_method is not None
 
 
+def test_polyhedron_hands_over_faces_the_other_way_round(monkeypatch: pytest.MonkeyPatch) -> None:
+    """polyhedron() winds its faces the opposite way from a VNF, so they go out reversed.
+
+    Handing them over as they are builds every VNF-derived solid inside out: it still measures
+    and exports correctly on its own, but unions and differences with it then do the opposite of
+    what they should.
+    """
+    import pythonscad
+
+    captured: dict[str, object] = {}
+
+    def fake_polyhedron(points: object = None, faces: object = None, **_kwargs: object) -> object:
+        captured["points"], captured["faces"] = points, faces
+        return object()
+
+    monkeypatch.setattr(pythonscad, "polyhedron", fake_polyhedron)
+    cube = VNF(
+        [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]],
+        [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]],
+    )
+    assert cube.volume() == pytest.approx(1.0)  # wound the VNF way: outward faces, positive volume
+    cube.polyhedron()
+    assert captured["faces"] == [list(reversed(f)) for f in cube.faces]
+    assert captured["points"] == [[float(c) for c in v] for v in cube.vertices]
+
+
 # -- vertex_array style tests ---------------------------------------------------------------
 
 
