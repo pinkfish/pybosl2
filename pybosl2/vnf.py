@@ -1126,11 +1126,18 @@ class VNF:
         return cls(verts, faces)
 
     def polyhedron(self) -> Any:
-        """Native geometry for this VNF via PythonSCAD's ``polyhedron(points=, faces=)``."""
+        """Native geometry for this VNF via PythonSCAD's ``polyhedron(points=, faces=)``.
+
+        A VNF winds its faces counter-clockwise seen from outside (so :meth:`volume` is positive
+        for a solid); ``polyhedron()`` wants them the other way round, so each face is reversed
+        on the way out. Handing them over as-is builds the solid inside out -- it still looks
+        right on its own, but every union or difference with it then does the opposite of what
+        it should.
+        """
         from pythonscad import polyhedron as _polyhedron
 
         pts = [[float(x) for x in v] for v in self.vertices]
-        faces = [[int(i) for i in f] for f in self.faces]
+        faces = [[int(i) for i in reversed(f)] for f in self.faces]
         return _polyhedron(points=pts, faces=faces, convexity=10)
 
     def geometry(self) -> Any:

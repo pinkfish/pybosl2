@@ -194,14 +194,22 @@ def _edge_mask_negative(
     )
     pieces = []
     cutters = []
+    # The flare is a bar along each treated edge plus a block filling each corner between them
+    # (BOSL2 cuboid(), negative chamfer/rounding). They are placed on one offset so the bars and
+    # blocks share whole faces: a piece standing a hair proud of its neighbour, or overlapping
+    # across its face, leaves faces that cannot merge and a union that is no longer manifold.
+    adj = [ard, ard, -ard]
     for axis in (0, 1):
         for i in range(4):
             if edge_set[axis][i] > 0:
                 vec = EDGE_OFFSETS[axis][i]
-                adj = [ard - 0.01, ard - 0.01, -ard]
                 t = [vec[k] / 2 * (sz[k] + adj[k]) for k in range(3)]
-                box = _rotate_to_axis(_ocube([ard, ard, sz[axis]], center=True), axis)
-                pieces.append(box.translate(t))
+                # built with its long side already on *axis* rather than rotated onto it: a
+                # rotation leaves the bar's faces a rounding error off the body's, and faces that
+                # are nearly-but-not-quite coincident cannot merge, leaving the union non-manifold
+                bar = [ard, ard, ard]
+                bar[axis] = sz[axis]
+                pieces.append(_ocube(bar, center=True).translate(t))
                 adj2 = [2 * ard, 2 * ard, -2 * ard]
                 t2 = [vec[k] / 2 * (sz[k] + adj2[k]) for k in range(3)]
                 if is_chamfer:
@@ -219,9 +227,10 @@ def _edge_mask_negative(
                 for xa in (-1, 1):
                     ce = _corner_edges(edge_set, [xa, ya, za])
                     if ce[0] + ce[1] > 1:
-                        adj3 = [ard - 0.01, ard - 0.01, -ard]
-                        t3 = [[xa, ya, za][k] / 2 * (sz[k] + adj3[k]) for k in range(3)]
-                        pieces.append(_ocube([ard + 0.01, ard + 0.01, ard], center=True).translate(t3))
+                        # sized and placed exactly like the bars it fills between, so the three
+                        # pieces share whole faces instead of overlapping across them
+                        t3 = [[xa, ya, za][k] / 2 * (sz[k] + adj[k]) for k in range(3)]
+                        pieces.append(_ocube([ard, ard, ard], center=True).translate(t3))
     edge_union = pieces[0]
     for p in pieces[1:]:
         edge_union = edge_union | p

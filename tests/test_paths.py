@@ -188,6 +188,180 @@ def test_offset_needs_exactly_one_of_r_delta() -> None:
         Path2D(UNIT).offset(radius=1, delta=1)
 
 
+# -- offset must not fold over itself -----------------------------------------------------
+#
+# Every one of these produced silently broken geometry before the offset validity check:
+# self-intersecting outlines from arcs/mitres that folded back over the path, and inside-out
+# outlines when the path was shrunk past its own width.
+
+
+def _star(points: int = 6, r_out: float = 30.0, r_in: float = 12.0) -> Path2D:
+    """A spiky star: adjacent concave corners are close enough for their offsets to collide."""
+    return Path2D(
+        [
+            [
+                (r_out if i % 2 == 0 else r_in) * math.cos(math.pi * i / points),
+                (r_out if i % 2 == 0 else r_in) * math.sin(math.pi * i / points),
+            ]
+            for i in range(points * 2)
+        ]
+    )
+
+
+def _toothed_circle(teeth: int = 12, sides: int = 120, radius: float = 20.0, tooth: float = 2.5) -> Path2D:
+    """A finely sampled outline with detail -- the shape that broke offset() in the wild."""
+    step = sides // (teeth * 2)
+    return Path2D(
+        [
+            [
+                (radius + (tooth if (i // step) % 2 == 0 else 0)) * math.cos(2 * math.pi * i / sides),
+                (radius + (tooth if (i // step) % 2 == 0 else 0)) * math.sin(2 * math.pi * i / sides),
+            ]
+            for i in range(sides)
+        ]
+    )
+
+
+@pytest.mark.parametrize("amount", [-1.0, -2.0, -3.0, -5.0, -10.0, 1.0, 2.0, 3.0])
+def test_offset_of_detailed_outline_is_simple(amount: float) -> None:
+    """A detailed outline offset by anything stays a simple polygon (both join styles)."""
+    outline = _toothed_circle()
+    for offset in (outline.offset(radius=amount), outline.offset(delta=amount)):
+        assert offset.is_path_simple(), f"offset by {amount} self-intersects"
+        assert offset.is_simple()
+
+
+@pytest.mark.parametrize("radius", [-2.0, -4.0, -6.0, -8.0, -10.0])
+def test_offset_of_spiky_star_is_simple(radius: float) -> None:
+    """Inward offsets whose corner arcs overlap each other must not leave the overlap in."""
+    offset = _star().offset(radius=radius)
+    assert offset.is_path_simple()
+    assert offset.area() < _star().area()
+
+
+def test_offset_keeps_winding_and_shrinks() -> None:
+    """Shrinking must shrink: it must not turn the outline inside out."""
+    outline = _toothed_circle()
+    before = Path2D._polygon_area(outline, signed=True)
+    for amount in (-1.0, -3.0, -6.0):
+        for offset in (outline.offset(radius=amount), outline.offset(delta=amount)):
+            after = Path2D._polygon_area(offset, signed=True)
+            assert math.copysign(1, after) == math.copysign(1, before)  # same winding
+            assert abs(after) < abs(before)  # actually smaller
+
+
+def test_offset_past_half_width_raises_instead_of_inverting() -> None:
+    """A 10-wide square shrunk by 8 has nothing left -- it used to come back inside out."""
+    with pytest.raises(AssertionError, match="collapsed"):
+        Path2D(UNIT).offset(delta=-8)
+    with pytest.raises(AssertionError, match="collapsed"):
+        Path2D(UNIT).offset(radius=-8)
+
+
+def test_offset_collapsing_a_thin_arm_raises() -> None:
+    """An L with 10-wide arms cannot be inset by 6; it used to return a bigger, folded outline."""
+    ell = Path2D([[0, 0], [40, 0], [40, 10], [10, 10], [10, 40], [0, 40]])
+    with pytest.raises(AssertionError, match="collapsed"):
+        ell.offset(delta=-6)
+    with pytest.raises(AssertionError, match="collapsed"):
+        ell.offset(radius=-6)
+
+
+def test_offset_just_inside_the_limit_still_works() -> None:
+    """The check only rejects what really collapsed -- 4.9 of a 10-wide square is fine."""
+    offset = Path2D(UNIT).offset(delta=-4.9)
+    assert offset.is_path_simple()
+    assert offset.area() == pytest.approx(0.04, abs=1e-6)
+
+
+def test_offset_area_tracks_shapely_erosion() -> None:
+    """Cross-check the offset areas against Shapely's buffer as an independent oracle.
+
+    Dropping a folded edge takes the whole edge with it, so where an offset eats a feature (the
+    teeth here) the result comes out slightly small -- never large, which is the safe direction
+    for an inset.
+    """
+    from shapely.geometry import Polygon
+
+    for outline in (_toothed_circle(), _star()):
+        polygon = Polygon(np.vstack([outline.array, outline.array[:1]]).tolist())
+        for amount in (-1.0, -2.0, -4.0, 1.0, 2.0):
+            got = outline.offset(radius=amount).area()
+            want = polygon.buffer(amount, join_style="round", quad_segs=64).area
+            assert got == pytest.approx(want, rel=0.07), f"offset({amount}) area {got} vs shapely {want}"
+
+
+def test_offset_of_a_rounded_outline_keeps_its_walls() -> None:
+    """Insetting past a corner radius must square the corner off, not throw the outline away."""
+    centres = ((8, -8, -90), (8, 8, 0), (-8, 8, 90), (-8, -8, 180))  # ccw, each with a radius-2 corner
+    rounded = Path2D(
+        [
+            [cx + 2 * math.cos(math.radians(a)), cy + 2 * math.sin(math.radians(a))]
+            for cx, cy, start in centres
+            for a in np.linspace(start, start + 90, 6)
+        ]
+    )
+    inset = rounded.offset(delta=-3)  # 3 > the 2 corner radius, so the corners collapse to points
+    assert inset.is_path_simple()
+    assert inset.area() == pytest.approx(14 * 14, rel=0.01)
+
+
+def test_offset_that_splits_the_shape_stays_simple() -> None:
+    """A dumbbell pinched through its neck cannot be two Path2Ds, but must still be valid."""
+    dumbbell = Path2D(
+        [
+            [0, 0],
+            [40, 0],
+            [40, 20],
+            [25, 20],
+            [25, 25],
+            [40, 25],
+            [40, 45],
+            [0, 45],
+            [0, 25],
+            [15, 25],
+            [15, 20],
+            [0, 20],
+        ]
+    )
+    for amount in (-6.0, -8.0, -10.0):
+        offset = dumbbell.offset(radius=amount)
+        assert offset.is_path_simple(), f"offset by {amount} self-intersects"
+        assert offset.area() > 0
+
+
+def test_offset_same_length_keeps_one_point_per_input_point() -> None:
+    """path_sweep2d() needs the offset to line up with the path point for point.
+
+    It gets the raw construction, so it stays point-for-point; every other caller gets the
+    repaired outline, which is shorter wherever a folded edge was dropped.
+    """
+    wavy = Path2D([[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)])
+    for amount in (-2.0, 2.0):
+        offset = wavy.offset(delta=amount, same_length=True)
+        assert len(offset) == len(wavy)
+        # each point sits out by the offset distance from its own point (a shade more at a
+        # corner, where the mitre reaches), not somewhere else along the path
+        displacement = np.linalg.norm(np.asarray(offset.to_list) - wavy.array, axis=1)
+        assert float(displacement.min()) >= abs(amount) - 1e-9
+        assert float(np.median(displacement)) < 1.5 * abs(amount)
+    assert len(wavy.offset(delta=-2.0)) < len(wavy)  # without it, folded corners are dropped
+
+
+def test_offset_same_length_rejects_joins_that_add_points() -> None:
+    with pytest.raises(AssertionError, match="same_length"):
+        Path2D(UNIT).offset(radius=-1, same_length=True)
+    with pytest.raises(AssertionError, match="same_length"):
+        Path2D(UNIT).offset(delta=-1, chamfer=True, same_length=True)
+
+
+def test_offset_leaves_convex_outlines_untouched() -> None:
+    """The validity check must not disturb offsets that never fold: a square stays a square."""
+    assert Path2D(UNIT).offset(delta=-1).to_list == [[1, 1], [9, 1], [9, 9], [1, 9]]
+    assert Path2D(UNIT).offset(delta=2).to_list == [[-2, -2], [12, -2], [12, 12], [-2, 12]]
+    assert len(Path2D(UNIT).offset(radius=-1)) == 4
+
+
 def test_round_corners_inserts_points() -> None:
     out = Path2D(UNIT).round_corners(radius=2)
     assert isinstance(out, Path2D)

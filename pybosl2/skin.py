@@ -1760,7 +1760,7 @@ def _path_sweep2d(
     # For each profile point, offset the path by -flip*x and lift the result to z=y.
     per_point = []
     for pt in profile:
-        off = pth.offset(delta=-flip * pt[0])
+        off = pth.offset(delta=-flip * pt[0], same_length=True)
         assert len(off) == len(pth), (
             "path_sweep2d(): the offset dropped points (the shape is too wide for the path here); "
             "reduce the shape's X extent."
