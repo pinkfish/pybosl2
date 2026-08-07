@@ -44,9 +44,21 @@ from pybosl2.parts.linear_bearings import LinearBearings, LinearBearingSpec
 from pybosl2.parts.modular_hose import HoseSegment, HoseType, modular_hose_radius
 from pybosl2.parts.nema_steppers import NemaMaskType, NemaMotor, NemaMountMask, NemaSpec
 from pybosl2.parts.polyhedra import PlatonicSolid, PolyhedronInfo, RegularPolyhedron
-from pybosl2.parts.screw_drive import ScrewDrive
+from pybosl2.parts.screw_drive import (
+    HexDriveMask,
+    PhillipsMask,
+    RobertsonMask,
+    TorxMask,
+    TorxMask2d,
+    hex_mask,
+    phillips_depth,
+    phillips_diam,
+    torx_depth,
+    torx_diam,
+    torx_info,
+)
 from pybosl2.parts.screws import Nut, Screw, ScrewHole, ScrewSpec
-from pybosl2.parts.sliders import Sliders
+from pybosl2.parts.sliders import Rail, Slider
 from pybosl2.parts.threading import ThreadedNut, ThreadedRod, ThreadHelix, ThreadProfile
 from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate, manfrotto_rc2_plate
 from pybosl2.parts.walls import (
@@ -110,14 +122,25 @@ __all__ = [
     "PolyhedronInfo",
     "RegularPolyhedron",
     "PlatonicSolid",
-    "ScrewDrive",
+    "HexDriveMask",
+    "PhillipsMask",
+    "RobertsonMask",
+    "TorxMask",
+    "TorxMask2d",
+    "hex_mask",
+    "phillips_depth",
+    "phillips_diam",
+    "torx_depth",
+    "torx_diam",
+    "torx_info",
     "ScrewDriveType",
     "ScrewHeadType",
     "Screw",
     "ScrewHole",
     "ScrewSpec",
     "Nut",
-    "Sliders",
+    "Slider",
+    "Rail",
     "Threading",
     "ThreadedNut",
     "ThreadedRod",

@@ -1727,7 +1727,7 @@ def test_polyhedra_icosahedron(tmp_path):
 
 
 def test_screw_drive_phillips_mask(tmp_path):
-    m = _render(tmp_path, "ScrewDrive.phillips_mask('#2', fn=24)", name="phillips")
+    m = _render(tmp_path, "PhillipsMask('#2', fn=24).shape()", name="phillips")
     assert m.volume > 0
     assert m.watertight
 
@@ -1743,7 +1743,7 @@ def test_nema_stepper_motor(tmp_path):
 
 
 def test_sliders_rail_builds(tmp_path):
-    m = _render(tmp_path, "Sliders.rail(l=40, w=10, h=10)", name="slider_rail")
+    m = _render(tmp_path, "Rail(l=40, w=10, h=10).shape()", name="slider_rail")
     assert m.watertight
     assert m.volume > 0
 

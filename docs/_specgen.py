@@ -1055,7 +1055,7 @@ MODULES = {
             "head to make the drive recess, with exact dimensional tables from ISO/ANSI standards."
         ),
         "part": 'phillips_mask(size="#2")',
-        "code": 'ScrewDrive.<span class="k">phillips_mask</span>(size="#2")',
+        "code": 'PhillipsMask.<span class="k">shape</span>(size="#2")',
         "metrics": [
             ("Phillips #2", 600, "95.2", "7×7×5"),
             ("Torx T30", 750, "140.5", "8×8×10"),
@@ -1106,7 +1106,7 @@ MODULES = {
             "with configurable slop and wall thickness."
         ),
         "part": "slider(l=30, base=10, wall=4)",
-        "code": 'Sliders.<span class="k">slider</span>(l=30, base=10, wall=4)',
+        "code": 'Slider.<span class="k">shape</span>(l=30, base=10, wall=4)',
         "metrics": [
             ("slider", 600, "320.5", "10×14×30"),
             ("rail", 400, "950.0", "14×14×100"),
@@ -1256,9 +1256,14 @@ SETUP = {
         "iso_threaded_rod, iso_threaded_nut, trapezoidal_threaded_rod, acme_threaded_rod, "
         "square_threaded_rod, buttress_threaded_rod\n"
     ),
-    "screw_drive": "from pybosl2.parts.screw_drive import ScrewDrive\n",
+    "screw_drive": (
+        "from pybosl2.parts.screw_drive import (\n"
+        "    HexDriveMask, PhillipsMask, RobertsonMask, TorxMask, TorxMask2d,\n"
+        "    hex_mask, phillips_depth, phillips_diam, torx_depth, torx_diam, torx_info,\n"
+        ")\n"
+    ),
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
-    "sliders": "from pybosl2.parts.sliders import Sliders\n",
+    "sliders": "from pybosl2.parts.sliders import Slider, Rail\n",
     "tripod_mounts": "from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate, manfrotto_rc2_plate\n",
     "shapes3d": (
         "from pybosl2.solid import cyl, cuboid, sphere, cylinder\n"
@@ -1423,10 +1428,10 @@ VARIANTS = {
         ),
     ],
     "screw_drive": [
-        ("phillips", "Phillips #2", 'ScrewDrive.phillips_mask(size="#2", l=10)'),
-        ("hex", "hex 3 mm", "ScrewDrive.hex_mask(size=3, l=10)"),
-        ("torx", "Torx T30", "ScrewDrive.torx_mask(size=30, l=10)"),
-        ("robertson", "Robertson #2", 'ScrewDrive.robertson_mask(size="#2", l=10)'),
+        ("phillips", "Phillips #2", 'PhillipsMask(size="#2", l=10).shape()'),
+        ("hex", "hex 3 mm", "hex_mask(size=3, l=10)"),
+        ("torx", "Torx T30", "TorxMask(size=30, l=10).shape()"),
+        ("robertson", "Robertson #2", 'RobertsonMask(size="#2", l=10).shape()'),
     ],
     "bottlecaps": [
         ("pco1810-neck", "PCO 1810 neck", "BottleCaps.pco1810_neck(fa=6)"),
@@ -1434,8 +1439,8 @@ VARIANTS = {
         ("pco1881-neck", "PCO 1881 neck", "BottleCaps.pco1881_neck(fa=6)"),
     ],
     "sliders": [
-        ("slider", "slider", "Sliders.slider(l=30, base=10, wall=4, slop=0.2)"),
-        ("rail", "rail", "Sliders.rail(l=100, w=10, h=10)"),
+        ("slider", "slider", "Slider(l=30, base=10, wall=4, slop=0.2).shape()"),
+        ("rail", "rail", "Rail(l=100, w=10, h=10).shape()"),
     ],
     "tripod_mounts": [
         ("rc2-all", "all chamfer", "ManfrottoRC2Plate().shape()"),
