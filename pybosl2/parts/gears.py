@@ -596,7 +596,25 @@ class GearSpec:
         profile_shift: float | None = None,
         shorten: float = 0,
     ) -> None:
-        """Resolve pitch inputs and auto-correct profile shift for undercut."""
+        """Resolve pitch inputs and auto-correct profile shift for undercut.
+
+        Args:
+            teeth: Number of teeth on the gear.
+            circ_pitch: Circular pitch in mm/tooth.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            internal: True for internal (ring) gears.
+            helical: Helical angle in degrees.
+            profile_shift: Explicit profile shift, or None for auto correction.
+            shorten: Amount to shorten the teeth.
+
+        Returns:
+            None
+
+        """
         object.__setattr__(self, "teeth", teeth)
         object.__setattr__(self, "pressure_angle", pressure_angle)
         object.__setattr__(self, "helical", helical)
@@ -660,12 +678,31 @@ class GearSpec:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> float:
-        """Circular pitch (mm/tooth) from any pitch input."""
+        """Circular pitch (mm/tooth) from any pitch input.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            Resolved circular pitch in mm/tooth.
+
+        """
         return _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
     @staticmethod
     def pitch_value(mod: float) -> float:
-        """Circular pitch from the metric module."""
+        """Circular pitch from the metric module.
+
+        Args:
+            mod: Metric module (mm/tooth).
+
+        Returns:
+            Circular pitch in mm/tooth.
+
+        """
         return mod * PI
 
     @staticmethod
@@ -675,7 +712,18 @@ class GearSpec:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> float:
-        """Metric module from any pitch input."""
+        """Metric module from any pitch input.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            Metric module value.
+
+        """
         return _module_value(_circular_pitch(circ_pitch, mod, pitch, diam_pitch))
 
     @staticmethod
@@ -685,7 +733,18 @@ class GearSpec:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> float:
-        """Diametral pitch (teeth per inch of pitch diameter) from any pitch input."""
+        """Diametral pitch (teeth per inch of pitch diameter) from any pitch input.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            Diametral pitch value.
+
+        """
         return PI / _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
     @staticmethod
@@ -695,12 +754,33 @@ class GearSpec:
         helical: float = 0,
         profile_shift: float | None = None,
     ) -> float:
-        """Minimum profile shift (modules) to avoid undercut."""
+        """Minimum profile shift (modules) to avoid undercut.
+
+        Args:
+            teeth: Number of teeth on the gear.
+            pressure_angle: Pressure angle in degrees.
+            helical: Helical angle in degrees.
+            profile_shift: Explicit profile shift override, or None for auto.
+
+        Returns:
+            Profile shift value (modules).
+
+        """
         return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
 
     @staticmethod
     def bevel_pitch_angle(teeth: int, mate_teeth: float, drive_angle: float = 90) -> float:
-        """Pitch angle (deg) for a bevel gear meshing another."""
+        """Pitch angle (deg) for a bevel gear meshing another.
+
+        Args:
+            teeth: Number of teeth on the gear.
+            mate_teeth: Number of teeth on the mating gear.
+            drive_angle: Shaft angle between gears in degrees.
+
+        Returns:
+            Pitch angle in degrees.
+
+        """
         return math.degrees(
             math.atan2(math.sin(math.radians(drive_angle)), (mate_teeth / teeth) + math.cos(math.radians(drive_angle)))
         )
@@ -717,7 +797,23 @@ class GearSpec:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> float:
-        """Thickness of a worm gear matched to a worm."""
+        """Thickness of a worm gear matched to a worm.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the worm gear.
+            worm_diam: Diameter of the mating worm.
+            worm_arc: Arc angle the worm gear wraps around the worm.
+            crowning: Crowning amount.
+            clearance: Clearance, or None for default.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            Worm gear thickness in mm.
+
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         radius = worm_diam / 2 + crowning
         pitch_thick = radius * math.sin(math.radians(worm_arc / 2)) * 2
@@ -741,7 +837,26 @@ class GearSpec:
         mod: float | None = None,
         diam_pitch: float | None = None,
     ) -> float:
-        """Center-to-center distance for two meshing gears."""
+        """Center-to-center distance for two meshing gears.
+
+        Args:
+            teeth1: Number of teeth on the first gear.
+            teeth2: Number of teeth on the second gear.
+            helical: Helical angle in degrees.
+            profile_shift1: Profile shift for the first gear, or None for auto.
+            profile_shift2: Profile shift for the second gear, or None for auto.
+            internal1: True if the first gear is an internal (ring) gear.
+            internal2: True if the second gear is an internal (ring) gear.
+            backlash: Backlash amount in mm.
+            pressure_angle: Pressure angle in degrees.
+            circ_pitch: Circular pitch in mm/tooth.
+            mod: Metric module (mm/tooth).
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            Center-to-center meshing distance in mm.
+
+        """
         m_val = _module_value(_circular_pitch(circ_pitch, mod, None, diam_pitch))
         ps1 = _auto_profile_shift(teeth1, pressure_angle, helical, profile_shift1)
         ps2 = _auto_profile_shift(teeth2, pressure_angle, helical, profile_shift2)
@@ -826,7 +941,27 @@ class GearToothProfile:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> None:
-        """Compute the involute gear tooth profile."""
+        """Compute the involute gear tooth profile.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            backlash: Backlash amount in mm.
+            helical: Helical angle in degrees.
+            internal: True for internal (ring) gears.
+            profile_shift: Explicit profile shift, or None for auto correction.
+            shorten: Amount to shorten the teeth.
+            center: If True, center the tooth vertically on the pitch circle.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            None
+
+        """
         circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         self._path: list[list[float]] = _gear_tooth_profile(
@@ -843,7 +978,12 @@ class GearToothProfile:
         )
 
     def path(self) -> list[list[float]]:
-        """Return the tooth profile as a 2-D point list."""
+        """Return the tooth profile as a 2-D point list.
+
+        Returns:
+            List of [x, y] points defining the tooth profile.
+
+        """
         return self._path
 
 
@@ -878,7 +1018,29 @@ class SpurGear2d:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> None:
-        """Create a 2-D spur gear."""
+        """Create a 2-D spur gear.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            hide: Number of teeth to hide (for sector gears).
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            backlash: Backlash amount in mm.
+            internal: True for internal (ring) gears.
+            profile_shift: Explicit profile shift, or None for auto correction.
+            helical: Helical angle in degrees.
+            shaft_diam: Shaft bore diameter, or 0 for no bore.
+            shorten: Amount to shorten the teeth.
+            gear_spin: Rotation offset of the gear in degrees.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            None
+
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         tooth = _gear_tooth_profile(center, teeth, pressure_angle, clearance, backlash, helical, internal, ps, shorten)
@@ -949,7 +1111,35 @@ class SpurGear:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a 3-D spur gear."""
+        """Create a 3-D spur gear.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            thickness: Gear thickness in mm.
+            shaft_diam: Shaft bore diameter, or 0 for no bore.
+            hide: Number of teeth to hide (for sector gears).
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            backlash: Backlash amount in mm.
+            helical: Helical angle in degrees.
+            herringbone: If True, create a herringbone (double-helical) gear.
+            internal: True for internal (ring) gears.
+            profile_shift: Explicit profile shift, or None for auto correction.
+            shorten: Amount to shorten the teeth.
+            slices: Number of slices for linear extrusion.
+            gear_spin: Rotation offset of the gear in degrees.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         spec = GearSpec(
             teeth=teeth,
             circ_pitch=circ_pitch,
@@ -1039,7 +1229,17 @@ class SpurGear:
 
 
 class HerringboneGear(SpurGear):
-    """A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``."""
+    """A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``.
+
+    Examples:
+        A herringbone gear with a shaft bore:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import HerringboneGear
+            HerringboneGear(mod=5, teeth=18, thickness=25, helical=30, shaft_diam=15).show()
+
+    """
 
     def __init__(
         self,
@@ -1063,7 +1263,33 @@ class HerringboneGear(SpurGear):
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a herringbone gear."""
+        """Create a herringbone gear.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            thickness: Gear thickness in mm.
+            shaft_diam: Shaft bore diameter, or 0 for no bore.
+            hide: Number of teeth to hide (for sector gears).
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            backlash: Backlash amount in mm.
+            helical: Helical angle in degrees.
+            internal: True for internal (ring) gears.
+            profile_shift: Explicit profile shift, or None for auto correction.
+            shorten: Amount to shorten the teeth.
+            gear_spin: Rotation offset of the gear in degrees.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         super().__init__(
             circ_pitch=circ_pitch,
             teeth=teeth,
@@ -1117,7 +1343,29 @@ class RingGear:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create an internal ring gear."""
+        """Create an internal ring gear.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            thickness: Gear thickness in mm.
+            backing: Extra radial thickness behind the teeth.
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            backlash: Backlash amount in mm.
+            helical: Helical angle in degrees.
+            profile_shift: Explicit profile shift, or None for auto correction.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         _or = _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0) + backing
@@ -1151,7 +1399,17 @@ class RingGear:
 
 
 class Rack2d:
-    """A 2-D involute rack outline — a straight bar of teeth."""
+    """A 2-D involute rack outline — a straight bar of teeth.
+
+    Examples:
+        A 2-D rack extruded for STL export:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import Rack2d
+            Rack2d(mod=5, teeth=20, height=10).shape().linear_extrude(height=5).show()
+
+    """
 
     def __init__(
         self,
@@ -1165,7 +1423,23 @@ class Rack2d:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> None:
-        """Create a 2-D rack."""
+        """Create a 2-D rack.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the rack.
+            height: Total height of the rack bar.
+            pressure_angle: Pressure angle in degrees.
+            backlash: Backlash amount in mm.
+            clearance: Clearance, or None for default (0.25 * module).
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            None
+
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
@@ -1181,7 +1455,17 @@ class Rack2d:
 
 
 class Rack:
-    """A 3-D rack: a linear toothed bar a gear rolls along."""
+    """A 3-D rack: a linear toothed bar a gear rolls along.
+
+    Examples:
+        A rack to mesh with a spur gear:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import Rack
+            Rack(mod=5, teeth=20, thickness=10, height=12).show()
+
+    """
 
     def __init__(
         self,
@@ -1197,7 +1481,25 @@ class Rack:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> None:
-        """Create a 3-D rack."""
+        """Create a 3-D rack.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the rack.
+            thickness: Rack thickness in mm.
+            height: Total height of the rack bar.
+            pressure_angle: Pressure angle in degrees.
+            backlash: Backlash amount in mm.
+            clearance: Clearance, or None for default (0.25 * module).
+            helical: Helical angle in degrees.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            None
+
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         diameter = _dedendum(center, clearance)
@@ -1228,7 +1530,17 @@ class Rack:
 
 
 class BevelGear:
-    """A (potentially spiral) involute bevel gear."""
+    """A (potentially spiral) involute bevel gear.
+
+    Examples:
+        A bevel gear with a shaft bore:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import BevelGear
+            BevelGear(mod=5, teeth=30, face_width=10, pitch_angle=45, shaft_diam=15).show()
+
+    """
 
     def __init__(
         self,
@@ -1254,7 +1566,35 @@ class BevelGear:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a bevel gear."""
+        """Create a bevel gear.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            face_width: Width of the tooth face along the cone.
+            pitch_angle: Pitch cone angle in degrees.
+            mate_teeth: Number of teeth on the mating gear (overrides pitch_angle).
+            shaft_diam: Shaft bore diameter, or 0 for no bore.
+            hide: Number of teeth to hide (for sector gears).
+            pressure_angle: Pressure angle in degrees.
+            clearance: Clearance, or None for default (0.25 * module).
+            backlash: Backlash amount in mm.
+            cutter_radius: Radius of the cutter for spiral bevel gears.
+            spiral_angle: Spiral angle in degrees.
+            left_handed: True for left-handed spiral.
+            slices: Number of slices along the face width.
+            interior: True for interior bevel gear.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         _ = hide
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         slices_ = 1 if cutter_radius == 0 else slices
@@ -1337,7 +1677,17 @@ class BevelGear:
 
 
 class Worm:
-    """A worm — a screw that meshes a worm gear."""
+    """A worm — a screw that meshes a worm gear.
+
+    Examples:
+        A worm with two starts:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import Worm
+            Worm(mod=5, diameter=30, length=80, starts=2).show()
+
+    """
 
     def __init__(
         self,
@@ -1353,7 +1703,25 @@ class Worm:
         pitch: float | None = None,
         diam_pitch: float | None = None,
     ) -> None:
-        """Create a worm."""
+        """Create a worm.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            diameter: Worm outer diameter in mm.
+            length: Worm length in mm.
+            starts: Number of thread starts.
+            left_handed: True for left-handed worm.
+            pressure_angle: Pressure angle in degrees.
+            backlash: Backlash amount in mm.
+            clearance: Clearance, or None for default (0.25 * module).
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+
+        Returns:
+            None
+
+        """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         rack = _rack2d_path(center, starts, diameter, pressure_angle, backlash, clearance)[1:-1]
         polars = [[360 * px / center / starts, py + diameter / 2] for px, py in rack]
@@ -1388,7 +1756,17 @@ class Worm:
 
 
 class WormGear:
-    """A worm gear, hobbed to mesh a matching :class:`Worm`."""
+    """A worm gear, hobbed to mesh a matching :class:`Worm`.
+
+    Examples:
+        A worm gear with a shaft bore:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import WormGear
+            WormGear(mod=5, teeth=36, worm_diam=30, shaft_diam=15).show()
+
+    """
 
     def __init__(
         self,
@@ -1411,7 +1789,32 @@ class WormGear:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a worm gear."""
+        """Create a worm gear.
+
+        Args:
+            circ_pitch: Circular pitch in mm/tooth.
+            teeth: Number of teeth on the gear.
+            worm_diam: Diameter of the mating worm.
+            worm_starts: Number of starts on the mating worm.
+            worm_arc: Arc angle the worm gear wraps around the worm (10-60 degrees).
+            crowning: Crowning amount.
+            left_handed: True for left-handed worm gear.
+            pressure_angle: Pressure angle in degrees.
+            backlash: Backlash amount in mm.
+            slices: Number of slices along the width.
+            clearance: Clearance, or None for default (0.25 * module).
+            shaft_diam: Shaft bore diameter, or 0 for no bore.
+            mod: Metric module (mm/tooth).
+            pitch: Circular pitch alias.
+            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         assert 10 <= worm_arc <= 60, "worm_gear(): worm_arc must be between 10 and 60 degrees."
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         p = _pitch_radius(center, teeth)

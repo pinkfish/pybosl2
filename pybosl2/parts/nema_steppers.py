@@ -56,7 +56,18 @@ class NemaSpec:
     shaft_diam: float
 
     def __init__(self, size: int) -> None:
-        """Look up the NEMA motor dimensions for the given *size* (6-42)."""
+        """Look up the NEMA motor dimensions for the given size.
+
+        Args:
+            size: NEMA motor frame size (6, 8, 11, 14, 17, 23, 34, or 42).
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the size is not one of the supported NEMA sizes.
+
+        """
         try:
             spec = _NEMA[int(size)]
         except (KeyError, ValueError):
@@ -122,7 +133,20 @@ class NemaMotor:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a NEMA stepper motor model, sized by *size*, *height* and *shaft_len*."""
+        """Create a NEMA stepper motor model.
+
+        Args:
+            size: NEMA motor frame size (6, 8, 11, 14, 17, 23, 34, or 42). Defaults to 17.
+            height: Motor body height in mm. Defaults to 24.
+            shaft_len: Shaft projection length in mm. Defaults to 20.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            None
+
+        """
         self._spec: NemaSpec = NemaSpec(size)
         self._height: float = height
         self._shaft_len: float = shaft_len
@@ -211,6 +235,15 @@ class NemaMountMask:
     Cuts the four screw holes and (``atype=NemaMaskType.FULL``) the central plinth
     clearance.  A slot *length* > 0 elongates each hole so the motor can be
     positioned (e.g. to tension a belt).
+
+    Examples:
+        A NEMA 17 mount mask:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.nema_steppers import NemaMountMask, NemaMaskType
+            NemaMountMask(size=17, atype=NemaMaskType.FULL).shape().linear_extrude(1).show()
+
     """
 
     def __init__(
@@ -224,7 +257,25 @@ class NemaMountMask:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a NEMA mounting mask cutout."""
+        """Create a NEMA mounting mask cutout.
+
+        Args:
+            size: NEMA motor frame size (6, 8, 11, 14, 17, 23, 34, or 42).
+            depth: Depth of the mask cutout in mm. Defaults to 5.
+            length: Slot elongation length in mm; values > 0 create slots instead of round holes. Defaults to 5.
+            atype: Mask cutout type, either FULL (holes + plinth clearance) or SCREWS (holes only). Defaults to FULL.
+            slop: Additional clearance added to hole diameters. Defaults to 0.0.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If atype is not NemaMaskType.FULL or NemaMaskType.SCREWS.
+
+        """
         if atype not in (NemaMaskType.FULL, NemaMaskType.SCREWS):
             raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {atype!r}")
         self._spec: NemaSpec = NemaSpec(size)

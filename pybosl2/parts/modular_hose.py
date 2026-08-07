@@ -218,7 +218,24 @@ class HoseSegment:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a modular-hose segment, ball end or socket end."""
+        """Create a modular-hose segment, ball end or socket end.
+
+        Args:
+            size: Hose size (0.25, 0.5 or 0.75 inches).
+            type: Segment type as a :class:`HoseType` enum value.
+            clearance: Clearance for fit tuning; a single float or ``[ball_clearance, socket_clearance]``.
+            waist_len: Length of the waist section between ball and socket; auto-derived if None.
+            fn: Number of facets for $fn-based resolution.
+            fa: Minimum facet angle.
+            fs: Minimum facet size.
+
+        Returns:
+            None.
+
+        Raises:
+            ValueError: If *size* is not one of 0.25, 0.5, 0.75, or *type* is invalid.
+
+        """
         ind = _size_index(size)
         cl = clearance if isinstance(clearance, (list, tuple)) else [clearance, clearance]
         small, big = _SMALL[ind], _BIG[ind]
@@ -276,7 +293,16 @@ class HoseSegment:
 def modular_hose_radius(size: float, outer: bool = False) -> float:
     """Return the inner (bore) or *outer* radius of a modular hose of *size*.
 
-    (BOSL2 modular_hose_radius()).
+    Args:
+        size: Hose size (0.25, 0.5 or 0.75 inches).
+        outer: If True, return the outer radius instead of the inner (bore) radius.
+
+    Returns:
+        The bore or outer radius in mm for the given hose size.
+
+    Raises:
+        ValueError: If *size* is not one of 0.25, 0.5, 0.75.
+
     """
     big = _BIG[_size_index(size)]
     return big[-1][0] if outer else big[0][0]

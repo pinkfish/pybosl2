@@ -856,6 +856,17 @@ class BallBearings:
 
         Accepts a string name (``"608"``, ``"6902ZZ"``) or a :class:`BearingType` enum value,
         and returns the corresponding :class:`BearingSpec`.
+
+        Args:
+            trade_size: The bearing trade size as a string (e.g. ``"608"`` or ``"R8ZZ"``)
+                or a :class:`BearingType` enum value.
+
+        Returns:
+            A :class:`BearingSpec` with the inner_diameter, outer_diameter, width, and shielded flag.
+
+        Raises:
+            ValueError: If the trade size is not found in the bearing table.
+
         """
         if isinstance(trade_size, str):
             trade_size = BearingType.of(trade_size)
@@ -881,6 +892,24 @@ class BallBearings:
         Give a *trade_size* name (or :class:`BearingType`), or explicit
         *inner_diameter*/*outer_diameter*/*width* (with *shield*). Returns a
         :class:`~pybosl2.shapes3d.Bosl2Solid` centered on the origin.
+
+        Args:
+            trade_size: The bearing trade size as a string or :class:`BearingType`.
+                Overrides explicit dimensions if given.
+            inner_diameter: Inner (shaft) diameter in mm. Required if trade_size is not given.
+            outer_diameter: Outer diameter in mm. Required if trade_size is not given.
+            width: Axial width in mm. Required if trade_size is not given.
+            shield: Model sealed/shielded cartridge (True) or open bearing with balls (False). Defaults to True.
+            color: Color name to apply to the bearing model. Defaults to "silver".
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            A ball-bearing cartridge as a :class:`~pybosl2.shapes3d.Bosl2Solid`.
+
+        Raises:
+            ValueError: If inner_diameter, outer_diameter, or width are not provided and trade_size is not given.
 
         Examples:
             A common 608 skate bearing:

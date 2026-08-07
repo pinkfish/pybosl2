@@ -196,7 +196,15 @@ class PolyhedronInfo:
     num_faces: int
 
     def __init__(self, solid: PlatonicSolid) -> None:
-        """Look up vertex/face data for the given Platonic solid."""
+        """Look up vertex/face data for the given Platonic solid.
+
+        Args:
+            solid: A :class:`PlatonicSolid` enum value identifying the polyhedron.
+
+        Returns:
+            None.
+
+        """
         verts, faces, _ratio = _SOLIDS[solid]
         self.name = solid.value
         self.vertices = [list(v) for v in verts]
@@ -231,7 +239,22 @@ class RegularPolyhedron:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> None:
-        """Create a regular polyhedron, sized by one of radius/diameter/inradius/side."""
+        """Create a regular polyhedron, sized by one of radius/diameter/inradius/side.
+
+        Args:
+            name: A :class:`PlatonicSolid` enum value identifying the polyhedron type.
+            radius: Circumscribing sphere radius.
+            diameter: Circumscribing sphere diameter.
+            inner_radius: Insphere radius (distance from centre to mid-face).
+            side: Edge length.
+
+        Returns:
+            None.
+
+        Raises:
+            KeyError: If *name* is not a valid Platonic solid.
+
+        """
         _ = _SOLIDS[name]  # validate early
         self._name: PlatonicSolid = name
         self._radius: float | None = radius
@@ -246,7 +269,12 @@ class RegularPolyhedron:
         return self._name
 
     def info(self) -> PolyhedronInfo:
-        """Return vertex/face data for this solid."""
+        """Return vertex/face data for this solid.
+
+        Returns:
+            A :class:`PolyhedronInfo` object containing vertex and face lists.
+
+        """
         return PolyhedronInfo(self._name)
 
     def shape(self) -> Bosl2Solid:
@@ -281,7 +309,18 @@ class RegularPolyhedron:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> RegularPolyhedron:
-        """Return a regular tetrahedron (4 triangular faces)."""
+        """Return a regular tetrahedron (4 triangular faces).
+
+        Args:
+            radius: Circumscribing sphere radius.
+            diameter: Circumscribing sphere diameter.
+            inner_radius: Insphere radius (distance from centre to mid-face).
+            side: Edge length.
+
+        Returns:
+            A :class:`RegularPolyhedron` configured as a tetrahedron.
+
+        """
         return cls(PlatonicSolid.TETRAHEDRON, radius=radius, diameter=diameter, inner_radius=inner_radius, side=side)
 
     @classmethod
@@ -292,7 +331,18 @@ class RegularPolyhedron:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> RegularPolyhedron:
-        """Return a cube / regular hexahedron (6 square faces)."""
+        """Return a cube / regular hexahedron (6 square faces).
+
+        Args:
+            radius: Circumscribing sphere radius.
+            diameter: Circumscribing sphere diameter.
+            inner_radius: Insphere radius (distance from centre to mid-face).
+            side: Edge length.
+
+        Returns:
+            A :class:`RegularPolyhedron` configured as a cube.
+
+        """
         return cls(PlatonicSolid.CUBE, radius=radius, diameter=diameter, inner_radius=inner_radius, side=side)
 
     @classmethod
@@ -303,7 +353,18 @@ class RegularPolyhedron:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> RegularPolyhedron:
-        """Return a regular octahedron (8 triangular faces)."""
+        """Return a regular octahedron (8 triangular faces).
+
+        Args:
+            radius: Circumscribing sphere radius.
+            diameter: Circumscribing sphere diameter.
+            inner_radius: Insphere radius (distance from centre to mid-face).
+            side: Edge length.
+
+        Returns:
+            A :class:`RegularPolyhedron` configured as an octahedron.
+
+        """
         return cls(PlatonicSolid.OCTAHEDRON, radius=radius, diameter=diameter, inner_radius=inner_radius, side=side)
 
     @classmethod
@@ -314,7 +375,18 @@ class RegularPolyhedron:
         inner_radius: float | None = None,
         side: float | None = None,
     ) -> RegularPolyhedron:
-        """Return a regular dodecahedron (12 pentagonal faces)."""
+        """Return a regular dodecahedron (12 pentagonal faces).
+
+        Args:
+            radius: Circumscribing sphere radius.
+            diameter: Circumscribing sphere diameter.
+            inner_radius: Insphere radius (distance from centre to mid-face).
+            side: Edge length.
+
+        Returns:
+            A :class:`RegularPolyhedron` configured as a dodecahedron.
+
+        """
         return cls(PlatonicSolid.DODECAHEDRON, radius=radius, diameter=diameter, inner_radius=inner_radius, side=side)
 
     @classmethod
@@ -326,6 +398,15 @@ class RegularPolyhedron:
         side: float | None = None,
     ) -> RegularPolyhedron:
         """Return a regular icosahedron (20 triangular faces).
+
+        Args:
+            radius: Circumscribing sphere radius.
+            diameter: Circumscribing sphere diameter.
+            inner_radius: Insphere radius (distance from centre to mid-face).
+            side: Edge length.
+
+        Returns:
+            A :class:`RegularPolyhedron` configured as an icosahedron.
 
         Examples:
             .. pythonscad-example::

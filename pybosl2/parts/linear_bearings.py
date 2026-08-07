@@ -173,6 +173,30 @@ class LinearBearings:
 
         The teardrop bore prints without support; the split *gap* and a *screwsize* clamp screw
         through the tabs let it grip the bearing.
+
+        Args:
+            diameter: Outer diameter of the bearing in mm. Defaults to 15.
+            length: Axial length of the bearing in mm. Defaults to 24.
+            tab: Tab height above the clamping gap in mm. Defaults to 8.
+            gap: Split gap width in mm (cut between the clamp tabs). Defaults to 5.
+            wall: Wall thickness around the bearing in mm. Defaults to 3.
+            tabwall: Extra wall thickness for the clamp tabs in mm. Defaults to 5.
+            screwsize: Clamp screw diameter in mm. Defaults to 3.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            A pillow-block housing as a :class:`~pybosl2.shapes3d.Bosl2Solid`.
+
+        Examples:
+            An LM8UU-sized housing:
+
+            .. pythonscad-example::
+
+                from pybosl2.parts.linear_bearings import LinearBearings
+                LinearBearings.linear_bearing_housing(diameter=15, length=24).show()
+
         """
         outer_diameter = diameter + 2 * wall
         ogap = gap + 2 * tabwall

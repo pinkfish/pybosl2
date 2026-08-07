@@ -290,7 +290,23 @@ class ThreadedRod:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a threaded rod from *profile* (a :class:`ThreadProfile` or point list)."""
+        """Create a threaded rod from *profile* (a :class:`ThreadProfile` or point list).
+
+        Args:
+            d: Nominal outer diameter in mm.
+            l: Length in mm.
+            pitch: Thread pitch in mm.
+            profile: A :class:`ThreadProfile` or a plain list of [x, y] points in pitch units.
+            starts: Number of thread starts.
+            left_handed: True for left-handed threads.
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         assert pitch > 0, "ThreadedRod: d, l and pitch must be positive."
         assert l > 0, "ThreadedRod: d, l and pitch must be positive."
         assert d > 0, "ThreadedRod: d, l and pitch must be positive."
@@ -380,7 +396,26 @@ class ThreadedNut:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a threaded nut from *profile* (a :class:`ThreadProfile` or point list)."""
+        """Create a threaded nut from *profile* (a :class:`ThreadProfile` or point list).
+
+        Args:
+            nutwidth: Across-flats width in mm.
+            id: Inner (threaded) diameter in mm.
+            h: Nut thickness in mm.
+            pitch: Thread pitch in mm.
+            profile: A :class:`ThreadProfile` or a plain list of [x, y] points in pitch units.
+            shape: Nut outer shape (hex or square).
+            starts: Number of thread starts.
+            left_handed: True for left-handed threads.
+            slop: Extra clearance added to the thread diameter.
+            fn: Number of fragments (circle resolution).
+            fa: Minimum fragment angle.
+            fs: Minimum fragment size.
+
+        Returns:
+            None
+
+        """
         self._nutwidth: float = nutwidth
         self._id: float = id
         self._h: float = h
@@ -461,6 +496,16 @@ class ThreadHelix:
     The thread crest is at diameter *d*; give *thread_depth* and *flank_angle*,
     or an explicit *profile*. Built entirely through spiral_sweep (VNF output),
     so it does not accept fn/fa/fs smoothing parameters.
+
+    Examples:
+        A trapezoidal thread helix around a cylinder:
+
+        .. pythonscad-example::
+
+            from pybosl2.shapes3d import cylinder as cyl
+            from pybosl2.parts.threading import ThreadHelix
+            cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape()
+
     """
 
     def __init__(
@@ -474,7 +519,24 @@ class ThreadHelix:
         left_handed: bool = False,
         profile: list[list[float]] | ThreadProfile | None = None,
     ) -> None:
-        """Create a single thread helix ridge for adding threads to your own cylinder."""
+        """Create a single thread helix ridge for adding threads to your own cylinder.
+
+        Args:
+            d: Crest diameter in mm.
+            pitch: Thread pitch in mm.
+            thread_depth: Thread depth in mm, or None for pitch/2.
+            flank_angle: Flank angle in degrees (half of thread angle for
+                trapezoidal, ignored if *profile* is given).
+            turns: Number of turns.
+            starts: Number of thread starts.
+            left_handed: True for left-handed threads.
+            profile: Explicit :class:`ThreadProfile` or point list; if given,
+                overrides *thread_depth* and *flank_angle*.
+
+        Returns:
+            None
+
+        """
         from pybosl2.path2d import Path2D
 
         assert pitch > 0, "ThreadHelix: d and pitch must be positive."
@@ -561,7 +623,22 @@ def iso_threaded_rod(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedRod:
-    """Return an ISO (metric) / UTS (imperial) 60-degree triangular threaded rod."""
+    """Return an ISO (metric) / UTS (imperial) 60-degree triangular threaded rod.
+
+    Args:
+        d: Nominal outer diameter in mm.
+        l: Length in mm.
+        pitch: Thread pitch in mm.
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedRod` with an ISO/UTS thread profile.
+
+    """
     return ThreadedRod(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
 
 
@@ -578,7 +655,25 @@ def iso_threaded_nut(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedNut:
-    """Return a hex/square nut for an ISO/UTS threaded rod."""
+    """Return a hex/square nut for an ISO/UTS threaded rod.
+
+    Args:
+        nutwidth: Across-flats width in mm.
+        id: Inner (threaded) diameter in mm.
+        h: Nut thickness in mm.
+        pitch: Thread pitch in mm.
+        shape: Nut outer shape (hex or square).
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        slop: Extra clearance added to the thread diameter.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedNut` with an ISO/UTS thread profile.
+
+    """
     return ThreadedNut(
         nutwidth,
         id,
@@ -607,7 +702,24 @@ def trapezoidal_threaded_rod(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedRod:
-    """Return a symmetric trapezoidal (metric trapezoidal by default) threaded rod."""
+    """Return a symmetric trapezoidal (metric trapezoidal by default) threaded rod.
+
+    Args:
+        d: Nominal outer diameter in mm.
+        l: Length in mm.
+        pitch: Thread pitch in mm.
+        thread_angle: Total thread angle in degrees.
+        thread_depth: Thread depth in mm, or None for pitch/2.
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedRod` with a trapezoidal thread profile.
+
+    """
     return ThreadedRod(
         d,
         l,
@@ -636,7 +748,27 @@ def trapezoidal_threaded_nut(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedNut:
-    """Return a nut for a trapezoidal threaded rod."""
+    """Return a nut for a trapezoidal threaded rod.
+
+    Args:
+        nutwidth: Across-flats width in mm.
+        id: Inner (threaded) diameter in mm.
+        h: Nut thickness in mm.
+        pitch: Thread pitch in mm.
+        thread_angle: Total thread angle in degrees.
+        thread_depth: Thread depth in mm, or None for pitch/2.
+        shape: Nut outer shape (hex or square).
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        slop: Extra clearance added to the thread diameter.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedNut` with a trapezoidal thread profile.
+
+    """
     return ThreadedNut(
         nutwidth,
         id,
@@ -664,7 +796,23 @@ def acme_threaded_rod(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedRod:
-    """Return a 29-degree ACME threaded rod."""
+    """Return a 29-degree ACME threaded rod.
+
+    Args:
+        d: Nominal outer diameter in mm.
+        l: Length in mm.
+        pitch: Thread pitch in mm.
+        thread_depth: Thread depth in mm, or None for pitch/2.
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedRod` with a 29-degree ACME thread profile.
+
+    """
     depth = thread_depth if thread_depth is not None else pitch / 2
     return ThreadedRod(
         d,
@@ -693,7 +841,26 @@ def acme_threaded_nut(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedNut:
-    """Return a nut for an ACME threaded rod."""
+    """Return a nut for an ACME threaded rod.
+
+    Args:
+        nutwidth: Across-flats width in mm.
+        id: Inner (threaded) diameter in mm.
+        h: Nut thickness in mm.
+        pitch: Thread pitch in mm.
+        thread_depth: Thread depth in mm, or None for pitch/2.
+        shape: Nut outer shape (hex or square).
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        slop: Extra clearance added to the thread diameter.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedNut` with an ACME thread profile.
+
+    """
     depth = thread_depth if thread_depth is not None else pitch / 2
     return ThreadedNut(
         nutwidth,
@@ -721,7 +888,22 @@ def square_threaded_rod(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedRod:
-    """Return a square-profile threaded rod."""
+    """Return a square-profile threaded rod.
+
+    Args:
+        d: Nominal outer diameter in mm.
+        l: Length in mm.
+        pitch: Thread pitch in mm.
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedRod` with a square thread profile.
+
+    """
     return ThreadedRod(d, l, pitch, _trapezoidal_profile(pitch, 0.1), starts, left_handed, fn, fa, fs)
 
 
@@ -738,7 +920,25 @@ def square_threaded_nut(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedNut:
-    """Return a nut for a square threaded rod."""
+    """Return a nut for a square threaded rod.
+
+    Args:
+        nutwidth: Across-flats width in mm.
+        id: Inner (threaded) diameter in mm.
+        h: Nut thickness in mm.
+        pitch: Thread pitch in mm.
+        shape: Nut outer shape (hex or square).
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        slop: Extra clearance added to the thread diameter.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedNut` with a square thread profile.
+
+    """
     return ThreadedNut(
         nutwidth,
         id,
@@ -765,7 +965,22 @@ def buttress_threaded_rod(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedRod:
-    """Return an asymmetric buttress threaded rod."""
+    """Return an asymmetric buttress threaded rod.
+
+    Args:
+        d: Nominal outer diameter in mm.
+        l: Length in mm.
+        pitch: Thread pitch in mm.
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedRod` with a buttress thread profile.
+
+    """
     return ThreadedRod(d, l, pitch, _buttress_profile(), starts, left_handed, fn, fa, fs)
 
 
@@ -782,7 +997,25 @@ def buttress_threaded_nut(
     fa: float | None = None,
     fs: float | None = None,
 ) -> ThreadedNut:
-    """Return a nut for a buttress threaded rod."""
+    """Return a nut for a buttress threaded rod.
+
+    Args:
+        nutwidth: Across-flats width in mm.
+        id: Inner (threaded) diameter in mm.
+        h: Nut thickness in mm.
+        pitch: Thread pitch in mm.
+        shape: Nut outer shape (hex or square).
+        starts: Number of thread starts.
+        left_handed: True for left-handed threads.
+        slop: Extra clearance added to the thread diameter.
+        fn: Number of fragments (circle resolution).
+        fa: Minimum fragment angle.
+        fs: Minimum fragment size.
+
+    Returns:
+        A :class:`ThreadedNut` with a buttress thread profile.
+
+    """
     return ThreadedNut(
         nutwidth,
         id,

@@ -208,6 +208,16 @@ def torx_info(size: int) -> TorxSpec:
 
     Maps to BOSL2 ``torx_info()``.  The spec holds outer_diameter, inner_diameter,
     depth, tip_rounding, and inner_rounding.
+
+    Args:
+        size: Torx size number (e.g. 10, 20, 30).
+
+    Returns:
+        A :class:`TorxSpec` with the dimensions for the given Torx size.
+
+    Raises:
+        ValueError: If *size* is not a supported Torx size.
+
     """
     try:
         return _TORX[int(size)]
@@ -216,12 +226,28 @@ def torx_info(size: int) -> TorxSpec:
 
 
 def torx_diam(size: int) -> float:
-    """Outer diameter of a Torx *size* profile (BOSL2 torx_diam())."""
+    """Outer diameter of a Torx *size* profile.
+
+    Args:
+        size: Torx size number (e.g. 10, 20, 30).
+
+    Returns:
+        The outer diameter in mm for the given Torx size.
+
+    """
     return torx_info(size).outer_diameter
 
 
 def torx_depth(size: int) -> float:
-    """Typical drive-hole depth for a Torx *size* (BOSL2 torx_depth())."""
+    """Typical drive-hole depth for a Torx *size*.
+
+    Args:
+        size: Torx size number (e.g. 10, 20, 30).
+
+    Returns:
+        The drive depth in mm for the given Torx size.
+
+    """
     return torx_info(size).depth
 
 
@@ -254,7 +280,13 @@ def _torx_profile(size: int) -> Any:
 def phillips_depth(size: str | int, diameter: float) -> float | None:
     """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``.
 
-    (BOSL2 phillips_depth()).
+    Args:
+        size: Phillips bit size (``"#0"``..``"#4"`` or ``0``..``4``).
+        diameter: Target recess diameter at the mouth.
+
+    Returns:
+        The depth in mm to achieve the given diameter, or ``None`` if the target is unreachable.
+
     """
     spec = _PHILLIPS[_phillips_num(size)]
     shaft, g = spec.shaft, spec.g
@@ -265,9 +297,15 @@ def phillips_depth(size: str | int, diameter: float) -> float | None:
 
 
 def phillips_diam(size: str | int, depth: float) -> float | None:
-    """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None`` (BOSL2.
+    """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None``.
 
-    phillips_diam()).
+    Args:
+        size: Phillips bit size (``"#0"``..``"#4"`` or ``0``..``4``).
+        depth: Depth to cut to in mm.
+
+    Returns:
+        The top diameter in mm at the given depth, or ``None`` if the depth is out of range.
+
     """
     spec = _PHILLIPS[_phillips_num(size)]
     shaft, g = spec.shaft, spec.g
@@ -314,6 +352,12 @@ class PhillipsMask:
             fa: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
             fs: facet controls for the revolved body (default: BOSL2's fixed 36 facets).
             l: overall length of the recess, overriding the computed length from the spec.
+
+        Returns:
+            None.
+
+        Raises:
+            ValueError: If *size* is not a valid Phillips bit size (#0..#4).
 
         """
         self._size: str | int = size
@@ -445,6 +489,9 @@ class HexDriveMask:
             slop: enlarge the recess by ``2 * slop``.
             center: center the mask vertically (default: bottom on the XY plane).
 
+        Returns:
+            None.
+
         """
         self._size: float = size
         self._l: float = l
@@ -490,7 +537,7 @@ class HexDriveMask:
         self._solid.show()
 
 
-hex_mask = HexDriveMask
+hex_mask = HexDriveMask  #: Alias for :class:`HexDriveMask`.
 
 
 class TorxMask2d:
@@ -514,6 +561,9 @@ class TorxMask2d:
 
         Args:
             size: Torx size number (e.g. 10, 20, 30).
+
+        Returns:
+            None.
 
         """
         self._size: int = size
@@ -563,6 +613,9 @@ class TorxMask:
             size: Torx size number (e.g. 10, 20, 30).
             l: height of the recess.
             center: center the mask vertically (default: bottom on the XY plane).
+
+        Returns:
+            None.
 
         """
         self._size: int = size
@@ -634,6 +687,12 @@ class RobertsonMask:
             l: length of drive mask.
             angle: taper angle of each face (default 2.5, from BOSL2's print tests).
             slop: enlarge the recess by ``2 * slop``.
+
+        Returns:
+            None.
+
+        Raises:
+            ValueError: If *size* is not a valid Robertson size (0..4).
 
         """
         if isinstance(size, str):
