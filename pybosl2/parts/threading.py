@@ -33,7 +33,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-from pybosl2.enums import NutShape, VNFStyle
+from pybosl2.enums import VNFStyle
+from pybosl2.parts.enums import NutShape
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = ["Threading", "ThreadProfile"]

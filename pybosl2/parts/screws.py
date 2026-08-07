@@ -34,7 +34,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from pybosl2.enums import NutShape, ScrewDriveType, ScrewHeadType
+from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = [
@@ -434,6 +434,7 @@ class Screws:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType
                 from pybosl2.parts.screws import Screws
                 Screws.screw("M6", length=20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX).show()
 
@@ -597,6 +598,7 @@ class Screws:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.enums import ScrewHeadType
                 from pybosl2.parts.screws import Screws
                 from pybosl2.solid import cuboid
                 (cuboid([20, 20, 10])

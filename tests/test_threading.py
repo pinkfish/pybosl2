@@ -15,7 +15,7 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
-from pybosl2.enums import NutShape
+from pybosl2.parts.enums import NutShape
 from pybosl2.parts.threading import (
     Threading,
     _buttress_profile,

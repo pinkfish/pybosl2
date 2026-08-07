@@ -438,30 +438,6 @@
 
 
     <li class="md-nav__item">
-      <a href="../../enums.html" class="md-nav__link">
-
-
-
-  <span class="md-ellipsis">
-    <span> Strongly-<wbr>typed enums for pybosl2</span>
-
-  </span>
-
-
-      </a>
-    </li>
-
-
-
-
-
-
-
-
-
-
-
-    <li class="md-nav__item">
       <a href="../../masking.html" class="md-nav__link">
 
 
@@ -1199,6 +1175,30 @@
 
   <span class="md-ellipsis">
     <span> Modular cubical truss segments and trusses &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
 
   </span>
 
@@ -3336,10 +3336,11 @@
 <span class="sd">                import math</span>
 <span class="sd">                import numpy as np</span>
 <span class="sd">                from pybosl2 import VNF</span>
+<span class="sd">                from pybosl2.enums import SkinMethod</span>
 
 <span class="sd">                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
 <span class="sd">                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]</span>
-<span class="sd">                VNF.from_skin([circle, square], slices=20, method=&quot;reindex&quot;, z=[0, 25]).polyhedron().show()</span>
+<span class="sd">                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron().show()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_skin</span>

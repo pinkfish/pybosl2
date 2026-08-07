@@ -25,7 +25,7 @@ import math
 from typing import TYPE_CHECKING
 
 from pybosl2._native import native
-from pybosl2.enums import Gender
+from pybosl2.parts.enums import Gender
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -71,9 +71,10 @@ class Joiners:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.enums import Gender
                 from pybosl2.parts.joiners import Joiners
-                (Joiners.dovetail("male", width=15, height=8, slide=30)
-                 | Joiners.dovetail("female", width=15, height=8, slide=30).right(24)).show()
+                (Joiners.dovetail(Gender.MALE, width=15, height=8, slide=30)
+                 | Joiners.dovetail(Gender.FEMALE, width=15, height=8, slide=30).right(24)).show()
 
         """
         if angle is not None:

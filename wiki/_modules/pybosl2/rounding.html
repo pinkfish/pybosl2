@@ -438,30 +438,6 @@
 
 
     <li class="md-nav__item">
-      <a href="../../enums.html" class="md-nav__link">
-
-
-
-  <span class="md-ellipsis">
-    <span> Strongly-<wbr>typed enums for pybosl2</span>
-
-  </span>
-
-
-      </a>
-    </li>
-
-
-
-
-
-
-
-
-
-
-
-    <li class="md-nav__item">
       <a href="../../masking.html" class="md-nav__link">
 
 
@@ -1199,6 +1175,30 @@
 
   <span class="md-ellipsis">
     <span> Modular cubical truss segments and trusses &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
 
   </span>
 
@@ -2156,18 +2156,22 @@
 <span class="sd">            .. pythonscad-example::</span>
 
 <span class="sd">                from pybosl2 import Path2D, Path3D</span>
+<span class="sd">                from pybosl2.enums import RoundingMethod</span>
 
 <span class="sd">                sq = [[0, 0], [40, 0], [40, 40], [0, 40]]</span>
-<span class="sd">                Path2D(sq).round_corners(method=&quot;smooth&quot;, joint=10).polygon().linear_extrude(height=4).show()</span>
+<span class="sd">                Path2D(sq).round_corners(method=RoundingMethod.SMOOTH, joint=10).polygon().linear_extrude(</span>
+<span class="sd">                    height=4</span>
+<span class="sd">                ).show()</span>
 
 <span class="sd">            A 2-D path with circle-rounded corners:</span>
 
 <span class="sd">            .. pythonscad-example::</span>
 
 <span class="sd">                from pybosl2 import Path2D, Path3D</span>
+<span class="sd">                from pybosl2.enums import RoundingMethod</span>
 
 <span class="sd">                path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])</span>
-<span class="sd">                path.round_corners(method=&quot;circle&quot;, radius=3).polygon().linear_extrude(height=5).show()</span>
+<span class="sd">                path.round_corners(method=RoundingMethod.CIRCLE, radius=3).polygon().linear_extrude(height=5).show()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>

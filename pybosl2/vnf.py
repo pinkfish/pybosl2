@@ -1525,10 +1525,11 @@ class VNF:
                 import math
                 import numpy as np
                 from pybosl2 import VNF
+                from pybosl2.enums import SkinMethod
 
                 circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
                 square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
-                VNF.from_skin([circle, square], slices=20, method="reindex", z=[0, 25]).polyhedron().show()
+                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron().show()
 
         """
         from pybosl2.skin import _skin

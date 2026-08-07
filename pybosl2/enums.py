@@ -57,19 +57,6 @@ class SweepMethod(StrEnum):
     NATURAL = "natural"
 
 
-class ScrewHeadType(StrEnum):
-    """Screw-head style for :func:`screw` and :func:`screw_hole`."""
-
-    NONE = "none"
-    HEX = "hex"
-    SOCKET = "socket"
-    SOCKET_RIBBED = "socket ribbed"
-    BUTTON = "button"
-    PAN = "pan"
-    ROUND = "round"
-    FLAT = "flat"
-
-
 class SkinMethod(StrEnum):
     """Vertex-connection method for :func:`skin` / :meth:`VNF.from_skin`."""
 
@@ -92,21 +79,6 @@ class PartitionCutType(StrEnum):
     TRIANGLE = "triangle"
     HALFSINE = "halfsine"
     SEMICIRCLE = "semicircle"
-
-
-class NutShape(StrEnum):
-    """Nut / washer outer shape."""
-
-    HEX = "hex"
-    SQUARE = "square"
-
-
-class ScrewDriveType(StrEnum):
-    """Screw-drive recess type for :func:`screw`."""
-
-    NONE = "none"
-    HEX = "hex"
-    SLOT = "slot"
 
 
 class Measure(StrEnum):
@@ -145,10 +117,3 @@ class StaggerMode(StrEnum):
     NONE = "none"
     STANDARD = "standard"
     ALT = "alt"
-
-
-class Gender(StrEnum):
-    """Part gender for dovetail joints."""
-
-    MALE = "male"
-    FEMALE = "female"

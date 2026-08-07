@@ -13,6 +13,7 @@
 from pybosl2.parts.ball_bearings import BallBearings, BearingSpec, BearingType
 from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
 from pybosl2.parts.cubetruss import CubeTruss
+from pybosl2.parts.enums import Gender, NutShape, ScrewDriveType, ScrewHeadType
 from pybosl2.parts.gears import Gears
 from pybosl2.parts.hinges import Hinges
 from pybosl2.parts.hooks import Hooks
@@ -36,6 +37,7 @@ __all__ = [
     "BottleCaps",
     "BottleCapTexture",
     "CubeTruss",
+    "Gender",
     "Gears",
     "Hinges",
     "Hooks",
@@ -45,9 +47,12 @@ __all__ = [
     "ModularHose",
     "NemaSteppers",
     "NemaSpec",
+    "NutShape",
     "Polyhedra",
     "PlatonicSolid",
     "ScrewDrive",
+    "ScrewDriveType",
+    "ScrewHeadType",
     "Screws",
     "Sliders",
     "Threading",

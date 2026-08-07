@@ -447,30 +447,6 @@
 
 
     <li class="md-nav__item">
-      <a href="enums.html" class="md-nav__link">
-
-
-
-  <span class="md-ellipsis">
-    <span> Strongly-<wbr>typed enums for pybosl2</span>
-
-  </span>
-
-
-      </a>
-    </li>
-
-
-
-
-
-
-
-
-
-
-
-    <li class="md-nav__item">
       <a href="masking.html" class="md-nav__link">
 
 
@@ -1208,6 +1184,30 @@
 
   <span class="md-ellipsis">
     <span> Modular cubical truss segments and trusses &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
 
   </span>
 
@@ -2361,11 +2361,11 @@ head-up: the shaft occupies <code class="docutils literal notranslate"><span cla
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt id="pybosl2.parts.screws.Screws.screw_info.spec"><span class="sig-name descname">spec</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | dict[str, float] | float</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.spec" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.screws.Screws.screw_info.head"><span class="sig-name descname">head</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewHeadType" title="pybosl2.enums.ScrewHeadType (Python class) — Bases: StrEnum">ScrewHeadType</a></span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.head" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.screws.Screws.screw_info.head"><span class="sig-name descname">head</span><span class="p"> : </span><span class="desctype"><span class="desctype">ScrewHeadType</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.head" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.screws.Screws.screw_info.thread"><span class="sig-name descname">thread</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.thread" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.screws.Screws.screw_info.drive"><span class="sig-name descname">drive</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewDriveType" title="pybosl2.enums.ScrewDriveType (Python class) — Bases: StrEnum">ScrewDriveType</a></span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.drive" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.screws.Screws.screw_info.drive"><span class="sig-name descname">drive</span><span class="p"> : </span><span class="desctype"><span class="desctype">ScrewDriveType</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.drive" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.screws.Screws.screw_info.pitch"><span class="sig-name descname">pitch</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_info.pitch" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -2385,10 +2385,12 @@ head-up: the shaft occupies <code class="docutils literal notranslate"><span cla
 <code class="docutils literal notranslate"><span class="pre">thread=&quot;none&quot;</span></code> for a plain unthreaded shank, or <code class="docutils literal notranslate"><span class="pre">thread_len</span></code> for a partly-threaded shaft.</p>
 <p class="example rubric">Examples</p>
 <p>An M6×20 socket-head cap screw:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrewHeadType</span><span class="p">,</span> <span class="n">ScrewDriveType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
 <span class="n">Screws</span><span class="o">.</span><span class="n">screw</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span> <span class="n">drive</span><span class="o">=</span><span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">HEX</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/648239d1b6bfc243.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/648239d1b6bfc243.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screws.Screws.screw-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -2396,9 +2398,9 @@ head-up: the shaft occupies <code class="docutils literal notranslate"><span cla
 </dd>
 <dt id="pybosl2.parts.screws.Screws.screw.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw.length" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.screws.Screws.screw.head"><span class="sig-name descname">head</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewHeadType" title="pybosl2.enums.ScrewHeadType (Python class) — Bases: StrEnum">ScrewHeadType</a></span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw.head" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.screws.Screws.screw.head"><span class="sig-name descname">head</span><span class="p"> : </span><span class="desctype"><span class="desctype">ScrewHeadType</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw.head" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.screws.Screws.screw.drive"><span class="sig-name descname">drive</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewDriveType" title="pybosl2.enums.ScrewDriveType (Python class) — Bases: StrEnum">ScrewDriveType</a></span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw.drive" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.screws.Screws.screw.drive"><span class="sig-name descname">drive</span><span class="p"> : </span><span class="desctype"><span class="desctype">ScrewDriveType</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw.drive" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.screws.Screws.screw.thread"><span class="sig-name descname">thread</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw.thread" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -2440,7 +2442,7 @@ the standard across-flats width. <em>slop</em> adds radial clearance to the thre
 </dd>
 <dt id="pybosl2.parts.screws.Screws.nut.thickness"><span class="sig-name descname">thickness</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | str</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.nut.thickness" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.screws.Screws.nut.shape"><span class="sig-name descname">shape</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.NutShape" title="pybosl2.enums.NutShape (Python class) — Bases: StrEnum">NutShape</a></span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.nut.shape" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.screws.Screws.nut.shape"><span class="sig-name descname">shape</span><span class="p"> : </span><span class="desctype"><span class="desctype">NutShape</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.nut.shape" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.screws.Screws.nut.thread"><span class="sig-name descname">thread</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.nut.thread" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -2474,12 +2476,14 @@ with its mouth at <code class="docutils literal notranslate"><span class="pre">z
 <code class="docutils literal notranslate"><span class="pre">thread=&quot;coarse&quot;</span></code> for a tapped (threaded) hole instead of a clearance hole.</p>
 <p class="example rubric">Examples</p>
 <p>Drill a clearance hole for an M6 bolt through a 10 mm plate:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrewHeadType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screws</span><span class="w"> </span><span class="kn">import</span> <span class="n">Screws</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
 <span class="p">(</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
  <span class="o">-</span> <span class="n">Screws</span><span class="o">.</span><span class="n">screw_hole</span><span class="p">(</span><span class="s2">&quot;M6&quot;</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">head</span><span class="o">=</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="s2">&quot;normal&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/427fa1a0ad0cc0df.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/427fa1a0ad0cc0df.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screws.Screws.screw_hole-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_hole-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -2487,7 +2491,7 @@ with its mouth at <code class="docutils literal notranslate"><span class="pre">z
 </dd>
 <dt id="pybosl2.parts.screws.Screws.screw_hole.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_hole.length" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.screws.Screws.screw_hole.head"><span class="sig-name descname">head</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewHeadType" title="pybosl2.enums.ScrewHeadType (Python class) — Bases: StrEnum">ScrewHeadType</a></span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_hole.head" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.screws.Screws.screw_hole.head"><span class="sig-name descname">head</span><span class="p"> : </span><span class="desctype"><span class="desctype">ScrewHeadType</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_hole.head" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.parts.screws.Screws.screw_hole.counterbore"><span class="sig-name descname">counterbore</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.screws.Screws.screw_hole.counterbore" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>

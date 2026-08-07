@@ -25,7 +25,7 @@ from pybosl2._sdf.paths import (
 )
 from pybosl2._sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
 from pybosl2.constants import UP
-from pybosl2.enums import Gender
+from pybosl2.parts.enums import Gender
 
 if TYPE_CHECKING:
     from pybosl2._sdf.shapes3d import PyShape

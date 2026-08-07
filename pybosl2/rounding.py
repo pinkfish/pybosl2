@@ -387,18 +387,22 @@ class Roundable:
             .. pythonscad-example::
 
                 from pybosl2 import Path2D, Path3D
+                from pybosl2.enums import RoundingMethod
 
                 sq = [[0, 0], [40, 0], [40, 40], [0, 40]]
-                Path2D(sq).round_corners(method="smooth", joint=10).polygon().linear_extrude(height=4).show()
+                Path2D(sq).round_corners(method=RoundingMethod.SMOOTH, joint=10).polygon().linear_extrude(
+                    height=4
+                ).show()
 
             A 2-D path with circle-rounded corners:
 
             .. pythonscad-example::
 
                 from pybosl2 import Path2D, Path3D
+                from pybosl2.enums import RoundingMethod
 
                 path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])
-                path.round_corners(method="circle", radius=3).polygon().linear_extrude(height=5).show()
+                path.round_corners(method=RoundingMethod.CIRCLE, radius=3).polygon().linear_extrude(height=5).show()
 
         """
         path_self = cast("Path", self)
