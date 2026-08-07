@@ -6,12 +6,12 @@
 
 # LibFile: pybosl2/parts/screws.py
 #    Pure-Python port of the core of BOSL2's screws.scad, built on top of
-#    :class:`~pybosl2.threading.Threading`. The :class:`Screws` class turns a metric screw name (``"M6"``,
-#    ``"M8x1"``) into ready-to-print geometry: :meth:`Screws.screw` (a threaded/plain shaft plus a
+#    :class:`Screw` turns a metric screw name (``"M6"``,
+#    ``"M8x1"``) into ready-to-print geometry: :class:`Screw` (a threaded/plain shaft plus a
 #    socket / hex / button / pan / flat / setscrew head with an optional hex or slot drive recess),
-#    :meth:`Screws.nut` (a hex/square nut with a matching threaded hole), and :meth:`Screws.screw_hole`
-#    (a clearance/counterbore/countersink hole cutter). :meth:`Screws.screw_info` returns the resolved
-#    dimensions as a plain dict.
+#    :class:`Nut` (a hex/square nut with a matching threaded hole), and :class:`ScrewHole`
+#    (a clearance/counterbore/countersink hole cutter). :class:`ScrewSpec` returns the resolved
+#    dimensions.
 #
 #    The dimension tables (ISO coarse/fine thread pitches, and ISO head sizes for socket cap ISO 4762,
 #    hex ISO 4017, button ISO 7380, pan ISO 14583, countersunk ISO 10642/7046, setscrew, and hex/square
@@ -38,7 +38,9 @@ from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadP
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = [
-    "Screws",
+    "Nut",
+    "Screw",
+    "ScrewHole",
     "ScrewSpec",
     "ThreadPitches",
 ]
@@ -297,8 +299,8 @@ class ScrewSpec:
 
     Construct directly (replaces the old ``_parse_spec`` helper):
     ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.
-    ``:meth:`~Screws.screw_info` is a thin convenience wrapper that defaults
-    *head* to ``ScrewHeadType.SOCKET``.
+    Construct directly (replaces the old ``_parse_spec`` helper):
+    ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.
 
     Attributes are set by the constructor and may be read freely.
     """
@@ -397,40 +399,65 @@ def _lookup_pitch(diam: float, thread: ThreadPitchClass) -> float:
     return float(_ISO_THREAD[diam].pitch(thread))
 
 
-class Screws:
-    """Metric screws, nuts and screw holes (BOSL2 screws.scad), built on :class:`~pybosl2.threading.Threading`.
+def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | None) -> Bosl2Solid | None:
+    """Build the screw head from resolved dimensions."""
+    head = info.head
+    if head in (None, ScrewHeadType.NONE):
+        return None
+    hh = info.head_height
+    hs = info.head_size
+    assert hs is not None, f"head_size not set for head type {head}"
+    if head == ScrewHeadType.HEX:
+        return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
+    if head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
+        return cyl(diameter=hs, height=hh, chamfer2=hs / 20, fn=fn, fa=fa, fs=fs).up(hh / 2)
+    if head == ScrewHeadType.BUTTON:
+        rnd = min(hh * 0.9, hs / 2 * 0.9)
+        return cyl(diameter=hs, height=hh, rounding2=rnd, fn=fn, fa=fa, fs=fs).up(hh / 2)
+    if head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
+        return cyl(diameter=hs, height=hh, rounding2=0.2 * hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
+    if head == ScrewHeadType.FLAT:
+        return cyl(diameter1=info.diameter, diameter2=hs, height=hh, fn=fn, fa=fa, fs=fs).up(hh / 2)
+    return None
 
-    Every method is a class method returning a :class:`~pybosl2.shapes3d.Bosl2Solid`, except
-    :meth:`screw_info`, which returns a plain ``dict`` of resolved dimensions. Screws are built
-    head-up: the shaft occupies ``z in [-length, 0]`` (tip at the bottom) and the head sits above
-    ``z = 0``.
 
-    .. seealso::
+def _make_recess(
+    info: ScrewSpec, head_top: float, fn: int | None, fa: float | None, fs: float | None
+) -> Bosl2Solid | None:
+    """Build the drive recess from resolved dimensions."""
+    drive = info.drive
+    size = info.drive_size
+    depth = info.drive_depth
+    if drive in (None, ScrewDriveType.NONE) or not size or not depth:
+        return None
+    eps = 0.02
+    if drive == ScrewDriveType.HEX:
+        rec = regular_prism(6, height=depth + eps, inner_diameter=size, fn=fn, fa=fa, fs=fs)
+    elif drive == ScrewDriveType.SLOT:
+        width = size if size else max(0.6, info.diameter / 6)
+        length = (info.head_size or info.diameter) + 2
+        rec = cuboid([length, width, depth + eps], fn=fn, fa=fa, fs=fs)
+    else:
+        return None
+    return rec.up(head_top - (depth + eps) / 2 + eps / 2)
 
-       `Visual spec sheet <specs/screws.html>`_ — measurements and STL previews
+
+class Screw:
+    """A metric screw: threaded (or plain) shaft plus a head with an optional drive recess.
+
+    Examples:
+        An M6×20 socket-head cap screw:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType
+            from pybosl2.parts.screws import Screw
+            Screw("M6", length=20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX).show()
+
     """
 
-    # -- resolved dimensions ---------------------------------------------------------------
-
-    @staticmethod
-    def screw_info(
-        spec: str | dict[str, float] | float,
-        head: ScrewHeadType = ScrewHeadType.SOCKET,
-        thread: ThreadPitchClass = ThreadPitchClass.COARSE,
-        drive: ScrewDriveType = ScrewDriveType.NONE,
-        pitch: float | None = None,
-    ) -> ScrewSpec:
-        """Resolve a screw specification to a :class:`ScrewSpec`.
-
-        Convenience wrapper around :class:`ScrewSpec` that defaults *head* to
-        ``ScrewHeadType.SOCKET`` for the common socket-head use case.
-        """
-        return ScrewSpec(spec, head=head, thread=thread, drive=drive, pitch=pitch)
-
-    # -- the screw -------------------------------------------------------------------------
-
-    @staticmethod
-    def screw(
+    def __init__(
+        self,
         spec: str | dict[str, float] | float,
         length: float,
         head: ScrewHeadType = ScrewHeadType.SOCKET,
@@ -441,123 +468,115 @@ class Screws:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
-
-        *length* is the shaft length below the head (for a flat head, below the surface). Set
-        ``thread=ThreadPitchClass.NONE`` for a plain unthreaded shank, or *thread_len* for a partly-threaded shaft.
-
-        Examples:
-            An M6×20 socket-head cap screw:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType
-                from pybosl2.parts.screws import Screws
-                Screws.screw("M6", length=20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX).show()
-
-        """
-        info = Screws.screw_info(
+    ) -> None:
+        """Create a screw from *spec* (``"M6"`` / ``"M8x1"``) and dimensions."""
+        self._spec: ScrewSpec = ScrewSpec(
             spec,
             head=head,
-            drive=drive,
             thread=ThreadPitchClass.COARSE if isinstance(thread, bool) else thread,
+            drive=drive,
             pitch=pitch,
         )
-        d: float = info.diameter
-        _p: float = info.pitch
-        thread_kind: ThreadPitchClass = thread if isinstance(thread, ThreadPitchClass) else ThreadPitchClass.COARSE
+        self._length: float = length
+        self._thread: ThreadPitchClass = thread if isinstance(thread, ThreadPitchClass) else ThreadPitchClass.COARSE
+        self._thread_len: float | None = thread_len
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
 
-        # -- shaft: top face at z=0, tip at z=-length -----------------------------------
-        if thread != ThreadPitchClass.NONE:
+    @property
+    def spec(self) -> ScrewSpec:
+        """The resolved :class:`ScrewSpec`."""
+        return self._spec
+
+    @property
+    def diameter(self) -> float:
+        """Nominal screw diameter in mm."""
+        return self._spec.diameter
+
+    @property
+    def pitch(self) -> float:
+        """Thread pitch in mm."""
+        return self._spec.pitch
+
+    @property
+    def head(self) -> ScrewHeadType:
+        """Head style."""
+        return self._spec.head
+
+    @property
+    def head_size(self) -> float | None:
+        """Head diameter / across-flats in mm."""
+        return self._spec.head_size
+
+    @property
+    def head_height(self) -> float:
+        """Head height in mm (0 for headless)."""
+        return self._spec.head_height
+
+    @property
+    def drive(self) -> ScrewDriveType:
+        """Drive recess type."""
+        return self._spec.drive
+
+    @property
+    def length(self) -> float:
+        """Shaft length below the head in mm."""
+        return self._length
+
+    def shape(self) -> Bosl2Solid:
+        """Build and return the screw geometry (result is cached)."""
+        if self._solid is not None:
+            return self._solid
+
+        d = self._spec.diameter
+        if self._thread != ThreadPitchClass.NONE:
             from pybosl2.parts.threading import Threading
 
-            tp = ScrewSpec(spec, thread=thread_kind, pitch=pitch).pitch
-            tl = length if (thread_len is None or thread_len >= length) else thread_len
-            shank_len = length - tl
-            shaft = Threading.threaded_rod(d, tl, tp, fn=fn, fa=fa, fs=fs).down(shank_len + tl / 2)
+            tp = ScrewSpec(self._spec.diameter, thread=self._thread, pitch=self._spec.pitch).pitch
+            tl = self._length if (self._thread_len is None or self._thread_len >= self._length) else self._thread_len
+            shank_len = self._length - tl
+            shaft = Threading.threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).down(shank_len + tl / 2)
             if shank_len > 1e-9:
-                shank = cyl(diameter=d, height=shank_len, fn=fn, fa=fa, fs=fs).down(shank_len / 2)
+                shank = cyl(diameter=d, height=shank_len, fn=self._fn, fa=self._fa, fs=self._fs).down(shank_len / 2)
                 shaft = shaft | shank
         else:
-            shaft = cyl(diameter=d, height=length, fn=fn, fa=fa, fs=fs).down(length / 2)
+            shaft = cyl(diameter=d, height=self._length, fn=self._fn, fa=self._fa, fs=self._fs).down(self._length / 2)
 
         result = shaft
-        head_top = info.head_height  # top face of the head; 0 for a headless setscrew (recess into shaft)
-        headobj = Screws._make_head(info, fn, fa, fs)
+        head_top = self._spec.head_height
+        headobj = _make_head(self._spec, self._fn, self._fa, self._fs)
         if headobj is not None:
             result = result | headobj
 
-        recess = Screws._make_recess(info, head_top, fn, fa, fs)
+        recess = _make_recess(self._spec, head_top, self._fn, self._fa, self._fs)
         if recess is not None:
             result = result - recess
+
+        self._solid = result
         return result
 
-    @staticmethod
-    def _make_head(
-        info: ScrewSpec,
-        fn: int | None,
-        fa: float | None,
-        fs: float | None,
-    ) -> Bosl2Solid | None:
-        """Build the screw head from resolved dimensions."""
-        head = info.head
-        if head in (None, ScrewHeadType.NONE):
-            return None
-        hh = info.head_height
-        hs = info.head_size
-        assert hs is not None, f"head_size not set for head type {head}"
-        if head == ScrewHeadType.HEX:
-            return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
-            return cyl(diameter=hs, height=hh, chamfer2=hs / 20, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head == ScrewHeadType.BUTTON:
-            rnd = min(hh * 0.9, hs / 2 * 0.9)
-            return cyl(diameter=hs, height=hh, rounding2=rnd, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
-            return cyl(diameter=hs, height=hh, rounding2=0.2 * hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head == ScrewHeadType.FLAT:
-            # 90-degree countersunk cone: shaft diameter at the bottom, head diameter at the surface.
-            return cyl(
-                diameter1=info.diameter,
-                diameter2=hs,
-                height=hh,
-                fn=fn,
-                fa=fa,
-                fs=fs,
-            ).up(hh / 2)
-        return None
+    def show(self) -> None:
+        """Display the screw in the viewer."""
+        self.shape().show()
 
-    @staticmethod
-    def _make_recess(
-        info: ScrewSpec,
-        head_top: float,
-        fn: int | None,
-        fa: float | None,
-        fs: float | None,
-    ) -> Bosl2Solid | None:
-        """Build the drive recess from resolved dimensions."""
-        drive = info.drive
-        size = info.drive_size
-        depth = info.drive_depth
-        if drive in (None, ScrewDriveType.NONE) or not size or not depth:
-            return None
-        eps = 0.02
-        if drive == ScrewDriveType.HEX:
-            rec = regular_prism(6, height=depth + eps, inner_diameter=size, fn=fn, fa=fa, fs=fs)
-        elif drive == ScrewDriveType.SLOT:
-            width = size if size else max(0.6, info.diameter / 6)
-            length = (info.head_size or info.diameter) + 2
-            rec = cuboid([length, width, depth + eps], fn=fn, fa=fa, fs=fs)
-        else:
-            return None
-        # place the recess so its open mouth is flush with the top of the head (or shaft top for setscrews)
-        return rec.up(head_top - (depth + eps) / 2 + eps / 2)
 
-    # -- the nut ---------------------------------------------------------------------------
+class Nut:
+    """A hex or square nut with a threaded hole.
 
-    @staticmethod
-    def nut(
+    Examples:
+        An M8 hex nut of normal thickness:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.screws import Nut
+            Nut("M8").show()
+
+    """
+
+    def __init__(
+        self,
         spec: str | dict[str, float] | float,
         thickness: float | str = "normal",
         shape: NutShape = NutShape.HEX,
@@ -568,31 +587,86 @@ class Screws:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a hex or square nut with a threaded hole matching *spec* (BOSL2 nut()).
+    ) -> None:
+        """Create a nut from *spec* (``"M8"``) and dimensions."""
+        self._spec: ScrewSpec = ScrewSpec(spec, thread=thread, pitch=pitch)
+        self._thickness: float | str = thickness
+        self._shape: NutShape = shape
+        self._nutwidth: float | None = nutwidth
+        self._slop: float = slop
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
 
-        *thickness* is ``"normal"``, ``"thin"``, ``"thick"`` or a number (mm). *nutwidth* overrides
-        the standard across-flats width. *slop* adds radial clearance to the threaded hole.
+    @property
+    def spec(self) -> ScrewSpec:
+        """The resolved :class:`ScrewSpec`."""
+        return self._spec
 
-        Examples:
-            An M8 hex nut of normal thickness:
+    @property
+    def diameter(self) -> float:
+        """Nominal diameter in mm."""
+        return self._spec.diameter
 
-            .. pythonscad-example::
+    @property
+    def pitch(self) -> float:
+        """Thread pitch in mm."""
+        return self._spec.pitch
 
-                from pybosl2.parts.screws import Screws
-                Screws.nut("M8").show()
+    @property
+    def shape_nut(self) -> NutShape:
+        """Nut outer shape."""
+        return self._shape
 
-        """
+    def shape(self) -> Bosl2Solid:
+        """Build and return the nut geometry (result is cached)."""
+        if self._solid is not None:
+            return self._solid
+
         from pybosl2.parts.threading import Threading
 
-        sp = ScrewSpec(spec, thread=thread, pitch=pitch)
-        width, th = _nut_dims(sp.diameter, thickness, nutwidth)
-        return Threading.threaded_nut(width, sp.diameter, th, sp.pitch, shape=shape, slop=slop, fn=fn, fa=fa, fs=fs)
+        width, th = _nut_dims(self._spec.diameter, self._thickness, self._nutwidth)
+        self._solid = Threading.threaded_nut(
+            width,
+            self._spec.diameter,
+            th,
+            self._spec.pitch,
+            shape=self._shape,
+            slop=self._slop,
+            fn=self._fn,
+            fa=self._fa,
+            fs=self._fs,
+        )
+        return self._solid
 
-    # -- clearance / countersink / counterbore hole cutter ---------------------------------
+    def show(self) -> None:
+        """Display the nut in the viewer."""
+        self.shape().show()
 
-    @staticmethod
-    def screw_hole(
+
+class ScrewHole:
+    """A hole cutter for a screw: clearance shaft plus optional countersink/counterbore.
+
+    Returns a solid to *subtract* from your part.  The clearance shaft occupies
+    ``z in [-length, 0]`` with its mouth at ``z = 0``; countersinks/counterbores
+    open upward from there.
+
+    Examples:
+        Drill a clearance hole for an M6 bolt through a 10 mm plate:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.enums import ScrewHeadType
+            from pybosl2.parts.screws import ScrewHole
+            from pybosl2.solid import cuboid
+            (cuboid([20, 20, 10])
+             - ScrewHole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal").shape()).show()
+
+    """
+
+    def __init__(
+        self,
         spec: str | dict[str, float] | float,
         length: float,
         head: ScrewHeadType = ScrewHeadType.NONE,
@@ -603,41 +677,56 @@ class Screws:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a hole cutter for a screw: clearance shaft, plus optional countersink (flat head) or.
+    ) -> None:
+        """Create a hole cutter from *spec* (``"M6"``) and dimensions."""
+        self._spec_str: str | dict[str, float] | float = spec
+        self._length: float = length
+        self._head: ScrewHeadType = head
+        self._counterbore: float = counterbore
+        self._fit: str = fit
+        self._thread: ThreadPitchClass = thread
+        self._pitch: float | None = pitch
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
 
-        counterbore.
+    @property
+    def fit(self) -> str:
+        """Clearance fit class (``"close"`` / ``"normal"`` / ``"loose"``)."""
+        return self._fit
 
-        Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``
-        with its mouth at ``z = 0``; countersinks/counterbores open upward from there. Set
-        ``thread=ThreadPitchClass.COARSE`` for a tapped (threaded) hole instead of a clearance hole.
+    @property
+    def length(self) -> float:
+        """Hole depth in mm."""
+        return self._length
 
-        Examples:
-            Drill a clearance hole for an M6 bolt through a 10 mm plate:
+    def shape(self) -> Bosl2Solid:
+        """Build and return the hole cutter geometry (result is cached)."""
+        if self._solid is not None:
+            return self._solid
 
-            .. pythonscad-example::
-
-                from pybosl2.parts.enums import ScrewHeadType
-                from pybosl2.parts.screws import Screws
-                from pybosl2.solid import cuboid
-                (cuboid([20, 20, 10])
-                 - Screws.screw_hole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal")).show()
-
-        """
-        use_thread = thread != ThreadPitchClass.NONE
-        sp = ScrewSpec(spec, thread=ThreadPitchClass.COARSE if not use_thread else thread, pitch=pitch)
+        use_thread = self._thread != ThreadPitchClass.NONE
+        sp = ScrewSpec(
+            self._spec_str,
+            thread=ThreadPitchClass.COARSE if not use_thread else self._thread,
+            pitch=self._pitch,
+        )
         d, p = sp.diameter, sp.pitch
         if use_thread:
             from pybosl2.parts.threading import Threading
 
-            # a tapped hole: cut with the rod's thread tap (major + a touch of clearance)
-            cutter = Threading.threaded_rod(d + 0.0, length, p, fn=fn, fa=fa, fs=fs).down(length / 2)
+            cutter = Threading.threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs).down(
+                self._length / 2
+            )
         else:
-            gap = _CLEARANCE.get(str(fit).lower(), 0.5)
-            cutter = cyl(diameter=d + 2 * gap, height=length, fn=fn, fa=fa, fs=fs).down(length / 2)
+            gap = _CLEARANCE.get(str(self._fit).lower(), 0.5)
+            cutter = cyl(diameter=d + 2 * gap, height=self._length, fn=self._fn, fa=self._fa, fs=self._fs).down(
+                self._length / 2
+            )
 
-        if head == ScrewHeadType.FLAT:
-            info = Screws.screw_info(spec, head=ScrewHeadType.FLAT, pitch=pitch)
+        if self._head == ScrewHeadType.FLAT:
+            info = ScrewSpec(self._spec_str, head=ScrewHeadType.FLAT, pitch=self._pitch)
             hs = info.head_size
             assert hs is not None
             csk_h = (hs - d) / 2
@@ -645,25 +734,37 @@ class Screws:
                 diameter1=d,
                 diameter2=hs,
                 height=csk_h + 0.02,
-                fn=fn,
-                fa=fa,
-                fs=fs,
+                fn=self._fn,
+                fa=self._fa,
+                fs=self._fs,
             ).up((csk_h + 0.02) / 2 - 0.01)
             cutter = cutter | csink
-        elif counterbore and counterbore > 0:
-            info = Screws.screw_info(
-                spec,
-                head=head if head not in (None, ScrewHeadType.NONE) else ScrewHeadType.SOCKET,
-                pitch=pitch,
+        elif self._counterbore and self._counterbore > 0:
+            info = ScrewSpec(
+                self._spec_str,
+                head=self._head if self._head not in (None, ScrewHeadType.NONE) else ScrewHeadType.SOCKET,
+                pitch=self._pitch,
             )
-            raw_hd = info.head_size if head == ScrewHeadType.HEX else (info.head_size or 2 * d)
+            raw_hd = info.head_size if self._head == ScrewHeadType.HEX else (info.head_size or 2 * d)
             assert raw_hd is not None
             hd: float = raw_hd
-            if head == ScrewHeadType.HEX:
-                hd = 2 * hd / math.sqrt(3)  # across-corners for a hex head pocket
-            cb = cyl(diameter=hd, height=counterbore + 0.02, fn=fn, fa=fa, fs=fs).up((counterbore + 0.02) / 2 - 0.01)
+            if self._head == ScrewHeadType.HEX:
+                hd = 2 * hd / math.sqrt(3)
+            cb = cyl(
+                diameter=hd,
+                height=self._counterbore + 0.02,
+                fn=self._fn,
+                fa=self._fa,
+                fs=self._fs,
+            ).up((self._counterbore + 0.02) / 2 - 0.01)
             cutter = cutter | cb
+
+        self._solid = cutter
         return cutter
+
+    def show(self) -> None:
+        """Display the hole cutter in the viewer."""
+        self.shape().show()
 
 
 # ---------------------------------------------------------------------------

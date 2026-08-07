@@ -21,6 +21,8 @@ import numpy as np
 import pytest
 from render_stl import find_pythonscad_binary, golden_ok, render_object, stl_metrics
 
+from pybosl2.parts.enums import ScrewDriveType, ScrewHeadType
+
 pytestmark = pytest.mark.skipif(
     find_pythonscad_binary() is None,
     reason="no PythonSCAD binary found (set PYTHONSCAD_BIN or install the app)",
@@ -1081,7 +1083,7 @@ def test_screw_socket_head(tmp_path):
     # whole solid is 26 tall and 10 wide at the head.
     m = _render(
         tmp_path,
-        "Screws.screw('M6', 20, head='socket', drive='hex', fa=6, fs=1)",
+        "Screw('M6', 20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).shape()",
         name="scrsocket",
     )
     assert m.watertight
@@ -1091,7 +1093,7 @@ def test_screw_socket_head(tmp_path):
 
 def test_screw_hex_head(tmp_path):
     # M8 hex head: across-flats 13 (corner-to-corner ~15), head height 5.3 above a 16 mm shaft.
-    m = _render(tmp_path, "Screws.screw('M8', 16, head='hex', fa=6, fs=1)", name="scrhex")
+    m = _render(tmp_path, "Screw('M8', 16, head=ScrewHeadType.HEX, fa=6, fs=1).shape()", name="scrhex")
     assert m.watertight
     assert math.isclose(min(m.size[:2]), 13.0, abs_tol=0.4)  # flat-to-flat of the hex head
     assert math.isclose(m.size[2], 21.3, abs_tol=0.3)  # 16 shaft + 5.3 head
@@ -1099,18 +1101,21 @@ def test_screw_hex_head(tmp_path):
 
 def test_screw_flat_head_countersunk(tmp_path):
     # M6 countersunk: the head is a 90-degree cone, so it adds only (11.085-6)/2 ~ 2.54 above the shaft.
-    m = _render(tmp_path, "Screws.screw('M6', 16, head='flat', fa=6, fs=1)", name="scrflat")
+    m = _render(tmp_path, "Screw('M6', 16, head=ScrewHeadType.FLAT, fa=6, fs=1).shape()", name="scrflat")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [11.085, 11.085], atol=0.4)  # head diameter at the surface
     assert math.isclose(m.size[2], 16 + (11.085 - 6) / 2, abs_tol=0.3)
 
 
-@pytest.mark.parametrize(("head", "name"), [("button", "scrbtn"), ("pan", "scrpan"), ("none", "scrset")])
+@pytest.mark.parametrize(
+    ("head", "name"),
+    [(ScrewHeadType.BUTTON, "scrbtn"), (ScrewHeadType.PAN, "scrpan"), (ScrewHeadType.NONE, "scrset")],
+)
 def test_screw_heads_watertight(tmp_path, head, name):
-    drive = "hex" if head in ("button", "none") else "none"
+    drive = ScrewDriveType.HEX if head in (ScrewHeadType.BUTTON, ScrewHeadType.NONE) else ScrewDriveType.NONE
     m = _render(
         tmp_path,
-        f"Screws.screw('M6', 16, head='{head}', drive='{drive}', fa=6, fs=1)",
+        f"Screw('M6', 16, head=ScrewHeadType.{head.name}, drive=ScrewDriveType.{drive.name}, fa=6, fs=1).shape()",
         name=name,
     )
     assert m.watertight
@@ -1121,12 +1126,12 @@ def test_screw_recess_removes_volume(tmp_path):
     # the hex drive recess must actually cut material out of the head.
     solid = _render(
         tmp_path,
-        "Screws.screw('M8', 16, head='socket', drive='none', fa=6, fs=1)",
+        "Screw('M8', 16, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.NONE, fa=6, fs=1).shape()",
         name="norec",
     )
     drilled = _render(
         tmp_path,
-        "Screws.screw('M8', 16, head='socket', drive='hex', fa=6, fs=1)",
+        "Screw('M8', 16, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).shape()",
         name="rec",
     )
     assert drilled.watertight
@@ -1135,7 +1140,7 @@ def test_screw_recess_removes_volume(tmp_path):
 
 def test_nut_matches_thread(tmp_path):
     # an M6 hex nut: flat-to-flat 10, normal thickness 5.2, threaded hole.
-    m = _render(tmp_path, "Screws.nut('M6', slop=0.1, fa=6, fs=1)", name="scrnut")
+    m = _render(tmp_path, "Nut('M6', slop=0.1, fa=6, fs=1).shape()", name="scrnut")
     assert m.watertight
     assert math.isclose(min(m.size[:2]), 10.0, abs_tol=0.3)  # flat-to-flat
     assert math.isclose(m.size[2], 5.2, abs_tol=0.1)  # normal thickness
@@ -1145,7 +1150,7 @@ def test_nut_matches_thread(tmp_path):
 def test_square_nut(tmp_path):
     m = _render(
         tmp_path,
-        "Screws.nut('M6', shape='square', slop=0.1, fa=6, fs=1)",
+        "Nut('M6', shape=NutShape.SQUARE, slop=0.1, fa=6, fs=1).shape()",
         name="sqscrnut",
     )
     assert m.watertight
@@ -1154,7 +1159,7 @@ def test_square_nut(tmp_path):
 
 def test_screw_hole_clearance(tmp_path):
     # a normal-fit clearance hole for M6 is a plain cylinder of diameter 6 + 2*0.5 = 7.
-    m = _render(tmp_path, "Screws.screw_hole('M6', 20, fa=6, fs=1)", name="clrhole")
+    m = _render(tmp_path, "ScrewHole('M6', 20, fa=6, fs=1).shape()", name="clrhole")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [7, 7], atol=0.2)
     assert math.isclose(m.size[2], 20.0, abs_tol=0.05)
@@ -1164,7 +1169,7 @@ def test_screw_hole_countersink(tmp_path):
     # a flat-head clearance hole flares out to the countersink diameter at the top.
     m = _render(
         tmp_path,
-        "Screws.screw_hole('M6', 20, head='flat', fa=6, fs=1)",
+        "ScrewHole('M6', 20, head=ScrewHeadType.FLAT, fa=6, fs=1).shape()",
         name="cskhole",
     )
     assert m.watertight

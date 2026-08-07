@@ -23,7 +23,7 @@ from pybosl2.parts.modular_hose import ModularHose
 from pybosl2.parts.nema_steppers import NemaSpec, NemaSteppers
 from pybosl2.parts.polyhedra import PlatonicSolid, Polyhedra
 from pybosl2.parts.screw_drive import ScrewDrive
-from pybosl2.parts.screws import Screws
+from pybosl2.parts.screws import Nut, Screw, ScrewHole, ScrewSpec
 from pybosl2.parts.sliders import Sliders
 from pybosl2.parts.threading import Threading
 from pybosl2.parts.tripod_mounts import TripodMounts, manfrotto_rc2_plate
@@ -53,7 +53,10 @@ __all__ = [
     "ScrewDrive",
     "ScrewDriveType",
     "ScrewHeadType",
-    "Screws",
+    "Screw",
+    "ScrewHole",
+    "ScrewSpec",
+    "Nut",
     "Sliders",
     "Threading",
     "ThreadPitchClass",
