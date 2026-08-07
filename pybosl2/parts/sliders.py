@@ -6,7 +6,7 @@
 
 # LibFile: pybosl2/parts/sliders.py
 #    Pure-Python port of BOSL2's sliders.scad: simple V-groove sliders and the matching rails.
-#    :meth:`Sliders.slider` builds a slider that rides in a :meth:`Sliders.rail` V-groove; both print
+#    :class:`Slider` builds a slider that rides in a :class:`Rail` V-groove; both print
 #    without support. *slop* on the slider tunes the printed fit.
 #
 # FileSummary: V-groove sliders and rails.
@@ -27,23 +27,31 @@ from pybosl2.distributors import DistributableMatrix
 from pybosl2.shapes3d import Bosl2Solid, cuboid, prismoid
 from pybosl2.vnf import VNF
 
-__all__ = ["Sliders"]
+__all__ = ["Slider", "Rail"]
 
 
 def _union(shapes: list[Any]) -> Any:
     return union(shapes)
 
 
-class Sliders:
-    """V-groove sliders and rails (BOSL2 sliders.scad).
+class Slider:
+    """V-groove slider (BOSL2 slider()).
 
-    .. seealso::
+    The slider rides in a matching V-groove rail. Both print without support.
+    *slop* tunes the printed fit.
 
-       `Visual spec sheet <specs/sliders.html>`_ — measurements and STL previews
+    Examples:
+        A slider:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.sliders import Slider
+            Slider(l=30, base=10, wall=4, slop=0.2).show()
+
     """
 
-    @staticmethod
-    def slider(
+    def __init__(
+        self,
         l: float = 30,  # noqa: E741
         w: float = 10,
         h: float = 10,
@@ -54,18 +62,11 @@ class Sliders:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a slider that rides in a matching :meth:`rail` V-groove (BOSL2 slider()).
-
-        Examples:
-            A slider:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.sliders import Sliders
-                Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
-
-        """
+    ) -> None:
+        """Create a V-groove slider."""
+        self._length: float = l
+        self._width: float = w
+        self._height: float = h
         full_width = w + 2 * wall
         full_height = h + base
         parts = [
@@ -108,27 +109,59 @@ class Sliders:
         result = _union(parts).down(base + h / 2).rotate([0, 0, 90])
         nb = result._native_bounds()
         size = nb[1] if nb else [l, full_width, h + 2 * base]
-        return Bosl2Solid(result.shape, size=size)
+        self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=size)
 
-    @staticmethod
-    def rail(
+    @property
+    def length(self) -> float:
+        """Slider length in mm."""
+        return self._length
+
+    @property
+    def width(self) -> float:
+        """Slider width in mm."""
+        return self._width
+
+    @property
+    def height(self) -> float:
+        """Slider height in mm."""
+        return self._height
+
+    def shape(self) -> Bosl2Solid:
+        """Return the slider geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the slider in the viewer."""
+        self._solid.show()
+
+
+class Rail:
+    """V-groove rail (BOSL2 rail()).
+
+    A matching rail for the V-groove slider.
+
+    Examples:
+        A rail:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.sliders import Rail
+            Rail(l=100, w=10, h=10).show()
+
+    """
+
+    def __init__(
+        self,
         l: float = 30,  # noqa: E741
         w: float = 10,
         h: float = 10,
         chamfer: float = 1.0,
         angle: float = 30,
-    ) -> Bosl2Solid:
-        """Return a V-groove rail for a :meth:`slider` (BOSL2 rail()).
-
-        Examples:
-            A rail:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.sliders import Sliders
-                Sliders.rail(l=100, w=10, h=10).show()
-
-        """
+    ) -> None:
+        """Create a V-groove rail."""
+        self._length: float = l
+        self._width: float = w
+        self._height: float = h
         attack_ang, attack_len = 30, 2
         fudge = 1.177
         chamf = math.sqrt(2) * chamfer
@@ -235,4 +268,27 @@ class Sliders:
             [13, 22, 21],
             [13, 21, 6],
         ]
-        return Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, l, h])
+        self._solid: Bosl2Solid = Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, l, h])
+
+    @property
+    def length(self) -> float:
+        """Rail length in mm."""
+        return self._length
+
+    @property
+    def width(self) -> float:
+        """Rail width in mm."""
+        return self._width
+
+    @property
+    def height(self) -> float:
+        """Rail height in mm."""
+        return self._height
+
+    def shape(self) -> Bosl2Solid:
+        """Return the rail geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the rail in the viewer."""
+        self._solid.show()

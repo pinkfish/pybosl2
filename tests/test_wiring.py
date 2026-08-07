@@ -133,3 +133,18 @@ def test_wire_colors_all_rgb_triples() -> None:
         assert isinstance(color, list)
         assert len(color) == 3
         assert all(0.0 <= v <= 1.0 for v in color)
+
+
+# ── WireBundle properties and show ──────────────────────────────────────────
+
+
+def test_wire_bundle_properties() -> None:
+    wb = WireBundle(_PATH, wires=7, wirediam=2.5)  # type: ignore[arg-type]
+    assert wb.wires == 7
+    assert wb.wirediam == 2.5
+    assert isinstance(wb.shape(), Bosl2Solid)
+
+
+def test_wire_bundle_show_does_not_raise() -> None:
+    wb = WireBundle(_PATH, wires=3)  # type: ignore[arg-type]
+    wb.show()  # should not raise

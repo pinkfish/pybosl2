@@ -15,19 +15,19 @@ Screw drives: Phillips, hex, Torx & Robertson recesses
 
 
 Pure-Python port of BOSL2's ``screw_drive.scad``: masks for the driver recess cut into a screw
-head. The :class:`~pybosl2.parts.screw_drive` class groups them as static methods that return a
+head. The :mod:`pybosl2.parts.screw_drive` module provides classes and functions that each return a
 :class:`~pybosl2.shapes3d` mask -- subtract one from a head to make the recess::
 
-    head - ScrewDrive.phillips_mask("#2")     # a #2 Phillips recess
-    head - ScrewDrive.hex_drive_mask(5, 4)    # a 5mm hex (Allen) recess, 4mm deep
-    head - ScrewDrive.torx_mask(30, 4)        # a T30 Torx recess
-    head - ScrewDrive.robertson_mask(2)       # a #2 Robertson/square recess
+    head - PhillipsMask("#2").shape()     # a #2 Phillips recess
+    head - HexDriveMask(5, 4).shape()     # a 5mm hex (Allen) recess, 4mm deep
+    head - TorxMask(30, 4).shape()        # a T30 Torx recess
+    head - RobertsonMask(2).shape()       # a #2 Robertson/square recess
 
-Every ``*_mask`` is built bottom-on-the-XY-plane (BOSL2's ``anchor=BOTTOM``); pass ``center=True``
-to center it vertically. The dimensional helpers -- :meth:`~pybosl2.parts.screw_drive.ScrewDrive.torx_info`,
-:meth:`~pybosl2.parts.screw_drive.ScrewDrive.torx_diam`, :meth:`~pybosl2.parts.screw_drive.ScrewDrive.torx_depth`,
-:meth:`~pybosl2.parts.screw_drive.ScrewDrive.phillips_depth` and
-:meth:`~pybosl2.parts.screw_drive.ScrewDrive.phillips_diam` -- return the same numbers as their BOSL2
+Every ``*Mask`` is built bottom-on-the-XY-plane (BOSL2's ``anchor=BOTTOM``); pass ``center=True``
+to center it vertically. The dimensional helpers -- :func:`~pybosl2.parts.screw_drive.torx_info`,
+:func:`~pybosl2.parts.screw_drive.torx_diam`, :func:`~pybosl2.parts.screw_drive.torx_depth`,
+:func:`~pybosl2.parts.screw_drive.phillips_depth` and
+:func:`~pybosl2.parts.screw_drive.phillips_diam` -- return the same numbers as their BOSL2
 counterparts.
 
 The dimension tables (Phillips ISO 4757, the Torx ISO 14583 OD/ID/depth/rounding table, and the
@@ -42,22 +42,46 @@ A #2 Phillips recess cut into a tapered head:
 .. pythonscad-example::
 
     from pybosl2 import shapes3d as s3
-    from pybosl2.parts.screw_drive import ScrewDrive
+    from pybosl2.parts.screw_drive import PhillipsMask
 
-    (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - ScrewDrive.phillips_mask("#2")).show()
+    (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - PhillipsMask("#2").shape()).show()
 
 A T30 Torx tip:
 
 .. pythonscad-example::
 
-    from pybosl2.parts.screw_drive import ScrewDrive
-    ScrewDrive.torx_mask(size=30, l=10).show()
+    from pybosl2.parts.screw_drive import TorxMask
+    TorxMask(size=30, l=10).shape().show()
 
 API reference
 -------------
 
-.. autoclass:: pybosl2.parts.screw_drive.ScrewDrive
+.. autoclass:: pybosl2.parts.screw_drive.PhillipsMask
    :members:
+
+.. autoclass:: pybosl2.parts.screw_drive.HexDriveMask
+   :members:
+
+.. autoclass:: pybosl2.parts.screw_drive.TorxMask
+   :members:
+
+.. autoclass:: pybosl2.parts.screw_drive.TorxMask2d
+   :members:
+
+.. autoclass:: pybosl2.parts.screw_drive.RobertsonMask
+   :members:
+
+.. autofunction:: pybosl2.parts.screw_drive.hex_mask
+
+.. autofunction:: pybosl2.parts.screw_drive.torx_info
+
+.. autofunction:: pybosl2.parts.screw_drive.torx_diam
+
+.. autofunction:: pybosl2.parts.screw_drive.torx_depth
+
+.. autofunction:: pybosl2.parts.screw_drive.phillips_depth
+
+.. autofunction:: pybosl2.parts.screw_drive.phillips_diam
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
 
@@ -73,25 +97,25 @@ A #1 Phillips recess:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screw_drive import ScrewDrive
+   from pybosl2.parts.screw_drive import PhillipsMask
 
-   ScrewDrive.phillips_mask(size="#1").show()
+   PhillipsMask(size="#1").shape().show()
 
 A #2 Phillips recess:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screw_drive import ScrewDrive
+   from pybosl2.parts.screw_drive import PhillipsMask
 
-   ScrewDrive.phillips_mask(size="#2").show()
+   PhillipsMask(size="#2").shape().show()
 
 A #3 Phillips recess:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screw_drive import ScrewDrive
+   from pybosl2.parts.screw_drive import PhillipsMask
 
-   ScrewDrive.phillips_mask(size=3).show()
+   PhillipsMask(size=3).shape().show()
 
 .. rubric:: ``robertson_mask``
 
@@ -99,6 +123,6 @@ A #2 Robertson (square) recess:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screw_drive import ScrewDrive
+   from pybosl2.parts.screw_drive import RobertsonMask
 
-   ScrewDrive.robertson_mask(size=2).show()
+   RobertsonMask(size=2).shape().show()

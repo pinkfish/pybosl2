@@ -10,14 +10,25 @@ screw_drive.scad; the mask builders are smoke-tested (they return a Bosl2Solid a
 
 import pytest
 
-from pybosl2.parts.screw_drive import ScrewDrive
+from pybosl2.parts.screw_drive import (
+    HexDriveMask,
+    PhillipsMask,
+    RobertsonMask,
+    TorxMask,
+    TorxMask2d,
+    phillips_depth,
+    phillips_diam,
+    torx_depth,
+    torx_diam,
+    torx_info,
+)
 from pybosl2.shapes3d import Bosl2Solid, cyl
 
 # ---- Torx dimensional info (verbatim from screw_drive.scad) ----
 
 
 def test_torx_info_values() -> None:
-    t = ScrewDrive.torx_info(6)
+    t = torx_info(6)
     assert (t.outer_diameter, t.inner_diameter, t.depth, t.tip_rounding, t.inner_rounding) == (
         1.75,
         1.27,
@@ -25,28 +36,28 @@ def test_torx_info_values() -> None:
         0.132,
         0.383,
     )
-    assert ScrewDrive.torx_info(30).as_tuple() == (5.60, 4.05, 2.22, 0.451, 1.194)
-    assert ScrewDrive.torx_info(100).as_tuple() == (22.40, 16.00, 10.79, 1.720, 4.925)
+    assert torx_info(30).as_tuple() == (5.60, 4.05, 2.22, 0.451, 1.194)
+    assert torx_info(100).as_tuple() == (22.40, 16.00, 10.79, 1.720, 4.925)
 
 
 def test_torx_info_is_dataclass() -> None:
     from pybosl2.parts.screw_drive import TorxSpec
 
-    assert isinstance(ScrewDrive.torx_info(30), TorxSpec)
+    assert isinstance(torx_info(30), TorxSpec)
 
 
 def test_torx_diam_and_depth() -> None:
-    assert ScrewDrive.torx_diam(30) == 5.60
-    assert ScrewDrive.torx_depth(30) == 2.22
-    assert ScrewDrive.torx_diam(8) == ScrewDrive.torx_info(8).outer_diameter
-    assert ScrewDrive.torx_depth(8) == ScrewDrive.torx_info(8).depth
+    assert torx_diam(30) == 5.60
+    assert torx_depth(30) == 2.22
+    assert torx_diam(8) == torx_info(8).outer_diameter
+    assert torx_depth(8) == torx_info(8).depth
 
 
 def test_torx_info_invalid() -> None:
     with pytest.raises(ValueError, match="Unsupported Torx size"):
-        ScrewDrive.torx_info(11)  # 11 is not a real Torx size
+        torx_info(11)  # 11 is not a real Torx size
     with pytest.raises(ValueError, match="Unsupported Torx size"):
-        ScrewDrive.torx_info("nope")  # type: ignore[arg-type]
+        torx_info("nope")  # type: ignore[arg-type]
 
 
 # ---- Phillips ----
@@ -54,11 +65,11 @@ def test_torx_info_invalid() -> None:
 
 def test_phillips_size_parsing() -> None:
     # "#2" and 2 resolve identically.
-    assert ScrewDrive.phillips_depth("#2", 4.0) == ScrewDrive.phillips_depth(2, 4.0)
+    assert phillips_depth("#2", 4.0) == phillips_depth(2, 4.0)
     with pytest.raises(ValueError, match="phillips size must be"):
-        ScrewDrive.phillips_mask("#9")
+        PhillipsMask("#9").shape()
     with pytest.raises(ValueError, match="phillips size must be"):
-        ScrewDrive.phillips_mask(5)
+        PhillipsMask(5).shape()
 
 
 def test_phillips_depth_diam_roundtrip() -> None:
@@ -67,21 +78,21 @@ def test_phillips_depth_diam_roundtrip() -> None:
     tips = {"#0": 0.81, "#1": 1.27, "#2": 2.29, "#3": 3.81, "#4": 5.08}
     for size in ("#0", "#1", "#2", "#3", "#4"):
         diameter = (tips[size] + shafts[size]) / 2  # midpoint is always in the valid range
-        depth = ScrewDrive.phillips_depth(size, diameter)
+        depth = phillips_depth(size, diameter)
         assert depth is not None
-        assert ScrewDrive.phillips_diam(size, depth) == pytest.approx(diameter)
+        assert phillips_diam(size, depth) == pytest.approx(diameter)
 
 
 def test_phillips_depth_out_of_range() -> None:
     # d beyond the shaft (#0 shaft is 3mm) or below the tip diameter g returns None.
-    assert ScrewDrive.phillips_depth("#0", 5.0) is None
-    assert ScrewDrive.phillips_depth("#0", 0.0) is None
+    assert phillips_depth("#0", 5.0) is None
+    assert phillips_depth("#0", 0.0) is None
 
 
 def test_phillips_diam_out_of_range() -> None:
     # depth outside [h1, h1+h2) returns None.
-    assert ScrewDrive.phillips_diam("#2", 0.0) is None
-    assert ScrewDrive.phillips_diam("#2", 1000.0) is None
+    assert phillips_diam("#2", 0.0) is None
+    assert phillips_diam("#2", 1000.0) is None
 
 
 # ---- mask builders (smoke) ----
@@ -90,15 +101,15 @@ def test_phillips_diam_out_of_range() -> None:
 @pytest.mark.parametrize(
     "obj",
     [
-        ScrewDrive.phillips_mask("#2"),
-        ScrewDrive.phillips_mask(4, center=True),
-        ScrewDrive.hex_drive_mask(5, 10),
-        ScrewDrive.hex_drive_mask(6, 8, slop=0.05),
-        ScrewDrive.torx_mask2d(30),
-        ScrewDrive.torx_mask(30, 10),
-        ScrewDrive.torx_mask(8, 5, center=True),
-        ScrewDrive.robertson_mask(2),
-        ScrewDrive.robertson_mask(0, l=3.27, angle=3.0),
+        PhillipsMask("#2").shape(),
+        PhillipsMask(4, center=True).shape(),
+        HexDriveMask(5, 10).shape(),
+        HexDriveMask(6, 8, slop=0.05).shape(),
+        TorxMask2d(30).shape(),
+        TorxMask(30, 10).shape(),
+        TorxMask(8, 5, center=True).shape(),
+        RobertsonMask(2).shape(),
+        RobertsonMask(0, l=3.27, angle=3.0).shape(),
     ],
 )
 def test_masks_return_solid(obj: Bosl2Solid) -> None:
@@ -108,12 +119,12 @@ def test_masks_return_solid(obj: Bosl2Solid) -> None:
 def test_mask_composes_with_head() -> None:
     # A recess subtracts cleanly from a head.
     head = cyl(diameter1=2, diameter2=8, height=4).down(2)
-    assert isinstance(head - ScrewDrive.phillips_mask("#2"), Bosl2Solid)
-    assert isinstance(head - ScrewDrive.torx_mask(30, 4), Bosl2Solid)
+    assert isinstance(head - PhillipsMask("#2").shape(), Bosl2Solid)
+    assert isinstance(head - TorxMask(30, 4).shape(), Bosl2Solid)
 
 
 def test_robertson_size_validation() -> None:
     with pytest.raises(ValueError, match="robertson size must be"):
-        ScrewDrive.robertson_mask(5)
+        RobertsonMask(5)
     with pytest.raises(ValueError, match="robertson size must be"):
-        ScrewDrive.robertson_mask("5")
+        RobertsonMask("5")
