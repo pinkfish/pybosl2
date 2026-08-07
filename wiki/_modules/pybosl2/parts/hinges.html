@@ -1830,7 +1830,20 @@
         <span class="n">hingegap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">slop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a living hinge mask for a plate of the given *thick*ness and *length*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a living hinge mask for a plate of the given *thick*ness and *length*.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            length: Length of the hinge in mm.</span>
+<span class="sd">            thick: Thickness of the plate in mm.</span>
+<span class="sd">            layerheight: Layer height in mm. Defaults to 0.2.</span>
+<span class="sd">            foldangle: Maximum fold angle in degrees. Defaults to 90.</span>
+<span class="sd">            hingegap: Gap at the hinge point. Defaults to layerheight.</span>
+<span class="sd">            slop: Extra clearance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hg</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
         <span class="n">top</span> <span class="o">=</span> <span class="n">hg</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">foldangle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">hg</span><span class="p">],</span> <span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">top</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">layerheight</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
@@ -1872,6 +1885,15 @@
 <span class="sd">    leaf) or -Y (inner leaf).  *segs* is the total knuckle count across both</span>
 <span class="sd">    leaves — the outer leaf takes the ``ceil(segs/2)`` even knuckles, the inner</span>
 <span class="sd">    leaf the ``floor(segs/2)`` odd ones.  Pair with :class:`KnuckleHingePair`.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        An outer knuckle hinge leaf:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.hinges import KnuckleHinge</span>
+<span class="sd">            KnuckleHinge().show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -1888,7 +1910,25 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a single knuckle hinge leaf.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a single knuckle hinge leaf.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            length: Total hinge length in mm. Defaults to 40.</span>
+<span class="sd">            segs: Total knuckle count across both leaves. Defaults to 5.</span>
+<span class="sd">            knuckle_diam: Outer diameter of each knuckle. Defaults to 6.</span>
+<span class="sd">            pin_diam: Diameter of the pin bore. Defaults to 2.</span>
+<span class="sd">            arm: Length of the flat leaf arm. Defaults to 20.</span>
+<span class="sd">            thick: Thickness of the flat leaf. Defaults to 3.</span>
+<span class="sd">            gap: Gap between knuckles. Defaults to 0.4.</span>
+<span class="sd">            inner: If True, build the inner leaf; outer otherwise. Defaults to False.</span>
+<span class="sd">            fn: Number of fragments for rounded geometry.</span>
+<span class="sd">            fa: Fragment angle for rounded geometry.</span>
+<span class="sd">            fs: Fragment size for rounded geometry.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">segs</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;knuckle_hinge(): segs must be &gt;= 2.&quot;</span>
         <span class="n">seglen</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="p">(</span><span class="n">segs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gap</span><span class="p">)</span> <span class="o">/</span> <span class="n">segs</span>
         <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bosl2Solid</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1971,7 +2011,26 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a pair of meshing knuckle hinge leaves.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a pair of meshing knuckle hinge leaves.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            length: Total hinge length in mm. Defaults to 40.</span>
+<span class="sd">            segs: Total knuckle count across both leaves. Defaults to 5.</span>
+<span class="sd">            knuckle_diam: Outer diameter of each knuckle. Defaults to 6.</span>
+<span class="sd">            pin_diam: Diameter of the pin bore. Defaults to 2.</span>
+<span class="sd">            arm: Length of the flat leaf arm. Defaults to 20.</span>
+<span class="sd">            thick: Thickness of the flat leaf. Defaults to 3.</span>
+<span class="sd">            gap: Gap between knuckles. Defaults to 0.4.</span>
+<span class="sd">            fold: Angle to rotate the inner leaf. Defaults to 0.</span>
+<span class="sd">            pin: If True, include a pin cylinder. Defaults to True.</span>
+<span class="sd">            fn: Number of fragments for rounded geometry.</span>
+<span class="sd">            fa: Fragment angle for rounded geometry.</span>
+<span class="sd">            fs: Fragment size for rounded geometry.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outer</span> <span class="o">=</span> <span class="n">KnuckleHinge</span><span class="p">(</span>
             <span class="n">length</span><span class="p">,</span>
             <span class="n">segs</span><span class="p">,</span>
@@ -2039,7 +2098,17 @@
 <div class="viewcode-block" id="SnapLock">
 <a class="viewcode-back" href="../../../hinges.html#pybosl2.parts.hinges.SnapLock">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SnapLock</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A snap-lock tab:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.hinges import SnapLock</span>
+<span class="sd">            SnapLock().show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2054,7 +2123,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a snap-lock tab.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a snap-lock tab.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            thick: Plate thickness in mm. Defaults to 3.</span>
+<span class="sd">            snaplen: Snap tab length in mm. Defaults to 5.</span>
+<span class="sd">            snapdiam: Snap ridge diameter in mm. Defaults to 5.</span>
+<span class="sd">            layerheight: Layer height in mm. Defaults to 0.2.</span>
+<span class="sd">            foldangle: Fold angle for the living hinge section. Defaults to 90.</span>
+<span class="sd">            hingegap: Gap at the hinge point. Defaults to layerheight.</span>
+<span class="sd">            slop: Extra clearance.</span>
+<span class="sd">            fn: Number of fragments for rounded geometry.</span>
+<span class="sd">            fa: Fragment angle for rounded geometry.</span>
+<span class="sd">            fs: Fragment size for rounded geometry.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hg</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
         <span class="n">snap_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">thick</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">layerheight</span><span class="p">))</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">foldangle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="n">hg</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">post</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">snapdiam</span><span class="p">,</span> <span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">thick</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">thick</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
@@ -2086,7 +2172,17 @@
 <div class="viewcode-block" id="SnapSocket">
 <a class="viewcode-back" href="../../../hinges.html#pybosl2.parts.hinges.SnapSocket">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SnapSocket</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The receiving socket for a :class:`SnapLock` tab.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The receiving socket for a :class:`SnapLock` tab.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A snap socket:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.hinges import SnapSocket</span>
+<span class="sd">            SnapSocket().show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2101,7 +2197,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a snap socket.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a snap socket.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            thick: Plate thickness in mm. Defaults to 3.</span>
+<span class="sd">            snaplen: Snap tab length in mm. Defaults to 5.</span>
+<span class="sd">            snapdiam: Snap ridge diameter in mm. Defaults to 5.</span>
+<span class="sd">            layerheight: Layer height in mm. Defaults to 0.2.</span>
+<span class="sd">            foldangle: Fold angle for the living hinge section. Defaults to 90.</span>
+<span class="sd">            hingegap: Gap at the hinge point. Defaults to layerheight.</span>
+<span class="sd">            slop: Extra clearance.</span>
+<span class="sd">            fn: Number of fragments for rounded geometry.</span>
+<span class="sd">            fa: Fragment angle for rounded geometry.</span>
+<span class="sd">            fs: Fragment size for rounded geometry.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">hg</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
         <span class="n">snap_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">thick</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">layerheight</span><span class="p">))</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">foldangle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="n">hg</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">post</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">snapdiam</span><span class="p">,</span> <span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">thick</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">thick</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>

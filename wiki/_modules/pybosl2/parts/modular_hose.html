@@ -1985,7 +1985,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a modular-hose segment, ball end or socket end.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a modular-hose segment, ball end or socket end.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: Hose size (0.25, 0.5 or 0.75 inches).</span>
+<span class="sd">            type: Segment type as a :class:`HoseType` enum value.</span>
+<span class="sd">            clearance: Clearance for fit tuning; a single float or ``[ball_clearance, socket_clearance]``.</span>
+<span class="sd">            waist_len: Length of the waist section between ball and socket; auto-derived if None.</span>
+<span class="sd">            fn: Number of facets for $fn-based resolution.</span>
+<span class="sd">            fa: Minimum facet angle.</span>
+<span class="sd">            fs: Minimum facet size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If *size* is not one of 0.25, 0.5, 0.75, or *type* is invalid.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ind</span> <span class="o">=</span> <span class="n">_size_index</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="n">cl</span> <span class="o">=</span> <span class="n">clearance</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clearance</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">clearance</span><span class="p">,</span> <span class="n">clearance</span><span class="p">]</span>
         <span class="n">small</span><span class="p">,</span> <span class="n">big</span> <span class="o">=</span> <span class="n">_SMALL</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">_BIG</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
@@ -2052,7 +2069,16 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">modular_hose_radius</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">outer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the inner (bore) or *outer* radius of a modular hose of *size*.</span>
 
-<span class="sd">    (BOSL2 modular_hose_radius()).</span>
+<span class="sd">    Args:</span>
+<span class="sd">        size: Hose size (0.25, 0.5 or 0.75 inches).</span>
+<span class="sd">        outer: If True, return the outer radius instead of the inner (bore) radius.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The bore or outer radius in mm for the given hose size.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If *size* is not one of 0.25, 0.5, 0.75.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">big</span> <span class="o">=</span> <span class="n">_BIG</span><span class="p">[</span><span class="n">_size_index</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">big</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">outer</span> <span class="k">else</span> <span class="n">big</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>

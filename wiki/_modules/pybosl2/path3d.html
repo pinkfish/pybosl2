@@ -2005,18 +2005,39 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">segment_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Length of each segment of the path, as an ndarray.</span>
 
+<span class="sd">        An open path of N points has N-1 segments; a closed one has N, the extra being the</span>
+<span class="sd">        closing segment from the last point back to the first.</span>
+
+<span class="sd">        The short cases follow from that rule rather than being special-cased away:</span>
+
+<span class="sd">        * An EMPTY path has no segments either way -- there are no points to join.</span>
+<span class="sd">        * A SINGLE point is where open and closed differ. Open, it has no segments. Closed,</span>
+<span class="sd">          the closing segment joins the point to ITSELF, so the result is one segment of</span>
+<span class="sd">          length 0 -- not zero segments::</span>
+
+<span class="sd">              Path3D([[1, 2, 3]]).segment_lengths()               # array([])</span>
+<span class="sd">              Path3D([[1, 2, 3]], closed=True).segment_lengths()  # array([0.])</span>
+
+<span class="sd">          This keeps ``len(segment_lengths(closed=True)) == len(path)``, which</span>
+<span class="sd">          :meth:`~pybosl2.paths.Path.tangent_array` relies on when it samples the non-uniform</span>
+<span class="sd">          derivative.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            An ndarray of segment lengths.</span>
+<span class="sd">            An ndarray of segment lengths, one per segment.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
-        <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">closed</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
+        <span class="c1"># Counted BEFORE closing the ring: indexing pts[0] to close an EMPTY path raises</span>
+        <span class="c1"># IndexError rather than reporting no segments.</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">closed</span><span class="p">:</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">pts</span><span class="p">,</span> <span class="n">pts</span><span class="p">[:</span><span class="mi">1</span><span class="p">]])</span>
         <span class="n">lengths</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">lengths</span></div>
 
@@ -2088,7 +2109,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">tangents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Point]&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the normalized tangent vector at each point of the path (BOSL2 path_tangents).</span>
 
-<span class="sd">        There is always exactly one tangent per path point -- not one per segment.</span>
+<span class="sd">        There is always exactly one tangent per path point -- not one per segment. A path of</span>
+<span class="sd">        fewer than two points has nothing to differentiate, so each of its points gets ``+x``</span>
+<span class="sd">        by convention; see :meth:`~pybosl2.paths.Path.tangent_array`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>

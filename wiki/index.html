@@ -2428,7 +2428,15 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cubetruss.html"> Modular cubical truss segments and trusses &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.CubeTruss">pybosl2.parts.cubetruss.CubeTruss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussSegment">pybosl2.parts.cubetruss.TrussSegment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.Truss">pybosl2.parts.cubetruss.Truss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussCorner">pybosl2.parts.cubetruss.TrussCorner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussSupport">pybosl2.parts.cubetruss.TrussSupport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussClip">pybosl2.parts.cubetruss.TrussClip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussFoot">pybosl2.parts.cubetruss.TrussFoot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussUClip">pybosl2.parts.cubetruss.TrussUClip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.TrussJoiner">pybosl2.parts.cubetruss.TrussJoiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cubetruss.html#pybosl2.parts.cubetruss.truss_dist">pybosl2.parts.cubetruss.truss_dist</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cubetruss.html#examples">Examples</a></li>
 </ul>
 </li>
@@ -2530,7 +2538,8 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sliders.html"> V-groove sliders and rails &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="sliders.html#pybosl2.parts.sliders.Sliders">pybosl2.parts.sliders.Sliders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sliders.html#pybosl2.parts.sliders.Slider">pybosl2.parts.sliders.Slider</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sliders.html#pybosl2.parts.sliders.Rail">pybosl2.parts.sliders.Rail</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sliders.html#examples">Examples</a></li>
 </ul>
 </li>
@@ -2542,17 +2551,23 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tripod_mounts.html"> Tripod mount plates: RC2 &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tripod_mounts.html#pybosl2.parts.tripod_mounts.TripodMounts">pybosl2.parts.tripod_mounts.TripodMounts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tripod_mounts.html#pybosl2.parts.tripod_mounts.ManfrottoRC2Plate">pybosl2.parts.tripod_mounts.ManfrottoRC2Plate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tripod_mounts.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="walls.html"> FDM-optimised walls: sparse, corrugated, thinning and struts &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.Walls">pybosl2.parts.walls.Walls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.SparseWall">pybosl2.parts.walls.SparseWall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.SparseCuboid">pybosl2.parts.walls.SparseCuboid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.CorrugatedWall">pybosl2.parts.walls.CorrugatedWall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.ThinningWall">pybosl2.parts.walls.ThinningWall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.ThinningTriangle">pybosl2.parts.walls.ThinningTriangle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="walls.html#pybosl2.parts.walls.NarrowingStrut">pybosl2.parts.walls.NarrowingStrut</a></li>
 <li class="toctree-l2"><a class="reference internal" href="walls.html#examples">Examples</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="wiring.html"> Routed bundles of wires &amp;#128736;</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="wiring.html#pybosl2.parts.wiring.Wiring">pybosl2.parts.wiring.Wiring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wiring.html#pybosl2.parts.wiring.WireBundle">pybosl2.parts.wiring.WireBundle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wiring.html#pybosl2.parts.wiring.hex_offsets">pybosl2.parts.wiring.hex_offsets</a></li>
 </ul>
 </li>
 </ul>

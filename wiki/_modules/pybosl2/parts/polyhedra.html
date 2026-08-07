@@ -1963,7 +1963,15 @@
     <span class="n">num_faces</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solid</span><span class="p">:</span> <span class="n">PlatonicSolid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up vertex/face data for the given Platonic solid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up vertex/face data for the given Platonic solid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solid: A :class:`PlatonicSolid` enum value identifying the polyhedron.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">_ratio</span> <span class="o">=</span> <span class="n">_SOLIDS</span><span class="p">[</span><span class="n">solid</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">solid</span><span class="o">.</span><span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">verts</span><span class="p">]</span>
@@ -2001,7 +2009,22 @@
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a regular polyhedron, sized by one of radius/diameter/inradius/side.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a regular polyhedron, sized by one of radius/diameter/inradius/side.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: A :class:`PlatonicSolid` enum value identifying the polyhedron type.</span>
+<span class="sd">            radius: Circumscribing sphere radius.</span>
+<span class="sd">            diameter: Circumscribing sphere diameter.</span>
+<span class="sd">            inner_radius: Insphere radius (distance from centre to mid-face).</span>
+<span class="sd">            side: Edge length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If *name* is not a valid Platonic solid.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">_SOLIDS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>  <span class="c1"># validate early</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">:</span> <span class="n">PlatonicSolid</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">radius</span>
@@ -2018,7 +2041,12 @@
 <div class="viewcode-block" id="RegularPolyhedron.info">
 <a class="viewcode-back" href="../../../polyhedra.html#pybosl2.parts.polyhedra.RegularPolyhedron.info">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolyhedronInfo</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return vertex/face data for this solid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return vertex/face data for this solid.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`PolyhedronInfo` object containing vertex and face lists.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PolyhedronInfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span></div>
 
 
@@ -2062,7 +2090,18 @@
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegularPolyhedron</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular tetrahedron (4 triangular faces).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular tetrahedron (4 triangular faces).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Circumscribing sphere radius.</span>
+<span class="sd">            diameter: Circumscribing sphere diameter.</span>
+<span class="sd">            inner_radius: Insphere radius (distance from centre to mid-face).</span>
+<span class="sd">            side: Edge length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`RegularPolyhedron` configured as a tetrahedron.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">PlatonicSolid</span><span class="o">.</span><span class="n">TETRAHEDRON</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">)</span></div>
 
 
@@ -2076,7 +2115,18 @@
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegularPolyhedron</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a cube / regular hexahedron (6 square faces).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a cube / regular hexahedron (6 square faces).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Circumscribing sphere radius.</span>
+<span class="sd">            diameter: Circumscribing sphere diameter.</span>
+<span class="sd">            inner_radius: Insphere radius (distance from centre to mid-face).</span>
+<span class="sd">            side: Edge length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`RegularPolyhedron` configured as a cube.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">PlatonicSolid</span><span class="o">.</span><span class="n">CUBE</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">)</span></div>
 
 
@@ -2090,7 +2140,18 @@
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegularPolyhedron</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular octahedron (8 triangular faces).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular octahedron (8 triangular faces).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Circumscribing sphere radius.</span>
+<span class="sd">            diameter: Circumscribing sphere diameter.</span>
+<span class="sd">            inner_radius: Insphere radius (distance from centre to mid-face).</span>
+<span class="sd">            side: Edge length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`RegularPolyhedron` configured as an octahedron.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">PlatonicSolid</span><span class="o">.</span><span class="n">OCTAHEDRON</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">)</span></div>
 
 
@@ -2104,7 +2165,18 @@
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegularPolyhedron</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular dodecahedron (12 pentagonal faces).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular dodecahedron (12 pentagonal faces).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Circumscribing sphere radius.</span>
+<span class="sd">            diameter: Circumscribing sphere diameter.</span>
+<span class="sd">            inner_radius: Insphere radius (distance from centre to mid-face).</span>
+<span class="sd">            side: Edge length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`RegularPolyhedron` configured as a dodecahedron.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">PlatonicSolid</span><span class="o">.</span><span class="n">DODECAHEDRON</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">)</span></div>
 
 
@@ -2119,6 +2191,15 @@
         <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RegularPolyhedron</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a regular icosahedron (20 triangular faces).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Circumscribing sphere radius.</span>
+<span class="sd">            diameter: Circumscribing sphere diameter.</span>
+<span class="sd">            inner_radius: Insphere radius (distance from centre to mid-face).</span>
+<span class="sd">            side: Edge length.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A :class:`RegularPolyhedron` configured as an icosahedron.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            .. pythonscad-example::</span>

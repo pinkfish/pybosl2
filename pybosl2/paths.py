@@ -191,6 +191,14 @@ class Path(ABC):
         The shared implementation behind :meth:`tangents` for both dimensions. Always returns
         one tangent per path point, never one per segment.
 
+        A path of fewer than two points has no direction to derive -- there is no neighbour to
+        difference against. Rather than raise, each such point is given **+x** (``[1, 0]`` /
+        ``[1, 0, 0]``). That is a CONVENTION, not a measurement: it is arbitrary, inherited
+        from the original implementation, and kept only so callers get a usable unit vector and
+        a predictable ``(N, D)`` shape. Do not read meaning into the direction, and do not
+        change it casually -- :meth:`normals` rotates whatever comes back, so anything
+        downstream of a one-point path moves with it.
+
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
             uniform: If True, estimate the derivative assuming equally spaced points. If False,
@@ -208,8 +216,9 @@ class Path(ABC):
             closed = self.closed
         pts = self._points
         if len(pts) < 2:
-            # An empty Path2D holds a 1-D zero-length array rather than an (0, 2) one, so this
-            # cannot go through zeros_like: build the (N, D) result from the point count.
+            # The +x convention documented above. An empty Path2D holds a 1-D zero-length array
+            # rather than an (0, 2) one, so this cannot go through zeros_like: build the (N, D)
+            # result from the point count instead.
             straight: NDArray[np.float64] = np.zeros((len(pts), pts.shape[1] if pts.ndim > 1 else 2))
             straight[:, 0] = 1.0
             return straight

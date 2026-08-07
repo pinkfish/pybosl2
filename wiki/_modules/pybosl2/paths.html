@@ -1978,6 +1978,14 @@
 <span class="sd">        The shared implementation behind :meth:`tangents` for both dimensions. Always returns</span>
 <span class="sd">        one tangent per path point, never one per segment.</span>
 
+<span class="sd">        A path of fewer than two points has no direction to derive -- there is no neighbour to</span>
+<span class="sd">        difference against. Rather than raise, each such point is given **+x** (``[1, 0]`` /</span>
+<span class="sd">        ``[1, 0, 0]``). That is a CONVENTION, not a measurement: it is arbitrary, inherited</span>
+<span class="sd">        from the original implementation, and kept only so callers get a usable unit vector and</span>
+<span class="sd">        a predictable ``(N, D)`` shape. Do not read meaning into the direction, and do not</span>
+<span class="sd">        change it casually -- :meth:`normals` rotates whatever comes back, so anything</span>
+<span class="sd">        downstream of a one-point path moves with it.</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
 <span class="sd">            uniform: If True, estimate the derivative assuming equally spaced points. If False,</span>
@@ -1995,8 +2003,9 @@
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="c1"># An empty Path2D holds a 1-D zero-length array rather than an (0, 2) one, so this</span>
-            <span class="c1"># cannot go through zeros_like: build the (N, D) result from the point count.</span>
+            <span class="c1"># The +x convention documented above. An empty Path2D holds a 1-D zero-length array</span>
+            <span class="c1"># rather than an (0, 2) one, so this cannot go through zeros_like: build the (N, D)</span>
+            <span class="c1"># result from the point count instead.</span>
             <span class="n">straight</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">),</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">2</span><span class="p">))</span>
             <span class="n">straight</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
             <span class="k">return</span> <span class="n">straight</span>

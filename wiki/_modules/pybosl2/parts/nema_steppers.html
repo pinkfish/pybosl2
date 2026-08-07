@@ -1826,7 +1826,18 @@
     <span class="n">shaft_diam</span><span class="p">:</span> <span class="nb">float</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up the NEMA motor dimensions for the given *size* (6-42).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up the NEMA motor dimensions for the given size.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: NEMA motor frame size (6, 8, 11, 14, 17, 23, 34, or 42).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the size is not one of the supported NEMA sizes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">spec</span> <span class="o">=</span> <span class="n">_NEMA</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
@@ -1895,7 +1906,20 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a NEMA stepper motor model, sized by *size*, *height* and *shaft_len*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a NEMA stepper motor model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: NEMA motor frame size (6, 8, 11, 14, 17, 23, 34, or 42). Defaults to 17.</span>
+<span class="sd">            height: Motor body height in mm. Defaults to 24.</span>
+<span class="sd">            shaft_len: Shaft projection length in mm. Defaults to 20.</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="p">:</span> <span class="n">NemaSpec</span> <span class="o">=</span> <span class="n">NemaSpec</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">height</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shaft_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">shaft_len</span>
@@ -1993,6 +2017,15 @@
 <span class="sd">    Cuts the four screw holes and (``atype=NemaMaskType.FULL``) the central plinth</span>
 <span class="sd">    clearance.  A slot *length* &gt; 0 elongates each hole so the motor can be</span>
 <span class="sd">    positioned (e.g. to tension a belt).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A NEMA 17 mount mask:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.nema_steppers import NemaMountMask, NemaMaskType</span>
+<span class="sd">            NemaMountMask(size=17, atype=NemaMaskType.FULL).shape().linear_extrude(1).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -2006,7 +2039,25 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a NEMA mounting mask cutout.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a NEMA mounting mask cutout.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            size: NEMA motor frame size (6, 8, 11, 14, 17, 23, 34, or 42).</span>
+<span class="sd">            depth: Depth of the mask cutout in mm. Defaults to 5.</span>
+<span class="sd">            length: Slot elongation length in mm; values &gt; 0 create slots instead of round holes. Defaults to 5.</span>
+<span class="sd">            atype: Mask cutout type, either FULL (holes + plinth clearance) or SCREWS (holes only). Defaults to FULL.</span>
+<span class="sd">            slop: Additional clearance added to hole diameters. Defaults to 0.0.</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If atype is not NemaMaskType.FULL or NemaMaskType.SCREWS.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">atype</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">NemaMaskType</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span> <span class="n">NemaMaskType</span><span class="o">.</span><span class="n">SCREWS</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;nema_mount_mask: atype must be FULL or SCREWS, got </span><span class="si">{</span><span class="n">atype</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="p">:</span> <span class="n">NemaSpec</span> <span class="o">=</span> <span class="n">NemaSpec</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>

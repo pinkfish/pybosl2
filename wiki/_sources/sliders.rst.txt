@@ -14,11 +14,14 @@ Sliders & rails
    </p>
 
 
-Pure-Python port of BOSL2's ``sliders.scad``: a V-groove :meth:`~pybosl2.parts.sliders.Sliders.slider` and
-the matching :meth:`~pybosl2.parts.sliders.Sliders.rail`, both designed to 3-D print without support. Tune
+Pure-Python port of BOSL2's ``sliders.scad``: a V-groove :class:`~pybosl2.parts.sliders.Slider` and
+the matching :class:`~pybosl2.parts.sliders.Rail`, both designed to 3-D print without support. Tune
 the printed fit with the slider's ``slop``.
 
-.. autoclass:: pybosl2.parts.sliders.Sliders
+.. autoclass:: pybosl2.parts.sliders.Slider
+   :members:
+
+.. autoclass:: pybosl2.parts.sliders.Rail
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -35,8 +38,8 @@ A V-groove slider:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.sliders import Sliders
-   Sliders.slider(l=30, base=10, wall=4, slop=0.2).show()
+   from pybosl2.parts.sliders import Slider
+   Slider(l=30, base=10, wall=4, slop=0.2).shape().show()
 
 .. rubric:: ``rail``
 
@@ -44,5 +47,5 @@ The mating rail:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.sliders import Sliders
-   Sliders.rail(l=100, w=10, h=10).show()
+   from pybosl2.parts.sliders import Rail
+   Rail(l=100, w=10, h=10).shape().show()

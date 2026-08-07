@@ -261,6 +261,28 @@ def test_single_point_tangent_falls_back_to_x() -> None:
     np.testing.assert_allclose(list(Path3D([[1.0, 2.0, 3.0]]).tangents()[0]), [1.0, 0.0, 0.0])
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        Path3D(),
+        Path3D([], closed=True),  # nothing to join, so closing changes nothing
+        Path3D([[1.0, 2.0, 3.0]]),
+    ],
+)
+def test_no_segments_measures_empty(path: Path3D) -> None:
+    """Fewer than two points means no segment to measure."""
+    assert path.segment_lengths().shape == (0,)
+    assert path.perimeter() == 0.0
+
+
+def test_closed_single_point_has_one_zero_length_segment() -> None:
+    # Same rule as Path2D: closing a single point joins it to itself, which IS a segment.
+    lengths = Path3D([[1.0, 2.0, 3.0]], closed=True).segment_lengths()
+    assert lengths.shape == (1,)
+    assert lengths[0] == 0.0
+    assert Path3D([[1.0, 2.0, 3.0]]).segment_lengths().shape == (0,)
+
+
 def test_closest_point() -> None:
     from pybosl2.points import Point
 

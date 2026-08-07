@@ -2104,6 +2104,20 @@
 <span class="sd">        metric nominal diameter), or a mapping already carrying ``diameter``/``pitch``.  When</span>
 <span class="sd">        *head* is anything other than ``ScrewHeadType.NONE`` the appropriate head dimensions</span>
 <span class="sd">        and optional drive-recess dimensions are looked up from the ISO tables.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spec: Screw specification -- ``&quot;M6&quot;``, ``&quot;M8x1&quot;``, a bare float diameter, or a dict.</span>
+<span class="sd">            head: Desired head style as a :class:`ScrewHeadType`.</span>
+<span class="sd">            thread: Thread pitch class as a :class:`ThreadPitchClass`.</span>
+<span class="sd">            drive: Drive recess type as a :class:`ScrewDriveType`.</span>
+<span class="sd">            pitch: Explicit thread pitch override.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the specification cannot be resolved or the head type is unknown.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="s2">&quot;ISO&quot;</span>
 
@@ -2245,7 +2259,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a screw from *spec* (``&quot;M6&quot;`` / ``&quot;M8x1&quot;``) and dimensions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a screw from *spec* (``&quot;M6&quot;`` / ``&quot;M8x1&quot;``) and dimensions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spec: Screw specification -- ``&quot;M6&quot;``, ``&quot;M8x1&quot;``, a bare float diameter, or a dict.</span>
+<span class="sd">            length: Shaft length below the head in mm.</span>
+<span class="sd">            head: Desired head style as a :class:`ScrewHeadType`.</span>
+<span class="sd">            drive: Drive recess type as a :class:`ScrewDriveType`.</span>
+<span class="sd">            thread: Thread pitch class as a :class:`ThreadPitchClass`.</span>
+<span class="sd">            thread_len: Length of the threaded portion; None means the full length.</span>
+<span class="sd">            pitch: Explicit thread pitch override.</span>
+<span class="sd">            fn: Number of facets for $fn-based resolution.</span>
+<span class="sd">            fa: Minimum facet angle.</span>
+<span class="sd">            fs: Minimum facet size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="p">:</span> <span class="n">ScrewSpec</span> <span class="o">=</span> <span class="n">ScrewSpec</span><span class="p">(</span>
             <span class="n">spec</span><span class="p">,</span>
             <span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span>
@@ -2373,7 +2404,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a nut from *spec* (``&quot;M8&quot;``) and dimensions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a nut from *spec* (``&quot;M8&quot;``) and dimensions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spec: Screw specification -- ``&quot;M6&quot;``, ``&quot;M8x1&quot;``, a bare float diameter, or a dict.</span>
+<span class="sd">            thickness: Nut thickness in mm, or ``&quot;normal&quot;``, ``&quot;thin&quot;``, or ``&quot;thick&quot;``.</span>
+<span class="sd">            shape: Nut shape as a :class:`NutShape` (``HEX`` or ``SQUARE``).</span>
+<span class="sd">            thread: Thread pitch class as a :class:`ThreadPitchClass`.</span>
+<span class="sd">            nutwidth: Across-flats width override.</span>
+<span class="sd">            slop: Additional clearance for the threaded hole.</span>
+<span class="sd">            pitch: Explicit thread pitch override.</span>
+<span class="sd">            fn: Number of facets for $fn-based resolution.</span>
+<span class="sd">            fa: Minimum facet angle.</span>
+<span class="sd">            fs: Minimum facet size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spec</span><span class="p">:</span> <span class="n">ScrewSpec</span> <span class="o">=</span> <span class="n">ScrewSpec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thread</span><span class="o">=</span><span class="n">thread</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">thickness</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="n">NutShape</span> <span class="o">=</span> <span class="n">shape</span>
@@ -2472,7 +2520,24 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a hole cutter from *spec* (``&quot;M6&quot;``) and dimensions.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a hole cutter from *spec* (``&quot;M6&quot;``) and dimensions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            spec: Screw specification -- ``&quot;M6&quot;``, ``&quot;M8x1&quot;``, a bare float diameter, or a dict.</span>
+<span class="sd">            length: Hole depth in mm.</span>
+<span class="sd">            head: Desired head style as a :class:`ScrewHeadType` (for countersink/counterbore).</span>
+<span class="sd">            counterbore: Depth of the counterbore in mm.</span>
+<span class="sd">            fit: Clearance fit class (``&quot;close&quot;``, ``&quot;normal&quot;``, or ``&quot;loose&quot;``).</span>
+<span class="sd">            thread: Thread pitch class for a threaded (tapped) hole; ``NONE`` for a clearance hole.</span>
+<span class="sd">            pitch: Explicit thread pitch override.</span>
+<span class="sd">            fn: Number of facets for $fn-based resolution.</span>
+<span class="sd">            fa: Minimum facet angle.</span>
+<span class="sd">            fs: Minimum facet size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spec_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">spec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_head</span><span class="p">:</span> <span class="n">ScrewHeadType</span> <span class="o">=</span> <span class="n">head</span>
