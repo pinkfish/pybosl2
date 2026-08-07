@@ -6,6 +6,8 @@
 
 """Tests for the 2-D turtle graphics system."""
 
+import math
+
 import numpy as np
 import pytest
 
@@ -148,6 +150,23 @@ def test_arcleft() -> None:
 
 def test_arcright() -> None:
     p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.ARCRIGHT, angle=90, radius=10)]).points()
+    assert len(p) == 8
+    np.testing.assert_allclose(p[-1], [10, -10], atol=1e-9)
+
+
+def test_arcleftto_turns_to_an_absolute_heading() -> None:
+    # arcleftto's angle is where to end up pointing, not how far to turn: starting along +X it is
+    # a full quarter turn, but from a 45-degree heading only the remaining 45 degrees.
+    p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.ARCLEFTTO, angle=90, radius=10)]).points()
+    assert len(p) == 8
+    np.testing.assert_allclose(p[-1], [10, 10], atol=1e-9)
+
+    p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.LEFT, angle=45), M(Tct.ARCLEFTTO, angle=90, radius=10)]).points()
+    np.testing.assert_allclose(p[-1], [10 - 5 * math.sqrt(2), 5 * math.sqrt(2)], atol=1e-9)
+
+
+def test_arcrightto_turns_to_an_absolute_heading() -> None:
+    p = turtle2d([M(Tct.ARCSTEPS, size=8), M(Tct.ARCRIGHTTO, angle=270, radius=10)]).points()
     assert len(p) == 8
     np.testing.assert_allclose(p[-1], [10, -10], atol=1e-9)
 

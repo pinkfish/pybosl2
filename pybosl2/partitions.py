@@ -41,6 +41,7 @@ import numpy as np
 
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
+from pybosl2.enums import PartitionCutType
 from pybosl2.transforms import axis_angle_matrix, rot_about_axis, rot_from_to
 from pybosl2.vectors import unit
 
@@ -120,18 +121,23 @@ def _merge_collinear(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 # ---------------------------------------------------------------------------
 
 
-def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Path2D:
+def _partition_subpath(
+    cptype: PartitionCutType,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Path2D:
     """Return the simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import arc
 
-    if cptype == "flat":
+    if cptype == PartitionCutType.FLAT:
         return Path2D([[0, 0], [1, 0]])
-    if cptype == "sawtooth":
+    if cptype == PartitionCutType.SAWTOOTH:
         return Path2D([[0, 0], [0.5, 1], [1, 0]])
-    if cptype == "sinewave":
+    if cptype == PartitionCutType.SINEWAVE:
         return Path2D([[a / 360, math.sin(math.radians(a)) / 2] for a in range(0, 361, 5)])
-    if cptype == "comb":
+    if cptype == PartitionCutType.COMB:
         dx = 0.5 * math.sin(math.radians(2))
         return Path2D(
             [
@@ -143,7 +149,7 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
                 [1, 0],
             ]
         )
-    if cptype == "finger":
+    if cptype == PartitionCutType.FINGER:
         dx = 0.5 * math.sin(math.radians(20))
         return Path2D(
             [
@@ -155,9 +161,9 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
                 [1, 0],
             ]
         )
-    if cptype == "dovetail":
+    if cptype == PartitionCutType.DOVETAIL:
         return Path2D([[0, -0.5], [0.3, -0.5], [0.2, 0.5], [0.8, 0.5], [0.7, -0.5], [1, -0.5]])
-    if cptype == "hammerhead":
+    if cptype == PartitionCutType.HAMMERHEAD:
         return Path2D(
             [
                 [0, -0.5],
@@ -172,7 +178,7 @@ def _partition_subpath(cptype: str, fn: int | None = None, fa: float | None = No
                 [1, -0.5],
             ]
         )
-    if cptype == "jigsaw":
+    if cptype == PartitionCutType.JIGSAW:
         return Path2D(
             list(  # type: ignore[arg-type]
                 arc(
@@ -225,11 +231,11 @@ def _partition_cutpath(
     """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
     _ = h
     cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
-    sub: list[list[float]] | Path2D = (
-        [list(p) for p in cutpath]
-        if isinstance(cutpath, (list, tuple, np.ndarray))
-        else _partition_subpath(cutpath, fn, fa, fs)  # type: ignore[arg-type]
-    )
+    sub: list[list[float]] | Path2D
+    if isinstance(cutpath, str):
+        sub = _partition_subpath(PartitionCutType(cutpath), fn, fa, fs)
+    else:
+        sub = [list(p) for p in cutpath]
     reps_raw = 1 + math.floor((length - cs[0]) / (cs[0] + gap))
     reps = reps_raw - 1 if (reps_raw % 2 == 0 and cutpath_centered) else reps_raw
     reps = max(1, reps)
@@ -248,7 +254,7 @@ def _partition_cutpath(
 
 
 def _ptn_sect(
-    cptype: str | float,
+    cptype: PartitionCutType | float | str,
     length: float = 25,
     width: float = 25,
     invert: bool = False,
@@ -322,20 +328,20 @@ def _ptn_sect(
             return Path2D([[0, 0], [float(opt), 0]])
         raise AssertionError(f"Bad section option: {opt!r}")
 
-    if cptype == "sinewave":
+    if cptype == PartitionCutType.SINEWAVE:
         return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
     steps = _frag_count(length / 2, fn, fa, fs)
-    if cptype == "flat":
+    if cptype == PartitionCutType.FLAT:
         path: list[list[float]] | Path2D = [[0, 0], [1, 0]]
-    elif cptype == "sawtooth":
+    elif cptype == PartitionCutType.SAWTOOTH:
         path = [[0, 0], [0, 1], [1, 0]]
-    elif cptype == "square":
+    elif cptype == PartitionCutType.SQUARE:
         path = [[0, 0], [0, 1], [1, 1], [1, 0]]
-    elif cptype == "triangle":
+    elif cptype == PartitionCutType.TRIANGLE:
         path = [[0, 0], [0.5, 1], [1, 0]]
-    elif cptype == "halfsine":
+    elif cptype == PartitionCutType.HALFSINE:
         path = [[a / 180, math.sin(math.radians(a))] for a in np.arange(0, 180.0001, 360 / steps)]
-    elif cptype == "semicircle":
+    elif cptype == PartitionCutType.SEMICIRCLE:
         raw_arc = arc(
             count=math.ceil(steps / 2),
             radius=1 / 2,
@@ -344,15 +350,15 @@ def _ptn_sect(
             angle=-180,
         )
         path = _yscale(2, list(raw_arc))  # type: ignore[arg-type]
-    elif cptype == "comb":
+    elif cptype == PartitionCutType.COMB:
         dx = math.tan(math.radians(2)) * width / length
         assert dx <= 0.5, "width-to-length ratio too large for comb form."
         path = [[0, 0], [dx, 1], [1 - dx, 1], [1, 0]]
-    elif cptype == "finger":
+    elif cptype == PartitionCutType.FINGER:
         dx = math.tan(math.radians(20)) * width / length
         assert dx <= 0.5, "width-to-length ratio too large for finger form."
         path = [[0, 0], [dx, 1], [1 - dx, 1], [1, 0]]
-    elif cptype == "dovetail":
+    elif cptype == PartitionCutType.DOVETAIL:
         dx = math.tan(math.radians(9)) * width / length / 2
         assert dx < 0.25, "width-to-length ratio too large for dovetail form."
         path = [
@@ -363,7 +369,7 @@ def _ptn_sect(
             [0.75 - dx, 0],
             [1, 0],
         ]
-    elif cptype == "hammerhead":
+    elif cptype == PartitionCutType.HAMMERHEAD:
         path = [
             [0, 0],
             [0.35, 0],
@@ -376,7 +382,7 @@ def _ptn_sect(
             [0.65, 0],
             [1, 0],
         ]
-    elif cptype == "jigsaw":
+    elif cptype == PartitionCutType.JIGSAW:
         path = (
             list(  # type: ignore[assignment]
                 arc(

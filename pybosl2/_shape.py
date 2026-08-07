@@ -290,7 +290,15 @@ class BaseShape(Colorable, Distributable):
     # ------------------------------------------------------------------
 
     def __getattr__(self, name: str) -> object:
-        if name == "shape" or (name.startswith("__") and name.endswith("__")):
+        # Private names never reach the native handle. `shape` guards the recursion trap on a
+        # half-built wrapper (unpickling, __new__, an __init__ that raised), and every other
+        # leading-underscore name -- _attachments, _tag_name, _diff_config, _dont_propagate --
+        # is pybosl2's own bookkeeping, read through hasattr()/getattr(default) by _wrap() on
+        # every wrapped result. A native PyOpenSCAD has no business answering those, and asking
+        # one that came out of frep() (any SDF solid brought over with .to_csg()) segfaults the
+        # whole app: PythonSCAD's attribute lookup evaluates the field, and the process dies with
+        # exit -11 and an empty stderr, so the render just looks like it built nothing.
+        if name == "shape" or name.startswith("_"):
             raise AttributeError(name)
         try:
             be = object.__getattribute__(self, "backend")

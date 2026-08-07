@@ -14,6 +14,7 @@ import math
 
 import pytest
 
+from pybosl2.enums import NutShape, ScrewDriveType, ScrewHeadType
 from pybosl2.parts.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -58,7 +59,7 @@ def test_unknown_size_raises() -> None:
 
 
 def test_socket_head_dims() -> None:
-    info = Screws.screw_info("M6", head="socket", drive="hex")
+    info = Screws.screw_info("M6", head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX)
     assert info["head_size"] == 10  # ISO 4762 head diameter
     assert info["head_height"] == 6.0  # socket head height == nominal diameter
     assert info["drive_size"] == 5  # hex key across-flats
@@ -66,13 +67,13 @@ def test_socket_head_dims() -> None:
 
 
 def test_hex_head_dims() -> None:
-    info = Screws.screw_info("M8", head="hex")
+    info = Screws.screw_info("M8", head=ScrewHeadType.HEX)
     assert info["head_size"] == 13  # across-flats
     assert info["head_height"] == 5.3
 
 
 def test_button_head_dims() -> None:
-    info = Screws.screw_info("M6", head="button", drive="hex")
+    info = Screws.screw_info("M6", head=ScrewHeadType.BUTTON, drive=ScrewDriveType.HEX)
     assert info["head_size"] == 10.5
     assert info["head_height"] == 3.3
     assert info["drive_size"] == 4
@@ -80,13 +81,13 @@ def test_button_head_dims() -> None:
 
 
 def test_pan_head_dims() -> None:
-    info = Screws.screw_info("M5", head="pan")
+    info = Screws.screw_info("M5", head=ScrewHeadType.PAN)
     assert info["head_size"] == 9.5
     assert info["head_height"] == 3.8
 
 
 def test_flat_head_dims_and_angle() -> None:
-    info = Screws.screw_info("M6", head="flat")
+    info = Screws.screw_info("M6", head=ScrewHeadType.FLAT)
     assert info["head_size"] == 11.085  # actual (mean) diameter, ISO 10642/7046
     assert info["head_size_sharp"] == 12.6  # theoretical sharp diameter
     assert info["head_angle"] == 90.0
@@ -95,7 +96,7 @@ def test_flat_head_dims_and_angle() -> None:
 
 
 def test_setscrew_drive() -> None:
-    info = Screws.screw_info("M6", head="none", drive="hex")
+    info = Screws.screw_info("M6", head=ScrewHeadType.NONE, drive=ScrewDriveType.HEX)
     assert info["head"] == "none"
     assert info["head_size"] is None
     assert info["drive_size"] == 3  # hex key
@@ -104,13 +105,13 @@ def test_setscrew_drive() -> None:
 
 def test_head_table_nearest_size_fallback() -> None:
     # M7 has a thread pitch but no tabulated button head -> nearest head size (M6/M8) is used.
-    info = Screws.screw_info("M7", head="button")
+    info = Screws.screw_info("M7", head=ScrewHeadType.BUTTON)
     assert info["head_size"] in (10.5, 14)  # M6 or M8 button diameter
 
 
 def test_unknown_thread_size_raises() -> None:
     with pytest.raises(ValueError, match="Unknown metric screw size"):
-        Screws.screw_info(6.1, head="socket")
+        Screws.screw_info(6.1, head=ScrewHeadType.SOCKET)
 
 
 def test_unknown_head_raises() -> None:
@@ -144,9 +145,23 @@ def test_nut_thin_falls_back_when_undefined() -> None:
 # -- builders all return solids -----------------------------------------------------------
 
 
-@pytest.mark.parametrize("head", ["socket", "hex", "button", "pan", "flat", "none"])
-def test_screw_builds(head: str) -> None:
-    drive = "hex" if head in ("socket", "button", "none") else "none"
+@pytest.mark.parametrize(
+    "head",
+    [
+        ScrewHeadType.SOCKET,
+        ScrewHeadType.HEX,
+        ScrewHeadType.BUTTON,
+        ScrewHeadType.PAN,
+        ScrewHeadType.FLAT,
+        ScrewHeadType.NONE,
+    ],
+)
+def test_screw_builds(head: ScrewHeadType) -> None:
+    drive = (
+        ScrewDriveType.HEX
+        if head in (ScrewHeadType.SOCKET, ScrewHeadType.BUTTON, ScrewHeadType.NONE)
+        else ScrewDriveType.NONE
+    )
     assert isinstance(Screws.screw("M6", 20, head=head, drive=drive, fn=8), Bosl2Solid)
 
 
@@ -155,8 +170,8 @@ def test_screw_unthreaded_and_partly_threaded() -> None:
     assert isinstance(Screws.screw("M6", 20, thread_len=8, fn=8), Bosl2Solid)
 
 
-@pytest.mark.parametrize("shape", ["hex", "square"])
-def test_nut_builds(shape: str) -> None:
+@pytest.mark.parametrize("shape", [NutShape.HEX, NutShape.SQUARE])
+def test_nut_builds(shape: NutShape) -> None:
     assert isinstance(Screws.nut("M6", shape=shape, fn=8), Bosl2Solid)
 
 
@@ -165,8 +180,16 @@ def test_nut_thickness_classes_build() -> None:
         assert isinstance(Screws.nut("M6", thickness=t, fn=8), Bosl2Solid)
 
 
-@pytest.mark.parametrize(("head", "counterbore"), [("none", 0), ("socket", 4), ("flat", 0), ("hex", 3)])
-def test_screw_hole_builds(head: str, counterbore: int) -> None:
+@pytest.mark.parametrize(
+    ("head", "counterbore"),
+    [
+        (ScrewHeadType.NONE, 0),
+        (ScrewHeadType.SOCKET, 4),
+        (ScrewHeadType.FLAT, 0),
+        (ScrewHeadType.HEX, 3),
+    ],
+)
+def test_screw_hole_builds(head: ScrewHeadType, counterbore: int) -> None:
     assert isinstance(
         Screws.screw_hole("M6", 20, head=head, counterbore=counterbore, fn=8),
         Bosl2Solid,

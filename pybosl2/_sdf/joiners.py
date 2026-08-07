@@ -25,6 +25,7 @@ from pybosl2._sdf.paths import (
 )
 from pybosl2._sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
 from pybosl2.constants import UP
+from pybosl2.enums import Gender
 
 if TYPE_CHECKING:
     from pybosl2._sdf.shapes3d import PyShape
@@ -160,7 +161,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     joiners.scad's rabbit_clip (same path construction, bezier smoothing, and attachable
     anchoring; the "double" type isn't ported since nothing here uses it).
     """
-    assert type in ("pin", "male", "socket", "female"), f"unsupported rabbit_clip type {type!r}"
+    assert type in ("pin", Gender.MALE, "socket", Gender.FEMALE), f"unsupported rabbit_clip type {type!r}"
     is_pin = type in ("pin", "male")
     extra = 0.02
     clearance = 0 if is_pin else clearance

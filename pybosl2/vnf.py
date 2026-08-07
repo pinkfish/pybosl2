@@ -27,13 +27,13 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
 from pybosl2.bounds import Bounds2D, Bounds3D
+from pybosl2.enums import SamplingType, SkinMethod, VNFStyle
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -674,19 +674,7 @@ def _fan_triangles(faces: Sequence[Sequence[int]]) -> NDArray[np.intp]:
     return np.asarray(tris, dtype=np.intp) if tris else np.empty((0, 3), dtype=np.intp)
 
 
-class VnfStyle(str, Enum):
-    """Triangulation style for :meth:`VNF.vertex_array`."""
-
-    DEFAULT = "default"
-    ALT = "alt"
-    MIN_EDGE = "min_edge"
-    MIN_AREA = "min_area"
-    CONVEX = "convex"
-    CONCAVE = "concave"
-    QUINCUNX = "quincunx"
-    QUAD = "quad"
-    FLIP1 = "flip1"
-    FLIP2 = "flip2"
+VnfStyle = VNFStyle
 
 
 class VNF:
@@ -964,7 +952,7 @@ class VNF:
         col_wrap: bool = False,
         row_wrap: bool = False,
         reverse: bool = False,
-        style: str | VnfStyle = "default",
+        style: VNFStyle | VnfStyle = VNFStyle.DEFAULT,
     ) -> "VNF":
         """Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).
 
@@ -986,18 +974,6 @@ class VNF:
             style: Triangulation method.
 
         """
-        assert style in (
-            "default",
-            "alt",
-            "min_edge",
-            "min_area",
-            "convex",
-            "concave",
-            "quincunx",
-            "quad",
-            "flip1",
-            "flip2",
-        ), f"unknown vertex_array style: {style!r}"
         from pybosl2.caps import CapType, norm_caps
 
         cap_specs: list[CapSpec] = norm_caps(caps) if caps is not None else norm_caps(CapType.NONE)
@@ -1042,7 +1018,7 @@ class VNF:
         i4 = (cell_r % rows) * cols + ((cell_c + 1) % cols)
 
         verts = parr.tolist()
-        if style == "quincunx":
+        if style == VNFStyle.QUINCUNX:
             centres = (parr[i1] + parr[i2] + parr[i3] + parr[i4]) / 4.0
             verts.extend(centres.tolist())
 
@@ -1087,7 +1063,7 @@ class VNF:
 
     @staticmethod
     def _cell_faces(
-        style: str,
+        style: VNFStyle,
         parr: NDArray[np.float64],
         i1: NDArray[np.intp],
         i2: NDArray[np.intp],
@@ -1122,9 +1098,9 @@ class VNF:
 
         """
         p1, p2, p3, p4 = parr[i1], parr[i2], parr[i3], parr[i4]
-        if style == "quad":
+        if style == VNFStyle.QUAD:
             return np.stack([np.stack([i1, i2, i3, i4], axis=1)], axis=1)
-        if style == "quincunx":
+        if style == VNFStyle.QUINCUNX:
             i5 = pcnt + cell_r * colcnt + cell_c
             return np.stack(
                 [
@@ -1138,28 +1114,28 @@ class VNF:
 
         alt = np.stack([np.stack([i1, i4, i2], axis=1), np.stack([i2, i4, i3], axis=1)], axis=1)
         default = np.stack([np.stack([i1, i3, i2], axis=1), np.stack([i1, i4, i3], axis=1)], axis=1)
-        if style == "min_area":
+        if style == VNFStyle.MIN_AREA:
             area42 = _norms(np.cross(p2 - p1, p4 - p1)) + _norms(np.cross(p4 - p3, p2 - p3))
             area13 = _norms(np.cross(p1 - p4, p3 - p4)) + _norms(np.cross(p3 - p2, p1 - p2))
             use_alt = area42 < area13 + _EPS
-        elif style == "min_edge":
+        elif style == VNFStyle.MIN_EDGE:
             use_alt = _norms(p4 - p2) < _norms(p1 - p3) + _EPS
-        elif style in ("convex", "concave"):
+        elif style in (VNFStyle.CONVEX, VNFStyle.CONCAVE):
             sides = (-1 if reverse else 1) * np.cross(p2 - p1, p3 - p1)
             dot4 = np.einsum("ij,ij->i", sides, p4)
             dot1 = np.einsum("ij,ij->i", sides, p1)
-            use_alt = dot4 > dot1 if style == "convex" else dot4 <= dot1
+            use_alt = dot4 > dot1 if style == VNFStyle.CONVEX else dot4 <= dot1
             flat = ~np.any(sides, axis=1)  # a cell with no normal collapses to one triangle
             if flat.any():
                 cells = np.where(use_alt[:, None, None], alt, default)
                 cells[flat, 0] = np.stack([i1, i4, i3], axis=1)[flat]
                 cells[flat, 1] = i1[flat][:, None]  # a single repeated corner: dropped as degenerate
                 return cells
-        elif style == "alt":
+        elif style == VNFStyle.ALT:
             use_alt = np.ones(len(i1), dtype=bool)
-        elif style == "flip1":
+        elif style == VNFStyle.FLIP1:
             use_alt = (cell_r + cell_c) % 2 == 0
-        elif style == "flip2":
+        elif style == VNFStyle.FLIP2:
             use_alt = (cell_r + cell_c) % 2 == 1
         else:  # default
             use_alt = np.zeros(len(i1), dtype=bool)
@@ -1517,11 +1493,11 @@ class VNF:
         profiles: Sequence[Sequence[Sequence[float]]],
         slices: int,
         refine: float = 1.0,
-        method: str = "direct",
-        sampling: str | None = None,
+        method: SkinMethod = SkinMethod.DIRECT,
+        sampling: SamplingType | None = None,
         caps: "CapsSpec" = "butt",
         closed: bool = False,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
         z: Sequence[float] | None = None,
     ) -> "VNF | Bosl2Solid":
         """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.

@@ -61,6 +61,7 @@ import numpy as np
 
 from pybosl2.caps import CapsSpec, CapType
 from pybosl2.constants import UP
+from pybosl2.enums import SweepMethod, VNFStyle
 from pybosl2.math import EPSILON, lerp, lerpn
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
@@ -642,7 +643,7 @@ class Bezier:
         shape: Path,
         splinesteps: int = 16,
         n_degree: int | None = None,
-        method: str = "incremental",
+        method: SweepMethod = SweepMethod.INCREMENTAL,
         endpoint: bool = True,
         normal: Point | None = None,
         closed: bool = False,
@@ -653,7 +654,7 @@ class Bezier:
         symmetry: int = 1,
         last_normal: Point | None = None,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
         transforms: bool = False,
     ) -> VNF | Bosl2Solid:
         """Sweep the 2-D *shape* along this bezier curve or path into a VNF.
@@ -1296,7 +1297,7 @@ class BezierPatch:
 
     # -- meshing ---------------------------------------------------------------------------
 
-    def vnf(self, splinesteps: int = 16, style: str = "default") -> VNF:
+    def vnf(self, splinesteps: int = 16, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
         """Mesh this patch into a :class:`~pybosl2.vnf.VNF`.
 
         Samples the patch at *splinesteps* intervals in both *u* and *v*
@@ -1326,7 +1327,11 @@ class BezierPatch:
         return VNF.vertex_array(self.points(uvals, vvals), style=style, reverse=False)
 
     @staticmethod
-    def to_vnf(patches: np.ndarray | Sequence[np.ndarray], splinesteps: int = 16, style: str = "default") -> VNF:
+    def to_vnf(
+        patches: np.ndarray | Sequence[np.ndarray],
+        splinesteps: int = 16,
+        style: VNFStyle = VNFStyle.DEFAULT,
+    ) -> VNF:
         """Convert one or more patches into a single VNF (BOSL2 bezier_vnf).
 
         Accepts either a single patch (2-D control-point array) or a list
@@ -1401,7 +1406,7 @@ class BezierPatch:
         m = (xform @ base).tolist()
         return BezierPatch([_apply(m, row) for row in patch])  # type: ignore[arg-type]
 
-    def sheet(self, delta: float, splinesteps: int = 16, style: str = "default") -> VNF:
+    def sheet(self, delta: float, splinesteps: int = 16, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
         """Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).
 
         Creates a solid by meshing two copies of the patch offset in opposite
@@ -1568,7 +1573,7 @@ class BezierPatch:
         showdots: bool = False,
         showpatch: bool = True,
         size: float | None = None,
-        style: str = "default",
+        style: VNFStyle = VNFStyle.DEFAULT,
     ) -> Bosl2Solid:
         """Visualize this patch as native geometry (BOSL2 debug_bezier_patches).
 
@@ -1639,7 +1644,7 @@ def debug_bezier_patches(
     showcps: bool = True,
     showdots: bool = False,
     showpatch: bool = True,
-    style: str = "default",
+    style: VNFStyle = VNFStyle.DEFAULT,
 ) -> Bosl2Solid:
     """Native geometry showing bezier patches: surfaces, control points and control-net lines.
 

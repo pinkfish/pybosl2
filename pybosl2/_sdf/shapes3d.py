@@ -50,6 +50,7 @@ from pybosl2._sdf.paths import (
     as_points,
 )
 from pybosl2.distributors import Distributable
+from pybosl2.enums import EdgeMode
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -113,7 +114,11 @@ def _rounded_box_sdf(x: LVTree, y: LVTree, z: LVTree, size: list[float], r: floa
     return outside + inside - r
 
 
-def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str) -> tuple[list[list[float]], list[list[str]]]:
+def _edge_matrices(
+    amount: float,
+    edge_set: list[list[int]],
+    mode: EdgeMode,
+) -> tuple[list[list[float]], list[list[EdgeMode]]]:
     """Return the per-edge treatment state for a single (amount, edge_set, mode) selection.
 
     The 3x4 amounts/modes matrices _cuboid_edge_sdf() consumes (EDGE_OFFSETS row/column order).
@@ -124,7 +129,7 @@ def _edge_matrices(amount: float, edge_set: list[list[int]], mode: str) -> tuple
 
 
 def _cuboid_edge_sdf(
-    x: LVTree, y: LVTree, z: LVTree, size: list[float], amounts: list[list[float]], modes: list[list[str]]
+    x: LVTree, y: LVTree, z: LVTree, size: list[float], amounts: list[list[float]], modes: list[list[EdgeMode]]
 ) -> LVTree:
     """Return the cuboid SDF with independent per-edge treatment.
 
@@ -134,7 +139,7 @@ def _cuboid_edge_sdf(
     sets coincident along every untreated face, which libfive's mesher refines to the bitter
     end (a plain box ballooned to ~1M triangles and minutes of meshing).
     """
-    if all(m == "round" for row in modes for m in row) and len({a for row in amounts for a in row}) == 1:
+    if all(m == EdgeMode.ROUND for row in modes for m in row) and len({a for row in amounts for a in row}) == 1:
         # Uniform treatment (including the plain r=0 box): the exact closed-form SDF.
         return _rounded_box_sdf(x, y, z, size, amounts[0][0])
 
@@ -199,7 +204,7 @@ class SdfSolid(Distributable):
         cuboid_size: Sequence[float] | None = None,
         cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
         cuboid_edge_amounts: list[list[float]] | None = None,
-        cuboid_edge_modes: list[list[str]] | None = None,
+        cuboid_edge_modes: list[list[EdgeMode]] | None = None,
     ) -> None:
         self._sdf_fn = sdf_fn
         self.mn = list(mn)
@@ -213,6 +218,7 @@ class SdfSolid(Distributable):
         self.cuboid_edge_amounts = [row[:] for row in cuboid_edge_amounts] if cuboid_edge_amounts is not None else None
         self.cuboid_edge_modes = [row[:] for row in cuboid_edge_modes] if cuboid_edge_modes is not None else None
         self._mesh_cache = None
+        self._baked_cache = None
 
     def _wrap(
         self,
@@ -222,7 +228,7 @@ class SdfSolid(Distributable):
         cuboid_size: Sequence[float] | None = None,
         cuboid_center: Sequence[float] = (0.0, 0.0, 0.0),
         cuboid_edge_amounts: list[list[float]] | None = None,
-        cuboid_edge_modes: list[list[str]] | None = None,
+        cuboid_edge_modes: list[list[EdgeMode]] | None = None,
     ) -> PyShape:
         return PyShape(
             sdf_fn,
@@ -267,7 +273,38 @@ class SdfSolid(Distributable):
             self._mesh_cache = native("frep")(self.sdf(), mn, mx, self.res)
         return self._mesh_cache
 
+    def _baked(self) -> Any:
+        """Return this SDF's mesh as a plain polyhedron -- an ordinary solid, not an frep handle.
+
+        frep() hands back a handle that still carries the libfive field, and PythonSCAD only
+        supports rendering that handle: reading its bounding box (``obj.position``/``obj.size``,
+        what :meth:`~pybosl2.shapes3d.Bosl2Solid.bounds` and every bbox anchor need) corrupts it,
+        so the next render segfaults the app -- exit -11, empty stderr, no geometry. Reading the
+        vertices/faces out and rebuilding them as a polyhedron is safe and exact (the same
+        triangles libfive produced), and the result behaves like any other CSG solid: measurable,
+        unionable, reusable. Cached alongside :meth:`mesh`, so the field is meshed only once.
+
+        Falls back to the frep handle itself when the mesh has no faces to rebuild from -- an
+        empty field, or the numeric test mock, whose ``mesh()`` returns points only.
+        """
+        if self._baked_cache is None:
+            handle = self.mesh()
+            verts, faces = handle.mesh()
+            # polyhedron() winds its faces the opposite way round from the mesh() output; handing
+            # them over as-is builds the solid inside out (see VNF.polyhedron()).
+            self._baked_cache = (
+                native("polyhedron")(points=verts, faces=[list(f)[::-1] for f in faces], convexity=10)
+                if verts and faces
+                else handle
+            )
+        return self._baked_cache
+
     def __getattr__(self, name: str) -> Any:
+        # A private name is this class's own bookkeeping, probed by copy/pickle/hasattr: answer
+        # the miss here rather than meshing the field (libfive) -- and rather than asking the
+        # frep() handle, whose attribute lookup segfaults PythonSCAD on an unknown name.
+        if name.startswith("_"):
+            raise AttributeError(name)
         # A CSG-only feature (attachment/anchoring) on the SDF backend raises a clear error rather
         # than meshing (libfive) just to fail with a confusing AttributeError.
         if not (name.startswith("__") and name.endswith("__")):
@@ -441,10 +478,15 @@ class SdfSolid(Distributable):
         Exact -- the meshed surface IS the field's zero set. This is the supported bridge for mixing
         an SDF shape into CSG booleans (``csg_solid | sdf_solid.to_csg()``). Needs libfive at call
         time (like any SDF meshing).
+
+        The mesh is rebuilt as a polyhedron on the way over so what lands in the CSG world is an
+        ordinary solid: one that can be measured (bounding box, bbox anchoring), combined, and
+        used more than once. Handing the frep handle straight over cannot do any of that --
+        measuring it corrupts it and the render then segfaults.
         """
         from pybosl2.shapes3d import Bosl2Solid
 
-        return Bosl2Solid(self.mesh())
+        return Bosl2Solid(self._baked())
 
     def __or__(self, other: PyShape) -> PyShape:
         _check_operand_backend("sdf", other)
@@ -546,7 +588,7 @@ class SdfSolid(Distributable):
 
     # ---- cuboid-only edge treatments ----
 
-    def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: str) -> PyShape:
+    def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: EdgeMode) -> PyShape:
         assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pybosl2._sdf.cuboid())"
         assert self.cuboid_edge_amounts is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
@@ -581,13 +623,13 @@ class SdfSolid(Distributable):
         self, radius: float, edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL, except_edges: list[EdgeAtom] | None = None
     ) -> PyShape:
         """Round the selected edges by `radius`, in addition to any existing edge treatment."""
-        return self._edge_treat(radius, edges, except_edges, "round")
+        return self._edge_treat(radius, edges, except_edges, EdgeMode.ROUND)
 
     def chamfer(
         self, size: float, edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL, except_edges: list[EdgeAtom] | None = None
     ) -> PyShape:
         """Chamfer the selected edges by `size`, in addition to any existing edge treatment."""
-        return self._edge_treat(size, edges, except_edges, "chamfer")
+        return self._edge_treat(size, edges, except_edges, EdgeMode.CHAMFER)
 
     # -- hull / projection: the counterparts of Bosl2Solid's, on the SDF side ------------------
 
@@ -899,7 +941,7 @@ def cuboid(
         if offset[0] or offset[1] or offset[2]:
             shape = shape.translate(offset)
         return shape
-    mode = "chamfer" if chamfer else "round"
+    mode = EdgeMode.CHAMFER if chamfer else EdgeMode.ROUND
     amount = chamfer if chamfer else rounding
     amounts, modes = _edge_matrices(amount, edge_set, mode)
     sdf_fn = lambda x, y, z: _cuboid_edge_sdf(x, y, z, sz, amounts, modes)  # noqa: E731
@@ -1151,7 +1193,14 @@ def _cylinder_sdf(
 
 
 def _cyl_edge_sdf(
-    axial: LVTree, radial: LVTree, h: float, radius1: float, radius2: float, amt1: float, amt2: float, mode: str
+    axial: LVTree,
+    radial: LVTree,
+    h: float,
+    radius1: float,
+    radius2: float,
+    amt1: float,
+    amt2: float,
+    mode: EdgeMode,
 ) -> LVTree:
     """Return _cylinder_sdf() plus independent rounding/chamfer treatment of the bottom and top rims.
 
@@ -1163,12 +1212,12 @@ def _cyl_edge_sdf(
     wall = _wall_line_sdf(radial, axial, radius1, radius2, hb)
     candidates = []
     for sz, r_ref, a in ((-1, radius1, amt1), (1, radius2, amt2)):
-        if mode == "round":
+        if mode == EdgeMode.ROUND:
             qu = radial - r_ref + a
             qv = lv.abs(axial) - hb + a
             base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
         else:
-            assert mode == "chamfer"
+            assert mode == EdgeMode.CHAMFER
             qu = radial - r_ref
             qv = lv.abs(axial) - hb
             base = lv.max(lv.max(qu, qv), (qu + qv + a) / _SQRT2)
@@ -1256,7 +1305,7 @@ def cyl(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
-    mode, amt1, amt2 = ("chamfer", c1v, c2v) if (c1v or c2v) else ("round", r1v, r2v)
+    mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     if shift is not None and (shift[0] or shift[1]):
         assert not amt1, "shift= cannot be combined with rounding/chamfer"
@@ -1306,7 +1355,7 @@ def _cyl_axis(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
-    mode, amt1, amt2 = ("chamfer", c1v, c2v) if (c1v or c2v) else ("round", r1v, r2v)
+    mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         coords = [x, y, z]
@@ -1645,8 +1694,8 @@ def rect_tube(
         isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
     irounding_v = inner_rounding if inner_rounding is not None else rounding
     edge_set_z = resolve_edges(Anchor.Z, [])
-    o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, "round")
-    i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, "round")
+    o_amounts, o_modes = _edge_matrices(rounding, edge_set_z, EdgeMode.ROUND)
+    i_amounts, i_modes = _edge_matrices(irounding_v, edge_set_z, EdgeMode.ROUND)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         outer = _cuboid_edge_sdf(x, y, z, [sz[0], sz[1], length], o_amounts, o_modes)

@@ -309,6 +309,10 @@ class Turtle2D:
             self._state = replace(self._state, arcsteps=int(self._n(cmd.size)))
         elif ct in (TurtleCommandType.ARCLEFT, TurtleCommandType.ARCRIGHT):
             self._arc(cmd, False, index)
+        elif ct in (TurtleCommandType.ARCLEFTTO, TurtleCommandType.ARCRIGHTTO):
+            # The "...to" pair arcs until the heading reaches cmd.angle as an ABSOLUTE
+            # direction, rather than turning by it.
+            self._arc(cmd, True, index)
         elif ct == TurtleCommandType.ARCZROT:
             self._arczrot(cmd, index)
         else:
@@ -360,7 +364,7 @@ class Turtle2D:
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
-        lrsign = 1 if cmd.cmd_type == TurtleCommandType.ARCLEFT else -1
+        lrsign = 1 if cmd.cmd_type in (TurtleCommandType.ARCLEFT, TurtleCommandType.ARCLEFTTO) else -1
         steps = _frag_count(abs(radius_val)) if self._state.arcsteps == 0 else int(self._state.arcsteps)
 
         if not absolute_angle:

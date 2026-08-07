@@ -34,6 +34,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+from pybosl2.enums import NutShape, ScrewDriveType, ScrewHeadType
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = [
@@ -354,9 +355,9 @@ class Screws:
     @staticmethod
     def screw_info(
         spec: str | dict[str, float] | float,
-        head: str = "socket",
+        head: ScrewHeadType = ScrewHeadType.SOCKET,
         thread: str = "coarse",
-        drive: str = "none",
+        drive: ScrewDriveType = ScrewDriveType.NONE,
         pitch: float | None = None,
     ) -> dict[str, Any]:
         """Resolve a screw specification to a dict of dimensions.
@@ -375,30 +376,30 @@ class Screws:
             "drive_depth": None,
         }
 
-        if head in (None, "none"):
-            info["head"] = "none"
+        if head in (None, ScrewHeadType.NONE):
+            info["head"] = ScrewHeadType.NONE
             info["head_size"] = None
             info["head_height"] = 0.0
-            if drive == "hex":
+            if drive == ScrewDriveType.HEX:
                 info["drive_size"] = _closest(_SETSCREW, d)
                 info["drive_depth"] = d / 2
-        elif head == "hex":
+        elif head == ScrewHeadType.HEX:
             spec_h: HexHead = _closest(_HEX_HEAD, d)
             info["head_size"], info["head_height"] = spec_h.width, spec_h.height
-        elif head in ("socket", "socket ribbed"):
+        elif head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
             spec_s: SocketHead = _closest(_SOCKET_HEAD, d)
             info["head_size"], info["head_height"] = spec_s.head_d, d
-            if drive == "hex":
+            if drive == ScrewDriveType.HEX:
                 info["drive_size"], info["drive_depth"] = spec_s.hex_drive, d / 2
-        elif head == "button":
+        elif head == ScrewHeadType.BUTTON:
             spec_b: ButtonHead = _closest(_BUTTON_HEAD, d)
             info["head_size"], info["head_height"] = spec_b.head_d, spec_b.height
-            if drive == "hex":
+            if drive == ScrewDriveType.HEX:
                 info["drive_size"], info["drive_depth"] = spec_b.hex_drive, spec_b.hex_depth
-        elif head in ("pan", "round"):
+        elif head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
             spec_p: PanHead = _closest(_PAN_HEAD, d)
             info["head_size"], info["head_height"] = spec_p.head_d, spec_p.height
-        elif head == "flat":
+        elif head == ScrewHeadType.FLAT:
             spec_f: FlatHead = _closest(_FLAT_HEAD, d)
             info["head_size"] = spec_f.actual_d
             info["head_size_sharp"] = spec_f.sharp_d
@@ -414,8 +415,8 @@ class Screws:
     def screw(
         spec: str | dict[str, float] | float,
         length: float,
-        head: str = "socket",
-        drive: str = "none",
+        head: ScrewHeadType = ScrewHeadType.SOCKET,
+        drive: ScrewDriveType = ScrewDriveType.NONE,
         thread: str = "coarse",
         thread_len: float | None = None,
         pitch: float | None = None,
@@ -434,7 +435,7 @@ class Screws:
             .. pythonscad-example::
 
                 from pybosl2.parts.screws import Screws
-                Screws.screw("M6", length=20, head="socket", drive="hex").show()
+                Screws.screw("M6", length=20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX).show()
 
         """
         info = Screws.screw_info(
@@ -482,20 +483,20 @@ class Screws:
     ) -> Bosl2Solid | None:
         """Build the screw head from resolved dimensions."""
         head = info["head"]
-        if head in (None, "none"):
+        if head in (None, ScrewHeadType.NONE):
             return None
         hh = info["head_height"]
         hs = info["head_size"]
-        if head == "hex":
+        if head == ScrewHeadType.HEX:
             return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head in ("socket", "socket ribbed"):
+        if head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
             return cyl(diameter=hs, height=hh, chamfer2=hs / 20, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head == "button":
+        if head == ScrewHeadType.BUTTON:
             rnd = min(hh * 0.9, hs / 2 * 0.9)
             return cyl(diameter=hs, height=hh, rounding2=rnd, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head in ("pan", "round"):
+        if head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
             return cyl(diameter=hs, height=hh, rounding2=0.2 * hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
-        if head == "flat":
+        if head == ScrewHeadType.FLAT:
             # 90-degree countersunk cone: shaft diameter at the bottom, head diameter at the surface.
             return cyl(
                 diameter1=info["diameter"],
@@ -519,12 +520,12 @@ class Screws:
         drive = info.get("drive")
         size = info.get("drive_size")
         depth = info.get("drive_depth")
-        if drive in (None, "none") or not size or not depth:
+        if drive in (None, ScrewDriveType.NONE) or not size or not depth:
             return None
         eps = 0.02
-        if drive == "hex":
+        if drive == ScrewDriveType.HEX:
             rec = regular_prism(6, height=depth + eps, inner_diameter=size, fn=fn, fa=fa, fs=fs)
-        elif drive == "slot":
+        elif drive == ScrewDriveType.SLOT:
             width = size if size else max(0.6, info["diameter"] / 6)
             length = (info["head_size"] or info["diameter"]) + 2
             rec = cuboid([length, width, depth + eps], fn=fn, fa=fa, fs=fs)
@@ -539,7 +540,7 @@ class Screws:
     def nut(
         spec: str | dict[str, float] | float,
         thickness: float | str = "normal",
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         thread: str = "coarse",
         nutwidth: float | None = None,
         slop: float = 0.0,
@@ -574,7 +575,7 @@ class Screws:
     def screw_hole(
         spec: str | dict[str, float] | float,
         length: float,
-        head: str = "none",
+        head: ScrewHeadType = ScrewHeadType.NONE,
         counterbore: float = 0.0,
         fit: str = "normal",
         thread: str = "none",
@@ -598,7 +599,8 @@ class Screws:
 
                 from pybosl2.parts.screws import Screws
                 from pybosl2 import shapes3d as s3
-                (s3.cuboid([20, 20, 10]) - Screws.screw_hole("M6", length=10, head="socket", fit="normal")).show()
+                (s3.cuboid([20, 20, 10])
+                 - Screws.screw_hole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal")).show()
 
         """
         use_thread = thread and thread.lower() not in ("none", "false", "no", "")
@@ -612,8 +614,8 @@ class Screws:
             gap = _CLEARANCE.get(str(fit).lower(), 0.5)
             cutter = cyl(diameter=d + 2 * gap, height=length, fn=fn, fa=fa, fs=fs).down(length / 2)
 
-        if head == "flat":
-            info = Screws.screw_info(spec, head="flat", pitch=pitch)
+        if head == ScrewHeadType.FLAT:
+            info = Screws.screw_info(spec, head=ScrewHeadType.FLAT, pitch=pitch)
             hs = info["head_size"]
             csk_h = (hs - d) / 2
             csink = cyl(
@@ -626,9 +628,13 @@ class Screws:
             ).up((csk_h + 0.02) / 2 - 0.01)
             cutter = cutter | csink
         elif counterbore and counterbore > 0:
-            info = Screws.screw_info(spec, head=head if head not in (None, "none") else "socket", pitch=pitch)
-            hd = info["head_size"] if head == "hex" else (info["head_size"] or 2 * d)
-            if head == "hex":
+            info = Screws.screw_info(
+                spec,
+                head=head if head not in (None, ScrewHeadType.NONE) else ScrewHeadType.SOCKET,
+                pitch=pitch,
+            )
+            hd = info["head_size"] if head == ScrewHeadType.HEX else (info["head_size"] or 2 * d)
+            if head == ScrewHeadType.HEX:
                 hd = 2 * hd / math.sqrt(3)  # across-corners for a hex head pocket
             cb = cyl(diameter=hd, height=counterbore + 0.02, fn=fn, fa=fa, fs=fs).up((counterbore + 0.02) / 2 - 0.01)
             cutter = cutter | cb

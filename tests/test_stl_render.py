@@ -1771,3 +1771,53 @@ def test_sdf_backend_real_render(tmp_path):
     m = _render(tmp_path, "build_shape()", setup=setup, name="sdf_backend_real_render")
     assert m.watertight
     assert m.volume > 0
+
+
+def test_sdf_to_csg_survives_measuring_and_reuse(tmp_path):
+    # Regression: to_csg() used to hand the raw frep() handle to Bosl2Solid. Measuring that handle
+    # (obj.position/obj.size, which bounds() and every bbox anchor read) corrupts it inside
+    # PythonSCAD, and the render then dies with SIGSEGV and an empty stderr -- so the whole part
+    # silently produced nothing. Everything below has to survive on one bridged solid: repeated
+    # bounds(), anchoring, a union with a native solid, a transform, and a second .to_csg().
+    setup = (
+        "from pybosl2.solid import cuboid, use_backend\n"
+        "from pybosl2 import shapes3d as s3\n"
+        "from pybosl2 import Anchor\n"
+        "def build_shape():\n"
+        "    with use_backend('sdf'):\n"
+        "        field = cuboid([20, 20, 20], rounding=3, res=10)\n"
+        "    part = field.to_csg()\n"
+        "    assert part.bounds() == part.bounds(), 'bounds() is not repeatable'\n"
+        "    assert part.anchor_point(Anchor.TOP)[2] > 9\n"
+        "    combined = s3.cuboid([60, 8, 8]) | part\n"
+        "    assert combined.bounds()[1][0] > 59\n"
+        "    return combined | field.to_csg().translate([0, 0, 30])\n"
+    )
+    m = _render(tmp_path, "build_shape()", setup=setup, name="sdf_to_csg_reuse")
+    assert m.watertight
+    assert m.volume > 0
+    np.testing.assert_allclose(m.bbmin, [-30, -10, -10], atol=0.1)
+    np.testing.assert_allclose(m.bbmax, [30, 10, 40], atol=0.1)
+
+
+def test_sdf_to_csg_matches_the_field_it_was_meshed_from(tmp_path):
+    # The bridge rebuilds libfive's mesh as a polyhedron; it must come out the same solid (same
+    # bbox, same volume, right way out) as rendering the field directly -- an inside-out polyhedron
+    # still looks right alone but inverts every boolean it takes part in.
+    setup = (
+        "from pybosl2.solid import cuboid, use_backend\n"
+        "def field():\n"
+        "    with use_backend('sdf'):\n"
+        "        return cuboid([20, 20, 20], rounding=3, res=10)\n"
+    )
+    direct = _render(tmp_path, "field()", setup=setup, name="sdf_field_direct")
+    bridged = _render(tmp_path, "field().to_csg()", setup=setup, name="sdf_field_bridged")
+    np.testing.assert_allclose(bridged.size, direct.size, atol=1e-3)
+    assert math.isclose(bridged.volume, direct.volume, rel_tol=1e-6)
+    assert bridged.watertight
+    # A cube with the field's corner left in it: an inverted mesh would union to the bare cube.
+    setup_cut = setup + (
+        "from pybosl2 import shapes3d as s3\ndef cut():\n    return s3.cuboid([30, 30, 30]) - field().to_csg()\n"
+    )
+    cut = _render(tmp_path, "cut()", setup=setup_cut, name="sdf_field_cut")
+    assert math.isclose(cut.volume, 27000 - direct.volume, rel_tol=1e-3)

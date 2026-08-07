@@ -30,6 +30,7 @@ from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
+from pybosl2.enums import VNFStyle
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.shapes3d.base import (
@@ -319,7 +320,7 @@ def heightfield(
     maxz: float = 99,
     xrange: Sequence[float] = [-1, 0.04, 1],
     yrange: Sequence[float] = [-1, 0.04, 1],
-    style: str = "default",
+    style: VNFStyle = VNFStyle.DEFAULT,
     convexity: int = 10,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -431,7 +432,7 @@ def cylindrical_heightfield(
     base: float = 1,
     transpose: bool = False,
     aspect: float = 1,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     convexity: int = 10,
     xrange: Sequence[float] = [-1, 0.01, 1],
     yrange: Sequence[float] = [-1, 0.01, 1],
@@ -562,7 +563,7 @@ def plot3d(
     zclip: Sequence[float] | None = None,
     zspan: Sequence[float] | None = None,
     base: float = 1,
-    style: str = "default",
+    style: VNFStyle = VNFStyle.DEFAULT,
 ) -> Bosl2Solid:
     """Return a surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values (BOSL2 plot3d()).
 
@@ -626,7 +627,7 @@ def plot_revolution(
     rclip: Sequence[float] | None = None,
     rspan: Sequence[float] | None = None,
     horiz: bool = False,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> Bosl2Solid:
     """Return a surface of revolution whose radius is modulated by ``radius = f(angle, z)`` (BOSL2 plot_revolution()).
 
@@ -787,7 +788,7 @@ def textured_tile(
     tex_size: Any = None,
     tex_depth: float = 1,
     tex_inset: Any = False,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     sides: Any = None,
     border: Any = None,
     gap: float | None = None,

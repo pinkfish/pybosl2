@@ -40,6 +40,7 @@ from pybosl2._sdf.paths import (
     supershape_path as _supershape_path,
 )
 from pybosl2._sdf.shapes3d import PyShape
+from pybosl2.enums import EdgeMode
 
 # ---------------------------------------------------------------------------
 # Section: 2-D shapes (PyShape2D) -- symbolic 2-D SDFs that extrude into PyShapes
@@ -407,7 +408,7 @@ def rect2d(  # type: ignore[no-untyped-def]
     has_rounding = (rounding != 0) if isinstance(rounding, (int, float)) else any(rounding)
     has_chamfer = (chamfer != 0) if isinstance(chamfer, (int, float)) else any(chamfer)
     assert not (has_rounding and has_chamfer), "Cannot specify nonzero rounding and chamfer together"
-    mode = "chamfer" if has_chamfer else "round"
+    mode = EdgeMode.CHAMFER if has_chamfer else EdgeMode.ROUND
     amt = chamfer if has_chamfer else rounding
     per_corner = [float(amt)] * 4 if isinstance(amt, (int, float)) else [float(v) for v in amt]
     assert len(per_corner) == 4, f"per-corner treatment needs 4 values, got {per_corner}"

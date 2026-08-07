@@ -36,6 +36,7 @@ import numpy as np
 
 from pybosl2._helpers import is_num
 from pybosl2.caps import CapsSpec, CapType
+from pybosl2.enums import Measure, RoundingMethod, VNFStyle
 from pybosl2.math import EPSILON
 
 # Late imports to avoid circular dependencies
@@ -168,7 +169,7 @@ def _circlecorner(
 
 def _round_corners(
     path: Sequence[Sequence[float]],
-    method: str = "circle",
+    method: RoundingMethod = RoundingMethod.CIRCLE,
     radius: float | Sequence[float] | None = None,
     cut: float | Sequence[float] | None = None,
     joint: float | Sequence[float] | None = None,
@@ -189,11 +190,6 @@ def _round_corners(
 
     curv_val = curvature if curvature is not None else k  # `k` is BOSL2's name for curvature
 
-    assert method in (
-        "circle",
-        "smooth",
-        "chamfer",
-    ), 'method must be "circle", "smooth" or "chamfer".'
     given = [
         (m, v)
         for m, v in (
@@ -209,8 +205,8 @@ def _round_corners(
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)
     assert sides > 2, f"Path2D has length {sides}. Length must be 3 or more."
-    assert method == "circle" or measure != "radius", 'radius is allowed only with method="circle".'
-    assert method == "chamfer" or measure != "width", 'width is allowed only with method="chamfer".'
+    assert method == RoundingMethod.CIRCLE or measure != Measure.RADIUS, 'radius is allowed only with method="circle".'
+    assert method == RoundingMethod.CHAMFER or measure != Measure.WIDTH, 'width is allowed only with method="chamfer".'
 
     if is_num(size):
         parm = [float(size)] * sides  # type: ignore[arg-type]
@@ -219,10 +215,10 @@ def _round_corners(
     if curv_val is None:
         kv = [0.5] * sides
     elif curv_val is not None and is_num(curv_val):
-        assert method == "smooth", 'k is only allowed with method="smooth".'
+        assert method == RoundingMethod.SMOOTH, 'k is only allowed with method="smooth".'
         kv = [float(cast("float", curv_val))] * sides
     elif isinstance(curv_val, (list, tuple, np.ndarray)):
-        assert method == "smooth", 'k is only allowed with method="smooth".'
+        assert method == RoundingMethod.SMOOTH, 'k is only allowed with method="smooth".'
         kv = ([0.0] + [float(v) for v in curv_val] + [0.0]) if len(curv_val) < sides else [float(v) for v in curv_val]
     assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
     assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
@@ -245,23 +241,23 @@ def _round_corners(
             f"Path2D turns back on itself at index {i} with nonzero rounding."
         )
         ar = math.radians(angle)
-        if method == "chamfer":
+        if method == RoundingMethod.CHAMFER:
             dk.append(
                 [
                     (
                         parm[i]
-                        if measure == "joint"
-                        else (parm[i] / math.cos(ar) if measure == "cut" else parm[i] / math.sin(ar) / 2)
+                        if measure == Measure.JOINT
+                        else (parm[i] / math.cos(ar) if measure == Measure.CUT else parm[i] / math.sin(ar) / 2)
                     )
                 ]
             )  # width
-        elif method == "smooth":
+        elif method == RoundingMethod.SMOOTH:
             dk.append(
-                [parm[i], kv[i]] if measure == "joint" else [8 * parm[i] / math.cos(ar) / (1 + 4 * kv[i]), kv[i]]
+                [parm[i], kv[i]] if measure == Measure.JOINT else [8 * parm[i] / math.cos(ar) / (1 + 4 * kv[i]), kv[i]]
             )  # cut
-        elif measure == "radius":
+        elif measure == Measure.RADIUS:
             dk.append([parm[i] / math.tan(ar), parm[i]])
-        elif measure == "joint":
+        elif measure == Measure.JOINT:
             dk.append([parm[i], parm[i] * math.tan(ar)])
         else:  # circle + cut
             if math.isclose(angle, 90, rel_tol=0, abs_tol=EPSILON):
@@ -290,9 +286,9 @@ def _round_corners(
         corner = [pts[(i - 1) % sides], pts[i], pts[(i + 1) % sides]]
         if dk[i][0] == 0:
             out.append(pts[i])
-        elif method == "smooth":
+        elif method == RoundingMethod.SMOOTH:
             out += _bezcorner(corner, dk[i], fn=fn or 0, fs=fs or 2.0)
-        elif method == "chamfer":
+        elif method == RoundingMethod.CHAMFER:
             out += _chamfcorner(corner, dk[i])
         else:
             out += _circlecorner(corner, dk[i], fn=fn, fa=fa, fs=fs)
@@ -363,7 +359,7 @@ class Roundable:
     def round_corners(
         self,
         radius: float | None = None,
-        method: str = "circle",
+        method: RoundingMethod = RoundingMethod.CIRCLE,
         cut: float | Sequence[float] | None = None,
         joint: float | Sequence[float] | None = None,
         width: float | None = None,
@@ -495,7 +491,7 @@ class Roundable:
         top: object = None,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
         """Offset sweep/extrusion of this 2-D shape (BOSL2 offset_sweep())."""
         from pybosl2.skin import _offset_sweep as _os
@@ -517,7 +513,7 @@ class Roundable:
         top: object = None,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
         """Offset sweep/extrusion of this 2-D shape (BOSL2 convex_offset_extrude())."""
         from pybosl2.skin import _convex_offset_extrude as _coe
@@ -542,7 +538,7 @@ class Roundable:
         curvature_sides: float | list[float] | None = None,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
         joint_bot: float | dict[str, object] | None = None,
         k_sides: float | list[float] | None = None,
     ) -> object:
@@ -572,7 +568,7 @@ class Roundable:
         fillet: float = 0.0,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
         """Join this prism to a base plane with a filleted transition (BOSL2 join_prism())."""
         from pybosl2.skin import _join_prism as _jp
@@ -594,7 +590,7 @@ class Roundable:
         fillet2: float | None = None,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
         """Construct a filleted prism connecting two objects (BOSL2 prism_connector())."""
         from pybosl2.skin import _prism_connector as _pc
@@ -617,7 +613,7 @@ class Roundable:
         rounding: float = 0.0,
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
         """Attach a filleted prism with optional rounded end (BOSL2 attach_prism())."""
         from pybosl2.skin import _attach_prism as _ap
@@ -636,7 +632,7 @@ class Roundable:
         self,
         radius: float,
         thickness: float,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
         """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask())."""
         from pybosl2.skin import _bent_cutout_mask as _bcm

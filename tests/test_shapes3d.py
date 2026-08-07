@@ -238,6 +238,30 @@ def test_getattr_no_recursion_when_shape_unset() -> None:
         _ = obj.anything  # type: ignore[attr-defined]
 
 
+def test_private_names_never_reach_the_native_handle() -> None:
+    # _wrap() copies pybosl2's own bookkeeping (_attachments/_tag_name/_diff_config/
+    # _dont_propagate) with hasattr()/getattr(default), which lands in __getattr__ when unset.
+    # Those must be answered here, not forwarded: PythonSCAD segfaults (exit -11, empty stderr)
+    # when asked for an unknown attribute on a solid that came out of frep(), so forwarding kills
+    # every SDF part brought over with .to_csg() the moment it is wrapped.
+    probed: list[str] = []
+
+    class _RecordingShape:
+        def __getattr__(self, name: str) -> object:
+            probed.append(name)
+            raise AttributeError(name)
+
+        def translate(self, _v: object) -> "_RecordingShape":
+            return self
+
+    wrapper = Bosl2Solid(_RecordingShape())  # type: ignore[arg-type]
+    _ = wrapper.translate([1, 2, 3])
+    assert probed == [], f"private lookups forwarded to the native handle: {probed}"
+    with pytest.raises(AttributeError):
+        _ = wrapper._not_a_real_attribute  # type: ignore[attr-defined]
+    assert probed == []
+
+
 def test_native_passthrough_op_keeps_wrapper_and_chains() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap so the fluent API survives
     chained = cuboid([10, 10, 10]).resize([5, 5, 5]).up(3)  # type: ignore[operator]

@@ -291,6 +291,30 @@ def test_rot_copies_explicit_angles() -> None:
     assert len(mats) == 4
 
 
+def test_rot_copies_uses_rots_when_num_copies_omitted() -> None:
+    # num_copies defaults to None, not 1: an explicit rots list is what BOSL2 rotates by, and a
+    # default of 1 would silently swallow it and hand back a single identity copy.
+    for copier in (
+        DistributableMatrix.rot_copies,
+        DistributableMatrix.xrot_copies,
+        DistributableMatrix.yrot_copies,
+        DistributableMatrix.zrot_copies,
+    ):
+        assert len(copier(rots=[0, 90, 180])) == 3, copier.__name__
+
+
+def test_axis_copies_count_from_spacing_and_length() -> None:
+    # Same regression on the line copiers: with no num_copies the count comes from length/spacing.
+    assert len(DistributableMatrix.xcopies(spacing=10, length=100)) == 11
+    assert len(DistributableMatrix.ycopies(spacing=10, length=100)) == 11
+    assert len(DistributableMatrix.zcopies(spacing=10, length=100)) == 11
+    assert len(line_copies(spacing=10, length=100)) == 11
+
+
+def test_arc_copies_default_count() -> None:
+    assert len(DistributableMatrix.arc_copies(radius=20)) == 6
+
+
 def test_rot_copies_subrot_false() -> None:
     mats = DistributableMatrix.rot_copies(num_copies=6, delta=[20, 0, 0], subrot=False, v=[0, 0, 1])
     assert len(mats) == 6

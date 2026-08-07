@@ -26,6 +26,7 @@ import numpy as np
 
 from pybosl2._sdf._libfive import LVTree, lv
 from pybosl2._sdf.edges import _pick_radius
+from pybosl2.enums import EdgeMode
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -106,7 +107,9 @@ def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:
     return lv.sqrt(a * a + b * b)
 
 
-def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: str | list[str]) -> float:
+def _rect2d(
+    u: float, v: float, bu: float, bv: float, amount: list[float], mode: EdgeMode | list[EdgeMode] | list[str]
+) -> float:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent.
 
     per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
@@ -114,18 +117,21 @@ def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode:
     `amount` is indexed the same way as pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
     [(-,-), (+,-), (-,+), (+,+)] in (u, v) sign.
     """
-    corner_modes = [mode] * 4 if isinstance(mode, str) else list(mode)
+    # EdgeMode is a StrEnum, so one mode for all four corners arrives as a str either way;
+    # anything else is a per-corner sequence. Both normalise to EdgeMode members here so the
+    # comparisons below never have to care which spelling the caller used.
+    corner_modes: list[EdgeMode] = [EdgeMode(mode)] * 4 if isinstance(mode, str) else [EdgeMode(m) for m in mode]
     candidates = []
     for ci, (su, sv, a) in enumerate(((-1, -1, amount[0]), (1, -1, amount[1]), (-1, 1, amount[2]), (1, 1, amount[3]))):
         cmode = corner_modes[ci]
-        if cmode == "round":
+        if cmode == EdgeMode.ROUND:
             # Rounding is a Minkowski sum: shrink the rect by r, then re-offset the corner
             # outward by r via the hypot() term -- qu/qv are shifted by +r accordingly.
             qu = lv.abs(u) - bu + a
             qv = lv.abs(v) - bv + a
             base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
         else:
-            assert cmode == "chamfer"
+            assert cmode == EdgeMode.CHAMFER
             # Chamfer is a plane cut: intersect the two plain axis-aligned half-planes with
             # a third diagonal half-plane `a` in from the sharp corner. qu/qv are NOT shifted
             # by `a` here (unlike rounding) -- only the diagonal term is.

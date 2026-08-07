@@ -21,6 +21,7 @@ import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
 from pybosl2.caps import CapSpec, CapType
+from pybosl2.enums import RoundingMethod
 from pybosl2.path2d import Path2D
 from pybosl2.shapes3d import text3d
 
@@ -239,7 +240,7 @@ class Region:
     def round_corners(
         self,
         radius: float | list[float] | None = None,
-        method: str = "circle",
+        method: RoundingMethod = RoundingMethod.CIRCLE,
         cut: float | None = None,
         joint: float | None = None,
         width: float | None = None,

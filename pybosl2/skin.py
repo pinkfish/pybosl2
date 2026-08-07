@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
@@ -53,6 +53,7 @@ import numpy as np
 
 from pybosl2._helpers import translate4, zrot4
 from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_with_decorative_caps
+from pybosl2.enums import ResampleMethod, RoundingMethod, SamplingType, SkinMethod, SweepMethod, VNFStyle
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -68,7 +69,7 @@ class Sweepable:
     def path_sweep(
         self,
         shape: Path2D,
-        method: str = "incremental",
+        method: SweepMethod = SweepMethod.INCREMENTAL,
         normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
         closed: bool = False,
         twist: float = 0.0,
@@ -81,7 +82,7 @@ class Sweepable:
         uniform: bool = True,
         relaxed: bool = False,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
         transforms: bool = False,
     ) -> VNF | Bosl2Solid | list[list[list[float]]]:
         """Sweep *shape* along this path (BOSL2 path_sweep()).
@@ -130,7 +131,7 @@ class Sweepable:
         shape: Path2D,
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
         """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d()).
 
@@ -162,7 +163,7 @@ class Sweepable:
         slices: int | None = None,
         center: bool = False,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
         """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep()).
 
@@ -198,7 +199,7 @@ class Sweepable:
         angle: float = 360.0,
         caps: CapsSpec = CapType.BUTT,
         _closed: bool | None = None,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
         start: float = 0.0,
     ) -> VNF | Bosl2Solid:
         """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep()).
@@ -236,7 +237,7 @@ class Sweepable:
         diameter1: float | None = None,
         diameter2: float | None = None,
         center: bool = True,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
         """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep()).
 
@@ -274,7 +275,7 @@ class Sweepable:
         transforms: Sequence[Sequence[Sequence[float]]],
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
-        style: str = "min_edge",
+        style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
         """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.
 
@@ -379,7 +380,7 @@ def _sweep(
     transforms: Sequence[Sequence[Sequence[float]]],
     closed: bool = False,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF or Bosl2Solid.
 
@@ -425,7 +426,7 @@ def _sweep(
 def _path_sweep(
     shape: Sequence[Sequence[float]] | Path2D,
     path: Sequence[Sequence[float]] | Path2D | Path3D,
-    method: str = "incremental",
+    method: SweepMethod = SweepMethod.INCREMENTAL,
     normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
     closed: bool = False,
     twist: float = 0.0,
@@ -438,7 +439,7 @@ def _path_sweep(
     uniform: bool = True,
     relaxed: bool = False,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     transforms: bool = False,
 ) -> VNF | Bosl2Solid | list[list[list[float]]]:
     """Sweep the 2-D *shape* along the 2-D/3-D *path* (internal implementation).
@@ -467,7 +468,7 @@ def _path_sweep(
             normals = np.tile(normal_single, (npts, 1))
     else:
         normal_single = np.asarray(
-            (BACK if (method == "incremental" and abs(tangents[0][2]) > 1 / math.sqrt(2)) else UP),
+            (BACK if (method == SweepMethod.INCREMENTAL and abs(tangents[0][2]) > 1 / math.sqrt(2)) else UP),
             dtype=float,
         )
         normals = np.tile(normal_single, (npts, 1))
@@ -501,7 +502,7 @@ def _path_sweep(
 
     nprofiles = npts + (1 if closed else 0)
 
-    if method == "incremental":
+    if method == SweepMethod.INCREMENTAL:
         t0 = tangents[0]
         radius = normal_single - (normal_single @ t0) * t0
         cur = frame_map(y=radius, z=t0)
@@ -537,7 +538,7 @@ def _path_sweep(
                 @ rotations[0]
                 @ zrot4(-correction_twist + correction_twist % (360 / symmetry) - twist)
             )
-    elif method == "manual":
+    elif method == SweepMethod.MANUAL:
         unscaled = []
         for i in range(nprofiles):
             ni, ti = normals[i % npts], tangents[i % npts]
@@ -548,7 +549,7 @@ def _path_sweep(
             unscaled.append(
                 translate4(patharr[i % npts]) @ frame_map(y=ynormal, z=znormal) @ zrot4(-twist * tpathfrac[i])
             )
-    elif method == "natural":
+    elif method == SweepMethod.NATURAL:
         pathnormal = np.asarray(Path3D(patharr).normals(tangents=tangents, closed=closed), dtype=float)  # type: ignore[arg-type,type-var]
         unscaled = [
             translate4(patharr[i % npts])
@@ -616,11 +617,11 @@ def _skin(
     profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
     refine: float = 1.0,
-    method: str = "direct",
-    sampling: str | None = None,
+    method: SkinMethod = SkinMethod.DIRECT,
+    sampling: SamplingType | None = None,
     caps: CapsSpec = CapType.BUTT,
     closed: bool = False,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     z: Sequence[float] | None = None,
 ) -> VNF | Bosl2Solid:
     """Blend a stack of 2-D/3-D profiles into a skinned surface (internal implementation).
@@ -635,11 +636,8 @@ def _skin(
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
-        assert m in (
-            "direct",
-            "reindex",
-        ), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
-    sampling = sampling if sampling is not None else "length"
+        assert isinstance(m, SkinMethod), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
+    sampling = sampling if sampling is not None else SamplingType.LENGTH
 
     dim = len(profiles[0][0])
     if dim == 2:
@@ -653,7 +651,7 @@ def _skin(
     resampled = [Path3D(profiles[i]).subdivide_path(points=int(maxlen), closed=True) for i in range(sides)]
     fixedprof = [resampled[0]]
     for i in range(1, sides):
-        if method[i - 1] == "direct":
+        if method[i - 1] == SkinMethod.DIRECT:
             fixedprof.append(resampled[i])
         else:
             fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))  # type: ignore[arg-type]
@@ -694,7 +692,7 @@ def _linear_sweep(
     shift: Sequence[float] = (0.0, 0.0),
     slices: int | None = None,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "default",
+    style: VNFStyle = VNFStyle.DEFAULT,
     center: bool | None = None,
 ) -> VNF | Bosl2Solid:
     """Extrude a 2-D outline to *height* with optional twist / scale / shift (internal implementation).
@@ -744,7 +742,7 @@ def _rotate_sweep(
     angle: float = 360.0,
     caps: CapsSpec = CapType.BUTT,
     _closed: bool | None = None,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     start: float = 0.0,
 ) -> VNF | Bosl2Solid:
     """Revolve a 2-D *shape* around the Z axis (internal implementation).
@@ -789,7 +787,7 @@ def _spiral_sweep(
     diameter1: float | None = None,
     diameter2: float | None = None,
     center: bool = True,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Sweep a 2-D cross-section *poly* along a helix (internal implementation).
 
@@ -841,7 +839,7 @@ def subdivide_and_slice(
     profiles: Sequence[Sequence[Sequence[float]]],
     slices: int,
     numpoints: int | str | None = None,
-    method: str = "length",  # noqa: ARG001
+    method: ResampleMethod = ResampleMethod.LENGTH,  # noqa: ARG001
     closed: bool = False,
 ) -> list[list[list[float]]]:
     """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
@@ -875,7 +873,7 @@ def subdivide_and_slice(
 # ---------------------------------------------------------------------------------------------
 
 
-class OSType(Enum):
+class OSType(StrEnum):
     """Offset sweep profile type."""
 
     CIRCLE = "circle"
@@ -1106,7 +1104,7 @@ def _offset_sweep(
     top: object = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
 
@@ -1161,10 +1159,10 @@ def _offset_sweep(
         if desc is None:
             return ([0.0], [0.0])
         t = desc.get("type", "circle")
-        if t == "flat" or (t == "circle" and desc["r"] == 0.0):
+        if t == OSType.FLAT or (t == OSType.CIRCLE and desc["r"] == 0.0):
             return ([0.0], [0.0])
 
-        if t == "circle":
+        if t == OSType.CIRCLE:
             r = desc["r"]
             h = abs(desc["h"])
             ar = abs(r)
@@ -1174,7 +1172,7 @@ def _offset_sweep(
             zs = [h * math.sin(a) for a in angles]
             return (deltas, zs)
 
-        elif t == "teardrop":
+        elif t == OSType.TEARDROP:
             r = desc["r"]
             h = abs(desc["h"])
             max_angle = desc.get("max_angle", 45.0)
@@ -1207,7 +1205,7 @@ def _offset_sweep(
                     zs.append(curr_z)
                 return (deltas, zs)
 
-        elif t == "smooth":
+        elif t == OSType.SMOOTH:
             cut = abs(desc["cut"])
             k = desc["k"]
             sign = -1.0 if desc["r_sign"] > 0 else 1.0
@@ -1221,14 +1219,14 @@ def _offset_sweep(
                 zs.append(cut - yu)
             return (deltas, zs)
 
-        elif t == "chamfer":
+        elif t == OSType.CHAMFER:
             w = desc["width"]
             h = abs(desc["height"])
             deltas = [-w * i / n for i in range(n + 1)]
             zs = [h * i / n for i in range(n + 1)]
             return (deltas, zs)
 
-        elif t == "profile":
+        elif t == OSType.PROFILE:
             pts = desc["points"]
             pts_arr = np.asarray(pts, dtype=float)
             zs_in = pts_arr[:, 1]
@@ -1320,7 +1318,7 @@ def _convex_offset_extrude(
     top: object = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
 
@@ -1339,7 +1337,7 @@ def _rounded_prism(
     curvature_sides: float | list[float] | None = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     joint_bot: float | dict[str, object] | None = None,
     k_sides: float | list[float] | None = None,
 ) -> VNF | Bosl2Solid:
@@ -1386,11 +1384,11 @@ def _rounded_prism(
         from pybosl2.rounding import _round_corners as _rc
 
         if k_sides is not None:  # a curvature turns the side rounding into a smooth join
-            b_rounded = _rc(b_2d, method="smooth", joint=joint_sides, curvature=k_sides)
-            t_rounded = _rc(t_2d, method="smooth", joint=joint_sides, curvature=k_sides)
+            b_rounded = _rc(b_2d, method=RoundingMethod.SMOOTH, joint=joint_sides, curvature=k_sides)
+            t_rounded = _rc(t_2d, method=RoundingMethod.SMOOTH, joint=joint_sides, curvature=k_sides)
         else:
-            b_rounded = _rc(b_2d, method="circle", radius=joint_sides)
-            t_rounded = _rc(t_2d, method="circle", radius=joint_sides)
+            b_rounded = _rc(b_2d, method=RoundingMethod.CIRCLE, radius=joint_sides)
+            t_rounded = _rc(t_2d, method=RoundingMethod.CIRCLE, radius=joint_sides)
     else:
         b_rounded = b_2d
         t_rounded = t_2d
@@ -1411,10 +1409,10 @@ def _rounded_prism(
         if desc is None:
             return ([0.0], [0.0])
         t = desc.get("type", "circle")
-        if t == "flat" or (t == "circle" and desc["r"] == 0.0):
+        if t == OSType.FLAT or (t == OSType.CIRCLE and desc["r"] == 0.0):
             return ([0.0], [0.0])
 
-        if t == "circle":
+        if t == OSType.CIRCLE:
             r = desc["r"]
             h = abs(desc["h"])
             ar: float = abs(r)
@@ -1424,7 +1422,7 @@ def _rounded_prism(
             zs = [h * math.sin(a) for a in angles]
             return (deltas, zs)
 
-        elif t == "teardrop":
+        elif t == OSType.TEARDROP:
             r = desc["r"]
             h = abs(desc["h"])
             max_angle = desc.get("max_angle", 45.0)
@@ -1457,7 +1455,7 @@ def _rounded_prism(
                     zs.append(curr_z)
                 return (deltas, zs)
 
-        elif t == "smooth":
+        elif t == OSType.SMOOTH:
             cut = abs(desc["cut"])
             k = desc["k"]
             sign = -1.0 if desc["r_sign"] > 0 else 1.0
@@ -1471,14 +1469,14 @@ def _rounded_prism(
                 zs.append(cut - yu)
             return (deltas, zs)
 
-        elif t == "chamfer":
+        elif t == OSType.CHAMFER:
             w = desc["width"]
             h = abs(desc["height"])
             deltas = [-w * i / n for i in range(n + 1)]
             zs = [h * i / n for i in range(n + 1)]
             return (deltas, zs)
 
-        elif t == "profile":
+        elif t == OSType.PROFILE:
             pts = desc["points"]
             pts_arr = np.asarray(pts, dtype=float)
             zs_in = pts_arr[:, 1]
@@ -1575,7 +1573,7 @@ def _join_prism(
     fillet: float = 0.0,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
 
@@ -1594,7 +1592,7 @@ def _prism_connector(
     fillet2: float | None = None,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
 
@@ -1615,7 +1613,7 @@ def _attach_prism(
     rounding: float = 0.0,
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
 
@@ -1631,7 +1629,7 @@ def _bent_cutout_mask(
     radius: float,
     thickness: float,
     path: Sequence[Sequence[float]],
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF:
     """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask()).
 
@@ -1680,7 +1678,7 @@ def _path_sweep2d(
     closed: bool = False,
     caps: CapsSpec = CapType.BUTT,
     quality: int = 1,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> VNF | Bosl2Solid:
     """Sweep a 2-D *shape* along a 2-D *path* (internal implementation).
 
@@ -1782,7 +1780,7 @@ def rot_resample(
     long: bool = False,
     turns: float = 0,
     closed: bool = False,
-    method: str = "length",
+    method: ResampleMethod = ResampleMethod.LENGTH,
 ) -> list[list[list[float]]]:
     """Resample a list of 4x4 transforms to uniform screw-motion spacing (BOSL2 rot_resample()).
 
@@ -1805,10 +1803,10 @@ def rot_resample(
     rotlist_extra = [np.asarray(t, dtype=float) for t in rotlist]
     assert smoothlen > 0, "rot_resample(): smoothlen must be a positive odd integer."
     assert smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."
-    assert method in ("length", "count")
+    assert isinstance(method, ResampleMethod)
     m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)
-    if method == "length":
+    if method == ResampleMethod.LENGTH:
         assert isinstance(num_copies, int), "rot_resample(): num_copies must be an integer for method='length'."
         count = (num_copies + 1) if closed else num_copies
     else:
@@ -1836,7 +1834,7 @@ def rot_resample(
         )
         for i in range(tcount)
     ]
-    if method == "length":
+    if method == ResampleMethod.LENGTH:
         assert all(x > 0 for x in length), "rot_resample(): a repeated/origin rotation makes method='length' undefined."
 
     cumlen = [0.0]
@@ -1845,7 +1843,7 @@ def rot_resample(
     totlen = cumlen[-1]
     stepsize = totlen / (count - 1) if count > 1 else totlen
 
-    if method == "count":
+    if method == ResampleMethod.COUNT:
         nlist = [int(num_copies)] * tcount if isinstance(num_copies, (int, float)) else [int(x) for x in num_copies]
         samples = [[k / N for k in range(N)] for N in nlist]
     else:

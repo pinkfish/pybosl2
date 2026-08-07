@@ -11,6 +11,7 @@ tests/test_bosl2_reorient.py; here we check the method surface, dimensions, and 
 import numpy as np
 import pytest
 
+from pybosl2.enums import RoundingMethod
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 
@@ -32,15 +33,15 @@ def test_circle_inserts_points_and_returns_path() -> None:
 @pytest.mark.parametrize(
     ("method", "kw"),
     [
-        ("circle", {"radius": 5}),
-        ("circle", {"cut": 3}),
-        ("circle", {"joint": 5}),
-        ("smooth", {"joint": 8}),
-        ("smooth", {"cut": 2}),
-        ("smooth", {"joint": 8, "k": 0.8}),
-        ("chamfer", {"joint": 6}),
-        ("chamfer", {"cut": 4}),
-        ("chamfer", {"width": 5}),
+        (RoundingMethod.CIRCLE, {"radius": 5}),
+        (RoundingMethod.CIRCLE, {"cut": 3}),
+        (RoundingMethod.CIRCLE, {"joint": 5}),
+        (RoundingMethod.SMOOTH, {"joint": 8}),
+        (RoundingMethod.SMOOTH, {"cut": 2}),
+        (RoundingMethod.SMOOTH, {"joint": 8, "k": 0.8}),
+        (RoundingMethod.CHAMFER, {"joint": 6}),
+        (RoundingMethod.CHAMFER, {"cut": 4}),
+        (RoundingMethod.CHAMFER, {"width": 5}),
     ],
 )
 def test_every_method_measure_builds(method, kw) -> None:  # type: ignore[no-untyped-def]
@@ -50,14 +51,14 @@ def test_every_method_measure_builds(method, kw) -> None:  # type: ignore[no-unt
 
 
 def test_chamfer_replaces_each_corner_with_two_points() -> None:
-    out = Path2D(SQ).round_corners(method="chamfer", joint=6)
+    out = Path2D(SQ).round_corners(method=RoundingMethod.CHAMFER, joint=6)
     assert len(out) == 8  # type: ignore[arg-type]  # each of 4 corners -> 2 chamfer points
 
 
 def test_3d_paths_return_path3d() -> None:
-    assert isinstance(Path3D(P3).round_corners(method="smooth", joint=6), Path3D)
-    assert isinstance(Path3D(P3).round_corners(method="chamfer", joint=6), Path3D)
-    assert isinstance(Path3D(P3).round_corners(method="circle", radius=5), Path3D)
+    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.SMOOTH, joint=6), Path3D)
+    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.CHAMFER, joint=6), Path3D)
+    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.CIRCLE, radius=5), Path3D)
 
 
 def test_open_path_leaves_endpoints() -> None:
@@ -69,19 +70,19 @@ def test_open_path_leaves_endpoints() -> None:
 
 def test_radius_requires_circle_method() -> None:
     with pytest.raises(AssertionError):
-        Path2D(SQ).round_corners(method="smooth", radius=5)
+        Path2D(SQ).round_corners(method=RoundingMethod.SMOOTH, radius=5)
 
 
 def test_width_requires_chamfer_method() -> None:
     with pytest.raises(AssertionError):
-        Path2D(SQ).round_corners(method="circle", width=5)
+        Path2D(SQ).round_corners(method=RoundingMethod.CIRCLE, width=5)
 
 
 def test_k_requires_smooth_method() -> None:
     with pytest.raises(AssertionError):
-        Path2D(SQ).round_corners(method="circle", cut=3, curvature=0.5)
+        Path2D(SQ).round_corners(method=RoundingMethod.CIRCLE, cut=3, curvature=0.5)
     with pytest.raises(AssertionError):
-        Path2D(SQ).round_corners(method="circle", cut=3, k=0.5)
+        Path2D(SQ).round_corners(method=RoundingMethod.CIRCLE, cut=3, k=0.5)
 
 
 def test_exactly_one_size_measure() -> None:
@@ -99,7 +100,7 @@ def test_too_short_path_raises() -> None:
 def test_oversized_roundover_raises() -> None:
     # a radius bigger than the sides can't fit
     with pytest.raises(AssertionError):
-        Path2D(SQ).round_corners(method="smooth", cut=10)
+        Path2D(SQ).round_corners(method=RoundingMethod.SMOOTH, cut=10)
 
 
 # -- Path2D / Path3D method form ------------------------------------------------------------
@@ -112,7 +113,7 @@ def test_path_round_corners_method_uses_own_closed() -> None:
 
 
 def test_path3d_round_corners_method() -> None:
-    assert isinstance(Path3D(P3).round_corners(method="smooth", joint=6), Path3D)
+    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.SMOOTH, joint=6), Path3D)
 
 
 # -- smooth_path --------------------------------------------------------------------------
