@@ -898,7 +898,7 @@ MODULES = {
             "inradius or side. The dodecahedron is built as the dual of the icosahedron."
         ),
         "part": 'regular_polyhedron("dodecahedron", side=12)',
-        "code": 'Polyhedra.<span class="k">regular_polyhedron</span>("dodecahedron", side=12)',
+        "code": 'RegularPolyhedron.<span class="k">__init__</span>(PlatonicSolid.DODECAHEDRON, side=12).shape()',
         "metrics": [
             ("dodecahedron · side=12", 36, "13,241.9", "31×31×31"),
             ("icosahedron · r=15", 20, "8,559.5", "26×26×26"),
@@ -1030,7 +1030,7 @@ MODULES = {
             "for both rods and nuts, with multi-start and left-handed options."
         ),
         "part": "threaded_rod(d=20, l=30, pitch=2.5)",
-        "code": 'Threading.<span class="k">threaded_rod</span>(d=20, l=30, pitch=2.5)',
+        "code": '<span class="k">iso_threaded_rod</span>(d=20, l=30, pitch=2.5).shape()',
         "metrics": [
             ("ISO · z=20", 4500, "9,424.8", "20×20×30"),
             ("ACME · z=20", 3200, "8,100.0", "20×20×30"),
@@ -1227,7 +1227,7 @@ SETUP = {
     "walls": "from pybosl2.parts.walls import Walls\n",
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
     "hooks": "import math\nfrom pybosl2.parts.hooks import Hooks\n",
-    "polyhedra": "from pybosl2.parts.polyhedra import Polyhedra\n",
+    "polyhedra": "from pybosl2.parts.polyhedra import RegularPolyhedron, PlatonicSolid\n",
     "hinges": "from pybosl2.parts.hinges import Hinges\n",
     "joiners": "from pybosl2.parts.joiners import Joiners\n",
     "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
@@ -1235,7 +1235,11 @@ SETUP = {
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
     "modular_hose": "from pybosl2.parts.modular_hose import ModularHose\n",
     "nema_steppers": "from pybosl2.parts.nema_steppers import NemaSteppers\n",
-    "threading": "from pybosl2.parts.threading import Threading\n",
+    "threading": (
+        "from pybosl2.parts.threading import ThreadedRod, ThreadedNut, ThreadHelix, "
+        "iso_threaded_rod, iso_threaded_nut, trapezoidal_threaded_rod, acme_threaded_rod, "
+        "square_threaded_rod, buttress_threaded_rod\n"
+    ),
     "screw_drive": "from pybosl2.parts.screw_drive import ScrewDrive\n",
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
     "sliders": "from pybosl2.parts.sliders import Sliders\n",
@@ -1329,11 +1333,11 @@ VARIANTS = {
         ),
     ],
     "polyhedra": [
-        ("tetrahedron", "tetrahedron", "Polyhedra.tetrahedron(radius=15)"),
-        ("cube", "cube", "Polyhedra.cube(radius=15)"),
-        ("octahedron", "octahedron", "Polyhedra.octahedron(radius=15)"),
-        ("dodecahedron", "dodecahedron", "Polyhedra.dodecahedron(side=12)"),
-        ("icosahedron", "icosahedron", "Polyhedra.icosahedron(radius=15)"),
+        ("tetrahedron", "tetrahedron", "RegularPolyhedron.tetrahedron(radius=15).shape()"),
+        ("cube", "cube", "RegularPolyhedron.cube(radius=15).shape()"),
+        ("octahedron", "octahedron", "RegularPolyhedron.octahedron(radius=15).shape()"),
+        ("dodecahedron", "dodecahedron", "RegularPolyhedron.dodecahedron(side=12).shape()"),
+        ("icosahedron", "icosahedron", "RegularPolyhedron.icosahedron(radius=15).shape()"),
     ],
     "hinges": [
         ("pair", "knuckle pair", "Hinges.knuckle_hinge_pair(length=40, segs=5)"),
@@ -1389,17 +1393,17 @@ VARIANTS = {
         ("mask", "mount mask", "NemaSteppers.nema_mount_mask(17)"),
     ],
     "threading": [
-        ("iso-rod", "ISO rod", "Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)"),
-        ("iso-nut", "ISO nut", "Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)"),
+        ("iso-rod", "ISO rod", "iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()"),
+        ("iso-nut", "ISO nut", "iso_threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).shape()"),
         (
             "trapezoidal",
             "trapezoidal rod",
-            "Threading.trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)",
+            "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1).shape()",
         ),
         (
             "acme",
             "ACME rod",
-            "Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)",
+            "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).shape()",
         ),
     ],
     "screw_drive": [

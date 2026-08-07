@@ -532,12 +532,12 @@ class Screw:
 
         d = self._spec.diameter
         if self._thread != ThreadPitchClass.NONE:
-            from pybosl2.parts.threading import Threading
+            from pybosl2.parts.threading import iso_threaded_rod
 
             tp = ScrewSpec(self._spec.diameter, thread=self._thread, pitch=self._spec.pitch).pitch
             tl = self._length if (self._thread_len is None or self._thread_len >= self._length) else self._thread_len
             shank_len = self._length - tl
-            shaft = Threading.threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).down(shank_len + tl / 2)
+            shaft = iso_threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).shape().down(shank_len + tl / 2)
             if shank_len > 1e-9:
                 shank = cyl(diameter=d, height=shank_len, fn=self._fn, fa=self._fa, fs=self._fs).down(shank_len / 2)
                 shaft = shaft | shank
@@ -624,10 +624,10 @@ class Nut:
         if self._solid is not None:
             return self._solid
 
-        from pybosl2.parts.threading import Threading
+        from pybosl2.parts.threading import iso_threaded_nut
 
         width, th = _nut_dims(self._spec.diameter, self._thickness, self._nutwidth)
-        self._solid = Threading.threaded_nut(
+        self._solid = iso_threaded_nut(
             width,
             self._spec.diameter,
             th,
@@ -637,7 +637,7 @@ class Nut:
             fn=self._fn,
             fa=self._fa,
             fs=self._fs,
-        )
+        ).shape()
         return self._solid
 
     def show(self) -> None:
@@ -714,10 +714,12 @@ class ScrewHole:
         )
         d, p = sp.diameter, sp.pitch
         if use_thread:
-            from pybosl2.parts.threading import Threading
+            from pybosl2.parts.threading import iso_threaded_rod
 
-            cutter = Threading.threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs).down(
-                self._length / 2
+            cutter = (
+                iso_threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs)
+                .shape()
+                .down(self._length / 2)
             )
         else:
             gap = _CLEARANCE.get(str(self._fit).lower(), 0.5)

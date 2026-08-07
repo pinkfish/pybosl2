@@ -17,10 +17,22 @@ import pytest
 
 from pybosl2.parts.enums import NutShape
 from pybosl2.parts.threading import (
-    Threading,
+    ThreadedNut,
+    ThreadedRod,
+    ThreadHelix,
     _buttress_profile,
     _iso_profile,
     _trapezoidal_profile,
+    acme_threaded_nut,
+    acme_threaded_rod,
+    buttress_threaded_nut,
+    buttress_threaded_rod,
+    iso_threaded_nut,
+    iso_threaded_rod,
+    square_threaded_nut,
+    square_threaded_rod,
+    trapezoidal_threaded_nut,
+    trapezoidal_threaded_rod,
 )
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -86,14 +98,14 @@ def test_thread_profile_is_structured_dataclass() -> None:
 @pytest.mark.parametrize(
     "call",
     [
-        lambda: Threading.threaded_rod(12, 24, 1.75),
-        lambda: Threading.trapezoidal_threaded_rod(20, 30, 4),
-        lambda: Threading.acme_threaded_rod(20, 30, 4),
-        lambda: Threading.square_threaded_rod(20, 30, 4),
-        lambda: Threading.buttress_threaded_rod(20, 30, 4),
-        lambda: Threading.generic_threaded_rod(16, 24, 2, _iso_profile()),
-        lambda: Threading.threaded_rod(16, 24, 2, starts=2),
-        lambda: Threading.threaded_rod(12, 24, 1.75, left_handed=True),
+        lambda: iso_threaded_rod(12, 24, 1.75).shape(),
+        lambda: trapezoidal_threaded_rod(20, 30, 4).shape(),
+        lambda: acme_threaded_rod(20, 30, 4).shape(),
+        lambda: square_threaded_rod(20, 30, 4).shape(),
+        lambda: buttress_threaded_rod(20, 30, 4).shape(),
+        lambda: ThreadedRod(16, 24, 2, _iso_profile()).shape(),
+        lambda: iso_threaded_rod(16, 24, 2, starts=2).shape(),
+        lambda: iso_threaded_rod(12, 24, 1.75, left_handed=True).shape(),
     ],
 )
 def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
@@ -106,13 +118,13 @@ def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
 @pytest.mark.parametrize(
     "call",
     [
-        lambda: Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1),
-        lambda: Threading.threaded_nut(18, 12, 10, 1.75, shape=NutShape.SQUARE, slop=0.1),
-        lambda: Threading.trapezoidal_threaded_nut(24, 16, 12, 3, slop=0.1),
-        lambda: Threading.acme_threaded_nut(24, 16, 12, 3, slop=0.1),
-        lambda: Threading.square_threaded_nut(24, 16, 12, 3, slop=0.1),
-        lambda: Threading.buttress_threaded_nut(24, 16, 12, 3, slop=0.1),
-        lambda: Threading.generic_threaded_nut(18, 12, 10, 1.75, _iso_profile(), slop=0.1),
+        lambda: iso_threaded_nut(18, 12, 10, 1.75, slop=0.1).shape(),
+        lambda: iso_threaded_nut(18, 12, 10, 1.75, shape=NutShape.SQUARE, slop=0.1).shape(),
+        lambda: trapezoidal_threaded_nut(24, 16, 12, 3, slop=0.1).shape(),
+        lambda: acme_threaded_nut(24, 16, 12, 3, slop=0.1).shape(),
+        lambda: square_threaded_nut(24, 16, 12, 3, slop=0.1).shape(),
+        lambda: buttress_threaded_nut(24, 16, 12, 3, slop=0.1).shape(),
+        lambda: ThreadedNut(18, 12, 10, 1.75, _iso_profile(), slop=0.1).shape(),
     ],
 )
 def test_nut_builders(call: Callable[[], Bosl2Solid]) -> None:
@@ -121,24 +133,24 @@ def test_nut_builders(call: Callable[[], Bosl2Solid]) -> None:
 
 def test_nut_with_zero_pitch_is_plain_hole() -> None:
     # pitch 0 -> unthreaded bore
-    assert isinstance(Threading.threaded_nut(18, 12, 10, 0), Bosl2Solid)
+    assert isinstance(iso_threaded_nut(18, 12, 10, 0).shape(), Bosl2Solid)
 
 
 def test_thread_helix_builds() -> None:
-    assert isinstance(Threading.thread_helix(20, 4, turns=3), Bosl2Solid)
+    assert isinstance(ThreadHelix(20, 4, turns=3).shape(), Bosl2Solid)
     assert isinstance(
-        Threading.thread_helix(20, 4, thread_depth=1.5, flank_angle=20, turns=2),
+        ThreadHelix(20, 4, thread_depth=1.5, flank_angle=20, turns=2).shape(),
         Bosl2Solid,
     )
 
 
 def test_invalid_rod_dims_raise() -> None:
     with pytest.raises(AssertionError):
-        Threading.generic_threaded_rod(12, 24, 0, _iso_profile())  # pitch 0
+        ThreadedRod(12, 24, 0, _iso_profile())  # pitch 0
     with pytest.raises(AssertionError):
-        Threading.generic_threaded_rod(0, 24, 1.5, _iso_profile())  # d 0
+        ThreadedRod(0, 24, 1.5, _iso_profile())  # d 0
 
 
 def test_bad_nut_shape_raises() -> None:
     with pytest.raises(AssertionError):
-        Threading.threaded_nut(18, 12, 10, 1.75, shape="round")
+        iso_threaded_nut(18, 12, 10, 1.75, shape="round").shape()

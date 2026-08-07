@@ -998,7 +998,7 @@ def test_round_corners_3d_path(tmp_path):
 
 def test_threaded_rod_iso(tmp_path):
     # an ISO M12x1.75 rod: major diameter 12, length 24, minor = 12 - 2*(cos30*5/8)*1.75
-    m = _render(tmp_path, "Threading.threaded_rod(12, 24, 1.75, fa=6, fs=1)", name="isorod")
+    m = _render(tmp_path, "iso_threaded_rod(12, 24, 1.75, fa=6, fs=1).shape()", name="isorod")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [12, 12], atol=0.1)  # major diameter
     assert math.isclose(m.size[2], 24.0, abs_tol=0.05)  # length
@@ -1011,10 +1011,10 @@ def test_threaded_rod_iso(tmp_path):
 @pytest.mark.parametrize(
     ("expr", "name", "dia"),
     [
-        ("Threading.trapezoidal_threaded_rod(20, 30, 4, fa=6, fs=1)", "traprod", 20),
-        ("Threading.acme_threaded_rod(20, 30, 4, fa=6, fs=1)", "acmerod", 20),
-        ("Threading.square_threaded_rod(20, 30, 4, fa=6, fs=1)", "sqrod", 20),
-        ("Threading.buttress_threaded_rod(20, 30, 4, fa=6, fs=1)", "buttrod", 20),
+        ("trapezoidal_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "traprod", 20),
+        ("acme_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "acmerod", 20),
+        ("square_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "sqrod", 20),
+        ("buttress_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "buttrod", 20),
     ],
 )
 def test_threaded_rod_variants_watertight(tmp_path, expr, name, dia):
@@ -1027,14 +1027,14 @@ def test_threaded_rod_variants_watertight(tmp_path, expr, name, dia):
 def test_multistart_and_left_handed(tmp_path):
     a = _render(
         tmp_path,
-        "Threading.threaded_rod(16, 24, 2, starts=2, fa=6, fs=1)",
+        "iso_threaded_rod(16, 24, 2, starts=2, fa=6, fs=1).shape()",
         name="ms2",
     )
     assert a.watertight
     assert math.isclose(a.size[2], 24.0, abs_tol=0.05)
     b = _render(
         tmp_path,
-        "Threading.threaded_rod(12, 24, 1.75, left_handed=True, fa=6, fs=1)",
+        "iso_threaded_rod(12, 24, 1.75, left_handed=True, fa=6, fs=1).shape()",
         name="lh",
     )
     assert b.watertight
@@ -1045,7 +1045,7 @@ def test_threaded_hex_nut(tmp_path):
     # a hex nut for an M12 rod: flat-to-flat 18, corner-to-corner ~20.8, height 10, threaded hole
     m = _render(
         tmp_path,
-        "Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1)",
+        "iso_threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).shape()",
         name="hexnut",
     )
     assert m.watertight
@@ -1057,7 +1057,7 @@ def test_threaded_hex_nut(tmp_path):
 def test_threaded_square_nut(tmp_path):
     m = _render(
         tmp_path,
-        "Threading.trapezoidal_threaded_nut(24, 16, 12, 3, shape='square', slop=0.1, fa=6, fs=1)",
+        "trapezoidal_threaded_nut(24, 16, 12, 3, shape='square', slop=0.1, fa=6, fs=1).shape()",
         name="sqnut",
     )
     assert m.watertight
@@ -1068,7 +1068,7 @@ def test_threaded_square_nut(tmp_path):
 def test_thread_helix_ridge(tmp_path):
     m = _render(
         tmp_path,
-        "Threading.thread_helix(20, 4, turns=3)",
+        "ThreadHelix(20, 4, turns=3).shape()",
         name="threadhelix",
     )
     assert m.volume > 0
@@ -1715,13 +1715,13 @@ def test_walls_thinning_wall_builds(tmp_path):
 
 
 def test_polyhedra_tetrahedron(tmp_path):
-    m = _render(tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12)", name="tetra")
+    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.TETRAHEDRON, radius=12).shape()", name="tetra")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_polyhedra_icosahedron(tmp_path):
-    m = _render(tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10)", name="icosa")
+    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.ICOSAHEDRON, radius=10).shape()", name="icosa")
     assert m.watertight
     assert m.volume > 0
 

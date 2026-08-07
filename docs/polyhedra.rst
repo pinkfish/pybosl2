@@ -1,5 +1,5 @@
-Polyhedra
-=========
+RegularPolyhedron
+=================
 
 .. raw:: html
 
@@ -10,12 +10,15 @@ Polyhedra
 
 
 The five Platonic solids from BOSL2's ``polyhedra.scad``, built as watertight polyhedra.
-:meth:`~pybosl2.parts.polyhedra.Polyhedra.regular_polyhedron` builds ``tetrahedron`` / ``cube`` /
+:class:`~pybosl2.parts.polyhedra.RegularPolyhedron` builds ``tetrahedron`` / ``cube`` /
 ``octahedron`` / ``dodecahedron`` / ``icosahedron`` (with named convenience methods too), sized by
 circumradius, diameter, inradius or side length. The dodecahedron is derived as the dual of the
 icosahedron. The Archimedean, Catalan and stellated families are a follow-up.
 
-.. autoclass:: pybosl2.parts.polyhedra.Polyhedra
+.. autoclass:: pybosl2.parts.polyhedra.RegularPolyhedron
+   :members:
+
+.. autoclass:: pybosl2.parts.polyhedra.PolyhedronInfo
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -32,33 +35,33 @@ Tetrahedron:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.polyhedra import Polyhedra
-   Polyhedra.regular_polyhedron("tetrahedron", radius=12).show()
+   from pybosl2.parts.polyhedra import RegularPolyhedron
+   RegularPolyhedron("tetrahedron", radius=12).shape().show()
 
 Cube:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.polyhedra import Polyhedra
-   Polyhedra.regular_polyhedron("cube", radius=12).show()
+   from pybosl2.parts.polyhedra import RegularPolyhedron
+   RegularPolyhedron("cube", radius=12).shape().show()
 
 Octahedron:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.polyhedra import Polyhedra
-   Polyhedra.regular_polyhedron("octahedron", radius=12).show()
+   from pybosl2.parts.polyhedra import RegularPolyhedron
+   RegularPolyhedron("octahedron", radius=12).shape().show()
 
 Dodecahedron:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.polyhedra import Polyhedra
-   Polyhedra.regular_polyhedron("dodecahedron", radius=12).show()
+   from pybosl2.parts.polyhedra import RegularPolyhedron
+   RegularPolyhedron("dodecahedron", radius=12).shape().show()
 
 Icosahedron:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.polyhedra import Polyhedra
-   Polyhedra.regular_polyhedron("icosahedron", radius=12).show()
+   from pybosl2.parts.polyhedra import RegularPolyhedron
+   RegularPolyhedron("icosahedron", radius=12).shape().show()
