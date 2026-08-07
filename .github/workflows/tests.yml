@@ -37,7 +37,7 @@ jobs:
           pip install mypy numpy typing-extensions
 
       - name: Run mypy
-        run: mypy pybosl2 tests
+        run: mypy --strict pybosl2 tests
 
   test:
     name: pytest (python ${{ matrix.python-version }})

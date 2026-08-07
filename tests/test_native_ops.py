@@ -10,14 +10,8 @@ so these check that each method re-wraps into a Bosl2Solid (preserving the fluen
 separate()/inside() return the right Python types; the real geometry is verified in
 test_stl_render.py."""
 
-import pytest
-
 import pybosl2.shapes3d as s3
 from pybosl2.shapes3d import Bosl2Solid
-
-# roof() maps onto a native op that the full PythonSCAD app provides but the pip
-# `pythonscad` wheel does not; skip its test when the underlying op is missing.
-_HAS_ROOF = hasattr(Bosl2Solid._unwrap(s3.cuboid([10, 10, 10])), "roof")
 
 
 def _cube() -> Bosl2Solid:
@@ -33,14 +27,10 @@ def test_wrap_returns_solid_with_and_without_fn() -> None:
     assert isinstance(_cube().wrap(20, fn=32), Bosl2Solid)
 
 
-@pytest.mark.skipif(not _HAS_ROOF, reason="native roof() not provided by the pythonscad pip wheel")
-def test_roof_is_2d_to_3d_constructor() -> None:
-    # roof() is a 2-D -> 3-D constructor (a hip roof over a 2-D outline), not a solid method.
-    import pybosl2.shapes2d as s2
-
-    assert isinstance(s3.roof(s2.square([20, 20], center=True)), Bosl2Solid)
-    # accepts a Bosl2Solid-wrapped 2-D shape too
-    assert isinstance(s3.roof(Bosl2Solid(s2.square([20, 20], center=True))), Bosl2Solid)
+# roof() has no test here: the op exists only in the full PythonSCAD app, never in the pip wheel
+# this suite runs against, so a test here could only ever skip. It is covered for real against the
+# app binary by test_stl_render.py's test_roof_makes_a_pyramid (which measures the pyramid volume)
+# and test_stl_render_2d.py's test_roof_produces_3d_solid.
 
 
 def test_pull_returns_solid() -> None:

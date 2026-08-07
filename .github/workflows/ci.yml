@@ -37,19 +37,16 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: pip install -e ".[test]" coverage diff-cover
+      # Only the render tests are held back -- they drive the PythonSCAD app binary, which this
+      # runner does not install (the separate `render` job in tests.yml covers them). The SDF
+      # suites used to be excluded too, back when they needed a real libfive; they run against the
+      # numeric mock now, and excluding them left every line of pybosl2/_sdf/ looking untested to
+      # diff-cover even when it was thoroughly covered.
       - name: Run tests with coverage
         run: >
           coverage run -m pytest tests/
           --ignore=tests/test_stl_render.py
           --ignore=tests/test_stl_render_2d.py
-          --ignore=tests/test_sdf_paths.py
-          --ignore=tests/test_sdf_shapes2d.py
-          --ignore=tests/test_sdf_shapes3d.py
-          --ignore=tests/test_sdf_skin.py
-          --ignore=tests/test_sdf_joiners.py
-          --ignore=tests/test_backend_sdf.py
-          --ignore=tests/test_backend_sdf_sweep.py
-          --ignore=tests/test_backend_crossbackend.py
           -q
       - name: Generate coverage XML
         run: coverage xml

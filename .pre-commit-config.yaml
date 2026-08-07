@@ -19,6 +19,6 @@ repos:
     rev: v1.19.0
     hooks:
       - id: mypy
-        args: [pybosl2, tests]
+        args: [--strict, pybosl2, tests]
         pass_filenames: false
         additional_dependencies: [numpy, typing-extensions, types-docutils]

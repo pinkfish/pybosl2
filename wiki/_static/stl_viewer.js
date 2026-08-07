@@ -36,7 +36,7 @@ function getRenderer() {
   if (renderer || rendererFailed) return renderer;
   try {
     const canvas = document.createElement("canvas"); // never added to the DOM; we blit out of it
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
     renderer.setPixelRatio(1); // viewers size themselves in device pixels already
     renderer.setScissorTest(true);
     canvas.addEventListener("webglcontextlost", (e) => {

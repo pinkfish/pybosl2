@@ -815,6 +815,118 @@ def trapezoid2d(
     return polygon2d(pts, res=res)
 
 
+_KEYHOLE_EPS = 1e-9
+
+
+def _arc_points(
+    centre: tuple[float, float],
+    radius: float,
+    start_deg: float,
+    sweep_deg: float,
+    per_deg: float,
+) -> list[list[float]]:
+    """Sample an arc of *sweep_deg* (signed: negative sweeps clockwise) at roughly *per_deg* density."""
+    n = max(3, int(abs(sweep_deg) * per_deg))
+    out = []
+    for i in range(n):
+        a = math.radians(start_deg + sweep_deg * i / (n - 1))
+        out.append([centre[0] + radius * math.cos(a), centre[1] + radius * math.sin(a)])
+    return out
+
+
+def _dedupe_ring(pts: list[list[float]]) -> list[list[float]]:
+    """Drop consecutive duplicate points (and a repeated closing point) from a sampled ring."""
+    out: list[list[float]] = []
+    for p in pts:
+        if not out or abs(p[0] - out[-1][0]) > _KEYHOLE_EPS or abs(p[1] - out[-1][1]) > _KEYHOLE_EPS:
+            out.append(p)
+    if len(out) > 1 and abs(out[0][0] - out[-1][0]) < _KEYHOLE_EPS and abs(out[0][1] - out[-1][1]) < _KEYHOLE_EPS:
+        out.pop()
+    return out
+
+
+def keyhole_outline(
+    length: float = 15,
+    radius1: float = 5,
+    radius2: float = 10,
+    shoulder_radius: float = 0,
+    diameter1: float | None = None,
+    diameter2: float | None = None,
+    res: int = 10,
+) -> list[list[float]]:
+    """Return the classic keyhole outline as a counter-clockwise list of ``[x, y]`` points.
+
+    The shape BOSL2's ``keyhole()`` builds: circle *radius1* at the origin, circle *radius2* at
+    ``[0, -length]``, joined by a parallel-sided neck that runs tangent to the SMALLER of the two.
+    Where the neck's walls meet the larger circle they cross at a genuine corner, and
+    *shoulder_radius* rounds that corner off with a concave fillet -- so unlike the arcs and walls,
+    the fillet ADDS material, filling the inside corner rather than cutting it away.
+
+    The fillet centre sits ``shoulder_radius`` off the wall and ``radius + shoulder_radius`` from
+    the large circle's centre, which is what makes it tangent to both; that construction also fixes
+    how far down the neck the shoulder lands, hence the ``dy`` below.
+
+    Args:
+        length:     distance between the two circle centres (default 15)
+        radius1:    radius of the circle at the origin (default 5)
+        radius2:    radius of the circle at ``[0, -length]`` (default 10)
+        shoulder_radius: concave fillet radius at the two shoulders; 0 leaves them sharp
+        diameter1:  diameter form of *radius1*
+        diameter2:  diameter form of *radius2*
+        res:        point density (default 10)
+
+    Returns:
+        The outline points, counter-clockwise, without a repeated closing point.
+
+    """
+    r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
+    r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
+    sh = float(shoulder_radius or 0.0)
+    assert length > 0, "keyhole_outline(): length must be positive."
+    assert min(r1v, r2v) > 0, "keyhole_outline(): both radii must be positive."
+    assert sh >= 0, "keyhole_outline(): shoulder_radius cannot be negative."
+
+    # Build with the smaller circle at the origin, then rotate a half turn if it was the other way
+    # round: a half turn preserves the winding, so the result stays counter-clockwise either way.
+    small, big = min(r1v, r2v), max(r1v, r2v)
+    flipped = r1v > r2v
+    per_deg = max(12, res * 4) / 90.0
+
+    # How far down the neck the shoulder lands: the fillet centre is (small+sh) off the axis and
+    # (big+sh) from the large circle's centre, so the axial offset closes the right triangle.
+    dy = math.sqrt((big + sh) ** 2 - (small + sh) ** 2)
+    assert dy < length, (
+        f"keyhole_outline(): no room for a neck between the circles "
+        f"(length={length}, radii={r1v}/{r2v}, shoulder_radius={sh})."
+    )
+
+    stadium = (big - small) < _KEYHOLE_EPS  # equal radii: the walls meet the far circle tangentially
+    fillet = sh > _KEYHOLE_EPS and not stadium
+    centre_r = (small + sh, -length + dy)  # right-hand fillet centre
+    wall_r = [small, -length + dy]  # where that fillet meets the wall
+    circle_r = (
+        [big * (small + sh) / (big + sh), -length + big * dy / (big + sh)] if not stadium else [small, -length]
+    )  # ...and where it meets the large circle
+
+    pts = _arc_points((0.0, 0.0), small, 0.0, 180.0, per_deg)  # small circle, over the top
+    pts.append([-wall_r[0], wall_r[1]])  # down the left wall
+    if fillet:  # concave, so it is traced clockwise while the rest runs counter-clockwise
+        to_circle = math.degrees(math.atan2(circle_r[1] - centre_r[1], -circle_r[0] + centre_r[0]))
+        pts += _arc_points((-centre_r[0], centre_r[1]), sh, 0.0, to_circle % 360 - 360, per_deg)
+
+    right = math.degrees(math.atan2(circle_r[1] + length, circle_r[0]))
+    pts += _arc_points((0.0, -length), big, 180 - right, (right + 360) - (180 - right), per_deg)
+
+    if fillet:
+        from_circle = math.degrees(math.atan2(circle_r[1] - centre_r[1], circle_r[0] - centre_r[0]))
+        pts += _arc_points(centre_r, sh, from_circle, (180 - from_circle) % 360 - 360, per_deg)
+    else:
+        pts.append(list(wall_r))  # sharp shoulder: the corner itself
+
+    pts = _dedupe_ring(pts)
+    return [[-p[0], -length - p[1]] for p in pts] if flipped else pts
+
+
 def keyhole2d(
     length: float = 15,
     radius1: float = 5,
@@ -824,57 +936,30 @@ def keyhole2d(
     diameter2: float | None = None,
     res: int = 10,
 ) -> PyShape2D:
-    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders, as an.
+    """Return a keyhole slot -- two circles joined by a parallel-sided neck -- as an SDF polygon.
 
-    SDF-based polygon.
+    The outline itself is :func:`keyhole_outline`; see there for the construction and for the
+    meaning of *shoulder_radius*.
 
     Args:
-        length:     overall length between the two circle centres (default 15)
-        radius1:      radius/diameter of the small circle (default 5)
-        diameter1:      radius/diameter of the small circle (default 5)
-        radius2:      radius/diameter of the large circle (default 10)
-        diameter2:      radius/diameter of the large circle (default 10)
-        shoulder_radius: fillet radius at the shoulder junctions (default 0)
+        length:     distance between the two circle centres (default 15)
+        radius1:    radius of the circle at the origin (default 5)
+        radius2:    radius of the circle at ``[0, -length]`` (default 10)
+        shoulder_radius: concave fillet radius at the two shoulders; 0 leaves them sharp
+        diameter1:  diameter form of *radius1*
+        diameter2:  diameter form of *radius2*
         res:        meshing resolution (default 10)
 
     """
-    import math as _m
-
-    r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
-    r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
-    assert length > 0, "keyhole2d(): length must be positive."
-    assert length >= max(r1v, r2v), "keyhole2d(): length must be positive."
-
-    # Build profile: two circles connected by tangent lines (shoulders)
-    sh = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
-    cp1, cp2 = [0.0, 0.0], [0.0, -length]
-    minr, maxr = min(r1v, r2v) + sh, max(r1v, r2v) + sh
-    dy = _m.sqrt(max(maxr * maxr - minr * minr, 0))
-    spt1 = [cp1[0] + minr, cp1[1] - dy] if r1v > r2v else [cp2[0] + minr, cp2[1] + dy]
-    spt2 = [-spt1[0], spt1[1]]
-
-    # Sample arcs and lines
-    steps = max(12, res * 4)
-    pts = []
-    if r1v > r2v:
-        pts.append(spt1)
-        for i in range(steps):
-            a = _m.radians(90 - 90 * i / (steps - 1))
-            pts.append([cp2[0] + r2v * _m.cos(a), cp2[1] - r2v * _m.sin(a)])
-        pts.append(spt2)
-        for i in range(steps):
-            a = _m.radians(270 - 90 * i / (steps - 1))
-            pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] - r1v * _m.sin(a)])
-    else:
-        pts.append(spt1)
-        for i in range(steps):
-            a = _m.radians(90 + 90 * i / (steps - 1))
-            pts.append([cp2[0] + r2v * _m.cos(a), cp2[1] + r2v * _m.sin(a)])
-        pts.append(spt2)
-        for i in range(steps):
-            a = _m.radians(270 + 90 * i / (steps - 1))
-            pts.append([cp1[0] + r1v * _m.cos(a), cp1[1] + r1v * _m.sin(a)])
-
+    pts = keyhole_outline(
+        length=length,
+        radius1=radius1,
+        radius2=radius2,
+        shoulder_radius=shoulder_radius,
+        diameter1=diameter1,
+        diameter2=diameter2,
+        res=res,
+    )
     return polygon2d(pts, res=res)
 
 

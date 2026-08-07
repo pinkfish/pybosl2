@@ -180,36 +180,9 @@ def _round_corners(
     fs: float | None = None,
     k: float | Sequence[float] | None = None,
 ) -> object:
-    """Round every corner of *path* (BOSL2 round_corners()).
+    """Round every corner of *path* (internal implementation).
 
-    *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
-    or ``"chamfer"`` (a straight bevel). Size the roundover with exactly one of *radius*/*radius* (circle
-    only), *cut* (depth toward the corner), *joint* (distance back from the corner along each edge),
-    or *width* (chamfer only) -- each a scalar or a per-corner list. *curvature* (smooth only, 0..1) tunes
-    how tight the curvature match is. Works on 2-D and 3-D paths.
-
-    Returns:
-        A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
-
-    Examples:
-        A rounded, smoothed and chamfered square (three copies):
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D, Path3D
-
-            sq = [[0, 0], [40, 0], [40, 40], [0, 40]]
-            Path2D(sq).round_corners(method="smooth", joint=10).polygon().linear_extrude(height=4).show()
-
-        A 2-D path with circle-rounded corners:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D, Path3D
-
-            path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])
-            path.round_corners(method="circle", radius=3).polygon().linear_extrude(height=5).show()
-
+    Public API: use :meth:`Path.round_corners` instead of calling this directly.
     """
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
@@ -353,35 +326,9 @@ def _smooth_path(
     uniform: bool = False,
     closed: bool = False,
 ) -> object:
-    """Fit a smooth continuous-curvature curve through *path* (BOSL2 smooth_path(), method="edges").
+    """Fit a smooth continuous-curvature curve through *path* (internal implementation).
 
-    Runs a cubic bezier through every point of *path*, matching the path's tangents, and samples it
-    with *splinesteps* points per segment. *size* / *relsize* bound how far the curve may bow away
-    from the straight path (relsize is a fraction of each segment, default 0.1). The BOSL2
-    ``method="corners"`` variant is not ported.
-
-    Returns:
-        A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
-
-    Examples:
-        A wiggly control path smoothed into a flowing curve:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D, Path3D
-
-            pts = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
-            Path2D(pts).smooth_path(relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
-
-        A sawtooth path smoothed with explicit size and relsize:
-
-        .. pythonscad-example::
-
-            from pybosl2 import Path2D, Path3D
-
-            path = Path2D([[0, 0], [10, 5], [20, 0], [30, 10]])
-            path.smooth_path(relsize=0.1).stroke(width=1).linear_extrude(height=3).show()
-
+    Public API: use :meth:`Path.smooth_path` instead of calling this directly.
     """
     from pybosl2.beziers import create_bezier
     from pybosl2.path2d import Path2D
@@ -427,7 +374,37 @@ class Roundable:
         fs: float | None = None,
         k: float | None = None,
     ) -> object:
-        """Round every corner of this path (see :func:`round_corners`)."""
+        """Round every corner of this path (BOSL2 round_corners()).
+
+        *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
+        or ``"chamfer"`` (a straight bevel). Size the roundover with exactly one of *radius* (circle
+        only), *cut* (depth toward the corner), *joint* (distance back from the corner along each edge),
+        or *width* (chamfer only) -- each a scalar or a per-corner list. *curvature* (smooth only, 0..1)
+        tunes how tight the curvature match is. Works on 2-D and 3-D paths.
+
+        Returns:
+            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
+
+        Examples:
+            A rounded, smoothed and chamfered square (three copies):
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D, Path3D
+
+                sq = [[0, 0], [40, 0], [40, 40], [0, 40]]
+                Path2D(sq).round_corners(method="smooth", joint=10).polygon().linear_extrude(height=4).show()
+
+            A 2-D path with circle-rounded corners:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D, Path3D
+
+                path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])
+                path.round_corners(method="circle", radius=3).polygon().linear_extrude(height=5).show()
+
+        """
         path_self = cast("Path", self)
         return _round_corners(
             cast("Sequence[Sequence[float]]", self),
@@ -453,7 +430,36 @@ class Roundable:
         uniform: bool = False,
         closed: bool | None = None,
     ) -> object:
-        """Fit a smooth continuous-curvature curve through this path (see :func:`smooth_path`)."""
+        """Fit a smooth continuous-curvature curve through this path (BOSL2 smooth_path(), method="edges").
+
+        Runs a cubic bezier through every point, matching the path's tangents, and samples it
+        with *splinesteps* points per segment. *size* / *relsize* bound how far the curve may bow away
+        from the straight path (relsize is a fraction of each segment, default 0.1). The BOSL2
+        ``method="corners"`` variant is not ported.
+
+        Returns:
+            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).
+
+        Examples:
+            A wiggly control path smoothed into a flowing curve:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D, Path3D
+
+                pts = [[0, 0], [10, 30], [30, -10], [50, 20], [70, 0]]
+                Path2D(pts).smooth_path(relsize=0.4).stroke(width=2).linear_extrude(height=3).show()
+
+            A sawtooth path smoothed with explicit size and relsize:
+
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D, Path3D
+
+                path = Path2D([[0, 0], [10, 5], [20, 0], [30, 10]])
+                path.smooth_path(relsize=0.1).stroke(width=1).linear_extrude(height=3).show()
+
+        """
         path_self = cast("Path", self)
         return _smooth_path(
             cast("Sequence[Sequence[float]]", self),

@@ -3724,7 +3724,7 @@ transforms.py, so a polygon can be built once and then chained
 point lists through free functions.</p>
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.regions.</span></span><span class="sig-name descname"><span class="pre">Region</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.__init__.paths" title="pybosl2.regions.Region.__init__.paths (Python parameter) — The outlines; each is coerced to a Path2D."><span class="n"><span class="pre">paths</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">()</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.regions.</span></span><span class="sig-name descname"><span class="pre">Region</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.__init__.paths" title="pybosl2.regions.Region.__init__.paths (Python parameter) — The outlines; each is coerced to a Path2D."><span class="n"><span class="pre">paths</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">()</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A 2-D region backed by <code class="xref py py-mod docutils literal notranslate"><span class="pre">shapely</span></code> (not OpenSCAD/PythonSCAD).</p>
 <p>Stores <code class="xref py py-class docutils literal notranslate"><span class="pre">MultiPolygon</span></code> internally and derives
@@ -3772,7 +3772,7 @@ accepted.</p>
 </div></blockquote>
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.paths">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">paths</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path2D</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pybosl2.regions.Region.paths" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">paths</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path2D</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pybosl2.regions.Region.paths" title="Link to this definition">¶</a></dt>
 <dd><p>The list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> objects derived from the geometry.</p>
 <p>Extracted on-demand from the underlying shapely
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Polygon</span></code> or <code class="xref py py-class docutils literal notranslate"><span class="pre">MultiPolygon</span></code>.</p>
@@ -3785,7 +3785,7 @@ accepted.</p>
 
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.geom">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geom</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">MultiPolygon</span></span><a class="headerlink" href="#pybosl2.regions.Region.geom" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geom</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">MultiPolygon</span></span><a class="headerlink" href="#pybosl2.regions.Region.geom" title="Link to this definition">¶</a></dt>
 <dd><p>The underlying shapely geometry.</p>
 </dd></dl>
 
@@ -3806,9 +3806,9 @@ accepted.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.with_holes">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_holes</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.with_holes.outline" title="pybosl2.regions.Region.with_holes.outline (Python parameter) — The outer outline Path2D."><span class="n"><span class="pre">outline</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.regions.Region.with_holes.holes" title="pybosl2.regions.Region.with_holes.holes (Python parameter) — Zero or more hole outline Path2D objects."><span class="n"><span class="pre">holes</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.with_holes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.with_holes" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">with_holes</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.with_holes.outline" title="pybosl2.regions.Region.with_holes.outline (Python parameter) — The outer outline Path2D."><span class="n"><span class="pre">outline</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.regions.Region.with_holes.holes" title="pybosl2.regions.Region.with_holes.holes (Python parameter) — Zero or more hole outline Path2D objects."><span class="n"><span class="pre">holes</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.with_holes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.with_holes" title="Link to this definition">¶</a></dt>
 <dd><p>Create a region from an outline plus hole outlines.</p>
-<p>Convenience constructor. Equivalent to <code class="docutils literal notranslate"><span class="pre">Region([outline,</span> <span class="pre">\*holes])</span></code>.
+<p>Convenience constructor. Equivalent to <code class="docutils literal notranslate"><span class="pre">Region([outline,</span> <span class="pre">\\*holes])</span></code>.
 See <code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code> for the full constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.with_holes-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.with_holes-parameters" title="Permalink to this headline">¶</a></dt>
@@ -3830,7 +3830,7 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.outline">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outline</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">Path2D</span></span><a class="headerlink" href="#pybosl2.regions.Region.outline" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outline</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">Path2D</span></span><a class="headerlink" href="#pybosl2.regions.Region.outline" title="Link to this definition">¶</a></dt>
 <dd><p>The outer path.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.outline-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.outline-returns" title="Permalink to this headline">¶</a></dt>
@@ -3841,7 +3841,7 @@ See <code class="xref py py-meth docutils literal notranslate"><span class="pre"
 
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.holes">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">holes</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path2D</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pybosl2.regions.Region.holes" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">holes</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Path2D</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pybosl2.regions.Region.holes" title="Link to this definition">¶</a></dt>
 <dd><p>The hole paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.holes-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.holes-returns" title="Permalink to this headline">¶</a></dt>
@@ -3973,7 +3973,7 @@ operators and the extruders.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.hull">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hull</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.regions.Region.hull.others" title="pybosl2.regions.Region.hull.others (Python parameter) — The regions or closed paths to hull together."><span class="n"><span class="pre">others</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.hull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.hull" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hull</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.regions.Region.hull.others" title="pybosl2.regions.Region.hull.others (Python parameter) — The regions or closed paths to hull together."><span class="n"><span class="pre">others</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.hull"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.hull" title="Link to this definition">¶</a></dt>
 <dd><p>Return the 2-D convex hull of all the given regions and paths.</p>
 <p>Uses shapely <code class="xref py py-func docutils literal notranslate"><span class="pre">convex_hull()</span></code> on the union of all input
 geometries. Accepts a flat list or multiple arguments:</p>
@@ -4351,7 +4351,7 @@ red – path <code class="docutils literal notranslate"><span class="pre">a</spa
 
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    8.2.3.
+    7.4.7.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
 

@@ -606,7 +606,8 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
         d = deriv(pts, h=segs, closed=closed)
     norms = np.linalg.norm(d, axis=1, keepdims=True)
     assert np.all(norms > 1e-12), "cannot normalize a zero tangent"
-    return d / norms
+    unit_tangents: NDArray[np.float64] = d / norms
+    return unit_tangents
 
 
 def _cubic_real_roots(p: list[float]) -> list[float]:
