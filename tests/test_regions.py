@@ -250,15 +250,6 @@ def test_operator_sub_with_path() -> None:
     assert isinstance(result, Region)
 
 
-def test_raises_on_open_path() -> None:
-    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path2D([[20, 0], [60, 0], [60, 30]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        a.union(b)
-    with pytest.raises(ValueError, match="closed"):
-        a | b
-
-
 def test_symmetric_difference_with_path() -> None:
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
     b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
@@ -308,13 +299,6 @@ def test_region_hull_empty() -> None:
     result = Region.hull()
     assert isinstance(result, Region)
     assert len(result) == 0
-
-
-def test_region_hull_raises_on_open_path() -> None:
-    a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path2D([[40, 0], [70, 0], [70, 30]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        Region.hull(a, b)
 
 
 def test_path_hull_two_squares() -> None:

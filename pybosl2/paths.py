@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Self, cast
 import numpy as np
 
 from pybosl2.caps import CapSpec, CapType
+from pybosl2.math import EPSILON, deriv
 from pybosl2.points import Point
 
 
@@ -78,7 +79,7 @@ class Path(ABC):
     def __new__(
         cls,
         points: Sequence[Sequence[float]] | None = None,
-        closed: bool = True,  # noqa: ARG004
+        closed: bool = False,  # noqa: ARG004
     ) -> Self:
         """Create a concrete Path2D or Path3D instance.
 
@@ -102,7 +103,7 @@ class Path(ABC):
         return super().__new__(cls)
 
     @abstractmethod
-    def __init__(self, points: Sequence[Sequence[float]], closed: bool = True) -> None:
+    def __init__(self, points: Sequence[Sequence[float]], closed: bool = False) -> None:
         """Initialize the instance."""
         ...
 
@@ -183,6 +184,41 @@ class Path(ABC):
 
         """
         ...
+
+    def tangent_array(self, closed: bool | None = None, uniform: bool = True) -> NDArray[np.float64]:
+        """Return the unit tangent at every point of the path, as an (N, D) array (BOSL2 path_tangents).
+
+        The shared implementation behind :meth:`tangents` for both dimensions. Always returns
+        one tangent per path point, never one per segment.
+
+        Args:
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            uniform: If True, estimate the derivative assuming equally spaced points. If False,
+                sample it at the true (non-uniform) segment lengths, which tracks a path whose
+                points are unevenly spaced far better.
+
+        Returns:
+            An ndarray of unit tangent vectors, one per path point.
+
+        Raises:
+            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+
+        """
+        if closed is None:
+            closed = self.closed
+        pts = self._points
+        if len(pts) < 2:
+            # An empty Path2D holds a 1-D zero-length array rather than an (0, 2) one, so this
+            # cannot go through zeros_like: build the (N, D) result from the point count.
+            straight: NDArray[np.float64] = np.zeros((len(pts), pts.shape[1] if pts.ndim > 1 else 2))
+            straight[:, 0] = 1.0
+            return straight
+        height: float | NDArray[np.float64] = 1.0 if uniform else self.segment_lengths(closed=closed)
+        derivs = np.asarray(deriv(pts, height=height, closed=closed), dtype=float)
+        norms = np.linalg.norm(derivs, axis=1, keepdims=True)
+        assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
+        result: NDArray[np.float64] = derivs / norms
+        return result
 
     @abstractmethod
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> list[Point]:

@@ -353,7 +353,23 @@ class CsgShape2D(BaseShape):
         return moved
 
     def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "CsgShape2D":
-        """Position a child at the given anchor of the parent."""
+        """Place *child* so its local origin lands on this shape's bounding-box *anchor* point.
+
+        The child is NOT unioned here: the returned copy of self carries it in
+        :attr:`attachments`, and the union (or the tag-driven diff/intersection, if one is
+        configured) happens later, in :meth:`realize` -- which runs automatically the first
+        time a native operation needs real geometry. Until then :meth:`bounds` and the anchor
+        points derived from it describe the PARENT only.
+
+        Args:
+            anchor: The parent anchor point to place the child's origin on.
+            child: The shape to place (a 2-D pybosl2 shape or a raw native shape).
+            bbox: Optional override bounding box ``[[min_x, min_y], [max_x, max_y]]``.
+
+        Returns:
+            A copy of this shape carrying the placed child as a pending attachment.
+
+        """
         p = self.anchor_point(anchor, bbox=bbox)
         cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
         placed = cshape.translate(p)
@@ -371,7 +387,24 @@ class CsgShape2D(BaseShape):
         overlap: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "CsgShape2D":
-        """Align a child to an edge of the parent."""
+        """Place *child* against this shape's *anchor* edge, without reorienting it.
+
+        Like :meth:`attach` it mates a child edge to a parent edge, but the child keeps its own
+        axes and is merely translated. As with :meth:`position`, the child is deferred rather
+        than unioned -- see that method for what that means for :meth:`bounds`.
+
+        Args:
+            anchor: The parent edge to place the child on.
+            child: The shape to place (a 2-D pybosl2 shape or a raw native shape).
+            align: Corner within the edge to sit flush against (default: centered).
+            inside: Place the child inside the parent instead of outside.
+            overlap: Pull the child toward the parent along the edge normal by this much.
+            bbox: Optional override bounding box ``[[min_x, min_y], [max_x, max_y]]``.
+
+        Returns:
+            A copy of this shape carrying the placed child as a pending attachment.
+
+        """
         face = list(anchor.vector_2d)
         edge = list(Anchor.CENTER.vector_2d) if align is None else list(align.vector_2d)
         factor = -1.0 if inside else 1.0
@@ -396,7 +429,28 @@ class CsgShape2D(BaseShape):
         spin: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "CsgShape2D":
-        """Attach a child to the parent at the given anchors."""
+        """Orient and place *child* so its *child_anchor* edge mates flush against *parent_anchor*.
+
+        The child is NOT unioned here: the returned copy of self carries it in
+        :attr:`attachments`, and the union (or the tag-driven diff/intersection, if one is
+        configured) happens later, in :meth:`realize` -- which runs automatically the first
+        time a native operation needs real geometry. Until then :meth:`bounds` and the anchor
+        points derived from it describe the PARENT only, which is what lets several attach()
+        calls chain off the same parent edges.
+
+        Args:
+            parent_anchor: Which edge of self to attach to.
+            child: The shape to attach (a 2-D pybosl2 shape or a raw native shape).
+            child_anchor: Which edge of the child mates against it (default: the child's edge
+                opposite *parent_anchor*, so the two mate naturally).
+            overlap: Pull the child in by this much along the mating axis.
+            spin: Spin the child about the mating point, in degrees.
+            bbox: Optional override bounding box ``[[min_x, min_y], [max_x, max_y]]``.
+
+        Returns:
+            A copy of this shape carrying the placed child as a pending attachment.
+
+        """
         pa = list(parent_anchor.vector_2d)
         ca = [-pa[0], -pa[1]] if child_anchor is None else list(child_anchor.vector_2d)
         cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)

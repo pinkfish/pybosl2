@@ -21,7 +21,7 @@ SQUARE_LOOP = [[0, 0, 0], [10, 0, 0], [10, 10, 5], [0, 10, 5]]
 
 
 def test_construction_requires_3d_points() -> None:
-    p = Path3D(SQUARE_LOOP)
+    p = Path3D(SQUARE_LOOP, closed=True)
     assert isinstance(p, Path3D)
     assert len(p) == 4
     np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
@@ -35,16 +35,17 @@ def test_construction_requires_3d_points() -> None:
 
 
 def test_closed_flag_and_repr() -> None:
-    assert Path3D(SQUARE_LOOP).closed is True
+    assert Path3D(SQUARE_LOOP).closed is False  # open by default, as in BOSL2
+    assert Path3D(SQUARE_LOOP, closed=True).closed is True
     assert Path3D(SQUARE_LOOP, closed=False).closed is False
     assert "Path3D" in repr(Path3D(SQUARE_LOOP))
-    assert repr(Path3D(SQUARE_LOOP)) == "Path3D(4 pts, closed=True)"
+    assert repr(Path3D(SQUARE_LOOP, closed=True)) == "Path3D(4 pts, closed=True)"
     assert repr(Path3D(SQUARE_LOOP, closed=False)) == "Path3D(4 pts, closed=False)"
     assert len(Path3D(SQUARE_LOOP, closed=False)) == 4
 
 
 def test_array_and_bounds() -> None:
-    p = Path3D(SQUARE_LOOP)
+    p = Path3D(SQUARE_LOOP, closed=True)
     assert p.array.shape == (4, 3)
     bounds = p.bounds()
     assert bounds.min_x == 0

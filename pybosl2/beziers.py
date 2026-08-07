@@ -360,8 +360,11 @@ class Bezier:
         path = np.asarray(self.points(uvals), dtype=float)
         defl = max(float(np.linalg.norm(path[i + 1] - (path[i] + path[i + 2]) / 2)) for i in range(len(path) - 2))
         if defl <= max_deflect:
+            # closed=False matters: the sampled polyline is an arc, not a loop, and letting the
+            # path type close it back to the start would add a spurious chord to the length.
             dim = path.shape[1] if len(path) > 0 else 2
-            return float((Path3D(path) if dim == 3 else Path2D(path)).perimeter())
+            sampled = Path3D(path, closed=False) if dim == 3 else Path2D(path, closed=False)
+            return float(sampled.perimeter())
         total: float = sum(
             (
                 self.arc_length(
