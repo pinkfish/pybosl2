@@ -92,6 +92,11 @@ quote-style = "double"
 
 [tool.mypy]
 ignore_missing_imports = true
+# docs/ has no __init__.py, and its scripts are reachable both as top-level modules (conf.py puts
+# docs/ and docs/_ext/ on sys.path) and as `docs._specgen` / `docs._ext.stl_viewer` (the scripts put
+# the repo root on sys.path). Without this, `mypy .` stops at "Source file found twice under
+# different module names" before checking anything.
+explicit_package_bases = true
 exclude = [
     '^build/',
     '^\.venv/',
