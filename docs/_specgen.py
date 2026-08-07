@@ -795,7 +795,7 @@ MODULES = {
             "joint — male tenon or female socket — and a press-and-click snap pin."
         ),
         "part": 'dovetail("male", width=15, height=8, slide=30)',
-        "code": 'Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)',
+        "code": 'Dovetail.<span class="k">__init__</span>(Gender.MALE, width=15, height=8, slide=30).shape()',
         "metrics": [
             ("male dovetail", 12, "3,920.0", "18×30×8"),
             ("snap pin", 1718, "199.5", "6×6×15"),
@@ -993,7 +993,7 @@ MODULES = {
             "Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole."
         ),
         "part": "ring_hook([50, 10], 25, or_=25, ir=20)",
-        "code": 'Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)',
+        "code": 'RingHook.<span class="k">__init__</span>([50, 10], 25, or_=25, ir=20).shape()',
         "metrics": [
             ("ring · ir=20", 208, "9,771.2", "50×10×50"),
             ("D-hole ring", 144, "18,737.4", "50×10×50"),
@@ -1226,10 +1226,12 @@ SETUP = {
     "gears": "from pybosl2.parts.gears import Gears\n",
     "walls": "from pybosl2.parts.walls import Walls\n",
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
-    "hooks": "import math\nfrom pybosl2.parts.hooks import Hooks\n",
+    "hooks": "import math\nfrom pybosl2.parts.hooks import HoleType, RingHook\n",
     "polyhedra": "from pybosl2.parts.polyhedra import RegularPolyhedron, PlatonicSolid\n",
     "hinges": "from pybosl2.parts.hinges import Hinges\n",
-    "joiners": "from pybosl2.parts.joiners import Joiners\n",
+    "joiners": (
+        "from pybosl2.parts.enums import Gender\nfrom pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket\n"
+    ),
     "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
     "ball_bearings": "from pybosl2.parts.ball_bearings import BallBearings\n",
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
@@ -1318,18 +1320,18 @@ VARIANTS = {
         ),
     ],
     "hooks": [
-        ("ring", "ring hole", "Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20)"),
-        ("solid", "solid paddle", "Hooks.ring_hook([70, 10], 25, outer_radius=25, inner_radius=0)"),
-        ("d-hole", "D hole", 'Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=15, hole="D")'),
+        ("ring", "ring hole", "RingHook([50, 10], 25, outer_radius=25, inner_radius=20).shape()"),
+        ("solid", "solid paddle", "RingHook([70, 10], 25, outer_radius=25, inner_radius=0).shape()"),
+        ("d-hole", "D hole", "RingHook([50, 10], 25, outer_radius=25, inner_radius=15, hole=HoleType.D).shape()"),
         (
             "rounded",
             "rounded",
-            "Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)",
+            "RingHook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5).shape()",
         ),
         (
             "custom",
             "custom hole",
-            f"Hooks.ring_hook([50, 20], 30, outer_radius=25, {_HOOK_OCT})",
+            f"RingHook([50, 20], 30, outer_radius=25, {_HOOK_OCT}).shape()",
         ),
     ],
     "polyhedra": [
@@ -1349,20 +1351,20 @@ VARIANTS = {
         (
             "male",
             "male dovetail",
-            'Joiners.dovetail("male", width=15, height=8, slide=30)',
+            "Dovetail(Gender.MALE, width=15, height=8, slide=30).shape()",
         ),
         (
             "female",
             "female socket",
-            'Joiners.dovetail("female", width=15, height=8, slide=30)',
+            "Dovetail(Gender.FEMALE, width=15, height=8, slide=30).shape()",
         ),
         (
             "taper",
             "tapered",
-            'Joiners.dovetail("male", width=15, height=8, slide=30, taper=4)',
+            "Dovetail(Gender.MALE, width=15, height=8, slide=30, taper=4).shape()",
         ),
-        ("snap-pin", "snap pin", "Joiners.snap_pin()"),
-        ("socket", "pin socket", "Joiners.snap_pin_socket()"),
+        ("snap-pin", "snap pin", "SnapPin().shape()"),
+        ("socket", "pin socket", "SnapPinSocket().shape()"),
     ],
     "cubetruss": [
         ("truss", "3-truss", "CubeTruss.cubetruss(extents=3)"),

@@ -203,7 +203,7 @@ class HoseSegment:
 
         .. pythonscad-example::
 
-            from pybosl2.parts.modular_hose import HoseSegment
+            from pybosl2.parts.modular_hose import HoseSegment, HoseType
             HoseSegment(0.5, HoseType.SEGMENT).show()
 
     """

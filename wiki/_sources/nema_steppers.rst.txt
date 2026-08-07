@@ -11,15 +11,21 @@ NEMA steppers
 
 Pure-Python port of BOSL2's ``nema_steppers.scad``: models of NEMA-standard stepper motors and the
 masks that cut their mounting-hole pattern into a plate.
-:meth:`~pybosl2.parts.nema_steppers.NemaSteppers.nema_stepper_motor` builds a motor (body, plinth, shaft and
-blind screw holes) for a NEMA size; :meth:`~pybosl2.parts.nema_steppers.NemaSteppers.nema_mount_mask` is the
-bolt-pattern-plus-plinth cutout; :meth:`~pybosl2.parts.nema_steppers.NemaSteppers.nema_motor_info` returns
-the standard dimensions as a :class:`~pybosl2.parts.nema_steppers`.
+:class:`~pybosl2.parts.nema_steppers.NemaMotor` builds a motor (body, plinth, shaft and
+blind screw holes) for a NEMA size; :class:`~pybosl2.parts.nema_steppers.NemaMountMask` is the
+bolt-pattern-plus-plinth cutout; :class:`~pybosl2.parts.nema_steppers.NemaSpec` returns
+the standard dimensions.
 
 .. autoclass:: pybosl2.parts.nema_steppers.NemaSpec
    :members:
 
-.. autoclass:: pybosl2.parts.nema_steppers.NemaSteppers
+.. autoclass:: pybosl2.parts.nema_steppers.NemaMotor
+   :members:
+
+.. autoclass:: pybosl2.parts.nema_steppers.NemaMountMask
+   :members:
+
+.. autoclass:: pybosl2.parts.nema_steppers.NemaMaskType
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -36,29 +42,29 @@ NEMA 8:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_stepper_motor(size=8, height=24, shaft_len=15).show()
+   from pybosl2.parts.nema_steppers import NemaMotor
+   NemaMotor(size=8, height=24, shaft_len=15).show()
 
 NEMA 11:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_stepper_motor(size=11, height=24, shaft_len=20).show()
+   from pybosl2.parts.nema_steppers import NemaMotor
+   NemaMotor(size=11, height=24, shaft_len=20).show()
 
 NEMA 17:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_stepper_motor(size=17, height=40, shaft_len=30).show()
+   from pybosl2.parts.nema_steppers import NemaMotor
+   NemaMotor(size=17, height=40, shaft_len=30).show()
 
 NEMA 23:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_stepper_motor(size=23, height=50, shaft_len=40).show()
+   from pybosl2.parts.nema_steppers import NemaMotor
+   NemaMotor(size=23, height=50, shaft_len=40).show()
 
 .. rubric:: ``nema_mount_mask``
 
@@ -66,19 +72,19 @@ Bolt-pattern mask for a NEMA 14:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_mount_mask(size=14, depth=5, length=5).show()
+   from pybosl2.parts.nema_steppers import NemaMountMask
+   NemaMountMask(size=14, depth=5, length=5).show()
 
 NEMA 17 with slotted holes:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_mount_mask(size=17, depth=5, length=5).show()
+   from pybosl2.parts.nema_steppers import NemaMountMask
+   NemaMountMask(size=17, depth=5, length=5).show()
 
 NEMA 17 with round holes (length=0):
 
 .. pythonscad-example::
 
-   from pybosl2.parts.nema_steppers import NemaSteppers
-   NemaSteppers.nema_mount_mask(size=17, depth=5, length=0).show()
+   from pybosl2.parts.nema_steppers import NemaMountMask
+   NemaMountMask(size=17, depth=5, length=0).show()

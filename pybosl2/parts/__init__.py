@@ -16,8 +16,8 @@ from pybosl2.parts.cubetruss import CubeTruss
 from pybosl2.parts.enums import Gender, NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.parts.gears import Gears
 from pybosl2.parts.hinges import Hinges
-from pybosl2.parts.hooks import Hooks
-from pybosl2.parts.joiners import Joiners
+from pybosl2.parts.hooks import HoleType, RingHook
+from pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket
 from pybosl2.parts.linear_bearings import LinearBearings, LinearBearingSpec
 from pybosl2.parts.modular_hose import HoseSegment, HoseType, modular_hose_radius
 from pybosl2.parts.nema_steppers import NemaMaskType, NemaMotor, NemaMountMask, NemaSpec
@@ -40,8 +40,11 @@ __all__ = [
     "Gender",
     "Gears",
     "Hinges",
-    "Hooks",
-    "Joiners",
+    "HoleType",
+    "RingHook",
+    "Dovetail",
+    "SnapPin",
+    "SnapPinSocket",
     "LinearBearings",
     "LinearBearingSpec",
     "HoseSegment",

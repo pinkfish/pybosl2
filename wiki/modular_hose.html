@@ -21,7 +21,7 @@
 
 
 
-        <title>Modular hose - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+        <title>Modular hose - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
 
 
 
@@ -67,7 +67,7 @@
     <div data-md-component="skip">
 
 
-        <a href="#pybosl2.parts.modular_hose.ModularHose" class="md-skip">
+        <a href="#pybosl2.parts.modular_hose.HoseSegment" class="md-skip">
           Skip to content
         </a>
 
@@ -83,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -96,7 +96,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.6.7 documentation
+            pybosl2 (PythonSCAD port) 0.7.1 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -227,12 +227,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.6.7 documentation
+    pybosl2 (PythonSCAD port) 0.7.1 documentation
   </label>
 
     <div class="md-nav__source">
@@ -1395,33 +1395,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
 
         <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment" class="md-nav__link">
 
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
 
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.ModularHose (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Modular<wbr>Hose</span></span>
+      <span title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Hose<wbr>Segment</span></span>
     </span>
   </a>
 
-    <nav class="md-nav" aria-label="pybosl2.parts.modular_hose.ModularHose">
+    <nav class="md-nav" aria-label="pybosl2.parts.modular_hose.HoseSegment">
       <ul class="md-nav__list">
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose" class="md-nav__link">
-
-      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
-
-    <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.ModularHose.modular_hose (Python method) — Return a modular-hose ball end, socket end, or full segment (BOSL2 modular_hose())."><span>modular_<wbr>hose</span></span>
-    </span>
-  </a>
-
-    <nav class="md-nav" aria-label="modular_hose">
-      <ul class="md-nav__list">
-
-          <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose-parameters" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment-parameters" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Parameters</span>
@@ -1431,7 +1418,44 @@
 </li>
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose-return-type" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.size" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.HoseSegment.size (Python property) — Hose size (0.25, 0.5 or 0.75 inches)."><span>size</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.hose_type" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.HoseSegment.hose_type (Python property) — Segment type."><span>hose_<wbr>type</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.shape" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.HoseSegment.shape (Python method) — Return the hose segment geometry."><span>shape</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="shape">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.shape-return-type" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Return type</span>
@@ -1446,30 +1470,20 @@
 </li>
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.show" class="md-nav__link">
 
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
 
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius (Python method) — Return the inner (bore) or outer radius of a modular hose of size (BOSL2."><span>modular_<wbr>hose_<wbr>radius</span></span>
+      <span title="pybosl2.parts.modular_hose.HoseSegment.show (Python method) — Display the hose segment in the viewer."><span>show</span></span>
     </span>
   </a>
 
-    <nav class="md-nav" aria-label="modular_hose_radius">
+    <nav class="md-nav" aria-label="show">
       <ul class="md-nav__list">
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-parameters" class="md-nav__link">
-
-    <span class="md-ellipsis">
-      <span>Parameters</span>
-    </span>
-  </a>
-
-</li>
-
-          <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-return-type" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.show-return-type" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Return type</span>
@@ -1480,6 +1494,44 @@
 
       </ul>
     </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.modular_hose_radius" class="md-nav__link">
+
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.modular_hose_radius (Python function) — Return the inner (bore) or outer radius of a modular hose of size."><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>modular_<wbr>hose_<wbr>radius</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="pybosl2.parts.modular_hose.modular_hose_radius">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.modular_hose_radius-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.modular_hose_radius-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
 
 </li>
 
@@ -1909,33 +1961,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
 
         <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment" class="md-nav__link">
 
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
 
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.ModularHose (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Modular<wbr>Hose</span></span>
+      <span title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Hose<wbr>Segment</span></span>
     </span>
   </a>
 
-    <nav class="md-nav" aria-label="pybosl2.parts.modular_hose.ModularHose">
+    <nav class="md-nav" aria-label="pybosl2.parts.modular_hose.HoseSegment">
       <ul class="md-nav__list">
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose" class="md-nav__link">
-
-      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
-
-    <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.ModularHose.modular_hose (Python method) — Return a modular-hose ball end, socket end, or full segment (BOSL2 modular_hose())."><span>modular_<wbr>hose</span></span>
-    </span>
-  </a>
-
-    <nav class="md-nav" aria-label="modular_hose">
-      <ul class="md-nav__list">
-
-          <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose-parameters" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment-parameters" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Parameters</span>
@@ -1945,7 +1984,44 @@
 </li>
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose-return-type" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.size" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.HoseSegment.size (Python property) — Hose size (0.25, 0.5 or 0.75 inches)."><span>size</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.hose_type" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.HoseSegment.hose_type (Python property) — Segment type."><span>hose_<wbr>type</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.shape" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.HoseSegment.shape (Python method) — Return the hose segment geometry."><span>shape</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="shape">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.shape-return-type" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Return type</span>
@@ -1960,30 +2036,20 @@
 </li>
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.show" class="md-nav__link">
 
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
 
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius (Python method) — Return the inner (bore) or outer radius of a modular hose of size (BOSL2."><span>modular_<wbr>hose_<wbr>radius</span></span>
+      <span title="pybosl2.parts.modular_hose.HoseSegment.show (Python method) — Display the hose segment in the viewer."><span>show</span></span>
     </span>
   </a>
 
-    <nav class="md-nav" aria-label="modular_hose_radius">
+    <nav class="md-nav" aria-label="show">
       <ul class="md-nav__list">
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-parameters" class="md-nav__link">
-
-    <span class="md-ellipsis">
-      <span>Parameters</span>
-    </span>
-  </a>
-
-</li>
-
-          <li class="md-nav__item">
-  <a href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-return-type" class="md-nav__link">
+  <a href="#pybosl2.parts.modular_hose.HoseSegment.show-return-type" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Return type</span>
@@ -1994,6 +2060,44 @@
 
       </ul>
     </nav>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.modular_hose_radius" class="md-nav__link">
+
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.modular_hose.modular_hose_radius (Python function) — Return the inner (bore) or outer radius of a modular hose of size."><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>modular_<wbr>hose_<wbr>radius</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="pybosl2.parts.modular_hose.modular_hose_radius">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.modular_hose_radius-parameters" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.modular_hose.modular_hose_radius-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
 
 </li>
 
@@ -2033,77 +2137,97 @@
   &#9881;&#65039; <b><a href="specs/modular_hose.html">Spec sheet &rarr;</a></b>
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">modular_hose.scad</span></code>: the ball-and-socket segments of a modular
-“Loc-Line” style adjustable/coolant hose. <a class="reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose" title="pybosl2.parts.modular_hose.ModularHose.modular_hose (Python method) — Return a modular-hose ball end, socket end, or full segment (BOSL2 modular_hose())."><code class="xref py py-meth docutils literal notranslate"><span class="pre">modular_hose()</span></code></a>
+“Loc-Line” style adjustable/coolant hose. <a class="reference internal" href="#pybosl2.parts.modular_hose.HoseSegment" title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">HoseSegment</span></code></a>
 revolves a ball end, a socket end, or a full segment for the 1/4”, 1/2” and 3/4” sizes;
-<a class="reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius" title="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius (Python method) — Return the inner (bore) or outer radius of a modular hose of size (BOSL2."><code class="xref py py-meth docutils literal notranslate"><span class="pre">modular_hose_radius()</span></code></a> gives the bore radius.</p>
+<a class="reference internal" href="#pybosl2.parts.modular_hose.modular_hose_radius" title="pybosl2.parts.modular_hose.modular_hose_radius (Python function) — Return the inner (bore) or outer radius of a modular hose of size."><code class="xref py py-func docutils literal notranslate"><span class="pre">modular_hose_radius()</span></code></a> gives the bore radius.</p>
 <dl class="py class objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.ModularHose">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.modular_hose.</span></span><span class="sig-name descname"><span class="pre">ModularHose</span></span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#ModularHose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.parts.modular_hose.HoseSegment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.modular_hose.</span></span><span class="sig-name descname"><span class="pre">HoseSegment</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.size" title="pybosl2.parts.modular_hose.HoseSegment.__init__.size (Python parameter)"><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.type" title="pybosl2.parts.modular_hose.HoseSegment.__init__.type (Python parameter)"><span class="n"><span class="pre">type</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.clearance" title="pybosl2.parts.modular_hose.HoseSegment.__init__.clearance (Python parameter)"><span class="n"><span class="pre">clearance</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.waist_len" title="pybosl2.parts.modular_hose.HoseSegment.__init__.waist_len (Python parameter)"><span class="n"><span class="pre">waist_len</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fn" title="pybosl2.parts.modular_hose.HoseSegment.__init__.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fa" title="pybosl2.parts.modular_hose.HoseSegment.__init__.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fs" title="pybosl2.parts.modular_hose.HoseSegment.__init__.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#HoseSegment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Modular ball-and-socket hose segments (BOSL2 modular_hose.scad).</p>
-<div class="seealso admonition">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="specs/modular_hose.html">Visual spec sheet</a> — measurements and STL previews</p>
-</div>
-<dl class="py method objdesc">
-<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.parts.modular_hose.ModularHose.modular_hose">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modular_hose</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.size" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.size (Python parameter)"><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.type" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.type (Python parameter)"><span class="n"><span class="pre">type</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;segment&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.clearance" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.clearance (Python parameter)"><span class="n"><span class="pre">clearance</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.waist_len" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.waist_len (Python parameter)"><span class="n"><span class="pre">waist_len</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.fn" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.fa" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.fs" title="pybosl2.parts.modular_hose.ModularHose.modular_hose.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#ModularHose.modular_hose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose" title="Link to this definition">¶</a></dt>
-<dd><p>Return a modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).</p>
-<p><em>size</em> is 0.25, 0.5 or 0.75 (the 1/4”, 1/2”, 3/4” hose families). <em>type</em> is <code class="docutils literal notranslate"><span class="pre">&quot;ball&quot;</span></code>/
-<code class="docutils literal notranslate"><span class="pre">&quot;small&quot;</span></code> (the ball end), <code class="docutils literal notranslate"><span class="pre">&quot;socket&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;big&quot;</span></code> (the socket end), or <code class="docutils literal notranslate"><span class="pre">&quot;segment&quot;</span></code> (a full
-segment with a ball on one end and a socket on the other). <em>clearance</em> loosens the fit.</p>
+<p>A modular-hose ball end, socket end, or full segment.</p>
+<p><em>size</em> is 0.25, 0.5 or 0.75 (the 1/4”, 1/2”, 3/4” hose families).  <em>type</em>
+is a <code class="xref py py-class docutils literal notranslate"><span class="pre">HoseType</span></code> enum value.  <em>clearance</em> loosens the fit.</p>
 <p class="example rubric">Examples</p>
 <p>A 1/2” hose segment:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
-<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoseSegment</span><span class="p">,</span> <span class="n">HoseType</span>
+<span class="n">HoseSegment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/816662fa1eaceb2a.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/816662fa1eaceb2a.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/6632aeec364b46e3.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/6632aeec364b46e3.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="pybosl2.parts.modular_hose.ModularHose.modular_hose-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose-parameters" title="Permalink to this headline">¶</a></dt>
+<dt class="field-odd" id="pybosl2.parts.modular_hose.HoseSegment-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.size" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.size" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.type"><span class="sig-name descname">type</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.type" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.type"><span class="sig-name descname">type</span><span class="p"> : </span><span class="desctype"><span class="desctype">HoseType</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.type" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.clearance"><span class="sig-name descname">clearance</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | list[float]</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.clearance" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.clearance"><span class="sig-name descname">clearance</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | list[float]</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.clearance" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.waist_len"><span class="sig-name descname">waist_len</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.waist_len" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.waist_len"><span class="sig-name descname">waist_len</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.waist_len" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.modular_hose.HoseSegment.__init__.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even" id="pybosl2.parts.modular_hose.ModularHose.modular_hose-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p><em>CsgSolid</em></p>
+</dl>
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.HoseSegment.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.size" title="Link to this definition">¶</a></dt>
+<dd><p>Hose size (0.25, 0.5 or 0.75 inches).</p>
+</dd></dl>
+
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.HoseSegment.hose_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hose_type</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">HoseType</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.hose_type" title="Link to this definition">¶</a></dt>
+<dd><p>Segment type.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.HoseSegment.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#HoseSegment.shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.shape" title="Link to this definition">¶</a></dt>
+<dd><p>Return the hose segment geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.parts.modular_hose.HoseSegment.shape-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.shape-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><em>CsgSolid</em></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modular_hose_radius</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.size" title="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.size (Python parameter)"><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.outer" title="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.outer (Python parameter)"><span class="n"><span class="pre">outer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#ModularHose.modular_hose_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius" title="Link to this definition">¶</a></dt>
-<dd><p>Return the inner (bore) or <em>outer</em> radius of a modular hose of <em>size</em> (BOSL2.</p>
-<p>modular_hose_radius()).</p>
+<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.HoseSegment.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#HoseSegment.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.show" title="Link to this definition">¶</a></dt>
+<dd><p>Display the hose segment in the viewer.</p>
 <dl class="field-list simple">
-<dt class="field-odd" id="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-parameters" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.size" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt class="field-odd" id="pybosl2.parts.modular_hose.HoseSegment.show-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment.show-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>None</p>
 </dd>
-<dt id="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.outer"><span class="sig-name descname">outer</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius.outer" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.modular_hose.modular_hose_radius">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.parts.modular_hose.</span></span><span class="sig-name descname"><span class="pre">modular_hose_radius</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.modular_hose_radius.size" title="pybosl2.parts.modular_hose.modular_hose_radius.size (Python parameter)"><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.modular_hose_radius.outer" title="pybosl2.parts.modular_hose.modular_hose_radius.outer (Python parameter)"><span class="n"><span class="pre">outer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/modular_hose.html#modular_hose_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.modular_hose_radius" title="Link to this definition">¶</a></dt>
+<dd><p>Return the inner (bore) or <em>outer</em> radius of a modular hose of <em>size</em>.</p>
+<p>(BOSL2 modular_hose_radius()).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.parts.modular_hose.modular_hose_radius-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.modular_hose_radius-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.parts.modular_hose.modular_hose_radius.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.modular_hose_radius.size" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.parts.modular_hose.modular_hose_radius.outer"><span class="sig-name descname">outer</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.parts.modular_hose.modular_hose_radius.outer" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even" id="pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.ModularHose.modular_hose_radius-return-type" title="Permalink to this headline">¶</a></dt>
+<dt class="field-even" id="pybosl2.parts.modular_hose.modular_hose_radius-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.modular_hose.modular_hose_radius-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>float</p>
 </dd>
 </dl>
-</dd></dl>
-
 </dd></dl>
 
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
@@ -2111,35 +2235,35 @@ segment with a ball on one end and a socket on the other). <em>clearance</em> lo
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">modular_hose</span></code></p>
 <p>1/4” segment:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
-<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoseSegment</span><span class="p">,</span> <span class="n">HoseType</span>
+<span class="n">HoseSegment</span><span class="p">(</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/d1b1b1edddcee6f2.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/d1b1b1edddcee6f2.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/fdfdfda4b1f714cc.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/fdfdfda4b1f714cc.stl">⬇ Download STL mesh</a></p>
 <p>1/2” segment:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
-<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoseSegment</span><span class="p">,</span> <span class="n">HoseType</span>
+<span class="n">HoseSegment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/816662fa1eaceb2a.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/816662fa1eaceb2a.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/1dc34d54fa3998cc.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/1dc34d54fa3998cc.stl">⬇ Download STL mesh</a></p>
 <p>3/4” segment:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
-<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoseSegment</span><span class="p">,</span> <span class="n">HoseType</span>
+<span class="n">HoseSegment</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/88f8885606f3235e.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/88f8885606f3235e.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/e81d2a2b6fa9ff18.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/e81d2a2b6fa9ff18.stl">⬇ Download STL mesh</a></p>
 <p>1/2” ball end with a longer waist:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
-<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;ball&quot;</span><span class="p">,</span> <span class="n">waist_len</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoseSegment</span><span class="p">,</span> <span class="n">HoseType</span>
+<span class="n">HoseSegment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">HoseType</span><span class="o">.</span><span class="n">BALL</span><span class="p">,</span> <span class="n">waist_len</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/13fc4a72a17d8fa3.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/13fc4a72a17d8fa3.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/75c90f64c8425cdd.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/75c90f64c8425cdd.stl">⬇ Download STL mesh</a></p>
 <p>3/4” socket end:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModularHose</span>
-<span class="n">ModularHose</span><span class="o">.</span><span class="n">modular_hose</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="s2">&quot;socket&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.modular_hose</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoseSegment</span><span class="p">,</span> <span class="n">HoseType</span>
+<span class="n">HoseSegment</span><span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">HoseType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/c6f7f25d85668b93.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/c6f7f25d85668b93.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/a212a045a6e49785.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/a212a045a6e49785.stl">⬇ Download STL mesh</a></p>
 
 
 
