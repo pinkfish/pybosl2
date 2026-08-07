@@ -34,3 +34,4 @@ specs:
 html: specs
 	@mkdir -p _generated
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(WIKIDIR)" -d "$(BUILDDIR)/doctrees" $(SPHINXOPTS) $(O)
+	@cd .. && ruff check --fix . && ruff format .

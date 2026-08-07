@@ -56,6 +56,7 @@ docs = [
     "sphinx>=7,<9",
     "shapely",
     "sphinx-immaterial>=0.13",
+    "ruff>=0.4",
 ]
 
 [project.urls]
