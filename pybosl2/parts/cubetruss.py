@@ -171,7 +171,7 @@ class CubeTruss:
     @staticmethod
     def cubetruss(
         extents: int | Sequence[int] = 6,
-        clips: Sequence[Sequence[float]] | None = None,
+        clips: Sequence[Sequence[float]] | Sequence[float] | None = None,
         bracing: bool | None = None,
         size: float | None = None,
         strut: float | None = None,
@@ -220,9 +220,13 @@ class CubeTruss:
                     segs.append(seg)
 
         if clips is not None and clipthick > 0:
-            vecs = clips if isinstance(clips, list) and isinstance(clips[0], (list, tuple)) else [clips]
+            # clips= takes either one direction vector (clips=FRONT) or a list of them. Narrowing
+            # that union in place needs a per-mypy-version ignore, so normalise through a
+            # dynamically typed local and hand the loop a settled list[Sequence[float]].
+            raw: Any = clips
+            vecs: list[Sequence[float]] = [list(v) for v in raw] if isinstance(raw[0], (list, tuple)) else [list(raw)]
             for vec in vecs:
-                zang, (exx, exy, exz) = _clip_placement(vec, (w, length, hh))  # type: ignore[arg-type]
+                zang, (exx, exy, exz) = _clip_placement(vec, (w, length, hh))
                 for zrow in range(int(exz)):
                     clip = CubeTruss.cubetruss_clip(
                         extents=int(exx),

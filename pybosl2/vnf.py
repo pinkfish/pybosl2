@@ -647,7 +647,9 @@ def _rows_as_int(rows: Any) -> list[list[int]]:
 
 def _norms(vectors: NDArray[np.float64]) -> NDArray[np.float64]:
     """Length of each row vector."""
-    return np.sqrt(np.einsum("ij,ij->i", vectors, vectors))
+    # via a typed local: numpy's stubs type einsum() as Any, which --strict rejects returning
+    lengths: NDArray[np.float64] = np.sqrt(np.einsum("ij,ij->i", vectors, vectors))
+    return lengths
 
 
 def _face_array(faces: Sequence[Sequence[int]]) -> NDArray[np.intp] | None:

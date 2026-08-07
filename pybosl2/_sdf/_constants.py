@@ -14,11 +14,16 @@
 
 from __future__ import annotations
 
+import sys
 from typing import Any, SupportsIndex
 
-try:
-    from typing import override  # type: ignore[attr-defined, unused-ignore]
-except ImportError:
+# A sys.version_info split rather than try/except ImportError: type checkers evaluate the version
+# test statically and follow exactly one branch, where the try/except leaves them silencing a
+# failed `from typing import override` on Python < 3.12 and binding the name to Any -- which then
+# reports the decorated operators below as untyped under --strict.
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
     from typing_extensions import override
 
 

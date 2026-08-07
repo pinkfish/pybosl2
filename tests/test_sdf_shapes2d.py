@@ -293,6 +293,11 @@ class TestTrapezoid2D:
         assert shape.sample(0, 0, 1) < 0
 
 
+def _flat(pts: list[list[float]]) -> list[float]:
+    """Flatten an outline for comparison -- pytest.approx does not take nested sequences."""
+    return [c for p in pts for c in p]
+
+
 def _signed_area(pts: list[list[float]]) -> float:
     """Shoelace area: positive when the ring winds counter-clockwise."""
     return sum(pts[i][0] * pts[i - 1][1] - pts[i - 1][0] * pts[i][1] for i in range(len(pts))) / -2.0
@@ -318,6 +323,38 @@ def _is_simple(pts: list[list[float]]) -> bool:
             if crosses(pts[i], pts[(i + 1) % n], pts[j], pts[(j + 1) % n]):
                 return False
     return True
+
+
+class TestKeyholeSampling:
+    """The arc sampler and ring cleanup keyhole_outline is assembled from."""
+
+    def test_arc_points_walks_the_sweep_end_to_end(self) -> None:
+        pts = sdf_s2d._arc_points((0.0, 0.0), 2.0, 0.0, 90.0, per_deg=1.0)
+        assert pts[0] == pytest.approx([2.0, 0.0], abs=1e-9)
+        assert pts[-1] == pytest.approx([0.0, 2.0], abs=1e-9)
+        assert all(math.dist(p, (0.0, 0.0)) == pytest.approx(2.0, abs=1e-9) for p in pts)
+
+    def test_arc_points_sweeps_backwards_for_a_negative_sweep(self) -> None:
+        # the shoulder fillets are traced clockwise, against the rest of the outline
+        pts = sdf_s2d._arc_points((1.0, 1.0), 3.0, 90.0, -90.0, per_deg=1.0)
+        assert pts[0] == pytest.approx([1.0, 4.0], abs=1e-9)
+        assert pts[-1] == pytest.approx([4.0, 1.0], abs=1e-9)
+
+    def test_arc_points_always_returns_at_least_three_points(self) -> None:
+        assert len(sdf_s2d._arc_points((0.0, 0.0), 1.0, 0.0, 0.5, per_deg=0.1)) == 3
+
+    def test_dedupe_ring_drops_repeated_neighbours(self) -> None:
+        ring = [[0.0, 0.0], [0.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 1.0]]
+        assert sdf_s2d._dedupe_ring(ring) == [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]
+
+    def test_dedupe_ring_drops_an_explicit_closing_point(self) -> None:
+        # a ring that ends where it began would give polygon2d() a zero-length closing edge
+        ring = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]]
+        assert sdf_s2d._dedupe_ring(ring) == [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]
+
+    def test_dedupe_ring_keeps_a_ring_that_is_already_clean(self) -> None:
+        ring = [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]
+        assert sdf_s2d._dedupe_ring([p[:] for p in ring]) == ring
 
 
 class TestKeyholeOutline:
@@ -399,10 +436,50 @@ class TestKeyholeOutline:
         finally:
             circle_mod._opolygon = real
 
+    def test_diameters_are_the_same_shape_as_the_radii(self) -> None:
+        by_radius = sdf_s2d.keyhole_outline(length=20, radius1=5, radius2=10, res=8)
+        by_diameter = sdf_s2d.keyhole_outline(length=20, radius1=None, radius2=None, diameter1=10, diameter2=20, res=8)
+        assert _flat(by_diameter) == pytest.approx(_flat(by_radius), abs=1e-9)
+
+    def test_res_controls_the_point_density(self) -> None:
+        coarse = sdf_s2d.keyhole_outline(length=20, radius1=5, radius2=10, res=4)
+        fine = sdf_s2d.keyhole_outline(length=20, radius1=5, radius2=10, res=32)
+        assert len(fine) > len(coarse)
+        # ...without changing the shape it converges on
+        assert _signed_area(fine) == pytest.approx(_signed_area(coarse), rel=0.02)
+
+    def test_equal_radii_give_a_stadium_with_no_shoulder(self) -> None:
+        # nothing sticks out for a fillet to round, so asking for one changes nothing
+        plain = sdf_s2d.keyhole_outline(length=20, radius1=6, radius2=6, res=8)
+        filleted = sdf_s2d.keyhole_outline(length=20, radius1=6, radius2=6, shoulder_radius=3, res=8)
+        assert _flat(filleted) == pytest.approx(_flat(plain), abs=1e-9)
+        xs = [p[0] for p in plain]
+        assert max(xs) == pytest.approx(6, abs=0.05), "walls run straight down at the shared radius"
+
     def test_no_room_for_a_neck_is_rejected(self) -> None:
         # circles so close that the shoulder would land above the small circle's centre
         with pytest.raises(AssertionError, match="no room for a neck"):
             sdf_s2d.keyhole_outline(length=4, radius1=5, radius2=10)
+
+    def test_a_fillet_too_big_for_the_gap_is_rejected(self) -> None:
+        # the shoulder climbs with shoulder_radius, so a large enough one runs out of neck
+        with pytest.raises(AssertionError, match="no room for a neck"):
+            sdf_s2d.keyhole_outline(length=11, radius1=5, radius2=10, shoulder_radius=8)
+
+    @pytest.mark.parametrize(
+        ("kwargs", "match"),
+        [
+            ({"length": 0}, "length must be positive"),
+            ({"length": -5}, "length must be positive"),
+            ({"radius1": 0}, "both radii must be positive"),
+            ({"radius2": -2}, "both radii must be positive"),
+            ({"shoulder_radius": -1}, "cannot be negative"),
+        ],
+    )
+    def test_degenerate_arguments_are_rejected(self, kwargs: dict[str, float], match: str) -> None:
+        args: dict[str, float] = {"length": 20, "radius1": 5, "radius2": 10, **kwargs}
+        with pytest.raises(AssertionError, match=match):
+            sdf_s2d.keyhole_outline(**args)
 
 
 class TestKeyhole2D:

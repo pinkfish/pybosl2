@@ -14,7 +14,7 @@ and transforms while omitting inherently 2-D operations (polygon, area, offset).
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Iterator, cast
+from typing import TYPE_CHECKING, Any, Iterator
 
 import numpy as np
 
@@ -239,7 +239,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts = self._points if not closed else np.vstack([self._points, self._points[0]])
         if len(pts) < 2:
             return np.array([], dtype=np.float64)
-        return np.linalg.norm(np.diff(pts, axis=0), axis=1)
+        lengths: NDArray[np.float64] = np.linalg.norm(np.diff(pts, axis=0), axis=1)
+        return lengths
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Distance fraction of each point in the path (0 at start, 1 at end).
@@ -996,7 +997,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         points = num_copies if num_copies is not None else None
         if points is None and refine is not None:
             points = int(len(self._points) * refine)
-        return cast("Path3D", self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed))
+        return self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed)
 
     def resample(
         self,
@@ -1028,7 +1029,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result.stroke(width=1).show()
 
         """
-        return cast("Path3D", self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed))
+        return self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed)
 
     def translate(self, v: Sequence[float]) -> "Path3D":
         """Translate every point by *v* (a shorter vector pads with zeros).

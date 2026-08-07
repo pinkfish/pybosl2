@@ -725,7 +725,8 @@ def _support_points(points: ArrayLike, n_dirs: int) -> NDArray[np.float64]:
     )
     dirs = np.concatenate([dirs, axes])
     idx = np.unique(np.argmax(pts @ dirs.T, axis=0))
-    return pts[idx]
+    support: NDArray[np.float64] = pts[idx]
+    return support
 
 
 def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, float]]:

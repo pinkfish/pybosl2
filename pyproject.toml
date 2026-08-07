@@ -92,6 +92,7 @@ ignore = ["D203", "D213", "D402"]
 quote-style = "double"
 
 [tool.mypy]
+strict = true
 ignore_missing_imports = true
 # docs/ has no __init__.py, and its scripts are reachable both as top-level modules (conf.py puts
 # docs/ and docs/_ext/ on sys.path) and as `docs._specgen` / `docs._ext.stl_viewer` (the scripts put

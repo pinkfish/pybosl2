@@ -249,7 +249,8 @@ def _heightfield_reorient_tris(
     v0, v1, v2 = pts_arr[out[:, 0]], pts_arr[out[:, 1]], pts_arr[out[:, 2]]
     if float(np.einsum("ij,ij->", v0, np.cross(v1, v2))) > 0:
         out = out[:, ::-1]
-    return out.tolist()
+    tris_out: list[list[int]] = out.tolist()
+    return tris_out
 
 
 def _heightfield_polyhedron(

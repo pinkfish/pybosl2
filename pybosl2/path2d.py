@@ -17,7 +17,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -454,7 +454,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if closed is None:
             closed = self.closed
         coords = self._closed_coords() if closed else np.asarray(self._shapely.coords)
-        return np.linalg.norm(np.diff(coords, axis=0), axis=1)
+        lengths: NDArray[np.float64] = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+        return lengths
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Distance fraction of each point in the path (0 at start, 1 at end).
@@ -1203,7 +1204,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         points = num_copies if num_copies is not None else None
         if points is None and refine is not None:
             points = int(len(self._points) * refine)
-        return cast("Path2D", self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed))
+        return self.subdivide_path(points=points, maxlen=maxlen, exact=exact, closed=closed)
 
     def resample(
         self,
@@ -1233,7 +1234,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 sampled.stroke(width=1).linear_extrude(height=2).show()
 
         """
-        return cast("Path2D", self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed))
+        return self.resample_path(num_copies=num_copies, spacing=spacing, closed=closed)
 
     def split_at_self_crossings(self, eps: float = EPSILON) -> list[Path2D]:
         """Split this 2-D path into subpaths wherever it crosses itself.

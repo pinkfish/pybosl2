@@ -376,7 +376,8 @@ def mb_octahedron(
 
     def _octdist(p: np.ndarray) -> np.ndarray:
         if xp >= 1100:
-            return np.abs(p[:, 0]) + np.abs(p[:, 1]) + np.abs(p[:, 2])
+            octa: np.ndarray = np.abs(p[:, 0]) + np.abs(p[:, 1]) + np.abs(p[:, 2])
+            return octa
         a = np.abs(p[:, 0] + p[:, 1] + p[:, 2]) ** xp
         b = np.abs(-p[:, 0] - p[:, 1] + p[:, 2]) ** xp
         c = np.abs(-p[:, 0] + p[:, 1] - p[:, 2]) ** xp
