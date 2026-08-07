@@ -1682,7 +1682,7 @@ def test_pie_slice_builds(tmp_path):
 
 def test_spur_gear_builds(tmp_path):
     m = _render_golden(
-        tmp_path, "Gears.spur_gear(mod=2, teeth=15, thickness=6, fn=None, fa=None, fs=None)", name="spurgear"
+        tmp_path, "SpurGear(mod=2, teeth=15, thickness=6, fn=None, fa=None, fs=None).shape()", name="spurgear"
     )
     assert m.watertight
     assert m.volume > 0
@@ -1699,7 +1699,7 @@ def test_hinge_knuckle_builds(tmp_path):
 
 
 def test_worm_gear_builds(tmp_path):
-    m = _render(tmp_path, "Gears.worm(diameter=20, length=40)", name="worm")
+    m = _render(tmp_path, "Worm(diameter=20, length=40).shape()", name="worm")
     assert m.watertight
     assert m.volume > 0
 

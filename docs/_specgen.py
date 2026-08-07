@@ -721,7 +721,7 @@ MODULES = {
             "the way the current BOSL2 does it — plus helical, herringbone, rack, ring, bevel and worm."
         ),
         "part": "spur_gear(mod=5, teeth=20, thickness=8, helical=20)",
-        "code": 'Gears.<span class="k">spur_gear</span>(mod=5, teeth=20, thickness=8, helical=20, shaft_diam=6)',
+        "code": 'SpurGear.<span class="k">shape</span>(mod=5, teeth=20, thickness=8, helical=20, shaft_diam=6)',
         "metrics": [
             ("helical spur · z=20", 5640, "69,617.1", "116×116×8"),
             ("undercut spur · z=8", 2300, "11,984.0", "55×55×8"),
@@ -1223,7 +1223,7 @@ GALLERY = [
 _HOOK_OCT = "hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)]"
 
 SETUP = {
-    "gears": "from pybosl2.parts.gears import Gears\n",
+    "gears": "from pybosl2.parts.gears import BevelGear, HerringboneGear, Rack, RingGear, SpurGear, Worm, WormGear\n",
     "walls": "from pybosl2.parts.walls import Walls\n",
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
     "hooks": "import math\nfrom pybosl2.parts.hooks import HoleType, RingHook\n",
@@ -1262,34 +1262,34 @@ SETUP = {
 
 VARIANTS = {
     "gears": [
-        ("spur", "spur", "Gears.spur_gear(mod=4, teeth=20, thickness=8, shaft_diam=6)"),
+        ("spur", "spur", "SpurGear(mod=4, teeth=20, thickness=8, shaft_diam=6).shape()"),
         (
             "profile-shift",
             "profile-shift",
-            "Gears.spur_gear(mod=4, teeth=7, thickness=8)",
+            "SpurGear(mod=4, teeth=7, thickness=8).shape()",
         ),
         (
             "helical",
             "helical",
-            "Gears.spur_gear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6)",
+            "SpurGear(mod=4, teeth=20, thickness=8, helical=25, shaft_diam=6).shape()",
         ),
         (
             "herringbone",
             "herringbone",
-            "Gears.spur_gear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6)",
+            "SpurGear(mod=4, teeth=20, thickness=12, helical=25, herringbone=True, shaft_diam=6).shape()",
         ),
-        ("rack", "rack", "Gears.rack(mod=4, teeth=8, thickness=8, height=10)"),
+        ("rack", "rack", "Rack(mod=4, teeth=8, thickness=8, height=10).shape()"),
         (
             "ring",
             "ring gear",
-            "Gears.ring_gear(mod=4, teeth=24, thickness=8, backing=4)",
+            "RingGear(mod=4, teeth=24, thickness=8, backing=4).shape()",
         ),
         (
             "bevel",
             "bevel",
-            "Gears.bevel_gear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6)",
+            "BevelGear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6).shape()",
         ),
-        ("worm", "worm", "Gears.worm(mod=4, diameter=30, length=50, starts=1)"),
+        ("worm", "worm", "Worm(mod=4, diameter=30, length=50, starts=1).shape()"),
     ],
     "walls": [
         ("sparse", "sparse", "Walls.sparse_wall(height=50, length=100, thick=4)"),

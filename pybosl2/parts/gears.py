@@ -10,12 +10,12 @@
 #    Pure-Python port of the core of BOSL2's (current) gears.scad. Gears are sized by circular pitch
 #    (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the default 20-degree pressure angle and
 #    ``profile_shift=None`` (which corrects undercut on low-tooth-count gears) match BOSL2. The
-#    :meth:`~Gears.spur_gear2d` / :meth:`~Gears.spur_gear` teeth are generated the way BOSL2 does it:
+#    :class:`SpurGear2d` / :class:`SpurGear` teeth are generated the way BOSL2 does it:
 #    the involute working flank plus the trochoid that a meshing rack would carve, so low-tooth gears
-#    get a real undercut. :meth:`~Gears.herringbone_gear`, the linear :meth:`~Gears.rack`, the
-#    internal :meth:`~Gears.ring_gear`, the :meth:`~Gears.bevel_gear` and the :meth:`~Gears.worm` /
-#    :meth:`~Gears.worm_gear` pair are ported too, along with the dimension helpers and
-#    :meth:`~Gears.gear_dist` (meshing-distance) / :meth:`~Gears.auto_profile_shift`.
+#    get a real undercut. :class:`HerringboneGear`, the linear :class:`Rack`, the
+#    internal :class:`RingGear`, the :class:`BevelGear` and the :class:`Worm` /
+#    :class:`WormGear` pair are ported too, along with the dimension helpers and
+#    :func:`gear_dist` (meshing-distance) / :func:`auto_profile_shift`.
 #
 #    Bevel/worm sweep a simpler symmetric involute tooth (no undercut modelling) -- fine for those
 #    swept 3-D forms.
@@ -33,6 +33,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -52,7 +53,31 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
 else:
     _opolygon = native("polygon")
 
-__all__ = ["Gears"]
+__all__ = [
+    "BevelGear",
+    "GearSpec",
+    "GearToothProfile",
+    "HerringboneGear",
+    "Rack",
+    "Rack2d",
+    "RingGear",
+    "SpurGear",
+    "SpurGear2d",
+    "Worm",
+    "WormGear",
+    "auto_profile_shift",
+    "base_radius",
+    "bevel_pitch_angle",
+    "circular_pitch",
+    "diametral_pitch",
+    "gear_dist",
+    "module_value",
+    "outer_radius",
+    "pitch_radius",
+    "pitch_value",
+    "root_radius",
+    "worm_gear_thickness",
+]
 
 PI = math.pi
 
@@ -547,189 +572,322 @@ def _simple_tooth(
     return pts
 
 
-class Gears:
-    """Gears (BOSL2 gears.scad): spur (with undercut), helical, herringbone, rack, ring, bevel, worm.
+# ---------------------------------------------------------------------------
+# Section: gear specification dataclass
+# ---------------------------------------------------------------------------
 
-    Size a gear by ``circ_pitch`` (mm of pitch circle per tooth), ``mod`` (metric module) or
-    ``diam_pitch``; pass one. The 20-degree ``pressure_angle`` and ``profile_shift=None`` defaults
-    match BOSL2. All angles are in degrees.
 
-    .. seealso::
+@dataclass(frozen=True)
+class GearSpec:
+    """Resolved gear pitch and radius dimensions.
 
-       `Visual spec sheet <specs/gears.html>`_ — measurements and STL previews
+    Construct from any pitch specification: ``GearSpec(pitch=5, teeth=20)``,
+    ``GearSpec(mod=2, teeth=30, helical=15)``, etc.
     """
 
-    # -- tooth density -----------------------------------------------------
+    teeth: int
+    circ_pitch: float
+    pressure_angle: float = 20
+    helical: float = 0
+    clearance: float | None = None
+    internal: bool = False
+    profile_shift: float = 0.0
+    shorten: float = 0
 
-    @staticmethod
-    def circular_pitch(
+    def __init__(
+        self,
+        teeth: int,
         circ_pitch: float | None = None,
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> float:
-        """Circular pitch (mm/tooth) from any pitch input (BOSL2 circular_pitch())."""
-        return _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-
-    @staticmethod
-    def pitch_value(mod: float) -> float:
-        """Circular pitch from the metric module (BOSL2 pitch_value())."""
-        return mod * PI
-
-    @staticmethod
-    def module_value(
-        circ_pitch: float | None = None,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Metric module from any pitch input (BOSL2 module_value())."""
-        return _module_value(_circular_pitch(circ_pitch, mod, pitch, diam_pitch))
-
-    @staticmethod
-    def diametral_pitch(
-        circ_pitch: float | None = None,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Diametral pitch (teeth per inch of pitch diameter) (BOSL2 diametral_pitch())."""
-        return PI / _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-
-    # -- radii -------------------------------------------------------------
-
-    @staticmethod
-    def pitch_radius(
-        circ_pitch: float | None = None,
-        teeth: int = 11,
-        helical: float = 0,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Pitch radius; meshed gears sit a :meth:`gear_dist` apart (BOSL2 pitch_radius())."""
-        return _pitch_radius(_circular_pitch(circ_pitch, mod, pitch, diam_pitch), teeth, helical)
-
-    @staticmethod
-    def outer_radius(
-        circ_pitch: float | None = None,
-        teeth: int = 11,
+        pressure_angle: float = 20,
         clearance: float | None = None,
         internal: bool = False,
         helical: float = 0,
         profile_shift: float | None = None,
-        pressure_angle: float = 20,
         shorten: float = 0,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Tip radius; the gear fits within this circle (BOSL2 outer_radius())."""
-        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        return _outer_radius_basic(center, teeth, clearance, internal, helical, ps, shorten)
+    ) -> None:
+        """Resolve pitch inputs and auto-correct profile shift for undercut."""
+        object.__setattr__(self, "teeth", teeth)
+        object.__setattr__(self, "pressure_angle", pressure_angle)
+        object.__setattr__(self, "helical", helical)
+        object.__setattr__(self, "clearance", clearance)
+        object.__setattr__(self, "internal", internal)
+        object.__setattr__(self, "shorten", shorten)
+        cp = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+        object.__setattr__(self, "circ_pitch", cp)
+        ps = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+        object.__setattr__(self, "profile_shift", ps)
 
-    @staticmethod
-    def root_radius(
-        circ_pitch: float | None = None,
-        teeth: int = 11,
-        clearance: float | None = None,
-        internal: bool = False,
-        helical: float = 0,
-        profile_shift: float | None = None,
-        pressure_angle: float = 20,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Root radius at the base of the tooth valleys (BOSL2 root_radius())."""
-        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        return _root_radius_basic(center, teeth, clearance, internal, helical, ps)
+    @property
+    def module(self) -> float:
+        """Metric module (mm)."""
+        return _module_value(self.circ_pitch)
 
-    @staticmethod
-    def base_radius(
-        circ_pitch: float | None = None,
-        teeth: int = 11,
-        pressure_angle: float = 20,
-        helical: float = 0,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Base-circle radius of the involute (BOSL2 base_radius())."""
-        return _base_radius(
-            _circular_pitch(circ_pitch, mod, pitch, diam_pitch),
-            teeth,
-            pressure_angle,
-            helical,
+    @property
+    def pitch_radius(self) -> float:
+        """Pitch-circle radius."""
+        return _pitch_radius(self.circ_pitch, self.teeth, self.helical)
+
+    @property
+    def outer_radius(self) -> float:
+        """Outer (tip) radius."""
+        return _outer_radius_basic(
+            self.circ_pitch,
+            self.teeth,
+            self.clearance,
+            self.internal,
+            self.helical,
+            self.profile_shift,
+            self.shorten,
         )
 
-    @staticmethod
-    def auto_profile_shift(
-        teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float | None = None
-    ) -> float:
-        """Minimum profile shift (modules) to avoid undercut (BOSL2 auto_profile_shift())."""
-        return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+    @property
+    def root_radius(self) -> float:
+        """Root radius."""
+        return _root_radius_basic(
+            self.circ_pitch,
+            self.teeth,
+            self.clearance,
+            self.internal,
+            self.helical,
+            self.profile_shift,
+        )
 
-    # -- meshing distance --------------------------------------------------
+    @property
+    def base_radius(self) -> float:
+        """Base-circle radius of the involute."""
+        return _base_radius(self.circ_pitch, self.teeth, self.pressure_angle, self.helical)
 
-    @staticmethod
-    def gear_dist(
-        teeth1: int,
-        teeth2: int,
-        helical: float = 0,
-        profile_shift1: float | None = None,
-        profile_shift2: float | None = None,
-        internal1: bool = False,
-        internal2: bool = False,
-        backlash: float = 0,
-        pressure_angle: float = 20,
-        circ_pitch: float | None = None,
-        mod: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Center-to-center distance for two meshing gears (BOSL2 gear_dist()).
+    @property
+    def diametral_pitch(self) -> float:
+        """Diametral pitch (teeth per inch of pitch diameter)."""
+        return PI / self.circ_pitch
 
-        A zero tooth count means a rack. Profile shift changes the working pressure angle and hence
-        the spacing; ``"auto"`` picks the undercut-avoidance shift for each gear.
-        """
-        m = _module_value(_circular_pitch(circ_pitch, mod, None, diam_pitch))
-        ps1 = _auto_profile_shift(teeth1, pressure_angle, helical, profile_shift1)
-        ps2 = _auto_profile_shift(teeth2, pressure_angle, helical, profile_shift2)
-        t1 = -teeth1 if internal2 else teeth1
-        t2 = -teeth2 if internal1 else teeth2
-        if internal2:
-            ps1 = -ps1
-        if internal1:
-            ps2 = -ps2
-        if teeth1 == 0 or teeth2 == 0:
-            return _pitch_radius(m * PI, t1 + t2, helical) + (ps1 + ps2) * m
-        pa = math.radians(pressure_angle)
-        pa_transv = math.atan(math.tan(pa) / math.cos(math.radians(helical)))
 
-        # working pressure angle from the involute equation
-        def inv(a: float) -> float:
-            return math.tan(a) - a
+# ---------------------------------------------------------------------------
+# Section: public calculation helpers (module-level)
+# ---------------------------------------------------------------------------
 
-        target = inv(pa_transv) + 2 * (ps1 + ps2) / (t1 + t2) * math.tan(pa)
-        lo, hi = 1e-4, math.radians(89)
-        for _ in range(60):
-            mid = (lo + hi) / 2
-            if inv(mid) < target:
-                lo = mid
-            else:
-                hi = mid
-        pa_eff = (lo + hi) / 2
-        diameter = m * (t1 + t2) * math.cos(pa_transv) / math.cos(pa_eff) / math.cos(math.radians(helical)) / 2
-        return diameter + (-1 if (internal1 or internal2) else 1) * backlash * math.cos(
-            math.radians(helical)
-        ) / math.tan(pa)
 
-    # -- the involute tooth & spur gears -----------------------------------
+def circular_pitch(
+    circ_pitch: float | None = None,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Circular pitch (mm/tooth) from any pitch input (BOSL2 circular_pitch())."""
+    return _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
-    @staticmethod
-    def gear_tooth_profile(
+
+def pitch_value(mod: float) -> float:
+    """Circular pitch from the metric module (BOSL2 pitch_value())."""
+    return mod * PI
+
+
+def module_value(
+    circ_pitch: float | None = None,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Metric module from any pitch input (BOSL2 module_value())."""
+    return _module_value(_circular_pitch(circ_pitch, mod, pitch, diam_pitch))
+
+
+def diametral_pitch(
+    circ_pitch: float | None = None,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Diametral pitch (teeth per inch of pitch diameter) (BOSL2 diametral_pitch())."""
+    return PI / _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+
+
+def pitch_radius(
+    circ_pitch: float | None = None,
+    teeth: int = 11,
+    helical: float = 0,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Pitch radius; meshed gears sit a :func:`gear_dist` apart (BOSL2 pitch_radius())."""
+    return _pitch_radius(_circular_pitch(circ_pitch, mod, pitch, diam_pitch), teeth, helical)
+
+
+def outer_radius(
+    circ_pitch: float | None = None,
+    teeth: int = 11,
+    clearance: float | None = None,
+    internal: bool = False,
+    helical: float = 0,
+    profile_shift: float | None = None,
+    pressure_angle: float = 20,
+    shorten: float = 0,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Tip radius; the gear fits within this circle (BOSL2 outer_radius())."""
+    center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+    ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+    return _outer_radius_basic(center, teeth, clearance, internal, helical, ps, shorten)
+
+
+def root_radius(
+    circ_pitch: float | None = None,
+    teeth: int = 11,
+    clearance: float | None = None,
+    internal: bool = False,
+    helical: float = 0,
+    profile_shift: float | None = None,
+    pressure_angle: float = 20,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Root radius at the base of the tooth valleys (BOSL2 root_radius())."""
+    center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+    ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+    return _root_radius_basic(center, teeth, clearance, internal, helical, ps)
+
+
+def base_radius(
+    circ_pitch: float | None = None,
+    teeth: int = 11,
+    pressure_angle: float = 20,
+    helical: float = 0,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Base-circle radius of the involute (BOSL2 base_radius())."""
+    return _base_radius(_circular_pitch(circ_pitch, mod, pitch, diam_pitch), teeth, pressure_angle, helical)
+
+
+def auto_profile_shift(
+    teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float | None = None
+) -> float:
+    """Minimum profile shift (modules) to avoid undercut (BOSL2 auto_profile_shift())."""
+    return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
+
+
+def gear_dist(
+    teeth1: int,
+    teeth2: int,
+    helical: float = 0,
+    profile_shift1: float | None = None,
+    profile_shift2: float | None = None,
+    internal1: bool = False,
+    internal2: bool = False,
+    backlash: float = 0,
+    pressure_angle: float = 20,
+    circ_pitch: float | None = None,
+    mod: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Center-to-center distance for two meshing gears (BOSL2 gear_dist())."""
+    m = _module_value(_circular_pitch(circ_pitch, mod, None, diam_pitch))
+    ps1 = _auto_profile_shift(teeth1, pressure_angle, helical, profile_shift1)
+    ps2 = _auto_profile_shift(teeth2, pressure_angle, helical, profile_shift2)
+    t1 = -teeth1 if internal2 else teeth1
+    t2 = -teeth2 if internal1 else teeth2
+    if internal2:
+        ps1 = -ps1
+    if internal1:
+        ps2 = -ps2
+    if teeth1 == 0 or teeth2 == 0:
+        return _pitch_radius(m * PI, t1 + t2, helical) + (ps1 + ps2) * m
+    pa = math.radians(pressure_angle)
+    pa_transv = math.atan(math.tan(pa) / math.cos(math.radians(helical)))
+
+    def inv(a: float) -> float:
+        return math.tan(a) - a
+
+    target = inv(pa_transv) + 2 * (ps1 + ps2) / (t1 + t2) * math.tan(pa)
+    lo, hi = 1e-4, math.radians(89)
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if inv(mid) < target:
+            lo = mid
+        else:
+            hi = mid
+    pa_eff = (lo + hi) / 2
+    diameter = m * (t1 + t2) * math.cos(pa_transv) / math.cos(pa_eff) / math.cos(math.radians(helical)) / 2
+    return diameter + (-1 if (internal1 or internal2) else 1) * backlash * math.cos(math.radians(helical)) / math.tan(
+        pa
+    )
+
+
+def bevel_pitch_angle(teeth: int, mate_teeth: float, drive_angle: float = 90) -> float:
+    """Pitch angle (deg) for a bevel gear meshing another (BOSL2 bevel_pitch_angle())."""
+    return math.degrees(
+        math.atan2(math.sin(math.radians(drive_angle)), (mate_teeth / teeth) + math.cos(math.radians(drive_angle)))
+    )
+
+
+def worm_gear_thickness(
+    circ_pitch: float | None = None,
+    teeth: int = 30,
+    worm_diam: float = 30,
+    worm_arc: float = 60,
+    crowning: float = 1,
+    clearance: float | None = None,
+    mod: float | None = None,
+    pitch: float | None = None,
+    diam_pitch: float | None = None,
+) -> float:
+    """Thickness of a worm gear matched to a worm (BOSL2 worm_gear_thickness())."""
+    center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+    radius = worm_diam / 2 + crowning
+    pitch_thick = radius * math.sin(math.radians(worm_arc / 2)) * 2
+    pr = _pitch_radius(center, teeth)
+    rr = pr - _dedendum(center, clearance)
+    pitchoff = (pr - rr) * math.sin(math.radians(worm_arc / 2))
+    return pitch_thick + 2 * pitchoff
+
+
+# ---------------------------------------------------------------------------
+# Section: geometry classes
+# ---------------------------------------------------------------------------
+
+
+def _rack2d_path(
+    center: float,
+    teeth: int,
+    height: float,
+    pressure_angle: float,
+    backlash: float,
+    clearance: float | None,
+) -> list[list[float]]:
+    a = _adendum(center)
+    diameter = _dedendum(center, clearance)
+    assert a + diameter < height, "rack(): height must exceed adendum + dedendum."
+    xa = a * math.sin(math.radians(pressure_angle))
+    xd = diameter * math.sin(math.radians(pressure_angle))
+    left = -(teeth - 1) / 2 * center - 0.5 * center
+    right = (teeth - 1) / 2 * center + 0.5 * center
+    path = [[left, a - height], [left, -diameter]]
+    for i in range(teeth):
+        off = (i - (teeth - 1) / 2) * center
+        path += [
+            [off - 0.25 * center + backlash - xd, -diameter],
+            [off - 0.25 * center + backlash + xa, a],
+            [off + 0.25 * center - backlash - xa, a],
+            [off + 0.25 * center - backlash + xd, -diameter],
+        ]
+    path += [[right, -diameter], [right, a - height]]
+    return path
+
+
+class GearToothProfile:
+    """The 2-D path of one involute gear tooth, rack-carved with real undercut."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 11,
         pressure_angle: float = 20,
@@ -743,14 +901,11 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> list[list[float]]:
-        """Return the 2-D path of one involute gear tooth, rack-carved with real undercut (BOSL2.
-
-        _gear_tooth_profile()).
-        """
+    ) -> None:
+        """Compute the involute gear tooth profile."""
         circ_p: float = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        return _gear_tooth_profile(
+        self._path: list[list[float]] = _gear_tooth_profile(
             circ_p,
             teeth,
             pressure_angle,
@@ -763,8 +918,26 @@ class Gears:
             center,
         )
 
-    @staticmethod
-    def spur_gear2d(
+    def path(self) -> list[list[float]]:
+        """Return the tooth profile as a 2-D point list."""
+        return self._path
+
+
+class SpurGear2d:
+    """A 2-D involute spur gear outline.
+
+    Examples:
+        A 30-tooth metric gear:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import SpurGear2d
+            SpurGear2d(mod=5, teeth=30).shape().linear_extrude(height=3).show()
+
+    """
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 11,
         hide: int = 0,
@@ -780,55 +953,56 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Shape2D:
-        """Return a 2-D involute spur gear outline (BOSL2 spur_gear2d()).
-
-        Examples:
-            A 30-tooth metric gear:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.gears import Gears
-                Gears.spur_gear2d(mod=5, teeth=30).linear_extrude(height=3).show()
-
-        """
+    ) -> None:
+        """Create a 2-D spur gear."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        tooth = _gear_tooth_profile(
-            center,
-            teeth,
-            pressure_angle,
-            clearance,
-            backlash,
-            helical,
-            internal,
-            ps,
-            shorten,
-        )
-        perim = []
+        tooth = _gear_tooth_profile(center, teeth, pressure_angle, clearance, backlash, helical, internal, ps, shorten)
+        perim: list[list[float]] = []
         for i in range(teeth - hide):
             perim += _zrot_pts(tooth, -i * 360 / teeth + gear_spin)
         if hide > 0:
             perim.append([0, 0])
         shape = _opolygon(_dedup(perim))
-        outer_radius = _outer_radius_basic(
-            center,
-            teeth,
-            None,
-            False,
-            helical,
-            _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
-            shorten,
-        )
-        result = Bosl2Shape2D(shape, size=[2 * outer_radius, 2 * outer_radius])
+        _or = _outer_radius_basic(center, teeth, None, False, helical, ps, shorten)
+        result = Bosl2Shape2D(shape, size=[2 * _or, 2 * _or])
         if shaft_diam > 0 and not hide:
             from pybosl2.shapes2d import circle as _circle2d
 
             result = result - _circle2d(diameter=shaft_diam)
-        return result
+        self._shape: Bosl2Shape2D = result
+        self._teeth: int = teeth
+        self._mod: float | None = mod
 
-    @staticmethod
-    def spur_gear(
+    @property
+    def teeth(self) -> int:
+        """Number of teeth."""
+        return self._teeth
+
+    def shape(self) -> Bosl2Shape2D:
+        """Return the 2-D gear outline."""
+        return self._shape
+
+    def show(self) -> None:
+        """Display the gear in the viewer."""
+        self._shape.show()
+
+
+class SpurGear:
+    """A 3-D involute spur gear — helical and/or herringbone, with optional shaft bore.
+
+    Examples:
+        A helical gear with a shaft bore:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import SpurGear
+            SpurGear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15).show()
+
+    """
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 11,
         thickness: float = 6,
@@ -850,64 +1024,101 @@ class Gears:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a 3-D involute spur gear -- helical and/or herringbone, with an optional.
-
-        shaft bore (BOSL2 spur_gear()).
-
-        Examples:
-            A helical gear with a shaft bore:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.gears import Gears
-                Gears.spur_gear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15).show()
-
-        """
-        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        pr = _pitch_radius(center, teeth, helical)
-        # Track the actual outer diameter (including profile shift) so bounds() reflects
-        # the true geometry extent.
-        outer_radius = _outer_radius_basic(
-            center,
-            teeth,
-            None,
-            False,
-            helical,
-            _auto_profile_shift(teeth, pressure_angle, helical, profile_shift),
-            shorten,
-        )
-        twist = math.degrees(thickness * math.tan(math.radians(helical)) / pr)
-        gear2d = Gears.spur_gear2d(
-            circ_pitch=center,
+    ) -> None:
+        """Create a 3-D spur gear."""
+        spec = GearSpec(
             teeth=teeth,
-            hide=hide,
+            circ_pitch=circ_pitch,
+            mod=mod,
+            pitch=pitch,
+            diam_pitch=diam_pitch,
             pressure_angle=pressure_angle,
             clearance=clearance,
-            backlash=backlash,
             internal=internal,
-            profile_shift=profile_shift,
             helical=helical,
-            shaft_diam=shaft_diam,
+            profile_shift=profile_shift,
             shorten=shorten,
-        ).shape
-        extrude_kw = {"height": thickness, "center": True, "twist": twist, "convexity": teeth}
-        if slices is not None:
-            extrude_kw["slices"] = slices
+        )
+        _or = _outer_radius_basic(
+            spec.circ_pitch,
+            spec.teeth,
+            None,
+            False,
+            spec.helical,
+            spec.profile_shift,
+            spec.shorten,
+        )
+        twist = math.degrees(thickness * math.tan(math.radians(spec.helical)) / spec.pitch_radius)
+        shape2d = SpurGear2d(
+            circ_pitch=spec.circ_pitch,
+            teeth=spec.teeth,
+            hide=hide,
+            pressure_angle=spec.pressure_angle,
+            clearance=spec.clearance,
+            backlash=backlash,
+            internal=spec.internal,
+            profile_shift=spec.profile_shift,
+            helical=spec.helical,
+            shaft_diam=shaft_diam,
+            shorten=spec.shorten,
+            gear_spin=gear_spin,
+        ).shape()
         if herringbone:
-            half_kw: dict[str, float | int] = {"height": thickness / 2, "twist": twist / 2, "convexity": teeth}
-            if slices is not None:
-                half_kw["slices"] = slices
-            top = gear2d.linear_extrude(**half_kw, fn=fn, fa=fa, fs=fs)
-            bot = gear2d.linear_extrude(**half_kw, fn=fn, fa=fa, fs=fs).scale([1, 1, -1])
+            top = shape2d.linear_extrude(
+                height=thickness / 2,
+                twist=twist / 2,
+                convexity=teeth,
+                slices=slices,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
+            bot = shape2d.linear_extrude(
+                height=thickness / 2,
+                twist=twist / 2,
+                convexity=teeth,
+                slices=slices,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            ).scale([1, 1, -1])
             solid = top | bot
         else:
-            solid = gear2d.linear_extrude(**extrude_kw, fn=fn, fa=fa, fs=fs)
-        result = Bosl2Solid(solid, size=[2 * outer_radius, 2 * outer_radius, thickness])
-        return result.rotate([0, 0, gear_spin]) if gear_spin else result
+            solid = shape2d.linear_extrude(
+                height=thickness,
+                center=True,
+                twist=twist,
+                convexity=teeth,
+                slices=slices,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
+        result = Bosl2Solid(solid.shape, size=[2 * _or, 2 * _or, thickness])
+        if gear_spin:
+            result = result.rotate([0, 0, gear_spin])
+        self._solid: Bosl2Solid = result
+        self._teeth: int = teeth
 
-    @staticmethod
-    def herringbone_gear(
+    @property
+    def teeth(self) -> int:
+        """Number of teeth."""
+        return self._teeth
+
+    def shape(self) -> Bosl2Solid:
+        """Return the spur gear geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the spur gear in the viewer."""
+        self._solid.show()
+
+
+class HerringboneGear(SpurGear):
+    """A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 11,
         thickness: float = 6,
@@ -927,9 +1138,9 @@ class Gears:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a herringbone (double-helical) spur gear -- :meth:`spur_gear` with ``herringbone=True``."""
-        return Gears.spur_gear(
+    ) -> None:
+        """Create a herringbone gear."""
+        super().__init__(
             circ_pitch=circ_pitch,
             teeth=teeth,
             thickness=thickness,
@@ -952,8 +1163,20 @@ class Gears:
             fs=fs,
         )
 
-    @staticmethod
-    def ring_gear(
+
+class RingGear:
+    """An internal (ring) gear: a disk with inward-facing teeth cut into its bore.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2.parts.gears import RingGear
+            RingGear(teeth=30, thickness=8, pressure_angle=14.5, helical=20).show()
+
+    """
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 11,
         thickness: float = 6,
@@ -969,20 +1192,12 @@ class Gears:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return an internal (ring) gear: a disk with inward-facing teeth cut into its bore (BOSL2 ring_gear()).
-
-        Examples:
-            .. pythonscad-example::
-
-                from pybosl2.parts.gears import Gears
-                Gears.ring_gear(teeth=30, thickness=8, pressure_angle=14.5, helical=20).show()
-
-        """
+    ) -> None:
+        """Create an internal ring gear."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        outer_radius = _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0) + backing
-        cavity = Gears.spur_gear(
+        _or = _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0) + backing
+        cavity = SpurGear(
             circ_pitch=center,
             teeth=teeth,
             thickness=thickness + 1,
@@ -992,42 +1207,30 @@ class Gears:
             helical=helical,
             internal=True,
             profile_shift=profile_shift,
-        )
-        body = cylinder(height=thickness, diameter=2 * outer_radius, center=True, fn=fn, fa=fa, fs=fs)
-        return Bosl2Solid((body - cavity).shape, size=[2 * outer_radius, 2 * outer_radius, thickness])
+        ).shape()
+        body = cylinder(height=thickness, diameter=2 * _or, center=True, fn=fn, fa=fa, fs=fs)
+        self._solid: Bosl2Solid = Bosl2Solid((body - cavity).shape, size=[2 * _or, 2 * _or, thickness])
+        self._teeth: int = teeth
 
-    # -- rack --------------------------------------------------------------
+    @property
+    def teeth(self) -> int:
+        """Number of teeth."""
+        return self._teeth
 
-    @staticmethod
-    def _rack2d_path(
-        center: float,
-        teeth: int,
-        height: float,
-        pressure_angle: float,
-        backlash: float,
-        clearance: float | None,
-    ) -> list[list[float]]:
-        a = _adendum(center)
-        diameter = _dedendum(center, clearance)
-        assert a + diameter < height, "rack(): height must exceed adendum + dedendum."
-        xa = a * math.sin(math.radians(pressure_angle))
-        xd = diameter * math.sin(math.radians(pressure_angle))
-        left = -(teeth - 1) / 2 * center - 0.5 * center
-        right = (teeth - 1) / 2 * center + 0.5 * center
-        path = [[left, a - height], [left, -diameter]]
-        for i in range(teeth):
-            off = (i - (teeth - 1) / 2) * center
-            path += [
-                [off - 0.25 * center + backlash - xd, -diameter],
-                [off - 0.25 * center + backlash + xa, a],
-                [off + 0.25 * center - backlash - xa, a],
-                [off + 0.25 * center - backlash + xd, -diameter],
-            ]
-        path += [[right, -diameter], [right, a - height]]
-        return path
+    def shape(self) -> Bosl2Solid:
+        """Return the ring gear geometry."""
+        return self._solid
 
-    @staticmethod
-    def rack2d(
+    def show(self) -> None:
+        """Display the ring gear in the viewer."""
+        self._solid.show()
+
+
+class Rack2d:
+    """A 2-D involute rack outline — a straight bar of teeth."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 20,
         height: float = 10,
@@ -1037,15 +1240,27 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Shape2D:
-        """Return a 2-D involute rack outline -- a straight bar of teeth (BOSL2 rack2d())."""
+    ) -> None:
+        """Create a 2-D rack."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
-        path = Gears._rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
-        return Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
+        path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
+        self._shape: Bosl2Shape2D = Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
 
-    @staticmethod
-    def rack(
+    def shape(self) -> Bosl2Shape2D:
+        """Return the 2-D rack outline."""
+        return self._shape
+
+    def show(self) -> None:
+        """Display the rack in the viewer."""
+        self._shape.show()
+
+
+class Rack:
+    """A 3-D rack: a linear toothed bar a gear rolls along."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 20,
         thickness: float = 5,
@@ -1057,12 +1272,12 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a 3-D rack: a linear toothed bar a gear rolls along (BOSL2 rack())."""
+    ) -> None:
+        """Create a 3-D rack."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         diameter = _dedendum(center, clearance)
-        path = Gears._rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
+        path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
         shape = _opolygon(path).linear_extrude(height=thickness, center=True, convexity=teeth * 2).rotate([90, 0, 0])
         if helical:
             sxy = math.tan(math.radians(helical))
@@ -1070,47 +1285,29 @@ class Gears:
             sheared_length = teeth * center + thickness * sxy
         else:
             sheared_length = teeth * center
-        # After rotate([90,0,0]), Z maps to the 2D profile's Y extent.
         z_extent = height + diameter - a
-        return Bosl2Solid(shape, size=[sheared_length, thickness, z_extent])
+        self._solid: Bosl2Solid = Bosl2Solid(shape, size=[sheared_length, thickness, z_extent])
+        self._teeth: int = teeth
 
-    # -- bevel / worm dimension helpers ------------------------------------
+    @property
+    def teeth(self) -> int:
+        """Number of teeth."""
+        return self._teeth
 
-    @staticmethod
-    def bevel_pitch_angle(teeth: int, mate_teeth: float, drive_angle: float = 90) -> float:
-        """Pitch angle (deg) for a bevel gear meshing another (BOSL2 bevel_pitch_angle())."""
-        return math.degrees(
-            math.atan2(
-                math.sin(math.radians(drive_angle)),
-                (mate_teeth / teeth) + math.cos(math.radians(drive_angle)),
-            )
-        )
+    def shape(self) -> Bosl2Solid:
+        """Return the rack geometry."""
+        return self._solid
 
-    @staticmethod
-    def worm_gear_thickness(
-        circ_pitch: float | None = None,
-        teeth: int = 30,
-        worm_diam: float = 30,
-        worm_arc: float = 60,
-        crowning: float = 1,
-        clearance: float | None = None,
-        mod: float | None = None,
-        pitch: float | None = None,
-        diam_pitch: float | None = None,
-    ) -> float:
-        """Thickness of a worm gear matched to a worm (BOSL2 worm_gear_thickness())."""
-        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        radius = worm_diam / 2 + crowning
-        pitch_thick = radius * math.sin(math.radians(worm_arc / 2)) * 2
-        pr = _pitch_radius(center, teeth)
-        rr = pr - _dedendum(center, clearance)
-        pitchoff = (pr - rr) * math.sin(math.radians(worm_arc / 2))
-        return pitch_thick + 2 * pitchoff
+    def show(self) -> None:
+        """Display the rack in the viewer."""
+        self._solid.show()
 
-    # -- bevel gear --------------------------------------------------------
 
-    @staticmethod
-    def bevel_gear(
+class BevelGear:
+    """A (potentially spiral) involute bevel gear."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 20,
         face_width: float = 10,
@@ -1132,11 +1329,11 @@ class Gears:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a (potentially spiral) involute bevel gear (BOSL2 bevel_gear())."""
+    ) -> None:
+        """Create a bevel gear."""
         _ = hide
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        slices = 1 if cutter_radius == 0 else slices
+        slices_ = 1 if cutter_radius == 0 else slices
         if mate_teeth is not None:
             pitch_angle = math.degrees(math.atan(teeth / mate_teeth))
         pr = _pitch_radius(center, teeth)
@@ -1144,26 +1341,25 @@ class Gears:
         pitchoff = (pr - rr) * math.sin(math.radians(pitch_angle))
         ocone_rad = _opp_ang_to_hyp(pr, pitch_angle)
         icone_rad = ocone_rad - face_width
-        cutter_radius = 1000 if cutter_radius == 0 else cutter_radius
+        cr = 1000 if cutter_radius == 0 else cutter_radius
         midpr = (icone_rad + ocone_rad) / 2
-        radcp = np.array([0.0, midpr]) + _polar_xy(cutter_radius, 180 + spiral_angle)
+        radcp = np.array([0.0, midpr]) + _polar_xy(cr, 180 + spiral_angle)
         ncp = float(np.linalg.norm(radcp))
-        ang_c1 = _law_of_cosines(cutter_radius, ncp, ocone_rad)
-        ang_c2 = _law_of_cosines(cutter_radius, ncp, icone_rad)
+        ang_c1 = _law_of_cosines(cr, ncp, ocone_rad)
+        ang_c2 = _law_of_cosines(cr, ncp, icone_rad)
         radcpang = math.degrees(math.atan2(radcp[1], radcp[0]))
         sang = radcpang - (180 - ang_c1)
         eang = radcpang - (180 - ang_c2)
         profile = _simple_tooth(center, teeth, pressure_angle, clearance, backlash, interior, center=True)
         prof3 = [[x, y, 0.0] for x, y in profile]
-        tan_pa = math.tan(math.radians(pitch_angle))
         sin_pa = math.sin(math.radians(pitch_angle))
-        verts1 = []
-        for v in np.linspace(0, 1, slices + 1):
-            p = radcp + _polar_xy(cutter_radius, _lerp(sang, eang, v))
+        verts1: list[list[list[float]]] = []
+        for v in np.linspace(0, 1, slices_ + 1):
+            p = radcp + _polar_xy(cr, _lerp(sang, eang, v))
             angle = math.degrees(math.atan2(p[1], p[0])) - 90
             u = float(np.linalg.norm(p)) / ocone_rad
             m = (
-                _m_up((1 - u) * pr / tan_pa)
+                _m_up((1 - u) * pr / math.tan(math.radians(pitch_angle)))
                 @ _m_up(pitchoff)
                 @ _m_zrot(angle / sin_pa)
                 @ _m_back(u * pr)
@@ -1182,16 +1378,10 @@ class Gears:
         top_verts, bot_verts = vertices[-1], vertices[0]
         gear_pts = len(top_verts)
         face_pts = gear_pts // teeth
-        top_faces = []
+        top_faces: list[list[int]] = []
         for i in range(teeth):
             for j in range(face_pts // 2):
-                top_faces.append(
-                    [
-                        i * face_pts + j,
-                        (i + 1) * face_pts - j - 1,
-                        (i + 1) * face_pts - j - 2,
-                    ]
-                )
+                top_faces.append([i * face_pts + j, (i + 1) * face_pts - j - 1, (i + 1) * face_pts - j - 2])
                 top_faces.append([i * face_pts + j, (i + 1) * face_pts - j - 2, i * face_pts + j + 1])
         for i in range(teeth):
             top_faces.append([gear_pts, (i + 1) * face_pts - 1, i * face_pts])
@@ -1205,12 +1395,28 @@ class Gears:
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * pr, 2 * pr, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
-        return solid
+        self._solid: Bosl2Solid = solid
+        self._teeth: int = teeth
 
-    # -- worm & worm gear --------------------------------------------------
+    @property
+    def teeth(self) -> int:
+        """Number of teeth."""
+        return self._teeth
 
-    @staticmethod
-    def worm(
+    def shape(self) -> Bosl2Solid:
+        """Return the bevel gear geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the bevel gear in the viewer."""
+        self._solid.show()
+
+
+class Worm:
+    """A worm — a screw that meshes a worm gear."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         diameter: float = 30,
         length: float = 100,
@@ -1222,23 +1428,18 @@ class Gears:
         mod: float | None = None,
         pitch: float | None = None,
         diam_pitch: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a worm (a screw that meshes a worm gear) (BOSL2 worm())."""
+    ) -> None:
+        """Create a worm."""
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-        rack = Gears._rack2d_path(center, starts, diameter, pressure_angle, backlash, clearance)[1:-1]
+        rack = _rack2d_path(center, starts, diameter, pressure_angle, backlash, clearance)[1:-1]
         polars = [[360 * px / center / starts, py + diameter / 2] for px, py in rack]
         maxang = 360 / _frag_count(diameter / 2)
-        refined = []
+        refined: list[list[float]] = []
         for i in range(len(polars) - 1):
             delta = polars[i + 1][0] - polars[i][0]
             steps = max(1, math.ceil(delta / maxang))
             for j in range(steps):
-                refined.append(
-                    [
-                        polars[i][0] + j * delta / steps,
-                        _lerp(polars[i][1], polars[i + 1][1], j / steps),
-                    ]
-                )
+                refined.append([polars[i][0] + j * delta / steps, _lerp(polars[i][1], polars[i + 1][1], j / steps)])
         cross = [_polar_xy(r, a).tolist() for a, r in refined]
         revs = length / center / starts
         zsteps = max(1, math.ceil(revs * 360 / maxang))
@@ -1251,10 +1452,22 @@ class Gears:
         vnf = VNF.vertex_array(rprofiles, caps=CapType.BUTT, col_wrap=True, style=VNFStyle.MIN_EDGE)
         if left_handed:
             vnf = _vnf_xflip(vnf)
-        return Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
+        self._solid: Bosl2Solid = Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
 
-    @staticmethod
-    def worm_gear(
+    def shape(self) -> Bosl2Solid:
+        """Return the worm geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the worm in the viewer."""
+        self._solid.show()
+
+
+class WormGear:
+    """A worm gear, hobbed to mesh a matching :class:`Worm`."""
+
+    def __init__(
+        self,
         circ_pitch: float | None = None,
         teeth: int = 36,
         worm_diam: float = 30,
@@ -1273,15 +1486,15 @@ class Gears:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a worm gear, hobbed to mesh a matching :meth:`worm` (BOSL2 worm_gear())."""
+    ) -> None:
+        """Create a worm gear."""
         assert 10 <= worm_arc <= 60, "worm_gear(): worm_arc must be between 10 and 60 degrees."
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         p = _pitch_radius(center, teeth)
         circ = 2 * PI * p
         radius1 = p + worm_diam / 2 + crowning
         radius2 = worm_diam / 2 + crowning
-        thickness = Gears.worm_gear_thickness(
+        thickness = worm_gear_thickness(
             circ_pitch=center,
             teeth=teeth,
             worm_diam=worm_diam,
@@ -1292,7 +1505,7 @@ class Gears:
         helical = center * worm_starts * worm_arc / 360 * 360 / circ
         tooth = _simple_tooth(center, teeth, pressure_angle, clearance, backlash, False, center=True)[::-1]
         prof3 = [[x, y, 0.0] for x, y in tooth]
-        profiles = []
+        profiles: list[list[list[float]]] = []
         for sl in range(slices + 1):
             u = sl / slices - 0.5
             zang = u * worm_arc
@@ -1301,24 +1514,15 @@ class Gears:
             zang2 = u * helical
             ring = []
             for i in range(teeth):
-                ring += _apply(
-                    _m_zrot(zang2 - i * 360 / teeth) @ _m_move(tp) @ _m_xrot(-zang) @ _m_scale(cz),
-                    prof3,
-                )
+                ring += _apply(_m_zrot(zang2 - i * 360 / teeth) @ _m_move(tp) @ _m_xrot(-zang) @ _m_scale(cz), prof3)
             profiles.append(ring)
         top_verts, bot_verts = profiles[-1], profiles[0]
         face_pts = len(tooth)
         gear_pts = face_pts * teeth
-        top_faces = []
+        top_faces: list[list[int]] = []
         for i in range(teeth):
             for j in range(face_pts // 2 - 1):
-                top_faces.append(
-                    [
-                        i * face_pts + j,
-                        (i + 1) * face_pts - j - 1,
-                        (i + 1) * face_pts - j - 2,
-                    ]
-                )
+                top_faces.append([i * face_pts + j, (i + 1) * face_pts - j - 1, (i + 1) * face_pts - j - 2])
                 top_faces.append([i * face_pts + j, (i + 1) * face_pts - j - 2, i * face_pts + j + 1])
         for i in range(teeth):
             top_faces.append([gear_pts, (i + 1) * face_pts - 1, i * face_pts])
@@ -1332,4 +1536,18 @@ class Gears:
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * p, 2 * p, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=worm_diam, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
-        return solid
+        self._solid: Bosl2Solid = solid
+        self._teeth: int = teeth
+
+    @property
+    def teeth(self) -> int:
+        """Number of teeth."""
+        return self._teeth
+
+    def shape(self) -> Bosl2Solid:
+        """Return the worm gear geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the worm gear in the viewer."""
+        self._solid.show()
