@@ -835,7 +835,7 @@ MODULES = {
             'a ball end, a socket end, or a full segment, for the 1/4", 1/2" and 3/4" sizes.'
         ),
         "part": 'modular_hose(0.5, "segment")',
-        "code": 'ModularHose.<span class="k">modular_hose</span>(0.5, "segment")',
+        "code": 'HoseSegment.<span class="k"></span>(0.5, HoseType.SEGMENT)',
         "metrics": [
             ('1/2" segment', 2760, "3,432.6", "25×25×30"),
             ('1/2" ball end', 1500, "1,465.7", "22×21×13"),
@@ -1233,7 +1233,7 @@ SETUP = {
     "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
     "ball_bearings": "from pybosl2.parts.ball_bearings import BallBearings\n",
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
-    "modular_hose": "from pybosl2.parts.modular_hose import ModularHose\n",
+    "modular_hose": "from pybosl2.parts.modular_hose import HoseSegment, HoseType\n",
     "nema_steppers": "from pybosl2.parts.nema_steppers import NemaMotor, NemaMountMask, NemaSpec\n",
     "threading": (
         "from pybosl2.parts.threading import ThreadedRod, ThreadedNut, ThreadHelix, "
@@ -1382,9 +1382,9 @@ VARIANTS = {
         ("lm12uu", "LM12UU", "LinearBearings.lmXuu_bearing(12)"),
     ],
     "modular_hose": [
-        ("segment", "segment", 'ModularHose.modular_hose(0.5, "segment")'),
-        ("ball", "ball end", 'ModularHose.modular_hose(0.5, "ball")'),
-        ("socket", "socket end", 'ModularHose.modular_hose(0.5, "socket")'),
+        ("segment", "segment", "HoseSegment(0.5, HoseType.SEGMENT).shape()"),
+        ("ball", "ball end", "HoseSegment(0.5, HoseType.BALL).shape()"),
+        ("socket", "socket end", "HoseSegment(0.5, HoseType.SOCKET).shape()"),
     ],
     "nema_steppers": [
         ("17", "NEMA 17", "NemaMotor(17).shape()"),
