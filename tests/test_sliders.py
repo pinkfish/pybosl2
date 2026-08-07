@@ -46,3 +46,25 @@ def test_slider_slop_widens_fit() -> None:
     tight = _size(Slider(l=30, slop=0.0, fn=None, fa=None, fs=None).shape())
     loose = _size(Slider(l=30, slop=0.4, fn=None, fa=None, fs=None).shape())
     assert loose[1] >= tight[1]
+
+
+# ── property and show() coverage ────────────────────────────────────────────
+
+
+def test_slider_properties() -> None:
+    s = Slider(l=40, w=14, h=12, base=8, wall=5)
+    assert s.length == 40
+    assert s.width == 14
+    assert s.height == 12
+
+
+def test_rail_properties() -> None:
+    r = Rail(l=60, w=12, h=8)
+    assert r.length == 60
+    assert r.width == 12
+    assert r.height == 8
+
+
+def test_show_methods_do_not_raise() -> None:
+    Slider(l=30).show()
+    Rail(l=100).show()

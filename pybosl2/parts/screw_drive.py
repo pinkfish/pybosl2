@@ -8,8 +8,9 @@
 #    Pure-Python port of BOSL2's screw_drive.scad: masks for the driver recesses cut into a screw
 #    head -- Phillips, hex (Allen), Torx and Robertson/square. Each drive type is represented by its
 #    own class (e.g. :class:`PhillipsMask`, :class:`HexDriveMask`) with :meth:`shape` and :meth:`show`
-#    methods, alongside the dimensional helpers BOSL2 provides: :func:`torx_info` /
-#    :func:`torx_diam` / :func:`torx_depth` and :func:`phillips_depth` / :func:`phillips_diam`.
+#    methods.  Dimensional data is also available from the :class:`TorxSpec` and
+#    :class:`PhillipsSpec` dataclasses (``.diam`` / ``.depth`` and ``.depth(diameter)`` /
+#    ``.diam(depth)``).
 #
 #    The dimension tables (Phillips ISO 4757 shaft/cutout sizes, the Torx OD/ID/depth/rounding table
 #    from ISO 14583, and the Robertson square-drive inch table) are transcribed verbatim from
@@ -56,11 +57,6 @@ __all__ = [
     "TorxSpec",
     "RobertsonSpec",
     "hex_mask",
-    "torx_info",
-    "torx_diam",
-    "torx_depth",
-    "phillips_depth",
-    "phillips_diam",
 ]
 
 
@@ -84,40 +80,145 @@ def _union(shapes: list[Any] | Any) -> Any:
 
 @dataclass(frozen=True)
 class PhillipsSpec:
-    """Phillips recess geometry for one bit size (ISO 4757). See :class:`PhillipsMask`."""
+    """Phillips recess geometry for one bit size (ISO 4757). See :class:`PhillipsMask`.
 
-    shaft: float  # shaft/outer diameter
-    b: float  # cutout wing spacing radius
-    e: float  # cutout wing base width
-    g: float  # tip cone diameter
-    alpha: float  # cutout near-face angle
-    beta: float  # cutout tilt angle
+    Construct with the size directly: ``PhillipsSpec(2)`` or ``PhillipsSpec("#2")``.
+    """
+
+    shaft: float
+    b: float
+    e: float
+    g: float
+    alpha: float
+    beta: float
+
+    def __init__(self, size: str | int = "#2") -> None:
+        """Look up the Phillips size from the ISO 4757 table.
+
+        Args:
+            size: Bit size as ``"#0"``..``"#4"`` or an integer ``0``..``4``.
+
+        Raises:
+            ValueError: If the size is outside the 0..4 range.
+
+        """
+        count = _phillips_num(size)
+        spec = _PHILLIPS[count]
+        object.__setattr__(self, "shaft", spec["shaft"])
+        object.__setattr__(self, "b", spec["b"])
+        object.__setattr__(self, "e", spec["e"])
+        object.__setattr__(self, "g", spec["g"])
+        object.__setattr__(self, "alpha", spec["alpha"])
+        object.__setattr__(self, "beta", spec["beta"])
+
+    def depth(self, diameter: float) -> float | None:
+        """Recess depth needed to reach *diameter* for this Phillips size, or ``None``.
+
+        Args:
+            diameter: Target diameter in mm.
+
+        Returns:
+            Depth in mm, or None if *diameter* is outside the shaft/g range.
+
+        """
+        h1 = _adj_ang_to_opp(self.g / 2, _PH_BOT_ANGLE)
+        if diameter >= self.shaft or diameter < self.g:
+            return None
+        return (diameter - self.g) / 2 / math.tan(math.radians(_PH_SIDE_ANGLE)) + h1
+
+    def diam(self, depth: float) -> float | None:
+        """Recess diameter at the top when cut to *depth* for this Phillips size, or ``None``.
+
+        Args:
+            depth: Depth in mm.
+
+        Returns:
+            Diameter in mm, or None if *depth* is outside the valid range.
+
+        """
+        h1 = _adj_ang_to_opp(self.g / 2, _PH_BOT_ANGLE)
+        h2 = _adj_ang_to_opp((self.shaft - self.g) / 2, 90 - _PH_SIDE_ANGLE)
+        if depth < h1 or depth >= h1 + h2:
+            return None
+        return 2 * math.tan(math.radians(_PH_SIDE_ANGLE)) * (depth - h1) + self.g
 
 
 @dataclass(frozen=True)
 class TorxSpec:
-    """Torx driver dimensions for one size (ISO 14583). See :func:`torx_info`."""
+    """Torx driver dimensions for one size (ISO 14583).
 
-    outer_diameter: float  # outer diameter
-    inner_diameter: float  # inner diameter
-    depth: float  # drive-hole depth
-    tip_rounding: float  # external tip rounding radius
-    inner_rounding: float  # inner rounding radius
+    Construct with the size directly: ``TorxSpec(30)``.
+    """
+
+    outer_diameter: float
+    inner_diameter: float
+    depth: float
+    tip_rounding: float
+    inner_rounding: float
+
+    def __init__(self, size: int) -> None:
+        """Look up the Torx size from the ISO 14583 table.
+
+        Args:
+            size: Torx size (1..100).
+
+        Raises:
+            ValueError: If the size is not in the table.
+
+        """
+        try:
+            spec = _TORX[int(size)]
+        except (KeyError, ValueError):
+            raise ValueError(f"Unsupported Torx size: {size!r}") from None
+        object.__setattr__(self, "outer_diameter", spec[0])
+        object.__setattr__(self, "inner_diameter", spec[1])
+        object.__setattr__(self, "depth", spec[2])
+        object.__setattr__(self, "tip_rounding", spec[3])
+        object.__setattr__(self, "inner_rounding", spec[4])
+
+    @property
+    def diam(self) -> float:
+        """Outer diameter in mm."""
+        return self.outer_diameter
 
     def as_tuple(self) -> tuple[float, float, float, float, float]:
-        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)`` -- the raw BOSL2 ``torx_info``.
-
-        list.
-        """
+        """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)``."""
         return (self.outer_diameter, self.inner_diameter, self.depth, self.tip_rounding, self.inner_rounding)
+
+    def _profile(self) -> Any:
+        """Return the native 2-D CSG profile for this Torx size."""
+        outer_diameter = self.outer_diameter
+        id_ = self.inner_diameter
+        tip = self.tip_rounding
+        rounding = self.inner_rounding
+        base = outer_diameter - 2 * tip
+        fn_val = int(quantup(_frag_count(outer_diameter / 2), 12))
+
+        tip_circles = [
+            circle(radius=tip, fn=fn_val // 2).translate([base / 2, 0]).multmatrix(m.tolist())
+            for m in DistributableMatrix.zrot_copies(num_copies=3)
+        ]
+        tri = _hull2d(tip_circles)
+        lobes = _union(tri.multmatrix(m.tolist()) for m in DistributableMatrix.zrot_copies(num_copies=2))
+        solid = circle(diameter=base, fn=fn_val) | lobes
+
+        cut = _union(
+            circle(radius=rounding, fn=fn_val)
+            .translate([id_ / 2 + rounding, 0])
+            .rotate([0, 0, 180 / 6])
+            .multmatrix(m.tolist())
+            for m in DistributableMatrix.zrot_copies(num_copies=6)
+        )
+        return solid - cut
 
 
 @dataclass(frozen=True)
 class RobertsonSpec:
-    """Robertson/square-drive dimensions for one size, in inches (min/max per the spec).
+    """Robertson/square-drive dimensions for one size, in inches.
 
-    ``m`` (across flats), ``t`` (depth) and ``f`` (flat-to-taper transition) return the (min+max)/2
-    nominal, as BOSL2 uses.
+    Construct with the size directly: ``RobertsonSpec(2)``.
+    ``m`` (across flats), ``t`` (depth) and ``f`` (flat-to-taper transition)
+    return the (min+max)/2 nominal, as BOSL2 uses.
     """
 
     m_min: float
@@ -127,19 +228,39 @@ class RobertsonSpec:
     f_min: float
     f_max: float
 
+    def __init__(self, size: int) -> None:
+        """Look up the Robertson size from the table.
+
+        Args:
+            size: Square-drive size, as ``0``..``4``.
+
+        Raises:
+            ValueError: If the size is outside the 0..4 range.
+
+        """
+        if not (isinstance(size, int) and 0 <= size <= 4):
+            raise ValueError(f"robertson size must be an int 0..4, got {size!r}")
+        spec = _ROBERTSON[size]
+        object.__setattr__(self, "m_min", spec[0])
+        object.__setattr__(self, "m_max", spec[1])
+        object.__setattr__(self, "t_min", spec[2])
+        object.__setattr__(self, "t_max", spec[3])
+        object.__setattr__(self, "f_min", spec[4])
+        object.__setattr__(self, "f_max", spec[5])
+
     @property
     def m(self) -> float:
-        """Return the average m value."""
+        """Across flats in mm (nominal)."""
         return (self.m_min + self.m_max) / 2
 
     @property
     def t(self) -> float:
-        """Return the average t value."""
+        """Depth in mm (nominal)."""
         return (self.t_min + self.t_max) / 2
 
     @property
     def f(self) -> float:
-        """Return the average f value."""
+        """Flat-to-taper transition in mm (nominal)."""
         return (self.f_min + self.f_max) / 2
 
 
@@ -148,50 +269,50 @@ _PH_BOT_ANGLE = 28.0
 _PH_SIDE_ANGLE = 26.5
 
 # Phillips number "#0".."#4" -> its recess geometry (ISO 4757).
-_PHILLIPS = {
-    0: PhillipsSpec(shaft=3, b=0.61, e=0.31, g=0.81, alpha=136, beta=7.00),
-    1: PhillipsSpec(shaft=4.5, b=0.97, e=0.435, g=1.27, alpha=138, beta=7.00),
-    2: PhillipsSpec(shaft=6, b=1.47, e=0.815, g=2.29, alpha=140, beta=5.75),
-    3: PhillipsSpec(shaft=8, b=2.41, e=2.005, g=3.81, alpha=146, beta=5.75),
-    4: PhillipsSpec(shaft=10, b=3.48, e=2.415, g=5.08, alpha=153, beta=7.00),
+_PHILLIPS: dict[int, dict[str, float]] = {
+    0: {"shaft": 3, "b": 0.61, "e": 0.31, "g": 0.81, "alpha": 136, "beta": 7.00},
+    1: {"shaft": 4.5, "b": 0.97, "e": 0.435, "g": 1.27, "alpha": 138, "beta": 7.00},
+    2: {"shaft": 6, "b": 1.47, "e": 0.815, "g": 2.29, "alpha": 140, "beta": 5.75},
+    3: {"shaft": 8, "b": 2.41, "e": 2.005, "g": 3.81, "alpha": 146, "beta": 5.75},
+    4: {"shaft": 10, "b": 3.48, "e": 2.415, "g": 5.08, "alpha": 153, "beta": 7.00},
 }
 
 # Torx size -> dimensions. Depth is from metric socket-head screws, ISO 14583
 # (some depths interpolated -- see BOSL2).
-_TORX = {
-    1: TorxSpec(0.90, 0.65, 0.40, 0.059, 0.201),
-    2: TorxSpec(1.00, 0.73, 0.44, 0.069, 0.224),
-    3: TorxSpec(1.20, 0.87, 0.53, 0.081, 0.266),
-    4: TorxSpec(1.35, 0.98, 0.59, 0.090, 0.308),
-    5: TorxSpec(1.48, 1.08, 0.65, 0.109, 0.330),
-    6: TorxSpec(1.75, 1.27, 0.775, 0.132, 0.383),
-    7: TorxSpec(2.08, 1.50, 0.886, 0.161, 0.446),
-    8: TorxSpec(2.40, 1.75, 1.0, 0.190, 0.510),
-    9: TorxSpec(2.58, 1.87, 1.078, 0.207, 0.554),
-    10: TorxSpec(2.80, 2.05, 1.142, 0.229, 0.598),
-    15: TorxSpec(3.35, 2.40, 1.2, 0.267, 0.716),
-    20: TorxSpec(3.95, 2.85, 1.4, 0.305, 0.859),
-    25: TorxSpec(4.50, 3.25, 1.61, 0.375, 0.920),
-    27: TorxSpec(5.07, 3.65, 1.84, 0.390, 1.108),
-    30: TorxSpec(5.60, 4.05, 2.22, 0.451, 1.194),
-    40: TorxSpec(6.75, 4.85, 2.63, 0.546, 1.428),
-    45: TorxSpec(7.93, 5.64, 3.115, 0.574, 1.796),
-    50: TorxSpec(8.95, 6.45, 3.82, 0.775, 1.816),
-    55: TorxSpec(11.35, 8.05, 5.015, 0.867, 2.667),
-    60: TorxSpec(13.45, 9.60, 5.805, 1.067, 2.883),
-    70: TorxSpec(15.70, 11.20, 6.815, 1.194, 3.477),
-    80: TorxSpec(17.75, 12.80, 7.75, 1.526, 3.627),
-    90: TorxSpec(20.20, 14.40, 8.945, 1.530, 4.468),
-    100: TorxSpec(22.40, 16.00, 10.79, 1.720, 4.925),
+_TORX: dict[int, tuple[float, float, float, float, float]] = {
+    1: (0.90, 0.65, 0.40, 0.059, 0.201),
+    2: (1.00, 0.73, 0.44, 0.069, 0.224),
+    3: (1.20, 0.87, 0.53, 0.081, 0.266),
+    4: (1.35, 0.98, 0.59, 0.090, 0.308),
+    5: (1.48, 1.08, 0.65, 0.109, 0.330),
+    6: (1.75, 1.27, 0.775, 0.132, 0.383),
+    7: (2.08, 1.50, 0.886, 0.161, 0.446),
+    8: (2.40, 1.75, 1.0, 0.190, 0.510),
+    9: (2.58, 1.87, 1.078, 0.207, 0.554),
+    10: (2.80, 2.05, 1.142, 0.229, 0.598),
+    15: (3.35, 2.40, 1.2, 0.267, 0.716),
+    20: (3.95, 2.85, 1.4, 0.305, 0.859),
+    25: (4.50, 3.25, 1.61, 0.375, 0.920),
+    27: (5.07, 3.65, 1.84, 0.390, 1.108),
+    30: (5.60, 4.05, 2.22, 0.451, 1.194),
+    40: (6.75, 4.85, 2.63, 0.546, 1.428),
+    45: (7.93, 5.64, 3.115, 0.574, 1.796),
+    50: (8.95, 6.45, 3.82, 0.775, 1.816),
+    55: (11.35, 8.05, 5.015, 0.867, 2.667),
+    60: (13.45, 9.60, 5.805, 1.067, 2.883),
+    70: (15.70, 11.20, 6.815, 1.194, 3.477),
+    80: (17.75, 12.80, 7.75, 1.526, 3.627),
+    90: (20.20, 14.40, 8.945, 1.530, 4.468),
+    100: (22.40, 16.00, 10.79, 1.720, 4.925),
 }
 
 # Robertson/square size 0..4 -> dimensions, in inches.
-_ROBERTSON = {
-    0: RobertsonSpec(0.0696, 0.0710, 0.063, 0.073, 0.032, 0.038),
-    1: RobertsonSpec(0.0900, 0.0910, 0.105, 0.113, 0.057, 0.065),
-    2: RobertsonSpec(0.1110, 0.1126, 0.119, 0.140, 0.065, 0.075),
-    3: RobertsonSpec(0.1315, 0.1330, 0.155, 0.165, 0.085, 0.095),
-    4: RobertsonSpec(0.1895, 0.1910, 0.191, 0.201, 0.090, 0.100),
+_ROBERTSON: dict[int, tuple[float, float, float, float, float, float]] = {
+    0: (0.0696, 0.0710, 0.063, 0.073, 0.032, 0.038),
+    1: (0.0900, 0.0910, 0.105, 0.113, 0.057, 0.065),
+    2: (0.1110, 0.1126, 0.119, 0.140, 0.065, 0.075),
+    3: (0.1315, 0.1330, 0.155, 0.165, 0.085, 0.095),
+    4: (0.1895, 0.1910, 0.191, 0.201, 0.090, 0.100),
 }
 
 
@@ -201,119 +322,6 @@ def _phillips_num(size: str | int) -> int:
     if count < 0 or count > 4:
         raise ValueError(f"phillips size must be #0..#4, got {size!r}")
     return count
-
-
-def torx_info(size: int) -> TorxSpec:
-    """Return the :class:`TorxSpec` for a given Torx *size*.
-
-    Maps to BOSL2 ``torx_info()``.  The spec holds outer_diameter, inner_diameter,
-    depth, tip_rounding, and inner_rounding.
-
-    Args:
-        size: Torx size number (e.g. 10, 20, 30).
-
-    Returns:
-        A :class:`TorxSpec` with the dimensions for the given Torx size.
-
-    Raises:
-        ValueError: If *size* is not a supported Torx size.
-
-    """
-    try:
-        return _TORX[int(size)]
-    except (KeyError, ValueError):
-        raise ValueError(f"Unsupported Torx size: {size!r}") from None
-
-
-def torx_diam(size: int) -> float:
-    """Outer diameter of a Torx *size* profile.
-
-    Args:
-        size: Torx size number (e.g. 10, 20, 30).
-
-    Returns:
-        The outer diameter in mm for the given Torx size.
-
-    """
-    return torx_info(size).outer_diameter
-
-
-def torx_depth(size: int) -> float:
-    """Typical drive-hole depth for a Torx *size*.
-
-    Args:
-        size: Torx size number (e.g. 10, 20, 30).
-
-    Returns:
-        The drive depth in mm for the given Torx size.
-
-    """
-    return torx_info(size).depth
-
-
-def _torx_profile(size: int) -> Any:
-    spec = torx_info(size)
-    outer_diameter, id_, tip, rounding = (
-        spec.outer_diameter,
-        spec.inner_diameter,
-        spec.tip_rounding,
-        spec.inner_rounding,
-    )
-    base = outer_diameter - 2 * tip
-    fn = int(quantup(_frag_count(outer_diameter / 2), 12))
-
-    tip_circles = [
-        circle(radius=tip, fn=fn // 2).translate([base / 2, 0]).multmatrix(m.tolist())
-        for m in DistributableMatrix.zrot_copies(num_copies=3)
-    ]
-    tri = _hull2d(tip_circles)
-    lobes = _union(tri.multmatrix(m.tolist()) for m in DistributableMatrix.zrot_copies(num_copies=2))
-    solid = circle(diameter=base, fn=fn) | lobes
-
-    cut = _union(
-        circle(radius=rounding, fn=fn).translate([id_ / 2 + rounding, 0]).rotate([0, 0, 180 / 6]).multmatrix(m.tolist())
-        for m in DistributableMatrix.zrot_copies(num_copies=6)
-    )
-    return solid - cut
-
-
-def phillips_depth(size: str | int, diameter: float) -> float | None:
-    """Recess depth needed to reach diameter *diameter* for a Phillips *size*, or ``None``.
-
-    Args:
-        size: Phillips bit size (``"#0"``..``"#4"`` or ``0``..``4``).
-        diameter: Target recess diameter at the mouth.
-
-    Returns:
-        The depth in mm to achieve the given diameter, or ``None`` if the target is unreachable.
-
-    """
-    spec = _PHILLIPS[_phillips_num(size)]
-    shaft, g = spec.shaft, spec.g
-    h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)
-    if diameter >= shaft or diameter < g:
-        return None
-    return (diameter - g) / 2 / math.tan(math.radians(_PH_SIDE_ANGLE)) + h1
-
-
-def phillips_diam(size: str | int, depth: float) -> float | None:
-    """Recess diameter at the top when cut to *depth* for a Phillips *size*, or ``None``.
-
-    Args:
-        size: Phillips bit size (``"#0"``..``"#4"`` or ``0``..``4``).
-        depth: Depth to cut to in mm.
-
-    Returns:
-        The top diameter in mm at the given depth, or ``None`` if the depth is out of range.
-
-    """
-    spec = _PHILLIPS[_phillips_num(size)]
-    shaft, g = spec.shaft, spec.g
-    h1 = _adj_ang_to_opp(g / 2, _PH_BOT_ANGLE)
-    h2 = _adj_ang_to_opp((shaft - g) / 2, 90 - _PH_SIDE_ANGLE)
-    if depth < h1 or depth >= h1 + h2:
-        return None
-    return 2 * math.tan(math.radians(_PH_SIDE_ANGLE)) * (depth - h1) + g
 
 
 class PhillipsMask:
@@ -370,7 +378,7 @@ class PhillipsMask:
         _fn = fn
         if fn is None and fa is None and fs is None:
             _fn = 36
-        spec = _PHILLIPS[_phillips_num(size)]
+        spec = PhillipsSpec(size)
         shaft, b, e, g = spec.shaft, spec.b, spec.e, spec.g
         alpha, beta, gamma = spec.alpha, spec.beta, _PH_GAMMA
 
@@ -567,7 +575,8 @@ class TorxMask2d:
 
         """
         self._size: int = size
-        self._solid: Bosl2Solid = Bosl2Solid(_torx_profile(size))
+        spec = TorxSpec(size)
+        self._solid: Bosl2Solid = Bosl2Solid(spec._profile())
 
     @property
     def size(self) -> int:
@@ -622,8 +631,9 @@ class TorxMask:
         self._l: float = l
         self._center: bool = center
 
-        outer_diameter = torx_diam(size)
-        solid = _torx_profile(size).linear_extrude(height=l, center=center)
+        spec = TorxSpec(size)
+        outer_diameter = spec.diam
+        solid = spec._profile().linear_extrude(height=l, center=center)
         self._solid: Bosl2Solid = Bosl2Solid(solid.shape, size=[outer_diameter, outer_diameter, l])
         self._outer_diameter: float = outer_diameter
 
@@ -697,9 +707,7 @@ class RobertsonMask:
         """
         if isinstance(size, str):
             size = int(size.replace("#", ""))
-        if not (isinstance(size, int) and 0 <= size <= 4):
-            raise ValueError(f"robertson size must be an int 0..4, got {size!r}")
-        spec = _ROBERTSON[size]
+        spec = RobertsonSpec(size)
         across_flats = spec.m * INCH
         robertson_depth = spec.t * INCH
         robertson_flat = spec.f * INCH

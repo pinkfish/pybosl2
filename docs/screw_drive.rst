@@ -24,10 +24,8 @@ head. The :mod:`pybosl2.parts.screw_drive` module provides classes and functions
     head - RobertsonMask(2).shape()       # a #2 Robertson/square recess
 
 Every ``*Mask`` is built bottom-on-the-XY-plane (BOSL2's ``anchor=BOTTOM``); pass ``center=True``
-to center it vertically. The dimensional helpers -- :func:`~pybosl2.parts.screw_drive.torx_info`,
-:func:`~pybosl2.parts.screw_drive.torx_diam`, :func:`~pybosl2.parts.screw_drive.torx_depth`,
-:func:`~pybosl2.parts.screw_drive.phillips_depth` and
-:func:`~pybosl2.parts.screw_drive.phillips_diam` -- return the same numbers as their BOSL2
+to center it vertically. The spec classes :class:`~pybosl2.parts.screw_drive.TorxSpec` and
+:class:`~pybosl2.parts.screw_drive.PhillipsSpec` return the same dimensional data as their BOSL2
 counterparts.
 
 The dimension tables (Phillips ISO 4757, the Torx ISO 14583 OD/ID/depth/rounding table, and the
@@ -73,15 +71,11 @@ API reference
 
 .. autofunction:: pybosl2.parts.screw_drive.hex_mask
 
-.. autofunction:: pybosl2.parts.screw_drive.torx_info
+.. autoclass:: pybosl2.parts.screw_drive.TorxSpec
+   :members:
 
-.. autofunction:: pybosl2.parts.screw_drive.torx_diam
-
-.. autofunction:: pybosl2.parts.screw_drive.torx_depth
-
-.. autofunction:: pybosl2.parts.screw_drive.phillips_depth
-
-.. autofunction:: pybosl2.parts.screw_drive.phillips_diam
+.. autoclass:: pybosl2.parts.screw_drive.PhillipsSpec
+   :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
 
