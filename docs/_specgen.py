@@ -856,7 +856,7 @@ MODULES = {
             "plus the bolt-pattern mask to difference out of a mounting plate."
         ),
         "part": "nema_stepper_motor(17)",
-        "code": 'NemaSteppers.<span class="k">nema_stepper_motor</span>(17)',
+        "code": 'NemaMotor(17).<span class="k">shape</span>()',
         "metrics": [
             ("NEMA 17 motor", 300, "43,714.4", "42×42×44"),
             ("NEMA 23 motor", 456, "79,389.8", "57×57×44"),
@@ -1234,7 +1234,7 @@ SETUP = {
     "ball_bearings": "from pybosl2.parts.ball_bearings import BallBearings\n",
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
     "modular_hose": "from pybosl2.parts.modular_hose import ModularHose\n",
-    "nema_steppers": "from pybosl2.parts.nema_steppers import NemaSteppers\n",
+    "nema_steppers": "from pybosl2.parts.nema_steppers import NemaMotor, NemaMountMask, NemaSpec\n",
     "threading": (
         "from pybosl2.parts.threading import ThreadedRod, ThreadedNut, ThreadHelix, "
         "iso_threaded_rod, iso_threaded_nut, trapezoidal_threaded_rod, acme_threaded_rod, "
@@ -1387,10 +1387,10 @@ VARIANTS = {
         ("socket", "socket end", 'ModularHose.modular_hose(0.5, "socket")'),
     ],
     "nema_steppers": [
-        ("17", "NEMA 17", "NemaSteppers.nema_stepper_motor(17)"),
-        ("23", "NEMA 23", "NemaSteppers.nema_stepper_motor(23)"),
-        ("8", "NEMA 8", "NemaSteppers.nema_stepper_motor(8)"),
-        ("mask", "mount mask", "NemaSteppers.nema_mount_mask(17)"),
+        ("17", "NEMA 17", "NemaMotor(17).shape()"),
+        ("23", "NEMA 23", "NemaMotor(23).shape()"),
+        ("8", "NEMA 8", "NemaMotor(8).shape()"),
+        ("mask", "mount mask", "NemaMountMask(17).shape()"),
     ],
     "threading": [
         ("iso-rod", "ISO rod", "iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()"),

@@ -114,7 +114,7 @@ _PREAMBLE = (
     "from pybosl2.parts.ball_bearings import BallBearings\n"
     "from pybosl2.parts.linear_bearings import LinearBearings\n"
     "from pybosl2.parts.modular_hose import ModularHose\n"
-    "from pybosl2.parts.nema_steppers import NemaSteppers\n"
+    "from pybosl2.parts.nema_steppers import NemaMotor, NemaMountMask, NemaSpec\n"
     "from pybosl2.parts.sliders import Sliders\n"
     "from pybosl2.parts.bottlecaps import BottleCaps\n"
     "from pybosl2.parts.screw_drive import ScrewDrive\n"
