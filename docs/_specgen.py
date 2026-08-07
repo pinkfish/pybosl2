@@ -898,7 +898,7 @@ MODULES = {
             "inradius or side. The dodecahedron is built as the dual of the icosahedron."
         ),
         "part": 'regular_polyhedron("dodecahedron", side=12)',
-        "code": 'Polyhedra.<span class="k">regular_polyhedron</span>("dodecahedron", side=12)',
+        "code": 'RegularPolyhedron.<span class="k">__init__</span>(PlatonicSolid.DODECAHEDRON, side=12).shape()',
         "metrics": [
             ("dodecahedron · side=12", 36, "13,241.9", "31×31×31"),
             ("icosahedron · r=15", 20, "8,559.5", "26×26×26"),
@@ -1227,7 +1227,7 @@ SETUP = {
     "walls": "from pybosl2.parts.walls import Walls\n",
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
     "hooks": "import math\nfrom pybosl2.parts.hooks import Hooks\n",
-    "polyhedra": "from pybosl2.parts.polyhedra import Polyhedra\n",
+    "polyhedra": "from pybosl2.parts.polyhedra import RegularPolyhedron, PlatonicSolid\n",
     "hinges": "from pybosl2.parts.hinges import Hinges\n",
     "joiners": "from pybosl2.parts.joiners import Joiners\n",
     "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
@@ -1333,11 +1333,11 @@ VARIANTS = {
         ),
     ],
     "polyhedra": [
-        ("tetrahedron", "tetrahedron", "Polyhedra.tetrahedron(radius=15)"),
-        ("cube", "cube", "Polyhedra.cube(radius=15)"),
-        ("octahedron", "octahedron", "Polyhedra.octahedron(radius=15)"),
-        ("dodecahedron", "dodecahedron", "Polyhedra.dodecahedron(side=12)"),
-        ("icosahedron", "icosahedron", "Polyhedra.icosahedron(radius=15)"),
+        ("tetrahedron", "tetrahedron", "RegularPolyhedron.tetrahedron(radius=15).shape()"),
+        ("cube", "cube", "RegularPolyhedron.cube(radius=15).shape()"),
+        ("octahedron", "octahedron", "RegularPolyhedron.octahedron(radius=15).shape()"),
+        ("dodecahedron", "dodecahedron", "RegularPolyhedron.dodecahedron(side=12).shape()"),
+        ("icosahedron", "icosahedron", "RegularPolyhedron.icosahedron(radius=15).shape()"),
     ],
     "hinges": [
         ("pair", "knuckle pair", "Hinges.knuckle_hinge_pair(length=40, segs=5)"),

@@ -21,7 +21,7 @@ from pybosl2.parts.joiners import Joiners
 from pybosl2.parts.linear_bearings import LinearBearings, LinearBearingSpec
 from pybosl2.parts.modular_hose import ModularHose
 from pybosl2.parts.nema_steppers import NemaSpec, NemaSteppers
-from pybosl2.parts.polyhedra import PlatonicSolid, Polyhedra
+from pybosl2.parts.polyhedra import PlatonicSolid, PolyhedronInfo, RegularPolyhedron
 from pybosl2.parts.screw_drive import ScrewDrive
 from pybosl2.parts.screws import Nut, Screw, ScrewHole, ScrewSpec
 from pybosl2.parts.sliders import Sliders
@@ -48,7 +48,8 @@ __all__ = [
     "NemaSteppers",
     "NemaSpec",
     "NutShape",
-    "Polyhedra",
+    "PolyhedronInfo",
+    "RegularPolyhedron",
     "PlatonicSolid",
     "ScrewDrive",
     "ScrewDriveType",

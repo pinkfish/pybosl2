@@ -107,7 +107,7 @@ _PREAMBLE = (
     "from pybosl2.parts.walls import Walls\n"
     "from pybosl2.parts.hooks import Hooks\n"
     "from pybosl2.parts.wiring import Wiring\n"
-    "from pybosl2.parts.polyhedra import Polyhedra\n"
+    "from pybosl2.parts.polyhedra import PlatonicSolid, RegularPolyhedron\n"
     "from pybosl2.parts.hinges import Hinges\n"
     "from pybosl2.parts.joiners import Joiners\n"
     "from pybosl2.parts.cubetruss import CubeTruss\n"

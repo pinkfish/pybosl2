@@ -1715,13 +1715,13 @@ def test_walls_thinning_wall_builds(tmp_path):
 
 
 def test_polyhedra_tetrahedron(tmp_path):
-    m = _render(tmp_path, "Polyhedra.regular_polyhedron('tetrahedron', radius=12)", name="tetra")
+    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.TETRAHEDRON, radius=12).shape()", name="tetra")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_polyhedra_icosahedron(tmp_path):
-    m = _render(tmp_path, "Polyhedra.regular_polyhedron('icosahedron', radius=10)", name="icosa")
+    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.ICOSAHEDRON, radius=10).shape()", name="icosa")
     assert m.watertight
     assert m.volume > 0
 
