@@ -47,3 +47,13 @@ class Gender(StrEnum):
 
     MALE = "male"
     FEMALE = "female"
+
+
+class ThreadPitchClass(StrEnum):
+    """ISO metric thread pitch class for selecting coarse/fine/extra-fine/super-fine threads."""
+
+    COARSE = "coarse"
+    FINE = "fine"
+    EXTRA_FINE = "extra_fine"
+    SUPER_FINE = "super_fine"
+    NONE = "none"

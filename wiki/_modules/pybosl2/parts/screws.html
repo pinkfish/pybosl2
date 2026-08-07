@@ -1799,7 +1799,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">NutShape</span><span class="p">,</span> <span class="n">ScrewDriveType</span><span class="p">,</span> <span class="n">ScrewHeadType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">NutShape</span><span class="p">,</span> <span class="n">ScrewDriveType</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="p">,</span> <span class="n">ThreadPitchClass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">regular_prism</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -1820,15 +1820,10 @@
 
 <span class="c1"># Thread-class name -&gt; the ThreadPitches attribute holding that pitch.</span>
 <span class="n">_THREAD_ALIAS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;coarse&quot;</span><span class="p">:</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;fine&quot;</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;extra fine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;extrafine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;extra-fine&quot;</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;super fine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;superfine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;super-fine&quot;</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
+    <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">:</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+    <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">FINE</span><span class="p">:</span> <span class="s2">&quot;fine&quot;</span><span class="p">,</span>
+    <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">EXTRA_FINE</span><span class="p">:</span> <span class="s2">&quot;extra_fine&quot;</span><span class="p">,</span>
+    <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">SUPER_FINE</span><span class="p">:</span> <span class="s2">&quot;super_fine&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -1844,12 +1839,12 @@
     <span class="n">extra_fine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">super_fine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the pitch for a thread class (``&quot;coarse&quot;``/``&quot;fine&quot;``/``&quot;extra-fine&quot;``/``&quot;super-fine&quot;``),.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the pitch for a thread class (coarse / fine / extra_fine / super_fine),.</span>
 
 <span class="sd">        falling back to coarse if the requested class is undefined for this size.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_THREAD_ALIAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="s2">&quot;coarse&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_THREAD_ALIAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="s2">&quot;coarse&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">coarse</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2071,7 +2066,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_spec</span><span class="p">(</span>
     <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+    <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">,</span>
     <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve *spec* to ``(diameter, pitch)``.</span>
@@ -2096,7 +2091,7 @@
     <span class="k">return</span> <span class="n">diameter</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">pitch</span><span class="p">)</span> <span class="k">if</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_lookup_pitch</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="n">thread</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_pitch</span><span class="p">(</span><span class="n">diam</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_lookup_pitch</span><span class="p">(</span><span class="n">diam</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">diam</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ISO_THREAD</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown metric screw size M</span><span class="si">{</span><span class="n">diam</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">_ISO_THREAD</span><span class="p">[</span><span class="n">diam</span><span class="p">]</span><span class="o">.</span><span class="n">pitch</span><span class="p">(</span><span class="n">thread</span><span class="p">))</span>
@@ -2125,7 +2120,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">screw_info</span><span class="p">(</span>
         <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">ScrewHeadType</span> <span class="o">=</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span>
-        <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+        <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">,</span>
         <span class="n">drive</span><span class="p">:</span> <span class="n">ScrewDriveType</span> <span class="o">=</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -2189,7 +2184,7 @@
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">ScrewHeadType</span> <span class="o">=</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span>
         <span class="n">drive</span><span class="p">:</span> <span class="n">ScrewDriveType</span> <span class="o">=</span> <span class="n">ScrewDriveType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
-        <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+        <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">,</span>
         <span class="n">thread_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2199,7 +2194,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.</span>
 
 <span class="sd">        *length* is the shaft length below the head (for a flat head, below the surface). Set</span>
-<span class="sd">        ``thread=&quot;none&quot;`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.</span>
+<span class="sd">        ``thread=ThreadPitchClass.NONE`` for a plain unthreaded shank, or *thread_len* for a partly-threaded shaft.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            An M6×20 socket-head cap screw:</span>
@@ -2215,15 +2210,15 @@
             <span class="n">spec</span><span class="p">,</span>
             <span class="n">head</span><span class="o">=</span><span class="n">head</span><span class="p">,</span>
             <span class="n">drive</span><span class="o">=</span><span class="n">drive</span><span class="p">,</span>
-            <span class="n">thread</span><span class="o">=</span><span class="s2">&quot;coarse&quot;</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">thread</span><span class="p">,</span>
+            <span class="n">thread</span><span class="o">=</span><span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="k">else</span> <span class="n">thread</span><span class="p">,</span>
             <span class="n">pitch</span><span class="o">=</span><span class="n">pitch</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;diameter&quot;</span><span class="p">])</span>
         <span class="n">_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;pitch&quot;</span><span class="p">])</span>
-        <span class="n">thread_kind</span> <span class="o">=</span> <span class="n">thread</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;coarse&quot;</span>
+        <span class="n">thread_kind</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">thread</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thread</span><span class="p">,</span> <span class="n">ThreadPitchClass</span><span class="p">)</span> <span class="k">else</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span>
 
         <span class="c1"># -- shaft: top face at z=0, tip at z=-length -----------------------------------</span>
-        <span class="k">if</span> <span class="n">thread</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">thread</span> <span class="o">!=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Threading</span>
 
             <span class="n">_</span><span class="p">,</span> <span class="n">tp</span> <span class="o">=</span> <span class="n">_parse_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">thread_kind</span><span class="p">,</span> <span class="n">pitch</span><span class="p">)</span>
@@ -2317,7 +2312,7 @@
         <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="n">NutShape</span> <span class="o">=</span> <span class="n">NutShape</span><span class="o">.</span><span class="n">HEX</span><span class="p">,</span>
-        <span class="n">thread</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;coarse&quot;</span><span class="p">,</span>
+        <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span> <span class="o">=</span> <span class="n">ThreadPitchClass</span><span class="o">.</span><span class="n">COARSE</span><span class="p">,</span>
         <span class="n">nutwidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">slop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

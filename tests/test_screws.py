@@ -14,7 +14,7 @@ import math
 
 import pytest
 
-from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType
+from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.parts.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -39,20 +39,25 @@ def test_parse_number_and_dict() -> None:
 
 @pytest.mark.parametrize(
     ("thread", "expected"),
-    [("coarse", 1.5), ("fine", 1.25), ("extra fine", 1.0), ("super fine", 0.75)],
+    [
+        (ThreadPitchClass.COARSE, 1.5),
+        (ThreadPitchClass.FINE, 1.25),
+        (ThreadPitchClass.EXTRA_FINE, 1.0),
+        (ThreadPitchClass.SUPER_FINE, 0.75),
+    ],
 )
-def test_pitch_classes_m10(thread: str, expected: float) -> None:
+def test_pitch_classes_m10(thread: ThreadPitchClass, expected: float) -> None:
     assert _lookup_pitch(10, thread) == expected
 
 
 def test_pitch_falls_back_to_coarse_when_class_missing() -> None:
     # M6 has no super-fine pitch -> falls back to coarse (1.0)
-    assert _lookup_pitch(6, "super fine") == 1.0
+    assert _lookup_pitch(6, ThreadPitchClass.SUPER_FINE) == 1.0
 
 
 def test_unknown_size_raises() -> None:
     with pytest.raises(ValueError, match="Unknown metric screw size"):
-        _lookup_pitch(6.5, "coarse")
+        _lookup_pitch(6.5, ThreadPitchClass.COARSE)
 
 
 # -- head dimensions (verbatim from screws.scad metric tables) ----------------------------
@@ -166,7 +171,7 @@ def test_screw_builds(head: ScrewHeadType) -> None:
 
 
 def test_screw_unthreaded_and_partly_threaded() -> None:
-    assert isinstance(Screws.screw("M6", 20, thread="none", fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw("M6", 20, thread=ThreadPitchClass.NONE, fn=8), Bosl2Solid)
     assert isinstance(Screws.screw("M6", 20, thread_len=8, fn=8), Bosl2Solid)
 
 
@@ -197,7 +202,7 @@ def test_screw_hole_builds(head: ScrewHeadType, counterbore: int) -> None:
 
 
 def test_tapped_hole_builds() -> None:
-    assert isinstance(Screws.screw_hole("M6", 20, thread="coarse", fn=8), Bosl2Solid)
+    assert isinstance(Screws.screw_hole("M6", 20, thread=ThreadPitchClass.COARSE, fn=8), Bosl2Solid)
 
 
 @pytest.mark.parametrize("fit", ["close", "normal", "loose"])

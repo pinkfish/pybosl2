@@ -13,7 +13,7 @@
 from pybosl2.parts.ball_bearings import BallBearings, BearingSpec, BearingType
 from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
 from pybosl2.parts.cubetruss import CubeTruss
-from pybosl2.parts.enums import Gender, NutShape, ScrewDriveType, ScrewHeadType
+from pybosl2.parts.enums import Gender, NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.parts.gears import Gears
 from pybosl2.parts.hinges import Hinges
 from pybosl2.parts.hooks import Hooks
@@ -56,6 +56,7 @@ __all__ = [
     "Screws",
     "Sliders",
     "Threading",
+    "ThreadPitchClass",
     "TripodMounts",
     "manfrotto_rc2_plate",
     "Walls",

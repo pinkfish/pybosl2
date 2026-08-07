@@ -34,7 +34,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType
+from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = [
@@ -53,19 +53,6 @@ __all__ = [
 # Section: metric dimension tables (transcribed from screws.scad)
 # ---------------------------------------------------------------------------
 
-# Thread-class name -> the ThreadPitches attribute holding that pitch.
-_THREAD_ALIAS = {
-    "coarse": "coarse",
-    "fine": "fine",
-    "medium": "fine",
-    "extra fine": "extra_fine",
-    "extrafine": "extra_fine",
-    "extra-fine": "extra_fine",
-    "super fine": "super_fine",
-    "superfine": "super_fine",
-    "super-fine": "super_fine",
-}
-
 
 @dataclass(frozen=True)
 class ThreadPitches:
@@ -79,12 +66,11 @@ class ThreadPitches:
     extra_fine: float | None = None
     super_fine: float | None = None
 
-    def pitch(self, thread: str = "coarse") -> float:
-        """Return the pitch for a thread class (``"coarse"``/``"fine"``/``"extra-fine"``/``"super-fine"``),.
-
-        falling back to coarse if the requested class is undefined for this size.
-        """
-        return getattr(self, _THREAD_ALIAS.get(str(thread).lower(), "coarse")) or self.coarse
+    def pitch(self, thread: ThreadPitchClass = ThreadPitchClass.COARSE) -> float:
+        """Return the pitch for a thread class, falling back to coarse if it's undefined for this size."""
+        if thread == ThreadPitchClass.NONE:
+            return self.coarse
+        return getattr(self, str(thread)) or self.coarse
 
 
 @dataclass(frozen=True)
@@ -306,7 +292,7 @@ _CLEARANCE = {"close": 0.2, "normal": 0.5, "loose": 1.0}
 
 def _parse_spec(
     spec: str | dict[str, float] | float,
-    thread: str = "coarse",
+    thread: ThreadPitchClass = ThreadPitchClass.COARSE,
     pitch: float | None = None,
 ) -> tuple[float, float]:
     """Resolve *spec* to ``(diameter, pitch)``.
@@ -331,7 +317,7 @@ def _parse_spec(
     return diameter, float(pitch) if pitch is not None else _lookup_pitch(diameter, thread)
 
 
-def _lookup_pitch(diam: float, thread: str) -> float:
+def _lookup_pitch(diam: float, thread: ThreadPitchClass) -> float:
     if diam not in _ISO_THREAD:
         raise ValueError(f"Unknown metric screw size M{diam:g}")
     return float(_ISO_THREAD[diam].pitch(thread))
@@ -356,7 +342,7 @@ class Screws:
     def screw_info(
         spec: str | dict[str, float] | float,
         head: ScrewHeadType = ScrewHeadType.SOCKET,
-        thread: str = "coarse",
+        thread: ThreadPitchClass = ThreadPitchClass.COARSE,
         drive: ScrewDriveType = ScrewDriveType.NONE,
         pitch: float | None = None,
     ) -> dict[str, Any]:
@@ -417,7 +403,7 @@ class Screws:
         length: float,
         head: ScrewHeadType = ScrewHeadType.SOCKET,
         drive: ScrewDriveType = ScrewDriveType.NONE,
-        thread: str = "coarse",
+        thread: ThreadPitchClass = ThreadPitchClass.COARSE,
         thread_len: float | None = None,
         pitch: float | None = None,
         fn: int | None = None,
@@ -427,7 +413,7 @@ class Screws:
         """Return a metric screw: a threaded (or plain) shaft plus a head, with an optional drive recess.
 
         *length* is the shaft length below the head (for a flat head, below the surface). Set
-        ``thread="none"`` for a plain unthreaded shank, or ``thread_len`` for a partly-threaded shaft.
+        ``thread=ThreadPitchClass.NONE`` for a plain unthreaded shank, or *thread_len* for a partly-threaded shaft.
 
         Examples:
             An M6×20 socket-head cap screw:
@@ -443,15 +429,15 @@ class Screws:
             spec,
             head=head,
             drive=drive,
-            thread="coarse" if isinstance(thread, bool) else thread,
+            thread=ThreadPitchClass.COARSE if isinstance(thread, bool) else thread,
             pitch=pitch,
         )
         d: float = float(info["diameter"])
         _p: float = float(info["pitch"])
-        thread_kind = thread if isinstance(thread, str) else "coarse"
+        thread_kind: ThreadPitchClass = thread if isinstance(thread, ThreadPitchClass) else ThreadPitchClass.COARSE
 
         # -- shaft: top face at z=0, tip at z=-length -----------------------------------
-        if thread:
+        if thread != ThreadPitchClass.NONE:
             from pybosl2.parts.threading import Threading
 
             _, tp = _parse_spec(spec, thread_kind, pitch)
@@ -542,7 +528,7 @@ class Screws:
         spec: str | dict[str, float] | float,
         thickness: float | str = "normal",
         shape: NutShape = NutShape.HEX,
-        thread: str = "coarse",
+        thread: ThreadPitchClass = ThreadPitchClass.COARSE,
         nutwidth: float | None = None,
         slop: float = 0.0,
         pitch: float | None = None,
@@ -579,7 +565,7 @@ class Screws:
         head: ScrewHeadType = ScrewHeadType.NONE,
         counterbore: float = 0.0,
         fit: str = "normal",
-        thread: str = "none",
+        thread: ThreadPitchClass = ThreadPitchClass.NONE,
         pitch: float | None = None,
         fn: int | None = None,
         fa: float | None = None,
@@ -591,7 +577,7 @@ class Screws:
 
         Returns a solid to *subtract* from your part. The clearance shaft occupies ``z in [-length, 0]``
         with its mouth at ``z = 0``; countersinks/counterbores open upward from there. Set
-        ``thread="coarse"`` for a tapped (threaded) hole instead of a clearance hole.
+        ``thread=ThreadPitchClass.COARSE`` for a tapped (threaded) hole instead of a clearance hole.
 
         Examples:
             Drill a clearance hole for an M6 bolt through a 10 mm plate:
@@ -605,8 +591,8 @@ class Screws:
                  - Screws.screw_hole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal")).show()
 
         """
-        use_thread = thread and thread.lower() not in ("none", "false", "no", "")
-        d, p = _parse_spec(spec, "coarse" if not use_thread else thread, pitch)
+        use_thread = thread != ThreadPitchClass.NONE
+        d, p = _parse_spec(spec, ThreadPitchClass.COARSE if not use_thread else thread, pitch)
         if use_thread:
             from pybosl2.parts.threading import Threading
 
