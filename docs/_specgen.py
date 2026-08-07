@@ -961,8 +961,8 @@ MODULES = {
             "A routed bundle of round wires: hex-packed in cross-section and swept along a path "
             "whose corners are rounded, each wire coloured from a 17-entry table."
         ),
-        "part": "wire_bundle(path, wires=13, rounding=10)",
-        "code": 'Wiring.<span class="k">wire_bundle</span>(path, wires=13, rounding=10)',
+        "part": "WireBundle(path, wires=13, rounding=10).shape()",
+        "code": 'WireBundle(path, wires=13, rounding=10).<span class="k">shape</span>()',
         "metrics": [
             ("1 wire · watertight", 796, "529.0", "52×52×51"),
             ("13-wire bundle", 10348, "6,877.0", "60×60×55"),
@@ -1228,7 +1228,10 @@ SETUP = {
         "Rack, RingGear, SpurGear, Worm, WormGear\n"
     ),
     "walls": "from pybosl2.parts.walls import Walls\n",
-    "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
+    "wiring": (
+        "from pybosl2.parts.wiring import WireBundle, hex_offsets\n"
+        "PATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n"
+    ),
     "hooks": "import math\nfrom pybosl2.parts.hooks import HoleType, RingHook\n",
     "polyhedra": "from pybosl2.parts.polyhedra import RegularPolyhedron, PlatonicSolid\n",
     "hinges": (
@@ -1318,13 +1321,13 @@ VARIANTS = {
         ),
     ],
     "wiring": [
-        ("13", "13 wires", "Wiring.wire_bundle(PATH, wires=13, rounding=10)"),
-        ("7", "7 wires", "Wiring.wire_bundle(PATH, wires=7, rounding=10)"),
-        ("1", "1 wire", "Wiring.wire_bundle(PATH, wires=1, rounding=10)"),
+        ("13", "13 wires", "WireBundle(PATH, wires=13, rounding=10).shape()"),
+        ("7", "7 wires", "WireBundle(PATH, wires=7, rounding=10).shape()"),
+        ("1", "1 wire", "WireBundle(PATH, wires=1, rounding=10).shape()"),
         (
             "thick",
             "thick gauge",
-            "Wiring.wire_bundle(PATH, wires=7, wirediam=3, rounding=15)",
+            "WireBundle(PATH, wires=7, wirediam=3, rounding=15).shape()",
         ),
     ],
     "hooks": [

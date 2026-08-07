@@ -12,7 +12,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.parts.wiring import _WIRE_COLORS, Wiring, _hex_offset_ring, _hex_offsets, _segs
+from pybosl2.parts.wiring import _WIRE_COLORS, WireBundle, _hex_offset_ring, _hex_offsets, _segs, hex_offsets
 from pybosl2.shapes3d import Bosl2Solid
 
 _PATH = [[50, 0, -50], [50, 50, -50], [0, 50, -50], [0, 0, -50], [0, 0, 0]]
@@ -43,24 +43,24 @@ def test_hex_offsets_min_spacing_is_d() -> None:
 
 
 def test_public_hex_offsets_matches_private() -> None:
-    assert Wiring.hex_offsets(7, 3.0) == _hex_offsets(7, 3.0)
+    assert hex_offsets(7, 3.0) == _hex_offsets(7, 3.0)
 
 
 @pytest.mark.parametrize("wires", [1, 7, 13, 30])
 def test_wire_bundle_builds(wires: int) -> None:
-    assert isinstance(Wiring.wire_bundle(_PATH, wires=wires, rounding=10), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(WireBundle(_PATH, wires=wires, rounding=10).shape(), Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_wire_bundle_grows_with_wire_count() -> None:
     def w(n: int) -> float:
-        return Wiring.wire_bundle(_PATH, wires=n, rounding=10)._native_bounds()[1][0]  # type: ignore[arg-type, index]
+        return WireBundle(_PATH, wires=n, rounding=10).shape()._native_bounds()[1][0]  # type: ignore[arg-type, index]
 
     assert w(1) < w(7) < w(13)  # bundle cross-section widens
 
 
 def test_wire_bundle_requires_a_wire() -> None:
     with pytest.raises(ValueError, match="needs at least one wire"):
-        Wiring.wire_bundle(_PATH, wires=0)  # type: ignore[arg-type]
+        WireBundle(_PATH, wires=0)  # type: ignore[arg-type]
 
 
 # ── _segs tests ──────────────────────────────────────────────────────────

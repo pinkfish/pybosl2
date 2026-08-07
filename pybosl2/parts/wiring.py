@@ -6,9 +6,9 @@
 
 # LibFile: pybosl2/parts/wiring.py
 #    Pure-Python port of BOSL2's wiring.scad: rendering for routed bundles of wires.
-#    :meth:`Wiring.wire_bundle` sweeps a hexagonally-packed bundle of round wires along a path whose
+#    :class:`WireBundle` sweeps a hexagonally-packed bundle of round wires along a path whose
 #    corners are rounded, colouring each wire from a 17-entry table.
-#    :meth:`~Wiring.hex_offsets` exposes the optimal hex-packing centre points it uses.
+#    :func:`hex_offsets` exposes the optimal hex-packing centre points it uses.
 #
 # FileSummary: Routed bundles of wires.
 # DocCategory: Parts library
@@ -23,7 +23,7 @@ import math
 from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid
 
-__all__ = ["Wiring"]
+__all__ = ["WireBundle", "hex_offsets"]
 
 # The 17 base wire colours, in the same order as BOSL2 wiring.scad.
 _WIRE_COLORS = [
@@ -85,49 +85,43 @@ def _hex_offsets(n: int, d: float) -> list[list[float]]:
     return arr
 
 
-class Wiring:
-    """Routed bundles of wires (BOSL2 wiring.scad).
+def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
+    """Return the centre points for the optimal hexagonal packing of at least *sides* circles.
 
-    .. seealso::
+    Circles are spaced *diameter* apart.
+    """
+    return _hex_offsets(sides, diameter)
 
-       `Visual spec sheet <specs/wiring.html>`_ — measurements and STL previews
+
+class WireBundle:
+    """A bundle of round wires routed along a path with rounded corners.
+
+    The wires are hex-packed in the bundle cross-section and each is coloured
+    from the 17-entry table (re-used, offset by *wirenum*, if there are more
+    than 17).  *wirediam* is each wire's diameter; *corner_steps* sets how
+    finely the rounded corners are faceted.
+
+    Examples:
+        A 13-wire bundle routed around three corners:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.wiring import WireBundle
+            WireBundle([[50, 0, -50], [50, 50, -50], [0, 50, -50],
+                        [0, 0, -50], [0, 0, 0]], wires=13, rounding=10).show()
+
     """
 
-    @staticmethod
-    def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
-        """Return the centre points for the optimal hexagonal packing of at least *sides* circles spaced.
-
-        *diameter* apart.
-        """
-        return _hex_offsets(sides, diameter)
-
-    @staticmethod
-    def wire_bundle(
+    def __init__(
+        self,
         path: list[list[float]],
         wires: int,
         wirediam: float = 2,
         rounding: float = 10,
         wirenum: int = 0,
         corner_steps: int = 15,
-    ) -> Bosl2Solid:
-        """Return a bundle of *wires* round wires that follow *path*, its.
-
-        corners rounded to *rounding* (BOSL2 wire_bundle()).
-
-        The wires are hex-packed in the bundle cross-section and each is coloured from the 17-entry
-        table (re-used, offset by *wirenum*, if there are more than 17). *wirediam* is each wire's
-        diameter; *corner_steps* sets how finely the rounded corners are faceted.
-
-        Examples:
-            A 13-wire bundle routed around three corners:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.wiring import Wiring
-                Wiring.wire_bundle([[50, 0, -50], [50, 50, -50], [0, 50, -50],
-                                    [0, 0, -50], [0, 0, 0]], wires=13, rounding=10).show()
-
-        """
+    ) -> None:
+        """Create a wire bundle routed along *path*."""
         if wires < 1:
             raise ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)
@@ -135,10 +129,7 @@ class Wiring:
         rounded_path = Path3D(path, closed=False).round_corners(radius=rounding, fn=(corner_steps + 1) * 4)
         radius = wirediam / 2
         profile = [
-            [
-                radius * math.cos(2 * math.pi * k / sides),
-                radius * math.sin(2 * math.pi * k / sides),
-            ]
+            [radius * math.cos(2 * math.pi * k / sides), radius * math.sin(2 * math.pi * k / sides)]
             for k in range(sides)
         ]
 
@@ -150,4 +141,24 @@ class Wiring:
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None
-        return Bosl2Solid(bundle.shape, size=None)
+        self._solid: Bosl2Solid = Bosl2Solid(bundle.shape, size=None)
+        self._wires: int = wires
+        self._wirediam: float = wirediam
+
+    @property
+    def wires(self) -> int:
+        """Number of wires in the bundle."""
+        return self._wires
+
+    @property
+    def wirediam(self) -> float:
+        """Wire diameter in mm."""
+        return self._wirediam
+
+    def shape(self) -> Bosl2Solid:
+        """Return the wire bundle geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the wire bundle in the viewer."""
+        self._solid.show()
