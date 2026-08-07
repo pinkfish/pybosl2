@@ -108,7 +108,7 @@ _PREAMBLE = (
     "from pybosl2.parts.hooks import HoleType, RingHook\n"
     "from pybosl2.parts.wiring import Wiring\n"
     "from pybosl2.parts.polyhedra import PlatonicSolid, RegularPolyhedron\n"
-    "from pybosl2.parts.hinges import Hinges\n"
+    "from pybosl2.parts.hinges import KnuckleHinge, KnuckleHingePair, LivingHingeMask, SnapLock, SnapSocket\n"
     "from pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket\n"
     "from pybosl2.parts.cubetruss import CubeTruss\n"
     "from pybosl2.parts.ball_bearings import BallBearings\n"

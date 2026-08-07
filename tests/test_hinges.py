@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2.parts.hinges import Hinges
+from pybosl2.parts.hinges import KnuckleHinge, KnuckleHingePair, LivingHingeMask, SnapLock, SnapSocket
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
@@ -18,7 +18,7 @@ def _size(s: Bosl2Solid) -> list[float]:
 
 
 def test_living_hinge_mask_and_plate() -> None:
-    mask = Hinges.living_hinge_mask(length=100, thick=3, foldangle=60)
+    mask = LivingHingeMask(length=100, thick=3, foldangle=60).shape()
     assert isinstance(mask, Bosl2Solid)
     assert _size(mask)[0] == pytest.approx(100, abs=0.1)  # spans the plate length
     plate = cuboid([100, 40, 3]) - mask.down(1.5)
@@ -27,24 +27,24 @@ def test_living_hinge_mask_and_plate() -> None:
 
 def test_sharper_fold_needs_wider_groove() -> None:
     # foldangle is the interior angle: a sharper fold (smaller angle) needs a wider V-groove
-    sharp = _size(Hinges.living_hinge_mask(length=100, thick=3, foldangle=30))[1]
-    shallow = _size(Hinges.living_hinge_mask(length=100, thick=3, foldangle=120))[1]
+    sharp = _size(LivingHingeMask(length=100, thick=3, foldangle=30).shape())[1]
+    shallow = _size(LivingHingeMask(length=100, thick=3, foldangle=120).shape())[1]
     assert sharp > shallow
 
 
 @pytest.mark.parametrize("inner", [False, True])
 def test_knuckle_leaf_builds(inner: bool) -> None:
-    assert isinstance(Hinges.knuckle_hinge(inner=inner), Bosl2Solid)
+    assert isinstance(KnuckleHinge(inner=inner).shape(), Bosl2Solid)
 
 
 def test_knuckle_pair_folds_about_the_pin() -> None:
-    flat = _size(Hinges.knuckle_hinge_pair(fold=0))
-    folded = _size(Hinges.knuckle_hinge_pair(fold=90))
+    flat = _size(KnuckleHingePair(fold=0).shape())
+    folded = _size(KnuckleHingePair(fold=90).shape())
     # laid flat the leaves spread in Y and the hinge is thin; folded 90 it stands up in Z
     assert flat[1] > flat[2]
     assert folded[2] > flat[2]
 
 
 def test_snap_lock_and_socket_build() -> None:
-    assert isinstance(Hinges.snap_lock(), Bosl2Solid)
-    assert isinstance(Hinges.snap_socket(), Bosl2Solid)
+    assert isinstance(SnapLock().shape(), Bosl2Solid)
+    assert isinstance(SnapSocket().shape(), Bosl2Solid)

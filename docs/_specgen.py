@@ -752,7 +752,7 @@ MODULES = {
             "and snap lock / socket connectors."
         ),
         "part": "knuckle_hinge_pair(fold=…)",
-        "code": 'Hinges.<span class="k">knuckle_hinge_pair</span>(fold=60)',
+        "code": 'KnuckleHingePair(fold=60).<span class="k">shape</span>()',
         "metrics": [
             ("flat · 0°", 1576, "5,929.1", "40×46×6"),
             ("folded · 60°", 1748, "5,927.9", "40×36×24"),
@@ -1228,7 +1228,9 @@ SETUP = {
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
     "hooks": "import math\nfrom pybosl2.parts.hooks import HoleType, RingHook\n",
     "polyhedra": "from pybosl2.parts.polyhedra import RegularPolyhedron, PlatonicSolid\n",
-    "hinges": "from pybosl2.parts.hinges import Hinges\n",
+    "hinges": (
+        "from pybosl2.parts.hinges import KnuckleHinge, KnuckleHingePair, LivingHingeMask, SnapLock, SnapSocket\n"
+    ),
     "joiners": (
         "from pybosl2.parts.enums import Gender\nfrom pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket\n"
     ),
@@ -1342,10 +1344,10 @@ VARIANTS = {
         ("icosahedron", "icosahedron", "RegularPolyhedron.icosahedron(radius=15).shape()"),
     ],
     "hinges": [
-        ("pair", "knuckle pair", "Hinges.knuckle_hinge_pair(length=40, segs=5)"),
-        ("knuckle", "single leaf", "Hinges.knuckle_hinge(length=40, segs=5)"),
-        ("snap-lock", "snap lock", "Hinges.snap_lock()"),
-        ("snap-socket", "snap socket", "Hinges.snap_socket()"),
+        ("pair", "knuckle pair", "KnuckleHingePair(length=40, segs=5).shape()"),
+        ("knuckle", "single leaf", "KnuckleHinge(length=40, segs=5).shape()"),
+        ("snap-lock", "snap lock", "SnapLock().shape()"),
+        ("snap-socket", "snap socket", "SnapSocket().shape()"),
     ],
     "joiners": [
         (

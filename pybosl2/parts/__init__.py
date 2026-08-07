@@ -15,7 +15,7 @@ from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
 from pybosl2.parts.cubetruss import CubeTruss
 from pybosl2.parts.enums import Gender, NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.parts.gears import Gears
-from pybosl2.parts.hinges import Hinges
+from pybosl2.parts.hinges import KnuckleHinge, KnuckleHingePair, LivingHingeMask, SnapLock, SnapSocket
 from pybosl2.parts.hooks import HoleType, RingHook
 from pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket
 from pybosl2.parts.linear_bearings import LinearBearings, LinearBearingSpec
@@ -39,7 +39,11 @@ __all__ = [
     "CubeTruss",
     "Gender",
     "Gears",
-    "Hinges",
+    "KnuckleHinge",
+    "KnuckleHingePair",
+    "LivingHingeMask",
+    "SnapLock",
+    "SnapSocket",
     "HoleType",
     "RingHook",
     "Dovetail",
