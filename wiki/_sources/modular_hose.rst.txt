@@ -10,12 +10,14 @@ Modular hose
 
 
 Pure-Python port of BOSL2's ``modular_hose.scad``: the ball-and-socket segments of a modular
-"Loc-Line" style adjustable/coolant hose. :meth:`~pybosl2.parts.modular_hose.ModularHose.modular_hose`
+"Loc-Line" style adjustable/coolant hose. :class:`~pybosl2.parts.modular_hose.HoseSegment`
 revolves a ball end, a socket end, or a full segment for the 1/4", 1/2" and 3/4" sizes;
-:meth:`~pybosl2.parts.modular_hose.ModularHose.modular_hose_radius` gives the bore radius.
+:func:`~pybosl2.parts.modular_hose.modular_hose_radius` gives the bore radius.
 
-.. autoclass:: pybosl2.parts.modular_hose.ModularHose
+.. autoclass:: pybosl2.parts.modular_hose.HoseSegment
    :members:
+
+.. autofunction:: pybosl2.parts.modular_hose.modular_hose_radius
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
 
@@ -31,33 +33,33 @@ Examples that rely on BOSL2's attachment/anchor system, or on features not in th
 
 .. pythonscad-example::
 
-   from pybosl2.parts.modular_hose import ModularHose
-   ModularHose.modular_hose(0.25, "segment").show()
+   from pybosl2.parts.modular_hose import HoseSegment, HoseType
+   HoseSegment(0.25, HoseType.SEGMENT).shape().show()
 
 1/2" segment:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.modular_hose import ModularHose
-   ModularHose.modular_hose(0.5, "segment").show()
+   from pybosl2.parts.modular_hose import HoseSegment, HoseType
+   HoseSegment(0.5, HoseType.SEGMENT).shape().show()
 
 3/4" segment:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.modular_hose import ModularHose
-   ModularHose.modular_hose(0.75, "segment").show()
+   from pybosl2.parts.modular_hose import HoseSegment, HoseType
+   HoseSegment(0.75, HoseType.SEGMENT).shape().show()
 
 1/2" ball end with a longer waist:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.modular_hose import ModularHose
-   ModularHose.modular_hose(0.5, "ball", waist_len=15).show()
+   from pybosl2.parts.modular_hose import HoseSegment, HoseType
+   HoseSegment(0.5, HoseType.BALL, waist_len=15).shape().show()
 
 3/4" socket end:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.modular_hose import ModularHose
-   ModularHose.modular_hose(0.75, "socket").show()
+   from pybosl2.parts.modular_hose import HoseSegment, HoseType
+   HoseSegment(0.75, HoseType.SOCKET).shape().show()

@@ -17,7 +17,7 @@
 
 
 
-        <title>pybosl2.regions - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+        <title>pybosl2.regions - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
 
 
 
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -87,7 +87,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.6.7 documentation
+            pybosl2 (PythonSCAD port) 0.7.1 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,12 +218,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.6.7 documentation
+    pybosl2 (PythonSCAD port) 0.7.1 documentation
   </label>
 
     <div class="md-nav__source">
@@ -420,30 +420,6 @@
 
   <span class="md-ellipsis">
     <span> Return Distributors:<wbr> line/grid/ring/arc/sphere/path copiers and reflected copies</span>
-
-  </span>
-
-
-      </a>
-    </li>
-
-
-
-
-
-
-
-
-
-
-
-    <li class="md-nav__item">
-      <a href="../../enums.html" class="md-nav__link">
-
-
-
-  <span class="md-ellipsis">
-    <span> Strongly-<wbr>typed enums for pybosl2</span>
 
   </span>
 
@@ -1217,6 +1193,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../gears.html" class="md-nav__link">
 
 
@@ -1818,9 +1818,10 @@
     <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>  <span class="c1"># ring coords come out as an array</span>
+        <span class="c1"># A region&#39;s outlines are rings, so they come back closed whatever built them.</span>
+        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">interior</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
-            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">paths</span>
 
 
@@ -1898,7 +1899,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span> <span class="o">=</span> <span class="n">MultiPolygon</span><span class="p">()</span>
             <span class="k">return</span>
-        <span class="n">paths_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+        <span class="n">paths_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
         <span class="n">outer</span> <span class="o">=</span> <span class="n">paths_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_points</span>
         <span class="n">holes</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">_points</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">paths_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span> <span class="o">=</span> <span class="n">MultiPolygon</span><span class="p">([</span><span class="n">Polygon</span><span class="p">(</span><span class="n">outer</span><span class="p">,</span> <span class="n">holes</span><span class="p">)])</span>
@@ -1979,7 +1980,7 @@
 <span class="sd">            The first :class:`Path2D` in the region, which is the outer outline.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">([])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">([],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">holes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
@@ -2134,9 +2135,6 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` representing the convex hull.</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If any passed :class:`Path2D` is not closed.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span>
 
@@ -2148,8 +2146,6 @@
         <span class="n">geoms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">_Path</span><span class="p">):</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;convex_hull() requires closed Paths. Close them with .close() first.&quot;</span><span class="p">)</span>
                 <span class="n">item</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">item</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Region</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;convex_hull() expects Region or Path2D, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2389,8 +2385,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;intersection() requires a closed Path2D. Close it with .close() first.&quot;</span><span class="p">)</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
@@ -2426,8 +2420,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;union() requires a closed Path2D. Close it with .close() first.&quot;</span><span class="p">)</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
@@ -2463,8 +2455,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;difference() requires a closed Path2D. Close it with .close() first.&quot;</span><span class="p">)</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
@@ -2489,8 +2479,6 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;symmetric_difference() requires a closed Path2D. Close it with .close() first.&quot;</span><span class="p">)</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>

@@ -10,13 +10,16 @@ Hooks
 
 
 Hooks and hook-like parts, from BOSL2's ``hooks.scad``. BOSL2 currently supplies a single part,
-:meth:`~pybosl2.parts.hooks.Hooks.ring_hook`: a rectangular mounting base that flares up and joins
+:class:`~pybosl2.parts.hooks.RingHook`: a rectangular mounting base that flares up and joins
 tangentially to a Y-axis cylinder — the "ring" — with an optional round, D-shaped or custom
 through-hole. Give exactly two of ``or_/od``, ``ir/id`` and ``wall`` to size the ring wall (or a zero
 inner radius for a solid paddle). The base's vertical edges and the hole mouth can be rounded; the
 original's base weld ``fillet`` is a follow-up.
 
-.. autoclass:: pybosl2.parts.hooks.Hooks
+.. autoclass:: pybosl2.parts.hooks.RingHook
+   :members:
+
+.. autoclass:: pybosl2.parts.hooks.HoleType
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -33,68 +36,68 @@ Ring connector:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([50, 10], 25, outer_radius=25, inner_radius=20).show()
 
 A solid paddle with no hole (inner_radius=0):
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([70, 10], 25, outer_radius=25, inner_radius=0).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([70, 10], 25, outer_radius=25, inner_radius=0).show()
 
 Narrow base — corners still outside the ring:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([40, 10], 25, outer_radius=25, inner_radius=0).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([40, 10], 25, outer_radius=25, inner_radius=0).show()
 
 Hole sized by or/ir:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=20).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([50, 10], 40, outer_radius=25, inner_radius=20).show()
 
 The same hole, sized by wall thickness:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 40, outer_radius=25, wall=5).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([50, 10], 40, outer_radius=25, wall=5).show()
 
 The same hole again, sized by od/id:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 40, outer_diameter=50, inner_diameter=40).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([50, 10], 40, outer_diameter=50, inner_diameter=40).show()
 
 A semicircular D-hole:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 12, outer_radius=25, inner_radius=15, hole="D", rounding=3, hole_rounding=3).show()
+   from pybosl2.parts.hooks import HoleType, RingHook
+   RingHook([50, 10], 12, outer_radius=25, inner_radius=15, hole=HoleType.D, rounding=3, hole_rounding=3).show()
 
 Small hole_z with a D-hole:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 1, outer_radius=25, inner_radius=15, hole="D").show()
+   from pybosl2.parts.hooks import HoleType, RingHook
+   RingHook([50, 10], 1, outer_radius=25, inner_radius=15, hole=HoleType.D).show()
 
 Rounded outer edges:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5).show()
 
 An arbitrary (octagonal) hole, printable without support:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hooks import Hooks
-   Hooks.ring_hook([50, 20], 30, outer_radius=25, hole=[[13*math.cos(math.radians(22.5+45*k)), 13*math.sin(math.radians(22.5+45*k))] for k in range(8)], hole_rounding=3, rounding=4).show()
+   from pybosl2.parts.hooks import RingHook
+   RingHook([50, 20], 30, outer_radius=25, hole=[[13*math.cos(math.radians(22.5+45*k)), 13*math.sin(math.radians(22.5+45*k))] for k in range(8)], hole_rounding=3, rounding=4).show()

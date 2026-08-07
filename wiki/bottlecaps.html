@@ -21,7 +21,7 @@
 
 
 
-        <title>Bottle caps: PCO-1810 & PCO-1881 necks and caps - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+        <title>Bottle caps: PCO-1810 & PCO-1881 necks and caps - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
 
 
 
@@ -83,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -96,7 +96,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.6.7 documentation
+            pybosl2 (PythonSCAD port) 0.7.1 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -227,12 +227,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.6.7 documentation
+    pybosl2 (PythonSCAD port) 0.7.1 documentation
   </label>
 
     <div class="md-nav__source">
@@ -2267,7 +2267,7 @@ and a matching <strong>cap</strong>, for the two common beverage-bottle standard
 </div>
 <p>The neck outline (inner bore, support ring, tamper-ring channel and sealing lip) is a
 <a class="reference internal" href="drawing.html#pybosl2.turtle.turtle2d" title="pybosl2.turtle.turtle2d (Python function) — Build a 2-D path from TurtleCommand objects — BOSL2's turtle2d()."><code class="xref py py-func docutils literal notranslate"><span class="pre">turtle2d()</span></code></a> path revolved with <code class="docutils literal notranslate"><span class="pre">rotate_extrude</span></code>, exactly as BOSL2 builds it; the
-thread is <a class="reference internal" href="threading.html#pybosl2.parts.threading.Threading.thread_helix" title="pybosl2.parts.threading.Threading.thread_helix (Python method) — Return a single helical thread ridge (no core), for adding threads onto your own cylinder."><code class="xref py py-meth docutils literal notranslate"><span class="pre">thread_helix()</span></code></a> with the two thread breaks cut by the same
+thread is <a class="reference internal" href="threading.html#pybosl2.parts.threading.ThreadHelix" title="pybosl2.parts.threading.ThreadHelix (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThreadHelix</span></code></a> with the two thread breaks cut by the same
 prismoids. Geometry is anchored with its bottom on the XY plane.</p>
 <h2 id="approximations-relative-to-bosl2">Approximations relative to BOSL2<a class="headerlink" href="#approximations-relative-to-bosl2" title="Link to this heading">¶</a></h2>
 <p>This port’s threading/<code class="docutils literal notranslate"><span class="pre">cyl</span></code> lack a few BOSL2 features, so the following are approximated:</p>

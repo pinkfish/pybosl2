@@ -752,7 +752,7 @@ MODULES = {
             "and snap lock / socket connectors."
         ),
         "part": "knuckle_hinge_pair(fold=…)",
-        "code": 'Hinges.<span class="k">knuckle_hinge_pair</span>(fold=60)',
+        "code": 'KnuckleHingePair(fold=60).<span class="k">shape</span>()',
         "metrics": [
             ("flat · 0°", 1576, "5,929.1", "40×46×6"),
             ("folded · 60°", 1748, "5,927.9", "40×36×24"),
@@ -795,7 +795,7 @@ MODULES = {
             "joint — male tenon or female socket — and a press-and-click snap pin."
         ),
         "part": 'dovetail("male", width=15, height=8, slide=30)',
-        "code": 'Joiners.<span class="k">dovetail</span>("male", width=15, height=8, slide=30)',
+        "code": 'Dovetail.<span class="k">__init__</span>(Gender.MALE, width=15, height=8, slide=30).shape()',
         "metrics": [
             ("male dovetail", 12, "3,920.0", "18×30×8"),
             ("snap pin", 1718, "199.5", "6×6×15"),
@@ -835,7 +835,7 @@ MODULES = {
             'a ball end, a socket end, or a full segment, for the 1/4", 1/2" and 3/4" sizes.'
         ),
         "part": 'modular_hose(0.5, "segment")',
-        "code": 'ModularHose.<span class="k">modular_hose</span>(0.5, "segment")',
+        "code": 'HoseSegment.<span class="k"></span>(0.5, HoseType.SEGMENT)',
         "metrics": [
             ('1/2" segment', 2760, "3,432.6", "25×25×30"),
             ('1/2" ball end', 1500, "1,465.7", "22×21×13"),
@@ -993,7 +993,7 @@ MODULES = {
             "Y-axis cylinder — the ring — with a round, D-shaped or custom through-hole."
         ),
         "part": "ring_hook([50, 10], 25, or_=25, ir=20)",
-        "code": 'Hooks.<span class="k">ring_hook</span>([50, 10], 25, or_=25, ir=20)',
+        "code": 'RingHook.<span class="k">__init__</span>([50, 10], 25, or_=25, ir=20).shape()',
         "metrics": [
             ("ring · ir=20", 208, "9,771.2", "50×10×50"),
             ("D-hole ring", 144, "18,737.4", "50×10×50"),
@@ -1226,14 +1226,18 @@ SETUP = {
     "gears": "from pybosl2.parts.gears import Gears\n",
     "walls": "from pybosl2.parts.walls import Walls\n",
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
-    "hooks": "import math\nfrom pybosl2.parts.hooks import Hooks\n",
+    "hooks": "import math\nfrom pybosl2.parts.hooks import HoleType, RingHook\n",
     "polyhedra": "from pybosl2.parts.polyhedra import RegularPolyhedron, PlatonicSolid\n",
-    "hinges": "from pybosl2.parts.hinges import Hinges\n",
-    "joiners": "from pybosl2.parts.joiners import Joiners\n",
+    "hinges": (
+        "from pybosl2.parts.hinges import KnuckleHinge, KnuckleHingePair, LivingHingeMask, SnapLock, SnapSocket\n"
+    ),
+    "joiners": (
+        "from pybosl2.parts.enums import Gender\nfrom pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket\n"
+    ),
     "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
     "ball_bearings": "from pybosl2.parts.ball_bearings import BallBearings\n",
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
-    "modular_hose": "from pybosl2.parts.modular_hose import ModularHose\n",
+    "modular_hose": "from pybosl2.parts.modular_hose import HoseSegment, HoseType\n",
     "nema_steppers": "from pybosl2.parts.nema_steppers import NemaMotor, NemaMountMask, NemaSpec\n",
     "threading": (
         "from pybosl2.parts.threading import ThreadedRod, ThreadedNut, ThreadHelix, "
@@ -1318,18 +1322,18 @@ VARIANTS = {
         ),
     ],
     "hooks": [
-        ("ring", "ring hole", "Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20)"),
-        ("solid", "solid paddle", "Hooks.ring_hook([70, 10], 25, outer_radius=25, inner_radius=0)"),
-        ("d-hole", "D hole", 'Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=15, hole="D")'),
+        ("ring", "ring hole", "RingHook([50, 10], 25, outer_radius=25, inner_radius=20).shape()"),
+        ("solid", "solid paddle", "RingHook([70, 10], 25, outer_radius=25, inner_radius=0).shape()"),
+        ("d-hole", "D hole", "RingHook([50, 10], 25, outer_radius=25, inner_radius=15, hole=HoleType.D).shape()"),
         (
             "rounded",
             "rounded",
-            "Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5)",
+            "RingHook([50, 10], 40, outer_radius=25, inner_radius=15, rounding=5).shape()",
         ),
         (
             "custom",
             "custom hole",
-            f"Hooks.ring_hook([50, 20], 30, outer_radius=25, {_HOOK_OCT})",
+            f"RingHook([50, 20], 30, outer_radius=25, {_HOOK_OCT}).shape()",
         ),
     ],
     "polyhedra": [
@@ -1340,29 +1344,29 @@ VARIANTS = {
         ("icosahedron", "icosahedron", "RegularPolyhedron.icosahedron(radius=15).shape()"),
     ],
     "hinges": [
-        ("pair", "knuckle pair", "Hinges.knuckle_hinge_pair(length=40, segs=5)"),
-        ("knuckle", "single leaf", "Hinges.knuckle_hinge(length=40, segs=5)"),
-        ("snap-lock", "snap lock", "Hinges.snap_lock()"),
-        ("snap-socket", "snap socket", "Hinges.snap_socket()"),
+        ("pair", "knuckle pair", "KnuckleHingePair(length=40, segs=5).shape()"),
+        ("knuckle", "single leaf", "KnuckleHinge(length=40, segs=5).shape()"),
+        ("snap-lock", "snap lock", "SnapLock().shape()"),
+        ("snap-socket", "snap socket", "SnapSocket().shape()"),
     ],
     "joiners": [
         (
             "male",
             "male dovetail",
-            'Joiners.dovetail("male", width=15, height=8, slide=30)',
+            "Dovetail(Gender.MALE, width=15, height=8, slide=30).shape()",
         ),
         (
             "female",
             "female socket",
-            'Joiners.dovetail("female", width=15, height=8, slide=30)',
+            "Dovetail(Gender.FEMALE, width=15, height=8, slide=30).shape()",
         ),
         (
             "taper",
             "tapered",
-            'Joiners.dovetail("male", width=15, height=8, slide=30, taper=4)',
+            "Dovetail(Gender.MALE, width=15, height=8, slide=30, taper=4).shape()",
         ),
-        ("snap-pin", "snap pin", "Joiners.snap_pin()"),
-        ("socket", "pin socket", "Joiners.snap_pin_socket()"),
+        ("snap-pin", "snap pin", "SnapPin().shape()"),
+        ("socket", "pin socket", "SnapPinSocket().shape()"),
     ],
     "cubetruss": [
         ("truss", "3-truss", "CubeTruss.cubetruss(extents=3)"),
@@ -1382,9 +1386,9 @@ VARIANTS = {
         ("lm12uu", "LM12UU", "LinearBearings.lmXuu_bearing(12)"),
     ],
     "modular_hose": [
-        ("segment", "segment", 'ModularHose.modular_hose(0.5, "segment")'),
-        ("ball", "ball end", 'ModularHose.modular_hose(0.5, "ball")'),
-        ("socket", "socket end", 'ModularHose.modular_hose(0.5, "socket")'),
+        ("segment", "segment", "HoseSegment(0.5, HoseType.SEGMENT).shape()"),
+        ("ball", "ball end", "HoseSegment(0.5, HoseType.BALL).shape()"),
+        ("socket", "socket end", "HoseSegment(0.5, HoseType.SOCKET).shape()"),
     ],
     "nema_steppers": [
         ("17", "NEMA 17", "NemaMotor(17).shape()"),

@@ -21,7 +21,7 @@
 
 
 
-        <title>Hooks - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+        <title>Hooks - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
 
 
 
@@ -67,7 +67,7 @@
     <div data-md-component="skip">
 
 
-        <a href="#pybosl2.parts.hooks.Hooks" class="md-skip">
+        <a href="#pybosl2.parts.hooks.RingHook" class="md-skip">
           Skip to content
         </a>
 
@@ -83,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -96,7 +96,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.6.7 documentation
+            pybosl2 (PythonSCAD port) 0.7.1 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -227,12 +227,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.6.7 documentation
+    pybosl2 (PythonSCAD port) 0.7.1 documentation
   </label>
 
     <div class="md-nav__source">
@@ -1323,33 +1323,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
 
         <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks" class="md-nav__link">
+  <a href="#pybosl2.parts.hooks.RingHook" class="md-nav__link">
 
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
 
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.hooks.Hooks (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>hooks.<wbr>Hooks</span></span>
+      <span title="pybosl2.parts.hooks.RingHook (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>hooks.<wbr>Ring<wbr>Hook</span></span>
     </span>
   </a>
 
-    <nav class="md-nav" aria-label="pybosl2.parts.hooks.Hooks">
+    <nav class="md-nav" aria-label="pybosl2.parts.hooks.RingHook">
       <ul class="md-nav__list">
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks.ring_hook" class="md-nav__link">
-
-      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
-
-    <span class="md-ellipsis">
-      <span title="pybosl2.parts.hooks.Hooks.ring_hook (Python method) — Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2."><span>ring_<wbr>hook</span></span>
-    </span>
-  </a>
-
-    <nav class="md-nav" aria-label="ring_hook">
-      <ul class="md-nav__list">
-
-          <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks.ring_hook-parameters" class="md-nav__link">
+  <a href="#pybosl2.parts.hooks.RingHook-parameters" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Parameters</span>
@@ -1359,7 +1346,96 @@
 </li>
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks.ring_hook-return-type" class="md-nav__link">
+  <a href="#pybosl2.parts.hooks.RingHook.base_size" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.base_size (Python property) — Mounting base [x, y]."><span>base_<wbr>size</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.hole_z" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.hole_z (Python property) — Cylinder centre height."><span>hole_<wbr>z</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.outer_radius" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.outer_radius (Python property) — Cylinder outer radius."><span>outer_<wbr>radius</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.inner_radius" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.inner_radius (Python property) — Cylinder inner (bore) radius."><span>inner_<wbr>radius</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.shape" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.shape (Python method) — Return the ring hook geometry."><span>shape</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="shape">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.shape-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.show" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.show (Python method) — Display the ring hook in the viewer."><span>show</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="show">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.show-return-type" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Return type</span>
@@ -1375,6 +1451,18 @@
 
       </ul>
     </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.HoleType" class="md-nav__link">
+
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.HoleType (Python class) — Bases: StrEnum"><span>pybosl2.<wbr>parts.<wbr>hooks.<wbr>Hole<wbr>Type</span></span>
+    </span>
+  </a>
 
 </li>
 
@@ -1871,33 +1959,20 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
 
         <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks" class="md-nav__link">
+  <a href="#pybosl2.parts.hooks.RingHook" class="md-nav__link">
 
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
 
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.hooks.Hooks (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>hooks.<wbr>Hooks</span></span>
+      <span title="pybosl2.parts.hooks.RingHook (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>hooks.<wbr>Ring<wbr>Hook</span></span>
     </span>
   </a>
 
-    <nav class="md-nav" aria-label="pybosl2.parts.hooks.Hooks">
+    <nav class="md-nav" aria-label="pybosl2.parts.hooks.RingHook">
       <ul class="md-nav__list">
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks.ring_hook" class="md-nav__link">
-
-      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
-
-    <span class="md-ellipsis">
-      <span title="pybosl2.parts.hooks.Hooks.ring_hook (Python method) — Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2."><span>ring_<wbr>hook</span></span>
-    </span>
-  </a>
-
-    <nav class="md-nav" aria-label="ring_hook">
-      <ul class="md-nav__list">
-
-          <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks.ring_hook-parameters" class="md-nav__link">
+  <a href="#pybosl2.parts.hooks.RingHook-parameters" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Parameters</span>
@@ -1907,7 +1982,96 @@
 </li>
 
           <li class="md-nav__item">
-  <a href="#pybosl2.parts.hooks.Hooks.ring_hook-return-type" class="md-nav__link">
+  <a href="#pybosl2.parts.hooks.RingHook.base_size" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.base_size (Python property) — Mounting base [x, y]."><span>base_<wbr>size</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.hole_z" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.hole_z (Python property) — Cylinder centre height."><span>hole_<wbr>z</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.outer_radius" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.outer_radius (Python property) — Cylinder outer radius."><span>outer_<wbr>radius</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.inner_radius" class="md-nav__link">
+
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.inner_radius (Python property) — Cylinder inner (bore) radius."><span>inner_<wbr>radius</span></span>
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.shape" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.shape (Python method) — Return the ring hook geometry."><span>shape</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="shape">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.shape-return-type" class="md-nav__link">
+
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.show" class="md-nav__link">
+
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.RingHook.show (Python method) — Display the ring hook in the viewer."><span>show</span></span>
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="show">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.RingHook.show-return-type" class="md-nav__link">
 
     <span class="md-ellipsis">
       <span>Return type</span>
@@ -1923,6 +2087,18 @@
 
       </ul>
     </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#pybosl2.parts.hooks.HoleType" class="md-nav__link">
+
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+
+    <span class="md-ellipsis">
+      <span title="pybosl2.parts.hooks.HoleType (Python class) — Bases: StrEnum"><span>pybosl2.<wbr>parts.<wbr>hooks.<wbr>Hole<wbr>Type</span></span>
+    </span>
+  </a>
 
 </li>
 
@@ -1957,82 +2133,128 @@
   &#9881;&#65039; <b><a href="specs/hooks.html">Spec sheet &rarr;</a></b>
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Hooks and hook-like parts, from BOSL2’s <code class="docutils literal notranslate"><span class="pre">hooks.scad</span></code>. BOSL2 currently supplies a single part,
-<a class="reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook" title="pybosl2.parts.hooks.Hooks.ring_hook (Python method) — Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2."><code class="xref py py-meth docutils literal notranslate"><span class="pre">ring_hook()</span></code></a>: a rectangular mounting base that flares up and joins
+<a class="reference internal" href="#pybosl2.parts.hooks.RingHook" title="pybosl2.parts.hooks.RingHook (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">RingHook</span></code></a>: a rectangular mounting base that flares up and joins
 tangentially to a Y-axis cylinder — the “ring” — with an optional round, D-shaped or custom
 through-hole. Give exactly two of <code class="docutils literal notranslate"><span class="pre">or_/od</span></code>, <code class="docutils literal notranslate"><span class="pre">ir/id</span></code> and <code class="docutils literal notranslate"><span class="pre">wall</span></code> to size the ring wall (or a zero
 inner radius for a solid paddle). The base’s vertical edges and the hole mouth can be rounded; the
 original’s base weld <code class="docutils literal notranslate"><span class="pre">fillet</span></code> is a follow-up.</p>
 <dl class="py class objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.Hooks">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.hooks.</span></span><span class="sig-name descname"><span class="pre">Hooks</span></span><a class="reference internal" href="_modules/pybosl2/parts/hooks.html#Hooks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.hooks.Hooks" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.parts.hooks.RingHook">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.hooks.</span></span><span class="sig-name descname"><span class="pre">RingHook</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.base_size" title="pybosl2.parts.hooks.RingHook.__init__.base_size (Python parameter)"><span class="n"><span class="pre">base_size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.hole_z" title="pybosl2.parts.hooks.RingHook.__init__.hole_z (Python parameter)"><span class="n"><span class="pre">hole_z</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.outer_radius" title="pybosl2.parts.hooks.RingHook.__init__.outer_radius (Python parameter)"><span class="n"><span class="pre">outer_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.inner_radius" title="pybosl2.parts.hooks.RingHook.__init__.inner_radius (Python parameter)"><span class="n"><span class="pre">inner_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.outer_diameter" title="pybosl2.parts.hooks.RingHook.__init__.outer_diameter (Python parameter)"><span class="n"><span class="pre">outer_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.inner_diameter" title="pybosl2.parts.hooks.RingHook.__init__.inner_diameter (Python parameter)"><span class="n"><span class="pre">inner_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.wall" title="pybosl2.parts.hooks.RingHook.__init__.wall (Python parameter)"><span class="n"><span class="pre">wall</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.hole" title="pybosl2.parts.hooks.RingHook.__init__.hole (Python parameter)"><span class="n"><span class="pre">hole</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">HoleType</span><span class="o">.</span><span class="n">CIRCLE</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.rounding" title="pybosl2.parts.hooks.RingHook.__init__.rounding (Python parameter)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.hole_rounding" title="pybosl2.parts.hooks.RingHook.__init__.hole_rounding (Python parameter)"><span class="n"><span class="pre">hole_rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.fillet" title="pybosl2.parts.hooks.RingHook.__init__.fillet (Python parameter)"><span class="n"><span class="pre">fillet</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.outside_segments" title="pybosl2.parts.hooks.RingHook.__init__.outside_segments (Python parameter)"><span class="n"><span class="pre">outside_segments</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.fn" title="pybosl2.parts.hooks.RingHook.__init__.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.fa" title="pybosl2.parts.hooks.RingHook.__init__.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.RingHook.__init__.fs" title="pybosl2.parts.hooks.RingHook.__init__.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/hooks.html#RingHook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.hooks.RingHook" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Hooks and hook-like parts (BOSL2 hooks.scad).</p>
-<div class="seealso admonition">
-<p class="admonition-title">See also</p>
-<p><a class="reference external" href="specs/hooks.html">Visual spec sheet</a> — measurements and STL previews</p>
-</div>
-<dl class="py method objdesc">
-<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.parts.hooks.Hooks.ring_hook">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ring_hook</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.base_size" title="pybosl2.parts.hooks.Hooks.ring_hook.base_size (Python parameter)"><span class="n"><span class="pre">base_size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.hole_z" title="pybosl2.parts.hooks.Hooks.ring_hook.hole_z (Python parameter)"><span class="n"><span class="pre">hole_z</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.outer_radius" title="pybosl2.parts.hooks.Hooks.ring_hook.outer_radius (Python parameter)"><span class="n"><span class="pre">outer_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.inner_radius" title="pybosl2.parts.hooks.Hooks.ring_hook.inner_radius (Python parameter)"><span class="n"><span class="pre">inner_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.outer_diameter" title="pybosl2.parts.hooks.Hooks.ring_hook.outer_diameter (Python parameter)"><span class="n"><span class="pre">outer_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.inner_diameter" title="pybosl2.parts.hooks.Hooks.ring_hook.inner_diameter (Python parameter)"><span class="n"><span class="pre">inner_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.wall" title="pybosl2.parts.hooks.Hooks.ring_hook.wall (Python parameter)"><span class="n"><span class="pre">wall</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.hole" title="pybosl2.parts.hooks.Hooks.ring_hook.hole (Python parameter)"><span class="n"><span class="pre">hole</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;circle&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.rounding" title="pybosl2.parts.hooks.Hooks.ring_hook.rounding (Python parameter)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.hole_rounding" title="pybosl2.parts.hooks.Hooks.ring_hook.hole_rounding (Python parameter)"><span class="n"><span class="pre">hole_rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.fillet" title="pybosl2.parts.hooks.Hooks.ring_hook.fillet (Python parameter)"><span class="n"><span class="pre">fillet</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.outside_segments" title="pybosl2.parts.hooks.Hooks.ring_hook.outside_segments (Python parameter)"><span class="n"><span class="pre">outside_segments</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.fn" title="pybosl2.parts.hooks.Hooks.ring_hook.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.fa" title="pybosl2.parts.hooks.Hooks.ring_hook.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.hooks.Hooks.ring_hook.fs" title="pybosl2.parts.hooks.Hooks.ring_hook.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/hooks.html#Hooks.ring_hook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook" title="Link to this definition">¶</a></dt>
-<dd><p>Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2.</p>
-<p>ring_hook()).</p>
+<p>A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole.</p>
 <p><em>base_size</em> is the <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> of the mounting base, which sits on <code class="docutils literal notranslate"><span class="pre">z</span> <span class="pre">=</span> <span class="pre">0</span></code>; <em>hole_z</em> the
-height of the cylinder centre above it; <em>outer_radius</em> / <em>outer_diameter</em> the cylinder’s outer radius /
-diameter.
-Give exactly two of <em>outer_radius/outer_diameter</em>, <em>inner_radius/inner_diameter</em> and <em>wall</em> to set the wall
-around the through-hole (or a
-zero inner radius for a solid paddle). <em>hole</em> is <code class="docutils literal notranslate"><span class="pre">&quot;circle&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;D&quot;</span></code> (semicircular, flat side
-down) or a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">z]</span></code> points for a custom hole. <em>rounding</em> rounds the base’s vertical
+height of the cylinder centre above it; <em>outer_radius</em> / <em>outer_diameter</em> the cylinder’s
+outer radius / diameter.  Give exactly two of <em>outer_radius/outer_diameter</em>,
+<em>inner_radius/inner_diameter</em> and <em>wall</em> to set the wall around the through-hole.
+<em>hole</em> is <a class="reference internal" href="#pybosl2.parts.hooks.HoleType.CIRCLE" title="pybosl2.parts.hooks.HoleType.CIRCLE (Python attribute)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">HoleType.CIRCLE</span></code></a>, <a class="reference internal" href="#pybosl2.parts.hooks.HoleType.D" title="pybosl2.parts.hooks.HoleType.D (Python attribute)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">HoleType.D</span></code></a> (semicircular, flat side down)
+or a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">z]</span></code> points for a custom hole.  <em>rounding</em> rounds the base’s vertical
 edges; <em>hole_rounding</em> eases the hole mouth.</p>
-<p>The base corners must lie outside the cylinder (<code class="docutils literal notranslate"><span class="pre">hypot(base_size.x/2,</span> <span class="pre">hole_z)</span> <span class="pre">&gt;</span> <span class="pre">or</span></code>) so a
-tangent join exists. The base weld <em>fillet</em> of the original is not yet ported.</p>
 <p class="example rubric">Examples</p>
 <p>A ring connector:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/af6d03c0d1347c53.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/af6d03c0d1347c53.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/86a1a2b531aa20b4.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/86a1a2b531aa20b4.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
-<dt class="field-odd" id="pybosl2.parts.hooks.Hooks.ring_hook-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook-parameters" title="Permalink to this headline">¶</a></dt>
+<dt class="field-odd" id="pybosl2.parts.hooks.RingHook-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.base_size"><span class="sig-name descname">base_size</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[float]</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.base_size" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.base_size"><span class="sig-name descname">base_size</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[float]</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.base_size" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.hole_z"><span class="sig-name descname">hole_z</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.hole_z" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.hole_z"><span class="sig-name descname">hole_z</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.hole_z" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.outer_radius"><span class="sig-name descname">outer_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.outer_radius" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.outer_radius"><span class="sig-name descname">outer_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.outer_radius" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.inner_radius"><span class="sig-name descname">inner_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.inner_radius" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.inner_radius"><span class="sig-name descname">inner_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.inner_radius" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.outer_diameter"><span class="sig-name descname">outer_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.outer_diameter" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.outer_diameter"><span class="sig-name descname">outer_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.outer_diameter" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.inner_diameter"><span class="sig-name descname">inner_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.inner_diameter" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.inner_diameter"><span class="sig-name descname">inner_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.inner_diameter" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.wall"><span class="sig-name descname">wall</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.wall" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.wall"><span class="sig-name descname">wall</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.wall" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.hole"><span class="sig-name descname">hole</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.hole" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.hole"><span class="sig-name descname">hole</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="#pybosl2.parts.hooks.HoleType" title="pybosl2.parts.hooks.HoleType (Python class) — Bases: StrEnum">HoleType</a> | list[list[float]]</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.hole" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.rounding" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.rounding" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.hole_rounding"><span class="sig-name descname">hole_rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.hole_rounding" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.hole_rounding"><span class="sig-name descname">hole_rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.hole_rounding" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.fillet"><span class="sig-name descname">fillet</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.fillet" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.fillet"><span class="sig-name descname">fillet</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.fillet" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.outside_segments"><span class="sig-name descname">outside_segments</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.outside_segments" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.outside_segments"><span class="sig-name descname">outside_segments</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.outside_segments" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.parts.hooks.Hooks.ring_hook.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.parts.hooks.RingHook.__init__.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.__init__.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even" id="pybosl2.parts.hooks.Hooks.ring_hook-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.hooks.Hooks.ring_hook-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p><em>CsgSolid</em></p>
+</dl>
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.RingHook.base_size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_size</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.base_size" title="Link to this definition">¶</a></dt>
+<dd><p>Mounting base <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code>.</p>
+</dd></dl>
+
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.RingHook.hole_z">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hole_z</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.hole_z" title="Link to this definition">¶</a></dt>
+<dd><p>Cylinder centre height.</p>
+</dd></dl>
+
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.RingHook.outer_radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outer_radius</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.outer_radius" title="Link to this definition">¶</a></dt>
+<dd><p>Cylinder outer radius.</p>
+</dd></dl>
+
+<dl class="py property objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.RingHook.inner_radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inner_radius</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">float</span></span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.inner_radius" title="Link to this definition">¶</a></dt>
+<dd><p>Cylinder inner (bore) radius.</p>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.RingHook.shape">
+<span class="sig-name descname"><span class="pre">shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/hooks.html#RingHook.shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.shape" title="Link to this definition">¶</a></dt>
+<dd><p>Return the ring hook geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.parts.hooks.RingHook.shape-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.shape-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><em>CsgSolid</em></p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.RingHook.show">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/hooks.html#RingHook.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.show" title="Link to this definition">¶</a></dt>
+<dd><p>Display the ring hook in the viewer.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.parts.hooks.RingHook.show-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.hooks.RingHook.show-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.HoleType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.hooks.</span></span><span class="sig-name descname"><span class="pre">HoleType</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.parts.hooks.HoleType" title="pybosl2.parts.hooks.HoleType.__init__.values (Python parameter)"><span class="n"><span class="pre">values</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/parts/hooks.html#HoleType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.hooks.HoleType" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></p>
+<p>Through-hole shape for <a class="reference internal" href="#pybosl2.parts.hooks.RingHook" title="pybosl2.parts.hooks.RingHook (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">RingHook</span></code></a>.</p>
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.HoleType.CIRCLE">
+<span class="sig-name descname"><span class="pre">CIRCLE</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;circle&#39;</span></code><a class="headerlink" href="#pybosl2.parts.hooks.HoleType.CIRCLE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.parts.hooks.HoleType.D">
+<span class="sig-name descname"><span class="pre">D</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;D&#39;</span></code><a class="headerlink" href="#pybosl2.parts.hooks.HoleType.D" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -2041,65 +2263,65 @@ tangent join exists. The base weld <em>fillet</em> of the original is not yet po
 Examples that rely on BOSL2’s attachment/anchor system, or on features not in this port, are omitted.</p>
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">ring_hook</span></code></p>
 <p>Ring connector:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/af6d03c0d1347c53.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/af6d03c0d1347c53.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/86a1a2b531aa20b4.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/86a1a2b531aa20b4.stl">⬇ Download STL mesh</a></p>
 <p>A solid paddle with no hole (inner_radius=0):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">70</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">70</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/0ddf0479537ffb4e.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/0ddf0479537ffb4e.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/b09c3cad31a0c1e9.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/b09c3cad31a0c1e9.stl">⬇ Download STL mesh</a></p>
 <p>Narrow base — corners still outside the ring:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">25</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/6840611a233e87c6.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/6840611a233e87c6.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/116f1f25efb094d1.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/116f1f25efb094d1.stl">⬇ Download STL mesh</a></p>
 <p>Hole sized by or/ir:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/56d3521d8d569972.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/56d3521d8d569972.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/bb51ec3888f96c1c.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/bb51ec3888f96c1c.stl">⬇ Download STL mesh</a></p>
 <p>The same hole, sized by wall thickness:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/5e23670691526716.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/5e23670691526716.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/c8e9913f04253f81.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/c8e9913f04253f81.stl">⬇ Download STL mesh</a></p>
 <p>The same hole again, sized by od/id:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/4eff15c29a24bc80.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/4eff15c29a24bc80.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/ab3d7b1caab9fe34.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/ab3d7b1caab9fe34.stl">⬇ Download STL mesh</a></p>
 <p>A semicircular D-hole:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">12</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">hole_rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoleType</span><span class="p">,</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">12</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="n">HoleType</span><span class="o">.</span><span class="n">D</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">hole_rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/0c61704a0b69552e.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/0c61704a0b69552e.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/fad2fd8c976af52f.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/fad2fd8c976af52f.stl">⬇ Download STL mesh</a></p>
 <p>Small hole_z with a D-hole:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="s2">&quot;D&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">HoleType</span><span class="p">,</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="n">HoleType</span><span class="o">.</span><span class="n">D</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/3863d2ed28988516.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/3863d2ed28988516.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/325c95a4bc9bccb5.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/325c95a4bc9bccb5.stl">⬇ Download STL mesh</a></p>
 <p>Rounded outer edges:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="mi">40</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/b0f96aa5758af424.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/b0f96aa5758af424.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/7dee3ef446bfd8e8.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7dee3ef446bfd8e8.stl">⬇ Download STL mesh</a></p>
 <p>An arbitrary (octagonal) hole, printable without support:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
-<span class="n">Hooks</span><span class="o">.</span><span class="n">ring_hook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">30</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="p">[[</span><span class="mi">13</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">22.5</span><span class="o">+</span><span class="mi">45</span><span class="o">*</span><span class="n">k</span><span class="p">)),</span> <span class="mi">13</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">22.5</span><span class="o">+</span><span class="mi">45</span><span class="o">*</span><span class="n">k</span><span class="p">))]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)],</span> <span class="n">hole_rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.hooks</span><span class="w"> </span><span class="kn">import</span> <span class="n">RingHook</span>
+<span class="n">RingHook</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">30</span><span class="p">,</span> <span class="n">outer_radius</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">hole</span><span class="o">=</span><span class="p">[[</span><span class="mi">13</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">22.5</span><span class="o">+</span><span class="mi">45</span><span class="o">*</span><span class="n">k</span><span class="p">)),</span> <span class="mi">13</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">22.5</span><span class="o">+</span><span class="mi">45</span><span class="o">*</span><span class="n">k</span><span class="p">))]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)],</span> <span class="n">hole_rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/7dcd59c24992a503.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7dcd59c24992a503.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/fc65700d8025fb13.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/fc65700d8025fb13.stl">⬇ Download STL mesh</a></p>
 
 
 

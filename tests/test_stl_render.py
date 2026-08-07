@@ -1691,7 +1691,7 @@ def test_spur_gear_builds(tmp_path):
 def test_hinge_knuckle_builds(tmp_path):
     m = _render_golden(
         tmp_path,
-        "Hinges.knuckle_hinge(length=30, knuckle_diam=6, pin_diam=2, arm=18, thick=3, fn=32)",
+        "KnuckleHinge(length=30, knuckle_diam=6, pin_diam=2, arm=18, thick=3, fn=32).shape()",
         name="knuckle_hinge",
     )
     assert m.watertight

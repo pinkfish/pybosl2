@@ -17,7 +17,7 @@
 
 
 
-        <title>pybosl2.parts.joiners - pybosl2 (PythonSCAD port) 0.6.7 documentation</title>
+        <title>pybosl2.parts.joiners - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
 
 
 
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -87,7 +87,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.6.7 documentation
+            pybosl2 (PythonSCAD port) 0.7.1 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,12 +218,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.6.7 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.6.7 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.6.7 documentation
+    pybosl2 (PythonSCAD port) 0.7.1 documentation
   </label>
 
     <div class="md-nav__source">
@@ -1771,9 +1771,9 @@
 
 <span class="c1"># LibFile: pybosl2/parts/joiners.py</span>
 <span class="c1">#    Pure-Python port of the core joiners from BOSL2&#39;s joiners.scad -- shapes for connecting two</span>
-<span class="c1">#    separately-printed parts. :meth:`Joiners.dovetail` is the flagship: a (optionally tapered)</span>
+<span class="c1">#    separately-printed parts. :class:`Dovetail` is the flagship: a (optionally tapered)</span>
 <span class="c1">#    dovetail joint you attach as a male tenon or difference out as a female socket. A functional</span>
-<span class="c1">#    :meth:`Joiners.snap_pin` and its :meth:`Joiners.snap_pin_socket` give a press-and-click pin.</span>
+<span class="c1">#    :class:`SnapPin` and its :class:`SnapPinSocket` give a press-and-click pin.</span>
 <span class="c1">#</span>
 <span class="c1">#    The snap pin is a clean functional build (a slotted, barbed shaft); BOSL2&#39;s named-size table and</span>
 <span class="c1">#    the hirth/rabbit-clip couplings are not ported.</span>
@@ -1798,23 +1798,33 @@
 <span class="k">else</span><span class="p">:</span>
     <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Joiners&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Dovetail&quot;</span><span class="p">,</span> <span class="s2">&quot;SnapPin&quot;</span><span class="p">,</span> <span class="s2">&quot;SnapPinSocket&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Joiners">
-<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Joiners">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Joiners</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dovetail joints and snap-pin connectors (BOSL2 joiners.scad).</span>
+<div class="viewcode-block" id="Dovetail">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Dovetail">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Dovetail</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dovetail joint that slides along Y and flares upward in X.</span>
 
-<span class="sd">    .. seealso::</span>
+<span class="sd">    The male form is a tenon you attach to a part; the female form is the same</span>
+<span class="sd">    shape enlarged by *slop* for you to difference out as the mating socket.</span>
+<span class="sd">    *slope* is the flare (rise/run per side; ``angle`` sets it as ``1/tan(angle)``).</span>
+<span class="sd">    Give *taper* (degrees) or *back_width* to taper it along its length.</span>
 
-<span class="sd">       `Visual spec sheet &lt;specs/joiners.html&gt;`_ — measurements and STL previews</span>
+<span class="sd">    Examples:</span>
+<span class="sd">        A male dovetail beside its female socket:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.enums import Gender</span>
+<span class="sd">            from pybosl2.parts.joiners import Dovetail</span>
+<span class="sd">            (Dovetail(Gender.MALE, width=15, height=8, slide=30).shape()</span>
+<span class="sd">             | Dovetail(Gender.FEMALE, width=15, height=8, slide=30).shape().right(24)).show()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Joiners.dovetail">
-<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Joiners.dovetail">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">dovetail</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">gender</span><span class="p">:</span> <span class="n">Gender</span> <span class="o">=</span> <span class="n">Gender</span><span class="o">.</span><span class="n">MALE</span><span class="p">,</span>
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
@@ -1827,49 +1837,88 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dovetail joint that slides along Y and flares upward in X (BOSL2 dovetail()).</span>
-
-<span class="sd">        The male form is a tenon you attach to a part; the female form is the same shape enlarged by</span>
-<span class="sd">        *slop* for you to difference out as the mating socket. A dovetail resists pulling apart across</span>
-<span class="sd">        the flare. *slope* is the flare (rise/run per side; ``angle`` sets it as ``1/tan(angle)``).</span>
-<span class="sd">        Give *taper* (degrees) or *back_width* to taper it along its length so it wedges home.</span>
-
-<span class="sd">        Examples:</span>
-<span class="sd">            A male dovetail beside its female socket:</span>
-
-<span class="sd">            .. pythonscad-example::</span>
-
-<span class="sd">                from pybosl2.parts.enums import Gender</span>
-<span class="sd">                from pybosl2.parts.joiners import Joiners</span>
-<span class="sd">                (Joiners.dovetail(Gender.MALE, width=15, height=8, slide=30)</span>
-<span class="sd">                 | Joiners.dovetail(Gender.FEMALE, width=15, height=8, slide=30).right(24)).show()</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dovetail joint tenon (male) or socket (female).&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">slope</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
         <span class="n">hslop</span> <span class="o">=</span> <span class="n">slop</span> <span class="k">if</span> <span class="n">gender</span> <span class="o">==</span> <span class="n">Gender</span><span class="o">.</span><span class="n">FEMALE</span> <span class="k">else</span> <span class="mf">0.0</span>
         <span class="n">w</span> <span class="o">=</span> <span class="n">width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">hslop</span>
-        <span class="n">height</span> <span class="o">=</span> <span class="n">height</span> <span class="o">+</span> <span class="n">hslop</span>
-        <span class="n">flare</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">height</span> <span class="o">/</span> <span class="n">slope</span>  <span class="c1"># total added width at the top</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">height</span> <span class="o">+</span> <span class="n">hslop</span>
+        <span class="n">flare</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">h</span> <span class="o">/</span> <span class="n">slope</span>
 
         <span class="k">if</span> <span class="n">taper</span> <span class="ow">or</span> <span class="n">back_width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">back_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">back_width</span> <span class="o">=</span> <span class="n">width</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slide</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">taper</span><span class="p">))</span>
             <span class="n">wb</span> <span class="o">=</span> <span class="n">back_width</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">hslop</span>
-            <span class="n">front</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">(</span><span class="n">slide</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-            <span class="n">back</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">wb</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="n">wb</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">slide</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">front</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">(</span><span class="n">slide</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">back</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">wb</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="p">[</span><span class="n">wb</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">slide</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">body</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_ohull</span><span class="p">(</span><span class="n">front</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">back</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">body</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="n">slide</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="n">slide</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="n">slide</span><span class="p">],</span> <span class="p">[</span><span class="n">w</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="n">slide</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">w</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="n">slide</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">w</span> <span class="o">+</span> <span class="n">flare</span><span class="p">,</span> <span class="n">slide</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gender</span><span class="p">:</span> <span class="n">Gender</span> <span class="o">=</span> <span class="n">gender</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_slide</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">slide</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Gender</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Male or female.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gender</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">width</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Base width in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_width</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Joint height in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">slide</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Slide length in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_slide</span>
+
+<div class="viewcode-block" id="Dovetail.shape">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Dovetail.shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the dovetail geometry.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
-<div class="viewcode-block" id="Joiners.snap_pin">
-<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Joiners.snap_pin">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">snap_pin</span><span class="p">(</span>
+<div class="viewcode-block" id="Dovetail.show">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Dovetail.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the dovetail in the viewer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SnapPin">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.SnapPin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnapPin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A press-and-click snap pin: a slotted shaft with a barbed head.</span>
+
+<span class="sd">    Push it head-first through a hole; the slot lets the barb compress and</span>
+<span class="sd">    spring back to lock.  *nub_depth* is the barb overhang, *snap* its height,</span>
+<span class="sd">    and *slot* the width of the flex gap.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A snap pin:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.joiners import SnapPin</span>
+<span class="sd">            SnapPin().show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
         <span class="n">nub_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
@@ -1879,25 +1928,10 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a press-and-click snap pin: a slotted shaft with a barbed head (BOSL2 snap_pin()).</span>
-
-<span class="sd">        Push it head-first through a hole (or a :meth:`snap_pin_socket`); the slot lets the barb</span>
-<span class="sd">        compress and spring back to lock. *nub_depth* is the barb overhang, *snap* its height, and</span>
-<span class="sd">        *slot* the width of the flex gap.</span>
-
-<span class="sd">        Examples:</span>
-<span class="sd">            A snap pin:</span>
-
-<span class="sd">            .. pythonscad-example::</span>
-
-<span class="sd">                from pybosl2.parts.joiners import Joiners</span>
-<span class="sd">                Joiners.snap_pin().show()</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a snap pin.&quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">clearance</span>
         <span class="n">shaft</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-        <span class="c1"># barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).</span>
         <span class="n">barb</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
             <span class="n">height</span><span class="o">=</span><span class="n">snap</span><span class="p">,</span>
             <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span><span class="p">,</span>
@@ -1908,14 +1942,50 @@
         <span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">snap</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">tip</span> <span class="o">=</span> <span class="n">sphere</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="n">pin</span> <span class="o">=</span> <span class="n">shaft</span> <span class="o">|</span> <span class="n">barb</span> <span class="o">|</span> <span class="n">tip</span>
-        <span class="n">pin</span> <span class="o">=</span> <span class="n">pin</span> <span class="o">-</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">length</span> <span class="o">+</span> <span class="n">snap</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>  <span class="c1"># flex slot</span>
-        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">pin</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">length</span> <span class="o">+</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">])</span></div>
+        <span class="n">pin</span> <span class="o">=</span> <span class="n">pin</span> <span class="o">-</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">slot</span><span class="p">,</span> <span class="n">length</span> <span class="o">+</span> <span class="n">snap</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
+            <span class="n">pin</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">length</span> <span class="o">+</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">diameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shaft diameter in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shaft length in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
+
+<div class="viewcode-block" id="SnapPin.shape">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.SnapPin.shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the snap pin geometry.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
-<div class="viewcode-block" id="Joiners.snap_pin_socket">
-<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.Joiners.snap_pin_socket">[docs]</a>
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">snap_pin_socket</span><span class="p">(</span>
+<div class="viewcode-block" id="SnapPin.show">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.SnapPin.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the snap pin in the viewer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SnapPinSocket">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.SnapPinSocket">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnapPinSocket</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The mating socket mask for a :class:`SnapPin` — difference it out of a part.</span>
+
+<span class="sd">    A clearance bore with a relief groove that the pin&#39;s barb clicks into.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
         <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span>
         <span class="n">nub_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
@@ -1924,13 +1994,8 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the mating socket mask for a :meth:`snap_pin` -- difference it.</span>
-
-<span class="sd">        out of a part (BOSL2 snap_pin_socket()).</span>
-
-<span class="sd">        A clearance bore with a relief groove that the pin&#39;s barb clicks into.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a snap pin socket mask.&quot;&quot;&quot;</span>
         <span class="n">bore</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
         <span class="n">relief</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span>
             <span class="n">height</span><span class="o">=</span><span class="n">snap</span> <span class="o">+</span> <span class="n">clearance</span><span class="p">,</span>
@@ -1939,14 +2004,35 @@
             <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
             <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">snap</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
             <span class="p">(</span><span class="n">bore</span> <span class="o">|</span> <span class="n">relief</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">clearance</span><span class="p">,</span>
-                <span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">clearance</span><span class="p">,</span>
-                <span class="n">length</span><span class="p">,</span>
-            <span class="p">],</span>
-        <span class="p">)</span></div>
+            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nub_depth</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">diameter</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">length</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">diameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shaft diameter in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shaft length in mm.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_length</span>
+
+<div class="viewcode-block" id="SnapPinSocket.shape">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.SnapPinSocket.shape">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the socket geometry.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
+
+
+<div class="viewcode-block" id="SnapPinSocket.show">
+<a class="viewcode-back" href="../../../joiners.html#pybosl2.parts.joiners.SnapPinSocket.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the socket in the viewer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 </code></pre></div>

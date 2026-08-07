@@ -6,7 +6,7 @@
 
 # LibFile: pybosl2/parts/hooks.py
 #    Pure-Python port of BOSL2's hooks.scad: hooks and hook-like parts. At the moment BOSL2 supplies
-#    a single part, :meth:`Hooks.ring_hook` -- a rectangular mounting base that flares up and joins
+#    a single part, :class:`RingHook` -- a rectangular mounting base that flares up and joins
 #    tangentially to a Y-axis cylinder (the "ring"), with an optional round, D-shaped or custom
 #    through-hole.
 #
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import math
+from enum import StrEnum
 
 import numpy as np
 
@@ -27,7 +28,14 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid
 
 _opolygon = native("polygon")
 
-__all__ = ["Hooks"]
+__all__ = ["RingHook", "HoleType"]
+
+
+class HoleType(StrEnum):
+    """Through-hole shape for :class:`RingHook`."""
+
+    CIRCLE = "circle"
+    D = "D"
 
 
 def _circle_point_tangents(r: float, center: list[float], pt: list[float]) -> list[list[float]]:
@@ -58,16 +66,29 @@ def _radius(r: float | None, d: float | None) -> float | None:
     return None
 
 
-class Hooks:
-    """Hooks and hook-like parts (BOSL2 hooks.scad).
+class RingHook:
+    """A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole.
 
-    .. seealso::
+    *base_size* is the ``[x, y]`` of the mounting base, which sits on ``z = 0``; *hole_z* the
+    height of the cylinder centre above it; *outer_radius* / *outer_diameter* the cylinder's
+    outer radius / diameter.  Give exactly two of *outer_radius/outer_diameter*,
+    *inner_radius/inner_diameter* and *wall* to set the wall around the through-hole.
+    *hole* is :attr:`HoleType.CIRCLE`, :attr:`HoleType.D` (semicircular, flat side down)
+    or a list of ``[x, z]`` points for a custom hole.  *rounding* rounds the base's vertical
+    edges; *hole_rounding* eases the hole mouth.
 
-       `Visual spec sheet <specs/hooks.html>`_ — measurements and STL previews
+    Examples:
+        A ring connector:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.hooks import RingHook
+            RingHook([50, 10], 25, outer_radius=25, inner_radius=20).show()
+
     """
 
-    @staticmethod
-    def ring_hook(
+    def __init__(
+        self,
         base_size: list[float],
         hole_z: float,
         outer_radius: float | None = None,
@@ -75,7 +96,7 @@ class Hooks:
         outer_diameter: float | None = None,
         inner_diameter: float | None = None,
         wall: float | None = None,
-        hole: str = "circle",
+        hole: HoleType | list[list[float]] = HoleType.CIRCLE,
         rounding: float = 0,
         hole_rounding: float = 0,
         fillet: float = 0,
@@ -83,36 +104,12 @@ class Hooks:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole (BOSL2.
-
-        ring_hook()).
-
-        *base_size* is the ``[x, y]`` of the mounting base, which sits on ``z = 0``; *hole_z* the
-        height of the cylinder centre above it; *outer_radius* / *outer_diameter* the cylinder's outer radius /
-        diameter.
-        Give exactly two of *outer_radius/outer_diameter*, *inner_radius/inner_diameter* and *wall* to set the wall
-        around the through-hole (or a
-        zero inner radius for a solid paddle). *hole* is ``"circle"``, ``"D"`` (semicircular, flat side
-        down) or a list of ``[x, z]`` points for a custom hole. *rounding* rounds the base's vertical
-        edges; *hole_rounding* eases the hole mouth.
-
-        The base corners must lie outside the cylinder (``hypot(base_size.x/2, hole_z) > or``) so a
-        tangent join exists. The base weld *fillet* of the original is not yet ported.
-
-        Examples:
-            A ring connector:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.hooks import Hooks
-                Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20).show()
-
-        """
+    ) -> None:
+        """Create a ring hook."""
         if fillet:
             raise NotImplementedError("ring_hook(): the base fillet is not yet ported; use fillet=0.")
         bx, w = float(base_size[0]), float(base_size[1])
-        custom = not isinstance(hole, str)
+        custom = isinstance(hole, list)
 
         or_t = _radius(outer_radius, outer_diameter)
         ir_t = _radius(inner_radius, inner_diameter)
@@ -134,21 +131,26 @@ class Hooks:
             ro = or_t if or_t is not None else float(ri) + float(wall)  # type: ignore[arg-type]
             if ri > ro:
                 raise ValueError("ring_hook(): hole doesn't fit, or wall is negative.")
-            if hole not in ("circle", "D"):
-                raise ValueError('ring_hook(): hole must be "circle", "D" or a 2-D path.')
-            if hole == "circle" and ri > 0 and ri + hole_rounding >= hole_z:
+            if isinstance(hole, HoleType) and hole not in (HoleType.CIRCLE, HoleType.D):
+                raise ValueError(f"ring_hook(): hole must be CIRCLE, D or a 2-D path, got {hole!r}")
+            if hole == HoleType.CIRCLE and ri > 0 and ri + hole_rounding >= hole_z:
                 raise ValueError(f"ring_hook(): inner_radius + hole_rounding must be less than hole_z ({hole_z}).")
 
         if math.hypot(bx / 2, hole_z) <= ro:
             raise ValueError("ring_hook(): base corners must be outside the cylinder (need a tangent).")
 
-        # tangent point where a base corner's flare meets the cylinder (take the higher one)
         tangents = _circle_point_tangents(ro, [0, hole_z], [bx / 2, 0])
         tx, tz = max(tangents, key=lambda t: t[1])
 
         base = prismoid(
-            [bx, w], [2 * tx, w], height=tz, rounding=rounding if rounding else 0, fn=fn, fa=fa, fs=fs
-        )  # anchor=BOTTOM: base on z=0
+            [bx, w],
+            [2 * tx, w],
+            height=tz,
+            rounding=rounding if rounding else 0,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
         ring = (
             cyl(
                 height=w,
@@ -163,30 +165,61 @@ class Hooks:
         body = base | ring
 
         if ri > 0 or custom:
-            body = body - _hole_cutter(hole, ri, w, hole_z, hole_rounding, custom, fn, fa, fs)
-        return Bosl2Solid(body.shape, size=[bx, w, hole_z + ro])
+            body = body - _hole_cutter(hole, ri, w, hole_z, hole_rounding, fn, fa, fs)
+        self._solid: Bosl2Solid = Bosl2Solid(body.shape, size=[bx, w, hole_z + ro])
+        self._base_size: list[float] = base_size
+        self._hole_z: float = hole_z
+        self._outer_radius: float = ro
+        self._inner_radius: float = ri
+
+    @property
+    def base_size(self) -> list[float]:
+        """Mounting base ``[x, y]``."""
+        return self._base_size
+
+    @property
+    def hole_z(self) -> float:
+        """Cylinder centre height."""
+        return self._hole_z
+
+    @property
+    def outer_radius(self) -> float:
+        """Cylinder outer radius."""
+        return self._outer_radius
+
+    @property
+    def inner_radius(self) -> float:
+        """Cylinder inner (bore) radius."""
+        return self._inner_radius
+
+    def shape(self) -> Bosl2Solid:
+        """Return the ring hook geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the ring hook in the viewer."""
+        self._solid.show()
 
 
 def _hole_cutter(
-    hole: str | list[list[float]],
+    hole: HoleType | list[list[float]],
     ri: float,
     w: float,
     hole_z: float,
     hole_rounding: float,
-    custom: bool,
     fn: int | None,
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
     """Return the solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
     length_ = w + 2
-    if custom:
+    if isinstance(hole, list):
         pts = [[float(p[0]), float(p[1])] for p in hole]
         cut = _opolygon(pts).linear_extrude(height=length_, center=True)
         return Bosl2Solid(cut).rotate([90, 0, 0]).up(hole_z)
     rnd = hole_rounding if hole_rounding else None
     bore = cyl(height=length_, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).up(hole_z)
-    if hole == "D":  # keep the upper half -> flat-bottomed D-hole
+    if hole == HoleType.D:
         upper = cuboid([2 * ri + 2, length_ + 2, 2 * ri], fn=fn, fa=fa, fs=fs).up(hole_z + ri)
         bore = bore & upper
     return bore

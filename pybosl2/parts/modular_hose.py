@@ -6,9 +6,9 @@
 
 # LibFile: pybosl2/parts/modular_hose.py
 #    Pure-Python port of BOSL2's modular_hose.scad: the ball-and-socket segments of a modular
-#    coolant/adjustable hose (the "Loc-Line" style). :meth:`ModularHose.modular_hose` revolves a
+#    coolant/adjustable hose (the "Loc-Line" style). :class:`HoseSegment` revolves a
 #    ball end, a socket end, or a full segment for the 1/4", 1/2" or 3/4" sizes;
-#    :meth:`~ModularHose.modular_hose_radius` gives the bore radius. The ball/socket cross-section
+#    :func:`modular_hose_radius` gives the bore radius. The ball/socket cross-section
 #    profiles are the same turtle paths BOSL2 uses.
 #
 # FileSummary: Modular (Loc-Line style) ball-and-socket hose segments.
@@ -20,21 +20,28 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from enum import StrEnum
 
 from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
-if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
-    from pythonscad import polygon as _opolygon
-    from pythonscad import rotate_extrude as _orotate_extrude
-else:
-    _opolygon = native("polygon")
-    _orotate_extrude = native("rotate_extrude")
+_opolygon = native("polygon")
+_orotate_extrude = native("rotate_extrude")
 
-__all__ = ["ModularHose"]
+__all__ = ["HoseSegment", "HoseType", "modular_hose_radius"]
+
+
+class HoseType(StrEnum):
+    """Modular hose segment type."""
+
+    BALL = "ball"
+    SMALL = "small"
+    SOCKET = "socket"
+    BIG = "big"
+    SEGMENT = "segment"
+
 
 _SQRT2 = math.sqrt(2)
 
@@ -185,75 +192,91 @@ def _size_index(size: float) -> int:
         raise ValueError('modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").') from None
 
 
-class ModularHose:
-    """Modular ball-and-socket hose segments (BOSL2 modular_hose.scad).
+class HoseSegment:
+    """A modular-hose ball end, socket end, or full segment.
 
-    .. seealso::
+    *size* is 0.25, 0.5 or 0.75 (the 1/4", 1/2", 3/4" hose families).  *type*
+    is a :class:`HoseType` enum value.  *clearance* loosens the fit.
 
-       `Visual spec sheet <specs/modular_hose.html>`_ — measurements and STL previews
+    Examples:
+        A 1/2" hose segment:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.modular_hose import HoseSegment, HoseType
+            HoseSegment(0.5, HoseType.SEGMENT).show()
+
     """
 
-    @staticmethod
-    def modular_hose(
+    def __init__(
+        self,
         size: float,
-        type: str = "segment",  # noqa: A002
+        type: HoseType = HoseType.SEGMENT,  # noqa: A002
         clearance: float | list[float] = 0,
         waist_len: float | None = None,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a modular-hose ball end, socket end, or full segment (BOSL2 modular_hose()).
-
-        *size* is 0.25, 0.5 or 0.75 (the 1/4", 1/2", 3/4" hose families). *type* is ``"ball"``/
-        ``"small"`` (the ball end), ``"socket"``/``"big"`` (the socket end), or ``"segment"`` (a full
-        segment with a ball on one end and a socket on the other). *clearance* loosens the fit.
-
-        Examples:
-            A 1/2" hose segment:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.modular_hose import ModularHose
-                ModularHose.modular_hose(0.5, "segment").show()
-
-        """
+    ) -> None:
+        """Create a modular-hose segment, ball end or socket end."""
         ind = _size_index(size)
         cl = clearance if isinstance(clearance, (list, tuple)) else [clearance, clearance]
         small, big = _SMALL[ind], _BIG[ind]
         (_sx, smy), _ = _bounds(small)
         (_bx, bmy), _ = _bounds(big)
-        smallend = [[x - cl[0], y - smy] for x, y in small]  # normalize base to y=0
+        smallend = [[x - cl[0], y - smy] for x, y in small]
         bigend = [[x + cl[1], y - bmy] for x, y in big]
         mid = _WAIST[ind] if waist_len is None else waist_len
         assert mid >= 0, "waist_len must be nonnegative."
 
-        if type == "segment":
+        if type in (HoseType.SEGMENT,):
             shape = [[x, y + mid] for x, y in smallend] + [[x, -y] for x, y in bigend]
-        elif type in ("small", "ball"):
+        elif type in (HoseType.SMALL, HoseType.BALL):
             shape = [[x, y + mid] for x, y in smallend] + [
                 [smallend[-1][0], 0],
                 [smallend[0][0], 0],
             ]
-        elif type in ("big", "socket"):
+        elif type in (HoseType.BIG, HoseType.SOCKET):
             shape = [[x, y + mid] for x, y in bigend] + [
                 [bigend[-1][0], 0],
                 [bigend[0][0], 0],
             ]
         else:
-            raise ValueError("modular_hose(): type must be one of small/big/segment/socket/ball.")
+            raise ValueError("modular_hose(): type must be one of BALL/SMALL/SOCKET/BIG/SEGMENT.")
 
         (_mnx, mny), (mxx, mxy) = _bounds(shape)
         cy = (mny + mxy) / 2
         poly = [[x, y - cy] for x, y in shape]
-        solid = _orotate_extrude(_opolygon(poly), fn=fn, fa=fa, fs=fs)
-        return Bosl2Solid(solid, size=[2 * mxx, 2 * mxx, mxy - mny])
+        self._solid: Bosl2Solid = Bosl2Solid(
+            _orotate_extrude(_opolygon(poly), fn=fn, fa=fa, fs=fs),
+            size=[2 * mxx, 2 * mxx, mxy - mny],
+        )
+        self._size: float = size
+        self._type: HoseType = type
 
-    @staticmethod
-    def modular_hose_radius(size: float, outer: bool = False) -> float:
-        """Return the inner (bore) or *outer* radius of a modular hose of *size* (BOSL2.
+    @property
+    def size(self) -> float:
+        """Hose size (0.25, 0.5 or 0.75 inches)."""
+        return self._size
 
-        modular_hose_radius()).
-        """
-        big = _BIG[_size_index(size)]
-        return big[-1][0] if outer else big[0][0]
+    @property
+    def hose_type(self) -> HoseType:
+        """Segment type."""
+        return self._type
+
+    def shape(self) -> Bosl2Solid:
+        """Return the hose segment geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the hose segment in the viewer."""
+        self._solid.show()
+
+
+def modular_hose_radius(size: float, outer: bool = False) -> float:
+    """Return the inner (bore) or *outer* radius of a modular hose of *size*.
+
+    (BOSL2 modular_hose_radius()).
+    """
+    big = _BIG[_size_index(size)]
+    return big[-1][0] if outer else big[0][0]

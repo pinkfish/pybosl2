@@ -10,7 +10,7 @@ import math
 
 import pytest
 
-from pybosl2.parts.hooks import Hooks, _circle_point_tangents
+from pybosl2.parts.hooks import HoleType, RingHook, _circle_point_tangents
 from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -34,7 +34,7 @@ def test_tangent_requires_external_point() -> None:
 
 
 def test_basic_ring_hook_envelope() -> None:
-    lo, sz = _bounds(Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=20))
+    lo, sz = _bounds(RingHook([50, 10], 25, outer_radius=25, inner_radius=20).shape())
     assert tuple(round(v) for v in sz) == (
         50,
         10,
@@ -44,13 +44,13 @@ def test_basic_ring_hook_envelope() -> None:
 
 
 def test_ring_height_is_hole_z_plus_or() -> None:
-    _, sz = _bounds(Hooks.ring_hook([50, 10], 40, outer_radius=25, inner_radius=20))
+    _, sz = _bounds(RingHook([50, 10], 40, outer_radius=25, inner_radius=20).shape())
     assert sz[2] == pytest.approx(65.0, abs=0.5)  # faceted ring top sits just under hole_z + outer_radius
 
 
 def test_wall_and_od_id_forms_equivalent() -> None:
-    a = _bounds(Hooks.ring_hook([50, 10], 40, outer_radius=25, wall=5))[1]
-    b = _bounds(Hooks.ring_hook([50, 10], 40, outer_diameter=50, inner_diameter=40))[1]
+    a = _bounds(RingHook([50, 10], 40, outer_radius=25, wall=5).shape())[1]
+    b = _bounds(RingHook([50, 10], 40, outer_diameter=50, inner_diameter=40).shape())[1]
     assert [round(v, 1) for v in a] == [round(v, 1) for v in b]
 
 
@@ -58,12 +58,12 @@ def test_wall_and_od_id_forms_equivalent() -> None:
     "kw",
     [
         {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0},  # solid paddle
-        {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 15, "hole": "D"},  # D hole
+        {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 15, "hole": HoleType.D},  # D hole
         {"base_size": [40, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0},  # narrow base
     ],
 )
 def test_variants_build(kw: dict[str, object]) -> None:
-    assert isinstance(Hooks.ring_hook(**kw), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(RingHook(**kw).shape(), Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_custom_hole_path_builds() -> None:
@@ -74,29 +74,27 @@ def test_custom_hole_path_builds() -> None:
         ]
         for k in range(8)
     ]
-    assert isinstance(Hooks.ring_hook([50, 20], 30, outer_radius=25, hole=oct8), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(RingHook([50, 20], 30, outer_radius=25, hole=oct8).shape(), Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_must_define_exactly_two_of_or_ir_wall() -> None:
     with pytest.raises(ValueError, match="define exactly two"):
-        Hooks.ring_hook([50, 10], 25, outer_radius=25)  # only one given
+        RingHook([50, 10], 25, outer_radius=25)  # only one given
 
 
 def test_base_corners_must_be_outside_cylinder() -> None:
     with pytest.raises(ValueError, match="base corners must be outside the cylinder"):
-        Hooks.ring_hook([10, 10], 5, outer_radius=25, inner_radius=0)  # corners inside cylinder, no tangent
+        RingHook([10, 10], 5, outer_radius=25, inner_radius=0)  # corners inside cylinder, no tangent
 
 
 def test_circle_hole_must_fit_above_base() -> None:
     with pytest.raises(ValueError, match=r"inner_radius \+ hole_rounding must be less than hole_z"):
-        Hooks.ring_hook(
-            [50, 10], 10, outer_radius=25, inner_radius=20
-        )  # inner_radius >= hole_z: hole pokes out the base
+        RingHook([50, 10], 10, outer_radius=25, inner_radius=20)  # inner_radius >= hole_z: hole pokes out the base
 
 
 def test_custom_hole_rejects_ir_and_wall() -> None:
     with pytest.raises(ValueError, match="cannot give inner_radius.*with a custom hole"):
-        Hooks.ring_hook(
+        RingHook(
             [50, 20],
             30,
             outer_radius=25,
@@ -107,4 +105,4 @@ def test_custom_hole_rejects_ir_and_wall() -> None:
 
 def test_fillet_not_yet_supported() -> None:
     with pytest.raises(NotImplementedError):
-        Hooks.ring_hook([50, 10], 25, outer_radius=25, inner_radius=0, fillet=3)
+        RingHook([50, 10], 25, outer_radius=25, inner_radius=0, fillet=3)

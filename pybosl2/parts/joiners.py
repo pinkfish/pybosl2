@@ -6,9 +6,9 @@
 
 # LibFile: pybosl2/parts/joiners.py
 #    Pure-Python port of the core joiners from BOSL2's joiners.scad -- shapes for connecting two
-#    separately-printed parts. :meth:`Joiners.dovetail` is the flagship: a (optionally tapered)
+#    separately-printed parts. :class:`Dovetail` is the flagship: a (optionally tapered)
 #    dovetail joint you attach as a male tenon or difference out as a female socket. A functional
-#    :meth:`Joiners.snap_pin` and its :meth:`Joiners.snap_pin_socket` give a press-and-click pin.
+#    :class:`SnapPin` and its :class:`SnapPinSocket` give a press-and-click pin.
 #
 #    The snap pin is a clean functional build (a slotted, barbed shaft); BOSL2's named-size table and
 #    the hirth/rabbit-clip couplings are not ported.
@@ -33,19 +33,31 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
 else:
     _ohull = native("hull")
 
-__all__ = ["Joiners"]
+__all__ = ["Dovetail", "SnapPin", "SnapPinSocket"]
 
 
-class Joiners:
-    """Dovetail joints and snap-pin connectors (BOSL2 joiners.scad).
+class Dovetail:
+    """A dovetail joint that slides along Y and flares upward in X.
 
-    .. seealso::
+    The male form is a tenon you attach to a part; the female form is the same
+    shape enlarged by *slop* for you to difference out as the mating socket.
+    *slope* is the flare (rise/run per side; ``angle`` sets it as ``1/tan(angle)``).
+    Give *taper* (degrees) or *back_width* to taper it along its length.
 
-       `Visual spec sheet <specs/joiners.html>`_ — measurements and STL previews
+    Examples:
+        A male dovetail beside its female socket:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.enums import Gender
+            from pybosl2.parts.joiners import Dovetail
+            (Dovetail(Gender.MALE, width=15, height=8, slide=30).shape()
+             | Dovetail(Gender.FEMALE, width=15, height=8, slide=30).shape().right(24)).show()
+
     """
 
-    @staticmethod
-    def dovetail(
+    def __init__(
+        self,
         gender: Gender = Gender.MALE,
         width: float = 15,
         height: float = 8,
@@ -58,46 +70,79 @@ class Joiners:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a dovetail joint that slides along Y and flares upward in X (BOSL2 dovetail()).
-
-        The male form is a tenon you attach to a part; the female form is the same shape enlarged by
-        *slop* for you to difference out as the mating socket. A dovetail resists pulling apart across
-        the flare. *slope* is the flare (rise/run per side; ``angle`` sets it as ``1/tan(angle)``).
-        Give *taper* (degrees) or *back_width* to taper it along its length so it wedges home.
-
-        Examples:
-            A male dovetail beside its female socket:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.enums import Gender
-                from pybosl2.parts.joiners import Joiners
-                (Joiners.dovetail(Gender.MALE, width=15, height=8, slide=30)
-                 | Joiners.dovetail(Gender.FEMALE, width=15, height=8, slide=30).right(24)).show()
-
-        """
+    ) -> None:
+        """Create a dovetail joint tenon (male) or socket (female)."""
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
         hslop = slop if gender == Gender.FEMALE else 0.0
         w = width + 2 * hslop
-        height = height + hslop
-        flare = 2 * height / slope  # total added width at the top
+        h = height + hslop
+        flare = 2 * h / slope
 
         if taper or back_width is not None:
             if back_width is None:
                 back_width = width - 2 * slide * math.tan(math.radians(taper))
             wb = back_width + 2 * hslop
-            front = prismoid([w, 0.02], [w + flare, 0.02], height=height, fn=fn, fa=fa, fs=fs).back(slide / 2)
-            back = prismoid([wb, 0.02], [wb + flare, 0.02], height=height, fn=fn, fa=fa, fs=fs).forward(slide / 2)
+            front = prismoid([w, 0.02], [w + flare, 0.02], height=h, fn=fn, fa=fa, fs=fs).back(slide / 2)
+            back = prismoid([wb, 0.02], [wb + flare, 0.02], height=h, fn=fn, fa=fa, fs=fs).forward(slide / 2)
             body = Bosl2Solid(_ohull(front.shape, back.shape))
         else:
-            body = prismoid([w, slide], [w + flare, slide], height=height, fn=fn, fa=fa, fs=fs)
+            body = prismoid([w, slide], [w + flare, slide], height=h, fn=fn, fa=fa, fs=fs)
 
-        return Bosl2Solid(body.shape, size=[w + flare, slide, height])
+        self._solid: Bosl2Solid = Bosl2Solid(body.shape, size=[w + flare, slide, h])
+        self._gender: Gender = gender
+        self._width: float = width
+        self._height: float = height
+        self._slide: float = slide
 
-    @staticmethod
-    def snap_pin(
+    @property
+    def gender(self) -> Gender:
+        """Male or female."""
+        return self._gender
+
+    @property
+    def width(self) -> float:
+        """Base width in mm."""
+        return self._width
+
+    @property
+    def height(self) -> float:
+        """Joint height in mm."""
+        return self._height
+
+    @property
+    def slide(self) -> float:
+        """Slide length in mm."""
+        return self._slide
+
+    def shape(self) -> Bosl2Solid:
+        """Return the dovetail geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the dovetail in the viewer."""
+        self._solid.show()
+
+
+class SnapPin:
+    """A press-and-click snap pin: a slotted shaft with a barbed head.
+
+    Push it head-first through a hole; the slot lets the barb compress and
+    spring back to lock.  *nub_depth* is the barb overhang, *snap* its height,
+    and *slot* the width of the flex gap.
+
+    Examples:
+        A snap pin:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.joiners import SnapPin
+            SnapPin().show()
+
+    """
+
+    def __init__(
+        self,
         diameter: float = 5,
         length: float = 12,
         nub_depth: float = 0.6,
@@ -107,25 +152,10 @@ class Joiners:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a press-and-click snap pin: a slotted shaft with a barbed head (BOSL2 snap_pin()).
-
-        Push it head-first through a hole (or a :meth:`snap_pin_socket`); the slot lets the barb
-        compress and spring back to lock. *nub_depth* is the barb overhang, *snap* its height, and
-        *slot* the width of the flex gap.
-
-        Examples:
-            A snap pin:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.joiners import Joiners
-                Joiners.snap_pin().show()
-
-        """
+    ) -> None:
+        """Create a snap pin."""
         _ = clearance
         shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)
-        # barb: a downward-facing ratchet lip at the tip (wide at its base, tapering to the shaft).
         barb = cyl(
             height=snap,
             diameter1=diameter + 2 * nub_depth,
@@ -136,11 +166,41 @@ class Joiners:
         ).up(length / 2 - snap / 2)
         tip = sphere(diameter=diameter, fn=fn, fa=fa, fs=fs).up(length / 2)
         pin = shaft | barb | tip
-        pin = pin - cuboid([diameter + 2 * nub_depth + 1, slot, length + snap], fn=fn, fa=fa, fs=fs)  # flex slot
-        return Bosl2Solid(pin.shape, size=[diameter + 2 * nub_depth, diameter, length + diameter / 2])
+        pin = pin - cuboid([diameter + 2 * nub_depth + 1, slot, length + snap], fn=fn, fa=fa, fs=fs)
+        self._solid: Bosl2Solid = Bosl2Solid(
+            pin.shape,
+            size=[diameter + 2 * nub_depth, diameter, length + diameter / 2],
+        )
+        self._diameter: float = diameter
+        self._length: float = length
 
-    @staticmethod
-    def snap_pin_socket(
+    @property
+    def diameter(self) -> float:
+        """Shaft diameter in mm."""
+        return self._diameter
+
+    @property
+    def length(self) -> float:
+        """Shaft length in mm."""
+        return self._length
+
+    def shape(self) -> Bosl2Solid:
+        """Return the snap pin geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the snap pin in the viewer."""
+        self._solid.show()
+
+
+class SnapPinSocket:
+    """The mating socket mask for a :class:`SnapPin` — difference it out of a part.
+
+    A clearance bore with a relief groove that the pin's barb clicks into.
+    """
+
+    def __init__(
+        self,
         diameter: float = 5,
         length: float = 12,
         nub_depth: float = 0.6,
@@ -149,13 +209,8 @@ class Joiners:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return the mating socket mask for a :meth:`snap_pin` -- difference it.
-
-        out of a part (BOSL2 snap_pin_socket()).
-
-        A clearance bore with a relief groove that the pin's barb clicks into.
-        """
+    ) -> None:
+        """Create a snap pin socket mask."""
         bore = cyl(height=length + 1, diameter=diameter + 2 * clearance, fn=fn, fa=fa, fs=fs)
         relief = cyl(
             height=snap + clearance,
@@ -164,11 +219,27 @@ class Joiners:
             fa=fa,
             fs=fs,
         ).up(length / 2 - snap / 2)
-        return Bosl2Solid(
+        self._solid: Bosl2Solid = Bosl2Solid(
             (bore | relief).shape,
-            size=[
-                diameter + 2 * nub_depth + 2 * clearance,
-                diameter + 2 * clearance,
-                length,
-            ],
+            size=[diameter + 2 * nub_depth + 2 * clearance, diameter + 2 * clearance, length],
         )
+        self._diameter: float = diameter
+        self._length: float = length
+
+    @property
+    def diameter(self) -> float:
+        """Shaft diameter in mm."""
+        return self._diameter
+
+    @property
+    def length(self) -> float:
+        """Shaft length in mm."""
+        return self._length
+
+    def shape(self) -> Bosl2Solid:
+        """Return the socket geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the socket in the viewer."""
+        self._solid.show()
