@@ -4,6 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import importlib
 import math
 
 import pytest
@@ -292,21 +293,134 @@ class TestTrapezoid2D:
         assert shape.sample(0, 0, 1) < 0
 
 
+def _signed_area(pts: list[list[float]]) -> float:
+    """Shoelace area: positive when the ring winds counter-clockwise."""
+    return sum(pts[i][0] * pts[i - 1][1] - pts[i - 1][0] * pts[i][1] for i in range(len(pts))) / -2.0
+
+
+def _is_simple(pts: list[list[float]]) -> bool:
+    """True if no two non-adjacent edges of the closed ring cross."""
+
+    def crosses(p1, p2, p3, p4) -> bool:  # type: ignore[no-untyped-def]
+        def orient(a, b, c):  # type: ignore[no-untyped-def]
+            v = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+            return (v > 1e-12) - (v < -1e-12)
+
+        d1, d2 = orient(p3, p4, p1), orient(p3, p4, p2)
+        d3, d4 = orient(p1, p2, p3), orient(p1, p2, p4)
+        return d1 != d2 and d3 != d4
+
+    n = len(pts)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if j == i or (j + 1) % n == i or (i + 1) % n == j:  # skip shared-endpoint neighbours
+                continue
+            if crosses(pts[i], pts[(i + 1) % n], pts[j], pts[(j + 1) % n]):
+                return False
+    return True
+
+
+class TestKeyholeOutline:
+    """keyhole_outline -- the classic keyhole point list (parallel neck, optional shoulder fillets)."""
+
+    @pytest.mark.parametrize(
+        ("length", "r1", "r2", "shoulder"),
+        [(20, 5, 10, 0), (20, 5, 10, 2), (20, 5, 10, 4), (15, 5, 10, 1), (30, 2, 12, 3), (20, 5, 5, 0)],
+    )
+    def test_outline_is_a_simple_ccw_ring(self, length: float, r1: float, r2: float, shoulder: float) -> None:
+        pts = sdf_s2d.keyhole_outline(length=length, radius1=r1, radius2=r2, shoulder_radius=shoulder, res=8)
+        assert _is_simple(pts), "the outline must not cross itself"
+        assert _signed_area(pts) > 0, "the outline must wind counter-clockwise"
+        assert pts[0] != pts[-1], "the closing point must not be repeated"
+
+    def test_outline_spans_both_circles(self) -> None:
+        pts = sdf_s2d.keyhole_outline(length=20, radius1=5, radius2=10, res=16)
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        # widest at the large circle, from its top (small circle, +r1) to its bottom (-length - r2)
+        assert min(xs) == pytest.approx(-10, abs=0.05)
+        assert max(xs) == pytest.approx(10, abs=0.05)
+        assert max(ys) == pytest.approx(5, abs=0.05)
+        assert min(ys) == pytest.approx(-30, abs=0.05)
+
+    def test_shoulder_fillet_is_tangent_to_both_the_wall_and_the_circle(self) -> None:
+        length, r1, r2, sh = 20.0, 5.0, 10.0, 2.0
+        # the fillet centre sits sh off the neck wall and r2+sh from the large circle's centre --
+        # that is exactly what makes the arc meet both without a kink
+        dy = math.sqrt((r2 + sh) ** 2 - (r1 + sh) ** 2)
+        centre = (r1 + sh, -length + dy)
+        assert abs(centre[0] - r1) == pytest.approx(sh, abs=1e-9)
+        assert math.dist(centre, (0.0, -length)) == pytest.approx(r2 + sh, abs=1e-9)
+
+        pts = sdf_s2d.keyhole_outline(length=length, radius1=r1, radius2=r2, shoulder_radius=sh, res=32)
+        mirrored = (-centre[0], centre[1])
+        # every point lies on the small circle, a neck wall, a shoulder fillet or the large circle
+        for p in pts:
+            assert (
+                abs(math.dist(p, (0.0, 0.0)) - r1) < 1e-7
+                or abs(math.dist(p, (0.0, -length)) - r2) < 1e-7
+                or abs(abs(p[0]) - r1) < 1e-7
+                or abs(math.dist(p, centre) - sh) < 1e-7
+                or abs(math.dist(p, mirrored) - sh) < 1e-7
+            ), f"stray point {p} lies on none of the outline's arcs or walls"
+
+    def test_fillet_fills_the_inside_corner(self) -> None:
+        # the shoulder is a concave corner, so rounding it ADDS material rather than cutting it
+        areas = [
+            _signed_area(sdf_s2d.keyhole_outline(length=20, radius1=5, radius2=10, shoulder_radius=s, res=48))
+            for s in (0, 1, 2, 4)
+        ]
+        assert areas == sorted(areas), f"area should grow with the shoulder fillet, got {areas}"
+
+    def test_swapping_the_radii_mirrors_the_outline(self) -> None:
+        big_below = sdf_s2d.keyhole_outline(length=20, radius1=5, radius2=10, shoulder_radius=2, res=16)
+        big_above = sdf_s2d.keyhole_outline(length=20, radius1=10, radius2=5, shoulder_radius=2, res=16)
+        assert _signed_area(big_above) == pytest.approx(_signed_area(big_below), rel=1e-9)
+        # ...reflected through the midpoint between the two centres
+        assert max(p[1] for p in big_above) == pytest.approx(10, abs=0.05)
+        assert min(p[1] for p in big_below) == pytest.approx(-30, abs=0.05)
+
+    def test_outline_matches_the_csg_keyhole(self) -> None:
+        # the CSG side already ports BOSL2's keyhole(); the SDF outline must describe the same shape
+        circle_mod = importlib.import_module("pybosl2.shapes2d.circle")
+        captured: list[list[list[float]]] = []
+        real = circle_mod._opolygon
+
+        def spy(path, *a, **k):  # type: ignore[no-untyped-def]
+            captured.append([[float(p[0]), float(p[1])] for p in path])
+            return real(path, *a, **k)
+
+        circle_mod._opolygon = spy
+        try:
+            for length, r1, r2, sh in [(20, 5, 10, 0), (20, 5, 10, 2), (25, 4, 9, 2), (20, 10, 5, 2)]:
+                captured.clear()
+                circle_mod.keyhole(length=length, radius1=r1, radius2=r2, shoulder_radius=sh, fn=128)
+                sdf = sdf_s2d.keyhole_outline(length=length, radius1=r1, radius2=r2, shoulder_radius=sh, res=32)
+                assert _signed_area(sdf) == pytest.approx(abs(_signed_area(captured[0])), rel=0.01)
+        finally:
+            circle_mod._opolygon = real
+
+    def test_no_room_for_a_neck_is_rejected(self) -> None:
+        # circles so close that the shoulder would land above the small circle's centre
+        with pytest.raises(AssertionError, match="no room for a neck"):
+            sdf_s2d.keyhole_outline(length=4, radius1=5, radius2=10)
+
+
 class TestKeyhole2D:
     """keyhole2d -- keyhole slot SDF via polygon2d()."""
 
     def test_keyhole_builds(self) -> None:
-        # small circle at the origin, large one *length* below it, joined by the tangent shoulders
+        # small circle at the origin, large one *length* below it, joined by the parallel-sided neck
         shape = sdf_s2d.keyhole2d(length=20, radius1=5, radius2=10).extrude(4).mesh()
         assert shape.sample(0, 0, 2) < 0, "inside the small circle"
         assert shape.sample(0, -20, 2) < 0, "inside the large circle"
-        assert shape.sample(0, -10, 2) < 0, "inside the shoulders between them"
+        assert shape.sample(0, -10, 2) < 0, "inside the neck between them"
         assert shape.sample(9, 0, 2) > 0, "clear of the small circle"
         assert shape.sample(0, 12, 2) > 0, "above the small circle"
 
-    def test_keyhole_shoulder_radius_unsupported(self) -> None:
-        with pytest.raises(NotImplementedError, match="shoulder_radius"):
-            sdf_s2d.keyhole2d(length=20, radius1=5, radius2=10, shoulder_radius=2)
+    def test_keyhole_with_shoulder_fillet_builds(self) -> None:
+        shape = sdf_s2d.keyhole2d(length=20, radius1=5, radius2=10, shoulder_radius=2).extrude(4).mesh()
+        assert shape.sample(0, -10, 2) < 0, "inside the neck"
+        assert shape.sample(0, -20, 2) < 0, "inside the large circle"
 
     def test_keyhole_short_length_rejected(self) -> None:
         with pytest.raises(AssertionError):
