@@ -65,18 +65,6 @@ __all__ = [
     "SpurGear2d",
     "Worm",
     "WormGear",
-    "auto_profile_shift",
-    "base_radius",
-    "bevel_pitch_angle",
-    "circular_pitch",
-    "diametral_pitch",
-    "gear_dist",
-    "module_value",
-    "outer_radius",
-    "pitch_radius",
-    "pitch_value",
-    "root_radius",
-    "worm_gear_thickness",
 ]
 
 PI = math.pi
@@ -665,189 +653,125 @@ class GearSpec:
         """Diametral pitch (teeth per inch of pitch diameter)."""
         return PI / self.circ_pitch
 
+    @staticmethod
+    def circular_pitch(
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
+        """Circular pitch (mm/tooth) from any pitch input."""
+        return _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
-# ---------------------------------------------------------------------------
-# Section: public calculation helpers (module-level)
-# ---------------------------------------------------------------------------
+    @staticmethod
+    def pitch_value(mod: float) -> float:
+        """Circular pitch from the metric module."""
+        return mod * PI
 
+    @staticmethod
+    def module_value(
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
+        """Metric module from any pitch input."""
+        return _module_value(_circular_pitch(circ_pitch, mod, pitch, diam_pitch))
 
-def circular_pitch(
-    circ_pitch: float | None = None,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Circular pitch (mm/tooth) from any pitch input (BOSL2 circular_pitch())."""
-    return _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+    @staticmethod
+    def diametral_pitch_func(
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
+        """Diametral pitch (teeth per inch of pitch diameter) from any pitch input."""
+        return PI / _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
 
+    @staticmethod
+    def auto_profile_shift(
+        teeth: int,
+        pressure_angle: float = 20,
+        helical: float = 0,
+        profile_shift: float | None = None,
+    ) -> float:
+        """Minimum profile shift (modules) to avoid undercut."""
+        return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
 
-def pitch_value(mod: float) -> float:
-    """Circular pitch from the metric module (BOSL2 pitch_value())."""
-    return mod * PI
+    @staticmethod
+    def bevel_pitch_angle(teeth: int, mate_teeth: float, drive_angle: float = 90) -> float:
+        """Pitch angle (deg) for a bevel gear meshing another."""
+        return math.degrees(
+            math.atan2(math.sin(math.radians(drive_angle)), (mate_teeth / teeth) + math.cos(math.radians(drive_angle)))
+        )
 
+    @staticmethod
+    def worm_gear_thickness(
+        circ_pitch: float | None = None,
+        teeth: int = 30,
+        worm_diam: float = 30,
+        worm_arc: float = 60,
+        crowning: float = 1,
+        clearance: float | None = None,
+        mod: float | None = None,
+        pitch: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
+        """Thickness of a worm gear matched to a worm."""
+        center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
+        radius = worm_diam / 2 + crowning
+        pitch_thick = radius * math.sin(math.radians(worm_arc / 2)) * 2
+        pr = _pitch_radius(center, teeth)
+        rr = pr - _dedendum(center, clearance)
+        pitchoff = (pr - rr) * math.sin(math.radians(worm_arc / 2))
+        return pitch_thick + 2 * pitchoff
 
-def module_value(
-    circ_pitch: float | None = None,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Metric module from any pitch input (BOSL2 module_value())."""
-    return _module_value(_circular_pitch(circ_pitch, mod, pitch, diam_pitch))
+    @staticmethod
+    def gear_dist(
+        teeth1: int,
+        teeth2: int,
+        helical: float = 0,
+        profile_shift1: float | None = None,
+        profile_shift2: float | None = None,
+        internal1: bool = False,
+        internal2: bool = False,
+        backlash: float = 0,
+        pressure_angle: float = 20,
+        circ_pitch: float | None = None,
+        mod: float | None = None,
+        diam_pitch: float | None = None,
+    ) -> float:
+        """Center-to-center distance for two meshing gears."""
+        m_val = _module_value(_circular_pitch(circ_pitch, mod, None, diam_pitch))
+        ps1 = _auto_profile_shift(teeth1, pressure_angle, helical, profile_shift1)
+        ps2 = _auto_profile_shift(teeth2, pressure_angle, helical, profile_shift2)
+        t1 = -teeth1 if internal2 else teeth1
+        t2 = -teeth2 if internal1 else teeth2
+        if internal2:
+            ps1 = -ps1
+        if internal1:
+            ps2 = -ps2
+        if teeth1 == 0 or teeth2 == 0:
+            return _pitch_radius(m_val * PI, t1 + t2, helical) + (ps1 + ps2) * m_val
+        pa = math.radians(pressure_angle)
+        pa_transv = math.atan(math.tan(pa) / math.cos(math.radians(helical)))
 
+        def inv(a: float) -> float:
+            return math.tan(a) - a
 
-def diametral_pitch(
-    circ_pitch: float | None = None,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Diametral pitch (teeth per inch of pitch diameter) (BOSL2 diametral_pitch())."""
-    return PI / _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-
-
-def pitch_radius(
-    circ_pitch: float | None = None,
-    teeth: int = 11,
-    helical: float = 0,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Pitch radius; meshed gears sit a :func:`gear_dist` apart (BOSL2 pitch_radius())."""
-    return _pitch_radius(_circular_pitch(circ_pitch, mod, pitch, diam_pitch), teeth, helical)
-
-
-def outer_radius(
-    circ_pitch: float | None = None,
-    teeth: int = 11,
-    clearance: float | None = None,
-    internal: bool = False,
-    helical: float = 0,
-    profile_shift: float | None = None,
-    pressure_angle: float = 20,
-    shorten: float = 0,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Tip radius; the gear fits within this circle (BOSL2 outer_radius())."""
-    center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-    ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-    return _outer_radius_basic(center, teeth, clearance, internal, helical, ps, shorten)
-
-
-def root_radius(
-    circ_pitch: float | None = None,
-    teeth: int = 11,
-    clearance: float | None = None,
-    internal: bool = False,
-    helical: float = 0,
-    profile_shift: float | None = None,
-    pressure_angle: float = 20,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Root radius at the base of the tooth valleys (BOSL2 root_radius())."""
-    center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-    ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-    return _root_radius_basic(center, teeth, clearance, internal, helical, ps)
-
-
-def base_radius(
-    circ_pitch: float | None = None,
-    teeth: int = 11,
-    pressure_angle: float = 20,
-    helical: float = 0,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Base-circle radius of the involute (BOSL2 base_radius())."""
-    return _base_radius(_circular_pitch(circ_pitch, mod, pitch, diam_pitch), teeth, pressure_angle, helical)
-
-
-def auto_profile_shift(
-    teeth: int, pressure_angle: float = 20, helical: float = 0, profile_shift: float | None = None
-) -> float:
-    """Minimum profile shift (modules) to avoid undercut (BOSL2 auto_profile_shift())."""
-    return _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-
-
-def gear_dist(
-    teeth1: int,
-    teeth2: int,
-    helical: float = 0,
-    profile_shift1: float | None = None,
-    profile_shift2: float | None = None,
-    internal1: bool = False,
-    internal2: bool = False,
-    backlash: float = 0,
-    pressure_angle: float = 20,
-    circ_pitch: float | None = None,
-    mod: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Center-to-center distance for two meshing gears (BOSL2 gear_dist())."""
-    m = _module_value(_circular_pitch(circ_pitch, mod, None, diam_pitch))
-    ps1 = _auto_profile_shift(teeth1, pressure_angle, helical, profile_shift1)
-    ps2 = _auto_profile_shift(teeth2, pressure_angle, helical, profile_shift2)
-    t1 = -teeth1 if internal2 else teeth1
-    t2 = -teeth2 if internal1 else teeth2
-    if internal2:
-        ps1 = -ps1
-    if internal1:
-        ps2 = -ps2
-    if teeth1 == 0 or teeth2 == 0:
-        return _pitch_radius(m * PI, t1 + t2, helical) + (ps1 + ps2) * m
-    pa = math.radians(pressure_angle)
-    pa_transv = math.atan(math.tan(pa) / math.cos(math.radians(helical)))
-
-    def inv(a: float) -> float:
-        return math.tan(a) - a
-
-    target = inv(pa_transv) + 2 * (ps1 + ps2) / (t1 + t2) * math.tan(pa)
-    lo, hi = 1e-4, math.radians(89)
-    for _ in range(60):
-        mid = (lo + hi) / 2
-        if inv(mid) < target:
-            lo = mid
-        else:
-            hi = mid
-    pa_eff = (lo + hi) / 2
-    diameter = m * (t1 + t2) * math.cos(pa_transv) / math.cos(pa_eff) / math.cos(math.radians(helical)) / 2
-    return diameter + (-1 if (internal1 or internal2) else 1) * backlash * math.cos(math.radians(helical)) / math.tan(
-        pa
-    )
-
-
-def bevel_pitch_angle(teeth: int, mate_teeth: float, drive_angle: float = 90) -> float:
-    """Pitch angle (deg) for a bevel gear meshing another (BOSL2 bevel_pitch_angle())."""
-    return math.degrees(
-        math.atan2(math.sin(math.radians(drive_angle)), (mate_teeth / teeth) + math.cos(math.radians(drive_angle)))
-    )
-
-
-def worm_gear_thickness(
-    circ_pitch: float | None = None,
-    teeth: int = 30,
-    worm_diam: float = 30,
-    worm_arc: float = 60,
-    crowning: float = 1,
-    clearance: float | None = None,
-    mod: float | None = None,
-    pitch: float | None = None,
-    diam_pitch: float | None = None,
-) -> float:
-    """Thickness of a worm gear matched to a worm (BOSL2 worm_gear_thickness())."""
-    center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
-    radius = worm_diam / 2 + crowning
-    pitch_thick = radius * math.sin(math.radians(worm_arc / 2)) * 2
-    pr = _pitch_radius(center, teeth)
-    rr = pr - _dedendum(center, clearance)
-    pitchoff = (pr - rr) * math.sin(math.radians(worm_arc / 2))
-    return pitch_thick + 2 * pitchoff
+        target = inv(pa_transv) + 2 * (ps1 + ps2) / (t1 + t2) * math.tan(pa)
+        lo, hi = 1e-4, math.radians(89)
+        for _ in range(60):
+            mid = (lo + hi) / 2
+            if inv(mid) < target:
+                lo = mid
+            else:
+                hi = mid
+        pa_eff = (lo + hi) / 2
+        diameter = m_val * (t1 + t2) * math.cos(pa_transv) / math.cos(pa_eff) / math.cos(math.radians(helical)) / 2
+        return diameter + (-1 if (internal1 or internal2) else 1) * backlash * math.cos(
+            math.radians(helical)
+        ) / math.tan(pa)
 
 
 # ---------------------------------------------------------------------------
@@ -1494,7 +1418,7 @@ class WormGear:
         circ = 2 * PI * p
         radius1 = p + worm_diam / 2 + crowning
         radius2 = worm_diam / 2 + crowning
-        thickness = worm_gear_thickness(
+        thickness = GearSpec.worm_gear_thickness(
             circ_pitch=center,
             teeth=teeth,
             worm_diam=worm_diam,

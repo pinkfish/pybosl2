@@ -17,9 +17,9 @@ undercut.
 Includes the involute :class:`SpurGear2d` / :class:`SpurGear`
 (helical and/or ``herringbone``), the internal :class:`RingGear`, the linear
 :class:`Rack`, the :class:`BevelGear`, the
-:class:`Worm` / :class:`WormGear` pair, the dimension helpers,
-:func:`auto_profile_shift`, and :func:`gear_dist` for the
-meshing centre distance.
+:class:`Worm` / :class:`WormGear` pair, the dimension helpers
+on :class:`GearSpec` (:meth:`GearSpec.auto_profile_shift`,
+:meth:`GearSpec.gear_dist` for the meshing centre distance).
 
 .. autoclass:: pybosl2.parts.gears.SpurGear
    :members:
@@ -51,29 +51,29 @@ meshing centre distance.
 .. autoclass:: pybosl2.parts.gears.GearToothProfile
    :members:
 
-.. autofunction:: pybosl2.parts.gears.circular_pitch
+.. automethod:: pybosl2.parts.gears.GearSpec.circular_pitch
 
-.. autofunction:: pybosl2.parts.gears.diametral_pitch
+.. automethod:: pybosl2.parts.gears.GearSpec.diametral_pitch_func
 
-.. autofunction:: pybosl2.parts.gears.module_value
+.. automethod:: pybosl2.parts.gears.GearSpec.module_value
 
-.. autofunction:: pybosl2.parts.gears.pitch_value
+.. automethod:: pybosl2.parts.gears.GearSpec.pitch_value
 
-.. autofunction:: pybosl2.parts.gears.pitch_radius
+.. automethod:: pybosl2.parts.gears.GearSpec.pitch_radius
 
-.. autofunction:: pybosl2.parts.gears.outer_radius
+.. automethod:: pybosl2.parts.gears.GearSpec.outer_radius
 
-.. autofunction:: pybosl2.parts.gears.root_radius
+.. automethod:: pybosl2.parts.gears.GearSpec.root_radius
 
-.. autofunction:: pybosl2.parts.gears.base_radius
+.. automethod:: pybosl2.parts.gears.GearSpec.base_radius
 
-.. autofunction:: pybosl2.parts.gears.auto_profile_shift
+.. automethod:: pybosl2.parts.gears.GearSpec.auto_profile_shift
 
-.. autofunction:: pybosl2.parts.gears.gear_dist
+.. automethod:: pybosl2.parts.gears.GearSpec.gear_dist
 
-.. autofunction:: pybosl2.parts.gears.worm_gear_thickness
+.. automethod:: pybosl2.parts.gears.GearSpec.worm_gear_thickness
 
-.. autofunction:: pybosl2.parts.gears.bevel_pitch_angle
+.. automethod:: pybosl2.parts.gears.GearSpec.bevel_pitch_angle
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
 

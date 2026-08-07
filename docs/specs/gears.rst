@@ -23,7 +23,7 @@ gears
           <h2>rendered &amp; measured</h2>
           <span class="spec-pill spec-pass" id="wtpill">watertight</span>
         </div>
-        <p>A 20-tooth helical gear meshes at <b>gear_dist()</b>; the 8-tooth gear picks up <b>profile_shift="auto"</b> so its flanks don't undercut. Both close watertight.</p>
+        <p>A 20-tooth helical gear meshes at <b>GearSpec.gear_dist()</b>; the 8-tooth gear picks up <b>profile_shift="auto"</b> so its flanks don't undercut. Both close watertight.</p>
         <div class="spec-taglabel">variants &middot; click to load</div>
         <div class="spec-tags"><button class="spec-tag" type="button">spur</button> <button class="spec-tag" type="button">profile-shift</button> <button class="spec-tag" type="button">helical</button> <button class="spec-tag" type="button">herringbone</button> <button class="spec-tag" type="button">rack</button> <button class="spec-tag" type="button">ring gear</button> <button class="spec-tag" type="button">bevel</button> <button class="spec-tag" type="button">worm</button></div>
         <div class="spec-stats">

@@ -727,7 +727,7 @@ MODULES = {
             ("undercut spur · z=8", 2300, "11,984.0", "55×55×8"),
         ],
         "note": (
-            "A 20-tooth helical gear meshes at <b>gear_dist()</b>; the 8-tooth gear picks up "
+            "A 20-tooth helical gear meshes at <b>GearSpec.gear_dist()</b>; the 8-tooth gear picks up "
             '<b>profile_shift="auto"</b> so its flanks don\'t undercut. Both close watertight.'
         ),
         "proof": None,
@@ -740,7 +740,7 @@ MODULES = {
             "ring",
             "bevel",
             "worm",
-            "gear_dist()",
+            "GearSpec.gear_dist()",
         ],
     },
     "hinges": {
@@ -1223,7 +1223,10 @@ GALLERY = [
 _HOOK_OCT = "hole=[[10*math.cos(math.radians(22.5+45*k)),10*math.sin(math.radians(22.5+45*k))] for k in range(8)]"
 
 SETUP = {
-    "gears": "from pybosl2.parts.gears import BevelGear, HerringboneGear, Rack, RingGear, SpurGear, Worm, WormGear\n",
+    "gears": (
+        "from pybosl2.parts.gears import BevelGear, GearSpec, HerringboneGear, "
+        "Rack, RingGear, SpurGear, Worm, WormGear\n"
+    ),
     "walls": "from pybosl2.parts.walls import Walls\n",
     "wiring": "from pybosl2.parts.wiring import Wiring\nPATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n",
     "hooks": "import math\nfrom pybosl2.parts.hooks import HoleType, RingHook\n",
