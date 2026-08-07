@@ -6,7 +6,7 @@
 
 # DocCategory: Parts library
 # LibFile: pybosl2/parts/tripod_mounts.py
-# FileSummary: Tripod mount plates: RC2.
+# FileSummary: Manfrotto RC2 tripod quick release mount plate.
 # FileGroup: BOSL2
 
 """Tripod mount plates: RC2."""
@@ -25,19 +25,27 @@ from pybosl2.shapes3d.base import _finish3
 from pybosl2.turtle import TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
-__all__ = ["TripodMounts", "manfrotto_rc2_plate"]
+__all__ = ["ManfrottoRC2Plate", "manfrotto_rc2_plate"]
 
 
-class TripodMounts:
-    """Tripod mount plates: RC2 (BOSL2 tripod_mounts.scad).
+class ManfrottoRC2Plate:
+    """A Manfrotto RC2 tripod quick release mount plate.
 
-    .. seealso::
+    The *chamfer* argument controls edge chamfering: ``"all"`` (default),
+    ``"bot"`` or ``"bottom"`` for bottom-only, or ``"none"``.
 
-       `Visual spec sheet <specs/tripod_mounts.html>`_ — measurements and STL previews
+    Examples:
+        A standard Manfrotto RC2 plate:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate
+            ManfrottoRC2Plate().show()
+
     """
 
-    @staticmethod
-    def manfrotto_rc2_plate(
+    def __init__(
+        self,
         chamfer: str = "all",
         anchor: Anchor | Sequence[float] = Anchor.CENTER,
         spin: float = 0.0,
@@ -45,8 +53,8 @@ class TripodMounts:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Create a Manfrotto RC2 tripod quick release mount plate (BOSL2 manfrotto_rc2_plate()).
+    ) -> None:
+        """Create a Manfrotto RC2 tripod quick release mount plate.
 
         The *chamfer* argument lets you control whether the model edges are chamfered.
         By default all edges are chamfered ("all"), but you can set it to "bot" or "bottom"
@@ -62,15 +70,9 @@ class TripodMounts:
             fa: arc smoothness
             fs: arc smoothness
 
-        Examples:
-            A standard Manfrotto RC2 plate:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.tripod_mounts import TripodMounts
-                TripodMounts.manfrotto_rc2_plate().show()
-
         """
+        self._chamfer = chamfer
+
         if chamfer not in ("bot", "bottom", "all", "none"):
             raise ValueError('chamfer must be "all", "bottom", "bot", or "none"')
 
@@ -210,7 +212,7 @@ class TripodMounts:
         a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
         offset = [-a[0] * botwid / 2, -a[1] * length / 2, -a[2] * thickness / 2]
 
-        return _finish3(
+        self._solid = _finish3(
             body.shape,
             offset,
             spin,
@@ -219,5 +221,18 @@ class TripodMounts:
             anchor=anchor,
         )
 
+    @property
+    def chamfer(self) -> str:
+        """Chamfer mode: "all", "bottom"/"bot", or "none"."""
+        return self._chamfer
 
-manfrotto_rc2_plate = TripodMounts.manfrotto_rc2_plate
+    def shape(self) -> Bosl2Solid:
+        """Return the RC2 plate geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the RC2 plate in the viewer."""
+        self._solid.show()
+
+
+manfrotto_rc2_plate = ManfrottoRC2Plate

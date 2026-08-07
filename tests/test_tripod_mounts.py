@@ -13,7 +13,7 @@ import math
 import pytest
 
 from pybosl2._edges_lang import Anchor
-from pybosl2.parts.tripod_mounts import TripodMounts, manfrotto_rc2_plate
+from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate
 from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -28,7 +28,7 @@ def _center(s: Bosl2Solid) -> list[float]:
 
 
 class TestManfrottoRC2Plate:
-    """Tests for the manfrotto_rc2_plate() static method."""
+    """Tests for the ManfrottoRC2Plate().shape() static method."""
 
     # ── BOSL2 geometry constants (from tripod_mounts.scad) ──────────────
 
@@ -43,13 +43,13 @@ class TestManfrottoRC2Plate:
     @pytest.mark.parametrize("chamfer", ["all", "bot", "bottom", "none"])
     def test_returns_bosl2solid(self, chamfer: str) -> None:
         """Every chamfer mode returns a Bosl2Solid instance."""
-        obj = TripodMounts.manfrotto_rc2_plate(chamfer=chamfer)
+        obj = ManfrottoRC2Plate(chamfer=chamfer).shape()
         assert isinstance(obj, Bosl2Solid)
 
     @pytest.mark.parametrize("chamfer", ["all", "bot", "bottom", "none"])
     def test_module_level_alias_works(self, chamfer: str) -> None:
         """The module-level manfrotto_rc2_plate alias returns a Bosl2Solid."""
-        obj = manfrotto_rc2_plate(chamfer=chamfer)
+        obj = ManfrottoRC2Plate(chamfer=chamfer).shape()
         assert isinstance(obj, Bosl2Solid)
 
     # ── error handling ─────────────────────────────────────────────────
@@ -61,13 +61,13 @@ class TestManfrottoRC2Plate:
     def test_invalid_chamfer_raises_valueerror(self, invalid_chamfer: str) -> None:
         """Invalid chamfer values raise ValueError."""
         with pytest.raises(ValueError, match="chamfer"):
-            TripodMounts.manfrotto_rc2_plate(chamfer=invalid_chamfer)
+            ManfrottoRC2Plate(chamfer=invalid_chamfer).shape()
 
     # ── dimensional validation ─────────────────────────────────────────
 
     def test_bounding_box_dimensions_default(self) -> None:
         """The default plate has expected dimensions (botwid x length x thickness)."""
-        obj = TripodMounts.manfrotto_rc2_plate()
+        obj = ManfrottoRC2Plate().shape()
         size = _size(obj)
         assert size[0] == pytest.approx(self._BOTWID, abs=0.5)
         assert size[1] == pytest.approx(self._LENGTH, abs=0.5)
@@ -75,7 +75,7 @@ class TestManfrottoRC2Plate:
 
     def test_length_gt_innerlen(self) -> None:
         """The outer length exceeds the inner cutout region."""
-        obj = TripodMounts.manfrotto_rc2_plate()
+        obj = ManfrottoRC2Plate().shape()
         size = _size(obj)
         assert size[1] > self._INNERLEN
 
@@ -86,14 +86,14 @@ class TestManfrottoRC2Plate:
     @pytest.mark.parametrize("chamfer", ["all", "bot", "none"])
     def test_thickness_consistent_across_modes(self, chamfer: str) -> None:
         """Thickness is always 10.5 mm regardless of chamfer mode."""
-        obj = TripodMounts.manfrotto_rc2_plate(chamfer=chamfer)
+        obj = ManfrottoRC2Plate(chamfer=chamfer).shape()
         size = _size(obj)
         assert size[2] == pytest.approx(self._THICKNESS, abs=0.5)
 
     @pytest.mark.parametrize("chamfer", ["all", "bot", "none"])
     def test_width_and_length_consistent_across_modes(self, chamfer: str) -> None:
         """Width and length vary minimally across chamfer modes."""
-        obj = TripodMounts.manfrotto_rc2_plate(chamfer=chamfer)
+        obj = ManfrottoRC2Plate(chamfer=chamfer).shape()
         size = _size(obj)
         assert size[0] == pytest.approx(self._BOTWID, abs=1.0)
         assert size[1] == pytest.approx(self._LENGTH, abs=1.0)
@@ -114,7 +114,7 @@ class TestManfrottoRC2Plate:
     def test_chamfer_modes_all_produce_valid_solids(self) -> None:
         """All chamfer modes produce a valid Bosl2Solid without errors."""
         for chamfer in ("all", "bot", "bottom", "none"):
-            obj = TripodMounts.manfrotto_rc2_plate(chamfer=chamfer)
+            obj = ManfrottoRC2Plate(chamfer=chamfer).shape()
             assert isinstance(obj, Bosl2Solid)
             size = _size(obj)
             assert all(s > 0 for s in size), f"chamfer={chamfer}: all dimensions should be positive"
@@ -123,7 +123,7 @@ class TestManfrottoRC2Plate:
 
     def test_default_anchor_produces_positive_dimensions(self) -> None:
         """Default anchor=CENTER produces a plate with the expected dimensions."""
-        obj = TripodMounts.manfrotto_rc2_plate()
+        obj = ManfrottoRC2Plate().shape()
         size = _size(obj)
         assert size[0] == pytest.approx(self._BOTWID, abs=0.5)
         assert size[1] == pytest.approx(self._LENGTH, abs=0.5)
@@ -131,8 +131,8 @@ class TestManfrottoRC2Plate:
 
     def test_different_anchors_produce_different_centers(self) -> None:
         """Different anchors produce measurably different center positions."""
-        obj_center = TripodMounts.manfrotto_rc2_plate(anchor=Anchor.CENTER)
-        obj_right = TripodMounts.manfrotto_rc2_plate(anchor=Anchor.RIGHT)
+        obj_center = ManfrottoRC2Plate(anchor=Anchor.CENTER).shape()
+        obj_right = ManfrottoRC2Plate(anchor=Anchor.RIGHT).shape()
         c_center = _center(obj_center)
         c_right = _center(obj_right)
         assert any(not math.isclose(a, b, abs_tol=1e-6) for a, b in zip(c_center, c_right, strict=True)), (
@@ -143,8 +143,8 @@ class TestManfrottoRC2Plate:
 
     def test_spin_90_swaps_axes(self) -> None:
         """A 90-degree spin swaps the X and Y dimensions."""
-        obj0 = TripodMounts.manfrotto_rc2_plate(spin=0)
-        obj90 = TripodMounts.manfrotto_rc2_plate(spin=90)
+        obj0 = ManfrottoRC2Plate(spin=0).shape()
+        obj90 = ManfrottoRC2Plate(spin=90).shape()
         size0 = _size(obj0)
         size90 = _size(obj90)
         assert size0[0] == pytest.approx(size90[1], abs=1.0)
@@ -152,8 +152,8 @@ class TestManfrottoRC2Plate:
 
     def test_spin_180_preserves_xy_dimensions(self) -> None:
         """A 180-degree spin preserves the X and Y dimensions."""
-        obj0 = TripodMounts.manfrotto_rc2_plate(spin=0)
-        obj180 = TripodMounts.manfrotto_rc2_plate(spin=180)
+        obj0 = ManfrottoRC2Plate(spin=0).shape()
+        obj180 = ManfrottoRC2Plate(spin=180).shape()
         size0 = _size(obj0)
         size180 = _size(obj180)
         assert size0[0] == pytest.approx(size180[0], abs=1.0)
@@ -163,7 +163,7 @@ class TestManfrottoRC2Plate:
 
     def test_default_orient_is_top(self) -> None:
         """Default orient=TOP places the plate flat (thickness along Z)."""
-        obj = TripodMounts.manfrotto_rc2_plate()
+        obj = ManfrottoRC2Plate().shape()
         size = _size(obj)
         # The thickness (Z) should be 10.5; the X/Y should be botwid/length
         assert size[2] == pytest.approx(self._THICKNESS, abs=0.5)
@@ -173,7 +173,7 @@ class TestManfrottoRC2Plate:
 
     def test_orient_front_rotates_thickness_into_y(self) -> None:
         """orient=FRONT rotates the plate so thickness is along Y."""
-        obj = TripodMounts.manfrotto_rc2_plate(orient=Anchor.FRONT)
+        obj = ManfrottoRC2Plate(orient=Anchor.FRONT).shape()
         size = _size(obj)
         # After orienting to FRONT, thickness should appear in one of the axes
         thickness_values = [s for s in size if s == pytest.approx(self._THICKNESS, abs=1.0)]
@@ -183,35 +183,35 @@ class TestManfrottoRC2Plate:
 
     def test_fn_parameter_accepted(self) -> None:
         """fn parameter is accepted and produces valid geometry."""
-        obj = TripodMounts.manfrotto_rc2_plate(fn=32)
+        obj = ManfrottoRC2Plate(fn=32).shape()
         assert isinstance(obj, Bosl2Solid)
 
     def test_fa_parameter_accepted(self) -> None:
         """fa parameter is accepted and produces valid geometry."""
-        obj = TripodMounts.manfrotto_rc2_plate(fa=5.0)
+        obj = ManfrottoRC2Plate(fa=5.0).shape()
         assert isinstance(obj, Bosl2Solid)
 
     def test_fs_parameter_accepted(self) -> None:
         """fs parameter is accepted and produces valid geometry."""
-        obj = TripodMounts.manfrotto_rc2_plate(fs=1.0)
+        obj = ManfrottoRC2Plate(fs=1.0).shape()
         assert isinstance(obj, Bosl2Solid)
 
     def test_fn_fa_fs_combined_accepted(self) -> None:
         """All smoothness parameters combined produce valid geometry."""
-        obj = TripodMounts.manfrotto_rc2_plate(fn=32, fa=5.0, fs=1.0)
+        obj = ManfrottoRC2Plate(fn=32, fa=5.0, fs=1.0).shape()
         assert isinstance(obj, Bosl2Solid)
 
     # ── numeric anchor parameter ───────────────────────────────────────
 
     def test_numeric_vector_anchor_accepted(self) -> None:
         """A numeric [x, y, z] anchor is accepted."""
-        obj = TripodMounts.manfrotto_rc2_plate(anchor=[1.0, 0.0, 0.0])
+        obj = ManfrottoRC2Plate(anchor=[1.0, 0.0, 0.0]).shape()
         assert isinstance(obj, Bosl2Solid)
 
     def test_numeric_anchor_moves_center(self) -> None:
         """A numeric anchor off center shifts the object's center."""
-        obj_center = TripodMounts.manfrotto_rc2_plate(anchor=[0.0, 0.0, 0.0])
-        obj_right = TripodMounts.manfrotto_rc2_plate(anchor=[1.0, 0.0, 0.0])
+        obj_center = ManfrottoRC2Plate(anchor=[0.0, 0.0, 0.0]).shape()
+        obj_right = ManfrottoRC2Plate(anchor=[1.0, 0.0, 0.0]).shape()
         c_center = _center(obj_center)
         c_right = _center(obj_right)
         # Anchor [1,0,0] means right face at origin => center moves left
@@ -221,14 +221,14 @@ class TestManfrottoRC2Plate:
 
     def test_numeric_vector_orient_accepted(self) -> None:
         """A numeric [x, y, z] vector orient is accepted."""
-        obj = TripodMounts.manfrotto_rc2_plate(orient=[0.0, 1.0, 0.0])
+        obj = ManfrottoRC2Plate(orient=[0.0, 1.0, 0.0]).shape()
         assert isinstance(obj, Bosl2Solid)
 
     # ── zero rotation identity ─────────────────────────────────────────
 
     def test_spin_zero_preserves_volume_sign(self) -> None:
         """Zero spin with default parameters produces a valid solid."""
-        obj = TripodMounts.manfrotto_rc2_plate(spin=0.0)
+        obj = ManfrottoRC2Plate(spin=0.0).shape()
         size = _size(obj)
         assert all(s > 0 for s in size), "All dimensions should be positive"
 
@@ -238,9 +238,9 @@ class TestTripodMountsModuleAlias:
 
     @pytest.mark.parametrize("chamfer", ["all", "bot", "none"])
     def test_alias_produces_same_dimensions_as_class_method(self, chamfer: str) -> None:
-        """manfrotto_rc2_plate() and TripodMounts.manfrotto_rc2_plate() produce identical dimensions."""
-        obj_cls = TripodMounts.manfrotto_rc2_plate(chamfer=chamfer)
-        obj_fn = manfrotto_rc2_plate(chamfer=chamfer)
+        """ManfrottoRC2Plate().shape() and ManfrottoRC2Plate().shape() produce identical dimensions."""
+        obj_cls = ManfrottoRC2Plate(chamfer=chamfer).shape()
+        obj_fn = ManfrottoRC2Plate(chamfer=chamfer).shape()
         size_cls = _size(obj_cls)
         size_fn = _size(obj_fn)
         for a, b in zip(size_cls, size_fn, strict=True):
@@ -254,8 +254,8 @@ class TestTripodMountsEdgeCases:
 
     def test_multiple_plates_independent(self) -> None:
         """Generating multiple plates does not share state."""
-        obj1 = TripodMounts.manfrotto_rc2_plate()
-        obj2 = TripodMounts.manfrotto_rc2_plate(chamfer="none")
+        obj1 = ManfrottoRC2Plate().shape()
+        obj2 = ManfrottoRC2Plate(chamfer="none").shape()
         assert isinstance(obj1, Bosl2Solid)
         assert isinstance(obj2, Bosl2Solid)
         assert obj1 is not obj2, "Each call should return a new instance"

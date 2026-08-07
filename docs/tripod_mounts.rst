@@ -10,10 +10,10 @@ Tripod mounts
 
 
 Pure-Python port of BOSL2's ``tripod_mounts.scad``: a
-:meth:`~pybosl2.parts.tripod_mounts.TripodMounts.manfrotto_rc2_plate` — the
+:class:`~pybosl2.parts.tripod_mounts.ManfrottoRC2Plate` — the
 standard Manfrotto RC2 quick-release tripod mount plate.
 
-.. autoclass:: pybosl2.parts.tripod_mounts.TripodMounts
+.. autoclass:: pybosl2.parts.tripod_mounts.ManfrottoRC2Plate
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -30,12 +30,12 @@ A standard Manfrotto RC2 plate with full chamfering:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.tripod_mounts import TripodMounts
-   TripodMounts.manfrotto_rc2_plate().show()
+   from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate
+   ManfrottoRC2Plate().shape()
 
 A plate with bottom-only chamfering:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.tripod_mounts import TripodMounts
-   TripodMounts.manfrotto_rc2_plate(chamfer="bot").show()
+   from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate
+   ManfrottoRC2Plate(chamfer="bot").shape()

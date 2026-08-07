@@ -48,8 +48,16 @@ from pybosl2.parts.screw_drive import ScrewDrive
 from pybosl2.parts.screws import Nut, Screw, ScrewHole, ScrewSpec
 from pybosl2.parts.sliders import Sliders
 from pybosl2.parts.threading import ThreadedNut, ThreadedRod, ThreadHelix, ThreadProfile
-from pybosl2.parts.tripod_mounts import TripodMounts, manfrotto_rc2_plate
-from pybosl2.parts.walls import Walls
+from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate, manfrotto_rc2_plate
+from pybosl2.parts.walls import (
+    CorrugatedWall,
+    NarrowingStrut,
+    SparseAxis,
+    SparseCuboid,
+    SparseWall,
+    ThinningTriangle,
+    ThinningWall,
+)
 from pybosl2.parts.wiring import WireBundle, hex_offsets
 
 __all__ = [
@@ -116,9 +124,15 @@ __all__ = [
     "ThreadHelix",
     "ThreadPitchClass",
     "ThreadProfile",
-    "TripodMounts",
+    "CorrugatedWall",
+    "NarrowingStrut",
+    "SparseAxis",
+    "SparseCuboid",
+    "SparseWall",
+    "ThinningTriangle",
+    "ThinningWall",
+    "ManfrottoRC2Plate",
     "manfrotto_rc2_plate",
-    "Walls",
     "WireBundle",
     "hex_offsets",
 ]
