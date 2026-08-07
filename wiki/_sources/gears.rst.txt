@@ -59,13 +59,13 @@ on :class:`GearSpec` (:meth:`GearSpec.auto_profile_shift`,
 
 .. automethod:: pybosl2.parts.gears.GearSpec.pitch_value
 
-.. automethod:: pybosl2.parts.gears.GearSpec.pitch_radius
+.. autoattribute:: pybosl2.parts.gears.GearSpec.pitch_radius
 
-.. automethod:: pybosl2.parts.gears.GearSpec.outer_radius
+.. autoattribute:: pybosl2.parts.gears.GearSpec.outer_radius
 
-.. automethod:: pybosl2.parts.gears.GearSpec.root_radius
+.. autoattribute:: pybosl2.parts.gears.GearSpec.root_radius
 
-.. automethod:: pybosl2.parts.gears.GearSpec.base_radius
+.. autoattribute:: pybosl2.parts.gears.GearSpec.base_radius
 
 .. automethod:: pybosl2.parts.gears.GearSpec.auto_profile_shift
 
