@@ -37,7 +37,7 @@ from pybosl2.enums import VNFStyle
 from pybosl2.parts.enums import NutShape
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
-__all__ = ["Threading", "ThreadProfile"]
+__all__ = ["ThreadedRod", "ThreadedNut", "ThreadHelix", "ThreadProfile"]
 
 
 # ---------------------------------------------------------------------------
@@ -257,28 +257,29 @@ def _nut_solid(
 
 
 # ---------------------------------------------------------------------------
-# Section: Threading class
+# Section: Threading classes
 # ---------------------------------------------------------------------------
 
 
-class Threading:
-    """Screw-thread generators (BOSL2 threading.scad). Every method returns a.
+class ThreadedRod:
+    """A threaded rod built from an explicit 2-D thread profile.
 
-    :class:`~pybosl2.shapes3d.Bosl2Solid`; call them on the class, e.g. ``Threading.threaded_rod(...)``.
+    *profile* is a :class:`ThreadProfile` or a plain point list in pitch units
+    (x in [-1/2, 1/2], y the depth fraction). *starts* is the number of thread
+    starts and *left_handed* flips the helix.
 
-    A *rod* is a threaded cylinder; a *nut* is a hex/square block with a matching threaded hole
-    (cut by a thread 'tap', with *slop* clearance). *pitch* is the axial distance between threads,
-    *starts* the number of thread starts, and *left_handed* flips the helix.
+    Examples:
+        An M20×2.5 ISO threaded rod, 30 mm long:
 
-    .. seealso::
+        .. pythonscad-example::
 
-       `Visual spec sheet <specs/threading.html>`_ — measurements and STL previews
+            from pybosl2.parts.threading import ThreadedRod, iso_threaded_rod
+            iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).show()
+
     """
 
-    # -- generic ---------------------------------------------------------------------------
-
-    @staticmethod
-    def generic_threaded_rod(
+    def __init__(
+        self,
         d: float,
         l: float,  # noqa: E741
         pitch: float,
@@ -288,18 +289,84 @@ class Threading:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a threaded rod from an explicit 2-D thread *profile* (x in [-1/2, 1/2], y the depth.
+    ) -> None:
+        """Create a threaded rod from *profile* (a :class:`ThreadProfile` or point list)."""
+        assert pitch > 0, "ThreadedRod: d, l and pitch must be positive."
+        assert l > 0, "ThreadedRod: d, l and pitch must be positive."
+        assert d > 0, "ThreadedRod: d, l and pitch must be positive."
+        self._d: float = d
+        self._l: float = l
+        self._pitch: float = pitch
+        self._profile: list[list[float]] | ThreadProfile = profile
+        self._starts: int = starts
+        self._left_handed: bool = left_handed
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
 
-        fraction, both in pitch units) -- the core every other rod builds on (BOSL2 generic_threaded_rod()).
-        """
-        assert pitch > 0, "generic_threaded_rod(): d, l and pitch must be positive."
-        assert l > 0, "generic_threaded_rod(): d, l and pitch must be positive."
-        assert d > 0, "generic_threaded_rod(): d, l and pitch must be positive."
-        return _rod_solid(d, l, pitch, profile, starts, left_handed, fn, fa, fs)
+    @property
+    def diameter(self) -> float:
+        """Nominal outer diameter in mm."""
+        return self._d
 
-    @staticmethod
-    def generic_threaded_nut(
+    @property
+    def length(self) -> float:
+        """Length in mm."""
+        return self._l
+
+    @property
+    def pitch(self) -> float:
+        """Thread pitch in mm."""
+        return self._pitch
+
+    @property
+    def starts(self) -> int:
+        """Number of thread starts."""
+        return self._starts
+
+    @property
+    def left_handed(self) -> bool:
+        """True for left-handed threads."""
+        return self._left_handed
+
+    def shape(self) -> Bosl2Solid:
+        """Build and return the threaded rod geometry (cached)."""
+        if self._solid is not None:
+            return self._solid
+        self._solid = _rod_solid(
+            self._d,
+            self._l,
+            self._pitch,
+            self._profile,
+            self._starts,
+            self._left_handed,
+            self._fn,
+            self._fa,
+            self._fs,
+        )
+        return self._solid
+
+    def show(self) -> None:
+        """Display the threaded rod in the viewer."""
+        self.shape().show()
+
+
+class ThreadedNut:
+    """A nut: a hex or square body with a threaded hole cut by a matching thread tap.
+
+    Examples:
+        An M8 nut for an M8×1.25 rod:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.threading import ThreadedNut, iso_threaded_nut
+            iso_threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).show()
+
+    """
+
+    def __init__(
+        self,
         nutwidth: float,
         id: float,  # noqa: A002
         h: float,
@@ -312,313 +379,92 @@ class Threading:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a nut from an explicit thread *profile* (BOSL2 generic_threaded_nut())."""
-        return _nut_solid(
-            nutwidth,
-            id,
-            h,
-            pitch,
-            profile,
-            shape,
-            starts,
-            left_handed,
-            slop,
-            fn,
-            fa,
-            fs,
+    ) -> None:
+        """Create a threaded nut from *profile* (a :class:`ThreadProfile` or point list)."""
+        self._nutwidth: float = nutwidth
+        self._id: float = id
+        self._h: float = h
+        self._pitch: float = pitch
+        self._profile: list[list[float]] | ThreadProfile = profile
+        self._shape: NutShape = shape
+        self._starts: int = starts
+        self._left_handed: bool = left_handed
+        self._slop: float = slop
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
+
+    @property
+    def nutwidth(self) -> float:
+        """Across-flats width in mm."""
+        return self._nutwidth
+
+    @property
+    def inner_diameter(self) -> float:
+        """Inner (threaded) diameter in mm."""
+        return self._id
+
+    @property
+    def height(self) -> float:
+        """Nut thickness in mm."""
+        return self._h
+
+    @property
+    def pitch(self) -> float:
+        """Thread pitch in mm."""
+        return self._pitch
+
+    @property
+    def nut_shape(self) -> NutShape:
+        """Nut outer shape."""
+        return self._shape
+
+    @property
+    def starts(self) -> int:
+        """Number of thread starts."""
+        return self._starts
+
+    @property
+    def left_handed(self) -> bool:
+        """True for left-handed threads."""
+        return self._left_handed
+
+    def shape(self) -> Bosl2Solid:
+        """Build and return the nut geometry (cached)."""
+        if self._solid is not None:
+            return self._solid
+        self._solid = _nut_solid(
+            self._nutwidth,
+            self._id,
+            self._h,
+            self._pitch,
+            self._profile,
+            self._shape,
+            self._starts,
+            self._left_handed,
+            self._slop,
+            self._fn,
+            self._fa,
+            self._fs,
         )
+        return self._solid
 
-    # -- ISO / UTS -------------------------------------------------------------------------
+    def show(self) -> None:
+        """Display the nut in the viewer."""
+        self.shape().show()
 
-    @staticmethod
-    def threaded_rod(
-        d: float,
-        l: float,  # noqa: E741
-        pitch: float,
-        starts: int = 1,
-        left_handed: bool = False,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return an ISO (metric) / UTS (imperial) 60-degree triangular threaded rod (BOSL2.
 
-        threaded_rod()).
+class ThreadHelix:
+    """A single helical thread ridge, for adding threads onto your own cylinder.
 
-        Examples:
-            An M20×2.5 threaded rod, 30 mm long:
+    The thread crest is at diameter *d*; give *thread_depth* and *flank_angle*,
+    or an explicit *profile*. Built entirely through spiral_sweep (VNF output),
+    so it does not accept fn/fa/fs smoothing parameters.
+    """
 
-            .. pythonscad-example::
-
-                from pybosl2.parts.threading import Threading
-                Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).show()
-
-        """
-        return _rod_solid(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
-
-    @staticmethod
-    def threaded_nut(
-        nutwidth: float,
-        id: float,  # noqa: A002
-        h: float,
-        pitch: float,
-        shape: NutShape = NutShape.HEX,
-        starts: int = 1,
-        left_handed: bool = False,
-        slop: float = 0.0,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a hex/square nut for an ISO/UTS threaded rod (BOSL2 threaded_nut()).
-
-        Examples:
-            An M8 nut for an M8×1.25 rod:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.threading import Threading
-                Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).show()
-
-        """
-        return _nut_solid(
-            nutwidth,
-            id,
-            h,
-            pitch,
-            _iso_profile(),
-            shape,
-            starts,
-            left_handed,
-            slop,
-            fn,
-            fa,
-            fs,
-        )
-
-    # -- trapezoidal / metric trapezoidal --------------------------------------------------
-
-    @staticmethod
-    def trapezoidal_threaded_rod(
-        d: float,
-        l: float,  # noqa: E741
-        pitch: float,
-        thread_angle: float = 30,
-        thread_depth: float | None = None,
-        starts: int = 1,
-        left_handed: bool = False,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a symmetric trapezoidal threaded rod (metric trapezoidal by default) (BOSL2.
-
-        trapezoidal_threaded_rod()).
-
-        Examples:
-            A Tr20×4 trapezoidal leadscrew, 40 mm long:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.threading import Threading
-                Threading.trapezoidal_threaded_rod(d=20, l=40, pitch=4, fa=6, fs=1).show()
-
-        """
-        prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
-        return _rod_solid(d, l, pitch, prof, starts, left_handed, fn, fa, fs)
-
-    @staticmethod
-    def trapezoidal_threaded_nut(
-        nutwidth: float,
-        id: float,  # noqa: A002
-        h: float,
-        pitch: float,
-        thread_angle: float = 30,
-        thread_depth: float | None = None,
-        shape: NutShape = NutShape.HEX,
-        starts: int = 1,
-        left_handed: bool = False,
-        slop: float = 0.0,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a nut for a trapezoidal threaded rod (BOSL2 trapezoidal_threaded_nut())."""
-        prof = _trapezoidal_profile(pitch, thread_angle, thread_depth)
-        return _nut_solid(
-            nutwidth,
-            id,
-            h,
-            pitch,
-            prof,
-            shape,
-            starts,
-            left_handed,
-            slop,
-            fn,
-            fa,
-            fs,
-        )
-
-    # -- ACME ------------------------------------------------------------------------------
-
-    @staticmethod
-    def acme_threaded_rod(
-        d: float,
-        l: float,  # noqa: E741
-        pitch: float,
-        thread_depth: float | None = None,
-        starts: int = 1,
-        left_handed: bool = False,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a 29-degree ACME threaded rod (BOSL2 acme_threaded_rod()).
-
-        Examples:
-            An ACME ½"-10 leadscrew, 30 mm long:
-
-            .. pythonscad-example::
-
-                from pybosl2.parts.threading import Threading
-                Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).show()
-
-        """
-        prof = _trapezoidal_profile(pitch, 29, thread_depth if thread_depth is not None else pitch / 2)
-        return _rod_solid(d, l, pitch, prof, starts, left_handed, fn, fa, fs)
-
-    @staticmethod
-    def acme_threaded_nut(
-        nutwidth: float,
-        id: float,  # noqa: A002
-        h: float,
-        pitch: float,
-        thread_depth: float | None = None,
-        shape: NutShape = NutShape.HEX,
-        starts: int = 1,
-        left_handed: bool = False,
-        slop: float = 0.0,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a nut for an ACME threaded rod (BOSL2 acme_threaded_nut())."""
-        prof = _trapezoidal_profile(pitch, 29, thread_depth if thread_depth is not None else pitch / 2)
-        return _nut_solid(
-            nutwidth,
-            id,
-            h,
-            pitch,
-            prof,
-            shape,
-            starts,
-            left_handed,
-            slop,
-            fn,
-            fa,
-            fs,
-        )
-
-    # -- square ----------------------------------------------------------------------------
-
-    @staticmethod
-    def square_threaded_rod(
-        d: float,
-        l: float,  # noqa: E741
-        pitch: float,
-        starts: int = 1,
-        left_handed: bool = False,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a square-profile threaded rod (BOSL2 square_threaded_rod())."""
-        prof = _trapezoidal_profile(pitch, 0.1)
-        return _rod_solid(d, l, pitch, prof, starts, left_handed, fn, fa, fs)
-
-    @staticmethod
-    def square_threaded_nut(
-        nutwidth: float,
-        id: float,  # noqa: A002
-        h: float,
-        pitch: float,
-        shape: NutShape = NutShape.HEX,
-        starts: int = 1,
-        left_handed: bool = False,
-        slop: float = 0.0,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a nut for a square threaded rod (BOSL2 square_threaded_nut())."""
-        prof = _trapezoidal_profile(pitch, 0.1)
-        return _nut_solid(
-            nutwidth,
-            id,
-            h,
-            pitch,
-            prof,
-            shape,
-            starts,
-            left_handed,
-            slop,
-            fn,
-            fa,
-            fs,
-        )
-
-    # -- buttress --------------------------------------------------------------------------
-
-    @staticmethod
-    def buttress_threaded_rod(
-        d: float,
-        l: float,  # noqa: E741
-        pitch: float,
-        starts: int = 1,
-        left_handed: bool = False,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return an asymmetric buttress threaded rod (BOSL2 buttress_threaded_rod())."""
-        return _rod_solid(d, l, pitch, _buttress_profile(), starts, left_handed, fn, fa, fs)
-
-    @staticmethod
-    def buttress_threaded_nut(
-        nutwidth: float,
-        id: float,  # noqa: A002
-        h: float,
-        pitch: float,
-        shape: NutShape = NutShape.HEX,
-        starts: int = 1,
-        left_handed: bool = False,
-        slop: float = 0.0,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a nut for a buttress threaded rod (BOSL2 buttress_threaded_nut())."""
-        return _nut_solid(
-            nutwidth,
-            id,
-            h,
-            pitch,
-            _buttress_profile(),
-            shape,
-            starts,
-            left_handed,
-            slop,
-            fn,
-            fa,
-            fs,
-        )
-
-    # -- single thread helix ---------------------------------------------------------------
-
-    @staticmethod
-    def thread_helix(
+    def __init__(
+        self,
         d: float,
         pitch: float,
         thread_depth: float | None = None,
@@ -627,21 +473,18 @@ class Threading:
         starts: int = 1,
         left_handed: bool = False,
         profile: list[list[float]] | ThreadProfile | None = None,
-    ) -> Bosl2Solid:
-        """Return a single helical thread ridge (no core), for adding threads onto your own cylinder.
-
-        (BOSL2 thread_helix()). The thread crest is at diameter *d*; give *thread_depth* and
-        *flank_angle*, or an explicit *profile*.
-
-        .. note::
-            This function does not accept ``fn``/``fa``/``fs`` — it builds its geometry
-            entirely through :func:`~pybosl2.skin.spiral_sweep` (VNF / polyhedron output),
-            which has no arc-based primitives and therefore no smoothing resolution to control.
-        """
+    ) -> None:
+        """Create a single thread helix ridge for adding threads to your own cylinder."""
         from pybosl2.path2d import Path2D
 
-        assert pitch > 0, "thread_helix(): d and pitch must be positive."
-        assert d > 0, "thread_helix(): d and pitch must be positive."
+        assert pitch > 0, "ThreadHelix: d and pitch must be positive."
+        assert d > 0, "ThreadHelix: d and pitch must be positive."
+        self._d: float = d
+        self._pitch: float = pitch
+        self._turns: float = turns
+        self._starts: int = starts
+        self._left_handed: bool = left_handed
+
         if profile is None:
             depth = thread_depth if thread_depth is not None else pitch / 2
             profile = _trapezoidal_profile(pitch, 2 * flank_angle, depth)
@@ -669,4 +512,288 @@ class Threading:
                 piece = piece.rotate([0, 0, k * 360 / starts])
             thread = piece if thread is None else (thread | piece)
         assert thread is not None
-        return thread
+        self._solid: Bosl2Solid = thread
+
+    @property
+    def diameter(self) -> float:
+        """Crest diameter in mm."""
+        return self._d
+
+    @property
+    def pitch(self) -> float:
+        """Thread pitch in mm."""
+        return self._pitch
+
+    @property
+    def turns(self) -> float:
+        """Number of turns."""
+        return self._turns
+
+    @property
+    def starts(self) -> int:
+        """Number of thread starts."""
+        return self._starts
+
+    @property
+    def left_handed(self) -> bool:
+        """True for left-handed threads."""
+        return self._left_handed
+
+    def shape(self) -> Bosl2Solid:
+        """Return the helix geometry."""
+        return self._solid
+
+    def show(self) -> None:
+        """Display the helix in the viewer."""
+        self._solid.show()
+
+
+# -- convenience constructors for standard thread profiles --------------------
+
+
+def iso_threaded_rod(
+    d: float,
+    l: float,  # noqa: E741
+    pitch: float,
+    starts: int = 1,
+    left_handed: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedRod:
+    """Return an ISO (metric) / UTS (imperial) 60-degree triangular threaded rod."""
+    return ThreadedRod(d, l, pitch, _iso_profile(), starts, left_handed, fn, fa, fs)
+
+
+def iso_threaded_nut(
+    nutwidth: float,
+    id: float,  # noqa: A002
+    h: float,
+    pitch: float,
+    shape: NutShape = NutShape.HEX,
+    starts: int = 1,
+    left_handed: bool = False,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedNut:
+    """Return a hex/square nut for an ISO/UTS threaded rod."""
+    return ThreadedNut(
+        nutwidth,
+        id,
+        h,
+        pitch,
+        _iso_profile(),
+        shape,
+        starts,
+        left_handed,
+        slop,
+        fn,
+        fa,
+        fs,
+    )
+
+
+def trapezoidal_threaded_rod(
+    d: float,
+    l: float,  # noqa: E741
+    pitch: float,
+    thread_angle: float = 30,
+    thread_depth: float | None = None,
+    starts: int = 1,
+    left_handed: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedRod:
+    """Return a symmetric trapezoidal (metric trapezoidal by default) threaded rod."""
+    return ThreadedRod(
+        d,
+        l,
+        pitch,
+        _trapezoidal_profile(pitch, thread_angle, thread_depth),
+        starts,
+        left_handed,
+        fn,
+        fa,
+        fs,
+    )
+
+
+def trapezoidal_threaded_nut(
+    nutwidth: float,
+    id: float,  # noqa: A002
+    h: float,
+    pitch: float,
+    thread_angle: float = 30,
+    thread_depth: float | None = None,
+    shape: NutShape = NutShape.HEX,
+    starts: int = 1,
+    left_handed: bool = False,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedNut:
+    """Return a nut for a trapezoidal threaded rod."""
+    return ThreadedNut(
+        nutwidth,
+        id,
+        h,
+        pitch,
+        _trapezoidal_profile(pitch, thread_angle, thread_depth),
+        shape,
+        starts,
+        left_handed,
+        slop,
+        fn,
+        fa,
+        fs,
+    )
+
+
+def acme_threaded_rod(
+    d: float,
+    l: float,  # noqa: E741
+    pitch: float,
+    thread_depth: float | None = None,
+    starts: int = 1,
+    left_handed: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedRod:
+    """Return a 29-degree ACME threaded rod."""
+    depth = thread_depth if thread_depth is not None else pitch / 2
+    return ThreadedRod(
+        d,
+        l,
+        pitch,
+        _trapezoidal_profile(pitch, 29, depth),
+        starts,
+        left_handed,
+        fn,
+        fa,
+        fs,
+    )
+
+
+def acme_threaded_nut(
+    nutwidth: float,
+    id: float,  # noqa: A002
+    h: float,
+    pitch: float,
+    thread_depth: float | None = None,
+    shape: NutShape = NutShape.HEX,
+    starts: int = 1,
+    left_handed: bool = False,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedNut:
+    """Return a nut for an ACME threaded rod."""
+    depth = thread_depth if thread_depth is not None else pitch / 2
+    return ThreadedNut(
+        nutwidth,
+        id,
+        h,
+        pitch,
+        _trapezoidal_profile(pitch, 29, depth),
+        shape,
+        starts,
+        left_handed,
+        slop,
+        fn,
+        fa,
+        fs,
+    )
+
+
+def square_threaded_rod(
+    d: float,
+    l: float,  # noqa: E741
+    pitch: float,
+    starts: int = 1,
+    left_handed: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedRod:
+    """Return a square-profile threaded rod."""
+    return ThreadedRod(d, l, pitch, _trapezoidal_profile(pitch, 0.1), starts, left_handed, fn, fa, fs)
+
+
+def square_threaded_nut(
+    nutwidth: float,
+    id: float,  # noqa: A002
+    h: float,
+    pitch: float,
+    shape: NutShape = NutShape.HEX,
+    starts: int = 1,
+    left_handed: bool = False,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedNut:
+    """Return a nut for a square threaded rod."""
+    return ThreadedNut(
+        nutwidth,
+        id,
+        h,
+        pitch,
+        _trapezoidal_profile(pitch, 0.1),
+        shape,
+        starts,
+        left_handed,
+        slop,
+        fn,
+        fa,
+        fs,
+    )
+
+
+def buttress_threaded_rod(
+    d: float,
+    l: float,  # noqa: E741
+    pitch: float,
+    starts: int = 1,
+    left_handed: bool = False,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedRod:
+    """Return an asymmetric buttress threaded rod."""
+    return ThreadedRod(d, l, pitch, _buttress_profile(), starts, left_handed, fn, fa, fs)
+
+
+def buttress_threaded_nut(
+    nutwidth: float,
+    id: float,  # noqa: A002
+    h: float,
+    pitch: float,
+    shape: NutShape = NutShape.HEX,
+    starts: int = 1,
+    left_handed: bool = False,
+    slop: float = 0.0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> ThreadedNut:
+    """Return a nut for a buttress threaded rod."""
+    return ThreadedNut(
+        nutwidth,
+        id,
+        h,
+        pitch,
+        _buttress_profile(),
+        shape,
+        starts,
+        left_handed,
+        slop,
+        fn,
+        fa,
+        fs,
+    )

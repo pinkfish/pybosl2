@@ -1030,7 +1030,7 @@ MODULES = {
             "for both rods and nuts, with multi-start and left-handed options."
         ),
         "part": "threaded_rod(d=20, l=30, pitch=2.5)",
-        "code": 'Threading.<span class="k">threaded_rod</span>(d=20, l=30, pitch=2.5)',
+        "code": '<span class="k">iso_threaded_rod</span>(d=20, l=30, pitch=2.5).shape()',
         "metrics": [
             ("ISO · z=20", 4500, "9,424.8", "20×20×30"),
             ("ACME · z=20", 3200, "8,100.0", "20×20×30"),
@@ -1235,7 +1235,11 @@ SETUP = {
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
     "modular_hose": "from pybosl2.parts.modular_hose import ModularHose\n",
     "nema_steppers": "from pybosl2.parts.nema_steppers import NemaSteppers\n",
-    "threading": "from pybosl2.parts.threading import Threading\n",
+    "threading": (
+        "from pybosl2.parts.threading import ThreadedRod, ThreadedNut, ThreadHelix, "
+        "iso_threaded_rod, iso_threaded_nut, trapezoidal_threaded_rod, acme_threaded_rod, "
+        "square_threaded_rod, buttress_threaded_rod\n"
+    ),
     "screw_drive": "from pybosl2.parts.screw_drive import ScrewDrive\n",
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
     "sliders": "from pybosl2.parts.sliders import Sliders\n",
@@ -1389,17 +1393,17 @@ VARIANTS = {
         ("mask", "mount mask", "NemaSteppers.nema_mount_mask(17)"),
     ],
     "threading": [
-        ("iso-rod", "ISO rod", "Threading.threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1)"),
-        ("iso-nut", "ISO nut", "Threading.threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25)"),
+        ("iso-rod", "ISO rod", "iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()"),
+        ("iso-nut", "ISO nut", "iso_threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).shape()"),
         (
             "trapezoidal",
             "trapezoidal rod",
-            "Threading.trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1)",
+            "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1).shape()",
         ),
         (
             "acme",
             "ACME rod",
-            "Threading.acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1)",
+            "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).shape()",
         ),
     ],
     "screw_drive": [

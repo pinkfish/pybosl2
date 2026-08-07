@@ -25,7 +25,7 @@ and a matching **cap**, for the two common beverage-bottle standards::
 
 The neck outline (inner bore, support ring, tamper-ring channel and sealing lip) is a
 :func:`~pybosl2.turtle.turtle2d` path revolved with ``rotate_extrude``, exactly as BOSL2 builds it; the
-thread is :meth:`~pybosl2.parts.threading.Threading.thread_helix` with the two thread breaks cut by the same
+thread is :class:`~pybosl2.parts.threading.ThreadHelix` with the two thread breaks cut by the same
 prismoids. Geometry is anchored with its bottom on the XY plane.
 
 Approximations relative to BOSL2

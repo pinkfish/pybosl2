@@ -14,17 +14,19 @@ Threading: screw threads, rods & nuts
    </p>
 
 
-Pure-Python port of the core of BOSL2's ``threading.scad``. The :class:`~pybosl2.parts.threading`
-class builds screw threads by generating the whole rod (core + helical thread) as one manifold
-polyhedron -- an angular sweep of the thread profile stacked over every turn -- so the result is
-always watertight. (Sweeping the thread and CSG-unioning a coaxial core instead is what Manifold
-cannot triangulate cleanly, so this port builds the polyhedron directly, as BOSL2 does.)
+Pure-Python port of the core of BOSL2's ``threading.scad``. The
+:class:`~pybosl2.parts.threading.ThreadedRod` and
+:class:`~pybosl2.parts.threading.ThreadedNut` classes build screw threads by generating the
+whole rod (core + helical thread) as one manifold polyhedron -- an angular sweep of the thread
+profile stacked over every turn -- so the result is always watertight. (Sweeping the thread and
+CSG-unioning a coaxial core instead is what Manifold cannot triangulate cleanly, so this port
+builds the polyhedron directly, as BOSL2 does.)
 
-Every method is a class method returning a :class:`~pybosl2.shapes3d`::
+Convenience functions return pre-configured rods and nuts::
 
-    Threading.threaded_rod(12, 24, 1.75)                 # ISO M12 x 1.75
-    Threading.acme_threaded_rod(20, 30, 4)               # 29-degree ACME
-    Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1)   # matching hex nut
+    iso_threaded_rod(12, 24, 1.75)                       # ISO M12 x 1.75
+    acme_threaded_rod(20, 30, 4)                         # 29-degree ACME
+    iso_threaded_nut(18, 12, 10, 1.75, slop=0.1)        # matching hex nut
 
 A *rod* is a threaded cylinder; a *nut* is a hex/square block with a matching threaded hole (cut by
 a thread "tap", with *slop* radial clearance). *pitch* is the axial distance between threads,
@@ -77,28 +79,34 @@ An ISO M16 x 2 rod:
 
 .. pythonscad-example::
 
-    from pybosl2.parts.threading import Threading
-    Threading.threaded_rod(16, 30, 2, fa=4, fs=1).show()
+    from pybosl2.parts.threading import iso_threaded_rod
+    iso_threaded_rod(16, 30, 2, fa=4, fs=1).show()
 
 An ACME lead screw:
 
 .. pythonscad-example::
 
-    from pybosl2.parts.threading import Threading
-    Threading.acme_threaded_rod(24, 36, 5, fa=4, fs=1).show()
+    from pybosl2.parts.threading import acme_threaded_rod
+    acme_threaded_rod(24, 36, 5, fa=4, fs=1).show()
 
 A rod threaded into its matching hex nut (shown side by side):
 
 .. pythonscad-example::
 
-    from pybosl2.parts.threading import Threading
-    rod = Threading.threaded_rod(12, 30, 1.75, fa=6, fs=1)
-    nut = Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).right(22)
+    from pybosl2.parts.threading import iso_threaded_rod, iso_threaded_nut
+    rod = iso_threaded_rod(12, 30, 1.75, fa=6, fs=1).shape()
+    nut = iso_threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).shape().right(22)
     (rod | nut).show()
 
 API reference
 -------------
-.. autoclass:: pybosl2.parts.threading.Threading
+.. autoclass:: pybosl2.parts.threading.ThreadedRod
+   :members:
+
+.. autoclass:: pybosl2.parts.threading.ThreadedNut
+   :members:
+
+.. autoclass:: pybosl2.parts.threading.ThreadHelix
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -115,15 +123,15 @@ An ISO/UTS threaded rod:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.threaded_rod(d=25, l=20, pitch=2).show()
+   from pybosl2.parts.threading import iso_threaded_rod
+   iso_threaded_rod(d=25, l=20, pitch=2).show()
 
 Left-handed:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.threaded_rod(d=10, l=20, pitch=1.25, left_handed=True).show()
+   from pybosl2.parts.threading import iso_threaded_rod
+   iso_threaded_rod(d=10, l=20, pitch=1.25, left_handed=True).show()
 
 .. rubric:: ``threaded_nut``
 
@@ -131,8 +139,8 @@ A hex nut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.threaded_nut(nutwidth=16, id=8, h=8, pitch=1.25).show()
+   from pybosl2.parts.threading import iso_threaded_nut
+   iso_threaded_nut(nutwidth=16, id=8, h=8, pitch=1.25).show()
 
 .. rubric:: ``trapezoidal_threaded_rod``
 
@@ -140,8 +148,8 @@ A trapezoidal-thread rod:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.trapezoidal_threaded_rod(d=10, l=40, pitch=2).show()
+   from pybosl2.parts.threading import trapezoidal_threaded_rod
+   trapezoidal_threaded_rod(d=10, l=40, pitch=2).show()
 
 .. rubric:: ``trapezoidal_threaded_nut``
 
@@ -149,8 +157,8 @@ Its nut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.trapezoidal_threaded_nut(nutwidth=16, id=8, h=8, pitch=2).show()
+   from pybosl2.parts.threading import trapezoidal_threaded_nut
+   trapezoidal_threaded_nut(nutwidth=16, id=8, h=8, pitch=2).show()
 
 .. rubric:: ``acme_threaded_rod``
 
@@ -158,8 +166,8 @@ An Acme lead screw:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.acme_threaded_rod(d=10, l=30, pitch=2, starts=3).show()
+   from pybosl2.parts.threading import acme_threaded_rod
+   acme_threaded_rod(d=10, l=30, pitch=2, starts=3).show()
 
 .. rubric:: ``acme_threaded_nut``
 
@@ -167,8 +175,8 @@ An Acme nut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.acme_threaded_nut(nutwidth=16, id=10, h=10, pitch=2).show()
+   from pybosl2.parts.threading import acme_threaded_nut
+   acme_threaded_nut(nutwidth=16, id=10, h=10, pitch=2).show()
 
 .. rubric:: ``buttress_threaded_rod``
 
@@ -176,8 +184,8 @@ A buttress-thread rod:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.buttress_threaded_rod(d=10, l=20, pitch=1.25).show()
+   from pybosl2.parts.threading import buttress_threaded_rod
+   buttress_threaded_rod(d=10, l=20, pitch=1.25).show()
 
 .. rubric:: ``buttress_threaded_nut``
 
@@ -185,8 +193,8 @@ Its nut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.buttress_threaded_nut(nutwidth=16, id=8, h=8, pitch=1.25).show()
+   from pybosl2.parts.threading import buttress_threaded_nut
+   buttress_threaded_nut(nutwidth=16, id=8, h=8, pitch=1.25).show()
 
 .. rubric:: ``square_threaded_rod``
 
@@ -194,8 +202,8 @@ A square-thread rod:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.square_threaded_rod(d=10, l=20, pitch=2, starts=2).show()
+   from pybosl2.parts.threading import square_threaded_rod
+   square_threaded_rod(d=10, l=20, pitch=2, starts=2).show()
 
 .. rubric:: ``square_threaded_nut``
 
@@ -203,8 +211,8 @@ Its nut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.square_threaded_nut(nutwidth=16, id=10, h=10, pitch=2, starts=2).show()
+   from pybosl2.parts.threading import square_threaded_nut
+   square_threaded_nut(nutwidth=16, id=10, h=10, pitch=2, starts=2).show()
 
 .. rubric:: ``thread_helix``
 
@@ -212,5 +220,5 @@ A single thread ridge, swept as a helix:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.threading import Threading
-   Threading.thread_helix(d=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()
+   from pybosl2.parts.threading import ThreadHelix
+   ThreadHelix(d=10, pitch=2, thread_depth=0.75, flank_angle=15, turns=2.5).show()

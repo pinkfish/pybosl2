@@ -25,7 +25,7 @@ from pybosl2.parts.polyhedra import PlatonicSolid, Polyhedra
 from pybosl2.parts.screw_drive import ScrewDrive
 from pybosl2.parts.screws import Nut, Screw, ScrewHole, ScrewSpec
 from pybosl2.parts.sliders import Sliders
-from pybosl2.parts.threading import Threading
+from pybosl2.parts.threading import ThreadedNut, ThreadedRod, ThreadHelix, ThreadProfile
 from pybosl2.parts.tripod_mounts import TripodMounts, manfrotto_rc2_plate
 from pybosl2.parts.walls import Walls
 from pybosl2.parts.wiring import Wiring
@@ -59,7 +59,11 @@ __all__ = [
     "Nut",
     "Sliders",
     "Threading",
+    "ThreadedNut",
+    "ThreadedRod",
+    "ThreadHelix",
     "ThreadPitchClass",
+    "ThreadProfile",
     "TripodMounts",
     "manfrotto_rc2_plate",
     "Walls",

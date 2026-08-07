@@ -12,7 +12,7 @@
 #
 #    The neck profile (inner bore, support ring, tamper-ring channel and sealing lip) is built the
 #    same way BOSL2 does: a :func:`~pybosl2.drawing.turtle` outline revolved with rotate_extrude. The
-#    threads use this package's :meth:`~pybosl2.threading.Threading.thread_helix`, with the two thread
+#    threads use this package's :class:`~pybosl2.parts.threading.ThreadHelix`, with the two thread
 #    breaks cut by the same zrot_copies-placed prismoids as BOSL2.
 #
 #    Approximations (this port's threading/cyl lack a few BOSL2 features): the thread lead-in
@@ -38,7 +38,7 @@ from pybosl2._helpers import union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, RIGHT
 from pybosl2.distributors import DistributableMatrix
-from pybosl2.parts.threading import Threading
+from pybosl2.parts.threading import ThreadHelix
 from pybosl2.shapes3d import Bosl2Solid, cyl, prismoid
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
@@ -256,14 +256,14 @@ def _neck_thread(
     """
     thread_h = (diameter.thread_od - diameter.threadbase_d) / 2
     turns = diameter.neck_turns / 360
-    thread = Threading.thread_helix(
+    thread_hx = ThreadHelix(
         d=diameter.threadbase_d - 0.1,
         pitch=diameter.thread_pitch,
         thread_depth=thread_h + 0.1,
         flank_angle=diameter.flank_angle,
         turns=turns,
     )
-    thread = thread.down(turns * diameter.thread_pitch / 2)  # BOSL2 anchor=TOP: top at z=0
+    thread = thread_hx.shape().down(turns * diameter.thread_pitch / 2)
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
     for m_out in DistributableMatrix.zrot_copies(rots=[90, 270]):
@@ -327,15 +327,15 @@ def _build_cap(
     turns = diameter.cap_turns / 360
     thread_height = turns * diameter.cap_thread_pitch
     # internal thread (this port's thread_helix has no internal= flank flip -- approximate).
-    thread = Threading.thread_helix(
+    cap_thread = ThreadHelix(
         d=diameter.cap_thread_od - diameter.cap_thread_depth * 2,
         pitch=diameter.cap_thread_pitch,
         thread_depth=diameter.cap_thread_depth,
         flank_angle=diameter.cap_flank_angle,
         turns=turns,
     )
-    thread = thread.up(thread_height / 2 + wall + 2)  # BOSL2 anchor=BOTTOM, then up(wall+2)
-    cap = (shell | thread).rotate([0, 0, 45])
+    thread_solid = cap_thread.shape().up(thread_height / 2 + wall + 2)
+    cap = (shell | thread_solid).rotate([0, 0, 45])
     return Bosl2Solid(cap.shape, size=[w, w, height])
 
 
