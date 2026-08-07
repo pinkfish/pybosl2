@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from pybosl2.caps import CapType
+from pybosl2.enums import ResampleMethod, SkinMethod, SweepMethod
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.skin import (
@@ -93,7 +94,7 @@ def test_sweep_open_has_caps_closed_does_not() -> None:
     assert open_faces == nocap_faces + 2  # two flat end caps
 
 
-@pytest.mark.parametrize("method", ["incremental", "natural"])
+@pytest.mark.parametrize("method", [SweepMethod.INCREMENTAL, SweepMethod.NATURAL])
 def test_curved_sweep_methods(method: str) -> None:
     curve = [[math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)]
     vnf = Path3D(curve).path_sweep(SQUARE, method=method)  # type: ignore[arg-type]
@@ -104,7 +105,7 @@ def test_curved_sweep_methods(method: str) -> None:
 def test_manual_method_with_normals() -> None:
     path = [[0, 0, 0], [0, 0, 5], [0, 0, 10]]
     normals = [[1, 0, 0]] * 3
-    vnf = Path3D(path).path_sweep(SQUARE, method="manual", normal=normals)  # type: ignore[arg-type]
+    vnf = Path3D(path).path_sweep(SQUARE, method=SweepMethod.MANUAL, normal=normals)  # type: ignore[arg-type]
     assert _valid(vnf)
 
 
@@ -162,7 +163,7 @@ def test_skin_reindex_method() -> None:
     vnf = skin(
         [_circle(6), [[-8, -8], [8, -8], [8, 8], [-8, 8]]],
         slices=8,
-        method="reindex",
+        method=SkinMethod.REINDEX,
         z=[0, 20],
     )
     assert _valid(vnf)
@@ -308,7 +309,7 @@ def test_rot_resample_changes_count_and_sweeps() -> None:
 def test_rot_resample_count_method() -> None:
     sq = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
     tl = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 20]]).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
-    out = rot_resample(tl, num_copies=5, method="count")
+    out = rot_resample(tl, num_copies=5, method=ResampleMethod.COUNT)
     assert len(out) == 5 * 2 + 1  # samples-per-gap * gaps + 1
 
 
@@ -618,7 +619,7 @@ def test_oop_skin_and_sweep() -> None:
 
     circle = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
-    vnf_skinned = VNF.from_skin([circle, square], slices=5, method="reindex", z=[0, 10])
+    vnf_skinned = VNF.from_skin([circle, square], slices=5, method=SkinMethod.REINDEX, z=[0, 10])
     assert isinstance(vnf_skinned, VNF)
     assert abs(vnf_skinned.volume()) > 0
 

@@ -164,25 +164,25 @@ def cylinder(
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cylinder
 
-            s3.cylinder(height=30, radius=10).show()
+            cylinder(height=30, radius=10).show()
 
         A cylinder with chamfered ends:
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cylinder
 
-            s3.cylinder(height=40, radius=15, chamfer=2).show()
+            cylinder(height=40, radius=15, chamfer=2).show()
 
         A cylinder with rounded ends:
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cylinder
 
-            s3.cylinder(height=30, radius=12, rounding=2).show()
+            cylinder(height=30, radius=12, rounding=2).show()
 
     """
     return cyl(

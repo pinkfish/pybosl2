@@ -15,6 +15,7 @@ from collections.abc import Callable
 import numpy as np
 import pytest
 
+from pybosl2.parts.enums import NutShape
 from pybosl2.parts.threading import (
     Threading,
     _buttress_profile,
@@ -106,7 +107,7 @@ def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
     "call",
     [
         lambda: Threading.threaded_nut(18, 12, 10, 1.75, slop=0.1),
-        lambda: Threading.threaded_nut(18, 12, 10, 1.75, shape="square", slop=0.1),
+        lambda: Threading.threaded_nut(18, 12, 10, 1.75, shape=NutShape.SQUARE, slop=0.1),
         lambda: Threading.trapezoidal_threaded_nut(24, 16, 12, 3, slop=0.1),
         lambda: Threading.acme_threaded_nut(24, 16, 12, 3, slop=0.1),
         lambda: Threading.square_threaded_nut(24, 16, 12, 3, slop=0.1),

@@ -39,7 +39,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=9f43e219" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=1e5c14c0" />
         <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -429,30 +429,6 @@
 
   <span class="md-ellipsis">
     <span> Return Distributors:<wbr> line/grid/ring/arc/sphere/path copiers and reflected copies</span>
-
-  </span>
-
-
-      </a>
-    </li>
-
-
-
-
-
-
-
-
-
-
-
-    <li class="md-nav__item">
-      <a href="enums.html" class="md-nav__link">
-
-
-
-  <span class="md-ellipsis">
-    <span> Strongly-<wbr>typed enums for pybosl2</span>
 
   </span>
 
@@ -1561,18 +1537,6 @@
 </li>
 
         <li class="md-nav__item">
-  <a href="#pybosl2.vnf.VnfStyle" class="md-nav__link">
-
-      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
-
-    <span class="md-ellipsis">
-      <span title="pybosl2.vnf.VnfStyle (Python class) — Bases: str, Enum"><span>pybosl2.<wbr>vnf.<wbr>Vnf<wbr>Style</span></span>
-    </span>
-  </a>
-
-</li>
-
-        <li class="md-nav__item">
   <a href="#pybosl2.vnf.contour" class="md-nav__link">
 
       <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
@@ -1889,6 +1853,30 @@
 
   <span class="md-ellipsis">
     <span> Modular cubical truss segments and trusses &amp;#128736;</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
 
   </span>
 
@@ -3025,18 +3013,6 @@
 </li>
 
         <li class="md-nav__item">
-  <a href="#pybosl2.vnf.VnfStyle" class="md-nav__link">
-
-      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
-
-    <span class="md-ellipsis">
-      <span title="pybosl2.vnf.VnfStyle (Python class) — Bases: str, Enum"><span>pybosl2.<wbr>vnf.<wbr>Vnf<wbr>Style</span></span>
-    </span>
-  </a>
-
-</li>
-
-        <li class="md-nav__item">
   <a href="#pybosl2.vnf.contour" class="md-nav__link">
 
       <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
@@ -3297,7 +3273,7 @@ halfspace and <em>vnf_below</em> is the negative halfspace.</p>
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.vertex_array">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.points" title="pybosl2.vnf.VNF.vertex_array.points (Python parameter) — Input grid points."><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.caps" title="pybosl2.vnf.VNF.vertex_array.caps (Python parameter) — Cap specification for both ends: a single CapType, CapSpec, or a two-element pair [cap_start, cap_end]. Pass None (the default) for no caps."><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="pybosl2.vnf.VNF.vertex_array.col_wrap (Python parameter) — Close the column direction into a tube."><span class="n"><span class="pre">col_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="pybosl2.vnf.VNF.vertex_array.row_wrap (Python parameter) — Close the row direction into a torus."><span class="n"><span class="pre">row_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="pybosl2.vnf.VNF.vertex_array.reverse (Python parameter) — Flip face winding."><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.style" title="pybosl2.vnf.VNF.vertex_array.style (Python parameter) — Triangulation method."><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;default&#39;</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.points" title="pybosl2.vnf.VNF.vertex_array.points (Python parameter) — Input grid points."><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.caps" title="pybosl2.vnf.VNF.vertex_array.caps (Python parameter) — Cap specification for both ends: a single CapType, CapSpec, or a two-element pair [cap_start, cap_end]. Pass None (the default) for no caps."><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="pybosl2.vnf.VNF.vertex_array.col_wrap (Python parameter) — Close the column direction into a tube."><span class="n"><span class="pre">col_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="pybosl2.vnf.VNF.vertex_array.row_wrap (Python parameter) — Close the row direction into a torus."><span class="n"><span class="pre">row_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="pybosl2.vnf.VNF.vertex_array.reverse (Python parameter) — Flip face winding."><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.style" title="pybosl2.vnf.VNF.vertex_array.style (Python parameter) — Triangulation method."><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
 <dd><p>Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</p>
 <p>Each grid cell becomes triangles (or a quad) chosen by <em>style</em>: “default”, “alt”,
 “min_edge”, “min_area”, “convex”, “concave”, “quincunx”, “quad”, “flip1”, “flip2”.
@@ -3320,7 +3296,7 @@ Pass <code class="docutils literal notranslate"><span class="pre">None</span></c
 </dd>
 <dt id="pybosl2.vnf.VNF.vertex_array.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="Permalink to this definition">¶</a></dt><dd><p>Flip face winding.</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | <a class="reference internal" href="#pybosl2.vnf.VnfStyle" title="pybosl2.vnf.VnfStyle (Python class) — Bases: str, Enum">VnfStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p>Triangulation method.</p>
+<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a> | VnfStyle</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p>Triangulation method.</p>
 </dd>
 </dl>
 </dd>
@@ -3497,7 +3473,7 @@ each holding a transform (4×4 matrix or Point position) and a <code class="xref
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.from_skin">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_skin</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.profiles" title="pybosl2.vnf.VNF.from_skin.profiles (Python parameter) — list of &gt;= 2 closed profiles (each a list of points)."><span class="n"><span class="pre">profiles</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.slices" title="pybosl2.vnf.VNF.from_skin.slices (Python parameter) — number of interpolated profiles inserted between each pair (int or per-gap list)"><span class="n"><span class="pre">slices</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.refine" title="pybosl2.vnf.VNF.from_skin.refine (Python parameter) — subdivide every profile by this factor before skinning (default 1)"><span class="n"><span class="pre">refine</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">1.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.method" title="pybosl2.vnf.VNF.from_skin.method (Python parameter) — &quot;direct&quot; (connect vertex i to vertex i) or &quot;reindex&quot; (rotate each profile to best-align with the previous)."><span class="n"><span class="pre">method</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;direct&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.sampling" title="pybosl2.vnf.VNF.from_skin.sampling (Python parameter) — &quot;length&quot; or &quot;segment&quot; resampling (default &quot;length&quot;)"><span class="n"><span class="pre">sampling</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.caps" title="pybosl2.vnf.VNF.from_skin.caps (Python parameter) — cap the ends; supports decorative cap types"><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;butt&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.closed" title="pybosl2.vnf.VNF.from_skin.closed (Python parameter) — the stack loops back to the first profile (default False)"><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.style" title="pybosl2.vnf.VNF.from_skin.style (Python parameter) — vnf_vertex_array quad-subdivision style"><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;min_edge&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.z" title="pybosl2.vnf.VNF.from_skin.z (Python parameter) — per-profile Z heights, required when the profiles are 2-D"><span class="n"><span class="pre">z</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.from_skin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_skin</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.profiles" title="pybosl2.vnf.VNF.from_skin.profiles (Python parameter) — list of &gt;= 2 closed profiles (each a list of points)."><span class="n"><span class="pre">profiles</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.slices" title="pybosl2.vnf.VNF.from_skin.slices (Python parameter) — number of interpolated profiles inserted between each pair (int or per-gap list)"><span class="n"><span class="pre">slices</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.refine" title="pybosl2.vnf.VNF.from_skin.refine (Python parameter) — subdivide every profile by this factor before skinning (default 1)"><span class="n"><span class="pre">refine</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">1.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.method" title="pybosl2.vnf.VNF.from_skin.method (Python parameter) — &quot;direct&quot; (connect vertex i to vertex i) or &quot;reindex&quot; (rotate each profile to best-align with the previous)."><span class="n"><span class="pre">method</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.sampling" title="pybosl2.vnf.VNF.from_skin.sampling (Python parameter) — &quot;length&quot; or &quot;segment&quot; resampling (default &quot;length&quot;)"><span class="n"><span class="pre">sampling</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.caps" title="pybosl2.vnf.VNF.from_skin.caps (Python parameter) — cap the ends; supports decorative cap types"><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;butt&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.closed" title="pybosl2.vnf.VNF.from_skin.closed (Python parameter) — the stack loops back to the first profile (default False)"><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.style" title="pybosl2.vnf.VNF.from_skin.style (Python parameter) — vnf_vertex_array quad-subdivision style"><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.z" title="pybosl2.vnf.VNF.from_skin.z (Python parameter) — per-profile Z heights, required when the profiles are 2-D"><span class="n"><span class="pre">z</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VNF.from_skin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin" title="Link to this definition">¶</a></dt>
 <dd><p>Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</p>
 <p>Consecutive profiles are connected vertex-to-vertex; <em>slices</em> extra interpolated profiles are
 inserted between each pair to smooth the transition.</p>
@@ -3510,16 +3486,16 @@ inserted between each pair to smooth the transition.</p>
 </dd>
 <dt id="pybosl2.vnf.VNF.from_skin.refine"><span class="sig-name descname">refine</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.refine" title="Permalink to this definition">¶</a></dt><dd><p>subdivide every profile by this factor before skinning (default 1)</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.from_skin.method"><span class="sig-name descname">method</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.method" title="Permalink to this definition">¶</a></dt><dd><p>“direct” (connect vertex i to vertex i) or “reindex” (rotate each profile to
+<dt id="pybosl2.vnf.VNF.from_skin.method"><span class="sig-name descname">method</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.SkinMethod" title="pybosl2.enums.SkinMethod (Python class) — Bases: StrEnum">SkinMethod</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.method" title="Permalink to this definition">¶</a></dt><dd><p>“direct” (connect vertex i to vertex i) or “reindex” (rotate each profile to
 best-align with the previous).</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.from_skin.sampling"><span class="sig-name descname">sampling</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.sampling" title="Permalink to this definition">¶</a></dt><dd><p>“length” or “segment” resampling (default “length”)</p>
+<dt id="pybosl2.vnf.VNF.from_skin.sampling"><span class="sig-name descname">sampling</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.SamplingType" title="pybosl2.enums.SamplingType (Python class) — Bases: StrEnum">SamplingType</a> | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.sampling" title="Permalink to this definition">¶</a></dt><dd><p>“length” or “segment” resampling (default “length”)</p>
 </dd>
 <dt id="pybosl2.vnf.VNF.from_skin.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.caps" title="Permalink to this definition">¶</a></dt><dd><p>cap the ends; supports decorative cap types</p>
 </dd>
 <dt id="pybosl2.vnf.VNF.from_skin.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.closed" title="Permalink to this definition">¶</a></dt><dd><p>the stack loops back to the first profile (default False)</p>
 </dd>
-<dt id="pybosl2.vnf.VNF.from_skin.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.style" title="Permalink to this definition">¶</a></dt><dd><p>vnf_vertex_array quad-subdivision style</p>
+<dt id="pybosl2.vnf.VNF.from_skin.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.style" title="Permalink to this definition">¶</a></dt><dd><p>vnf_vertex_array quad-subdivision style</p>
 </dd>
 <dt id="pybosl2.vnf.VNF.from_skin.z"><span class="sig-name descname">z</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.z" title="Permalink to this definition">¶</a></dt><dd><p>per-profile Z heights, required when the profiles are 2-D</p>
 </dd>
@@ -3534,72 +3510,22 @@ best-align with the previous).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkinMethod</span>
 
 <span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
 <span class="n">square</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]]</span>
-<span class="n">VNF</span><span class="o">.</span><span class="n">from_skin</span><span class="p">([</span><span class="n">circle</span><span class="p">,</span> <span class="n">square</span><span class="p">],</span> <span class="n">slices</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;reindex&quot;</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_skin</span><span class="p">([</span><span class="n">circle</span><span class="p">,</span> <span class="n">square</span><span class="p">],</span> <span class="n">slices</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">SkinMethod</span><span class="o">.</span><span class="n">REINDEX</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/367c204b0aae4718.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/367c204b0aae4718.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/9c7327f163963da1.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/9c7327f163963da1.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 </dd></dl>
 
-<dl class="py class objdesc">
+<dl class="py attribute objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VnfStyle</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.vnf.VnfStyle" title="pybosl2.vnf.VnfStyle.__init__.values (Python parameter)"><span class="n"><span class="pre">values</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/vnf.html#VnfStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VnfStyle" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
-<p>Triangulation style for <a class="reference internal" href="#pybosl2.vnf.VNF.vertex_array" title="pybosl2.vnf.VNF.vertex_array (Python method) — Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array())."><code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.vertex_array()</span></code></a>.</p>
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.DEFAULT">
-<span class="sig-name descname"><span class="pre">DEFAULT</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;default&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.DEFAULT" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.ALT">
-<span class="sig-name descname"><span class="pre">ALT</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;alt&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.ALT" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.MIN_EDGE">
-<span class="sig-name descname"><span class="pre">MIN_EDGE</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;min_edge&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.MIN_EDGE" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.MIN_AREA">
-<span class="sig-name descname"><span class="pre">MIN_AREA</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;min_area&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.MIN_AREA" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.CONVEX">
-<span class="sig-name descname"><span class="pre">CONVEX</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;convex&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.CONVEX" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.CONCAVE">
-<span class="sig-name descname"><span class="pre">CONCAVE</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;concave&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.CONCAVE" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.QUINCUNX">
-<span class="sig-name descname"><span class="pre">QUINCUNX</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;quincunx&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.QUINCUNX" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.QUAD">
-<span class="sig-name descname"><span class="pre">QUAD</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;quad&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.QUAD" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.FLIP1">
-<span class="sig-name descname"><span class="pre">FLIP1</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;flip1&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.FLIP1" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute objdesc">
-<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle.FLIP2">
-<span class="sig-name descname"><span class="pre">FLIP2</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;flip2&#39;</span></code><a class="headerlink" href="#pybosl2.vnf.VnfStyle.FLIP2" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VnfStyle</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNFStyle</span></code></a></p>
 </dd></dl>
 
 <dl class="py function objdesc">
@@ -3756,7 +3682,7 @@ paths, each being a list of <code class="docutils literal notranslate"><span cla
 
 
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="_static/stl_viewer.js?v=cb630fdb"></script>
+        <script type="module" src="_static/stl_viewer.js?v=f724b851"></script>
 
   </body>
 </html>

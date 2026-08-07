@@ -80,6 +80,8 @@ class TurtleCommandType(Enum):
     SETDIR = "setdir"
     ARCLEFT = "arcleft"
     ARCRIGHT = "arcright"
+    ARCLEFTTO = "arcleftto"
+    ARCRIGHTTO = "arcrightto"
     ARCUP = "arcup"
     ARCDOWN = "arcdown"
     ARCXROT = "arcxrot"

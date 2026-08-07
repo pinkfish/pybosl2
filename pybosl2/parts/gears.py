@@ -41,6 +41,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import INCH
+from pybosl2.enums import VNFStyle
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid, cylinder
@@ -1247,7 +1248,7 @@ class Gears:
             m = _m_zrot(i * astep - 360 * revs / 2) @ _m_up(i * zstep - length / 2)
             profiles.append(_apply(m, [[x, y, 0.0] for x, y in cross]))
         rprofiles = [prof[::-1] for prof in profiles]
-        vnf = VNF.vertex_array(rprofiles, caps=CapType.BUTT, col_wrap=True, style="min_edge")
+        vnf = VNF.vertex_array(rprofiles, caps=CapType.BUTT, col_wrap=True, style=VNFStyle.MIN_EDGE)
         if left_handed:
             vnf = _vnf_xflip(vnf)
         return Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
@@ -1322,7 +1323,7 @@ class Gears:
         for i in range(teeth):
             top_faces.append([gear_pts, (i + 1) * face_pts - 1, i * face_pts])
             top_faces.append([gear_pts, ((i + 1) % teeth) * face_pts, (i + 1) * face_pts - 1])
-        sides = VNF.vertex_array(profiles, col_wrap=True, style="min_edge")
+        sides = VNF.vertex_array(profiles, col_wrap=True, style=VNFStyle.MIN_EDGE)
         top_cap = VNF(top_verts + [[0, 0, top_verts[0][2]]], [f[::-1] for f in top_faces])
         bot_cap = VNF(bot_verts + [[0, 0, bot_verts[0][2]]], top_faces)
         vnf = _vnf_join([top_cap, bot_cap, sides])

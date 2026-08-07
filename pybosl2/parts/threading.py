@@ -33,6 +33,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+from pybosl2.enums import VNFStyle
+from pybosl2.parts.enums import NutShape
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = ["Threading", "ThreadProfile"]
@@ -197,7 +199,7 @@ def _rod_solid(
     faces: list[list[int]] = []
     for k in range(starts):
         grid = _thread_grid(profile, pitch, radius, length, starts, left_handed, sides)
-        vnf = VNF.vertex_array(grid, col_wrap=False, style="convex")
+        vnf = VNF.vertex_array(grid, col_wrap=False, style=VNFStyle.CONVEX)
         rv = _rot_z(list(vnf.vertices), k * 360 / starts) if starts > 1 else list(vnf.vertices)
         off = len(verts)
         verts += [list(v) for v in rv]
@@ -222,7 +224,7 @@ def _nut_solid(
     h: float,
     pitch: float,
     profile: list[list[float]] | ThreadProfile,
-    shape: str = "hex",
+    shape: NutShape = NutShape.HEX,
     starts: int = 1,
     left_handed: bool = False,
     slop: float = 0.0,
@@ -231,9 +233,9 @@ def _nut_solid(
     fs: float | None = None,
 ) -> Bosl2Solid:
     """Return a nut: a hex/square body with a threaded hole cut by a matching thread 'tap'."""
-    if shape == "hex":
+    if shape == NutShape.HEX:
         body = regular_prism(6, height=h, inner_diameter=nutwidth, fn=fn, fa=fa, fs=fs)
-    elif shape == "square":
+    elif shape == NutShape.SQUARE:
         body = cuboid([nutwidth, nutwidth, h], fn=fn, fa=fa, fs=fs)
     else:
         raise AssertionError('nut shape must be "hex" or "square".')
@@ -303,7 +305,7 @@ class Threading:
         h: float,
         pitch: float,
         profile: list[list[float]] | ThreadProfile,
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -361,7 +363,7 @@ class Threading:
         id: float,  # noqa: A002
         h: float,
         pitch: float,
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -434,7 +436,7 @@ class Threading:
         pitch: float,
         thread_angle: float = 30,
         thread_depth: float | None = None,
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -494,7 +496,7 @@ class Threading:
         h: float,
         pitch: float,
         thread_depth: float | None = None,
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -542,7 +544,7 @@ class Threading:
         id: float,  # noqa: A002
         h: float,
         pitch: float,
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,
@@ -589,7 +591,7 @@ class Threading:
         id: float,  # noqa: A002
         h: float,
         pitch: float,
-        shape: str = "hex",
+        shape: NutShape = NutShape.HEX,
         starts: int = 1,
         left_handed: bool = False,
         slop: float = 0.0,

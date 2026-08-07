@@ -104,6 +104,8 @@ __all__ = [
 def cube(
     size: float | Sequence[float] | None = None,
     *,
+    chamfer: float | None = None,
+    rounding: float | None = None,
     anchor: Anchor | Sequence[float] | None = None,
     center: bool | None = None,
     spin: float | None = None,
@@ -126,6 +128,8 @@ def cube(
         given_arguments(
             {
                 "size": size,
+                "chamfer": chamfer,
+                "rounding": rounding,
                 "anchor": anchor,
                 "center": center,
                 "spin": spin,
@@ -253,6 +257,12 @@ def cylinder(
     height: float | None = None,
     radius: float | None = None,
     *,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
     center: bool | None = None,
     length: float | None = None,
     radius1: float | None = None,
@@ -282,6 +292,12 @@ def cylinder(
             {
                 "height": height,
                 "radius": radius,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "rounding": rounding,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
                 "center": center,
                 "length": length,
                 "radius1": radius1,

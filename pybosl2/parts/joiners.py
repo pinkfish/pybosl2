@@ -25,6 +25,7 @@ import math
 from typing import TYPE_CHECKING
 
 from pybosl2._native import native
+from pybosl2.parts.enums import Gender
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -45,7 +46,7 @@ class Joiners:
 
     @staticmethod
     def dovetail(
-        gender: str = "male",
+        gender: Gender = Gender.MALE,
         width: float = 15,
         height: float = 8,
         slide: float = 30,
@@ -70,14 +71,15 @@ class Joiners:
 
             .. pythonscad-example::
 
+                from pybosl2.parts.enums import Gender
                 from pybosl2.parts.joiners import Joiners
-                (Joiners.dovetail("male", width=15, height=8, slide=30)
-                 | Joiners.dovetail("female", width=15, height=8, slide=30).right(24)).show()
+                (Joiners.dovetail(Gender.MALE, width=15, height=8, slide=30)
+                 | Joiners.dovetail(Gender.FEMALE, width=15, height=8, slide=30).right(24)).show()
 
         """
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
-        hslop = slop if gender == "female" else 0.0
+        hslop = slop if gender == Gender.FEMALE else 0.0
         w = width + 2 * hslop
         height = height + hslop
         flare = 2 * height / slope  # total added width at the top

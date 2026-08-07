@@ -44,6 +44,7 @@ import numpy as np
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2.constants import BACK, UP
+from pybosl2.enums import ResampleMethod
 from pybosl2.transforms import axis_angle_matrix, rot_from_to
 from pybosl2.vectors import unit
 
@@ -243,9 +244,10 @@ def chain_hull(*objects: object) -> Bosl2Solid:
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, chain_hull
+            from pybosl2.solid import sphere
+            from pybosl2 import chain_hull
 
-            chain_hull([s3.sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
+            chain_hull([sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()
 
     """
     from pythonscad import hull as _hull
@@ -401,7 +403,7 @@ class Extrudable:
             # (frame_i @ UP == dir_i); this is the discrete rotation-minimizing frame.
             acc = rot_from_to4(vec1, vec2) @ acc
             rotmats.append(acc)
-        interp = rot_resample([list(m) for m in rotmats], num_copies=2, method="count")
+        interp = rot_resample([list(m) for m in rotmats], num_copies=2, method=ResampleMethod.COUNT)
         eps = 1e-4
         factory = _profile_factory(profile)
         parts = []

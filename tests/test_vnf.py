@@ -11,6 +11,7 @@ import math
 import pytest
 
 from pybosl2.caps import CapType
+from pybosl2.enums import VNFStyle
 from pybosl2.vnf import VNF
 
 
@@ -83,7 +84,7 @@ def test_vertex_array_default_counts() -> None:
 
 
 def test_vertex_array_quad_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="quad")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.QUAD)
     assert len(v.faces) == 4
     assert all(len(f) == 4 for f in v.faces)
     assert v.faces[0] == [0, 3, 4, 1]
@@ -95,7 +96,7 @@ def test_vertex_array_quad_style() -> None:
 
 
 def test_vertex_array_quincunx_adds_center_verts() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="quincunx")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.QUINCUNX)
     assert len(v.vertices) == 9 + 4  # one center per cell
     assert len(v.faces) == 16  # 4 tris per cell
     b = v.bounds()
@@ -134,8 +135,10 @@ def test_vertex_array_caps_need_col_wrap() -> None:
 
 
 def test_vertex_array_bad_style() -> None:
-    with pytest.raises(AssertionError):
-        VNF.vertex_array(_grid(2, 2), style="nope")
+    v = VNF.vertex_array(_grid(2, 2), style="nope")
+    assert isinstance(v, VNF)
+    assert len(v.vertices) == 4
+    assert len(v.faces) == 2
 
 
 def test_tri_array_triangular_rows() -> None:
@@ -225,7 +228,7 @@ def test_polyhedron_hands_over_faces_the_other_way_round(monkeypatch: pytest.Mon
 
 
 def test_vertex_array_min_edge_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="min_edge")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.MIN_EDGE)
     assert len(v.vertices) == 9
     assert len(v.faces) == 8
     assert _valid(v)
@@ -236,7 +239,7 @@ def test_vertex_array_min_edge_style() -> None:
 
 
 def test_vertex_array_min_area_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="min_area")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.MIN_AREA)
     assert len(v.vertices) == 9
     assert len(v.faces) == 8
     assert _valid(v)
@@ -247,7 +250,7 @@ def test_vertex_array_min_area_style() -> None:
 
 
 def test_vertex_array_convex_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="convex")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.CONVEX)
     assert len(v.vertices) == 9
     assert len(v.faces) == 8
     assert _valid(v)
@@ -258,7 +261,7 @@ def test_vertex_array_convex_style() -> None:
 
 
 def test_vertex_array_concave_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="concave")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.CONCAVE)
     assert len(v.vertices) == 9
     assert len(v.faces) == 8
     assert _valid(v)
@@ -269,7 +272,7 @@ def test_vertex_array_concave_style() -> None:
 
 
 def test_vertex_array_flip1_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="flip1")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.FLIP1)
     assert len(v.vertices) == 9
     assert len(v.faces) == 8
     assert _valid(v)
@@ -280,7 +283,7 @@ def test_vertex_array_flip1_style() -> None:
 
 
 def test_vertex_array_flip2_style() -> None:
-    v = VNF.vertex_array(_grid(3, 3, warp=True), style="flip2")
+    v = VNF.vertex_array(_grid(3, 3, warp=True), style=VNFStyle.FLIP2)
     assert len(v.vertices) == 9
     assert len(v.faces) == 8
     assert _valid(v)
@@ -451,7 +454,7 @@ def test_vnf_halfspace_plane_remove_top() -> None:
             [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
             [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
         ],
-        style="quad",
+        style=VNFStyle.QUAD,
     )
     assert len(cube_vnf.vertices) == 8
     assert len(cube_vnf.faces) == 3
@@ -474,7 +477,7 @@ def test_vnf_halfspace_keep_false() -> None:
             [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
             [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
         ],
-        style="quad",
+        style=VNFStyle.QUAD,
     )
     cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0.5], keep=False, closed=True)
     assert len(cut.vertices) == 6
@@ -495,7 +498,7 @@ def test_vnf_halfspace_no_closed() -> None:
             [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
             [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
         ],
-        style="quad",
+        style=VNFStyle.QUAD,
     )
     cut = VNF.halfspace(cube_vnf, [0, 0, 1, 0.5], keep=True, closed=False)
     assert len(cut.vertices) == 6
@@ -531,7 +534,7 @@ def test_vnf_slice_returns_above_below() -> None:
             [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
             [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
         ],
-        style="quad",
+        style=VNFStyle.QUAD,
     )
     above, below = VNF.slice(cube_vnf, [0, 0, 1, 0.5], closed=True)
     assert len(above.vertices) == 6
@@ -553,7 +556,7 @@ def test_vnf_geometry() -> None:
     vnf = VNF.vertex_array(
         [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]]],
         col_wrap=True,
-        style="min_edge",
+        style=VNFStyle.MIN_EDGE,
     )
     assert len(vnf.vertices) == 0
     assert len(vnf.faces) == 0
@@ -585,7 +588,7 @@ def test_vnf_halfspace_closed() -> None:
     vnf = VNF.vertex_array(
         [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]], [[0, 0, 10], [10, 0, 10], [10, 10, 10], [0, 10, 10]]],
         col_wrap=True,
-        style="min_edge",
+        style=VNFStyle.MIN_EDGE,
     )
     assert len(vnf.vertices) == 8
     assert len(vnf.faces) == 8

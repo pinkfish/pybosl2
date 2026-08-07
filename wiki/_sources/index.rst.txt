@@ -40,9 +40,9 @@ A cuboid primitive:
 
 .. pythonscad-example::
 
-   from pybosl2 import shapes3d as s3
+   from pybosl2.solid import cuboid
 
-   s3.cuboid([40, 30, 20], rounding=4).show()
+   cuboid([40, 30, 20], rounding=4).show()
 
 A bezier surface patch, meshed to a VNF and rendered as a polyhedron:
 
@@ -90,7 +90,6 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Colour operators (Colorable mixin) via Python's colorsys module <color>
     Constants provided by BOSL2 (BOSL2 constants.scad) <constants>
     Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies <distributors>
-    Strongly-typed enums for pybosl2 <enums>
     Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d) <masking>
     Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints) <partitions>
     Statically typed shape constructors and backend-neutral solid facade <solid>
@@ -131,6 +130,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Standard ball-bearing cartridge models &#128736; <ball_bearings>
     PCO-1810 / PCO-1881 bottle necks and caps &#128736; <bottlecaps>
     Modular cubical truss segments and trusses &#128736; <cubetruss>
+    Strongly-typed enums for the pybosl2 parts library <enums>
     Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm &#128736; <gears>
     Living (folding) hinges, knuckle hinges, and snap connectors &#128736; <hinges>
     Hooks and hook-like parts (the ring hook) &#128736; <hooks>

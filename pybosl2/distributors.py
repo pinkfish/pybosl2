@@ -40,6 +40,7 @@ import numpy as np
 
 from pybosl2._helpers import is_num, rot_from_to4, translate4
 from pybosl2.constants import BACK, RIGHT, UP
+from pybosl2.enums import StaggerMode
 from pybosl2.points import Point
 from pybosl2.transforms import axis_angle_matrix
 
@@ -92,7 +93,7 @@ def line_copies(
     length: float | np.ndarray | None = None,
     p1: Point | None = None,
     p2: Point | None = None,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return translation matrices evenly spread along a line."""
     if length is not None:
@@ -124,7 +125,7 @@ def _axis_copies(
     spacing: float | Sequence[float] | np.ndarray | None,
     length: float | None,
     start_pos: float | Point | None,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     dirv = np.asarray(direction, dtype=float)
     sp_pt: Point | None = None
@@ -149,7 +150,7 @@ def xcopies(
     spacing: float | None = None,
     length: float | None = None,
     start_pos: float | Point | None = None,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return copies spread along the X axis."""
     return _axis_copies(
@@ -165,7 +166,7 @@ def ycopies(
     spacing: float | None = None,
     length: float | None = None,
     start_pos: float | Point | None = None,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return copies spread along the Y axis."""
     return _axis_copies(BACK.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
@@ -175,7 +176,7 @@ def zcopies(
     spacing: float | None = None,
     length: float | None = None,
     start_pos: float | Point | None = None,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return copies spread along the Z axis."""
     return _axis_copies(UP.vector, spacing, num_copies=num_copies, length=length, start_pos=start_pos)
@@ -184,7 +185,7 @@ def zcopies(
 def grid_copies(
     spacing: float | Sequence[float] | np.ndarray | None = None,
     size: float | Sequence[float] | np.ndarray | None = None,
-    stagger: bool | str = False,
+    stagger: bool | StaggerMode = False,
     inside: Sequence[Sequence[float]] | np.ndarray | None = None,
     nonzero: bool | None = None,
     axes: str = "xy",
@@ -194,7 +195,7 @@ def grid_copies(
     assert stagger in (
         False,
         True,
-        "alt",
+        StaggerMode.ALT,
     ), "grid_copies(): stagger must be False, True or 'alt'."
     assert len(axes) == 2, "grid_copies(): invalid axes."
     assert axes[0] in "xyz", "grid_copies(): invalid axes."
@@ -271,7 +272,7 @@ def grid_copies(
                 if keep(pos):
                     mats.append(translate4(permax(pos)))
     else:
-        staggermod: int = 1 if stagger == "alt" else 0
+        staggermod: int = 1 if stagger == StaggerMode.ALT else 0
         cols1 = math.ceil(num_copies[0] / 2)
         cols2 = num_copies[0] - cols1
         for row in range(num_copies[1]):
@@ -292,7 +293,7 @@ def rot_copies(
     offset: float = 0,
     delta: Sequence[float] = (0, 0, 0),
     subrot: bool = True,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies about an axis, optionally offset into a ring."""
     assert subrot or np.linalg.norm(_vec3(delta, 0.0)) > 0, (
@@ -326,7 +327,7 @@ def xrot_copies(
     radius: float | None = None,
     diameter: float | None = None,
     subrot: bool = True,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies around the X axis, optionally into a ring of radius *radius*."""
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
@@ -348,7 +349,7 @@ def yrot_copies(
     radius: float | None = None,
     diameter: float | None = None,
     subrot: bool = True,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies around the Y axis, optionally into a ring of radius *radius*."""
     rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
@@ -370,7 +371,7 @@ def zrot_copies(
     radius: float | None = None,
     diameter: float | None = None,
     subrot: bool = True,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies around the Z axis, optionally into a ring of radius *radius*."""
     rr: float = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
@@ -395,7 +396,7 @@ def arc_copies(
     sa: float = 0,
     ea: float = 360,
     rot: bool = True,
-    num_copies: int = 1,
+    num_copies: int = 6,
 ) -> list[np.ndarray]:
     """Return copies spread along an (elliptical) arc in the XY plane."""
     rxv = (
@@ -480,7 +481,7 @@ def path_copies(
     dist: Sequence[float] | None = None,
     rotate_children: bool = True,
     closed: bool | None = None,
-    num_copies: int = 1,
+    num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return copies placed along *path*, oriented to it."""
     from pybosl2.path2d import Path2D
@@ -636,7 +637,7 @@ class Distributable(ABC):
         length: float | None = None,
         p1: Point | None = None,
         p2: Point | None = None,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Return copies spread along a line."""
         return self._distribute(line_copies(spacing, length, p1, p2, num_copies=num_copies))
@@ -646,7 +647,7 @@ class Distributable(ABC):
         spacing: float | None = None,
         length: float | None = None,
         start_pos: float | Point | None = None,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Return copies spread along the X axis."""
         return self._distribute(_axis_copies(RIGHT.vector, spacing, length, start_pos, num_copies=num_copies))
@@ -656,7 +657,7 @@ class Distributable(ABC):
         spacing: float | None = None,
         length: float | None = None,
         start_pos: float | Point | None = None,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Return copies spread along the Y axis."""
         return self._distribute(_axis_copies(BACK.vector, spacing, length, start_pos, num_copies=num_copies))
@@ -666,7 +667,7 @@ class Distributable(ABC):
         spacing: float | None = None,
         length: float | None = None,
         start_pos: float | Point | None = None,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Return copies spread along the Z axis."""
         return self._distribute(_axis_copies(UP.vector, spacing, length, start_pos, num_copies=num_copies))
@@ -675,7 +676,7 @@ class Distributable(ABC):
         self,
         spacing: float | Sequence[float] | np.ndarray | None = None,
         size: float | Sequence[float] | np.ndarray | None = None,
-        stagger: bool | str = False,
+        stagger: bool | StaggerMode = False,
         inside: Sequence[Sequence[float]] | np.ndarray | None = None,
         nonzero: bool | None = None,
         axes: str = "xy",
@@ -693,7 +694,7 @@ class Distributable(ABC):
         offset: float = 0,
         delta: Sequence[float] = (0, 0, 0),
         subrot: bool = True,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Rotated copies about an axis (optionally into a ring via *delta*)."""
         return self._distribute(rot_copies(rots, v, center, sa, offset, delta, subrot, num_copies=num_copies))
@@ -706,7 +707,7 @@ class Distributable(ABC):
         radius: float | None = None,
         diameter: float | None = None,
         subrot: bool = True,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Rotated copies around the X axis."""
         return self._distribute(xrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
@@ -719,7 +720,7 @@ class Distributable(ABC):
         radius: float | None = None,
         diameter: float | None = None,
         subrot: bool = True,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Rotated copies around the Y axis."""
         return self._distribute(yrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
@@ -732,7 +733,7 @@ class Distributable(ABC):
         radius: float | None = None,
         diameter: float | None = None,
         subrot: bool = True,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Rotated copies around the Z axis."""
         return self._distribute(zrot_copies(rots, center, sa, radius, diameter, subrot, num_copies=num_copies))
@@ -748,7 +749,7 @@ class Distributable(ABC):
         sa: float = 0,
         ea: float = 360,
         rot: bool = True,
-        num_copies: int = 1,
+        num_copies: int = 6,
     ) -> list[_CopyType]:
         """Return copies spread along an (elliptical) arc in the XY plane."""
         return self._distribute(
@@ -768,7 +769,7 @@ class Distributable(ABC):
 
     def sphere_copies(
         self,
-        num_copies: int = 1,
+        num_copies: int = 100,
         radius: float | None = None,
         diameter: float | None = None,
         cone_ang: float = 90,
@@ -786,7 +787,7 @@ class Distributable(ABC):
         dist: Sequence[float] | None = None,
         rotate_children: bool = True,
         closed: bool | None = None,
-        num_copies: int = 1,
+        num_copies: int | None = None,
     ) -> list[_CopyType]:
         """Return copies placed along *path*, oriented to it."""
         return self._distribute(
@@ -894,10 +895,10 @@ def xdistribute(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.solid import cuboid
             from pybosl2.distributors import xdistribute
 
-            xdistribute(spacing=15, children=[s3.cuboid([5,5,20]) for _ in range(5)]).show()
+            xdistribute(spacing=15, children=[cuboid([5, 5, 20]) for _ in range(5)]).show()
 
     """
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=RIGHT, length=length)

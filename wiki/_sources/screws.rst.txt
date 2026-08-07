@@ -2,17 +2,18 @@ Screws: metric screws, nuts & screw holes
 =========================================
 
 Pure-Python port of the core of BOSL2's ``screws.scad``, built on top of the
-:class:`~pybosl2.parts.threading` thread generator. The :class:`~pybosl2.parts.screws` class turns a
+:class:`~pybosl2.parts.threading` thread generator. Three classes turn a
 metric screw name into ready-to-print geometry::
 
-    Screws.screw("M6", 20, head="socket", drive="hex")   # M6 x 20 socket cap screw, hex recess
-    Screws.nut("M6")                                      # matching M6 hex nut
-    Screws.screw_hole("M6", 20, head="flat")             # countersunk clearance hole to subtract
+    from pybosl2.parts.screws import Screw, Nut, ScrewHole
+    Screw("M6", 20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX).show()
+    Nut("M6").show()
+    ScrewHole("M6", 20, head=ScrewHeadType.FLAT).show()
 
 A screw is specified by name -- ``"M6"`` (coarse pitch looked up from the ISO table), ``"M8x1"`` (an
 explicit fine pitch), a bare number, or a ``{"diameter": ..., "pitch": ...}`` dict. Screws are built
 *head-up*: the shaft occupies ``z in [-length, 0]`` (tip at the bottom) and the head sits above
-``z = 0``, so a screw drops straight into a mating :meth:`~pybosl2.parts.screws.Screws.screw_hole` cut with
+``z = 0``, so a screw drops straight into a mating :class:`~pybosl2.parts.screws.ScrewHole` cut with
 its mouth at ``z = 0``.
 
 The dimension tables (ISO coarse/fine pitches, and the socket-cap, hex, button, pan, countersunk,
@@ -32,7 +33,7 @@ Coverage of BOSL2 ``screws.scad``
      - Notes
    * - ``screw_info``
      - ported
-     - metric ISO sizes; returns a plain dict of resolved dimensions.
+     - replaced by :class:`~pybosl2.parts.screws.ScrewSpec`.
    * - ``screw``
      - ported
      - threaded/plain/partly-threaded shaft, plus socket / hex / button / pan / flat / setscrew heads.
@@ -48,7 +49,7 @@ Coverage of BOSL2 ``screws.scad``
    * - phillips / torx drive recesses
      - ported separately
      - available as masks in :doc:`screw_drive` (:class:`~pybosl2.parts.screw_drive`); not yet
-       wired into :meth:`~pybosl2.parts.screws.Screws.screw`'s ``drive=`` argument.
+       wired into :class:`~pybosl2.parts.screws.Screw`'s ``drive=`` argument.
    * - UTS / imperial specs, shoulder screws, named anchors, per-tolerance thread classes
      - not ported
      - a follow-up; this port covers the metric fastener geometry the toolkit needs.
@@ -60,29 +61,45 @@ An M8 socket cap screw with a hex drive recess:
 
 .. pythonscad-example::
 
-    from pybosl2.parts.screws import Screws
-    Screws.screw("M8", 24, head="socket", drive="hex", fa=6, fs=1).show()
+    from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType
+    from pybosl2.parts.screws import Screw
+    Screw("M8", 24, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).show()
 
 A countersunk (flat-head) screw:
 
 .. pythonscad-example::
 
-    from pybosl2.parts.screws import Screws
-    Screws.screw("M6", 20, head="flat", fa=6, fs=1).show()
+    from pybosl2.parts.enums import ScrewHeadType
+    from pybosl2.parts.screws import Screw
+    Screw("M6", 20, head=ScrewHeadType.FLAT, fa=6, fs=1).show()
 
 A screw threaded into its matching hex nut (shown side by side):
 
 .. pythonscad-example::
 
-    from pybosl2.parts.screws import Screws
-    screw = Screws.screw("M6", 18, head="button", drive="hex", fa=6, fs=1)
-    nut = Screws.nut("M6", slop=0.1, fa=6, fs=1).right(18)
+    from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType
+    from pybosl2.parts.screws import Screw, Nut
+    screw = Screw("M6", 18, head=ScrewHeadType.BUTTON, drive=ScrewDriveType.HEX, fa=6, fs=1).shape()
+    nut = Nut("M6", slop=0.1, fa=6, fs=1).shape().right(18)
     (screw | nut).show()
 
 API reference
 -------------
 
-.. autoclass:: pybosl2.parts.screws.Screws
+.. autoclass:: pybosl2.parts.screws.Screw
+   :members:
+
+.. autoclass:: pybosl2.parts.screws.Nut
+   :members:
+
+.. autoclass:: pybosl2.parts.screws.ScrewHole
+   :members:
+
+.. autoclass:: pybosl2.parts.screws.ScrewSpec
+   :members:
+   :undoc-members:
+
+.. autoclass:: pybosl2.parts.screws.ThreadPitches
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -99,22 +116,24 @@ An M6 screw:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screws import Screws
-   Screws.screw("M6", length=12).show()
+   from pybosl2.parts.screws import Screw
+   Screw("M6", length=12).show()
 
 A socket-head M6:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screws import Screws
-   Screws.screw("M6", head="socket", length=12).show()
+   from pybosl2.parts.enums import ScrewHeadType
+   from pybosl2.parts.screws import Screw
+   Screw("M6", head=ScrewHeadType.SOCKET, length=12).show()
 
 A Torx button-head M6:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screws import Screws
-   Screws.screw("M6", head="button", drive="torx", length=12).show()
+   from pybosl2.parts.enums import ScrewHeadType
+   from pybosl2.parts.screws import Screw
+   Screw("M6", head=ScrewHeadType.BUTTON, drive="torx", length=12).show()
 
 .. rubric:: ``nut``
 
@@ -122,8 +141,8 @@ An M6 nut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screws import Screws
-   Screws.nut("M6").show()
+   from pybosl2.parts.screws import Nut
+   Nut("M6").show()
 
 .. rubric:: ``screw_hole``
 
@@ -131,5 +150,5 @@ A threaded screw-hole mask:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.screws import Screws
-   Screws.screw_hole("M6", length=10).show()
+   from pybosl2.parts.screws import ScrewHole
+   ScrewHole("M6", length=10).show()

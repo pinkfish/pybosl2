@@ -197,10 +197,10 @@ class LinearBearings:
         )  # bearing bore
         body = body - cuboid([length + 0.1, gap, outer_diameter], fn=fn, fa=fa, fs=fs)  # split gap
         # clamp screw across the tabs (a simple clearance hole)
-        from pybosl2.parts.screws import Screws
+        from pybosl2.parts.screws import ScrewHole
 
         screw = (
-            Screws.screw_hole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).rotate([90, 0, 0]).up(tabh)
+            ScrewHole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).shape().rotate([90, 0, 0]).up(tabh)
         )
         body = body - screw
         return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])

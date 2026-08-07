@@ -30,6 +30,7 @@ from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
+from pybosl2.enums import VNFStyle
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.shapes3d.base import (
@@ -319,7 +320,7 @@ def heightfield(
     maxz: float = 99,
     xrange: Sequence[float] = [-1, 0.04, 1],
     yrange: Sequence[float] = [-1, 0.04, 1],
-    style: str = "default",
+    style: VNFStyle = VNFStyle.DEFAULT,
     convexity: int = 10,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -431,7 +432,7 @@ def cylindrical_heightfield(
     base: float = 1,
     transpose: bool = False,
     aspect: float = 1,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     convexity: int = 10,
     xrange: Sequence[float] = [-1, 0.01, 1],
     yrange: Sequence[float] = [-1, 0.01, 1],
@@ -562,7 +563,7 @@ def plot3d(
     zclip: Sequence[float] | None = None,
     zspan: Sequence[float] | None = None,
     base: float = 1,
-    style: str = "default",
+    style: VNFStyle = VNFStyle.DEFAULT,
 ) -> Bosl2Solid:
     """Return a surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values (BOSL2 plot3d()).
 
@@ -581,9 +582,9 @@ def plot3d(
         .. pythonscad-example::
 
             import math
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import plot3d
 
-            s3.plot3d(lambda x, y: 6 * math.cos(math.hypot(x, y) / 6),
+            plot3d(lambda x, y: 6 * math.cos(math.hypot(x, y) / 6),
                       list(range(-30, 31, 3)), list(range(-30, 31, 3))).show()
 
     """
@@ -626,7 +627,7 @@ def plot_revolution(
     rclip: Sequence[float] | None = None,
     rspan: Sequence[float] | None = None,
     horiz: bool = False,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
 ) -> Bosl2Solid:
     """Return a surface of revolution whose radius is modulated by ``radius = f(angle, z)`` (BOSL2 plot_revolution()).
 
@@ -657,9 +658,9 @@ def plot_revolution(
         .. pythonscad-example::
 
             import math
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import plot_revolution
 
-            s3.plot_revolution(lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30),
+            plot_revolution(lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30),
                                angle=list(range(0, 361, 6)), z=list(range(0, 31, 2)),
                                radius1=12, radius2=8).show()
 
@@ -746,10 +747,11 @@ def fillet(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.solid import cuboid
+            from pybosl2.shapes3d import fillet
 
-            block = s3.cuboid([30, 30, 20])
-            mask = s3.fillet(length=20, radius=6).right(15).forward(15)
+            block = cuboid([30, 30, 20])
+            mask = fillet(length=20, radius=6).right(15).forward(15)
             (block - mask).show()
 
     """
@@ -787,7 +789,7 @@ def textured_tile(
     tex_size: Any = None,
     tex_depth: float = 1,
     tex_inset: Any = False,
-    style: str = "min_edge",
+    style: VNFStyle = VNFStyle.MIN_EDGE,
     sides: Any = None,
     border: Any = None,
     gap: float | None = None,
@@ -820,18 +822,18 @@ def textured_tile(
 
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import textured_tile
 
-            s3.textured_tile("pyramids", size=[40, 40], tex_reps=[6, 6], tex_depth=3).show()
+            textured_tile("pyramids", size=[40, 40], tex_reps=[6, 6], tex_depth=3).show()
 
         A raw height-field:
 
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import textured_tile
 
             bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-            s3.textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
+            textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
 
     """
     from pybosl2.texture import (

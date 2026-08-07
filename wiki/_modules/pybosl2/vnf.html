@@ -35,7 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=1e5c14c0" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -420,30 +420,6 @@
 
   <span class="md-ellipsis">
     <span> Return Distributors:<wbr> line/grid/ring/arc/sphere/path copiers and reflected copies</span>
-
-  </span>
-
-
-      </a>
-    </li>
-
-
-
-
-
-
-
-
-
-
-
-    <li class="md-nav__item">
-      <a href="../../enums.html" class="md-nav__link">
-
-
-
-  <span class="md-ellipsis">
-    <span> Strongly-<wbr>typed enums for pybosl2</span>
 
   </span>
 
@@ -1217,6 +1193,30 @@
 
 
     <li class="md-nav__item">
+      <a href="../../enums.html" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
+
+  </span>
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
       <a href="../../gears.html" class="md-nav__link">
 
 
@@ -1792,13 +1792,13 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._mctable</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORNER_OFFSETS</span><span class="p">,</span> <span class="n">EDGE_CORNERS</span><span class="p">,</span> <span class="n">TRI_TABLE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds2D</span><span class="p">,</span> <span class="n">Bounds3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplingType</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
@@ -2415,7 +2415,9 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_norms</span><span class="p">(</span><span class="n">vectors</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Length of each row vector.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectors</span><span class="p">))</span>
+    <span class="c1"># via a typed local: numpy&#39;s stubs type einsum() as Any, which --strict rejects returning</span>
+    <span class="n">lengths</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectors</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">lengths</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_face_array</span><span class="p">(</span><span class="n">faces</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -2440,22 +2442,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tris</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span> <span class="k">if</span> <span class="n">tris</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="VnfStyle">
-<a class="viewcode-back" href="../../vnf.html#pybosl2.vnf.VnfStyle">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">VnfStyle</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Triangulation style for :meth:`VNF.vertex_array`.&quot;&quot;&quot;</span>
-
-    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
-    <span class="n">ALT</span> <span class="o">=</span> <span class="s2">&quot;alt&quot;</span>
-    <span class="n">MIN_EDGE</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span>
-    <span class="n">MIN_AREA</span> <span class="o">=</span> <span class="s2">&quot;min_area&quot;</span>
-    <span class="n">CONVEX</span> <span class="o">=</span> <span class="s2">&quot;convex&quot;</span>
-    <span class="n">CONCAVE</span> <span class="o">=</span> <span class="s2">&quot;concave&quot;</span>
-    <span class="n">QUINCUNX</span> <span class="o">=</span> <span class="s2">&quot;quincunx&quot;</span>
-    <span class="n">QUAD</span> <span class="o">=</span> <span class="s2">&quot;quad&quot;</span>
-    <span class="n">FLIP1</span> <span class="o">=</span> <span class="s2">&quot;flip1&quot;</span>
-    <span class="n">FLIP2</span> <span class="o">=</span> <span class="s2">&quot;flip2&quot;</span></div>
-
+<span class="n">VnfStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span>
 
 
 <div class="viewcode-block" id="VNF">
@@ -2758,7 +2745,7 @@
         <span class="n">col_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">row_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">VnfStyle</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">|</span> <span class="n">VnfStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</span>
 
@@ -2780,18 +2767,6 @@
 <span class="sd">            style: Triangulation method.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;default&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;alt&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;min_area&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;convex&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;concave&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;quincunx&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;quad&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;flip1&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;flip2&quot;</span><span class="p">,</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;unknown vertex_array style: </span><span class="si">{</span><span class="n">style</span><span class="si">!r}</span><span class="s2">&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapType</span><span class="p">,</span> <span class="n">norm_caps</span>
 
         <span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CapSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">)</span> <span class="k">if</span> <span class="n">caps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
@@ -2836,7 +2811,7 @@
         <span class="n">i4</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_r</span> <span class="o">%</span> <span class="n">rows</span><span class="p">)</span> <span class="o">*</span> <span class="n">cols</span> <span class="o">+</span> <span class="p">((</span><span class="n">cell_c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">cols</span><span class="p">)</span>
 
         <span class="n">verts</span> <span class="o">=</span> <span class="n">parr</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;quincunx&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">QUINCUNX</span><span class="p">:</span>
             <span class="n">centres</span> <span class="o">=</span> <span class="p">(</span><span class="n">parr</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span> <span class="o">+</span> <span class="n">parr</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span> <span class="o">+</span> <span class="n">parr</span><span class="p">[</span><span class="n">i3</span><span class="p">]</span> <span class="o">+</span> <span class="n">parr</span><span class="p">[</span><span class="n">i4</span><span class="p">])</span> <span class="o">/</span> <span class="mf">4.0</span>
             <span class="n">verts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">centres</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
 
@@ -2882,7 +2857,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_cell_faces</span><span class="p">(</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span><span class="p">,</span>
         <span class="n">parr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span>
         <span class="n">i1</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">],</span>
         <span class="n">i2</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">],</span>
@@ -2917,9 +2892,9 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span> <span class="o">=</span> <span class="n">parr</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i3</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i4</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;quad&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">QUAD</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i4</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;quincunx&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">QUINCUNX</span><span class="p">:</span>
             <span class="n">i5</span> <span class="o">=</span> <span class="n">pcnt</span> <span class="o">+</span> <span class="n">cell_r</span> <span class="o">*</span> <span class="n">colcnt</span> <span class="o">+</span> <span class="n">cell_c</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -2933,28 +2908,28 @@
 
         <span class="n">alt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i2</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">default</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i2</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;min_area&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_AREA</span><span class="p">:</span>
             <span class="n">area42</span> <span class="o">=</span> <span class="n">_norms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p4</span> <span class="o">-</span> <span class="n">p1</span><span class="p">))</span> <span class="o">+</span> <span class="n">_norms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p4</span> <span class="o">-</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p2</span> <span class="o">-</span> <span class="n">p3</span><span class="p">))</span>
             <span class="n">area13</span> <span class="o">=</span> <span class="n">_norms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p4</span><span class="p">,</span> <span class="n">p3</span> <span class="o">-</span> <span class="n">p4</span><span class="p">))</span> <span class="o">+</span> <span class="n">_norms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p3</span> <span class="o">-</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p1</span> <span class="o">-</span> <span class="n">p2</span><span class="p">))</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="n">area42</span> <span class="o">&lt;</span> <span class="n">area13</span> <span class="o">+</span> <span class="n">_EPS</span>
-        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">:</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="n">_norms</span><span class="p">(</span><span class="n">p4</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_norms</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p3</span><span class="p">)</span> <span class="o">+</span> <span class="n">_EPS</span>
-        <span class="k">elif</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;convex&quot;</span><span class="p">,</span> <span class="s2">&quot;concave&quot;</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="n">VNFStyle</span><span class="o">.</span><span class="n">CONVEX</span><span class="p">,</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">CONCAVE</span><span class="p">):</span>
             <span class="n">sides</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p3</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
             <span class="n">dot4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">sides</span><span class="p">,</span> <span class="n">p4</span><span class="p">)</span>
             <span class="n">dot1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">sides</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
-            <span class="n">use_alt</span> <span class="o">=</span> <span class="n">dot4</span> <span class="o">&gt;</span> <span class="n">dot1</span> <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;convex&quot;</span> <span class="k">else</span> <span class="n">dot4</span> <span class="o">&lt;=</span> <span class="n">dot1</span>
+            <span class="n">use_alt</span> <span class="o">=</span> <span class="n">dot4</span> <span class="o">&gt;</span> <span class="n">dot1</span> <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">CONVEX</span> <span class="k">else</span> <span class="n">dot4</span> <span class="o">&lt;=</span> <span class="n">dot1</span>
             <span class="n">flat</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># a cell with no normal collapses to one triangle</span>
             <span class="k">if</span> <span class="n">flat</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                 <span class="n">cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">use_alt</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">alt</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
                 <span class="n">cells</span><span class="p">[</span><span class="n">flat</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="n">flat</span><span class="p">]</span>
                 <span class="n">cells</span><span class="p">[</span><span class="n">flat</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">i1</span><span class="p">[</span><span class="n">flat</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>  <span class="c1"># a single repeated corner: dropped as degenerate</span>
                 <span class="k">return</span> <span class="n">cells</span>
-        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">ALT</span><span class="p">:</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;flip1&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">FLIP1</span><span class="p">:</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_r</span> <span class="o">+</span> <span class="n">cell_c</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;flip2&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">FLIP2</span><span class="p">:</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="p">(</span><span class="n">cell_r</span> <span class="o">+</span> <span class="n">cell_c</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># default</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
@@ -3329,11 +3304,11 @@
         <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
         <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span>
-        <span class="n">sampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">SkinMethod</span> <span class="o">=</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">,</span>
+        <span class="n">sampling</span><span class="p">:</span> <span class="n">SamplingType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="s2">&quot;CapsSpec&quot;</span> <span class="o">=</span> <span class="s2">&quot;butt&quot;</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">z</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF | Bosl2Solid&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</span>
@@ -3361,10 +3336,11 @@
 <span class="sd">                import math</span>
 <span class="sd">                import numpy as np</span>
 <span class="sd">                from pybosl2 import VNF</span>
+<span class="sd">                from pybosl2.enums import SkinMethod</span>
 
 <span class="sd">                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
 <span class="sd">                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]</span>
-<span class="sd">                VNF.from_skin([circle, square], slices=20, method=&quot;reindex&quot;, z=[0, 25]).polyhedron().show()</span>
+<span class="sd">                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron().show()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_skin</span>
@@ -3459,7 +3435,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="../../_static/stl_viewer.js?v=cb630fdb"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=f724b851"></script>
 
   </body>
 </html>
