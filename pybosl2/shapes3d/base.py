@@ -556,11 +556,17 @@ class CsgSolid(BaseShape):
         return moved
 
     def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
-        """Place `child` so its local origin lands on this object's.
+        """Place `child` so its local origin lands on this object's bounding-box `anchor` point.
 
-        bounding-box `anchor` point, keeping the child's own orientation,
-        and return self unioned with the placed child. `child` may be a
-        Bosl2Solid or a raw native solid.
+        The child keeps its own orientation. `child` may be a Bosl2Solid or a raw native solid.
+
+        The child is NOT unioned here: the returned copy of self carries it in
+        :attr:`attachments`, and the union (or the tag-driven diff/intersection, if one is
+        configured) happens later, in :meth:`realize` -- which runs automatically the first
+        time a native operation such as ``show()`` or ``mesh()`` needs real geometry. Until
+        then :meth:`bounds` and the anchor points derived from it describe the PARENT only,
+        so chained anchoring stays keyed to the parent rather than drifting as children are
+        added. Call :meth:`realize` yourself if you need a single measurable solid sooner.
 
         Examples:
         .. pythonscad-example::
@@ -590,11 +596,14 @@ class CsgSolid(BaseShape):
         overlap: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
-        """Place `child` on this object's `anchor` face and return self.
+        """Place `child` on this object's `anchor` face, without reorienting it.
 
-        unioned with it. Like attach() it mates a child face to a parent
-        face, but WITHOUT reorienting the child -- the child keeps its own
-        axes and is merely translated.
+        Like :meth:`attach` it mates a child face to a parent face, but the child keeps its
+        own axes and is merely translated.
+
+        As with :meth:`position` and :meth:`attach`, the child is deferred rather than
+        unioned: it goes into :attr:`attachments` on the returned copy and is combined in
+        :meth:`realize`, so :meth:`bounds` still reports the parent alone until then.
 
         With `align` omitted the child is centered on the face, sitting OUTSIDE the parent
         (inside=False, the default) or tucked inside (inside=True). Pass `align` (an edge/corner
@@ -645,12 +654,18 @@ class CsgSolid(BaseShape):
         spin: float = 0.0,
         bbox: Sequence[Sequence[float]] | None = None,
     ) -> "Bosl2Solid":
-        """Orient and place `child` so its `child_anchor` face mates flush.
+        """Orient and place `child` so its `child_anchor` face mates flush against `parent_anchor`.
 
-        against this object's `parent_anchor` face, then return self
-        unioned with the placed child. Both anchor points come from the
-        native bounding boxes, so neither object needs its size passed
-        explicitly.
+        Both anchor points come from the native bounding boxes, so neither object needs its
+        size passed explicitly.
+
+        The child is NOT unioned here: the returned copy of self carries it in
+        :attr:`attachments`, and the union (or the tag-driven diff/intersection, if one is
+        configured) happens later, in :meth:`realize` -- which runs automatically the first
+        time a native operation such as ``show()`` or ``mesh()`` needs real geometry. Until
+        then :meth:`bounds` and the anchor points derived from it describe the PARENT only,
+        which is what lets several attach() calls chain off the same parent faces. Call
+        :meth:`realize` yourself if you need a single measurable solid sooner.
 
         Args:
             parent_anchor: which face of self to attach to (e.g. Anchor.TOP)

@@ -250,15 +250,6 @@ def test_operator_sub_with_path() -> None:
     assert isinstance(result, Region)
 
 
-def test_raises_on_open_path() -> None:
-    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
-    b = Path2D([[20, 0], [60, 0], [60, 30]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        a.union(b)
-    with pytest.raises(ValueError, match="closed"):
-        a | b
-
-
 def test_symmetric_difference_with_path() -> None:
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
     b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
@@ -310,18 +301,20 @@ def test_region_hull_empty() -> None:
     assert len(result) == 0
 
 
-def test_region_hull_raises_on_open_path() -> None:
-    a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
-    b = Path2D([[40, 0], [70, 0], [70, 30]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        Region.hull(a, b)
-
-
 def test_path_hull_two_squares() -> None:
     a = Path2D([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[40, 0], [70, 0], [70, 30], [40, 30]])
     result = Path2D.hull(a, b)
     assert isinstance(result, Path2D)
+    assert result.closed
+
+
+def test_path_hull_of_nothing_is_an_empty_closed_path() -> None:
+    # Region.hull() finds no outlines to hull, so Path2D.hull has nothing to unwrap. It still
+    # returns a Path2D -- an empty, closed one -- rather than None or an IndexError.
+    result = Path2D([]).hull(Path2D([]))
+    assert isinstance(result, Path2D)
+    assert len(result) == 0
     assert result.closed
 
 

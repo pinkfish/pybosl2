@@ -45,7 +45,7 @@ from pybosl2.geometry import (
     is_collinear,
     line_normal,
 )
-from pybosl2.math import EPSILON, lerpn
+from pybosl2.math import EPSILON, deriv, deriv2, lerpn
 from pybosl2.miscellaneous import Extrudable
 from pybosl2.paths import (
     CutPoint,
@@ -234,7 +234,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     Args:
         points: the [x, y] points (anything array-like; numpy scalars are converted to float)
-        closed: whether the path is a closed polygon (default True)
+        closed: whether the path is a closed polygon -- default False, an open polyline, matching
+            BOSL2, where a path is open unless a function is told otherwise. Pass
+            ``closed=True`` for a polygon: it adds the segment from the last point back to the
+            first to the length, the tangents, and anything derived from them. Note that
+            :meth:`polygon` and :meth:`area` treat the outline as closed either way.
 
     Examples:
         A box outline inset by the wall thickness and with rounded corners, extruded into a plate:
@@ -249,7 +253,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     """
 
-    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
+    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
         """Initialize the instance."""
         # A copy, not asarray: the array is frozen below and handed to every _points reader, so
         # aliasing a caller's array here would freeze theirs too.
@@ -347,9 +351,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return cls(pts, closed=False)
 
     def _closed_coords(self) -> np.ndarray:
-        """Return coordinates with the closing segment appended for closed paths."""
+        """Return the coordinates with the closing segment appended, whatever ``closed`` says.
+
+        Every caller has already decided it wants the ring; gating on ``self.closed`` here only
+        made ``foo(closed=True)`` on an open path quietly return the open coordinates.
+        """
         coords = list(self._coords)
-        if self.closed and len(coords) >= 2 and coords[0] != coords[-1]:
+        if len(coords) >= 2 and coords[0] != coords[-1]:
             coords.append(coords[0])
         return np.array(coords, dtype=np.float64)
 
@@ -419,14 +427,18 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     @property
     def _shapely_polygon(self) -> Polygon:
-        """Shapely Polygon from the path (requires closed)."""
-        if not self.closed:
-            return Polygon()
+        """Shapely Polygon from the path outline, which is a ring whether or not ``closed`` is set.
+
+        The region operations (area, containment, offset, the booleans) are only defined on a
+        region, so they read the outline as one; ``closed`` is about traversal -- the length,
+        the tangents and everything derived from them -- not about whether an outline bounds
+        an area.
+        """
         coords = self._closed_coords()
         return Polygon(coords.tolist()) if len(coords) >= 3 else Polygon()
 
     @classmethod
-    def from_list(cls, lst: Sequence[Any], closed: bool = True) -> "Path2D":
+    def from_list(cls, lst: Sequence[Any], closed: bool = False) -> "Path2D":
         """Create a Path2D from a plain list of ``[x, y]`` coordinate pairs.
 
         Args:
@@ -453,8 +465,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        coords = self._closed_coords() if closed else np.asarray(self._shapely.coords)
-        lengths: NDArray[np.float64] = np.linalg.norm(np.diff(coords, axis=0), axis=1)
+        pts = np.vstack([self._points, self._points[:1]]) if closed else self._points
+        if len(pts) < 2:
+            return np.array([], dtype=np.float64)
+        lengths: NDArray[np.float64] = np.linalg.norm(np.diff(pts, axis=0), axis=1)
         return lengths
 
     def length_fractions(self, closed: bool | None = None) -> NDArray[np.float64]:
@@ -497,58 +511,24 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(proj.x), float(proj.y))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
-        """Return normalized tangent vector at each point of the path.
+        """Return the normalized tangent vector at each point of the path (BOSL2 path_tangents).
+
+        There is always exactly one tangent per path point -- not one per segment.
 
         Args:
-            closed: Override the instance's closed flag.
-            uniform: If True, simple segment-direction tangents.
-                     If False, segment-length-weighted average at shared points.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            uniform: If True, estimate the derivative assuming equally spaced points. If False,
+                sample it at the true segment lengths, which follows an unevenly spaced path
+                much more closely.
+
+        Returns:
+            A list of unit tangent vectors, one per path point.
+
+        Raises:
+            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
 
         """
-        if closed is None:
-            closed = self.closed
-        coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
-        n = len(coords)
-        if n < 2:
-            return [Point(1.0, 0.0)] * n
-        diffs = np.diff(coords, axis=0)
-        if closed:
-            diffs = np.vstack([diffs, coords[-1] - coords[0]])
-        lengths = np.linalg.norm(diffs, axis=1, keepdims=True)
-        lengths = np.where(lengths < 1e-12, 1.0, lengths)
-        dirs = diffs / lengths
-
-        if uniform:
-            return [Point(float(v[0]), float(v[1])) for v in dirs]
-
-        seg_lens = lengths.flatten()
-        result: list[Point] = []
-        m = len(dirs)
-        for i in range(n):
-            if closed:
-                prev_i = (i - 1) % (m - 1) if m > 1 else 0
-                curr_i = i % (m - 1) if m > 1 else 0
-                w_prev = seg_lens[prev_i]
-                w_curr = seg_lens[curr_i]
-            elif i == 0:
-                result.append(Point(float(dirs[0][0]), float(dirs[0][1])))
-                continue
-            elif i == n - 1:
-                result.append(Point(float(dirs[-1][0]), float(dirs[-1][1])))
-                continue
-            else:
-                w_prev = seg_lens[i - 1]
-                w_curr = seg_lens[i]
-
-            d_prev = dirs[(i - 1) % m] if i > 0 else dirs[0]
-            d_curr = dirs[i % m] if i < m else dirs[0]
-            weighted = d_prev * w_prev + d_curr * w_curr
-            w_norm = float(np.linalg.norm(weighted))
-            if w_norm < 1e-12:
-                result.append(Point(float(d_curr[0]), float(d_curr[1])))
-            else:
-                result.append(Point(float(weighted[0]) / w_norm, float(weighted[1]) / w_norm))
-        return result
+        return [Point(float(t[0]), float(t[1])) for t in self.tangent_array(closed=closed, uniform=uniform)]
 
     def normals(self, tangents: "list[Point] | None" = None, closed: bool | None = None) -> "list[Point]":
         """Perpendicular unit normal at each point (90° rotation of tangent)."""
@@ -557,39 +537,29 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [Point(-t[1], t[0]) for t in tangents]
 
     def curvature(self, closed: bool | None = None) -> NDArray[np.float64]:
-        """Numeric curvature estimate at each point (0 for 2-D collinear paths).
+        """Numeric curvature estimate at each point of the path (BOSL2 path_curvature).
+
+        There is one value per path point, matching :meth:`tangents`.
 
         Args:
-            closed: Override the instance's closed flag.
+            closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            An ndarray of curvature values.
+            An ndarray of curvature values, one per path point.
 
         """
         if closed is None:
             closed = self.closed
-        coords = np.asarray(self._closed_coords() if closed else self._shapely.coords)
-        n = len(coords)
-        if n < 3:
-            return np.zeros(n, dtype=np.float64)
-        d1 = np.diff(coords, axis=0)
-        d2 = np.diff(d1, axis=0)
-        if closed:
-            d2 = np.vstack([d2, d1[0] - d1[-1]])
-        segs = np.linalg.norm(d1, axis=1)
-        curv = np.zeros(n, dtype=np.float64)
-        for i in range(n):
-            if closed:
-                j = (i - 1) % (n - 1) if n > 1 else 0
-                s = segs[j]
-            elif i == 0 or i == n - 1:
-                continue
-            else:
-                j = i - 1
-                s = segs[j]
-            if s < 1e-12:
-                continue
-            curv[i] = float(np.linalg.norm(d2[j])) / (s * s)
+        pts = self._points
+        if len(pts) < 3:
+            return np.zeros(len(pts), dtype=np.float64)
+        d1 = np.asarray(deriv(pts, closed=closed), dtype=float)
+        d2 = np.asarray(deriv2(pts, closed=closed), dtype=float)
+        n1 = np.linalg.norm(d1, axis=1)
+        n2 = np.linalg.norm(d2, axis=1)
+        dot = np.einsum("ij,ij->i", d1, d2)
+        val = np.clip((n1 * n2) ** 2 - dot**2, 0.0, None)
+        curv: NDArray[np.float64] = np.sqrt(val) / n1**3
         return curv
 
     def torsion(self, closed: bool | None = None) -> NDArray[np.float64]:
@@ -988,8 +958,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return self.area(signed=True) < 0
 
     def perimeter(self) -> float:
-        """Total length around the path."""
-        return float(self._shapely.length)
+        """Total length along the path, including the closing segment when it is closed.
+
+        Returns:
+            The total path length as a float.
+
+        """
+        return float(np.sum(self.segment_lengths()))
 
     def contains(self, point: Sequence[float]) -> bool:
         """Return True if *point* is inside the closed polygon (on the boundary counts as inside).
@@ -1014,8 +989,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 rect.stroke(width=1).linear_extrude(height=1).show()
 
         """
-        if not self.closed:
-            return False
         from shapely.geometry import Point
 
         return bool(self._shapely_polygon.intersects(Point(point[0], point[1])))
@@ -1097,7 +1070,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 fa=fa,
                 fs=fs,
                 same_length=same_length,
-            )
+            ),
+            closed=True,  # an offset outline bounds a region, so it comes back as a ring
         )
 
     def close(self) -> "Path2D":
@@ -1266,7 +1240,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         temp = Path2D(poly, closed=True)
         tagged = temp._tag_self_crossing_subpaths(nonzero=nonzero, closed=True, eps=eps)
         kept = [sub[1] for sub in tagged if sub[0] == "O"]
-        return [self.__class__(part, closed=self.closed) for part in Path2D._assemble_path_fragments(kept, eps=eps)]
+        # Every part is a simple polygon, so each comes back closed whatever the input was.
+        return [self.__class__(part, closed=True) for part in Path2D._assemble_path_fragments(kept, eps=eps)]
 
     # -- transforms ------------------------------------------------------------------------
     #
@@ -1396,12 +1371,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         path as its only outline. Useful as a gateway to 2-D Boolean
         operations (union, intersection, difference) on polygons.
 
-        Raises:
-            ValueError: If the path is not closed.
-
         """
-        if not self.closed:
-            raise ValueError("Cannot convert an open path to a Region; close the path first with .close()")
         from pybosl2.regions import Region  # local: Region imports Path2D from here
 
         return Region([self])
@@ -1525,16 +1495,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             The Minkowski sum as a new closed :class:`Path2D`.
 
-        Raises:
-            ValueError: If either path is not closed.
-
         """
         from shapely.geometry import MultiPoint
-
-        if not self.closed:
-            raise ValueError("minkowski_sum() requires a closed path. Close it with .close() first.")
-        if not other.closed:
-            raise ValueError("minkowski_sum() requires a closed path for 'other'. Close it with .close() first.")
 
         a = np.asarray(self._points)
         b = np.asarray(other._points)
@@ -1580,9 +1542,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new closed :class:`Path2D`.
 
-        Raises:
-            ValueError: If the path is not closed.
-
         Examples:
             Round join (default):
 
@@ -1617,9 +1576,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         from shapely.geometry import JOIN_STYLE
         from shapely.geometry import Polygon as _Polygon
-
-        if not self.closed:
-            raise ValueError("minkowski_sum_circle() requires a closed path. Close it with .close() first.")
 
         pts = [(float(p[0]), float(p[1])) for p in self._points]
         style_map = {
@@ -1685,16 +1641,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A single closed :class:`Path2D` of the convex hull outline.
 
-        Raises:
-            ValueError: If any passed :class:`Path2D` is not closed.
-
         """
         from pybosl2.regions import Region  # local: Region imports Path2D from here
 
         region = Region.hull(self, *others)
         if region.paths:
             return region.paths[0]
-        return Path2D([])
+        return Path2D([], closed=True)
 
     def union(self, *others: "Path2D") -> "Path2D":
         """Return the 2-D union of this closed path with *others*.
@@ -1710,18 +1663,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new closed :class:`Path2D` of the union outline.
 
         Raises:
-            ValueError: If any path is not closed or the result is invalid.
+            ValueError: If the result is not a single valid polygon.
 
         """
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union
 
-        if not self.closed:
-            raise ValueError("union() requires a closed path. Close it with .close() first.")
         polys = [_Polygon(self._points)]
         for other in others:
-            if not other.closed:
-                raise ValueError("union() requires all paths to be closed.")
             polys.append(_Polygon(other._points))
         result = unary_union(polys)
         return Path2D._polygon_to_path(result)
@@ -1740,18 +1689,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new closed :class:`Path2D` of the intersection outline, or an
             empty :class:`Path2D` if the result is empty.
 
-        Raises:
-            ValueError: If any path is not closed.
-
         """
         from shapely.geometry import Polygon as _Polygon
 
-        if not self.closed:
-            raise ValueError("intersection() requires a closed path. Close it with .close() first.")
         a = _Polygon(self._points)
         for other in others:
-            if not other.closed:
-                raise ValueError("intersection() requires all paths to be closed.")
             a = a.intersection(_Polygon(other._points))
         return Path2D._polygon_to_path(a)
 
@@ -1768,15 +1710,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new closed :class:`Path2D` of the difference outline.
 
         Raises:
-            ValueError: If either path is not closed or the result is invalid.
+            ValueError: If the result is not a single valid polygon.
 
         """
         from shapely.geometry import Polygon as _Polygon
 
-        if not self.closed:
-            raise ValueError("difference() requires a closed path. Close it with .close() first.")
-        if not other.closed:
-            raise ValueError("difference() requires 'other' to be closed.")
         a = _Polygon(self._points)
         b = _Polygon(other._points)
         return Path2D._polygon_to_path(a.difference(b))
@@ -1793,16 +1731,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A new closed :class:`Path2D` of the XOR outline.
 
-        Raises:
-            ValueError: If either path is not closed.
-
         """
         from shapely.geometry import Polygon as _Polygon
 
-        if not self.closed:
-            raise ValueError("symmetric_difference() requires a closed path. Close it with .close() first.")
-        if not other.closed:
-            raise ValueError("symmetric_difference() requires 'other' to be closed.")
         a = _Polygon(self._points)
         b = _Polygon(other._points)
         return Path2D._polygon_to_path(a.symmetric_difference(b))
@@ -2258,7 +2189,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             radius: Offset distance with rounded joins (positive grows, negative shrinks).
             delta: Offset distance with sharp/chamfered joins (mutually exclusive with radius).
             chamfer: If True, use chamfered rather than sharp joins when delta is given.
-            closed: Override the instance's closed flag; uses ``self.closed`` by default.
+            closed: Kept for call compatibility, and it must not be False. Offsetting is a
+                region operation, so the outline is always read as a closed ring -- an open
+                polyline has no inside to grow or shrink.
             fn: Number of facets for rounded sections (overrides fa/fs).
             fa: Minimum angle in degrees for circle fragments.
             fs: Minimum size for circle fragments.
@@ -2266,12 +2199,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 the fold repair that would drop points (``delta``, no chamfer).
 
         """
-        if closed is None:
-            closed = self.closed
         assert (radius is None) != (delta is None), (
             f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}"
         )
-        assert closed, "Open paths are not supported by offset()"
+        assert closed is not False, "Open paths are not supported by offset()"
+        closed = True
         assert not same_length or (radius is None and not chamfer), (
             "offset(same_length=True) needs a plain delta offset: rounded and chamfered joins add points."
         )

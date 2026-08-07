@@ -65,7 +65,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     Args:
         points: the ``[x, y, z]`` points (anything array-like; numpy scalars are converted to float)
-        closed: whether the path is a closed loop (default True)
+        closed: whether the path is a closed loop -- default False, an open polyline, matching
+            BOSL2, where a path is open unless a function is told otherwise. Pass
+            ``closed=True`` for a loop: it adds the segment from the last point back to the
+            first to the length, the tangents, and anything derived from them.
 
     Examples:
         A helix resampled to fewer points and swept into a coil:
@@ -79,7 +82,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     """
 
-    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = True) -> None:
+    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
         """Initialize the instance."""
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
@@ -209,7 +212,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return [list(map(float, p)) for p in self._points.tolist()]
 
     @classmethod
-    def from_list(cls, lst: Sequence[Any], closed: bool = True) -> "Path3D":
+    def from_list(cls, lst: Sequence[Any], closed: bool = False) -> "Path3D":
         """Create a Path3D from a plain list of ``[x, y, z]`` coordinate triples.
 
         Args:
@@ -299,31 +302,26 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         return Point(float(r[0]), float(r[1]), float(r[2]))
 
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
-        """Return normalized tangent vector at each point of the path, as a list.
+        """Return the normalized tangent vector at each point of the path (BOSL2 path_tangents).
 
-        of :class:`~pybosl2.points.Vector` values.
+        There is always exactly one tangent per path point -- not one per segment.
 
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
-            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.
+            uniform: If True, estimate the derivative assuming equally spaced points. If False,
+                sample it at the true segment lengths, which follows an unevenly spaced path
+                much more closely.
 
         Returns:
             A list of unit tangent vectors, one per path point.
 
+        Raises:
+            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+
         """
-        if closed is None:
-            closed = self.closed
-        if not uniform:
-            diameter = np.asarray(
-                deriv(self._points, closed=closed, height=np.linalg.norm(np.diff(self._points, axis=0), axis=1)),
-                dtype=float,
-            )
-        else:
-            diameter = np.asarray(deriv(self._points, closed=closed), dtype=float)
-        norms = np.linalg.norm(diameter, axis=1, keepdims=True)
-        assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
-        result = diameter / norms
-        return [Point([float(r[0]), float(r[1]), float(r[2])]) for r in result]
+        return [
+            Point([float(t[0]), float(t[1]), float(t[2])]) for t in self.tangent_array(closed=closed, uniform=uniform)
+        ]
 
     def normals(self, tangents: "list[Point] | None" = None, closed: bool | None = None) -> "list[Point]":
         """Return normal vector (perpendicular to tangent, in the plane of the curve) at each point.
@@ -373,6 +371,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
+        if len(self._points) < 3:
+            # deriv() needs two points and curvature/torsion three; without this an empty or
+            # near-empty path raises IndexError out of the derivative instead of measuring 0.
+            return np.zeros(len(self._points), dtype=np.float64)
         d1 = np.asarray(deriv(self._points, closed=closed), dtype=float)
         d2 = np.asarray(deriv2(self._points, closed=closed), dtype=float)
         n1 = np.linalg.norm(d1, axis=1)
@@ -393,6 +395,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
+        if len(self._points) < 3:
+            # deriv() needs two points and curvature/torsion three; without this an empty or
+            # near-empty path raises IndexError out of the derivative instead of measuring 0.
+            return np.zeros(len(self._points), dtype=np.float64)
         d1 = np.asarray(deriv(self._points, closed=closed), dtype=float)
         d2 = np.asarray(deriv2(self._points, closed=closed), dtype=float)
         d3 = np.asarray(deriv3(self._points, closed=closed), dtype=float)

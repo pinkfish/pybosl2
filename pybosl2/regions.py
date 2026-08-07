@@ -53,9 +53,10 @@ def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
     for poly in polys:
         if not isinstance(poly, Polygon):
             continue
-        paths.append(Path2D(np.asarray(poly.exterior.coords)[:-1]))  # ring coords come out as an array
+        # A region's outlines are rings, so they come back closed whatever built them.
+        paths.append(Path2D(np.asarray(poly.exterior.coords)[:-1], closed=True))
         for interior in poly.interiors:
-            paths.append(Path2D(np.asarray(interior.coords)[:-1]))
+            paths.append(Path2D(np.asarray(interior.coords)[:-1], closed=True))
     return paths
 
 
@@ -131,7 +132,7 @@ class Region:
         if not items:
             self._polygon = MultiPolygon()
             return
-        paths_list = [p if isinstance(p, Path2D) else Path2D(p) for p in items]
+        paths_list = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in items]
         outer = paths_list[0]._points
         holes = [h._points for h in paths_list[1:]]
         self._polygon = MultiPolygon([Polygon(outer, holes)])
@@ -206,7 +207,7 @@ class Region:
             The first :class:`Path2D` in the region, which is the outer outline.
 
         """
-        return self.paths[0] if self.paths else Path2D([])
+        return self.paths[0] if self.paths else Path2D([], closed=True)
 
     @property
     def holes(self) -> list[Path2D]:
@@ -341,9 +342,6 @@ class Region:
         Returns:
             A :class:`Region` representing the convex hull.
 
-        Raises:
-            ValueError: If any passed :class:`Path2D` is not closed.
-
         """
         from shapely.ops import unary_union
 
@@ -355,8 +353,6 @@ class Region:
         geoms: list[Polygon] = []
         for item in items:
             if isinstance(item, _Path):
-                if not item.closed:
-                    raise ValueError("convex_hull() requires closed Paths. Close them with .close() first.")
                 item = Region([item])
             if not isinstance(item, Region):
                 raise TypeError(f"convex_hull() expects Region or Path2D, got {type(item).__name__}")
@@ -578,8 +574,6 @@ class Region:
 
         """
         if isinstance(other, Path2D):
-            if not other.closed:
-                raise ValueError("intersection() requires a closed Path2D. Close it with .close() first.")
             other = Region([other])
         result = self.geom.intersection(other.geom)
         if result.is_empty:
@@ -612,8 +606,6 @@ class Region:
 
         """
         if isinstance(other, Path2D):
-            if not other.closed:
-                raise ValueError("union() requires a closed Path2D. Close it with .close() first.")
             other = Region([other])
         result = self.geom.union(other.geom)
         if result.is_empty:
@@ -646,8 +638,6 @@ class Region:
 
         """
         if isinstance(other, Path2D):
-            if not other.closed:
-                raise ValueError("difference() requires a closed Path2D. Close it with .close() first.")
             other = Region([other])
         result = self.geom.difference(other.geom)
         if result.is_empty:
@@ -669,8 +659,6 @@ class Region:
 
         """
         if isinstance(other, Path2D):
-            if not other.closed:
-                raise ValueError("symmetric_difference() requires a closed Path2D. Close it with .close() first.")
             other = Region([other])
         result = self.geom.symmetric_difference(other.geom)
         if result.is_empty:

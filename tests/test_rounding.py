@@ -23,7 +23,7 @@ P3 = [[0, 0, 0], [40, 0, 0], [40, 40, 20], [0, 40, 20]]
 
 
 def test_circle_inserts_points_and_returns_path() -> None:
-    out = Path2D(SQ).round_corners(radius=5)
+    out = Path2D(SQ, closed=True).round_corners(radius=5)
     assert isinstance(out, Path2D)
     assert not isinstance(out, Path3D)
     assert len(out) > len(SQ)
@@ -51,8 +51,10 @@ def test_every_method_measure_builds(method, kw) -> None:  # type: ignore[no-unt
 
 
 def test_chamfer_replaces_each_corner_with_two_points() -> None:
-    out = Path2D(SQ).round_corners(method=RoundingMethod.CHAMFER, joint=6)
+    out = Path2D(SQ, closed=True).round_corners(method=RoundingMethod.CHAMFER, joint=6)
     assert len(out) == 8  # type: ignore[arg-type]  # each of 4 corners -> 2 chamfer points
+    # An OPEN path keeps its two endpoints and only works the 2 interior corners.
+    assert len(Path2D(SQ).round_corners(method=RoundingMethod.CHAMFER, joint=6)) == 6
 
 
 def test_3d_paths_return_path3d() -> None:

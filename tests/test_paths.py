@@ -39,7 +39,7 @@ def test_rejects_non_xy_points() -> None:
 def test_empty_path() -> None:
     p = Path2D()
     assert len(p) == 0
-    assert p.closed is True
+    assert p.closed is False  # paths are open unless asked for a loop, as in BOSL2
     assert p.to_list == []
     assert p.array.shape == (0,)
 
@@ -99,15 +99,18 @@ def test_is_clockwise() -> None:
 
 
 def test_perimeter_closed_vs_open() -> None:
-    assert Path2D(SQUARE).perimeter() == 220  # open path length from _shapely
+    assert Path2D(SQUARE, closed=True).perimeter() == 280  # four sides, incl. the closing edge
+    assert Path2D(SQUARE).perimeter() == 220  # open by default
     assert Path2D(SQUARE, closed=False).perimeter() == 220  # three segments, no closing edge
-    assert Path2D(UNIT).perimeter() == 30
+    assert Path2D(UNIT, closed=True).perimeter() == 40
     assert Path2D(UNIT, closed=False).perimeter() == 30
-    assert math.isclose(Path2D(SQUARE).perimeter(), 220.0)
+    # perimeter() is the sum of segment_lengths(), for closed and open alike
+    for path in (Path2D(SQUARE), Path2D(SQUARE, closed=True)):
+        assert math.isclose(path.perimeter(), float(np.sum(path.segment_lengths())))
 
 
 def test_segment_lengths_and_fractions() -> None:
-    p = Path2D(SQUARE)
+    p = Path2D(SQUARE, closed=True)
     np.testing.assert_allclose(p.segment_lengths(), [80, 60, 80, 60])
     fr = p.length_fractions()
     assert len(fr) == 5
@@ -123,13 +126,13 @@ def test_is_closed_property() -> None:
     assert Path2D(SQUARE).is_closed is False
 
 
-def test_contains_only_when_closed() -> None:
-    p = Path2D(SQUARE)
-    assert p.contains([40, 30]) is True
-    assert p.contains([100, 100]) is False
-    assert Path2D(SQUARE, closed=False).contains([40, 30]) is False
-    assert Path2D(SQUARE, closed=False).contains([80, 60]) is False
-    assert p.contains([-1, -1]) is False
+def test_contains_reads_the_outline_as_a_region() -> None:
+    # contains() is a region query, so the outline is read as a ring either way -- `closed`
+    # is about traversal (length, tangents), not about whether an outline bounds an area.
+    for p in (Path2D(SQUARE), Path2D(SQUARE, closed=True)):
+        assert p.contains([40, 30]) is True
+        assert p.contains([100, 100]) is False
+        assert p.contains([-1, -1]) is False
 
 
 def test_is_simple() -> None:
@@ -158,16 +161,33 @@ def test_closest_point() -> None:
 def test_tangents_are_unit() -> None:
     t = Path2D(SQUARE).tangents()
     ta = np.asarray(t)
-    assert ta.shape == (5, 2)
-    norms = np.linalg.norm(ta, axis=1)
-    assert np.all((norms > 0.999) | (norms < 0.001))  # zero for degenerate segments
+    assert ta.shape == (4, 2)  # one tangent per POINT, not per segment
+    np.testing.assert_allclose(np.linalg.norm(ta, axis=1), 1.0)
+
+
+def test_tangents_one_per_point_open_and_closed() -> None:
+    # The uniform=True branch used to return one tangent per SEGMENT, which made an open
+    # path come back one short and blew up smooth_path() with an IndexError.
+    for uniform in (True, False):
+        assert len(Path2D(SQUARE, closed=False).tangents(uniform=uniform)) == len(SQUARE)
+        assert len(Path2D(SQUARE, closed=True).tangents(uniform=uniform)) == len(SQUARE)
+
+
+def test_tangents_nonuniform_is_not_a_central_difference() -> None:
+    # uniform=False must be BOSL2's deriv(path, h=segment_lengths), which accounts for
+    # uneven spacing; a plain central difference normalize(p[i+1] - p[i-1]) does not.
+    pts = [[0, 0], [1, 10], [40, 12], [42, 0]]
+    got = np.asarray(Path2D(pts, closed=False).tangents(uniform=False))
+    central = np.asarray([np.subtract(pts[2], pts[0]), np.subtract(pts[3], pts[1])], dtype=float)
+    central /= np.linalg.norm(central, axis=1, keepdims=True)
+    assert not np.allclose(got[1:3], central, atol=1e-4)
 
 
 def test_normals_perpendicular_to_tangents() -> None:
     p = Path2D(SQUARE)
     t, sides = p.tangents(), p.normals()
     ta, sa = np.asarray(t), np.asarray(sides)
-    assert sa.shape == (5, 2)
+    assert sa.shape == (4, 2)
     for i in range(len(p)):
         assert abs(float(np.dot(ta[i], sa[i]))) < 1e-9
 
@@ -175,8 +195,52 @@ def test_normals_perpendicular_to_tangents() -> None:
 def test_curvature_of_straightish_polygon() -> None:
     c = Path2D(SQUARE).curvature()
     assert c.shape == (len(c),)
-    assert len(c) == 5
+    assert len(c) == 4  # one value per point, matching tangents()
     assert not np.any(np.isnan(c))
+
+
+# -- degenerate paths ---------------------------------------------------------------------
+#
+# A path too short to have the thing being measured MEASURES ZERO; it does not raise. These
+# all route through numpy derivatives that index [1] and [2] unguarded, so without the
+# length checks an empty path comes back as an IndexError from inside deriv().
+
+
+@pytest.mark.parametrize("path", [Path2D(), Path2D([[1.0, 2.0]])])
+def test_no_segments_measures_empty(path: Path2D) -> None:
+    """Fewer than two points means no segment to measure."""
+    assert path.segment_lengths().shape == (0,)
+    assert path.perimeter() == 0.0
+
+
+def test_closed_single_point_has_one_zero_length_segment() -> None:
+    # Closing a single point joins it to itself, which IS a segment -- of length zero.
+    lengths = Path2D([[1.0, 2.0]], closed=True).segment_lengths()
+    assert lengths.shape == (1,)
+    assert lengths[0] == 0.0
+
+
+@pytest.mark.parametrize("path", [Path2D(), Path2D([[1.0, 2.0]])])
+def test_short_path_tangents_are_one_per_point(path: Path2D) -> None:
+    # Still one per point, the same as any other path -- an empty path just gets none.
+    assert len(path.tangents()) == len(path)
+    assert path.tangent_array().shape == (len(path), 2)
+
+
+def test_single_point_tangent_falls_back_to_x() -> None:
+    # One point gives nothing to differentiate, so the tangent is +x by convention.
+    np.testing.assert_allclose(list(Path2D([[1.0, 2.0]]).tangents()[0]), [1.0, 0.0])
+
+
+@pytest.mark.parametrize(
+    "path",
+    [Path2D(), Path2D([[1.0, 2.0]]), Path2D([[0.0, 0.0], [1.0, 0.0]])],
+)
+def test_curvature_needs_three_points(path: Path2D) -> None:
+    """Two points can only make a straight line, so curvature is zero rather than undefined."""
+    curvature = path.curvature()
+    assert curvature.shape == (len(path),)
+    assert not np.any(curvature)
 
 
 # -- derived paths ------------------------------------------------------------------------
@@ -380,7 +444,7 @@ def test_offset_leaves_convex_outlines_untouched() -> None:
 
 
 def test_round_corners_inserts_points() -> None:
-    out = Path2D(UNIT).round_corners(radius=2)
+    out = Path2D(UNIT, closed=True).round_corners(radius=2)
     assert isinstance(out, Path2D)
     assert len(out) > len(UNIT)
     assert len(out) == 12
@@ -389,7 +453,7 @@ def test_round_corners_inserts_points() -> None:
 
 
 def test_merge_collinear_drops_midpoints() -> None:
-    p = Path2D([[0, 0], [5, 0], [10, 0], [10, 10], [0, 10]])
+    p = Path2D([[0, 0], [5, 0], [10, 0], [10, 10], [0, 10]], closed=True)
     assert len(p) == 5
     result = p.merge_collinear()
     assert len(result) == 4
@@ -426,14 +490,14 @@ def test_close_and_cleanup() -> None:
 
 
 def test_subdivide_adds_points() -> None:
-    out = Path2D(SQUARE).subdivide(num_copies=8)
+    out = Path2D(SQUARE, closed=True).subdivide(num_copies=8)
     assert len(out) == 8
     assert out.closed
     assert isinstance(out, Path2D)
 
 
 def test_resample_to_n_points() -> None:
-    out = Path2D(SQUARE).resample(num_copies=12)
+    out = Path2D(SQUARE, closed=True).resample(num_copies=12)
     assert len(out) == 12
     assert out.closed
     assert isinstance(out, Path2D)
@@ -521,7 +585,7 @@ def test_polygon_and_geometry_use_mock() -> None:
 
 
 def test_polygon_parts_of_simple_square() -> None:
-    parts = Path2D(SQUARE).polygon_parts()
+    parts = Path2D(SQUARE, closed=True).polygon_parts()
     assert len(parts) == 1
     assert all(isinstance(p, Path2D) for p in parts)
     assert len(parts[0]) == 4
@@ -610,7 +674,7 @@ def test_path_length_accepts_3d() -> None:
 
 def test_shapely_backed_path_methods() -> None:
     # contains
-    p = Path2D(SQUARE)
+    p = Path2D(SQUARE, closed=True)
     assert p.contains([40, 30]) is True
     assert p.contains([100, 100]) is False
 
@@ -619,13 +683,13 @@ def test_shapely_backed_path_methods() -> None:
     assert math.isclose(p.area(signed=True), 4800.0)
 
     # perimeter
-    assert math.isclose(p.perimeter(), 220.0)
+    assert math.isclose(p.perimeter(), 280.0)
 
     # clockwise vs counter-clockwise signed area
-    cw_p = Path2D([[0, 60], [80, 60], [80, 0], [0, 0]])
+    cw_p = Path2D([[0, 60], [80, 60], [80, 0], [0, 0]], closed=True)
     assert cw_p.is_clockwise() is True
     assert math.isclose(cw_p.area(signed=True), -4800.0)
-    assert math.isclose(cw_p.perimeter(), 220.0)
+    assert math.isclose(cw_p.perimeter(), 280.0)
 
     # is_simple
     assert p.is_simple() is True
@@ -690,20 +754,6 @@ def test_ellipse2d_aspect() -> None:
     assert abs(pts[1, 0]) == pytest.approx(0.0, abs=1e-9)
 
 
-def test_minkowski_requires_closed() -> None:
-    a = Path2D([[0, 0], [20, 0], [20, 10]], closed=False)
-    b = Path2D([[0, 0], [5, 0], [5, 5], [0, 5]])
-    with pytest.raises(ValueError, match="closed"):
-        a.minkowski_sum(b)
-
-
-def test_minkowski_requires_closed_other() -> None:
-    a = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
-    b = Path2D([[0, 0], [5, 0], [5, 5]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        a.minkowski_sum(b)
-
-
 def test_minkowski_sum_circle_dilates() -> None:
     square = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
     result = square.minkowski_sum_circle(radius=5)
@@ -721,12 +771,6 @@ def test_minkowski_sum_circle_erodes() -> None:
     assert result.area() < square.area()
     assert result.area() == pytest.approx(96.0, rel=0.05)
     assert len(result) == 4
-
-
-def test_minkowski_sum_circle_requires_closed() -> None:
-    open_path = Path2D([[0, 0], [20, 0], [20, 10]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        open_path.minkowski_sum_circle(radius=5)
 
 
 # -- Boolean operations on Path2D ----------------------------------------------------------------
@@ -809,18 +853,14 @@ def test_xor_operator() -> None:
     assert len(result) == 4
 
 
-def test_union_requires_closed() -> None:
-    a = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]])
-    b = Path2D([[10, 0], [30, 0], [30, 10]], closed=False)
-    with pytest.raises(ValueError, match="closed"):
-        a.union(b)
-
-
-def test_difference_requires_closed() -> None:
-    a = Path2D([[0, 0], [20, 0], [20, 10]], closed=False)
-    b = Path2D([[5, 0], [15, 0], [15, 10], [5, 10]])
-    with pytest.raises(ValueError, match="closed"):
-        a.difference(b)
+def test_region_ops_read_an_open_outline_as_a_ring() -> None:
+    # These are region operations: an outline bounds an area whether or not it is flagged
+    # closed, so they no longer refuse an open path.
+    open_sq = Path2D([[0, 0], [20, 0], [20, 10], [0, 10]], closed=False)
+    other = Path2D([[10, 0], [30, 0], [30, 10], [10, 10]], closed=True)
+    assert open_sq.union(other).area() == pytest.approx(300.0)
+    assert open_sq.difference(other).area() == pytest.approx(100.0)
+    assert open_sq.minkowski_sum_circle(radius=5).area() > open_sq.area()
 
 
 def test_intersection_empty_returns_empty() -> None:
