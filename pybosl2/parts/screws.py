@@ -39,6 +39,7 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
 __all__ = [
     "Screws",
+    "ScrewSpec",
     "ThreadPitches",
     "HexHead",
     "SocketHead",
@@ -290,31 +291,103 @@ _NUT = {
 _CLEARANCE = {"close": 0.2, "normal": 0.5, "loose": 1.0}
 
 
-def _parse_spec(
-    spec: str | dict[str, float] | float,
-    thread: ThreadPitchClass = ThreadPitchClass.COARSE,
-    pitch: float | None = None,
-) -> tuple[float, float]:
-    """Resolve *spec* to ``(diameter, pitch)``.
+class ScrewSpec:
+    """Resolved dimensions for a metric screw.
 
-    *spec* may be ``"M6"``, ``"M8x1"`` (explicit pitch), a bare number (treated as the metric
-    nominal diameter), or a mapping already carrying ``diameter``/``pitch``.
+    Construct directly (replaces the old ``_parse_spec`` helper):
+    ``ScrewSpec("M6")``, ``ScrewSpec("M8x1", head=ScrewHeadType.HEX)``, etc.
+    ``:meth:`~Screws.screw_info` is a thin convenience wrapper that defaults
+    *head* to ``ScrewHeadType.SOCKET``.
+
+    Attributes are set by the constructor and may be read freely.
     """
-    if isinstance(spec, dict):
-        diameter = float(spec["diameter"])
-        sp = spec.get("pitch")
-        return diameter, float(sp) if sp is not None else _lookup_pitch(diameter, thread)
-    if isinstance(spec, (int, float)):
-        diameter = float(spec)
-        return diameter, float(pitch) if pitch is not None else _lookup_pitch(diameter, thread)
-    s = str(spec).strip().upper()
-    if s.startswith("M"):
-        s = s[1:]
-    if "X" in s:
-        dpart, ppart = s.split("X", 1)
-        return float(dpart), float(ppart)
-    diameter = float(s)
-    return diameter, float(pitch) if pitch is not None else _lookup_pitch(diameter, thread)
+
+    system: str
+    diameter: float
+    pitch: float
+    head: ScrewHeadType
+    head_size: float | None
+    head_height: float
+    head_angle: float | None
+    head_size_sharp: float | None
+    drive: ScrewDriveType
+    drive_size: float | None
+    drive_depth: float | None
+
+    def __init__(
+        self,
+        spec: str | dict[str, float] | float,
+        head: ScrewHeadType = ScrewHeadType.NONE,
+        thread: ThreadPitchClass = ThreadPitchClass.COARSE,
+        drive: ScrewDriveType = ScrewDriveType.NONE,
+        pitch: float | None = None,
+    ) -> None:
+        """Resolve a screw specification to a fully-populated :class:`ScrewSpec`.
+
+        *spec* may be ``"M6"``, ``"M8x1"`` (explicit pitch), a bare number (treated as the
+        metric nominal diameter), or a mapping already carrying ``diameter``/``pitch``.  When
+        *head* is anything other than ``ScrewHeadType.NONE`` the appropriate head dimensions
+        and optional drive-recess dimensions are looked up from the ISO tables.
+        """
+        self.system = "ISO"
+
+        if isinstance(spec, dict):
+            d = float(spec["diameter"])
+            p = float(spec.get("pitch", 0)) if spec.get("pitch") is not None else _lookup_pitch(d, thread)
+        elif isinstance(spec, (int, float)):
+            d = float(spec)
+            p = float(pitch) if pitch is not None else _lookup_pitch(d, thread)
+        else:
+            s = str(spec).strip().upper()
+            if s.startswith("M"):
+                s = s[1:]
+            if "X" in s:
+                dpart, ppart = s.split("X", 1)
+                d, p = float(dpart), float(ppart)
+            else:
+                d = float(s)
+                p = float(pitch) if pitch is not None else _lookup_pitch(d, thread)
+
+        self.diameter = d
+        self.pitch = p
+        self.head = head
+        self.drive = drive
+        self.head_size = None
+        self.head_height = 0.0
+        self.head_angle = None
+        self.head_size_sharp = None
+        self.drive_size = None
+        self.drive_depth = None
+
+        if head in (None, ScrewHeadType.NONE):
+            self.head = ScrewHeadType.NONE
+            if drive == ScrewDriveType.HEX:
+                self.drive_size = _closest(_SETSCREW, d)
+                self.drive_depth = d / 2
+        elif head == ScrewHeadType.HEX:
+            spec_h: HexHead = _closest(_HEX_HEAD, d)
+            self.head_size, self.head_height = spec_h.width, spec_h.height
+        elif head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
+            spec_s: SocketHead = _closest(_SOCKET_HEAD, d)
+            self.head_size, self.head_height = spec_s.head_d, d
+            if drive == ScrewDriveType.HEX:
+                self.drive_size, self.drive_depth = spec_s.hex_drive, d / 2
+        elif head == ScrewHeadType.BUTTON:
+            spec_b: ButtonHead = _closest(_BUTTON_HEAD, d)
+            self.head_size, self.head_height = spec_b.head_d, spec_b.height
+            if drive == ScrewDriveType.HEX:
+                self.drive_size, self.drive_depth = spec_b.hex_drive, spec_b.hex_depth
+        elif head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
+            spec_p: PanHead = _closest(_PAN_HEAD, d)
+            self.head_size, self.head_height = spec_p.head_d, spec_p.height
+        elif head == ScrewHeadType.FLAT:
+            spec_f: FlatHead = _closest(_FLAT_HEAD, d)
+            self.head_size = spec_f.actual_d
+            self.head_size_sharp = spec_f.sharp_d
+            self.head_angle = 90.0
+            self.head_height = (spec_f.actual_d - d) / 2
+        else:
+            raise ValueError(f'Unknown head type "{head}"')
 
 
 def _lookup_pitch(diam: float, thread: ThreadPitchClass) -> float:
@@ -345,55 +418,13 @@ class Screws:
         thread: ThreadPitchClass = ThreadPitchClass.COARSE,
         drive: ScrewDriveType = ScrewDriveType.NONE,
         pitch: float | None = None,
-    ) -> dict[str, Any]:
-        """Resolve a screw specification to a dict of dimensions.
+    ) -> ScrewSpec:
+        """Resolve a screw specification to a :class:`ScrewSpec`.
 
-        Keys: ``system``, ``diameter``, ``pitch``, ``head``, ``head_size``, ``head_height``,
-        ``head_angle`` (flat heads only), ``drive``, ``drive_size``, ``drive_depth``.
+        Convenience wrapper around :class:`ScrewSpec` that defaults *head* to
+        ``ScrewHeadType.SOCKET`` for the common socket-head use case.
         """
-        d, p = _parse_spec(spec, thread, pitch)
-        info = {
-            "system": "ISO",
-            "diameter": d,
-            "pitch": p,
-            "head": head,
-            "drive": drive,
-            "drive_size": None,
-            "drive_depth": None,
-        }
-
-        if head in (None, ScrewHeadType.NONE):
-            info["head"] = ScrewHeadType.NONE
-            info["head_size"] = None
-            info["head_height"] = 0.0
-            if drive == ScrewDriveType.HEX:
-                info["drive_size"] = _closest(_SETSCREW, d)
-                info["drive_depth"] = d / 2
-        elif head == ScrewHeadType.HEX:
-            spec_h: HexHead = _closest(_HEX_HEAD, d)
-            info["head_size"], info["head_height"] = spec_h.width, spec_h.height
-        elif head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
-            spec_s: SocketHead = _closest(_SOCKET_HEAD, d)
-            info["head_size"], info["head_height"] = spec_s.head_d, d
-            if drive == ScrewDriveType.HEX:
-                info["drive_size"], info["drive_depth"] = spec_s.hex_drive, d / 2
-        elif head == ScrewHeadType.BUTTON:
-            spec_b: ButtonHead = _closest(_BUTTON_HEAD, d)
-            info["head_size"], info["head_height"] = spec_b.head_d, spec_b.height
-            if drive == ScrewDriveType.HEX:
-                info["drive_size"], info["drive_depth"] = spec_b.hex_drive, spec_b.hex_depth
-        elif head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
-            spec_p: PanHead = _closest(_PAN_HEAD, d)
-            info["head_size"], info["head_height"] = spec_p.head_d, spec_p.height
-        elif head == ScrewHeadType.FLAT:
-            spec_f: FlatHead = _closest(_FLAT_HEAD, d)
-            info["head_size"] = spec_f.actual_d
-            info["head_size_sharp"] = spec_f.sharp_d
-            info["head_angle"] = 90.0
-            info["head_height"] = (spec_f.actual_d - d) / 2  # 90-degree cone: radius drop == height
-        else:
-            raise ValueError(f'Unknown head type "{head}"')
-        return info
+        return ScrewSpec(spec, head=head, thread=thread, drive=drive, pitch=pitch)
 
     # -- the screw -------------------------------------------------------------------------
 
@@ -432,15 +463,15 @@ class Screws:
             thread=ThreadPitchClass.COARSE if isinstance(thread, bool) else thread,
             pitch=pitch,
         )
-        d: float = float(info["diameter"])
-        _p: float = float(info["pitch"])
+        d: float = info.diameter
+        _p: float = info.pitch
         thread_kind: ThreadPitchClass = thread if isinstance(thread, ThreadPitchClass) else ThreadPitchClass.COARSE
 
         # -- shaft: top face at z=0, tip at z=-length -----------------------------------
         if thread != ThreadPitchClass.NONE:
             from pybosl2.parts.threading import Threading
 
-            _, tp = _parse_spec(spec, thread_kind, pitch)
+            tp = ScrewSpec(spec, thread=thread_kind, pitch=pitch).pitch
             tl = length if (thread_len is None or thread_len >= length) else thread_len
             shank_len = length - tl
             shaft = Threading.threaded_rod(d, tl, tp, fn=fn, fa=fa, fs=fs).down(shank_len + tl / 2)
@@ -451,7 +482,7 @@ class Screws:
             shaft = cyl(diameter=d, height=length, fn=fn, fa=fa, fs=fs).down(length / 2)
 
         result = shaft
-        head_top = info["head_height"]  # top face of the head; 0 for a headless setscrew (recess into shaft)
+        head_top = info.head_height  # top face of the head; 0 for a headless setscrew (recess into shaft)
         headobj = Screws._make_head(info, fn, fa, fs)
         if headobj is not None:
             result = result | headobj
@@ -463,17 +494,18 @@ class Screws:
 
     @staticmethod
     def _make_head(
-        info: dict[str, Any],
+        info: ScrewSpec,
         fn: int | None,
         fa: float | None,
         fs: float | None,
     ) -> Bosl2Solid | None:
         """Build the screw head from resolved dimensions."""
-        head = info["head"]
+        head = info.head
         if head in (None, ScrewHeadType.NONE):
             return None
-        hh = info["head_height"]
-        hs = info["head_size"]
+        hh = info.head_height
+        hs = info.head_size
+        assert hs is not None, f"head_size not set for head type {head}"
         if head == ScrewHeadType.HEX:
             return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
         if head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
@@ -486,7 +518,7 @@ class Screws:
         if head == ScrewHeadType.FLAT:
             # 90-degree countersunk cone: shaft diameter at the bottom, head diameter at the surface.
             return cyl(
-                diameter1=info["diameter"],
+                diameter1=info.diameter,
                 diameter2=hs,
                 height=hh,
                 fn=fn,
@@ -497,24 +529,24 @@ class Screws:
 
     @staticmethod
     def _make_recess(
-        info: dict[str, Any],
+        info: ScrewSpec,
         head_top: float,
         fn: int | None,
         fa: float | None,
         fs: float | None,
     ) -> Bosl2Solid | None:
         """Build the drive recess from resolved dimensions."""
-        drive = info.get("drive")
-        size = info.get("drive_size")
-        depth = info.get("drive_depth")
+        drive = info.drive
+        size = info.drive_size
+        depth = info.drive_depth
         if drive in (None, ScrewDriveType.NONE) or not size or not depth:
             return None
         eps = 0.02
         if drive == ScrewDriveType.HEX:
             rec = regular_prism(6, height=depth + eps, inner_diameter=size, fn=fn, fa=fa, fs=fs)
         elif drive == ScrewDriveType.SLOT:
-            width = size if size else max(0.6, info["diameter"] / 6)
-            length = (info["head_size"] or info["diameter"]) + 2
+            width = size if size else max(0.6, info.diameter / 6)
+            length = (info.head_size or info.diameter) + 2
             rec = cuboid([length, width, depth + eps], fn=fn, fa=fa, fs=fs)
         else:
             return None
@@ -552,9 +584,9 @@ class Screws:
         """
         from pybosl2.parts.threading import Threading
 
-        d, p = _parse_spec(spec, thread, pitch)
-        width, th = _nut_dims(d, thickness, nutwidth)
-        return Threading.threaded_nut(width, d, th, p, shape=shape, slop=slop, fn=fn, fa=fa, fs=fs)
+        sp = ScrewSpec(spec, thread=thread, pitch=pitch)
+        width, th = _nut_dims(sp.diameter, thickness, nutwidth)
+        return Threading.threaded_nut(width, sp.diameter, th, sp.pitch, shape=shape, slop=slop, fn=fn, fa=fa, fs=fs)
 
     # -- clearance / countersink / counterbore hole cutter ---------------------------------
 
@@ -592,7 +624,8 @@ class Screws:
 
         """
         use_thread = thread != ThreadPitchClass.NONE
-        d, p = _parse_spec(spec, ThreadPitchClass.COARSE if not use_thread else thread, pitch)
+        sp = ScrewSpec(spec, thread=ThreadPitchClass.COARSE if not use_thread else thread, pitch=pitch)
+        d, p = sp.diameter, sp.pitch
         if use_thread:
             from pybosl2.parts.threading import Threading
 
@@ -604,7 +637,8 @@ class Screws:
 
         if head == ScrewHeadType.FLAT:
             info = Screws.screw_info(spec, head=ScrewHeadType.FLAT, pitch=pitch)
-            hs = info["head_size"]
+            hs = info.head_size
+            assert hs is not None
             csk_h = (hs - d) / 2
             csink = cyl(
                 diameter1=d,
@@ -621,7 +655,9 @@ class Screws:
                 head=head if head not in (None, ScrewHeadType.NONE) else ScrewHeadType.SOCKET,
                 pitch=pitch,
             )
-            hd = info["head_size"] if head == ScrewHeadType.HEX else (info["head_size"] or 2 * d)
+            raw_hd = info.head_size if head == ScrewHeadType.HEX else (info.head_size or 2 * d)
+            assert raw_hd is not None
+            hd: float = raw_hd
             if head == ScrewHeadType.HEX:
                 hd = 2 * hd / math.sqrt(3)  # across-corners for a hex head pocket
             cb = cyl(diameter=hd, height=counterbore + 0.02, fn=fn, fa=fa, fs=fs).up((counterbore + 0.02) / 2 - 0.01)

@@ -15,26 +15,33 @@ import math
 import pytest
 
 from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
-from pybosl2.parts.screws import Screws, _lookup_pitch, _nut_dims, _parse_spec
+from pybosl2.parts.screws import Screws, ScrewSpec, _lookup_pitch, _nut_dims
 from pybosl2.shapes3d import Bosl2Solid
 
 # -- spec parsing / pitch lookup ----------------------------------------------------------
 
 
 def test_parse_plain_metric_name() -> None:
-    assert _parse_spec("M6") == (6.0, 1.0)
-    assert _parse_spec("M8") == (8.0, 1.25)
-    assert _parse_spec("M3") == (3.0, 0.5)
+    sp = ScrewSpec("M6")
+    assert (sp.diameter, sp.pitch) == (6.0, 1.0)
+    sp = ScrewSpec("M8")
+    assert (sp.diameter, sp.pitch) == (8.0, 1.25)
+    sp = ScrewSpec("M3")
+    assert (sp.diameter, sp.pitch) == (3.0, 0.5)
 
 
 def test_parse_explicit_pitch() -> None:
-    assert _parse_spec("M8x1") == (8.0, 1.0)
-    assert _parse_spec("M6x0.75") == (6.0, 0.75)
+    sp = ScrewSpec("M8x1")
+    assert (sp.diameter, sp.pitch) == (8.0, 1.0)
+    sp = ScrewSpec("M6x0.75")
+    assert (sp.diameter, sp.pitch) == (6.0, 0.75)
 
 
 def test_parse_number_and_dict() -> None:
-    assert _parse_spec(6) == (6.0, 1.0)
-    assert _parse_spec({"diameter": 10, "pitch": 1.25}) == (10.0, 1.25)
+    sp = ScrewSpec(6)
+    assert (sp.diameter, sp.pitch) == (6.0, 1.0)
+    sp = ScrewSpec({"diameter": 10, "pitch": 1.25})
+    assert (sp.diameter, sp.pitch) == (10.0, 1.25)
 
 
 @pytest.mark.parametrize(
@@ -65,53 +72,53 @@ def test_unknown_size_raises() -> None:
 
 def test_socket_head_dims() -> None:
     info = Screws.screw_info("M6", head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX)
-    assert info["head_size"] == 10  # ISO 4762 head diameter
-    assert info["head_height"] == 6.0  # socket head height == nominal diameter
-    assert info["drive_size"] == 5  # hex key across-flats
-    assert info["drive_depth"] == 3.0  # diameter / 2
+    assert info.head_size == 10  # ISO 4762 head diameter
+    assert info.head_height == 6.0  # socket head height == nominal diameter
+    assert info.drive_size == 5  # hex key across-flats
+    assert info.drive_depth == 3.0  # diameter / 2
 
 
 def test_hex_head_dims() -> None:
     info = Screws.screw_info("M8", head=ScrewHeadType.HEX)
-    assert info["head_size"] == 13  # across-flats
-    assert info["head_height"] == 5.3
+    assert info.head_size == 13  # across-flats
+    assert info.head_height == 5.3
 
 
 def test_button_head_dims() -> None:
     info = Screws.screw_info("M6", head=ScrewHeadType.BUTTON, drive=ScrewDriveType.HEX)
-    assert info["head_size"] == 10.5
-    assert info["head_height"] == 3.3
-    assert info["drive_size"] == 4
-    assert info["drive_depth"] == 2.08
+    assert info.head_size == 10.5
+    assert info.head_height == 3.3
+    assert info.drive_size == 4
+    assert info.drive_depth == 2.08
 
 
 def test_pan_head_dims() -> None:
     info = Screws.screw_info("M5", head=ScrewHeadType.PAN)
-    assert info["head_size"] == 9.5
-    assert info["head_height"] == 3.8
+    assert info.head_size == 9.5
+    assert info.head_height == 3.8
 
 
 def test_flat_head_dims_and_angle() -> None:
     info = Screws.screw_info("M6", head=ScrewHeadType.FLAT)
-    assert info["head_size"] == 11.085  # actual (mean) diameter, ISO 10642/7046
-    assert info["head_size_sharp"] == 12.6  # theoretical sharp diameter
-    assert info["head_angle"] == 90.0
+    assert info.head_size == 11.085  # actual (mean) diameter, ISO 10642/7046
+    assert info.head_size_sharp == 12.6  # theoretical sharp diameter
+    assert info.head_angle == 90.0
     # 90-degree countersink: cone height == radius drop == (head - shaft)/2
-    assert math.isclose(info["head_height"], (11.085 - 6) / 2)
+    assert math.isclose(info.head_height, (11.085 - 6) / 2)
 
 
 def test_setscrew_drive() -> None:
     info = Screws.screw_info("M6", head=ScrewHeadType.NONE, drive=ScrewDriveType.HEX)
-    assert info["head"] == "none"
-    assert info["head_size"] is None
-    assert info["drive_size"] == 3  # hex key
-    assert info["drive_depth"] == 3.0  # diameter / 2
+    assert info.head == ScrewHeadType.NONE
+    assert info.head_size is None
+    assert info.drive_size == 3  # hex key
+    assert info.drive_depth == 3.0  # diameter / 2
 
 
 def test_head_table_nearest_size_fallback() -> None:
     # M7 has a thread pitch but no tabulated button head -> nearest head size (M6/M8) is used.
     info = Screws.screw_info("M7", head=ScrewHeadType.BUTTON)
-    assert info["head_size"] in (10.5, 14)  # M6 or M8 button diameter
+    assert info.head_size in (10.5, 14)  # M6 or M8 button diameter
 
 
 def test_unknown_thread_size_raises() -> None:
