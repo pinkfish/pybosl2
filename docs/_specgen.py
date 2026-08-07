@@ -930,7 +930,7 @@ MODULES = {
             "sparse wall, a corrugated wall, thick-edged thinning walls and triangles, and struts."
         ),
         "part": "sparse_wall(h=50, l=100, thick=4)",
-        "code": 'Walls.<span class="k">sparse_wall</span>(h=50, l=100, thick=4)',
+        "code": 'SparseWall.<span class="k">shape</span>(height=50, length=100, thick=4)',
         "metrics": [
             ("sparse wall · l=100", 280, "12,007.0", "4×101×50"),
             ("thinning wall · l=80", 44, "9,422.6", "4×80×50"),
@@ -1127,7 +1127,7 @@ MODULES = {
             "camera and accessory mounting, with a trapezoidal body, chamfered edges, and corner cutouts."
         ),
         "part": "manfrotto_rc2_plate()",
-        "code": 'TripodMounts.<span class="k">manfrotto_rc2_plate</span>()',
+        "code": 'ManfrottoRC2Plate.<span class="k">shape</span>()',
         "metrics": [
             ("RC2 plate · all chamfer", 300, "19,000.0", "43×53×11"),
             ("RC2 plate · bot chamfer", 280, "19,200.0", "43×53×11"),
@@ -1227,7 +1227,10 @@ SETUP = {
         "from pybosl2.parts.gears import BevelGear, GearSpec, HerringboneGear, "
         "Rack, RingGear, SpurGear, Worm, WormGear\n"
     ),
-    "walls": "from pybosl2.parts.walls import Walls\n",
+    "walls": (
+        "from pybosl2.parts.walls import NarrowingStrut, SparseWall, SparseCuboid, "
+        "CorrugatedWall, ThinningWall, ThinningTriangle\n"
+    ),
     "wiring": (
         "from pybosl2.parts.wiring import WireBundle, hex_offsets\n"
         "PATH=[[50,0,-50],[50,50,-50],[0,50,-50],[0,0,-50],[0,0,0]]\n"
@@ -1256,7 +1259,7 @@ SETUP = {
     "screw_drive": "from pybosl2.parts.screw_drive import ScrewDrive\n",
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
     "sliders": "from pybosl2.parts.sliders import Sliders\n",
-    "tripod_mounts": "from pybosl2.parts.tripod_mounts import TripodMounts\n",
+    "tripod_mounts": "from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate, manfrotto_rc2_plate\n",
     "shapes3d": (
         "from pybosl2.solid import cyl, cuboid, sphere, cylinder\n"
         "from pybosl2.solid import prismoid, torus, tube, teardrop\n"
@@ -1301,23 +1304,23 @@ VARIANTS = {
         ("worm", "worm", "Worm(mod=4, diameter=30, length=50, starts=1).shape()"),
     ],
     "walls": [
-        ("sparse", "sparse", "Walls.sparse_wall(height=50, length=100, thick=4)"),
-        ("corrugated", "corrugated", "Walls.corrugated_wall(height=50, length=100, thick=5)"),
-        ("thinning-wall", "thinning wall", "Walls.thinning_wall(height=50, length=80, thick=4)"),
+        ("sparse", "sparse", "SparseWall(height=50, length=100, thick=4).shape()"),
+        ("corrugated", "corrugated", "CorrugatedWall(height=50, length=100, thick=5).shape()"),
+        ("thinning-wall", "thinning wall", "ThinningWall(height=50, length=80, thick=4).shape()"),
         (
             "thinning-triangle",
             "thinning triangle",
-            "Walls.thinning_triangle(height=50, length=80, thick=4, center=True)",
+            "ThinningTriangle(height=50, length=80, thick=4, center=True).shape()",
         ),
         (
             "strut",
             "narrowing strut",
-            "Walls.narrowing_strut(w=10, length=80, wall=5, angle=30)",
+            "NarrowingStrut(w=10, length=80, wall=5, angle=30).shape()",
         ),
         (
             "sparse-cuboid",
             "sparse cuboid",
-            "Walls.sparse_cuboid([20, 40, 30], strut=2)",
+            "SparseCuboid([20, 40, 30], strut=2).shape()",
         ),
     ],
     "wiring": [
@@ -1435,9 +1438,9 @@ VARIANTS = {
         ("rail", "rail", "Sliders.rail(l=100, w=10, h=10)"),
     ],
     "tripod_mounts": [
-        ("rc2-all", "all chamfer", "TripodMounts.manfrotto_rc2_plate()"),
-        ("rc2-bot", "bottom chamfer", 'TripodMounts.manfrotto_rc2_plate(chamfer="bot")'),
-        ("rc2-none", "no chamfer", 'TripodMounts.manfrotto_rc2_plate(chamfer="none")'),
+        ("rc2-all", "all chamfer", "ManfrottoRC2Plate().shape()"),
+        ("rc2-bot", "bottom chamfer", 'ManfrottoRC2Plate(chamfer="bot").shape()'),
+        ("rc2-none", "no chamfer", 'ManfrottoRC2Plate(chamfer="none").shape()'),
     ],
     "shapes3d": [
         ("cuboid", "cuboid", "cuboid([30, 20, 15])"),

@@ -10,15 +10,30 @@ Walls
 
 
 FDM-optimised wall shapes from BOSL2's ``walls.scad`` — parts that use less material and print
-without support. :meth:`~pybosl2.parts.walls.Walls.sparse_wall` is an X-cross-braced open wall (and
-:meth:`~pybosl2.parts.walls.Walls.sparse_cuboid` a solid-box variant braced along one axis);
-:meth:`~pybosl2.parts.walls.Walls.corrugated_wall` a sinusoidal corrugated panel;
-:meth:`~pybosl2.parts.walls.Walls.thinning_wall` and :meth:`~pybosl2.parts.walls.Walls.thinning_triangle` walls whose
+without support. :class:`~pybosl2.parts.walls.SparseWall` is an X-cross-braced open wall (and
+:class:`~pybosl2.parts.walls.SparseCuboid` a solid-box variant braced along one axis);
+:class:`~pybosl2.parts.walls.CorrugatedWall` a sinusoidal corrugated panel;
+:class:`~pybosl2.parts.walls.ThinningWall` and :class:`~pybosl2.parts.walls.ThinningTriangle` walls whose
 middle thins away while the edges stay thick, joined by angled shoulders that don't overhang;
-:meth:`~pybosl2.parts.walls.Walls.narrowing_strut` the home-plate strut those triangles are built from. The
+:class:`~pybosl2.parts.walls.NarrowingStrut` the home-plate strut those triangles are built from. The
 honeycomb ``hex_panel`` is a follow-up.
 
-.. autoclass:: pybosl2.parts.walls.Walls
+.. autoclass:: pybosl2.parts.walls.SparseWall
+   :members:
+
+.. autoclass:: pybosl2.parts.walls.SparseCuboid
+   :members:
+
+.. autoclass:: pybosl2.parts.walls.CorrugatedWall
+   :members:
+
+.. autoclass:: pybosl2.parts.walls.ThinningWall
+   :members:
+
+.. autoclass:: pybosl2.parts.walls.ThinningTriangle
+   :members:
+
+.. autoclass:: pybosl2.parts.walls.NarrowingStrut
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -35,29 +50,29 @@ Typical shape:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_wall(height=40, length=100, thick=3).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   SparseWall(height=40, length=100, thick=3).shape()
 
 Thinner strut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_wall(height=40, length=100, thick=3, strut=2).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   SparseWall(height=40, length=100, thick=3, strut=2).shape()
 
 Larger maxang:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_wall(height=40, length=100, thick=3, strut=2, maxang=45).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   SparseWall(height=40, length=100, thick=3, strut=2, maxang=45).shape()
 
 Longer max_bridge:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_wall(height=40, length=100, thick=3, strut=2, maxang=45, max_bridge=30).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   SparseWall(height=40, length=100, thick=3, strut=2, maxang=45, max_bridge=30).shape()
 
 .. rubric:: ``sparse_cuboid``
 
@@ -65,22 +80,22 @@ A cross-braced box, braced along X:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_cuboid([10, 20, 30], dir="X", strut=1).show()
+   from pybosl2.parts.walls import SparseAxis
+   SparseCuboid([10, 20, 30], dir=SparseAxis.X, strut=1).shape()
 
 Braced along Y:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_cuboid([10, 20, 30], dir="Y", strut=1).show()
+   from pybosl2.parts.walls import SparseAxis
+   SparseCuboid([10, 20, 30], dir=SparseAxis.Y, strut=1).shape()
 
 Braced along Z:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.sparse_cuboid([10, 20, 30], dir="Z", strut=1).show()
+   from pybosl2.parts.walls import SparseAxis
+   SparseCuboid([10, 20, 30], dir=SparseAxis.Z, strut=1).shape()
 
 .. rubric:: ``corrugated_wall``
 
@@ -88,22 +103,22 @@ Typical shape:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.corrugated_wall(height=50, length=100).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   CorrugatedWall(height=50, length=100).shape()
 
 Wider strut border:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.corrugated_wall(height=50, length=100, strut=8).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   CorrugatedWall(height=50, length=100, strut=8).shape()
 
 Thicker corrugation:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.corrugated_wall(height=50, length=100, strut=8, wall=3).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   CorrugatedWall(height=50, length=100, strut=8, wall=3).shape()
 
 .. rubric:: ``thinning_wall``
 
@@ -111,15 +126,15 @@ Typical shape:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.thinning_wall(height=50, length=80, thick=4).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   ThinningWall(height=50, length=80, thick=4).shape()
 
 Trapezoidal:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.thinning_wall(height=50, length=[80, 50], thick=4).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   ThinningWall(height=50, length=[80, 50], thick=4).shape()
 
 .. rubric:: ``thinning_triangle``
 
@@ -127,22 +142,22 @@ Centered:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.thinning_triangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, center=True).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   ThinningTriangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, center=True).shape()
 
 Resting on the ground plane:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.thinning_triangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, center=False).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   ThinningTriangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, center=False).shape()
 
 Only the diagonal edge thickened:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.thinning_triangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, diagonly=True, center=False).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   ThinningTriangle(height=50, length=80, thick=4, angle=30, strut=5, wall=2, diagonly=True, center=False).shape()
 
 .. rubric:: ``narrowing_strut``
 
@@ -150,5 +165,5 @@ A support-free strut:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import Walls
-   Walls.narrowing_strut(w=10, length=100, wall=5, angle=30).show()
+   from pybosl2.parts.walls import SparseWall, SparseCuboid, CorrugatedWall, ThinningWall, ThinningTriangle, NarrowingStrut
+   NarrowingStrut(w=10, length=100, wall=5, angle=30).shape()
