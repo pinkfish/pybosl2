@@ -582,9 +582,9 @@ def plot3d(
         .. pythonscad-example::
 
             import math
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import plot3d
 
-            s3.plot3d(lambda x, y: 6 * math.cos(math.hypot(x, y) / 6),
+            plot3d(lambda x, y: 6 * math.cos(math.hypot(x, y) / 6),
                       list(range(-30, 31, 3)), list(range(-30, 31, 3))).show()
 
     """
@@ -658,9 +658,9 @@ def plot_revolution(
         .. pythonscad-example::
 
             import math
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import plot_revolution
 
-            s3.plot_revolution(lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30),
+            plot_revolution(lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30),
                                angle=list(range(0, 361, 6)), z=list(range(0, 31, 2)),
                                radius1=12, radius2=8).show()
 
@@ -747,10 +747,11 @@ def fillet(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.solid import cuboid
+            from pybosl2.shapes3d import fillet
 
-            block = s3.cuboid([30, 30, 20])
-            mask = s3.fillet(length=20, radius=6).right(15).forward(15)
+            block = cuboid([30, 30, 20])
+            mask = fillet(length=20, radius=6).right(15).forward(15)
             (block - mask).show()
 
     """
@@ -821,18 +822,18 @@ def textured_tile(
 
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import textured_tile
 
-            s3.textured_tile("pyramids", size=[40, 40], tex_reps=[6, 6], tex_depth=3).show()
+            textured_tile("pyramids", size=[40, 40], tex_reps=[6, 6], tex_depth=3).show()
 
         A raw height-field:
 
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.shapes3d import textured_tile
 
             bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-            s3.textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
+            textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3).show()
 
     """
     from pybosl2.texture import (

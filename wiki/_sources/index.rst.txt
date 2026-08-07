@@ -40,9 +40,9 @@ A cuboid primitive:
 
 .. pythonscad-example::
 
-   from pybosl2 import shapes3d as s3
+   from pybosl2.solid import cuboid
 
-   s3.cuboid([40, 30, 20], rounding=4).show()
+   cuboid([40, 30, 20], rounding=4).show()
 
 A bezier surface patch, meshed to a VNF and rendered as a polyhedron:
 

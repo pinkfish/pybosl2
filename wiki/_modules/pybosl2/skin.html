@@ -35,7 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=9f43e219" />
+        <link rel="stylesheet" type="text/css" href="../../_static/stl_viewer.css?v=1e5c14c0" />
         <link rel="stylesheet" type="text/css" href="../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1805,7 +1805,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -1818,6 +1818,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">translate4</span><span class="p">,</span> <span class="n">zrot4</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span><span class="p">,</span> <span class="n">has_decorative_caps</span><span class="p">,</span> <span class="n">norm_caps</span><span class="p">,</span> <span class="n">vnf_with_decorative_caps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResampleMethod</span><span class="p">,</span> <span class="n">RoundingMethod</span><span class="p">,</span> <span class="n">SamplingType</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">,</span> <span class="n">SweepMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply</span> <span class="k">as</span> <span class="n">_apply</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rot_about_axis</span><span class="p">,</span> <span class="n">rot_decode</span><span class="p">,</span> <span class="n">rot_inverse</span>
@@ -1837,7 +1838,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;incremental&quot;</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
         <span class="n">normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -1850,7 +1851,7 @@
         <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">relaxed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">transforms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep *shape* along this path (BOSL2 path_sweep()).</span>
@@ -1902,7 +1903,7 @@
         <span class="n">shape</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d()).</span>
 
@@ -1937,7 +1938,7 @@
         <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep()).</span>
 
@@ -1976,7 +1977,7 @@
         <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">_closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep()).</span>
@@ -2017,7 +2018,7 @@
         <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep this 2-D profile along a helix (BOSL2 spiral_sweep()).</span>
 
@@ -2058,7 +2059,7 @@
         <span class="n">transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-        <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.</span>
 
@@ -2174,7 +2175,7 @@
     <span class="n">transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF or Bosl2Solid.</span>
 
@@ -2220,7 +2221,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_sweep</span><span class="p">(</span>
     <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="n">Path3D</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;incremental&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
     <span class="n">normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -2233,7 +2234,7 @@
     <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">relaxed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="n">transforms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sweep the 2-D *shape* along the 2-D/3-D *path* (internal implementation).</span>
@@ -2262,7 +2263,7 @@
             <span class="n">normals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">normal_single</span><span class="p">,</span> <span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">normal_single</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">BACK</span> <span class="k">if</span> <span class="p">(</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;incremental&quot;</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tangents</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="k">else</span> <span class="n">UP</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">BACK</span> <span class="k">if</span> <span class="p">(</span><span class="n">method</span> <span class="o">==</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tangents</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="k">else</span> <span class="n">UP</span><span class="p">),</span>
             <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">normals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">normal_single</span><span class="p">,</span> <span class="p">(</span><span class="n">npts</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
@@ -2296,7 +2297,7 @@
 
     <span class="n">nprofiles</span> <span class="o">=</span> <span class="n">npts</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;incremental&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">:</span>
         <span class="n">t0</span> <span class="o">=</span> <span class="n">tangents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">normal_single</span> <span class="o">-</span> <span class="p">(</span><span class="n">normal_single</span> <span class="o">@</span> <span class="n">t0</span><span class="p">)</span> <span class="o">*</span> <span class="n">t0</span>
         <span class="n">cur</span> <span class="o">=</span> <span class="n">frame_map</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">t0</span><span class="p">)</span>
@@ -2332,7 +2333,7 @@
                 <span class="o">@</span> <span class="n">rotations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="o">@</span> <span class="n">zrot4</span><span class="p">(</span><span class="o">-</span><span class="n">correction_twist</span> <span class="o">+</span> <span class="n">correction_twist</span> <span class="o">%</span> <span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="n">symmetry</span><span class="p">)</span> <span class="o">-</span> <span class="n">twist</span><span class="p">)</span>
             <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;manual&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">MANUAL</span><span class="p">:</span>
         <span class="n">unscaled</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nprofiles</span><span class="p">):</span>
             <span class="n">ni</span><span class="p">,</span> <span class="n">ti</span> <span class="o">=</span> <span class="n">normals</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">],</span> <span class="n">tangents</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span>
@@ -2343,7 +2344,7 @@
             <span class="n">unscaled</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">translate4</span><span class="p">(</span><span class="n">patharr</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">])</span> <span class="o">@</span> <span class="n">frame_map</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">ynormal</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="n">znormal</span><span class="p">)</span> <span class="o">@</span> <span class="n">zrot4</span><span class="p">(</span><span class="o">-</span><span class="n">twist</span> <span class="o">*</span> <span class="n">tpathfrac</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;natural&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">NATURAL</span><span class="p">:</span>
         <span class="n">pathnormal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span><span class="o">.</span><span class="n">normals</span><span class="p">(</span><span class="n">tangents</span><span class="o">=</span><span class="n">tangents</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type,type-var]</span>
         <span class="n">unscaled</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">translate4</span><span class="p">(</span><span class="n">patharr</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">npts</span><span class="p">])</span>
@@ -2414,11 +2415,11 @@
     <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
     <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span><span class="p">,</span>
-    <span class="n">sampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">SkinMethod</span> <span class="o">=</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">,</span>
+    <span class="n">sampling</span><span class="p">:</span> <span class="n">SamplingType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="n">z</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Blend a stack of 2-D/3-D profiles into a skinned surface (internal implementation).</span>
@@ -2433,11 +2434,8 @@
     <span class="n">refine_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">refine</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">refine</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">refine</span><span class="p">]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="n">method_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">method</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">*</span> <span class="n">profcount</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">method_list</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;direct&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reindex&quot;</span><span class="p">,</span>
-        <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;skin(): only the &#39;direct&#39; and &#39;reindex&#39; methods are ported (got </span><span class="si">{</span><span class="n">m</span><span class="si">!r}</span><span class="s2">).&quot;</span>
-    <span class="n">sampling</span> <span class="o">=</span> <span class="n">sampling</span> <span class="k">if</span> <span class="n">sampling</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;length&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;skin(): only the &#39;direct&#39; and &#39;reindex&#39; methods are ported (got </span><span class="si">{</span><span class="n">m</span><span class="si">!r}</span><span class="s2">).&quot;</span>
+    <span class="n">sampling</span> <span class="o">=</span> <span class="n">sampling</span> <span class="k">if</span> <span class="n">sampling</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SamplingType</span><span class="o">.</span><span class="n">LENGTH</span>
 
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -2451,7 +2449,7 @@
     <span class="n">resampled</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path3D</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">maxlen</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
     <span class="n">fixedprof</span> <span class="o">=</span> <span class="p">[</span><span class="n">resampled</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">sides</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">method</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;direct&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">method</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">:</span>
             <span class="n">fixedprof</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resampled</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fixedprof</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_reindex_polygon</span><span class="p">(</span><span class="n">fixedprof</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">resampled</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -2492,7 +2490,7 @@
     <span class="n">shift</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
     <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extrude a 2-D outline to *height* with optional twist / scale / shift (internal implementation).</span>
@@ -2542,7 +2540,7 @@
     <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">360.0</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
     <span class="n">_closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Revolve a 2-D *shape* around the Z axis (internal implementation).</span>
@@ -2587,7 +2585,7 @@
     <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sweep a 2-D cross-section *poly* along a helix (internal implementation).</span>
 
@@ -2641,7 +2639,7 @@
     <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
     <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">numpoints</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span>  <span class="c1"># noqa: ARG001</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">ResampleMethod</span> <span class="o">=</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">,</span>  <span class="c1"># noqa: ARG001</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).</span>
@@ -2678,7 +2676,7 @@
 
 <div class="viewcode-block" id="OSType">
 <a class="viewcode-back" href="../../skin.html#pybosl2.skin.OSType">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OSType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OSType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Offset sweep profile type.&quot;&quot;&quot;</span>
 
     <span class="n">CIRCLE</span> <span class="o">=</span> <span class="s2">&quot;circle&quot;</span>
@@ -2928,7 +2926,7 @@
     <span class="n">top</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).</span>
 
@@ -2983,10 +2981,10 @@
         <span class="k">if</span> <span class="n">desc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;circle&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span> <span class="ow">and</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">FLAT</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">CIRCLE</span> <span class="ow">and</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span>
             <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">])</span>
             <span class="n">ar</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
@@ -2996,7 +2994,7 @@
             <span class="n">zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">]</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;teardrop&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">TEARDROP</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span>
             <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">])</span>
             <span class="n">max_angle</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_angle&quot;</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">)</span>
@@ -3029,7 +3027,7 @@
                     <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_z</span><span class="p">)</span>
                 <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;smooth&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">:</span>
             <span class="n">cut</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">])</span>
             <span class="n">k</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;k&quot;</span><span class="p">]</span>
             <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r_sign&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">1.0</span>
@@ -3043,14 +3041,14 @@
                 <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cut</span> <span class="o">-</span> <span class="n">yu</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">CHAMFER</span><span class="p">:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
             <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
             <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
             <span class="n">zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;profile&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">PROFILE</span><span class="p">:</span>
             <span class="n">pts</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]</span>
             <span class="n">pts_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="n">zs_in</span> <span class="o">=</span> <span class="n">pts_arr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
@@ -3142,7 +3140,7 @@
     <span class="n">top</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).</span>
 
@@ -3161,7 +3159,7 @@
     <span class="n">curvature_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="n">joint_bot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">k_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
@@ -3208,11 +3206,11 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.rounding</span><span class="w"> </span><span class="kn">import</span> <span class="n">_round_corners</span> <span class="k">as</span> <span class="n">_rc</span>
 
         <span class="k">if</span> <span class="n">k_sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># a curvature turns the side rounding into a smooth join</span>
-            <span class="n">b_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">b_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">,</span> <span class="n">curvature</span><span class="o">=</span><span class="n">k_sides</span><span class="p">)</span>
-            <span class="n">t_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">t_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;smooth&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">,</span> <span class="n">curvature</span><span class="o">=</span><span class="n">k_sides</span><span class="p">)</span>
+            <span class="n">b_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">b_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">,</span> <span class="n">curvature</span><span class="o">=</span><span class="n">k_sides</span><span class="p">)</span>
+            <span class="n">t_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">t_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="n">joint</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">,</span> <span class="n">curvature</span><span class="o">=</span><span class="n">k_sides</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">b_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">b_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">)</span>
-            <span class="n">t_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">t_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;circle&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">)</span>
+            <span class="n">b_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">b_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">)</span>
+            <span class="n">t_rounded</span> <span class="o">=</span> <span class="n">_rc</span><span class="p">(</span><span class="n">t_2d</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">joint_sides</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">b_rounded</span> <span class="o">=</span> <span class="n">b_2d</span>
         <span class="n">t_rounded</span> <span class="o">=</span> <span class="n">t_2d</span>
@@ -3233,10 +3231,10 @@
         <span class="k">if</span> <span class="n">desc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">,</span> <span class="s2">&quot;circle&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;flat&quot;</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span> <span class="ow">and</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">FLAT</span> <span class="ow">or</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">CIRCLE</span> <span class="ow">and</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span>
 
-        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;circle&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span>
             <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">])</span>
             <span class="n">ar</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
@@ -3246,7 +3244,7 @@
             <span class="n">zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">]</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;teardrop&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">TEARDROP</span><span class="p">:</span>
             <span class="n">r</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">]</span>
             <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">])</span>
             <span class="n">max_angle</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_angle&quot;</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">)</span>
@@ -3279,7 +3277,7 @@
                     <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_z</span><span class="p">)</span>
                 <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;smooth&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">:</span>
             <span class="n">cut</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">])</span>
             <span class="n">k</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;k&quot;</span><span class="p">]</span>
             <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;r_sign&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">1.0</span>
@@ -3293,14 +3291,14 @@
                 <span class="n">zs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cut</span> <span class="o">-</span> <span class="n">yu</span><span class="p">)</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">CHAMFER</span><span class="p">:</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span>
             <span class="n">h</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">desc</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
             <span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">w</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
             <span class="n">zs</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">n</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;profile&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">t</span> <span class="o">==</span> <span class="n">OSType</span><span class="o">.</span><span class="n">PROFILE</span><span class="p">:</span>
             <span class="n">pts</span> <span class="o">=</span> <span class="n">desc</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]</span>
             <span class="n">pts_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="n">zs_in</span> <span class="o">=</span> <span class="n">pts_arr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
@@ -3397,7 +3395,7 @@
     <span class="n">fillet</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).</span>
 
@@ -3416,7 +3414,7 @@
     <span class="n">fillet2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a filleted prism connecting two objects (BOSL2 prism_connector()).</span>
 
@@ -3437,7 +3435,7 @@
     <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).</span>
 
@@ -3453,7 +3451,7 @@
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask()).</span>
 
@@ -3502,7 +3500,7 @@
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
     <span class="n">quality</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Sweep a 2-D *shape* along a 2-D *path* (internal implementation).</span>
 
@@ -3606,7 +3604,7 @@
     <span class="n">long</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">turns</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">ResampleMethod</span> <span class="o">=</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resample a list of 4x4 transforms to uniform screw-motion spacing (BOSL2 rot_resample()).</span>
 
@@ -3629,10 +3627,10 @@
     <span class="n">rotlist_extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">rotlist</span><span class="p">]</span>
     <span class="k">assert</span> <span class="n">smoothlen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;rot_resample(): smoothlen must be a positive odd integer.&quot;</span>
     <span class="k">assert</span> <span class="n">smoothlen</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;rot_resample(): smoothlen must be a positive odd integer.&quot;</span>
-    <span class="k">assert</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">ResampleMethod</span><span class="p">)</span>
     <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rotlist_extra</span><span class="p">)</span>
     <span class="n">tcount</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;rot_resample(): num_copies must be an integer for method=&#39;length&#39;.&quot;</span>
         <span class="n">count</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_copies</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="n">num_copies</span>
     <span class="k">else</span><span class="p">:</span>
@@ -3660,7 +3658,7 @@
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tcount</span><span class="p">)</span>
     <span class="p">]</span>
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">:</span>
         <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">length</span><span class="p">),</span> <span class="s2">&quot;rot_resample(): a repeated/origin rotation makes method=&#39;length&#39; undefined.&quot;</span>
 
     <span class="n">cumlen</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
@@ -3669,7 +3667,7 @@
     <span class="n">totlen</span> <span class="o">=</span> <span class="n">cumlen</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">stepsize</span> <span class="o">=</span> <span class="n">totlen</span> <span class="o">/</span> <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">totlen</span>
 
-    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;count&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">COUNT</span><span class="p">:</span>
         <span class="n">nlist</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)]</span> <span class="o">*</span> <span class="n">tcount</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">num_copies</span><span class="p">]</span>
         <span class="n">samples</span> <span class="o">=</span> <span class="p">[[</span><span class="n">k</span> <span class="o">/</span> <span class="n">N</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span> <span class="k">for</span> <span class="n">N</span> <span class="ow">in</span> <span class="n">nlist</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -3797,7 +3795,7 @@
 
 
         <script src="../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="../../_static/stl_viewer.js?v=cb630fdb"></script>
+        <script type="module" src="../../_static/stl_viewer.js?v=f724b851"></script>
 
   </body>
 </html>

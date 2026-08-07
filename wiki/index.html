@@ -1827,12 +1827,12 @@ HTML files directly with a <code class="docutils literal notranslate"><span clas
 also embed a viewer for any STL yourself with <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">stl::</span> <span class="pre">path/to/mesh.stl</span></code>.</p>
 </div>
 <p>A cuboid primitive:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
 
-<span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/35dc1dab761f47c0.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/35dc1dab761f47c0.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/80d1ebb58411b002.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/80d1ebb58411b002.stl">⬇ Download STL mesh</a></p>
 <p>A bezier surface patch, meshed to a VNF and rendered as a polyhedron:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BezierPatch</span>
 
@@ -1885,6 +1885,20 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 </li>
 <li class="toctree-l1"><a class="reference internal" href="enums.html"> Strongly-typed enums for pybosl2</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.AttachTag">pybosl2.enums.AttachTag</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.RoundingMethod">pybosl2.enums.RoundingMethod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.VNFStyle">pybosl2.enums.VNFStyle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.SweepMethod">pybosl2.enums.SweepMethod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewHeadType">pybosl2.enums.ScrewHeadType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.SkinMethod">pybosl2.enums.SkinMethod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.PartitionCutType">pybosl2.enums.PartitionCutType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.NutShape">pybosl2.enums.NutShape</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.ScrewDriveType">pybosl2.enums.ScrewDriveType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.Measure">pybosl2.enums.Measure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.EdgeMode">pybosl2.enums.EdgeMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.SamplingType">pybosl2.enums.SamplingType</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.ResampleMethod">pybosl2.enums.ResampleMethod</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.StaggerMode">pybosl2.enums.StaggerMode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="enums.html#pybosl2.enums.Gender">pybosl2.enums.Gender</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="masking.html"> Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d)</a><ul>
@@ -2369,7 +2383,6 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 </li>
 <li class="toctree-l1"><a class="reference internal" href="vnf.html"> VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF">pybosl2.vnf.VNF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.VnfStyle">pybosl2.vnf.VnfStyle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="vnf.html#pybosl2.vnf.contour">pybosl2.vnf.contour</a></li>
 </ul>
 </li>

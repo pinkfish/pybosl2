@@ -608,10 +608,10 @@ def partition_mask(
 
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.solid import cuboid
             from pybosl2.partitions import partition_mask
 
-            (s3.cuboid([100, 100, 10]) & partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()
+            (cuboid([100, 100, 10]) & partition_mask(w=50, height=10, cutpath="jigsaw", slop=0.15)).show()
 
     """
     from pybosl2.shapes3d import Bosl2Solid
@@ -759,12 +759,12 @@ class Partitionable(ABC):
 
             .. pythonscad-example::
 
-                import pybosl2.shapes3d as s3
+                from pybosl2.solid import cuboid
                 from pybosl2.partitions import partition_path
                 from pybosl2 import UP
 
                 path = partition_path(["finger", 20, "finger"], seglen=25)
-                s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+                cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
 
         """
         v3 = _as_vec3(v)
@@ -913,9 +913,9 @@ class Partitionable(ABC):
 
             .. pythonscad-example::
 
-                import pybosl2.shapes3d as s3
+                from pybosl2.solid import cuboid
 
-                halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
+                halves = cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
                 halves[0].show()
 
         """

@@ -1240,8 +1240,16 @@ SETUP = {
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
     "sliders": "from pybosl2.parts.sliders import Sliders\n",
     "tripod_mounts": "from pybosl2.parts.tripod_mounts import TripodMounts\n",
-    "shapes3d": "",  # uses pre-imported s3 alias
-    "shapes2d": "",  # uses pre-imported s2 alias
+    "shapes3d": (
+        "from pybosl2.solid import cyl, cuboid, sphere, cylinder\n"
+        "from pybosl2.solid import prismoid, torus, tube, teardrop\n"
+        "from pybosl2.solid import spheroid, octahedron\n"
+        "from pybosl2.shapes3d import cone\n"
+    ),
+    "shapes2d": (
+        "from pybosl2.shapes2d import circle, square, rect, trapezoid, star, ring, squircle, keyhole\n"
+        "from pybosl2.solid import pie_slice\n"
+    ),
 }
 
 VARIANTS = {
@@ -1415,45 +1423,45 @@ VARIANTS = {
         ("rc2-none", "no chamfer", 'TripodMounts.manfrotto_rc2_plate(chamfer="none")'),
     ],
     "shapes3d": [
-        ("cuboid", "cuboid", "pybosl2.cuboid([30, 20, 15])"),
-        ("sphere", "sphere", "pybosl2.sphere(radius=15)"),
-        ("cylinder", "cylinder", "pybosl2.cylinder(height=20, radius=8)"),
-        ("cone", "cone", "pybosl2.cone(height=20, radius1=10, radius2=3, chamfer=1)"),
-        ("prismoid", "prismoid", "pybosl2.prismoid(size1=[20, 20], size2=[10, 10], height=15)"),
-        ("torus", "torus", "pybosl2.torus(major_radius=12, minor_radius=4)"),
-        ("tube", "tube", "pybosl2.tube(height=20, outer_radius=10, inner_radius=6)"),
-        ("teardrop", "teardrop", "pybosl2.teardrop(height=20, radius=10)"),
-        ("capsule", "capsule", "pybosl2.spheroid(radius=12)"),
+        ("cuboid", "cuboid", "cuboid([30, 20, 15])"),
+        ("sphere", "sphere", "sphere(radius=15)"),
+        ("cylinder", "cylinder", "cylinder(height=20, radius=8)"),
+        ("cone", "cone", "cone(height=20, radius1=10, radius2=3, chamfer=1)"),
+        ("prismoid", "prismoid", "prismoid(size1=[20, 20], size2=[10, 10], height=15)"),
+        ("torus", "torus", "torus(major_radius=12, minor_radius=4)"),
+        ("tube", "tube", "tube(height=20, outer_radius=10, inner_radius=6)"),
+        ("teardrop", "teardrop", "teardrop(height=20, radius=10)"),
+        ("capsule", "capsule", "spheroid(radius=12)"),
         (
             "rounded-cuboid",
             "rounded cuboid",
-            "pybosl2.cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)",
+            "cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)",
         ),
         (
             "chamfered-cylinder",
             "chamfered cyl",
-            "pybosl2.cylinder(height=20, radius=10, chamfer=2)",
+            "cylinder(height=20, radius=10, chamfer=2)",
         ),
         (
             "octahedron",
             "octahedron",
-            "pybosl2.octahedron(20)",
+            "octahedron(20)",
         ),
     ],
     "shapes2d": [
-        ("circle", "circle", "pybosl2.circle(radius=15).linear_extrude(height=2)"),
-        ("square", "square", "pybosl2.square(size=30).linear_extrude(height=2)"),
-        ("rect", "rectangle", "pybosl2.rect(size=[30, 20], rounding=5).linear_extrude(height=2)"),
-        ("trapezoid", "trapezoid", "pybosl2.trapezoid(height=30, width1=40, width2=20).linear_extrude(height=2)"),
-        ("star", "star", "pybosl2.star(tips=5, radius=25, inner_radius=10).linear_extrude(height=2)"),
-        ("ring", "ring", "pybosl2.ring(radius=18, ring_width=6).linear_extrude(height=2)"),
-        ("pie-slice", "pie slice", "pybosl2.pie_slice(radius=20, angle=120, height=5)"),
-        ("squircle", "squircle", "pybosl2.squircle(30, squareness=0.6).linear_extrude(height=2)"),
-        ("keyhole", "keyhole", "pybosl2.keyhole(length=25, radius1=4, radius2=9).linear_extrude(height=2)"),
+        ("circle", "circle", "circle(radius=15).linear_extrude(height=2)"),
+        ("square", "square", "square(size=30).linear_extrude(height=2)"),
+        ("rect", "rectangle", "rect(size=[30, 20], rounding=5).linear_extrude(height=2)"),
+        ("trapezoid", "trapezoid", "trapezoid(height=30, width1=40, width2=20).linear_extrude(height=2)"),
+        ("star", "star", "star(tips=5, radius=25, inner_radius=10).linear_extrude(height=2)"),
+        ("ring", "ring", "ring(radius=18, ring_width=6).linear_extrude(height=2)"),
+        ("pie-slice", "pie slice", "pie_slice(radius=20, angle=120, height=5)"),
+        ("squircle", "squircle", "squircle(30, squareness=0.6).linear_extrude(height=2)"),
+        ("keyhole", "keyhole", "keyhole(length=25, radius1=4, radius2=9).linear_extrude(height=2)"),
         (
             "rounded-square",
             "rounded square",
-            "pybosl2.rect(size=[30, 30], rounding=8).linear_extrude(height=2)",
+            "rect(size=[30, 30], rounding=8).linear_extrude(height=2)",
         ),
     ],
 }

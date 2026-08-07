@@ -598,8 +598,8 @@ class Screws:
             .. pythonscad-example::
 
                 from pybosl2.parts.screws import Screws
-                from pybosl2 import shapes3d as s3
-                (s3.cuboid([20, 20, 10])
+                from pybosl2.solid import cuboid
+                (cuboid([20, 20, 10])
                  - Screws.screw_hole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal")).show()
 
         """

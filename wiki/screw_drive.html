@@ -39,7 +39,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=9f43e219" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=1e5c14c0" />
         <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -2842,11 +2842,11 @@ screw head to cut the recess. Pass <code class="docutils literal notranslate"><s
 <p class="example rubric">Examples</p>
 <p>A #2 Phillips recess cut into a tapered head:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrewDrive</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
-<span class="p">(</span><span class="n">s3</span><span class="o">.</span><span class="n">cyl</span><span class="p">(</span><span class="n">diameter1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">diameter2</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">phillips_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;#2&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cyl</span>
+<span class="p">(</span><span class="n">cyl</span><span class="p">(</span><span class="n">diameter1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">diameter2</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">ScrewDrive</span><span class="o">.</span><span class="n">phillips_mask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;#2&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/d4e0fcfc6b272c51.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/d4e0fcfc6b272c51.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/90192bc963f88ea3.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/90192bc963f88ea3.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py method objdesc">
@@ -3202,7 +3202,7 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 
 
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="_static/stl_viewer.js?v=cb630fdb"></script>
+        <script type="module" src="_static/stl_viewer.js?v=f724b851"></script>
 
   </body>
 </html>

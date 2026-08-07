@@ -227,9 +227,9 @@ class CsgSolid(BaseShape):
         Examples:
             .. pythonscad-example::
 
-                from pybosl2 import shapes3d as s3
+                from pybosl2.solid import cuboid
 
-                s3.cuboid([10, 20, 30]).repair().show()
+                cuboid([10, 20, 30]).repair().show()
 
         """
         return self._wrap(self.shape.repair())
@@ -259,9 +259,9 @@ class CsgSolid(BaseShape):
         Examples:
             .. pythonscad-example::
 
-                from pybosl2 import shapes3d as s3
+                from pybosl2.solid import cuboid
 
-                bar = s3.cuboid([80, 5, 3])
+                bar = cuboid([80, 5, 3])
                 bar.oversample(sides=4).wrap(radius=20).show()
 
         """
@@ -291,9 +291,9 @@ class CsgSolid(BaseShape):
         Examples:
             .. pythonscad-example::
 
-                from pybosl2 import shapes3d as s3
+                from pybosl2.solid import sphere
 
-                capsule = s3.sphere(radius=8).hull(s3.sphere(radius=8).up(30))
+                capsule = sphere(radius=8).hull(sphere(radius=8).up(30))
                 capsule.show()
 
         """
@@ -319,9 +319,9 @@ class CsgSolid(BaseShape):
 
             .. pythonscad-example::
 
-                from pybosl2 import shapes3d as s3
+                from pybosl2.solid import cuboid
 
-                part = s3.cuboid([30, 20, 10], rounding=3)
+                part = cuboid([30, 20, 10], rounding=3)
                 part.projection().offset(radius=2).linear_extrude(height=2).show()
 
         """
@@ -543,9 +543,10 @@ class CsgSolid(BaseShape):
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, Anchor
+            from pybosl2.solid import cuboid
+            from pybosl2 import Anchor
 
-            s3.cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
+            cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
 
         """
         p = self.anchor_point(anchor, bbox=bbox)
@@ -564,10 +565,11 @@ class CsgSolid(BaseShape):
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, Anchor
+            from pybosl2.solid import cuboid, sphere
+            from pybosl2 import Anchor
 
-            cube = s3.cuboid([30, 30, 10])
-            knob = s3.sphere(radius=5)
+            cube = cuboid([30, 30, 10])
+            knob = sphere(radius=5)
             cube.position(Anchor.TOP_FRONT_LEFT, knob).show()
 
         """
@@ -611,10 +613,11 @@ class CsgSolid(BaseShape):
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, Anchor
+            from pybosl2.solid import cuboid
+            from pybosl2 import Anchor
 
-            cube = s3.cuboid([30, 30, 10])
-            label = s3.cuboid([10, 5, 5])
+            cube = cuboid([30, 30, 10])
+            label = cuboid([10, 5, 5])
             cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
 
         """
@@ -661,10 +664,11 @@ class CsgSolid(BaseShape):
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, Anchor
+            from pybosl2.solid import cuboid, cylinder
+            from pybosl2 import Anchor
 
-            cube = s3.cuboid([20, 30, 10])
-            cyl = s3.cylinder(height=15, radius=4)
+            cube = cuboid([20, 30, 10])
+            cyl = cylinder(height=15, radius=4)
             cube.attach(Anchor.UP, cyl).show()
 
         """
@@ -707,9 +711,10 @@ class CsgSolid(BaseShape):
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, Anchor
+            from pybosl2.solid import cuboid
+            from pybosl2 import Anchor
 
-            s3.cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
+            cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
 
         """
         from pybosl2.transforms import reorient as _reorient_matrix
@@ -729,9 +734,10 @@ class CsgSolid(BaseShape):
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cylinder
+            from pybosl2 import Anchor
 
-            s3.cylinder(height=30, radius=5).orient(s3.Anchor.TOP).show()
+            cylinder(height=30, radius=5).orient(Anchor.TOP).show()
 
         """
         return self.reorient(anchor=Anchor.CENTER, spin=spin, orient=direction, bbox=bbox)
@@ -1156,10 +1162,11 @@ class CsgSolid(BaseShape):
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3, partition_path, UP
+            from pybosl2.solid import cuboid
+            from pybosl2 import partition_path, UP
 
             path = partition_path(["finger", "10x15", "finger"], seglen=25)
-            s3.cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
+            cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
 
         """
         v3 = np.asarray(v, dtype=float)
@@ -1269,9 +1276,9 @@ class CsgSolid(BaseShape):
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cuboid
 
-            halves = s3.cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
+            halves = cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
             halves[0].show()
 
         """

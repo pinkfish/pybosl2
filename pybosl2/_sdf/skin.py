@@ -296,9 +296,11 @@ def skin_sdf(
 def mesh_to_vnf(shape: PyShape) -> tuple[list[list[float]], list[list[int]]]:
     """Extract a vertices-and-faces pair from a meshed PyShape.
 
-    Calls ``shape.mesh()`` and reads the resulting geometry's vertex/face arrays,
-    returning a plain ``(vertices, faces)`` tuple compatible with BOSL2's VNF
-    convention (no class wrapper needed).
+    Meshes *shape* and reads the triangles back out of the native solid
+    (``solid.mesh()``), returning a plain ``(vertices, faces)`` tuple in BOSL2's
+    VNF convention -- wound counter-clockwise seen from outside, the way
+    :class:`~pybosl2.vnf.VNF` wants them (:meth:`~pybosl2.vnf.VNF.polyhedron`
+    reverses them again on the way back to native geometry).
 
     Args:
         shape:  a PyShape (will be meshed if not already cached)
@@ -307,19 +309,13 @@ def mesh_to_vnf(shape: PyShape) -> tuple[list[list[float]], list[list[int]]]:
         ``(vertices, faces)`` where *vertices* is ``[[x,y,z], ...]`` and
         *faces* is ``[[i, j, k], ...]`` of vertex indices.
 
+    Note:
+        Under the numeric test mock there is no mesher, so its stand-in returns sampled
+        interior points and no faces; real topology needs the PythonSCAD app.
+
     """
-    mesh = shape.mesh()
-    # Access the underlying mesh data via the cached geometry object
-    # (mock_libfive stores read-able data on the mesh wrapper)
-    if hasattr(mesh, "vertices") and hasattr(mesh, "faces"):
-        verts = [[float(v[0]), float(v[1]), float(v[2])] for v in mesh.vertices]
-        faces = [list(f) for f in mesh.faces]
-    elif hasattr(mesh, "_geometry"):
-        geo = mesh._geometry
-        verts = [[float(v[0]), float(v[1]), float(v[2])] for v in geo.vertices]
-        faces = [list(f) for f in geo.faces]
-    else:
-        # Fallback: try to access the raw shape's stored data
-        verts = []
-        faces = []
-    return verts, faces
+    verts, faces = shape.mesh().mesh()
+    return (
+        [[float(v[0]), float(v[1]), float(v[2])] for v in verts],
+        [[int(i) for i in f] for f in faces],
+    )

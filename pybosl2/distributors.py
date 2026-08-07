@@ -895,10 +895,10 @@ def xdistribute(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2.shapes3d as s3
+            from pybosl2.solid import cuboid
             from pybosl2.distributors import xdistribute
 
-            xdistribute(spacing=15, children=[s3.cuboid([5,5,20]) for _ in range(5)]).show()
+            xdistribute(spacing=15, children=[cuboid([5, 5, 20]) for _ in range(5)]).show()
 
     """
     return Distributable.distribute(children, spacing=spacing, sizes=sizes, dir=RIGHT, length=length)

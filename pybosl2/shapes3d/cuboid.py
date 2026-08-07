@@ -310,25 +310,25 @@ def cube(
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cube
 
-            s3.cube(size=20).show()
+            cube(size=20).show()
 
         Cube with chamfered edges:
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cube
 
-            s3.cube(size=20, chamfer=2).show()
+            cube(size=20, chamfer=2).show()
 
         Cube with rounded edges:
 
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import cube
 
-            s3.cube(size=20, rounding=3).show()
+            cube(size=20, rounding=3).show()
 
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
@@ -581,9 +581,9 @@ def octahedron(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import octahedron
 
-            s3.octahedron(size=20).show()
+            octahedron(size=20).show()
 
     """
     s = size / 2
@@ -622,9 +622,9 @@ def wedge(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import wedge
 
-            s3.wedge([30, 20, 15]).show()
+            wedge([30, 20, 15]).show()
 
     """
     sz = [float(size)] * 3 if isinstance(size, (int, float)) else [float(v) for v in size]
@@ -724,9 +724,9 @@ def rect_tube(
     Examples:
         .. pythonscad-example::
 
-            from pybosl2 import shapes3d as s3
+            from pybosl2.solid import rect_tube
 
-            s3.rect_tube(size=30, wall=3, height=20).show()
+            rect_tube(size=30, wall=3, height=20).show()
 
     """
     from pybosl2._helpers import rect_path as _rect_path

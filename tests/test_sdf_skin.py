@@ -57,7 +57,10 @@ class TestMeshToVNF:
     """mesh_to_vnf — extract VNF data from a meshed PyShape."""
 
     def test_cube_vnf_runs(self) -> None:
-        shape = sdf_s3d.cuboid([4, 4, 4]).mesh()
-        verts, faces = sdf_skin.mesh_to_vnf(shape)
-        assert verts is not None
-        assert faces is not None
+        # Takes the PyShape itself, not an already-meshed handle, and must come back with real
+        # vertices -- it used to probe for attributes no native solid has and hand back ([], [])
+        # without saying so.
+        verts, faces = sdf_skin.mesh_to_vnf(sdf_s3d.cuboid([4, 4, 4]))
+        assert verts, "mesh_to_vnf() returned no vertices"
+        assert all(len(v) == 3 for v in verts)
+        assert all(len(f) >= 3 for f in faces)
