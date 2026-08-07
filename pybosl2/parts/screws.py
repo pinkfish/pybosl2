@@ -41,12 +41,6 @@ __all__ = [
     "Screws",
     "ScrewSpec",
     "ThreadPitches",
-    "HexHead",
-    "SocketHead",
-    "ButtonHead",
-    "PanHead",
-    "FlatHead",
-    "NutSpec",
 ]
 
 
@@ -57,9 +51,10 @@ __all__ = [
 
 @dataclass(frozen=True)
 class ThreadPitches:
-    """ISO metric thread pitches (mm) for one nominal diameter; ``None`` where a class is.
+    """ISO metric thread pitches (mm) for one nominal diameter.
 
-    undefined.
+    Positional args are ``coarse / fine / extra_fine / super_fine``; ``None``
+    marks a pitch class that is undefined for this size.
     """
 
     coarse: float
@@ -71,11 +66,17 @@ class ThreadPitches:
         """Return the pitch for a thread class, falling back to coarse if it's undefined for this size."""
         if thread == ThreadPitchClass.NONE:
             return self.coarse
-        return getattr(self, str(thread)) or self.coarse
+        lookup: dict[ThreadPitchClass, float | None] = {
+            ThreadPitchClass.COARSE: self.coarse,
+            ThreadPitchClass.FINE: self.fine,
+            ThreadPitchClass.EXTRA_FINE: self.extra_fine,
+            ThreadPitchClass.SUPER_FINE: self.super_fine,
+        }
+        return lookup.get(thread) or self.coarse
 
 
 @dataclass(frozen=True)
-class HexHead:
+class _HexHead:
     """Hex cap head (ISO 4017)."""
 
     width: float  # across-flats
@@ -83,7 +84,7 @@ class HexHead:
 
 
 @dataclass(frozen=True)
-class SocketHead:
+class _SocketHead:
     """Socket cap head (ISO 4762). Head height == nominal diameter; hex-drive depth == diameter/2."""
 
     head_d: float
@@ -91,7 +92,7 @@ class SocketHead:
 
 
 @dataclass(frozen=True)
-class ButtonHead:
+class _ButtonHead:
     """Button head (ISO 7380)."""
 
     head_d: float
@@ -101,7 +102,7 @@ class ButtonHead:
 
 
 @dataclass(frozen=True)
-class PanHead:
+class _PanHead:
     """Pan head (ISO 14583)."""
 
     head_d: float
@@ -109,7 +110,7 @@ class PanHead:
 
 
 @dataclass(frozen=True)
-class FlatHead:
+class _FlatHead:
     """Countersunk / flat head (ISO 10642 / ISO 7046), 90-degree included angle."""
 
     sharp_d: float  # theoretical sharp diameter
@@ -117,7 +118,7 @@ class FlatHead:
 
 
 @dataclass(frozen=True)
-class NutSpec:
+class _NutSpec:
     """Hex / square nut (ISO 4032 / 4035 / 4034); ``None`` where a thickness class is undefined."""
 
     width: float  # across-flats
@@ -163,91 +164,91 @@ _ISO_THREAD = {
 }
 
 _HEX_HEAD = {
-    5: HexHead(8, 3.5),
-    6: HexHead(10, 4),
-    8: HexHead(13, 5.3),
-    10: HexHead(17, 6.4),
-    12: HexHead(19, 7.5),
-    14: HexHead(22, 8.8),
-    16: HexHead(24, 10),
-    18: HexHead(27, 11.5),
-    20: HexHead(30, 12.5),
-    24: HexHead(36, 15),
-    30: HexHead(46, 18.7),
+    5: _HexHead(8, 3.5),
+    6: _HexHead(10, 4),
+    8: _HexHead(13, 5.3),
+    10: _HexHead(17, 6.4),
+    12: _HexHead(19, 7.5),
+    14: _HexHead(22, 8.8),
+    16: _HexHead(24, 10),
+    18: _HexHead(27, 11.5),
+    20: _HexHead(30, 12.5),
+    24: _HexHead(36, 15),
+    30: _HexHead(46, 18.7),
 }
 
 _SOCKET_HEAD = {
-    1.6: SocketHead(3, 1.5),
-    2: SocketHead(3.8, 1.5),
-    2.5: SocketHead(4.5, 2),
-    2.6: SocketHead(5, 2),
-    3: SocketHead(5.5, 2.5),
-    3.5: SocketHead(6.2, 2.5),
-    4: SocketHead(7, 3),
-    5: SocketHead(8.5, 4),
-    6: SocketHead(10, 5),
-    7: SocketHead(12, 6),
-    8: SocketHead(13, 6),
-    10: SocketHead(16, 8),
-    12: SocketHead(18, 10),
-    14: SocketHead(21, 12),
-    16: SocketHead(24, 14),
-    18: SocketHead(27, 14),
-    20: SocketHead(30, 17),
-    22: SocketHead(33, 17),
-    24: SocketHead(36, 19),
-    27: SocketHead(40, 19),
-    30: SocketHead(45, 22),
-    33: SocketHead(50, 24),
-    36: SocketHead(54, 27),
-    42: SocketHead(63, 32),
-    48: SocketHead(72, 36),
+    1.6: _SocketHead(3, 1.5),
+    2: _SocketHead(3.8, 1.5),
+    2.5: _SocketHead(4.5, 2),
+    2.6: _SocketHead(5, 2),
+    3: _SocketHead(5.5, 2.5),
+    3.5: _SocketHead(6.2, 2.5),
+    4: _SocketHead(7, 3),
+    5: _SocketHead(8.5, 4),
+    6: _SocketHead(10, 5),
+    7: _SocketHead(12, 6),
+    8: _SocketHead(13, 6),
+    10: _SocketHead(16, 8),
+    12: _SocketHead(18, 10),
+    14: _SocketHead(21, 12),
+    16: _SocketHead(24, 14),
+    18: _SocketHead(27, 14),
+    20: _SocketHead(30, 17),
+    22: _SocketHead(33, 17),
+    24: _SocketHead(36, 19),
+    27: _SocketHead(40, 19),
+    30: _SocketHead(45, 22),
+    33: _SocketHead(50, 24),
+    36: _SocketHead(54, 27),
+    42: _SocketHead(63, 32),
+    48: _SocketHead(72, 36),
 }
 
 _BUTTON_HEAD = {
-    1.6: ButtonHead(2.9, 0.8, 0.9, 0.55),
-    2: ButtonHead(3.5, 1.3, 1.3, 0.69),
-    2.5: ButtonHead(4.6, 1.5, 1.5, 0.87),
-    3: ButtonHead(5.7, 1.65, 2, 1.04),
-    3.5: ButtonHead(5.7, 1.65, 2, 1.21),
-    4: ButtonHead(7.6, 2.2, 2.5, 1.30),
-    5: ButtonHead(9.5, 2.75, 3, 1.56),
-    6: ButtonHead(10.5, 3.3, 4, 2.08),
-    8: ButtonHead(14, 4.4, 5, 2.60),
-    10: ButtonHead(17.5, 5.5, 6, 3.12),
-    12: ButtonHead(21, 6.6, 8, 4.16),
-    16: ButtonHead(28, 8.8, 10, 5.2),
+    1.6: _ButtonHead(2.9, 0.8, 0.9, 0.55),
+    2: _ButtonHead(3.5, 1.3, 1.3, 0.69),
+    2.5: _ButtonHead(4.6, 1.5, 1.5, 0.87),
+    3: _ButtonHead(5.7, 1.65, 2, 1.04),
+    3.5: _ButtonHead(5.7, 1.65, 2, 1.21),
+    4: _ButtonHead(7.6, 2.2, 2.5, 1.30),
+    5: _ButtonHead(9.5, 2.75, 3, 1.56),
+    6: _ButtonHead(10.5, 3.3, 4, 2.08),
+    8: _ButtonHead(14, 4.4, 5, 2.60),
+    10: _ButtonHead(17.5, 5.5, 6, 3.12),
+    12: _ButtonHead(21, 6.6, 8, 4.16),
+    16: _ButtonHead(28, 8.8, 10, 5.2),
 }
 
 _PAN_HEAD = {
-    1.6: PanHead(3.2, 1.3),
-    2: PanHead(4, 1.6),
-    2.5: PanHead(5, 2),
-    3: PanHead(5.6, 2.4),
-    3.5: PanHead(7, 3.1),
-    4: PanHead(8, 3.1),
-    5: PanHead(9.5, 3.8),
-    6: PanHead(12, 4.6),
-    8: PanHead(16, 6),
-    10: PanHead(20, 7.5),
+    1.6: _PanHead(3.2, 1.3),
+    2: _PanHead(4, 1.6),
+    2.5: _PanHead(5, 2),
+    3: _PanHead(5.6, 2.4),
+    3.5: _PanHead(7, 3.1),
+    4: _PanHead(8, 3.1),
+    5: _PanHead(9.5, 3.8),
+    6: _PanHead(12, 4.6),
+    8: _PanHead(16, 6),
+    10: _PanHead(20, 7.5),
 }
 
 _FLAT_HEAD = {
-    1.6: FlatHead(3.6, 2.85),
-    2: FlatHead(4.4, 3.65),
-    2.5: FlatHead(5.5, 4.55),
-    3: FlatHead(6.3, 5.35),
-    3.5: FlatHead(8.2, 7.12),
-    4: FlatHead(9.4, 8.22),
-    5: FlatHead(10.4, 9.12),
-    6: FlatHead(12.6, 11.085),
-    8: FlatHead(17.3, 15.585),
-    10: FlatHead(20, 18.04),
-    12: FlatHead(24, 21.75),
-    14: FlatHead(28, 25.25),
-    16: FlatHead(32, 28.75),
-    18: FlatHead(36, 32.2),
-    20: FlatHead(40, 35.7),
+    1.6: _FlatHead(3.6, 2.85),
+    2: _FlatHead(4.4, 3.65),
+    2.5: _FlatHead(5.5, 4.55),
+    3: _FlatHead(6.3, 5.35),
+    3.5: _FlatHead(8.2, 7.12),
+    4: _FlatHead(9.4, 8.22),
+    5: _FlatHead(10.4, 9.12),
+    6: _FlatHead(12.6, 11.085),
+    8: _FlatHead(17.3, 15.585),
+    10: _FlatHead(20, 18.04),
+    12: _FlatHead(24, 21.75),
+    14: _FlatHead(28, 25.25),
+    16: _FlatHead(32, 28.75),
+    18: _FlatHead(36, 32.2),
+    20: _FlatHead(40, 35.7),
 }
 
 # headless setscrew: diameter -> hex drive across-flats (depth == diameter/2)
@@ -269,21 +270,21 @@ _SETSCREW = {
 }
 
 _NUT = {
-    1.6: NutSpec(3.2, 1.3, 1.0, None),
-    2: NutSpec(4, 1.6, 1.2, None),
-    2.5: NutSpec(5, 2, 1.6, None),
-    3: NutSpec(5.5, 2.4, 1.8, None),
-    4: NutSpec(7, 3.2, 2.2, None),
-    5: NutSpec(8, 4.7, 2.7, 5.1),
-    6: NutSpec(10, 5.2, 3.2, 5.7),
-    8: NutSpec(13, 6.8, None, 7.5),
-    10: NutSpec(16, 8.4, None, 9.3),
-    12: NutSpec(18, 10.8, None, 12),
-    16: NutSpec(24, 14.8, None, 16.4),
-    20: NutSpec(30, 18, None, 20.3),
-    24: NutSpec(36, 21.5, None, 23.9),
-    30: NutSpec(46, 25.6, None, 28.6),
-    36: NutSpec(55, 31, None, 34.7),
+    1.6: _NutSpec(3.2, 1.3, 1.0, None),
+    2: _NutSpec(4, 1.6, 1.2, None),
+    2.5: _NutSpec(5, 2, 1.6, None),
+    3: _NutSpec(5.5, 2.4, 1.8, None),
+    4: _NutSpec(7, 3.2, 2.2, None),
+    5: _NutSpec(8, 4.7, 2.7, 5.1),
+    6: _NutSpec(10, 5.2, 3.2, 5.7),
+    8: _NutSpec(13, 6.8, None, 7.5),
+    10: _NutSpec(16, 8.4, None, 9.3),
+    12: _NutSpec(18, 10.8, None, 12),
+    16: _NutSpec(24, 14.8, None, 16.4),
+    20: _NutSpec(30, 18, None, 20.3),
+    24: _NutSpec(36, 21.5, None, 23.9),
+    30: _NutSpec(46, 25.6, None, 28.6),
+    36: _NutSpec(55, 31, None, 34.7),
 }
 
 # ISO 965 clearance holes: fit name -> radial gap fraction expressed as an absolute add per size band.
@@ -365,23 +366,23 @@ class ScrewSpec:
                 self.drive_size = _closest(_SETSCREW, d)
                 self.drive_depth = d / 2
         elif head == ScrewHeadType.HEX:
-            spec_h: HexHead = _closest(_HEX_HEAD, d)
+            spec_h: _HexHead = _closest(_HEX_HEAD, d)
             self.head_size, self.head_height = spec_h.width, spec_h.height
         elif head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
-            spec_s: SocketHead = _closest(_SOCKET_HEAD, d)
+            spec_s: _SocketHead = _closest(_SOCKET_HEAD, d)
             self.head_size, self.head_height = spec_s.head_d, d
             if drive == ScrewDriveType.HEX:
                 self.drive_size, self.drive_depth = spec_s.hex_drive, d / 2
         elif head == ScrewHeadType.BUTTON:
-            spec_b: ButtonHead = _closest(_BUTTON_HEAD, d)
+            spec_b: _ButtonHead = _closest(_BUTTON_HEAD, d)
             self.head_size, self.head_height = spec_b.head_d, spec_b.height
             if drive == ScrewDriveType.HEX:
                 self.drive_size, self.drive_depth = spec_b.hex_drive, spec_b.hex_depth
         elif head in (ScrewHeadType.PAN, ScrewHeadType.ROUND):
-            spec_p: PanHead = _closest(_PAN_HEAD, d)
+            spec_p: _PanHead = _closest(_PAN_HEAD, d)
             self.head_size, self.head_height = spec_p.head_d, spec_p.height
         elif head == ScrewHeadType.FLAT:
-            spec_f: FlatHead = _closest(_FLAT_HEAD, d)
+            spec_f: _FlatHead = _closest(_FLAT_HEAD, d)
             self.head_size = spec_f.actual_d
             self.head_size_sharp = spec_f.sharp_d
             self.head_angle = 90.0

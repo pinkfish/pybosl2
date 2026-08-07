@@ -239,12 +239,13 @@ def test_two_objects_differ(tmp_path):
 
 def test_skin_lofts_two_profiles(tmp_path):
     setup = (
+        "from pybosl2.enums import SkinMethod\n"
         "circle = [[6*math.cos(t), 6*math.sin(t)] for t in np.linspace(0, 2*math.pi, 24, endpoint=False)]\n"
         "square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]\n"
     )
     m = _render(
         tmp_path,
-        "VNF.from_skin([circle, square], slices=16, method='reindex', z=[0, 25]).polyhedron()",
+        "VNF.from_skin([circle, square], slices=16, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron()",
         setup=setup,
         name="skin",
     )

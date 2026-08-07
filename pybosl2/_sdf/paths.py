@@ -107,20 +107,15 @@ def _lv_hypot(a: LVTree, b: LVTree) -> LVTree:
     return lv.sqrt(a * a + b * b)
 
 
-def _rect2d(
-    u: float, v: float, bu: float, bv: float, amount: list[float], mode: EdgeMode | list[EdgeMode] | list[str]
-) -> float:
+def _rect2d(u: float, v: float, bu: float, bv: float, amount: list[float], mode: EdgeMode | list[EdgeMode]) -> float:
     """2-D SDF of a `2*bu` x `2*bv` rectangle centered at the origin, with an independent.
 
-    per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one string for
-    all four corners, or a per-corner list) -- given by `amount[i]` at each of its 4 corners.
-    `amount` is indexed the same way as pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows:
-    [(-,-), (+,-), (-,+), (+,+)] in (u, v) sign.
+    per-corner edge treatment -- rounding radius or chamfer size, per `mode` (one
+    :class:`~pybosl2.enums.EdgeMode` for all four corners, or a per-corner list) -- given by
+    `amount[i]` at each of its 4 corners. `amount` is indexed the same way as
+    pybosl2.shapes3d.EDGE_OFFSETS's per-axis rows: [(-,-), (+,-), (-,+), (+,+)] in (u, v) sign.
     """
-    # EdgeMode is a StrEnum, so one mode for all four corners arrives as a str either way;
-    # anything else is a per-corner sequence. Both normalise to EdgeMode members here so the
-    # comparisons below never have to care which spelling the caller used.
-    corner_modes: list[EdgeMode] = [EdgeMode(mode)] * 4 if isinstance(mode, str) else [EdgeMode(m) for m in mode]
+    corner_modes = [mode] * 4 if isinstance(mode, EdgeMode) else list(mode)
     candidates = []
     for ci, (su, sv, a) in enumerate(((-1, -1, amount[0]), (1, -1, amount[1]), (-1, 1, amount[2]), (1, 1, amount[3]))):
         cmode = corner_modes[ci]
