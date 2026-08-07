@@ -71,7 +71,26 @@ class Dovetail:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a dovetail joint tenon (male) or socket (female)."""
+        """Create a dovetail joint tenon (male) or socket (female).
+
+        Args:
+            gender: Whether the joint is a male tenon or female socket. Defaults to MALE.
+            width: Base width of the dovetail in mm. Defaults to 15.
+            height: Joint height in mm. Defaults to 8.
+            slide: Slide length along the joint direction in mm. Defaults to 30.
+            angle: Flare angle in degrees; sets slope as ``1/tan(angle)``. Overrides slope if given.
+            slope: Flare as rise/run per side (higher value = less flare). Defaults to 6.
+            taper: Taper angle in degrees along the slide length. Defaults to 0.
+            back_width: Width at the far end of a tapered dovetail. Overrides taper if given.
+            slop: Clearance gap for the female socket in mm. Only applied when gender is FEMALE. Defaults to 0.0.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            None
+
+        """
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
         hslop = slop if gender == Gender.FEMALE else 0.0
@@ -153,7 +172,23 @@ class SnapPin:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a snap pin."""
+        """Create a snap pin.
+
+        Args:
+            diameter: Shaft diameter in mm. Defaults to 5.
+            length: Shaft length in mm. Defaults to 12.
+            nub_depth: Barb overhang depth in mm. Defaults to 0.6.
+            snap: Barb height in mm. Defaults to 2.2.
+            clearance: Clearance gap in mm (currently not used in the shape computation). Defaults to 0.2.
+            slot: Width of the flex gap slot in mm. Defaults to 1.2.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            None
+
+        """
         _ = clearance
         shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)
         barb = cyl(
@@ -197,6 +232,15 @@ class SnapPinSocket:
     """The mating socket mask for a :class:`SnapPin` — difference it out of a part.
 
     A clearance bore with a relief groove that the pin's barb clicks into.
+
+    Examples:
+        A snap pin socket:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.joiners import SnapPinSocket
+            SnapPinSocket().shape().linear_extrude(1).show()
+
     """
 
     def __init__(
@@ -210,7 +254,22 @@ class SnapPinSocket:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a snap pin socket mask."""
+        """Create a snap pin socket mask.
+
+        Args:
+            diameter: Mating shaft diameter in mm. Defaults to 5.
+            length: Mating shaft length in mm. Defaults to 12.
+            nub_depth: Barb overhang depth in mm. Defaults to 0.6.
+            snap: Barb height in mm. Defaults to 2.2.
+            clearance: Additional clearance gap added to all diameters. Defaults to 0.2.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            None
+
+        """
         bore = cyl(height=length + 1, diameter=diameter + 2 * clearance, fn=fn, fa=fa, fs=fs)
         relief = cyl(
             height=snap + clearance,

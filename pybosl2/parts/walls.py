@@ -145,6 +145,9 @@ class NarrowingStrut:
             wall: Height of the rectangular base in mm.
             angle: Narrowing angle in degrees.
 
+        Returns:
+            None.
+
         """
         self._width = w
         self._length = length
@@ -221,6 +224,9 @@ class SparseWall:
             strut: Width of the solid border in mm.
             max_bridge: Maximum unsupported bridge length in mm.
 
+        Returns:
+            None.
+
         """
         self._height = height
         self._length = length
@@ -285,6 +291,9 @@ class SparseCuboid:
             maxang: Maximum angle from vertical for the diagonal braces.
             max_bridge: Maximum unsupported bridge length in mm.
 
+        Returns:
+            None.
+
         """
         self._size = list(size) if isinstance(size, (list, tuple)) else [size, size, size]
 
@@ -345,6 +354,9 @@ class CorrugatedWall:
             thick: Overall wall thickness in mm (X axis).
             strut: Width of the solid top/bottom/end border in mm.
             wall: Thickness of the corrugated sheet in mm.
+
+        Returns:
+            None.
 
         """
         self._height = height
@@ -422,6 +434,9 @@ class ThinningWall:
             angle: Maximum overhang angle in degrees.
             strut: Width of the thick border; auto-calculated if None.
             wall: Centre wall thickness; auto-calculated if None.
+
+        Returns:
+            None.
 
         """
         self._height = height
@@ -595,6 +610,9 @@ class ThinningTriangle:
             wall: Centre wall thickness in mm.
             diagonly: If True, keep only the hypotenuse edge thick.
             center: If True, centre the shape; if False, rest on z=0 at the front.
+
+        Returns:
+            None.
 
         """
         self._height = height

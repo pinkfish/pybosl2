@@ -331,6 +331,20 @@ class ScrewSpec:
         metric nominal diameter), or a mapping already carrying ``diameter``/``pitch``.  When
         *head* is anything other than ``ScrewHeadType.NONE`` the appropriate head dimensions
         and optional drive-recess dimensions are looked up from the ISO tables.
+
+        Args:
+            spec: Screw specification -- ``"M6"``, ``"M8x1"``, a bare float diameter, or a dict.
+            head: Desired head style as a :class:`ScrewHeadType`.
+            thread: Thread pitch class as a :class:`ThreadPitchClass`.
+            drive: Drive recess type as a :class:`ScrewDriveType`.
+            pitch: Explicit thread pitch override.
+
+        Returns:
+            None.
+
+        Raises:
+            ValueError: If the specification cannot be resolved or the head type is unknown.
+
         """
         self.system = "ISO"
 
@@ -469,7 +483,24 @@ class Screw:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a screw from *spec* (``"M6"`` / ``"M8x1"``) and dimensions."""
+        """Create a screw from *spec* (``"M6"`` / ``"M8x1"``) and dimensions.
+
+        Args:
+            spec: Screw specification -- ``"M6"``, ``"M8x1"``, a bare float diameter, or a dict.
+            length: Shaft length below the head in mm.
+            head: Desired head style as a :class:`ScrewHeadType`.
+            drive: Drive recess type as a :class:`ScrewDriveType`.
+            thread: Thread pitch class as a :class:`ThreadPitchClass`.
+            thread_len: Length of the threaded portion; None means the full length.
+            pitch: Explicit thread pitch override.
+            fn: Number of facets for $fn-based resolution.
+            fa: Minimum facet angle.
+            fs: Minimum facet size.
+
+        Returns:
+            None.
+
+        """
         self._spec: ScrewSpec = ScrewSpec(
             spec,
             head=head,
@@ -588,7 +619,24 @@ class Nut:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a nut from *spec* (``"M8"``) and dimensions."""
+        """Create a nut from *spec* (``"M8"``) and dimensions.
+
+        Args:
+            spec: Screw specification -- ``"M6"``, ``"M8x1"``, a bare float diameter, or a dict.
+            thickness: Nut thickness in mm, or ``"normal"``, ``"thin"``, or ``"thick"``.
+            shape: Nut shape as a :class:`NutShape` (``HEX`` or ``SQUARE``).
+            thread: Thread pitch class as a :class:`ThreadPitchClass`.
+            nutwidth: Across-flats width override.
+            slop: Additional clearance for the threaded hole.
+            pitch: Explicit thread pitch override.
+            fn: Number of facets for $fn-based resolution.
+            fa: Minimum facet angle.
+            fs: Minimum facet size.
+
+        Returns:
+            None.
+
+        """
         self._spec: ScrewSpec = ScrewSpec(spec, thread=thread, pitch=pitch)
         self._thickness: float | str = thickness
         self._shape: NutShape = shape
@@ -678,7 +726,24 @@ class ScrewHole:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a hole cutter from *spec* (``"M6"``) and dimensions."""
+        """Create a hole cutter from *spec* (``"M6"``) and dimensions.
+
+        Args:
+            spec: Screw specification -- ``"M6"``, ``"M8x1"``, a bare float diameter, or a dict.
+            length: Hole depth in mm.
+            head: Desired head style as a :class:`ScrewHeadType` (for countersink/counterbore).
+            counterbore: Depth of the counterbore in mm.
+            fit: Clearance fit class (``"close"``, ``"normal"``, or ``"loose"``).
+            thread: Thread pitch class for a threaded (tapped) hole; ``NONE`` for a clearance hole.
+            pitch: Explicit thread pitch override.
+            fn: Number of facets for $fn-based resolution.
+            fa: Minimum facet angle.
+            fs: Minimum facet size.
+
+        Returns:
+            None.
+
+        """
         self._spec_str: str | dict[str, float] | float = spec
         self._length: float = length
         self._head: ScrewHeadType = head

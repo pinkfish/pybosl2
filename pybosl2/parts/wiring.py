@@ -89,6 +89,14 @@ def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
     """Return the centre points for the optimal hexagonal packing of at least *sides* circles.
 
     Circles are spaced *diameter* apart.
+
+    Args:
+        sides: Minimum number of circles to pack.
+        diameter: Centre-to-centre spacing between circles.
+
+    Returns:
+        A list of ``[x, y]`` centre offsets.
+
     """
     return _hex_offsets(sides, diameter)
 
@@ -121,7 +129,23 @@ class WireBundle:
         wirenum: int = 0,
         corner_steps: int = 15,
     ) -> None:
-        """Create a wire bundle routed along *path*."""
+        """Create a wire bundle routed along *path*.
+
+        Args:
+            path: A list of 3-D points defining the bundle route.
+            wires: Number of wires in the bundle.
+            wirediam: Diameter of each wire in mm.
+            rounding: Radius for rounding path corners.
+            wirenum: Starting index into the colour table for offset colouring.
+            corner_steps: Number of facets per rounded corner.
+
+        Returns:
+            None.
+
+        Raises:
+            ValueError: If *wires* is less than 1.
+
+        """
         if wires < 1:
             raise ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)

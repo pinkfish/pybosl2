@@ -70,6 +70,12 @@ class ManfrottoRC2Plate:
             fa: arc smoothness
             fs: arc smoothness
 
+        Returns:
+            None.
+
+        Raises:
+            ValueError: If *chamfer* is not one of ``"all"``, ``"bottom"``, ``"bot"``, or ``"none"``.
+
         """
         self._chamfer = chamfer
 
@@ -235,4 +241,4 @@ class ManfrottoRC2Plate:
         self._solid.show()
 
 
-manfrotto_rc2_plate = ManfrottoRC2Plate
+manfrotto_rc2_plate = ManfrottoRC2Plate  #: Alias for :class:`ManfrottoRC2Plate`.

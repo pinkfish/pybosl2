@@ -105,7 +105,33 @@ class RingHook:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a ring hook."""
+        """Create a ring hook.
+
+        Args:
+            base_size: The ``[x, y]`` dimensions of the mounting base rectangle.
+            hole_z: Height of the cylinder centre above the base.
+            outer_radius: Outer radius of the cylinder.
+            inner_radius: Inner (bore) radius of the cylinder.
+            outer_diameter: Outer diameter of the cylinder (alternative to outer_radius).
+            inner_diameter: Inner diameter of the cylinder (alternative to inner_radius).
+            wall: Wall thickness around the through-hole.
+            hole: Through-hole shape -- :attr:`HoleType.CIRCLE`, :attr:`HoleType.D`, or a custom 2-D path.
+            rounding: Radius for rounding the base's vertical edges.
+            hole_rounding: Radius for easing the hole mouth.
+            fillet: Fillet radius at the base-to-cylinder junction.
+            outside_segments: Number of segments on the outer cylinder.
+            fn: Number of facets for $fn-based resolution.
+            fa: Minimum facet angle.
+            fs: Minimum facet size.
+
+        Returns:
+            None.
+
+        Raises:
+            NotImplementedError: If *fillet* is non-zero (not yet ported).
+            ValueError: If the geometry constraints are violated.
+
+        """
         if fillet:
             raise NotImplementedError("ring_hook(): the base fillet is not yet ported; use fillet=0.")
         bx, w = float(base_size[0]), float(base_size[1])

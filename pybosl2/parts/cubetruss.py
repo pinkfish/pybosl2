@@ -110,7 +110,18 @@ def truss_dist(
     size: float | None = None,
     strut: float | None = None,
 ) -> float:
-    """Return the length of a truss *cubes* long, plus *gaps* extra strut-widths."""
+    """Return the length of a truss *cubes* long, plus *gaps* extra strut-widths.
+
+    Args:
+        cubes: Number of cubes along the truss.
+        gaps: Number of extra strut-width gaps.
+        size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+        strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+
+    Returns:
+        The total length of the truss in mm.
+
+    """
     sz = CUBETRUSS_SIZE if size is None else size
     st = CUBETRUSS_STRUT_SIZE if strut is None else strut
     return cubes * (sz - st) + gaps * st
@@ -143,7 +154,20 @@ class TrussSegment:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a cube truss segment."""
+        """Create a cube truss segment.
+
+        Args:
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            bracing: If True, add cross bracing inside the cube. Defaults to CUBETRUSS_BRACING.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         br = CUBETRUSS_BRACING if bracing is None else bracing
@@ -224,7 +248,24 @@ class Truss:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a truss from a grid of segments."""
+        """Create a truss from a grid of segments.
+
+        Args:
+            extents: Number of cubes long, or an [X, Y, Z] count. Defaults to 6.
+            clips: Direction vector(s) for end clips on the named faces.
+            bracing: If True, add cross bracing inside each cube.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            clipthick: Clip thickness in mm. Defaults to CUBETRUSS_CLIP_THICKNESS (1.6 mm).
+            slop: Extra clearance for clips.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -314,7 +355,20 @@ class TrussSupport:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a diagonal support truss."""
+        """Create a diagonal support truss.
+
+        Args:
+            extents: Vertical segment count, or an [X, Y, Z] count. Defaults to 1.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         if isinstance(extents, (int, float)):
@@ -395,7 +449,22 @@ class TrussCorner:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a corner truss."""
+        """Create a corner truss.
+
+        Args:
+            height: Central column height in cubes. Defaults to 1.
+            extents: Scalar (equal arms) or length-≤5 vector. Defaults to 1.
+            bracing: If True, add cross bracing inside each cube.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         h = int(height)
@@ -440,7 +509,17 @@ class TrussCorner:
 
 
 class TrussClip:
-    """A pair of snap clips for the end of a truss."""
+    """A pair of snap clips for the end of a truss.
+
+    Examples:
+        A truss clip:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.cubetruss import TrussClip
+            TrussClip().show()
+
+    """
 
     def __init__(
         self,
@@ -453,7 +532,22 @@ class TrussClip:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a truss clip pair."""
+        """Create a truss clip pair.
+
+        Args:
+            extents: Width in cubes. Defaults to 1.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            clipthick: Clip thickness in mm. Defaults to CUBETRUSS_CLIP_THICKNESS (1.6 mm).
+            slop: Extra clearance for clips.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -518,7 +612,17 @@ class TrussClip:
 
 
 class TrussFoot:
-    """A foot that clips onto the bottom of a truss for support."""
+    """A foot that clips onto the bottom of a truss for support.
+
+    Examples:
+        A truss foot:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.cubetruss import TrussFoot
+            TrussFoot().show()
+
+    """
 
     def __init__(
         self,
@@ -531,7 +635,22 @@ class TrussFoot:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a truss foot."""
+        """Create a truss foot.
+
+        Args:
+            w: Width in cubes. Defaults to 1.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            clipthick: Clip thickness in mm. Defaults to CUBETRUSS_CLIP_THICKNESS (1.6 mm).
+            slop: Extra clearance for clips.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -616,7 +735,17 @@ class TrussFoot:
 
 
 class TrussUClip:
-    """A U-shaped clip that joins two trusses face to face."""
+    """A U-shaped clip that joins two trusses face to face.
+
+    Examples:
+        A U-clip:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.cubetruss import TrussUClip
+            TrussUClip().show()
+
+    """
 
     def __init__(
         self,
@@ -629,7 +758,22 @@ class TrussUClip:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a U-clip."""
+        """Create a U-clip.
+
+        Args:
+            dual: If True, create clips on both sides. Defaults to True.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            clipthick: Clip thickness in mm. Defaults to CUBETRUSS_CLIP_THICKNESS (1.6 mm).
+            slop: Extra clearance for clips.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -673,7 +817,17 @@ class TrussUClip:
 
 
 class TrussJoiner:
-    """A joiner that clips two trusses end to end."""
+    """A joiner that clips two trusses end to end.
+
+    Examples:
+        A truss joiner:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.cubetruss import TrussJoiner
+            TrussJoiner().show()
+
+    """
 
     def __init__(
         self,
@@ -687,7 +841,23 @@ class TrussJoiner:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a truss joiner."""
+        """Create a truss joiner.
+
+        Args:
+            w: Width in cubes. Defaults to 1.
+            vert: If True, add vertical supports. Defaults to True.
+            size: Cube size in mm. Defaults to CUBETRUSS_SIZE (30 mm).
+            strut: Strut thickness in mm. Defaults to CUBETRUSS_STRUT_SIZE (3 mm).
+            clipthick: Clip thickness in mm. Defaults to CUBETRUSS_CLIP_THICKNESS (1.6 mm).
+            slop: Extra clearance for clips.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick

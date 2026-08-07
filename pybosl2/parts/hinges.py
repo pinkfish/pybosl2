@@ -63,7 +63,20 @@ class LivingHingeMask:
         hingegap: float | None = None,
         slop: float = 0.0,
     ) -> None:
-        """Create a living hinge mask for a plate of the given *thick*ness and *length*."""
+        """Create a living hinge mask for a plate of the given *thick*ness and *length*.
+
+        Args:
+            length: Length of the hinge in mm.
+            thick: Thickness of the plate in mm.
+            layerheight: Layer height in mm. Defaults to 0.2.
+            foldangle: Maximum fold angle in degrees. Defaults to 90.
+            hingegap: Gap at the hinge point. Defaults to layerheight.
+            slop: Extra clearance.
+
+        Returns:
+            None.
+
+        """
         hg = (layerheight if hingegap is None else hingegap) + 2 * slop
         top = hg + 2 * thick / math.tan(math.radians(foldangle / 2))
         self._solid: Bosl2Solid = prismoid([length, hg], [length, top], height=thick, anchor=BOTTOM).up(layerheight * 2)
@@ -96,6 +109,15 @@ class KnuckleHinge:
     leaf) or -Y (inner leaf).  *segs* is the total knuckle count across both
     leaves — the outer leaf takes the ``ceil(segs/2)`` even knuckles, the inner
     leaf the ``floor(segs/2)`` odd ones.  Pair with :class:`KnuckleHingePair`.
+
+    Examples:
+        An outer knuckle hinge leaf:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.hinges import KnuckleHinge
+            KnuckleHinge().show()
+
     """
 
     def __init__(
@@ -112,7 +134,25 @@ class KnuckleHinge:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a single knuckle hinge leaf."""
+        """Create a single knuckle hinge leaf.
+
+        Args:
+            length: Total hinge length in mm. Defaults to 40.
+            segs: Total knuckle count across both leaves. Defaults to 5.
+            knuckle_diam: Outer diameter of each knuckle. Defaults to 6.
+            pin_diam: Diameter of the pin bore. Defaults to 2.
+            arm: Length of the flat leaf arm. Defaults to 20.
+            thick: Thickness of the flat leaf. Defaults to 3.
+            gap: Gap between knuckles. Defaults to 0.4.
+            inner: If True, build the inner leaf; outer otherwise. Defaults to False.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         assert segs >= 2, "knuckle_hinge(): segs must be >= 2."
         seglen = (length - (segs - 1) * gap) / segs
         parts: list[Bosl2Solid] = []
@@ -186,7 +226,26 @@ class KnuckleHingePair:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a pair of meshing knuckle hinge leaves."""
+        """Create a pair of meshing knuckle hinge leaves.
+
+        Args:
+            length: Total hinge length in mm. Defaults to 40.
+            segs: Total knuckle count across both leaves. Defaults to 5.
+            knuckle_diam: Outer diameter of each knuckle. Defaults to 6.
+            pin_diam: Diameter of the pin bore. Defaults to 2.
+            arm: Length of the flat leaf arm. Defaults to 20.
+            thick: Thickness of the flat leaf. Defaults to 3.
+            gap: Gap between knuckles. Defaults to 0.4.
+            fold: Angle to rotate the inner leaf. Defaults to 0.
+            pin: If True, include a pin cylinder. Defaults to True.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         outer = KnuckleHinge(
             length,
             segs,
@@ -245,7 +304,17 @@ class KnuckleHingePair:
 
 
 class SnapLock:
-    """A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`."""
+    """A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`.
+
+    Examples:
+        A snap-lock tab:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.hinges import SnapLock
+            SnapLock().show()
+
+    """
 
     def __init__(
         self,
@@ -260,7 +329,24 @@ class SnapLock:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a snap-lock tab."""
+        """Create a snap-lock tab.
+
+        Args:
+            thick: Plate thickness in mm. Defaults to 3.
+            snaplen: Snap tab length in mm. Defaults to 5.
+            snapdiam: Snap ridge diameter in mm. Defaults to 5.
+            layerheight: Layer height in mm. Defaults to 0.2.
+            foldangle: Fold angle for the living hinge section. Defaults to 90.
+            hingegap: Gap at the hinge point. Defaults to layerheight.
+            slop: Extra clearance.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         hg = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hg / 2
         post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)
@@ -283,7 +369,17 @@ class SnapLock:
 
 
 class SnapSocket:
-    """The receiving socket for a :class:`SnapLock` tab."""
+    """The receiving socket for a :class:`SnapLock` tab.
+
+    Examples:
+        A snap socket:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.hinges import SnapSocket
+            SnapSocket().show()
+
+    """
 
     def __init__(
         self,
@@ -298,7 +394,24 @@ class SnapSocket:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a snap socket."""
+        """Create a snap socket.
+
+        Args:
+            thick: Plate thickness in mm. Defaults to 3.
+            snaplen: Snap tab length in mm. Defaults to 5.
+            snapdiam: Snap ridge diameter in mm. Defaults to 5.
+            layerheight: Layer height in mm. Defaults to 0.2.
+            foldangle: Fold angle for the living hinge section. Defaults to 90.
+            hingegap: Gap at the hinge point. Defaults to layerheight.
+            slop: Extra clearance.
+            fn: Number of fragments for rounded geometry.
+            fa: Fragment angle for rounded geometry.
+            fs: Fragment size for rounded geometry.
+
+        Returns:
+            None.
+
+        """
         hg = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hg / 2
         post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)

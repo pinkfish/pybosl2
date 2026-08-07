@@ -355,6 +355,14 @@ class BottleCaps:
     def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
         """Return a PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).
 
+        Args:
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            A PCO-1810 bottle neck as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
+
         Examples:
             A standard PCO 1810 bottle neck (28 mm):
 
@@ -378,6 +386,16 @@ class BottleCaps:
 
         back to a plain wall (surface texturing is not in this port).
 
+        Args:
+            wall: Cap wall thickness in mm. Defaults to 2.
+            texture: Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            A PCO-1810 bottle cap as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
+
         Examples:
             A plain-walled cap for a PCO 1810 neck:
 
@@ -392,6 +410,14 @@ class BottleCaps:
     @staticmethod
     def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
         """Return a PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).
+
+        Args:
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            A PCO-1881 bottle neck as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
 
         Examples:
             A standard PCO 1881 bottle neck (38 mm):
@@ -415,5 +441,24 @@ class BottleCaps:
         """Return a cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls.
 
         back to a plain wall (surface texturing is not in this port).
+
+        Args:
+            wall: Cap wall thickness in mm. Defaults to 2.
+            texture: Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.
+            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
+            fa: Minimum fragment angle. Passed to the geometry primitives.
+            fs: Minimum fragment size. Passed to the geometry primitives.
+
+        Returns:
+            A PCO-1881 bottle cap as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.
+
+        Examples:
+            A plain-walled cap for a PCO 1881 neck:
+
+            .. pythonscad-example::
+
+                from pybosl2.parts.bottlecaps import BottleCaps
+                BottleCaps.pco1881_cap(fa=6).show()
+
         """
         return _build_cap(_PCO1881, wall, texture, fn=fn, fa=fa, fs=fs)

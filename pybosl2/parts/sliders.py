@@ -63,7 +63,24 @@ class Slider:
         fa: float | None = None,
         fs: float | None = None,
     ) -> None:
-        """Create a V-groove slider."""
+        """Create a V-groove slider.
+
+        Args:
+            l: Slider length in mm.
+            w: V-groove opening width in mm.
+            h: V-groove height in mm.
+            base: Base plate height in mm.
+            wall: Wall thickness on each side of the V-groove in mm.
+            angle: V-groove half-angle in degrees.
+            slop: Additional clearance for tuning the printed fit.
+            fn: Number of facets for $fn-based resolution.
+            fa: Minimum facet angle.
+            fs: Minimum facet size.
+
+        Returns:
+            None.
+
+        """
         self._length: float = l
         self._width: float = w
         self._height: float = h
@@ -158,7 +175,19 @@ class Rail:
         chamfer: float = 1.0,
         angle: float = 30,
     ) -> None:
-        """Create a V-groove rail."""
+        """Create a V-groove rail.
+
+        Args:
+            l: Rail length in mm.
+            w: V-groove opening width in mm.
+            h: Rail height in mm.
+            chamfer: Edge chamfer radius in mm.
+            angle: V-groove half-angle in degrees.
+
+        Returns:
+            None.
+
+        """
         self._length: float = l
         self._width: float = w
         self._height: float = h
