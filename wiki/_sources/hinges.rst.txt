@@ -8,13 +8,25 @@ Hinges
 
 
 Pure-Python port of the hinges in BOSL2's ``hinges.scad``: a print-in-place
-:meth:`~pybosl2.parts.hinges.Hinges.living_hinge_mask` (differenced from a plate to make a folding "live"
-hinge), a functional interlocking :meth:`~pybosl2._sdf.joiners` leaf (with
-:meth:`~pybosl2.parts.hinges.Hinges.knuckle_hinge_pair` for both leaves meshed around one pin, at any fold
-angle), and simple :meth:`~pybosl2.parts.hinges.Hinges.snap_lock` / :meth:`~pybosl2.parts.hinges.Hinges.snap_socket`
+:class:`~pybosl2.parts.hinges.LivingHingeMask` (differenced from a plate to make a folding "live"
+hinge), a functional interlocking :class:`~pybosl2.parts.hinges.KnuckleHinge` leaf (with
+:class:`~pybosl2.parts.hinges.KnuckleHingePair` for both leaves meshed around one pin, at any fold
+angle), and simple :class:`~pybosl2.parts.hinges.SnapLock` / :class:`~pybosl2.parts.hinges.SnapSocket`
 connectors.
 
-.. autoclass:: pybosl2.parts.hinges.Hinges
+.. autoclass:: pybosl2.parts.hinges.KnuckleHinge
+   :members:
+
+.. autoclass:: pybosl2.parts.hinges.KnuckleHingePair
+   :members:
+
+.. autoclass:: pybosl2.parts.hinges.LivingHingeMask
+   :members:
+
+.. autoclass:: pybosl2.parts.hinges.SnapLock
+   :members:
+
+.. autoclass:: pybosl2.parts.hinges.SnapSocket
    :members:
 
 .. GENERATED-EXAMPLES (regenerate via scratchpad/gen_examples.py -- do not edit below)
@@ -31,8 +43,8 @@ A 5-knuckle hinge leaf:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hinges import Hinges
-   Hinges.knuckle_hinge(length=35, segs=5).show()
+   from pybosl2.parts.hinges import KnuckleHinge
+   KnuckleHinge(length=35, segs=5).shape().show()
 
 .. rubric:: ``knuckle_hinge_pair``
 
@@ -40,8 +52,8 @@ A meshed hinge pair:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hinges import Hinges
-   Hinges.knuckle_hinge_pair(length=40, segs=5).show()
+   from pybosl2.parts.hinges import KnuckleHingePair
+   KnuckleHingePair(length=40, segs=5).shape().show()
 
 .. rubric:: ``living_hinge_mask``
 
@@ -49,8 +61,8 @@ A living-hinge groove mask:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hinges import Hinges
-   Hinges.living_hinge_mask(length=100, thick=3, foldangle=60).show()
+   from pybosl2.parts.hinges import LivingHingeMask
+   LivingHingeMask(length=100, thick=3, foldangle=60).shape().show()
 
 .. rubric:: ``snap_lock``
 
@@ -58,8 +70,8 @@ A snap lock:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hinges import Hinges
-   Hinges.snap_lock(thick=3, foldangle=60).show()
+   from pybosl2.parts.hinges import SnapLock
+   SnapLock(thick=3, foldangle=60).shape().show()
 
 .. rubric:: ``snap_socket``
 
@@ -67,5 +79,5 @@ A snap socket:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.hinges import Hinges
-   Hinges.snap_socket(thick=3, foldangle=60).show()
+   from pybosl2.parts.hinges import SnapSocket
+   SnapSocket(thick=3, foldangle=60).shape().show()

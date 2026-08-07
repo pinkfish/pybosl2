@@ -103,7 +103,7 @@ _PREAMBLE = (
     ")\n"
     "from pybosl2.parts.screws import Screw, Nut, ScrewHole\n"
     "from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType, NutShape\n"
-    "from pybosl2.parts.gears import Gears\n"
+    "from pybosl2.parts.gears import BevelGear, HerringboneGear, Rack, RingGear, SpurGear, Worm, WormGear\n"
     "from pybosl2.parts.walls import Walls\n"
     "from pybosl2.parts.hooks import HoleType, RingHook\n"
     "from pybosl2.parts.wiring import Wiring\n"
