@@ -2057,7 +2057,23 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a threaded rod from *profile* (a :class:`ThreadProfile` or point list).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a threaded rod from *profile* (a :class:`ThreadProfile` or point list).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d: Nominal outer diameter in mm.</span>
+<span class="sd">            l: Length in mm.</span>
+<span class="sd">            pitch: Thread pitch in mm.</span>
+<span class="sd">            profile: A :class:`ThreadProfile` or a plain list of [x, y] points in pitch units.</span>
+<span class="sd">            starts: Number of thread starts.</span>
+<span class="sd">            left_handed: True for left-handed threads.</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ThreadedRod: d, l and pitch must be positive.&quot;</span>
         <span class="k">assert</span> <span class="n">l</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ThreadedRod: d, l and pitch must be positive.&quot;</span>
         <span class="k">assert</span> <span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ThreadedRod: d, l and pitch must be positive.&quot;</span>
@@ -2156,7 +2172,26 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a threaded nut from *profile* (a :class:`ThreadProfile` or point list).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a threaded nut from *profile* (a :class:`ThreadProfile` or point list).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nutwidth: Across-flats width in mm.</span>
+<span class="sd">            id: Inner (threaded) diameter in mm.</span>
+<span class="sd">            h: Nut thickness in mm.</span>
+<span class="sd">            pitch: Thread pitch in mm.</span>
+<span class="sd">            profile: A :class:`ThreadProfile` or a plain list of [x, y] points in pitch units.</span>
+<span class="sd">            shape: Nut outer shape (hex or square).</span>
+<span class="sd">            starts: Number of thread starts.</span>
+<span class="sd">            left_handed: True for left-handed threads.</span>
+<span class="sd">            slop: Extra clearance added to the thread diameter.</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nutwidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">nutwidth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_h</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">h</span>
@@ -2246,6 +2281,16 @@
 <span class="sd">    The thread crest is at diameter *d*; give *thread_depth* and *flank_angle*,</span>
 <span class="sd">    or an explicit *profile*. Built entirely through spiral_sweep (VNF output),</span>
 <span class="sd">    so it does not accept fn/fa/fs smoothing parameters.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A trapezoidal thread helix around a cylinder:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.shapes3d import cylinder as cyl</span>
+<span class="sd">            from pybosl2.parts.threading import ThreadHelix</span>
+<span class="sd">            cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape()</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -2259,7 +2304,24 @@
         <span class="n">left_handed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">profile</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">ThreadProfile</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a single thread helix ridge for adding threads to your own cylinder.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a single thread helix ridge for adding threads to your own cylinder.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            d: Crest diameter in mm.</span>
+<span class="sd">            pitch: Thread pitch in mm.</span>
+<span class="sd">            thread_depth: Thread depth in mm, or None for pitch/2.</span>
+<span class="sd">            flank_angle: Flank angle in degrees (half of thread angle for</span>
+<span class="sd">                trapezoidal, ignored if *profile* is given).</span>
+<span class="sd">            turns: Number of turns.</span>
+<span class="sd">            starts: Number of thread starts.</span>
+<span class="sd">            left_handed: True for left-handed threads.</span>
+<span class="sd">            profile: Explicit :class:`ThreadProfile` or point list; if given,</span>
+<span class="sd">                overrides *thread_depth* and *flank_angle*.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
         <span class="k">assert</span> <span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;ThreadHelix: d and pitch must be positive.&quot;</span>
@@ -2353,7 +2415,22 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedRod</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an ISO (metric) / UTS (imperial) 60-degree triangular threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an ISO (metric) / UTS (imperial) 60-degree triangular threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d: Nominal outer diameter in mm.</span>
+<span class="sd">        l: Length in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedRod` with an ISO/UTS thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedRod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_iso_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
 
 
@@ -2370,7 +2447,25 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedNut</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a hex/square nut for an ISO/UTS threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a hex/square nut for an ISO/UTS threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nutwidth: Across-flats width in mm.</span>
+<span class="sd">        id: Inner (threaded) diameter in mm.</span>
+<span class="sd">        h: Nut thickness in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        shape: Nut outer shape (hex or square).</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        slop: Extra clearance added to the thread diameter.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedNut` with an ISO/UTS thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedNut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">,</span>
@@ -2399,7 +2494,24 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedRod</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a symmetric trapezoidal (metric trapezoidal by default) threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a symmetric trapezoidal (metric trapezoidal by default) threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d: Nominal outer diameter in mm.</span>
+<span class="sd">        l: Length in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        thread_angle: Total thread angle in degrees.</span>
+<span class="sd">        thread_depth: Thread depth in mm, or None for pitch/2.</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedRod` with a trapezoidal thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedRod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">,</span>
         <span class="n">l</span><span class="p">,</span>
@@ -2428,7 +2540,27 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedNut</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for a trapezoidal threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for a trapezoidal threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nutwidth: Across-flats width in mm.</span>
+<span class="sd">        id: Inner (threaded) diameter in mm.</span>
+<span class="sd">        h: Nut thickness in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        thread_angle: Total thread angle in degrees.</span>
+<span class="sd">        thread_depth: Thread depth in mm, or None for pitch/2.</span>
+<span class="sd">        shape: Nut outer shape (hex or square).</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        slop: Extra clearance added to the thread diameter.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedNut` with a trapezoidal thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedNut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">,</span>
@@ -2456,7 +2588,23 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedRod</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a 29-degree ACME threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a 29-degree ACME threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d: Nominal outer diameter in mm.</span>
+<span class="sd">        l: Length in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        thread_depth: Thread depth in mm, or None for pitch/2.</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedRod` with a 29-degree ACME thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="n">ThreadedRod</span><span class="p">(</span>
         <span class="n">d</span><span class="p">,</span>
@@ -2485,7 +2633,26 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedNut</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for an ACME threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for an ACME threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nutwidth: Across-flats width in mm.</span>
+<span class="sd">        id: Inner (threaded) diameter in mm.</span>
+<span class="sd">        h: Nut thickness in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        thread_depth: Thread depth in mm, or None for pitch/2.</span>
+<span class="sd">        shape: Nut outer shape (hex or square).</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        slop: Extra clearance added to the thread diameter.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedNut` with an ACME thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="n">ThreadedNut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">,</span>
@@ -2513,7 +2680,22 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedRod</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a square-profile threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a square-profile threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d: Nominal outer diameter in mm.</span>
+<span class="sd">        l: Length in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedRod` with a square thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedRod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_trapezoidal_profile</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
 
 
@@ -2530,7 +2712,25 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedNut</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for a square threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for a square threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nutwidth: Across-flats width in mm.</span>
+<span class="sd">        id: Inner (threaded) diameter in mm.</span>
+<span class="sd">        h: Nut thickness in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        shape: Nut outer shape (hex or square).</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        slop: Extra clearance added to the thread diameter.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedNut` with a square thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedNut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">,</span>
@@ -2557,7 +2757,22 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedRod</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an asymmetric buttress threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an asymmetric buttress threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        d: Nominal outer diameter in mm.</span>
+<span class="sd">        l: Length in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedRod` with a buttress thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedRod</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">_buttress_profile</span><span class="p">(),</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
 
 
@@ -2574,7 +2789,25 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ThreadedNut</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for a buttress threaded rod.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a nut for a buttress threaded rod.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nutwidth: Across-flats width in mm.</span>
+<span class="sd">        id: Inner (threaded) diameter in mm.</span>
+<span class="sd">        h: Nut thickness in mm.</span>
+<span class="sd">        pitch: Thread pitch in mm.</span>
+<span class="sd">        shape: Nut outer shape (hex or square).</span>
+<span class="sd">        starts: Number of thread starts.</span>
+<span class="sd">        left_handed: True for left-handed threads.</span>
+<span class="sd">        slop: Extra clearance added to the thread diameter.</span>
+<span class="sd">        fn: Number of fragments (circle resolution).</span>
+<span class="sd">        fa: Minimum fragment angle.</span>
+<span class="sd">        fs: Minimum fragment size.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`ThreadedNut` with a buttress thread profile.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ThreadedNut</span><span class="p">(</span>
         <span class="n">nutwidth</span><span class="p">,</span>
         <span class="nb">id</span><span class="p">,</span>

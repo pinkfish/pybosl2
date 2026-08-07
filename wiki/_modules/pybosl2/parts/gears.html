@@ -2361,7 +2361,25 @@
         <span class="n">profile_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shorten</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve pitch inputs and auto-correct profile shift for undercut.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve pitch inputs and auto-correct profile shift for undercut.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            internal: True for internal (ring) gears.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            profile_shift: Explicit profile shift, or None for auto correction.</span>
+<span class="sd">            shorten: Amount to shorten the teeth.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;teeth&quot;</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;pressure_angle&quot;</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">)</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;helical&quot;</span><span class="p">,</span> <span class="n">helical</span><span class="p">)</span>
@@ -2427,7 +2445,18 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circular pitch (mm/tooth) from any pitch input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circular pitch (mm/tooth) from any pitch input.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Resolved circular pitch in mm/tooth.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span></div>
 
 
@@ -2435,7 +2464,15 @@
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.GearSpec.pitch_value">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pitch_value</span><span class="p">(</span><span class="n">mod</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circular pitch from the metric module.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circular pitch from the metric module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Circular pitch in mm/tooth.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">mod</span> <span class="o">*</span> <span class="n">PI</span></div>
 
 
@@ -2448,7 +2485,18 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Metric module from any pitch input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Metric module from any pitch input.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Metric module value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_module_value</span><span class="p">(</span><span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">))</span></div>
 
 
@@ -2461,7 +2509,18 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Diametral pitch (teeth per inch of pitch diameter) from any pitch input.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Diametral pitch (teeth per inch of pitch diameter) from any pitch input.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Diametral pitch value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PI</span> <span class="o">/</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span></div>
 
 
@@ -2474,7 +2533,18 @@
         <span class="n">helical</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">profile_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Minimum profile shift (modules) to avoid undercut.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Minimum profile shift (modules) to avoid undercut.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            profile_shift: Explicit profile shift override, or None for auto.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Profile shift value (modules).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span></div>
 
 
@@ -2482,7 +2552,17 @@
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.GearSpec.bevel_pitch_angle">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bevel_pitch_angle</span><span class="p">(</span><span class="n">teeth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mate_teeth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">drive_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pitch angle (deg) for a bevel gear meshing another.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pitch angle (deg) for a bevel gear meshing another.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            mate_teeth: Number of teeth on the mating gear.</span>
+<span class="sd">            drive_angle: Shaft angle between gears in degrees.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Pitch angle in degrees.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span>
             <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">drive_angle</span><span class="p">)),</span> <span class="p">(</span><span class="n">mate_teeth</span> <span class="o">/</span> <span class="n">teeth</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">drive_angle</span><span class="p">)))</span>
         <span class="p">)</span></div>
@@ -2502,7 +2582,23 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thickness of a worm gear matched to a worm.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thickness of a worm gear matched to a worm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the worm gear.</span>
+<span class="sd">            worm_diam: Diameter of the mating worm.</span>
+<span class="sd">            worm_arc: Arc angle the worm gear wraps around the worm.</span>
+<span class="sd">            crowning: Crowning amount.</span>
+<span class="sd">            clearance: Clearance, or None for default.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Worm gear thickness in mm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">worm_diam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">crowning</span>
         <span class="n">pitch_thick</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">worm_arc</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mi">2</span>
@@ -2529,7 +2625,26 @@
         <span class="n">mod</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Center-to-center distance for two meshing gears.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Center-to-center distance for two meshing gears.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            teeth1: Number of teeth on the first gear.</span>
+<span class="sd">            teeth2: Number of teeth on the second gear.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            profile_shift1: Profile shift for the first gear, or None for auto.</span>
+<span class="sd">            profile_shift2: Profile shift for the second gear, or None for auto.</span>
+<span class="sd">            internal1: True if the first gear is an internal (ring) gear.</span>
+<span class="sd">            internal2: True if the second gear is an internal (ring) gear.</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Center-to-center meshing distance in mm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">m_val</span> <span class="o">=</span> <span class="n">_module_value</span><span class="p">(</span><span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">))</span>
         <span class="n">ps1</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth1</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift1</span><span class="p">)</span>
         <span class="n">ps2</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth2</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift2</span><span class="p">)</span>
@@ -2617,7 +2732,27 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the involute gear tooth profile.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the involute gear tooth profile.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            internal: True for internal (ring) gears.</span>
+<span class="sd">            profile_shift: Explicit profile shift, or None for auto correction.</span>
+<span class="sd">            shorten: Amount to shorten the teeth.</span>
+<span class="sd">            center: If True, center the tooth vertically on the pitch circle.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">circ_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">_gear_tooth_profile</span><span class="p">(</span>
@@ -2636,7 +2771,12 @@
 <div class="viewcode-block" id="GearToothProfile.path">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.GearToothProfile.path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the tooth profile as a 2-D point list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the tooth profile as a 2-D point list.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of [x, y] points defining the tooth profile.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span></div>
 </div>
 
@@ -2675,7 +2815,29 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 2-D spur gear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 2-D spur gear.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            hide: Number of teeth to hide (for sector gears).</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            internal: True for internal (ring) gears.</span>
+<span class="sd">            profile_shift: Explicit profile shift, or None for auto correction.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            shaft_diam: Shaft bore diameter, or 0 for no bore.</span>
+<span class="sd">            shorten: Amount to shorten the teeth.</span>
+<span class="sd">            gear_spin: Rotation offset of the gear in degrees.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
         <span class="n">tooth</span> <span class="o">=</span> <span class="n">_gear_tooth_profile</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">internal</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
@@ -2755,7 +2917,35 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3-D spur gear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3-D spur gear.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            thickness: Gear thickness in mm.</span>
+<span class="sd">            shaft_diam: Shaft bore diameter, or 0 for no bore.</span>
+<span class="sd">            hide: Number of teeth to hide (for sector gears).</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            herringbone: If True, create a herringbone (double-helical) gear.</span>
+<span class="sd">            internal: True for internal (ring) gears.</span>
+<span class="sd">            profile_shift: Explicit profile shift, or None for auto correction.</span>
+<span class="sd">            shorten: Amount to shorten the teeth.</span>
+<span class="sd">            slices: Number of slices for linear extrusion.</span>
+<span class="sd">            gear_spin: Rotation offset of the gear in degrees.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">GearSpec</span><span class="p">(</span>
             <span class="n">teeth</span><span class="o">=</span><span class="n">teeth</span><span class="p">,</span>
             <span class="n">circ_pitch</span><span class="o">=</span><span class="n">circ_pitch</span><span class="p">,</span>
@@ -2854,7 +3044,17 @@
 <div class="viewcode-block" id="HerringboneGear">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.HerringboneGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HerringboneGear</span><span class="p">(</span><span class="n">SpurGear</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A herringbone gear with a shaft bore:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.gears import HerringboneGear</span>
+<span class="sd">            HerringboneGear(mod=5, teeth=18, thickness=25, helical=30, shaft_diam=15).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2878,7 +3078,33 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a herringbone gear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a herringbone gear.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            thickness: Gear thickness in mm.</span>
+<span class="sd">            shaft_diam: Shaft bore diameter, or 0 for no bore.</span>
+<span class="sd">            hide: Number of teeth to hide (for sector gears).</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            internal: True for internal (ring) gears.</span>
+<span class="sd">            profile_shift: Explicit profile shift, or None for auto correction.</span>
+<span class="sd">            shorten: Amount to shorten the teeth.</span>
+<span class="sd">            gear_spin: Rotation offset of the gear in degrees.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">circ_pitch</span><span class="o">=</span><span class="n">circ_pitch</span><span class="p">,</span>
             <span class="n">teeth</span><span class="o">=</span><span class="n">teeth</span><span class="p">,</span>
@@ -2935,7 +3161,29 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an internal ring gear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an internal ring gear.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            thickness: Gear thickness in mm.</span>
+<span class="sd">            backing: Extra radial thickness behind the teeth.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            profile_shift: Explicit profile shift, or None for auto correction.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
         <span class="n">_or</span> <span class="o">=</span> <span class="n">_outer_radius_basic</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">backing</span>
@@ -2978,7 +3226,17 @@
 <div class="viewcode-block" id="Rack2d">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.Rack2d">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Rack2d</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D involute rack outline — a straight bar of teeth.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D involute rack outline — a straight bar of teeth.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A 2-D rack extruded for STL export:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.gears import Rack2d</span>
+<span class="sd">            Rack2d(mod=5, teeth=20, height=10).shape().linear_extrude(height=5).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2992,7 +3250,23 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 2-D rack.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 2-D rack.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the rack.</span>
+<span class="sd">            height: Total height of the rack bar.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">_adendum</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">_rack2d_path</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
@@ -3017,7 +3291,17 @@
 <div class="viewcode-block" id="Rack">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.Rack">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Rack</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3-D rack: a linear toothed bar a gear rolls along.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3-D rack: a linear toothed bar a gear rolls along.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A rack to mesh with a spur gear:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.gears import Rack</span>
+<span class="sd">            Rack(mod=5, teeth=20, thickness=10, height=12).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3033,7 +3317,25 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3-D rack.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3-D rack.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the rack.</span>
+<span class="sd">            thickness: Rack thickness in mm.</span>
+<span class="sd">            height: Total height of the rack bar.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            helical: Helical angle in degrees.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">_adendum</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
         <span class="n">diameter</span> <span class="o">=</span> <span class="n">_dedendum</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
@@ -3073,7 +3375,17 @@
 <div class="viewcode-block" id="BevelGear">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.BevelGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BevelGear</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A (potentially spiral) involute bevel gear.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A (potentially spiral) involute bevel gear.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A bevel gear with a shaft bore:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.gears import BevelGear</span>
+<span class="sd">            BevelGear(mod=5, teeth=30, face_width=10, pitch_angle=45, shaft_diam=15).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3099,7 +3411,35 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a bevel gear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a bevel gear.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            face_width: Width of the tooth face along the cone.</span>
+<span class="sd">            pitch_angle: Pitch cone angle in degrees.</span>
+<span class="sd">            mate_teeth: Number of teeth on the mating gear (overrides pitch_angle).</span>
+<span class="sd">            shaft_diam: Shaft bore diameter, or 0 for no bore.</span>
+<span class="sd">            hide: Number of teeth to hide (for sector gears).</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            cutter_radius: Radius of the cutter for spiral bevel gears.</span>
+<span class="sd">            spiral_angle: Spiral angle in degrees.</span>
+<span class="sd">            left_handed: True for left-handed spiral.</span>
+<span class="sd">            slices: Number of slices along the face width.</span>
+<span class="sd">            interior: True for interior bevel gear.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">hide</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">slices_</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">cutter_radius</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">slices</span>
@@ -3191,7 +3531,17 @@
 <div class="viewcode-block" id="Worm">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.Worm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Worm</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worm — a screw that meshes a worm gear.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worm — a screw that meshes a worm gear.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A worm with two starts:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.gears import Worm</span>
+<span class="sd">            Worm(mod=5, diameter=30, length=80, starts=2).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3207,7 +3557,25 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a worm.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a worm.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            diameter: Worm outer diameter in mm.</span>
+<span class="sd">            length: Worm length in mm.</span>
+<span class="sd">            starts: Number of thread starts.</span>
+<span class="sd">            left_handed: True for left-handed worm.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">rack</span> <span class="o">=</span> <span class="n">_rack2d_path</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">polars</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">360</span> <span class="o">*</span> <span class="n">px</span> <span class="o">/</span> <span class="n">center</span> <span class="o">/</span> <span class="n">starts</span><span class="p">,</span> <span class="n">py</span> <span class="o">+</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="ow">in</span> <span class="n">rack</span><span class="p">]</span>
@@ -3251,7 +3619,17 @@
 <div class="viewcode-block" id="WormGear">
 <a class="viewcode-back" href="../../../gears.html#pybosl2.parts.gears.WormGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WormGear</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worm gear, hobbed to mesh a matching :class:`Worm`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worm gear, hobbed to mesh a matching :class:`Worm`.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        A worm gear with a shaft bore:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.parts.gears import WormGear</span>
+<span class="sd">            WormGear(mod=5, teeth=36, worm_diam=30, shaft_diam=15).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3274,7 +3652,32 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a worm gear.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a worm gear.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
+<span class="sd">            teeth: Number of teeth on the gear.</span>
+<span class="sd">            worm_diam: Diameter of the mating worm.</span>
+<span class="sd">            worm_starts: Number of starts on the mating worm.</span>
+<span class="sd">            worm_arc: Arc angle the worm gear wraps around the worm (10-60 degrees).</span>
+<span class="sd">            crowning: Crowning amount.</span>
+<span class="sd">            left_handed: True for left-handed worm gear.</span>
+<span class="sd">            pressure_angle: Pressure angle in degrees.</span>
+<span class="sd">            backlash: Backlash amount in mm.</span>
+<span class="sd">            slices: Number of slices along the width.</span>
+<span class="sd">            clearance: Clearance, or None for default (0.25 * module).</span>
+<span class="sd">            shaft_diam: Shaft bore diameter, or 0 for no bore.</span>
+<span class="sd">            mod: Metric module (mm/tooth).</span>
+<span class="sd">            pitch: Circular pitch alias.</span>
+<span class="sd">            diam_pitch: Diametral pitch (teeth per inch of pitch diameter).</span>
+<span class="sd">            fn: Number of fragments (circle resolution).</span>
+<span class="sd">            fa: Minimum fragment angle.</span>
+<span class="sd">            fs: Minimum fragment size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">worm_arc</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;worm_gear(): worm_arc must be between 10 and 60 degrees.&quot;</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">_pitch_radius</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>

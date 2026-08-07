@@ -456,18 +456,39 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def segment_lengths(self, closed: bool | None = None) -> NDArray[np.float64]:
         """Length of each segment of the path, as an ndarray.
 
+        An open path of N points has N-1 segments; a closed one has N, the extra being the
+        closing segment from the last point back to the first.
+
+        The short cases follow from that rule rather than being special-cased away:
+
+        * An EMPTY path has no segments either way -- there are no points to join.
+        * A SINGLE point is where open and closed differ. Open, it has no segments. Closed,
+          the closing segment joins the point to ITSELF, so the result is one segment of
+          length 0 -- not zero segments::
+
+              Path2D([[1, 2]]).segment_lengths()               # array([])
+              Path2D([[1, 2]], closed=True).segment_lengths()  # array([0.])
+
+          This keeps ``len(segment_lengths(closed=True)) == len(path)``, which
+          :meth:`tangent_array` relies on when it samples the non-uniform derivative.
+
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.
 
         Returns:
-            An ndarray of segment lengths.
+            An ndarray of segment lengths, one per segment.
 
         """
         if closed is None:
             closed = self.closed
-        pts = np.vstack([self._points, self._points[:1]]) if closed else self._points
+        pts = self._points
+        # Counted BEFORE closing the ring: an empty path's point array is 1-D, and stacking
+        # the (empty) first point onto it yields a (2, 0) array that then measures one
+        # spurious zero-length segment.
         if len(pts) < 2:
-            return np.array([], dtype=np.float64)
+            return np.zeros(1 if closed and len(pts) == 1 else 0, dtype=np.float64)
+        if closed:
+            pts = np.vstack([pts, pts[:1]])
         lengths: NDArray[np.float64] = np.linalg.norm(np.diff(pts, axis=0), axis=1)
         return lengths
 
@@ -513,7 +534,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def tangents(self, closed: bool | None = None, uniform: bool = True) -> "list[Point]":
         """Return the normalized tangent vector at each point of the path (BOSL2 path_tangents).
 
-        There is always exactly one tangent per path point -- not one per segment.
+        There is always exactly one tangent per path point -- not one per segment. A path of
+        fewer than two points has nothing to differentiate, so each of its points gets ``+x``
+        by convention; see :meth:`~pybosl2.paths.Path.tangent_array`.
 
         Args:
             closed: Override the instance's closed flag; uses ``self.closed`` by default.

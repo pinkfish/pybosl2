@@ -10,10 +10,12 @@ Wiring
 
 
 Rendering for routed wire bundles, from BOSL2's ``wiring.scad``.
-:meth:`~pybosl2.parts.wiring.Wiring.wire_bundle` hex-packs a set of round wires into a bundle and sweeps them
+:meth:`~pybosl2.parts.wiring.WireBundle.shape` hex-packs a set of round wires into a bundle and sweeps them
 along a path whose corners are rounded to a given radius, colouring each wire from a 17-entry table
 (re-used if there are more than 17 wires). Each wire is an independently watertight swept tube;
-:meth:`~pybosl2.parts.wiring.Wiring.hex_offsets` exposes the optimal hexagonal packing centres it uses.
+:func:`~pybosl2.parts.wiring.hex_offsets` exposes the optimal hexagonal packing centres it uses.
 
-.. autoclass:: pybosl2.parts.wiring.Wiring
+.. autoclass:: pybosl2.parts.wiring.WireBundle
    :members:
+
+.. autofunction:: pybosl2.parts.wiring.hex_offsets

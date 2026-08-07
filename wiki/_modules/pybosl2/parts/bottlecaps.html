@@ -2124,6 +2124,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">pco1810_neck</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PCO-1810 bottle neck as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.</span>
+
 <span class="sd">        Examples:</span>
 <span class="sd">            A standard PCO 1810 bottle neck (28 mm):</span>
 
@@ -2150,6 +2158,16 @@
 
 <span class="sd">        back to a plain wall (surface texturing is not in this port).</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            wall: Cap wall thickness in mm. Defaults to 2.</span>
+<span class="sd">            texture: Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PCO-1810 bottle cap as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.</span>
+
 <span class="sd">        Examples:</span>
 <span class="sd">            A plain-walled cap for a PCO 1810 neck:</span>
 
@@ -2167,6 +2185,14 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pco1881_neck</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PCO-1881 bottle neck as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            A standard PCO 1881 bottle neck (38 mm):</span>
@@ -2193,6 +2219,25 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``&quot;none&quot;`` falls.</span>
 
 <span class="sd">        back to a plain wall (surface texturing is not in this port).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            wall: Cap wall thickness in mm. Defaults to 2.</span>
+<span class="sd">            texture: Cap surface texture style (NONE, RIBS, or CHECKERS). Defaults to NONE.</span>
+<span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
+<span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
+<span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A PCO-1881 bottle cap as a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored bottom-on-origin.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            A plain-walled cap for a PCO 1881 neck:</span>
+
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
+<span class="sd">                BottleCaps.pco1881_cap(fa=6).show()</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_build_cap</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">texture</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 </div>

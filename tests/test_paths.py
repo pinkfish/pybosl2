@@ -206,7 +206,14 @@ def test_curvature_of_straightish_polygon() -> None:
 # length checks an empty path comes back as an IndexError from inside deriv().
 
 
-@pytest.mark.parametrize("path", [Path2D(), Path2D([[1.0, 2.0]])])
+@pytest.mark.parametrize(
+    "path",
+    [
+        Path2D(),
+        Path2D([], closed=True),  # nothing to join, so closing changes nothing
+        Path2D([[1.0, 2.0]]),
+    ],
+)
 def test_no_segments_measures_empty(path: Path2D) -> None:
     """Fewer than two points means no segment to measure."""
     assert path.segment_lengths().shape == (0,)
@@ -214,10 +221,13 @@ def test_no_segments_measures_empty(path: Path2D) -> None:
 
 
 def test_closed_single_point_has_one_zero_length_segment() -> None:
-    # Closing a single point joins it to itself, which IS a segment -- of length zero.
+    # Closing a single point joins it to ITSELF, which is a segment -- of length zero. This is
+    # the one short case where closed differs from open, and it is what keeps
+    # len(segment_lengths(closed=True)) == len(path) for tangent_array's non-uniform sampling.
     lengths = Path2D([[1.0, 2.0]], closed=True).segment_lengths()
     assert lengths.shape == (1,)
     assert lengths[0] == 0.0
+    assert Path2D([[1.0, 2.0]]).segment_lengths().shape == (0,)
 
 
 @pytest.mark.parametrize("path", [Path2D(), Path2D([[1.0, 2.0]])])

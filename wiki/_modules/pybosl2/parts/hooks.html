@@ -1875,7 +1875,33 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a ring hook.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a ring hook.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            base_size: The ``[x, y]`` dimensions of the mounting base rectangle.</span>
+<span class="sd">            hole_z: Height of the cylinder centre above the base.</span>
+<span class="sd">            outer_radius: Outer radius of the cylinder.</span>
+<span class="sd">            inner_radius: Inner (bore) radius of the cylinder.</span>
+<span class="sd">            outer_diameter: Outer diameter of the cylinder (alternative to outer_radius).</span>
+<span class="sd">            inner_diameter: Inner diameter of the cylinder (alternative to inner_radius).</span>
+<span class="sd">            wall: Wall thickness around the through-hole.</span>
+<span class="sd">            hole: Through-hole shape -- :attr:`HoleType.CIRCLE`, :attr:`HoleType.D`, or a custom 2-D path.</span>
+<span class="sd">            rounding: Radius for rounding the base&#39;s vertical edges.</span>
+<span class="sd">            hole_rounding: Radius for easing the hole mouth.</span>
+<span class="sd">            fillet: Fillet radius at the base-to-cylinder junction.</span>
+<span class="sd">            outside_segments: Number of segments on the outer cylinder.</span>
+<span class="sd">            fn: Number of facets for $fn-based resolution.</span>
+<span class="sd">            fa: Minimum facet angle.</span>
+<span class="sd">            fs: Minimum facet size.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: If *fillet* is non-zero (not yet ported).</span>
+<span class="sd">            ValueError: If the geometry constraints are violated.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">fillet</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;ring_hook(): the base fillet is not yet ported; use fillet=0.&quot;</span><span class="p">)</span>
         <span class="n">bx</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">base_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">base_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
