@@ -80,21 +80,21 @@ A cross-braced box, braced along X:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import SparseAxis
+   from pybosl2.parts.walls import SparseAxis, SparseCuboid
    SparseCuboid([10, 20, 30], dir=SparseAxis.X, strut=1).shape()
 
 Braced along Y:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import SparseAxis
+   from pybosl2.parts.walls import SparseAxis, SparseCuboid
    SparseCuboid([10, 20, 30], dir=SparseAxis.Y, strut=1).shape()
 
 Braced along Z:
 
 .. pythonscad-example::
 
-   from pybosl2.parts.walls import SparseAxis
+   from pybosl2.parts.walls import SparseAxis, SparseCuboid
    SparseCuboid([10, 20, 30], dir=SparseAxis.Z, strut=1).shape()
 
 .. rubric:: ``corrugated_wall``

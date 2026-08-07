@@ -1258,8 +1258,8 @@ SETUP = {
     ),
     "screw_drive": (
         "from pybosl2.parts.screw_drive import (\n"
-        "    HexDriveMask, PhillipsMask, RobertsonMask, TorxMask, TorxMask2d,\n"
-        "    hex_mask, phillips_depth, phillips_diam, torx_depth, torx_diam, torx_info,\n"
+        "    HexDriveMask, PhillipsMask, PhillipsSpec, RobertsonMask,\n"
+        "    TorxMask, TorxMask2d, TorxSpec, hex_mask,\n"
         ")\n"
     ),
     "bottlecaps": "from pybosl2.parts.bottlecaps import BottleCaps\n",
