@@ -309,6 +309,15 @@ def test_path_hull_two_squares() -> None:
     assert result.closed
 
 
+def test_path_hull_of_nothing_is_an_empty_closed_path() -> None:
+    # Region.hull() finds no outlines to hull, so Path2D.hull has nothing to unwrap. It still
+    # returns a Path2D -- an empty, closed one -- rather than None or an IndexError.
+    result = Path2D([]).hull(Path2D([]))
+    assert isinstance(result, Path2D)
+    assert len(result) == 0
+    assert result.closed
+
+
 def test_path_hull_list_arg() -> None:
     a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Path2D([[30, 0], [50, 0], [50, 20], [30, 20]])

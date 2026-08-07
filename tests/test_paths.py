@@ -199,6 +199,50 @@ def test_curvature_of_straightish_polygon() -> None:
     assert not np.any(np.isnan(c))
 
 
+# -- degenerate paths ---------------------------------------------------------------------
+#
+# A path too short to have the thing being measured MEASURES ZERO; it does not raise. These
+# all route through numpy derivatives that index [1] and [2] unguarded, so without the
+# length checks an empty path comes back as an IndexError from inside deriv().
+
+
+@pytest.mark.parametrize("path", [Path2D(), Path2D([[1.0, 2.0]])])
+def test_no_segments_measures_empty(path: Path2D) -> None:
+    """Fewer than two points means no segment to measure."""
+    assert path.segment_lengths().shape == (0,)
+    assert path.perimeter() == 0.0
+
+
+def test_closed_single_point_has_one_zero_length_segment() -> None:
+    # Closing a single point joins it to itself, which IS a segment -- of length zero.
+    lengths = Path2D([[1.0, 2.0]], closed=True).segment_lengths()
+    assert lengths.shape == (1,)
+    assert lengths[0] == 0.0
+
+
+@pytest.mark.parametrize("path", [Path2D(), Path2D([[1.0, 2.0]])])
+def test_short_path_tangents_are_one_per_point(path: Path2D) -> None:
+    # Still one per point, the same as any other path -- an empty path just gets none.
+    assert len(path.tangents()) == len(path)
+    assert path.tangent_array().shape == (len(path), 2)
+
+
+def test_single_point_tangent_falls_back_to_x() -> None:
+    # One point gives nothing to differentiate, so the tangent is +x by convention.
+    np.testing.assert_allclose(list(Path2D([[1.0, 2.0]]).tangents()[0]), [1.0, 0.0])
+
+
+@pytest.mark.parametrize(
+    "path",
+    [Path2D(), Path2D([[1.0, 2.0]]), Path2D([[0.0, 0.0], [1.0, 0.0]])],
+)
+def test_curvature_needs_three_points(path: Path2D) -> None:
+    """Two points can only make a straight line, so curvature is zero rather than undefined."""
+    curvature = path.curvature()
+    assert curvature.shape == (len(path),)
+    assert not np.any(curvature)
+
+
 # -- derived paths ------------------------------------------------------------------------
 
 

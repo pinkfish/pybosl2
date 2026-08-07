@@ -235,6 +235,32 @@ def test_tangents_normals_curvature_torsion_shapes() -> None:
     )
 
 
+# -- degenerate paths ---------------------------------------------------------------------
+#
+# The 3-D counterpart of test_paths.py's degenerate block: a path too short to have the thing
+# being measured MEASURES ZERO rather than raising IndexError out of the numpy derivatives.
+
+DEGENERATE_3D = [Path3D(), Path3D([[1.0, 2.0, 3.0]]), Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])]
+
+
+@pytest.mark.parametrize("path", DEGENERATE_3D)
+def test_curvature_and_torsion_need_three_points(path: Path3D) -> None:
+    for measured in (path.curvature(), path.torsion()):
+        assert measured.shape == (len(path),)
+        assert not np.any(measured)
+
+
+@pytest.mark.parametrize("path", [Path3D(), Path3D([[1.0, 2.0, 3.0]])])
+def test_short_path_tangents_are_one_per_point(path: Path3D) -> None:
+    assert len(path.tangents()) == len(path)
+    assert path.tangent_array().shape == (len(path), 3)
+
+
+def test_single_point_tangent_falls_back_to_x() -> None:
+    # One point gives nothing to differentiate, so the tangent is +x by convention.
+    np.testing.assert_allclose(list(Path3D([[1.0, 2.0, 3.0]]).tangents()[0]), [1.0, 0.0, 0.0])
+
+
 def test_closest_point() -> None:
     from pybosl2.points import Point
 
