@@ -6,10 +6,10 @@
 
 # LibFile: pybosl2/parts/nema_steppers.py
 #    Pure-Python port of BOSL2's nema_steppers.scad: models of NEMA-standard stepper motors and the
-#    masks that cut their mounting-hole pattern into a plate. :meth:`NemaSteppers.nema_stepper_motor`
-#    builds a motor (body + plinth + shaft + blind screw holes) for a NEMA size; :meth:`~NemaSteppers.
-#    nema_mount_mask` is the bolt-pattern-plus-plinth cutout; :meth:`~NemaSteppers.nema_motor_info`
-#    returns the standard dimensions as a :class:`NemaSpec`.
+#    masks that cut their mounting-hole pattern into a plate. :class:`NemaMotor`
+#    builds a motor (body + plinth + shaft + blind screw holes) for a NEMA size; :class:`NemaMountMask`
+#    is the bolt-pattern-plus-plinth cutout; :class:`NemaSpec`
+#    returns the standard dimensions.
 #
 # FileSummary: NEMA stepper-motor models and mounting masks.
 # DocCategory: Parts library
@@ -20,27 +20,64 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from enum import StrEnum
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl
 
-__all__ = ["NemaSteppers", "NemaSpec"]
+__all__ = ["NemaMotor", "NemaMountMask", "NemaMaskType", "NemaSpec"]
 
 
-def _union(shapes: list[Any]) -> Any:
-    return union(shapes)
+class NemaMaskType(StrEnum):
+    """Mounting mask cutout type for NEMA stepper motors."""
+
+    FULL = "full"
+    SCREWS = "screws"
+
+
+def _union(shapes: list[Bosl2Solid]) -> Bosl2Solid:
+    return union(shapes)  # type: ignore[no-any-return]
 
 
 @dataclass(frozen=True)
 class NemaSpec:
-    """Standard dimensions of a NEMA stepper motor (BOSL2 nema_motor_info())."""
+    """Standard dimensions of a NEMA stepper motor (BOSL2 nema_motor_info()).
 
-    motor_width: float  # body cross-section (square)
-    plinth_height: float  # raised boss around the shaft
+    Construct with the NEMA size directly: ``NemaSpec(17)``.
+    """
+
+    motor_width: float
+    plinth_height: float
     plinth_diam: float
-    screw_spacing: float  # centre-to-centre of the mounting holes
+    screw_spacing: float
+    screw_size: float
+    screw_depth: float
+    shaft_diam: float
+
+    def __init__(self, size: int) -> None:
+        """Look up the NEMA motor dimensions for the given *size* (6-42)."""
+        try:
+            spec = _NEMA[int(size)]
+        except (KeyError, ValueError):
+            raise ValueError(f"Unsupported NEMA size: {size!r}") from None
+        object.__setattr__(self, "motor_width", spec.motor_width)
+        object.__setattr__(self, "plinth_height", spec.plinth_height)
+        object.__setattr__(self, "plinth_diam", spec.plinth_diam)
+        object.__setattr__(self, "screw_spacing", spec.screw_spacing)
+        object.__setattr__(self, "screw_size", spec.screw_size)
+        object.__setattr__(self, "screw_depth", spec.screw_depth)
+        object.__setattr__(self, "shaft_diam", spec.shaft_diam)
+
+
+@dataclass(frozen=True)
+class _NemaSpecRaw:
+    """Internal storage for NEMA dimension tables (used before NemaSpec is constructed)."""
+
+    motor_width: float
+    plinth_height: float
+    plinth_diam: float
+    screw_spacing: float
     screw_size: float
     screw_depth: float
     shaft_diam: float
@@ -48,64 +85,84 @@ class NemaSpec:
 
 # NEMA size -> spec, transcribed from nema_steppers.scad.
 _NEMA = {
-    6: NemaSpec(14.0, 1.50, 11.0, 11.50, 1.6, 2.5, 4.00),
-    8: NemaSpec(20.3, 1.50, 16.0, 15.40, 2.0, 2.5, 4.00),
-    11: NemaSpec(28.2, 1.50, 22.0, 23.11, 2.6, 3.0, 5.00),
-    14: NemaSpec(35.2, 2.00, 22.0, 26.00, 3.0, 4.5, 5.00),
-    17: NemaSpec(42.3, 2.00, 22.0, 31.00, 3.0, 4.5, 5.00),
-    23: NemaSpec(57.0, 1.60, 38.1, 47.00, 5.1, 4.8, 6.35),
-    34: NemaSpec(86.0, 2.00, 73.0, 69.60, 6.5, 10.0, 14.00),
-    42: NemaSpec(110.0, 1.50, 55.5, 88.90, 8.5, 12.7, 19.00),
+    6: _NemaSpecRaw(14.0, 1.50, 11.0, 11.50, 1.6, 2.5, 4.00),
+    8: _NemaSpecRaw(20.3, 1.50, 16.0, 15.40, 2.0, 2.5, 4.00),
+    11: _NemaSpecRaw(28.2, 1.50, 22.0, 23.11, 2.6, 3.0, 5.00),
+    14: _NemaSpecRaw(35.2, 2.00, 22.0, 26.00, 3.0, 4.5, 5.00),
+    17: _NemaSpecRaw(42.3, 2.00, 22.0, 31.00, 3.0, 4.5, 5.00),
+    23: _NemaSpecRaw(57.0, 1.60, 38.1, 47.00, 5.1, 4.8, 6.35),
+    34: _NemaSpecRaw(86.0, 2.00, 73.0, 69.60, 6.5, 10.0, 14.00),
+    42: _NemaSpecRaw(110.0, 1.50, 55.5, 88.90, 8.5, 12.7, 19.00),
 }
 
 
-class NemaSteppers:
-    """NEMA stepper-motor models and mounting masks (BOSL2 nema_steppers.scad).
+class NemaMotor:
+    """A model of a NEMA stepper motor.
 
-    .. seealso::
+    The motor's mounting face is at ``z = 0`` with the body below it and the
+    plinth and shaft projecting up; the four mounting holes are drilled into
+    the face.
 
-       `Visual spec sheet <specs/nema_steppers.html>`_ — measurements and STL previews
+    Examples:
+        A NEMA 17 motor:
+
+        .. pythonscad-example::
+
+            from pybosl2.parts.nema_steppers import NemaMotor
+            NemaMotor(size=17).show()
+
     """
 
-    @staticmethod
-    def nema_motor_info(size: int) -> NemaSpec:
-        """Return the :class:`NemaSpec` for a NEMA *size* (6, 8, 11, 14, 17, 23, 34 or 42) (BOSL2.
-
-        nema_motor_info()).
-        """
-        try:
-            return _NEMA[int(size)]
-        except (KeyError, ValueError):
-            raise ValueError(f"Unsupported NEMA size: {size!r}") from None
-
-    @staticmethod
-    def nema_stepper_motor(
+    def __init__(
+        self,
         size: int = 17,
         height: float = 24,
         shaft_len: float = 20,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return a model of a NEMA *size* stepper motor (BOSL2 nema_stepper_motor()).
+    ) -> None:
+        """Create a NEMA stepper motor model, sized by *size*, *height* and *shaft_len*."""
+        self._spec: NemaSpec = NemaSpec(size)
+        self._height: float = height
+        self._shaft_len: float = shaft_len
+        self._size: int = size
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
 
-        The motor's mounting face is at ``z = 0`` with the body below it and the plinth and *shaft_len*
-        shaft projecting up; the four mounting holes are drilled into the face.
+    @property
+    def spec(self) -> NemaSpec:
+        """The resolved :class:`NemaSpec`."""
+        return self._spec
 
-        Examples:
-            A NEMA 17 motor:
+    @property
+    def size(self) -> int:
+        """NEMA size (6, 8, 11, 14, 17, 23, 34 or 42)."""
+        return self._size
 
-            .. pythonscad-example::
+    @property
+    def height(self) -> float:
+        """Motor body height in mm."""
+        return self._height
 
-                from pybosl2.parts.nema_steppers import NemaSteppers
-                NemaSteppers.nema_stepper_motor(size=17).show()
+    @property
+    def shaft_len(self) -> float:
+        """Shaft projection length in mm."""
+        return self._shaft_len
 
-        """
-        s = NemaSteppers.nema_motor_info(size)
-        if size < 23:
+    def shape(self) -> Bosl2Solid:
+        """Build and return the motor geometry (cached)."""
+        if self._solid is not None:
+            return self._solid
+        s = self._spec
+        ssz = self._size
+        fn, fa, fs = self._fn, self._fa, self._fs
+        if ssz < 23:
             body = cuboid(
-                [s.motor_width, s.motor_width, height],
-                chamfer=2 if size >= 8 else 0.5,
+                [s.motor_width, s.motor_width, self._height],
+                chamfer=2 if ssz >= 8 else 0.5,
                 edges=Anchor.Z,
                 fn=fn,
                 fa=fa,
@@ -113,24 +170,18 @@ class NemaSteppers:
             )
         else:
             body = cuboid(
-                [s.motor_width, s.motor_width, height],
+                [s.motor_width, s.motor_width, self._height],
                 rounding=s.screw_size,
                 edges=Anchor.Z,
                 fn=fn,
                 fa=fa,
                 fs=fs,
             )
-        body = body.down(height / 2)  # mounting face at z=0, body below
+        body = body.down(self._height / 2)
         for sx in (-1, 1):
-            for sy in (-1, 1):  # blind mounting holes at the corners
+            for sy in (-1, 1):
                 hole = (
-                    cyl(
-                        height=s.screw_depth * 2,
-                        diameter=s.screw_size,
-                        fn=fn,
-                        fa=fa,
-                        fs=fs,
-                    )
+                    cyl(height=s.screw_depth * 2, diameter=s.screw_size, fn=fn, fa=fa, fs=fs)
                     .right(sx * s.screw_spacing / 2)
                     .back(sy * s.screw_spacing / 2)
                 )
@@ -142,49 +193,100 @@ class NemaSteppers:
             fa=fa,
             fs=fs,
         )
-        shaft = cyl(height=shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(shaft_len / 2)
-        return Bosl2Solid(
+        shaft = cyl(height=self._shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(self._shaft_len / 2)
+        self._solid = Bosl2Solid(
             (body | plinth | shaft).shape,
-            size=[s.motor_width, s.motor_width, height + shaft_len],
+            size=[s.motor_width, s.motor_width, self._height + self._shaft_len],
         )
+        return self._solid
 
-    @staticmethod
-    def nema_mount_mask(
+    def show(self) -> None:
+        """Display the motor in the viewer."""
+        self.shape().show()
+
+
+class NemaMountMask:
+    """The mounting cutout for a NEMA stepper motor -- difference it from a plate.
+
+    Cuts the four screw holes and (``atype=NemaMaskType.FULL``) the central plinth
+    clearance.  A slot *length* > 0 elongates each hole so the motor can be
+    positioned (e.g. to tension a belt).
+    """
+
+    def __init__(
+        self,
         size: int,
         depth: float = 5,
         length: float = 5,
-        atype: str = "full",
+        atype: NemaMaskType = NemaMaskType.FULL,
         slop: float = 0.0,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Return the mounting cutout for a NEMA *size* motor -- difference it from a plate (BOSL2 nema_mount_mask()).
+    ) -> None:
+        """Create a NEMA mounting mask cutout."""
+        if atype not in (NemaMaskType.FULL, NemaMaskType.SCREWS):
+            raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {atype!r}")
+        self._spec: NemaSpec = NemaSpec(size)
+        self._depth: float = depth
+        self._length: float = length
+        self._atype: NemaMaskType = atype
+        self._slop: float = slop
+        self._size: int = size
+        self._fn: int | None = fn
+        self._fa: float | None = fa
+        self._fs: float | None = fs
+        self._solid: Bosl2Solid | None = None
 
-        Cuts the four screw holes and (``atype="full"``) the central plinth clearance. A slot length
-        *length* > 0 elongates each hole so the motor can be positioned (e.g. to tension a belt).
-        """
-        s = NemaSteppers.nema_motor_info(size)
-        pd = s.plinth_diam + slop
-        sz = s.screw_size + slop
+    @property
+    def spec(self) -> NemaSpec:
+        """The resolved :class:`NemaSpec`."""
+        return self._spec
+
+    @property
+    def size(self) -> int:
+        """NEMA size."""
+        return self._size
+
+    @property
+    def mask_type(self) -> NemaMaskType:
+        """Mask cutout type."""
+        return self._atype
+
+    def shape(self) -> Bosl2Solid:
+        """Build and return the mount mask geometry (cached)."""
+        if self._solid is not None:
+            return self._solid
+        s = self._spec
+        fn, fa, fs = self._fn, self._fa, self._fs
+        pd = s.plinth_diam + self._slop
+        sz = s.screw_size + self._slop
         ss = s.screw_spacing
 
         def slotted(d: float, cx: float = 0.0, cy: float = 0.0) -> list[Bosl2Solid]:
-            if length > 0:
+            if self._length > 0:
                 return [
-                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).back(length / 2).right(cx).back(cy),
-                    cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).forward(length / 2).right(cx).back(cy),
-                    cuboid([d, length, depth], fn=fn, fa=fa, fs=fs).right(cx).back(cy),
+                    cyl(height=self._depth, diameter=d, fn=fn, fa=fa, fs=fs).back(self._length / 2).right(cx).back(cy),
+                    cyl(height=self._depth, diameter=d, fn=fn, fa=fa, fs=fs)
+                    .forward(self._length / 2)
+                    .right(cx)
+                    .back(cy),
+                    cuboid([d, self._length, self._depth], fn=fn, fa=fa, fs=fs).right(cx).back(cy),
                 ]
-            return [cyl(height=depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
+            return [cyl(height=self._depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
 
-        parts = []
+        parts: list[Bosl2Solid] = []
         for sx in (-1, 1):
             for sy in (-1, 1):
                 parts += slotted(sz, sx * ss / 2, sy * ss / 2)
-        if atype == "full":
+        if self._atype == NemaMaskType.FULL:
             parts += slotted(pd)
-        elif atype != "screws":
-            raise ValueError('nema_mount_mask(): atype must be "full" or "screws".')
-        w = ss + sz + (length if length > 0 else 0)
-        return Bosl2Solid(_union(parts).shape, size=[ss + sz, w, depth])
+        elif self._atype != NemaMaskType.SCREWS:
+            raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {self._atype!r}")
+        w = ss + sz + (self._length if self._length > 0 else 0)
+        self._solid = Bosl2Solid(_union(parts).shape, size=[ss + sz, w, self._depth])
+        return self._solid
+
+    def show(self) -> None:
+        """Display the mount mask in the viewer."""
+        self.shape().show()

@@ -1735,7 +1735,7 @@ def test_screw_drive_phillips_mask(tmp_path):
 def test_nema_stepper_motor(tmp_path):
     m = _render(
         tmp_path,
-        "NemaSteppers.nema_mount_mask(size=17, depth=5, fn=24)",
+        "NemaMountMask(size=17, depth=5, fn=24).shape()",
         name="nema_mask",
     )
     assert m.volume > 0
