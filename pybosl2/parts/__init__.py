@@ -50,7 +50,7 @@ from pybosl2.parts.sliders import Sliders
 from pybosl2.parts.threading import ThreadedNut, ThreadedRod, ThreadHelix, ThreadProfile
 from pybosl2.parts.tripod_mounts import TripodMounts, manfrotto_rc2_plate
 from pybosl2.parts.walls import Walls
-from pybosl2.parts.wiring import Wiring
+from pybosl2.parts.wiring import WireBundle, hex_offsets
 
 __all__ = [
     "BallBearings",
@@ -119,5 +119,6 @@ __all__ = [
     "TripodMounts",
     "manfrotto_rc2_plate",
     "Walls",
-    "Wiring",
+    "WireBundle",
+    "hex_offsets",
 ]
