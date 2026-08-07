@@ -776,12 +776,12 @@ MODULES = {
             "Modular cube-truss segments, the trusses tiled from them (with end clips), "
             "L/T corners, diagonal supports, and the printed clip family."
         ),
-        "part": "cubetruss(extents=3)",
-        "code": 'CubeTruss.<span class="k">cubetruss</span>(extents=3)',
+        "part": "truss(extents=3)",
+        "code": 'Truss(extents=3).<span class="k">shape</span>()',
         "metrics": [("3-segment truss", 1456, "15,456.6", "30×84×30")],
         "note": (
             "Each 30 mm cube is lightened with octagonal tunnels through all three axes and braced; "
-            "the assembly is one watertight solid. Length = cubetruss_dist(3,1) = 84 mm."
+            "the assembly is one watertight solid. Length = truss_dist(3,1) = 84 mm."
         ),
         "proof": None,
         "tags": ["segment", "corner", "support", "clip", "foot", "joiner"],
@@ -1237,7 +1237,10 @@ SETUP = {
     "joiners": (
         "from pybosl2.parts.enums import Gender\nfrom pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket\n"
     ),
-    "cubetruss": "from pybosl2.parts.cubetruss import CubeTruss\n",
+    "cubetruss": (
+        "from pybosl2.parts.cubetruss import TrussSegment, Truss, TrussCorner, "
+        "TrussSupport, TrussClip, TrussFoot, TrussUClip, TrussJoiner, truss_dist\n"
+    ),
     "ball_bearings": "from pybosl2.parts.ball_bearings import BallBearings\n",
     "linear_bearings": "from pybosl2.parts.linear_bearings import LinearBearings\n",
     "modular_hose": "from pybosl2.parts.modular_hose import HoseSegment, HoseType\n",
@@ -1372,11 +1375,11 @@ VARIANTS = {
         ("socket", "pin socket", "SnapPinSocket().shape()"),
     ],
     "cubetruss": [
-        ("truss", "3-truss", "CubeTruss.cubetruss(extents=3)"),
-        ("segment", "segment", "CubeTruss.cubetruss_segment()"),
-        ("corner", "corner", "CubeTruss.cubetruss_corner()"),
-        ("support", "support", "CubeTruss.cubetruss_support(extents=1)"),
-        ("clip", "clip", "CubeTruss.cubetruss_clip()"),
+        ("truss", "3-truss", "Truss(extents=3).shape()"),
+        ("segment", "segment", "TrussSegment().shape()"),
+        ("corner", "corner", "TrussCorner().shape()"),
+        ("support", "support", "TrussSupport(extents=1).shape()"),
+        ("clip", "clip", "TrussClip().shape()"),
     ],
     "ball_bearings": [
         ("608", "608", 'BallBearings.ball_bearing("608")'),

@@ -12,7 +12,17 @@
 
 from pybosl2.parts.ball_bearings import BallBearings, BearingSpec, BearingType
 from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
-from pybosl2.parts.cubetruss import CubeTruss
+from pybosl2.parts.cubetruss import (
+    Truss,
+    TrussClip,
+    TrussCorner,
+    TrussFoot,
+    TrussJoiner,
+    TrussSegment,
+    TrussSupport,
+    TrussUClip,
+    truss_dist,
+)
 from pybosl2.parts.enums import Gender, NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.parts.gears import (
     BevelGear,
@@ -48,7 +58,15 @@ __all__ = [
     "BearingType",
     "BottleCaps",
     "BottleCapTexture",
-    "CubeTruss",
+    "TrussSegment",
+    "Truss",
+    "TrussCorner",
+    "TrussSupport",
+    "TrussClip",
+    "TrussFoot",
+    "TrussUClip",
+    "TrussJoiner",
+    "truss_dist",
     "Gender",
     "BevelGear",
     "GearToothProfile",
