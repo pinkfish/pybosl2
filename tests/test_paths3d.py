@@ -322,3 +322,18 @@ def test_stroke_and_dashed_build() -> None:
     assert p.perimeter() == pytest.approx(42.3606797749979, abs=1e-9)
     np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
     np.testing.assert_array_equal(p[-1], [20.0, 20.0, 10.0])
+
+
+# ── color propagation ────────────────────────────────────────────────────────
+
+
+def test_path3d_color_propagates() -> None:
+    p = Path3D([[0, 0, 0], [20, 0, 0], [20, 20, 10]]).color("red")
+    assert p._color == "red"
+    assert p.stroke(width=3) is not None
+
+
+def test_path3d_color_carries_to_path2d() -> None:
+    p = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]]).color("blue")
+    p2d = p.path2d()
+    assert p2d._color == "blue"

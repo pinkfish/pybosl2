@@ -255,6 +255,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
         """Initialize the instance."""
+        self._color: str | Sequence[float] | None = None
         # A copy, not asarray: the array is frozen below and handed to every _points reader, so
         # aliasing a caller's array here would freeze theirs too.
         pts: np.ndarray = np.array(points, dtype=np.float64)
@@ -272,6 +273,17 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         self._array = pts
         self._coords = [(x, y) for x, y in pts.tolist()]
         self._geom = LineString(pts) if len(pts) >= 2 else LineString()
+
+    def copy(self) -> "Path2D":
+        """Return a shallow copy of this path."""
+        c = Path2D.__new__(Path2D)
+        c._points = self._points
+        c.closed = self.closed
+        c._color = self._color
+        c._coords = self._coords
+        c._array = self._array
+        c._geom = self._geom
+        return c
 
     @classmethod
     def catenary(
@@ -341,9 +353,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         scx = x
         sc = (width / 2) / scx
         droop_v = droop_a if droop_a is not None else (math.cosh(scx) - 1) * sc
-        pts = []
+        pts: list[list[float]] = []
         for xv in lerpn(-scx, scx, sides):
-            xval = xv * sc
+            xval: float = xv * sc
             yval = 0.0 if abs(abs(xv) - scx) < 1e-9 else (math.cosh(xv) - 1) * sc - droop_v
             pts.append([xval, yval])
         if sgn < 0:
@@ -1084,7 +1096,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 inset.polygon().linear_extrude(height=4).show()
 
         """
-        return self.__class__(
+        result = self.__class__(
             self._offset(
                 radius=radius,
                 delta=delta,
@@ -1094,8 +1106,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 fs=fs,
                 same_length=same_length,
             ),
-            closed=True,  # an offset outline bounds a region, so it comes back as a ring
+            closed=True,
         )
+        if self._color is not None:
+            result._color = self._color
+        return result
 
     def close(self) -> "Path2D":
         """Append the start point if the path is not already closed.
@@ -1478,7 +1493,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         from pybosl2.shapes2d import Bosl2Shape2D  # local: shapes2d imports this module
 
         self._require_csg("polygon")
-        return Bosl2Shape2D(_polygon([[float(x), float(y)] for x, y in self]))
+        result = Bosl2Shape2D(_polygon([[float(x), float(y)] for x, y in self]))
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def geometry(self) -> "Bosl2Shape2D":
         """2-D geometry of this path.
@@ -1870,7 +1888,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 "fs": fs,
             }
         )
-        return get_backend().linear_extrude([self], height, arguments)
+        result = get_backend().linear_extrude([self], height, arguments)
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def rotate_extrude(
         self,
@@ -1901,7 +1922,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         self._require_csg("rotate_extrude")
-        return self.polygon().rotate_extrude(angle, convexity=convexity, fn=fn, fa=fa, fs=fs)
+        result = self.polygon().rotate_extrude(angle, convexity=convexity, fn=fn, fa=fa, fs=fs)
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def debug_polygon(self, size: float = 1, vertices: bool = True) -> Any:
         """Return a debug view of this polygon.
@@ -1955,7 +1979,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         ec1 = ec1_raw if isinstance(ec1_raw, CapSpec) else normalize_one(ec1_raw)
         ec2 = ec2_raw if isinstance(ec2_raw, CapSpec) else normalize_one(ec2_raw)
 
-        return stroke_2d(
+        result = stroke_2d(
             self,
             width=width,
             closed=self.closed if closed is None else closed,
@@ -1963,6 +1987,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             endcap2=ec2,
             joints=joints,
         )
+        if self._color is not None:
+            result._color = self._color
+        return result
 
     def dashed_stroke(
         self,

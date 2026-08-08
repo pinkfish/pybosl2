@@ -75,6 +75,7 @@ class Path(ABC):
 
     _points: np.ndarray
     closed: bool
+    _color: str | Sequence[float] | None
 
     def __new__(
         cls,
@@ -101,6 +102,20 @@ class Path(ABC):
             else:
                 raise ValueError("Path points must be 2-D or 3-D.")
         return super().__new__(cls)
+
+    def color(self, c: str | Sequence[float]) -> Self:
+        """Return a copy of this path with the given color.
+
+        The color propagates to any shape created from this path
+        (polygon, linear_extrude, stroke, etc.).
+        """
+        copy = self.copy()
+        copy._color = c
+        return copy
+
+    @abstractmethod
+    def copy(self) -> Self:
+        """Return a shallow copy of this path."""
 
     @abstractmethod
     def __init__(self, points: Sequence[Sequence[float]], closed: bool = False) -> None:

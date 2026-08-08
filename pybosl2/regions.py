@@ -135,7 +135,25 @@ class Region:
         paths_list = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in items]
         outer = paths_list[0]._points
         holes = [h._points for h in paths_list[1:]]
+        self._color: str | Sequence[float] | None = None
         self._polygon = MultiPolygon([Polygon(outer, holes)])
+
+    def color(self, c: str | Sequence[float]) -> "Region":
+        """Return a copy of this region with the given color.
+
+        The color propagates to any shape created from this region
+        (geometry, linear_extrude, rotate_extrude, etc.).
+        """
+        copy = self.copy()
+        copy._color = c
+        return copy
+
+    def copy(self) -> "Region":
+        """Return a shallow copy of this region."""
+        c = Region.__new__(Region)
+        c._polygon = self._polygon
+        c._color = self._color
+        return c
 
     def __len__(self) -> int:
         """Return the number of paths in the region."""
@@ -236,7 +254,10 @@ class Region:
             A new :class:`Region` with every path offset by the given parameters.
 
         """
-        return Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self.paths])
+        result = Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self.paths])
+        if self._color is not None:
+            result._color = self._color
+        return result
 
     def round_corners(
         self,
@@ -264,7 +285,7 @@ class Region:
             A new :class:`Region` with rounded corners on every path.
 
         """
-        return Region(
+        result = Region(
             [
                 p.round_corners(
                     radius=radius,  # type: ignore[arg-type]
@@ -278,6 +299,9 @@ class Region:
                 for p in self.paths
             ]
         )
+        if self._color is not None:
+            result._color = self._color
+        return result
 
     def translate(self, v: Sequence[float]) -> "Region":
         """Translate every path in the region by the given vector.
@@ -313,6 +337,8 @@ class Region:
         shape = self.outline.polygon()
         for hole in self.holes:
             shape = shape - hole.polygon()
+        if self._color is not None:
+            shape = shape.color(self._color)
         return shape
 
     def fill(self) -> "Bosl2Shape2D":
@@ -324,7 +350,10 @@ class Region:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
 
         """
-        return self.geometry().fill()
+        result = self.geometry().fill()
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     @classmethod
     def hull(cls, *others: Region | Path2D) -> "Region":
@@ -413,7 +442,7 @@ class Region:
             )
         from pybosl2._backend import given_arguments
 
-        return get_backend().linear_extrude(
+        result = get_backend().linear_extrude(
             list(self.paths),
             height,
             given_arguments(
@@ -428,6 +457,9 @@ class Region:
                 }
             ),
         )
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def rotate_extrude(
         self,
@@ -449,7 +481,10 @@ class Region:
             revolve).
 
         """
-        return self.geometry().rotate_extrude(angle, fn=fn, fa=fa, fs=fs)
+        result = self.geometry().rotate_extrude(angle, fn=fn, fa=fa, fs=fs)
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def stroke(
         self,
@@ -477,9 +512,10 @@ class Region:
         polygons = [
             stroke_2d(p, width=width, closed=True, endcap1=endcap1, endcap2=endcap2, joints=joints) for p in self.paths
         ]
-        if not polygons:
-            return Region([])
-        return Region(polygons)
+        result = Region([]) if not polygons else Region(polygons)
+        if self._color is not None:
+            result._color = self._color
+        return result
 
     def dashed_stroke(
         self,

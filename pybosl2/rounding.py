@@ -406,7 +406,7 @@ class Roundable:
 
         """
         path_self = cast("Path", self)
-        return _round_corners(
+        result = _round_corners(
             cast("Sequence[Sequence[float]]", self),
             method=method,
             radius=radius,
@@ -420,6 +420,9 @@ class Roundable:
             fs=fs,
             k=k,
         )
+        if hasattr(self, "_color") and self._color is not None:
+            result._color = self._color  # type: ignore[attr-defined]
+        return result
 
     def smooth_path(
         self,
