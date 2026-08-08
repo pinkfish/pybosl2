@@ -19,6 +19,7 @@
 
 """Top-level convenience re-exports (lazy) for the pybosl2 BOSL2 toolkit."""
 
+from pybosl2.color import Color
 from pybosl2.version import Version, __version__, version
 
 # All other exports are lazy — the sub-module is only imported when
@@ -198,4 +199,4 @@ def __getattr__(name: str) -> object:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["Version", "__version__", "version"] + sorted(k for k in _LAZY_EXPORTS if k)
+__all__ = ["Color", "Version", "__version__", "version"] + sorted(k for k in _LAZY_EXPORTS if k)

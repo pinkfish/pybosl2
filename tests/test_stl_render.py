@@ -691,7 +691,7 @@ def test_path_copies_along_path(tmp_path):
 
 
 def test_color_name_keeps_geometry(tmp_path):
-    m = _render(tmp_path, "s3.cuboid([10, 10, 10]).color('red')", name="colorname")
+    m = _render(tmp_path, "s3.cuboid([10, 10, 10]).color(Color('red'))", name="colorname")
     assert math.isclose(m.volume, 1000, rel_tol=1e-4)
     assert m.watertight
 
@@ -705,7 +705,7 @@ def test_hsv_and_hsl_methods_render(tmp_path):
 
 def test_recolor_highlight_ghost_render(tmp_path):
     for expr, name in (
-        ("s3.cuboid([10, 10, 10]).recolor('green')", "recolor"),
+        ("s3.cuboid([10, 10, 10]).recolor(Color('green'))", "recolor"),
         ("s3.cuboid([10, 10, 10]).highlight()", "highlight"),
         ("s3.cuboid([10, 10, 10]).ghost()", "ghost"),
     ):
@@ -729,8 +729,10 @@ def test_rainbow_colors_a_list(tmp_path):
 
 def test_recolor_child_keeps_its_own_color(tmp_path):
     # a coloured child unioned into a recoloured parent still contributes its geometry
-    setup = "part = s3.cuboid([20, 20, 10]).color('blue').attach(TOP, s3.cuboid([8, 8, 8]).color('red'))\n"
-    m = _render(tmp_path, "part.recolor('green')", setup=setup, name="recolorchild")
+    setup = (
+        "part = s3.cuboid([20, 20, 10]).color(Color('blue')).attach(TOP, s3.cuboid([8, 8, 8]).color(Color('red')))\n"
+    )
+    m = _render(tmp_path, "part.recolor(Color('green'))", setup=setup, name="recolorchild")
     assert m.volume > 20 * 20 * 10  # parent + attached child
     assert math.isclose(m.size[2], 18.0, abs_tol=0.5)
 

@@ -53,6 +53,8 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
+    from pybosl2.color import Color
+
 __all__ = ["CutPoint", "Path", "SubdivideMethod"]
 
 
@@ -75,7 +77,7 @@ class Path(ABC):
 
     _points: np.ndarray
     closed: bool
-    _color: str | Sequence[float] | None
+    _color: "Color | None"
 
     def __new__(
         cls,
@@ -103,12 +105,8 @@ class Path(ABC):
                 raise ValueError("Path points must be 2-D or 3-D.")
         return super().__new__(cls)
 
-    def color(self, c: str | Sequence[float]) -> Self:
-        """Return a copy of this path with the given color.
-
-        The color propagates to any shape created from this path
-        (polygon, linear_extrude, stroke, etc.).
-        """
+    def color(self, c: "Color") -> Self:
+        """Return a copy of this path with the given :class:`Color`."""
         copy = self.copy()
         copy._color = c
         return copy

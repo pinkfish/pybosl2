@@ -13,6 +13,7 @@ axis-aligned bounding box, so Bosl2Solid's bbox-backed anchoring math is numeric
 import numpy as np
 import pytest
 
+from pybosl2.color import Color
 from pybosl2.constants import BOTTOM, CENTER, FRONT, RIGHT, TOP
 from pybosl2.shapes3d import (
     Bosl2Solid,
@@ -131,7 +132,7 @@ def test_csg_operators_return_bosl2solid() -> None:
 
 def test_color_and_scale_preserve_wrapper() -> None:
     c = cuboid([10, 10, 10])
-    assert isinstance(c.color("red"), Bosl2Solid)
+    assert isinstance(c.color(Color("red")), Bosl2Solid)
     assert isinstance(c.scale([2, 2, 2]), Bosl2Solid)
 
 
@@ -143,10 +144,10 @@ def test_color_and_scale_preserve_wrapper() -> None:
 def test_color_native_all_parameter_forms() -> None:
     c = cuboid([5, 5, 5])
     assert isinstance(c.color(), Bosl2Solid)
-    assert isinstance(c.color("blue"), Bosl2Solid)
-    assert isinstance(c.color("green", alpha=0.3), Bosl2Solid)
-    assert isinstance(c.color("#ff0000"), Bosl2Solid)
-    assert isinstance(c.color([1.0, 0.5, 0.0]), Bosl2Solid)
+    assert isinstance(c.color(Color("blue")), Bosl2Solid)
+    assert isinstance(c.color(Color("green"), alpha=0.3), Bosl2Solid)
+    assert isinstance(c.color(Color("#ff0000")), Bosl2Solid)
+    assert isinstance(c.color(Color([1.0, 0.5, 0.0])), Bosl2Solid)
     # BUG: alpha-only segfaults — see above
     # assert isinstance(c.color(alpha=0.5), Bosl2Solid)
 

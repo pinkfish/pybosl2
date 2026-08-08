@@ -9,6 +9,7 @@
 import numpy as np
 import pytest
 
+from pybosl2.color import Color
 from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 
@@ -392,25 +393,25 @@ def test_region_bounds_empty_raises() -> None:
 
 
 def test_region_color_propagates() -> None:
-    r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color("red")
-    assert r._color == "red"
+    r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color(Color("red"))
+    assert r._color == Color("red")
     assert r.geometry() is not None
     assert r.fill() is not None
 
 
 def test_region_color_carries_through_offset() -> None:
-    r = Region([[[0, 0], [40, 0], [40, 30], [0, 30]]]).color("green")
+    r = Region([[[0, 0], [40, 0], [40, 30], [0, 30]]]).color(Color("green"))
     result = r.offset(radius=-3)
-    assert result._color == "green"
+    assert result._color == Color("green")
 
 
 def test_region_color_carries_through_round_corners() -> None:
-    r = Region([[[0, 0], [40, 0], [40, 30], [0, 30]]]).color("cyan")
+    r = Region([[[0, 0], [40, 0], [40, 30], [0, 30]]]).color(Color("cyan"))
     result = r.round_corners(radius=5)
-    assert result._color == "cyan"
+    assert result._color == Color("cyan")
 
 
 def test_region_color_carries_through_stroke() -> None:
-    r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color([0.3, 0.6, 0.9])
+    r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color(Color([0.3, 0.6, 0.9]))
     result = r.stroke(width=1)
-    assert result._color == [0.3, 0.6, 0.9]
+    assert result._color == Color([0.3, 0.6, 0.9])

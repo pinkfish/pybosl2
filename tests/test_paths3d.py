@@ -14,6 +14,7 @@ import math
 import numpy as np
 import pytest
 
+from pybosl2.color import Color
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 
@@ -328,12 +329,12 @@ def test_stroke_and_dashed_build() -> None:
 
 
 def test_path3d_color_propagates() -> None:
-    p = Path3D([[0, 0, 0], [20, 0, 0], [20, 20, 10]]).color("red")
-    assert p._color == "red"
+    p = Path3D([[0, 0, 0], [20, 0, 0], [20, 20, 10]]).color(Color("red"))
+    assert p._color == Color("red")
     assert p.stroke(width=3) is not None
 
 
 def test_path3d_color_carries_to_path2d() -> None:
-    p = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]]).color("blue")
+    p = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]]).color(Color("blue"))
     p2d = p.path2d()
-    assert p2d._color == "blue"
+    assert p2d._color == Color("blue")

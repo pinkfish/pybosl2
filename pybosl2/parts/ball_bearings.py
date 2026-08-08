@@ -28,6 +28,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from functools import reduce
 
+from pybosl2.color import Color
 from pybosl2.constants import INCH
 from pybosl2.shapes3d import Bosl2Solid, sphere, torus, tube
 
@@ -882,7 +883,7 @@ class BallBearings:
         outer_diameter: float | None = None,
         width: float | None = None,
         shield: bool = True,
-        color: str | None = "silver",
+        color: Color | None = None,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -993,4 +994,5 @@ class BallBearings:
             )
             result = races | balls
         result = Bosl2Solid(result.shape, size=[outer_diameter, outer_diameter, width])
-        return result.color(color) if color else result
+        color = color if color is not None else Color("silver")
+        return result.color(color)

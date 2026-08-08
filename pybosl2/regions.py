@@ -29,6 +29,7 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
     from collections.abc import Iterator, Sequence
 
     from pybosl2._backend import Solid
+    from pybosl2.color import Color
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -135,15 +136,11 @@ class Region:
         paths_list = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in items]
         outer = paths_list[0]._points
         holes = [h._points for h in paths_list[1:]]
-        self._color: str | Sequence[float] | None = None
+        self._color: "Color | None" = None
         self._polygon = MultiPolygon([Polygon(outer, holes)])
 
-    def color(self, c: str | Sequence[float]) -> "Region":
-        """Return a copy of this region with the given color.
-
-        The color propagates to any shape created from this region
-        (geometry, linear_extrude, rotate_extrude, etc.).
-        """
+    def color(self, c: "Color") -> "Region":
+        """Return a copy of this region with the given :class:`Color`."""
         copy = self.copy()
         copy._color = c
         return copy
@@ -559,6 +556,7 @@ class Region:
         import operator
         from functools import reduce
 
+        from pybosl2.color import Color
         from pybosl2.path2d import Path2D as _Path
 
         paths = [p if isinstance(p, _Path) else _Path(p) for p in self.paths]
@@ -576,7 +574,7 @@ class Region:
                 valign="center",
             )
             .translate([float(x), float(y), 0.01])
-            .color("red")
+            .color(Color("red"))
             for j, path in enumerate(paths)
             for i, (x, y) in enumerate(path)
         ]

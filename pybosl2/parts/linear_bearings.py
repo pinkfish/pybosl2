@@ -24,6 +24,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from pybosl2._helpers import union
+from pybosl2.color import Color
 from pybosl2.shapes3d import Bosl2Solid, cuboid, teardrop, tube
 
 __all__ = ["LinearBearings", "LinearBearingSpec"]
@@ -88,7 +89,7 @@ class LinearBearings:
         length: float = 24,
         outer_diameter: float = 15,
         inner_diameter: float = 8,
-        color: str | None = "silver",
+        color: Color | None = None,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
@@ -144,14 +145,16 @@ class LinearBearings:
             ]
         )
         result = Bosl2Solid(body.shape, size=[outer_diameter, outer_diameter, length])
-        return result.color(color) if color else result
+        color = color if color is not None else Color("silver")
+        return result.color(color)
 
     @staticmethod
     def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> Bosl2Solid:
         """Return a standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmxuu_bearing())."""
         spec = LinearBearings.lmxuu_info(size)
+        color_val = Color(color) if color else None
         return LinearBearings.linear_bearing(
-            length=spec.length, inner_diameter=size, outer_diameter=spec.outer_diameter, color=color
+            length=spec.length, inner_diameter=size, outer_diameter=spec.outer_diameter, color=color_val
         )
 
     @staticmethod
