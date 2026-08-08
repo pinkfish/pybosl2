@@ -939,3 +939,37 @@ def test_cut_single() -> None:
     assert cp.point is not None
     assert cp.point[0] == pytest.approx(10.0)
     assert cp.point[1] == pytest.approx(0.0)
+
+
+def test_path2d_color_propagates_to_shape() -> None:
+    p = Path2D([[0, 0], [10, 0], [10, 10]]).color("red")
+    assert p._color == "red"
+    shape = p.polygon()
+    assert shape is not None
+
+
+def test_path2d_color_propagates_to_polygon() -> None:
+    p = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    assert p._color is None
+    cp = p.color("blue")
+    assert cp._color == "blue"
+    assert p._color is None  # original unchanged
+    assert cp.polygon() is not None
+
+
+def test_path2d_color_carries_through_stroke() -> None:
+    p = Path2D([[0, 0], [30, 0], [30, 20]]).color([0.5, 0.2, 0.8])
+    result = p.stroke(width=2)
+    assert result._color == [0.5, 0.2, 0.8]
+
+
+def test_path2d_color_carries_through_offset() -> None:
+    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color("green")
+    result = p.offset(radius=-3)
+    assert result._color == "green"
+
+
+def test_path2d_color_carries_through_round_corners() -> None:
+    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color("cyan")
+    result = p.round_corners(radius=5)
+    assert result._color == "cyan"

@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pybosl2._edges_lang import CORNER_OFFSETS, Anchor, EdgeAtom
+from pybosl2._edges_lang import CORNER_OFFSETS, Anchor, EdgeAtom, _is_plain_vector
 from pybosl2._native import native
 from pybosl2.points import Point
 
@@ -303,16 +303,21 @@ def edge_profile(
     return body - cutter
 
 
-def _corner_set(v: list[int] | Anchor) -> list[int]:
+def _corner_set(v: list[int] | Anchor | Point) -> list[int]:
+    """Resolve one corner selector to an 8-long 0/1 corner array.
+
+    A corner is selected when, on EVERY axis, the selector is either 0 (don't care) or matches
+    that corner's sign -- BOSL2's ``all([for (i=[0:2]) !v[i] || (v[i]==v2[i])])``. Note this is
+    an AND over per-axis ORs: written as a flat ``a or b and c or d`` chain Python's precedence
+    turns it into an OR of the axes instead, which selects every corner that agrees on any one
+    axis (e.g. ``[-1,-1,-1]`` would also pick up ``[1,1,-1]``).
+    """
     if isinstance(v, Anchor):
         return v.to_corner_set()
     if isinstance(v, str):
         raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
     arr = np.asarray(v, dtype=int)
-    return [
-        1 if arr[0] == 0 or arr[0] == c[0] and arr[1] == 0 or arr[1] == c[1] and arr[2] == 0 or arr[2] == c[2] else 0
-        for c in CORNER_OFFSETS
-    ]
+    return [1 if all(arr[i] == 0 or arr[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
 
 
 def _corners(
@@ -325,11 +330,13 @@ def _corners(
         raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
     if isinstance(except_, str):
         raise ValueError(f"Legacy string corner selection is not allowed: {except_!r}")
-    if isinstance(v, Anchor) or (isinstance(v, list) and len(v) > 0 and not isinstance(v[0], list)):
+    # Wrap a SINGLE selector; leave a list of selectors alone. This has to use the same test
+    # the edge language uses, not "is v[0] a list": `Anchor.BOTTOM + Anchor.FRONT + Anchor.LEFT`
+    # is a Point, so `[that]` looked like a bare selector here and got wrapped a second time,
+    # and the bare Point looked like a list of three scalar selectors.
+    if isinstance(v, Anchor) or _is_plain_vector(v):
         v = [v]  # type: ignore[assignment]
-    if isinstance(except_, Anchor) or (
-        isinstance(except_, list) and len(except_) > 0 and not isinstance(except_[0], list)
-    ):
+    if isinstance(except_, Anchor) or _is_plain_vector(except_):
         except_ = [except_]
     summed = [0] * 8
     for x in v:

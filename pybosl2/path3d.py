@@ -92,7 +92,16 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             assert pts.shape[1] == 3, f"Path3D needs [x, y, z] points, got shape {pts.shape}"
             assert pts.dtype == np.float64, f"Path3D needs float64 points, got {pts.dtype}"
             self._points = pts
+        self._color: str | Sequence[float] | None = None
         self.closed = closed
+
+    def copy(self) -> "Path3D":
+        """Return a shallow copy of this path."""
+        c = Path3D.__new__(Path3D)
+        c._points = self._points
+        c.closed = self.closed
+        c._color = self._color
+        return c
 
     @classmethod
     def helix(
@@ -1262,7 +1271,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 flat.stroke(width=2).linear_extrude(height=1).show()
 
         """
-        return Path2D(self._points[:, :2].tolist(), closed=self.closed)
+        result = Path2D(self._points[:, :2].tolist(), closed=self.closed)
+        if self._color is not None:
+            result._color = self._color
+        return result
 
     # -- distributors (pybosl2/distributors.py) ----------------------------------------------
 
@@ -1314,23 +1326,29 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if backend_name != "csg":
             from pybosl2._backend import get_backend
 
-            return get_backend().stroke(  # type: ignore[return-value]
+            result = get_backend().stroke(
                 self,
                 width=width,
                 closed=self.closed if closed is None else closed,
                 endcap1=ec1,
                 endcap2=ec2,
             )
+            if self._color is not None and hasattr(result, "color"):
+                result = result.color(self._color)
+            return result  # type: ignore[return-value]
 
         from pybosl2._stroke3d import stroke_3d
 
-        return stroke_3d(
+        result = stroke_3d(
             self,
             width=width,
             closed=self.closed if closed is None else closed,
             endcap1=ec1,
             endcap2=ec2,
         )
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def dashed_stroke(
         self,
@@ -1366,9 +1384,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         from pybosl2._stroke3d import dashed_stroke_3d
 
-        return dashed_stroke_3d(
+        result = dashed_stroke_3d(
             self, dashpat=dashpat, closed=self.closed if closed is None else closed, fit=fit, mindash=mindash
         )
+        if self._color is not None and hasattr(result, "color"):
+            result = result.color(self._color)
+        return result
 
     def _distribute(self, mats: list[np.ndarray]) -> list["Path3D"]:  # type: ignore[override]
         # Apply each copier matrix, returning the list of 3-D copies (BOSL2's function form).

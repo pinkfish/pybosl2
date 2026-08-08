@@ -386,3 +386,31 @@ def test_region_bounds_empty_raises() -> None:
     r = Region([])
     with pytest.raises(AssertionError, match="empty Region"):
         r.bounds()
+
+
+# ── color propagation ────────────────────────────────────────────────────────
+
+
+def test_region_color_propagates() -> None:
+    r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color("red")
+    assert r._color == "red"
+    assert r.geometry() is not None
+    assert r.fill() is not None
+
+
+def test_region_color_carries_through_offset() -> None:
+    r = Region([[[0, 0], [40, 0], [40, 30], [0, 30]]]).color("green")
+    result = r.offset(radius=-3)
+    assert result._color == "green"
+
+
+def test_region_color_carries_through_round_corners() -> None:
+    r = Region([[[0, 0], [40, 0], [40, 30], [0, 30]]]).color("cyan")
+    result = r.round_corners(radius=5)
+    assert result._color == "cyan"
+
+
+def test_region_color_carries_through_stroke() -> None:
+    r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color([0.3, 0.6, 0.9])
+    result = r.stroke(width=1)
+    assert result._color == [0.3, 0.6, 0.9]

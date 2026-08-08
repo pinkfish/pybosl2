@@ -24,6 +24,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 from pybosl2.points import Point
 
 if TYPE_CHECKING:
@@ -236,10 +238,20 @@ _is_edge_array = _is_edge_matrix
 
 
 def _is_plain_vector(v: object) -> bool:
+    """Return True when *v* is ONE selector vector, rather than a list of selectors.
+
+    This is the test that decides whether a selector argument needs wrapping in a list, so it
+    has to recognise every shape a single direction arrives in. ``Anchor.TOP + Anchor.FRONT``
+    evaluates to a :class:`~pybosl2.points.Point`, NOT an ``Anchor`` -- and a Point is a
+    3-element iterable, so anything that misses it happily iterates a single corner selector
+    into three separate scalar ones. Tuples and 1-D numpy arrays get in for the same reason.
+    """
+    if isinstance(v, np.ndarray):
+        return v.ndim == 1 and v.size > 0 and np.issubdtype(v.dtype, np.number)
     return (
-        isinstance(v, (list, Point))
+        isinstance(v, (list, tuple, Point))
         and len(v) > 0
-        and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in v)
+        and all(isinstance(x, (int, float, np.integer, np.floating)) and not isinstance(x, bool) for x in v)
     )
 
 
@@ -383,7 +395,10 @@ def edges(
     """
     if except_ is None:
         except_ = []
-    if v == [] or v == Anchor.NONE:
+    # Tested structurally, not with ``v == []``: a combined anchor such as
+    # ``Anchor.BOTTOM + Anchor.FRONT`` is a Point, whose __eq__ runs np.allclose and raises
+    # "operands could not be broadcast together with shapes (3,) (0,)" against an empty list.
+    if v is Anchor.NONE or (isinstance(v, (list, tuple)) and len(v) == 0):
         return EDGES_NONE
     if isinstance(v, str):
         raise ValueError(f"Legacy string edge selection is not allowed: {v!r}")
