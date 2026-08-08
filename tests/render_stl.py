@@ -127,6 +127,7 @@ _PREAMBLE = (
     ")\n"
     "from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate, manfrotto_rc2_plate\n"
     "from functools import reduce\n"
+    "from pybosl2.color import Color\n"
     "from pybosl2 import Region\n"
     "from pybosl2 import *\n"
 )

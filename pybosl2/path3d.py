@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
+    from pybosl2.color import Color
     from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -92,7 +93,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             assert pts.shape[1] == 3, f"Path3D needs [x, y, z] points, got shape {pts.shape}"
             assert pts.dtype == np.float64, f"Path3D needs float64 points, got {pts.dtype}"
             self._points = pts
-        self._color: str | Sequence[float] | None = None
+        self._color: "Color | None" = None
         self.closed = closed
 
     def copy(self) -> "Path3D":

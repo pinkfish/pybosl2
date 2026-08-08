@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import math
 
+from pybosl2.color import Color
 from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -27,23 +28,23 @@ __all__ = ["WireBundle", "hex_offsets"]
 
 # The 17 base wire colours, in the same order as BOSL2 wiring.scad.
 _WIRE_COLORS = [
-    [0.2, 0.2, 0.2],
-    [1.0, 0.2, 0.2],
-    [0.0, 0.8, 0.0],
-    [1.0, 1.0, 0.2],
-    [0.3, 0.3, 1.0],
-    [1.0, 1.0, 1.0],
-    [0.7, 0.5, 0.0],
-    [0.5, 0.5, 0.5],
-    [0.2, 0.9, 0.9],
-    [0.8, 0.0, 0.8],
-    [0.0, 0.6, 0.6],
-    [1.0, 0.7, 0.7],
-    [1.0, 0.5, 1.0],
-    [0.5, 0.6, 0.0],
-    [1.0, 0.7, 0.0],
-    [0.7, 1.0, 0.5],
-    [0.6, 0.6, 1.0],
+    Color([0.2, 0.2, 0.2]),
+    Color([1.0, 0.2, 0.2]),
+    Color([0.0, 0.8, 0.0]),
+    Color([1.0, 1.0, 0.2]),
+    Color([0.3, 0.3, 1.0]),
+    Color([1.0, 1.0, 1.0]),
+    Color([0.7, 0.5, 0.0]),
+    Color([0.5, 0.5, 0.5]),
+    Color([0.2, 0.9, 0.9]),
+    Color([0.8, 0.0, 0.8]),
+    Color([0.0, 0.6, 0.6]),
+    Color([1.0, 0.7, 0.7]),
+    Color([1.0, 0.5, 1.0]),
+    Color([0.5, 0.6, 0.0]),
+    Color([1.0, 0.7, 0.0]),
+    Color([0.7, 1.0, 0.5]),
+    Color([0.6, 0.6, 1.0]),
 ]
 
 

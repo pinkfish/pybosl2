@@ -28,6 +28,7 @@ if TYPE_CHECKING:
 
     from pybosl2._backend import Solid
     from pybosl2.beziers import Bezier
+    from pybosl2.color import Color
     from pybosl2.path3d import Path3D
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
@@ -255,7 +256,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
         """Initialize the instance."""
-        self._color: str | Sequence[float] | None = None
+        self._color: "Color | None" = None
         # A copy, not asarray: the array is frozen below and handed to every _points reader, so
         # aliasing a caller's array here would freeze theirs too.
         pts: np.ndarray = np.array(points, dtype=np.float64)
@@ -1944,6 +1945,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         import operator
         from functools import reduce
 
+        from pybosl2.color import Color
         from pybosl2.shapes3d import text3d
 
         solid = self.polygon().linear_extrude(height=0.01, center=True)
@@ -1952,7 +1954,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         labels = [
             text3d(str(i), size=size, height=0.02, halign="center", valign="center")
             .translate([float(x), float(y), 0.01])
-            .color("red")
+            .color(Color("red"))
             for i, (x, y) in enumerate(self)
         ]
         return reduce(operator.or_, [solid, *labels]) if labels else solid

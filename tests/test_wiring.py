@@ -12,6 +12,7 @@ import math
 import numpy as np
 import pytest
 
+from pybosl2.color import Color
 from pybosl2.parts.wiring import _WIRE_COLORS, WireBundle, _hex_offset_ring, _hex_offsets, _segs, hex_offsets
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -130,9 +131,8 @@ def test_wire_colors_count() -> None:
 
 def test_wire_colors_all_rgb_triples() -> None:
     for color in _WIRE_COLORS:
-        assert isinstance(color, list)
-        assert len(color) == 3
-        assert all(0.0 <= v <= 1.0 for v in color)
+        assert isinstance(color, Color)
+        assert all(0.0 <= v <= 1.0 for v in color.rgb)
 
 
 # ── WireBundle properties and show ──────────────────────────────────────────

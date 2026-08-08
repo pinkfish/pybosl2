@@ -20,6 +20,7 @@ import pytest
 
 import pybosl2.shapes2d as s2
 from pybosl2._helpers import unwrap
+from pybosl2.color import Color
 from pybosl2.path2d import Path2D
 from pybosl2.regions import Region
 from pybosl2.shapes2d import Bosl2Shape2D
@@ -129,7 +130,7 @@ def test_repr_names_the_class() -> None:
         lambda s: s.fwd(5),
         lambda s: s.xflip(),
         lambda s: s.yflip(3),
-        lambda s: s.color("red"),
+        lambda s: s.color(Color("red")),
         lambda s: s.highlight(),
         lambda s: s.ghost(),
     ],

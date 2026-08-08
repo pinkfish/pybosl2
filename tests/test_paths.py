@@ -11,6 +11,7 @@ import math
 import numpy as np
 import pytest
 
+from pybosl2.color import Color
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 
@@ -942,8 +943,8 @@ def test_cut_single() -> None:
 
 
 def test_path2d_color_propagates_to_shape() -> None:
-    p = Path2D([[0, 0], [10, 0], [10, 10]]).color("red")
-    assert p._color == "red"
+    p = Path2D([[0, 0], [10, 0], [10, 10]]).color(Color("red"))
+    assert p._color == Color("red")
     shape = p.polygon()
     assert shape is not None
 
@@ -951,25 +952,25 @@ def test_path2d_color_propagates_to_shape() -> None:
 def test_path2d_color_propagates_to_polygon() -> None:
     p = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     assert p._color is None
-    cp = p.color("blue")
-    assert cp._color == "blue"
+    cp = p.color(Color("blue"))
+    assert cp._color == Color("blue")
     assert p._color is None  # original unchanged
     assert cp.polygon() is not None
 
 
 def test_path2d_color_carries_through_stroke() -> None:
-    p = Path2D([[0, 0], [30, 0], [30, 20]]).color([0.5, 0.2, 0.8])
+    p = Path2D([[0, 0], [30, 0], [30, 20]]).color(Color([0.5, 0.2, 0.8]))
     result = p.stroke(width=2)
-    assert result._color == [0.5, 0.2, 0.8]
+    assert result._color == Color([0.5, 0.2, 0.8])
 
 
 def test_path2d_color_carries_through_offset() -> None:
-    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color("green")
+    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color(Color("green"))
     result = p.offset(radius=-3)
-    assert result._color == "green"
+    assert result._color == Color("green")
 
 
 def test_path2d_color_carries_through_round_corners() -> None:
-    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color("cyan")
+    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color(Color("cyan"))
     result = p.round_corners(radius=5)
-    assert result._color == "cyan"
+    assert result._color == Color("cyan")
