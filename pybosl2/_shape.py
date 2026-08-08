@@ -35,17 +35,20 @@ def _is_angle(value: object) -> bool:
     return isinstance(value, numbers.Real) and not isinstance(value, bool)
 
 
+# Native methods forwarded verbatim to the wrapped shape. Membership is a CLAIM that the
+# native object really has that method -- `minkowski`, `set_modifier`, `convexity`, `fn`,
+# `fa` and `fs` were listed here and exist on neither the native object nor the wrapper, so
+# they only ever produced a confusing AttributeError from the getattr below while making
+# `hasattr(solid, name)` look meaningful. Verify against a real native handle before adding.
 _NATIVE_PASSTHROUGH = frozenset(
     {
         "linear_extrude",
         "offset",
         "resize",
         "render",
-        "minkowski",
         "color",
         "highlight",
         "background",
-        "set_modifier",
         "projection",
         "repair",
         "wrap",
@@ -53,10 +56,6 @@ _NATIVE_PASSTHROUGH = frozenset(
         "oversample",
         "separate",
         "inside",
-        "convexity",
-        "fn",
-        "fa",
-        "fs",
         "position",
         "size",
         "translate",
