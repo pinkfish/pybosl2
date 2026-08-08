@@ -21,7 +21,7 @@
 
 
 
-        <title>Tripod mounts - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
+        <title>Tripod mounts - pybosl2 (PythonSCAD port) 0.7.2 documentation</title>
 
 
 
@@ -83,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.2 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.2 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -96,7 +96,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.1 documentation
+            pybosl2 (PythonSCAD port) 0.7.2 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -227,12 +227,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.2 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.2 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.7.1 documentation
+    pybosl2 (PythonSCAD port) 0.7.2 documentation
   </label>
 
     <div class="md-nav__source">
@@ -2146,14 +2146,16 @@ Examples that rely on BOSL2’s attachment/anchor system, or on features not in 
 <p class="rubric"><code class="docutils literal notranslate"><span class="pre">manfrotto_rc2_plate</span></code></p>
 <p>A standard Manfrotto RC2 plate with full chamfering:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.tripod_mounts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManfrottoRC2Plate</span>
-<span class="n">ManfrottoRC2Plate</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+<span class="n">ManfrottoRC2Plate</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/e12db07c21e2ddc6.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/e12db07c21e2ddc6.stl">⬇ Download STL mesh</a></p>
 <p>A plate with bottom-only chamfering:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.tripod_mounts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ManfrottoRC2Plate</span>
-<span class="n">ManfrottoRC2Plate</span><span class="p">(</span><span class="n">chamfer</span><span class="o">=</span><span class="s2">&quot;bot&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+<span class="n">ManfrottoRC2Plate</span><span class="p">(</span><span class="n">chamfer</span><span class="o">=</span><span class="s2">&quot;bot&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/d3bfa5bf4f3fd10a.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/d3bfa5bf4f3fd10a.stl">⬇ Download STL mesh</a></p>
 
 
 

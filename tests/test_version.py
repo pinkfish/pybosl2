@@ -57,6 +57,26 @@ def test_comparisons_and_equality() -> None:
     ]
 
 
+def test_compares_against_a_plain_string_in_both_directions() -> None:
+    # >= and > used to raise TypeError against a str while < and <= worked: Python reflects
+    # `Version > str` to `str.__lt__(Version)`, which declines. A minimum-version guard is the
+    # natural thing for a caller to write, so it must not be the broken direction.
+    assert Version("1.2.3") >= "1.2.3"
+    assert Version("1.2.3") >= "1.2.0"
+    assert Version("1.2.3") > "1.2.0"
+    assert not Version("1.2.3") >= "1.3.0"
+    assert not Version("1.2.3") > "1.2.3"
+    # ...and the already-working direction still agrees with it.
+    assert Version("1.2.3") <= "1.2.3"
+    assert Version("1.2.3") < "1.3.0"
+
+
+def test_package_version_satisfies_its_own_guard() -> None:
+    """The shipped version compares as at least itself -- the check a consumer would write."""
+    assert version >= __version__
+    assert not version > __version__
+
+
 def test_invalid_version_raises() -> None:
     with pytest.raises(ValueError, match="invalid version string"):
         Version("1.x.3")
