@@ -11,9 +11,115 @@ via the :meth:`Colorable.hsl` and :meth:`Colorable.hsv` methods."""
 import colorsys
 
 import numpy as np
+import pytest
 
-from pybosl2.color import rainbow, rainbow_colors
+from pybosl2.color import Color, rainbow, rainbow_colors
 from pybosl2.shapes3d import Bosl2Solid, cuboid
+
+# -- Color class unit tests --------------------------------------------------
+
+
+def test_color_from_name() -> None:
+    assert Color("red").rgb == (1.0, 0.0, 0.0)
+    assert Color("blue").rgb == (0.0, 0.0, 1.0)
+    assert Color("green").rgb == (0.0, 128 / 255, 0.0)
+
+
+def test_color_from_hex() -> None:
+    assert Color("#ff0000").rgb == (1.0, 0.0, 0.0)
+    assert Color("#f00").rgb == (1.0, 0.0, 0.0)
+    assert Color("#00ff0080").rgba == (0.0, 1.0, 0.0, 128 / 255)
+    assert Color("#000000").rgb == (0.0, 0.0, 0.0)
+
+
+def test_color_from_rgb_int() -> None:
+    assert Color([255, 0, 0]).rgb == (1.0, 0.0, 0.0)
+    assert Color((0, 255, 0)).rgb == (0.0, 1.0, 0.0)
+
+
+def test_color_from_rgb_float() -> None:
+    assert Color([1.0, 0.5, 0.0]).rgb == (1.0, 0.5, 0.0)
+
+
+def test_color_from_rgba() -> None:
+    c = Color([1.0, 0.5, 0.0, 0.3])
+    assert c.rgba == (1.0, 0.5, 0.0, 0.3)
+    assert c.alpha == 0.3
+
+
+def test_color_from_none() -> None:
+    assert Color(None).rgb == (0.0, 0.0, 0.0)
+    assert Color(None).alpha == 1.0
+
+
+def test_color_properties() -> None:
+    c = Color("cornflowerblue")
+    assert c.hex == "#6495ed"
+    assert str(c) == "#6495ed"
+    assert repr(c).startswith("Color(r=0.")
+
+
+def test_color_to_native() -> None:
+    assert Color("red")._to_native() == [1.0, 0.0, 0.0]
+    assert Color("blue")._to_native() == [0.0, 0.0, 1.0]
+    assert Color([1.0, 0.0, 0.0, 0.5])._to_native() == [1.0, 0.0, 0.0, 0.5]
+
+
+def test_color_equality() -> None:
+    assert Color("red") == Color("red")
+    assert Color("red") == Color("#ff0000")
+    assert Color("red") == Color([255, 0, 0])
+    assert Color("red") != Color("blue")
+    assert Color("red") == "red"
+    assert Color("red") == [1.0, 0.0, 0.0]
+    assert Color("red") != [1.0, 1.0, 0.0]
+    assert Color("red") != 42  # type: ignore[comparison-overlap]
+
+
+def test_color_hashable() -> None:
+    s = {Color("red"), Color("red"), Color("blue")}
+    assert len(s) == 2
+
+
+def test_color_invalid_raises() -> None:
+    with pytest.raises(ValueError, match="unknown colour name"):
+        Color("notacolor")
+    with pytest.raises(ValueError, match="invalid hex"):
+        Color("#xyz")
+    with pytest.raises(ValueError, match="at least 3"):
+        Color([1, 2])
+
+
+def test_color_hex_alpha() -> None:
+    c = Color("#ff000080")
+    assert c.rgb == (1.0, 0.0, 0.0)
+    assert c.alpha == pytest.approx(128 / 255)
+
+
+def test_color_rgba_int() -> None:
+    c = Color([255, 0, 0, 128])
+    assert c.rgb == (1.0, 0.0, 0.0)
+    assert c.alpha == pytest.approx(128 / 255)
+
+
+def test_color_to_native_without_alpha() -> None:
+    assert Color("red")._to_native() == [1.0, 0.0, 0.0]
+
+
+def test_color_equality_string() -> None:
+    assert Color("blue") == "blue"
+    assert Color("blue") != "red"
+
+
+def test_color_equality_list() -> None:
+    assert Color("cyan") == [0.0, 1.0, 1.0]
+    assert Color("cyan") != [0.0, 0.0, 1.0]
+
+
+def test_color_equality_non_color() -> None:
+    assert Color("red") != 42  # type: ignore[comparison-overlap]
+    assert Color("red") != object()
+
 
 # -- colours -------------------------------------------------------------------
 
