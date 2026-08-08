@@ -462,7 +462,7 @@ class PhillipsMask:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import PhillipsMask
-                PhillipsMask(size="#2").shape().export_stl("phillips_2.stl")
+                PhillipsMask(size="#2").shape().show()
 
         """
         return self._solid
@@ -560,7 +560,7 @@ class TorxMask2d:
         .. pythonscad-example::
 
             from pybosl2.parts.screw_drive import TorxMask2d
-            TorxMask2d(size=30).shape().linear_extrude(height=10).export_stl("torx_30.stl")
+            TorxMask2d(size=30).shape().linear_extrude(height=10).show()
 
     """
 
@@ -592,7 +592,7 @@ class TorxMask2d:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import TorxMask2d
-                TorxMask2d(size=30).shape().linear_extrude(height=10).export_stl("torx_30.stl")
+                TorxMask2d(size=30).shape().linear_extrude(height=10).show()
 
         """
         return self._solid
@@ -666,7 +666,7 @@ class TorxMask:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import TorxMask
-                TorxMask(size=30, l=10).shape().export_stl("torx_30_mask.stl")
+                TorxMask(size=30, l=10).shape().show()
 
         """
         return self._solid
@@ -758,7 +758,7 @@ class RobertsonMask:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import RobertsonMask
-                RobertsonMask(size=2).shape().export_stl("robertson_2.stl")
+                RobertsonMask(size=2).shape().show()
 
         """
         return self._solid

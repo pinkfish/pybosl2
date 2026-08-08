@@ -3845,9 +3845,10 @@ vertically instead.</p>
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a #2 Phillips recess:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">PhillipsMask</span>
-<span class="n">PhillipsMask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;#2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">export_stl</span><span class="p">(</span><span class="s2">&quot;phillips_2.stl&quot;</span><span class="p">)</span>
+<span class="n">PhillipsMask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="s2">&quot;#2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/1fa1f354cafaafc7.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/1fa1f354cafaafc7.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screw_drive.PhillipsMask.shape-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screw_drive.PhillipsMask.shape-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><em>CsgSolid</em></p>
@@ -4005,9 +4006,10 @@ by a further <code class="docutils literal notranslate"><span class="pre">2</spa
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a T30 Torx mask:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorxMask</span>
-<span class="n">TorxMask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">export_stl</span><span class="p">(</span><span class="s2">&quot;torx_30_mask.stl&quot;</span><span class="p">)</span>
+<span class="n">TorxMask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/9eb3ab35e0ef5797.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/9eb3ab35e0ef5797.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screw_drive.TorxMask.shape-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask.shape-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><em>CsgSolid</em></p>
@@ -4038,9 +4040,10 @@ by a further <code class="docutils literal notranslate"><span class="pre">2</spa
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a T30 Torx 2-D profile extruded 10 mm:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorxMask2d</span>
-<span class="n">TorxMask2d</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">export_stl</span><span class="p">(</span><span class="s2">&quot;torx_30.stl&quot;</span><span class="p">)</span>
+<span class="n">TorxMask2d</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/f1b760ef37d703e9.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/f1b760ef37d703e9.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screw_drive.TorxMask2d-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask2d-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -4062,9 +4065,10 @@ by a further <code class="docutils literal notranslate"><span class="pre">2</spa
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a T30 Torx 2-D profile extruded 10 mm:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorxMask2d</span>
-<span class="n">TorxMask2d</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">export_stl</span><span class="p">(</span><span class="s2">&quot;torx_30.stl&quot;</span><span class="p">)</span>
+<span class="n">TorxMask2d</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/f1b760ef37d703e9.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/f1b760ef37d703e9.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screw_drive.TorxMask2d.shape-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask2d.shape-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><em>CsgSolid</em></p>
@@ -4142,9 +4146,10 @@ by a further <code class="docutils literal notranslate"><span class="pre">2</spa
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a #2 Robertson recess:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">RobertsonMask</span>
-<span class="n">RobertsonMask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">export_stl</span><span class="p">(</span><span class="s2">&quot;robertson_2.stl&quot;</span><span class="p">)</span>
+<span class="n">RobertsonMask</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
+<div class="stl-viewer" data-stl-uri="_stl/8728092dbc7587ee.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/8728092dbc7587ee.stl">⬇ Download STL mesh</a></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.parts.screw_drive.RobertsonMask.shape-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.parts.screw_drive.RobertsonMask.shape-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><em>CsgSolid</em></p>

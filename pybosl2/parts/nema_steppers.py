@@ -242,7 +242,7 @@ class NemaMountMask:
         .. pythonscad-example::
 
             from pybosl2.parts.nema_steppers import NemaMountMask, NemaMaskType
-            NemaMountMask(size=17, atype=NemaMaskType.FULL).shape().linear_extrude(1).show()
+            NemaMountMask(size=17, atype=NemaMaskType.FULL).show()
 
     """
 
