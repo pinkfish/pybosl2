@@ -58,18 +58,18 @@ function blit(v) {
   const w = v.canvas.width;
   const h = v.canvas.height;
   const rc = r.domElement;
-  // The shared buffer only ever grows, so scrolling between same-sized viewers never reallocates it.
   if (rc.width < w || rc.height < h) {
     r.setSize(Math.max(rc.width, w), Math.max(rc.height, h), false);
   }
   r.setViewport(0, 0, w, h);
   r.setScissor(0, 0, w, h);
   r.render(v.scene, v.camera);
-  // WebGL's origin is bottom-left, so the freshly rendered region sits at the buffer's bottom.
-  // "copy" (not the default "source-over") carries the transparent background through, letting the
-  // element's CSS background -- which follows the light/dark theme -- show around the mesh.
+  // WebGL renders with y=0 at the bottom, but 2-D canvas readImage uses y=0 at the top.
+  // The renderer's viewport is at the bottom-left, so the rendered region is at y-offset
+  // rc.height - h in the shared buffer regardless of whether rc.height equals h.
+  const srcY = Math.max(0, rc.height - h);
   v.ctx.globalCompositeOperation = "copy";
-  v.ctx.drawImage(rc, 0, rc.height - h, w, h, 0, 0, w, h);
+  v.ctx.drawImage(rc, 0, srcY, w, h, 0, 0, w, h);
 }
 
 function tick() {
