@@ -565,7 +565,7 @@ def test_square_chamfer_returns_shape2d() -> None:
 
 
 def test_square_rounding_and_chamfer_mutually_exclusive() -> None:
-    with pytest.raises(AssertionError, match="rounding and chamfer"):
+    with pytest.raises(AssertionError, match="Cannot set both"):
         s2.square(20, rounding=3, chamfer=2)
 
 
@@ -575,7 +575,7 @@ def test_regular_ngon_chamfer_returns_shape2d() -> None:
 
 
 def test_regular_ngon_rounding_and_chamfer_mutually_exclusive() -> None:
-    with pytest.raises(AssertionError, match="rounding and chamfer"):
+    with pytest.raises(AssertionError, match="Cannot set both"):
         s2.regular_ngon(sides=6, radius=15, rounding=2, chamfer=2)
 
 
@@ -605,7 +605,7 @@ def test_right_triangle_chamfer_returns_shape2d() -> None:
 
 
 def test_right_triangle_rounding_and_chamfer_mutually_exclusive() -> None:
-    with pytest.raises(AssertionError, match="rounding and chamfer"):
+    with pytest.raises(AssertionError, match="Cannot set both"):
         s2.right_triangle([15, 10], rounding=2, chamfer=1.5)
 
 
@@ -646,3 +646,36 @@ def test_shape_rotate_keyword_a() -> None:
     sq = s2.square(20)
     result = sq.rotate(a=45)  # type: ignore[call-arg]
     assert isinstance(result, Bosl2Shape2D)
+
+
+# ── chamfer / rounding validation tests ─────────────────────────────────────
+
+
+def test_regular_ngon_negative_rounding_allowed() -> None:
+    result = s2.regular_ngon(sides=6, radius=10, rounding=-2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_regular_ngon_negative_chamfer_allowed() -> None:
+    result = s2.regular_ngon(sides=6, radius=10, chamfer=-2)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_regular_ngon_both_rounding_and_chamfer_raises() -> None:
+    with pytest.raises(AssertionError, match="Cannot set both"):
+        s2.regular_ngon(sides=6, radius=10, rounding=2, chamfer=2)
+
+
+def test_regular_ngon_oversized_chamfer_raises() -> None:
+    with pytest.raises(AssertionError, match="too large"):
+        s2.regular_ngon(sides=6, radius=10, chamfer=20)
+
+
+def test_rect_oversized_rounding_raises() -> None:
+    with pytest.raises(AssertionError, match="exceed the rect"):
+        s2.rect(size=[10, 10], rounding=6)
+
+
+def test_rect_oversized_chamfer_raises() -> None:
+    with pytest.raises(AssertionError, match="exceed the rect"):
+        s2.rect(size=[10, 10], chamfer=6)
