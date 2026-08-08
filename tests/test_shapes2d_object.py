@@ -679,3 +679,30 @@ def test_rect_oversized_rounding_raises() -> None:
 def test_rect_oversized_chamfer_raises() -> None:
     with pytest.raises(AssertionError, match="exceed the rect"):
         s2.rect(size=[10, 10], chamfer=6)
+
+
+# ── negative chamfer / rounding tests ────────────────────────────────────────
+
+
+def test_square_negative_rounding_produces_shape() -> None:
+    assert isinstance(s2.square(20, rounding=-3), Bosl2Shape2D)
+
+
+def test_square_negative_chamfer_produces_shape() -> None:
+    assert isinstance(s2.square(20, chamfer=-3), Bosl2Shape2D)
+
+
+def test_rect_negative_rounding_produces_shape() -> None:
+    assert isinstance(s2.rect([30, 20], rounding=-4), Bosl2Shape2D)
+
+
+def test_cuboid_negative_chamfer_produces_shape() -> None:
+    from pybosl2.shapes3d import cuboid as _cuboid
+
+    assert isinstance(_cuboid([20, 20, 20], chamfer=-4), Bosl2Solid)
+
+
+def test_cyl_negative_rounding_produces_shape() -> None:
+    from pybosl2.shapes3d import cyl
+
+    assert isinstance(cyl(height=20, radius=10, rounding=-2), Bosl2Solid)

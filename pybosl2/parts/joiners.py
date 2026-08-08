@@ -239,7 +239,7 @@ class SnapPinSocket:
         .. pythonscad-example::
 
             from pybosl2.parts.joiners import SnapPinSocket
-            SnapPinSocket().shape().linear_extrude(1).show()
+            SnapPinSocket().show()
 
     """
 

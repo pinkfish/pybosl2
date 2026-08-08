@@ -1407,7 +1407,7 @@ class Rack2d:
         .. pythonscad-example::
 
             from pybosl2.parts.gears import Rack2d
-            Rack2d(mod=5, teeth=20, height=10).shape().linear_extrude(height=5).show()
+            Rack2d(mod=2, teeth=20, height=10).shape().linear_extrude(height=5).show()
 
     """
 
