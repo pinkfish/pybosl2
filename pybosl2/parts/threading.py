@@ -504,7 +504,7 @@ class ThreadHelix:
 
             from pybosl2.shapes3d import cylinder as cyl
             from pybosl2.parts.threading import ThreadHelix
-            cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape()
+            (cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape()).show()
 
     """
 
