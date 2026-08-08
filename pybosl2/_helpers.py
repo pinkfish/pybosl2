@@ -379,8 +379,8 @@ def rect_path(
     ]
     insets_x = max(insets[0] + insets[1], insets[2] + insets[3])
     insets_y = max(insets[0] + insets[3], insets[1] + insets[2])
-    assert insets_x <= sx, "Requested roundings and/or chamfers exceed the rect width."
-    assert insets_y <= sy, "Requested roundings and/or chamfers exceed the rect height."
+    assert insets_x <= sx, f"Requested roundings and/or chamfers ({insets_x:.3f}) exceed the rect width ({sx:.3f})"
+    assert insets_y <= sy, f"Requested roundings and/or chamfers ({insets_y:.3f}) exceed the rect height ({sy:.3f})"
     path = []
     for i in range(4):
         quad = quadorder[i]

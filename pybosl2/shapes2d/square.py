@@ -121,7 +121,7 @@ def square(
             s2.square(20).linear_extrude(height=5).show()
 
     """
-    assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
+    assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time."
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = anchor
     if center is not None:
@@ -257,11 +257,17 @@ def _regular_ngon_path(
     if not rounding and not chamfer:
         path = _circle_pts(radius, sides)
     else:
-        inset: float
-        if chamfer:
-            inset = chamfer / math.sin(math.radians((180 - 360.0 / sides) / 2))
-        else:
-            inset = rounding / math.sin(math.radians((180 - 360.0 / sides) / 2))
+        assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time on an n-gon."
+        half_angle = math.radians((180 - 360.0 / sides) / 2)
+        inset: float = chamfer / math.sin(half_angle) if chamfer else rounding / math.sin(half_angle)
+        assert inset < radius, (
+            f"{'chamfer' if chamfer else 'rounding'} value {chamfer or rounding} is too large "
+            f"for a {sides}-gon of radius {radius}"
+        )
+        assert inset < radius, (
+            f"{'chamfer' if chamfer else 'rounding'} value {chamfer or rounding} is too large "
+            f"for a {sides}-gon of radius {radius}"
+        )
         steps = max(1, int(_frag_count(radius, fn, fa, fs) // sides))
         path2: list[list[float]] = []
         for i in range(sides):
@@ -349,7 +355,7 @@ def regular_ngon(
             s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()
 
     """
-    assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
+    assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time."
     assert sides >= 3
     sc = 1 / math.cos(math.radians(180.0 / sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
@@ -544,7 +550,7 @@ def right_triangle(
             s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()
 
     """
-    assert not (rounding != 0 and chamfer != 0), "Cannot set both rounding and chamfer at the same time."
+    assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time."
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     if anchor is not None:
         use_anchor = anchor
