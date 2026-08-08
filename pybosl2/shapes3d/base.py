@@ -299,48 +299,6 @@ class CsgSolid(BaseShape):
         """
         return Bosl2Solid(_ohull(self.shape, *[_as_native_3d(o) for o in others]))
 
-    def minkowski(self, *others: object) -> "Bosl2Solid":
-        """Return the Minkowski SUM of this solid with *others* (OpenSCAD ``minkowski()``).
-
-        Sweeps each of *others* over the whole of this solid, growing it by that shape. Sweeping
-        a sphere grows it by a uniform margin with rounded corners, a cube with square ones --
-        the usual way to turn a part into the cutter that clears it. This is the 3-D counterpart
-        of :meth:`~pybosl2.shapes2d.Bosl2Shape2D.minkowski`, and the dilating opposite of
-        :meth:`minkowski_difference`, which erodes.
-
-        Each of *others* may be a ``Bosl2Solid`` or a raw native solid; several are applied in
-        turn, matching OpenSCAD's variadic ``minkowski()``.
-
-        Note this is EXPENSIVE -- cost grows with the product of the operands' complexity -- so
-        keep the swept shape as simple as the result allows (a low-``fn`` sphere, or a cube).
-
-        Args:
-            others: One or more solids to sweep over this one.
-
-        Returns:
-            A new :class:`Bosl2Solid` of the Minkowski sum.
-
-        Raises:
-            AssertionError: If no shape to sweep is given.
-
-        Examples:
-            A plate grown by a rounded 2mm margin:
-
-            .. pythonscad-example::
-
-                from pybosl2.shapes3d import cuboid, sphere
-
-                cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=16)).show()
-
-        """
-        from pythonscad import minkowski as _ominkowski
-
-        assert others, "minkowski(): needs at least one shape to sweep over this solid."
-        out = self.shape
-        for other in others:
-            out = _ominkowski(out, _as_native_3d(other))
-        return Bosl2Solid(out)
-
     def projection(self, cut: bool = False) -> "Bosl2Shape2D":
         """Return the 2-D shadow of this solid on the XY plane (OpenSCAD ``projection()``).
 

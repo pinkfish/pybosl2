@@ -236,6 +236,50 @@ class BaseShape(Colorable, Distributable):
     # CSG operators
     # ------------------------------------------------------------------
 
+    def minkowski(self, *others: object) -> Self:
+        """Return the Minkowski SUM of this shape with *others* (OpenSCAD ``minkowski()``).
+
+        Sweeps each of *others* over the whole of this shape, growing it by that shape: a
+        sphere/circle grows it by a uniform margin with rounded corners, a cube/square with
+        square ones -- the usual way to turn a part into the cutter that clears it. The
+        dilating opposite of :meth:`~pybosl2.miscellaneous.Miscellaneous.minkowski_difference`,
+        which erodes.
+
+        Defined here rather than on the CSG solid/shape classes so ONE implementation serves
+        both dimensions: the operands go through ``_unwrap`` and the result through ``_wrap``,
+        so a 2-D shape returns a 2-D shape and a solid returns a solid.
+
+        Note this is EXPENSIVE -- cost grows with the product of the operands' complexity -- so
+        keep the swept shape as simple as the result allows (a low-``fn`` sphere, or a cube).
+
+        Args:
+            others: One or more shapes to sweep over this one. Several are applied in turn,
+                matching OpenSCAD's variadic ``minkowski()``.
+
+        Returns:
+            A new shape of the same kind as this one, holding the Minkowski sum.
+
+        Raises:
+            AssertionError: If no shape to sweep is given.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2.shapes3d import cuboid, sphere
+
+                cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=16)).show()
+
+        """
+        from pythonscad import minkowski as _minkowski
+
+        assert others, "minkowski(): needs at least one shape to sweep over this one."
+        backend = getattr(self, "backend", "csg")
+        out = self.shape
+        for other in others:
+            _check_operand_backend(backend, other)
+            out = _minkowski(out, self._unwrap(other))
+        return self._wrap(out)
+
     def __or__(self, other: object) -> Self:
         _check_operand_backend(getattr(self, "backend", "csg"), other)
         return self._wrap(self.shape | self._unwrap(other))

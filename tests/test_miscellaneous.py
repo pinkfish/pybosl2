@@ -121,15 +121,34 @@ def test_minkowski_difference() -> None:
     assert isinstance(m.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8)), Bosl2Solid)
 
 
-# -- Minkowski SUM (Bosl2Solid.minkowski) --------------------------------------------------
+# -- Minkowski SUM (BaseShape.minkowski) ---------------------------------------------------
 #
-# The 3-D counterpart of Bosl2Shape2D.minkowski. There was no 3-D form at all: `"minkowski"`
-# sat in _NATIVE_PASSTHROUGH, which made hasattr() look promising, but native minkowski() is a
-# free FUNCTION, so the forward could never resolve and every call raised AttributeError.
+# There was no 3-D form at all: `"minkowski"` sat in _NATIVE_PASSTHROUGH, which made hasattr()
+# look promising, but native minkowski() is a free FUNCTION, so the forward could never resolve
+# and every call raised AttributeError. It now lives ONCE on the shared BaseShape rather than
+# being duplicated in the CSG-specific 2-D and 3-D classes.
+
+
+def test_minkowski_lives_on_the_shared_base_class() -> None:
+    """One implementation, inherited by both dimensions -- not a copy per backend class."""
+    from pybosl2._shape import BaseShape
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    assert "minkowski" in BaseShape.__dict__
+    assert Bosl2Solid.minkowski is BaseShape.minkowski
+    assert Bosl2Shape2D.minkowski is BaseShape.minkowski
 
 
 def test_minkowski_sum_returns_a_solid() -> None:
     assert isinstance(cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=12)), Bosl2Solid)
+
+
+def test_minkowski_sum_keeps_2d_shapes_2d() -> None:
+    """_wrap round-trips the result, so a 2-D operand does not come back as a solid."""
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    grown = s2.square([10, 10], center=True).minkowski(s2.circle(radius=3, fn=24))
+    assert isinstance(grown, Bosl2Shape2D)
 
 
 def test_minkowski_sum_grows_the_solid_by_the_swept_shape() -> None:
