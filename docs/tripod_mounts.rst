@@ -31,11 +31,11 @@ A standard Manfrotto RC2 plate with full chamfering:
 .. pythonscad-example::
 
    from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate
-   ManfrottoRC2Plate().shape()
+   ManfrottoRC2Plate().show()
 
 A plate with bottom-only chamfering:
 
 .. pythonscad-example::
 
    from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate
-   ManfrottoRC2Plate(chamfer="bot").shape()
+   ManfrottoRC2Plate(chamfer="bot").show()

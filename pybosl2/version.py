@@ -91,6 +91,21 @@ class Version:
         """Return whether this is less than or equal to other."""
         return self < other or self == other
 
+    # __gt__/__ge__ are spelled out rather than left to Python's reflection. Comparing two
+    # Version objects would work without them (``a > b`` falls back to ``b.__lt__(a)``), but
+    # comparing against a STRING would not: ``str.__lt__(Version)`` returns NotImplemented, so
+    # ``version >= "0.7.2"`` raised TypeError while ``version < "0.8"`` quietly worked. A
+    # minimum-version guard is the natural thing to write, so it is the one that must not fail.
+
+    def __gt__(self, other: "Version | str") -> bool:
+        """Return whether this is greater than other."""
+        other = other if isinstance(other, Version) else Version(other)
+        return self.as_tuple() > other.as_tuple()
+
+    def __ge__(self, other: "Version | str") -> bool:
+        """Return whether this is greater than or equal to other."""
+        return self > other or self == other
+
     def __hash__(self) -> int:
         """Return a hash value."""
         return hash(self.as_tuple())
