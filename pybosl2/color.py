@@ -305,11 +305,14 @@ class Color:
                     hex_val = "".join(c * 2 for c in hex_val)
                 if len(hex_val) not in (6, 8):
                     raise ValueError(f"invalid hex colour: {spec!r}")
-                self._r = int(hex_val[0:2], 16) / 255
-                self._g = int(hex_val[2:4], 16) / 255
-                self._b = int(hex_val[4:6], 16) / 255
-                if len(hex_val) == 8:
-                    self._a = int(hex_val[6:8], 16) / 255
+                try:
+                    self._r = int(hex_val[0:2], 16) / 255
+                    self._g = int(hex_val[2:4], 16) / 255
+                    self._b = int(hex_val[4:6], 16) / 255
+                    if len(hex_val) == 8:
+                        self._a = int(hex_val[6:8], 16) / 255
+                except ValueError:
+                    raise ValueError(f"invalid hex colour: {spec!r}") from None
                 return
             if s in _COLOR_NAMES:
                 r, g, b = _COLOR_NAMES[s]
