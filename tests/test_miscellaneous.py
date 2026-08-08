@@ -121,6 +121,68 @@ def test_minkowski_difference() -> None:
     assert isinstance(m.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8)), Bosl2Solid)
 
 
+# -- Minkowski SUM (BaseShape.minkowski) ---------------------------------------------------
+#
+# There was no 3-D form at all: `"minkowski"` sat in _NATIVE_PASSTHROUGH, which made hasattr()
+# look promising, but native minkowski() is a free FUNCTION, so the forward could never resolve
+# and every call raised AttributeError. It now lives ONCE on the shared BaseShape rather than
+# being duplicated in the CSG-specific 2-D and 3-D classes.
+
+
+def test_minkowski_lives_on_the_shared_base_class() -> None:
+    """One implementation, inherited by both dimensions -- not a copy per backend class."""
+    from pybosl2._shape import BaseShape
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    assert "minkowski" in BaseShape.__dict__
+    assert Bosl2Solid.minkowski is BaseShape.minkowski
+    assert Bosl2Shape2D.minkowski is BaseShape.minkowski
+
+
+def test_minkowski_sum_returns_a_solid() -> None:
+    assert isinstance(cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=12)), Bosl2Solid)
+
+
+def test_minkowski_sum_keeps_2d_shapes_2d() -> None:
+    """_wrap round-trips the result, so a 2-D operand does not come back as a solid."""
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    grown = s2.square([10, 10], center=True).minkowski(s2.circle(radius=3, fn=24))
+    assert isinstance(grown, Bosl2Shape2D)
+
+
+def test_minkowski_sum_grows_the_solid_by_the_swept_shape() -> None:
+    """Sweeping a radius-r ball grows every side by ~2r -- the point of the operation."""
+    grown = cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=48))
+    _, size = grown.bounds()
+    for got, base in zip(size, (20, 30, 5), strict=True):
+        assert got == pytest.approx(base + 4, abs=0.1)
+
+
+def test_minkowski_sum_accepts_several_shapes() -> None:
+    """Variadic, like OpenSCAD's minkowski(): each is swept in turn, so the growth accumulates."""
+    once = cuboid([10, 10, 10]).minkowski(cuboid([2, 2, 2]))
+    twice = cuboid([10, 10, 10]).minkowski(cuboid([2, 2, 2]), cuboid([1, 1, 1]))
+    assert once.bounds()[1][0] == pytest.approx(12, abs=0.01)
+    assert twice.bounds()[1][0] == pytest.approx(13, abs=0.01)
+
+
+def test_minkowski_sum_needs_a_shape() -> None:
+    with pytest.raises(AssertionError):
+        cuboid([5, 5, 5]).minkowski()
+
+
+def test_native_passthrough_only_claims_real_native_methods() -> None:
+    """Every name in the set must exist on the native object, or the forward cannot resolve.
+
+    Six did not (`minkowski`, `set_modifier`, `convexity`, `fn`, `fa`, `fs`); they produced a
+    confusing AttributeError while making membership checks look meaningful.
+    """
+    from pybosl2._shape import _NATIVE_PASSTHROUGH
+
+    assert not (_NATIVE_PASSTHROUGH & {"minkowski", "set_modifier", "convexity", "fn", "fa", "fs"})
+
+
 # -- Bosl2Solid methods -------------------------------------------------------------------
 
 BOX = cuboid([40, 30, 20])
