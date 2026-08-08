@@ -135,6 +135,16 @@ def test_color_and_scale_preserve_wrapper() -> None:
     assert isinstance(c.scale([2, 2, 2]), Bosl2Solid)
 
 
+def test_color_native_all_parameter_forms() -> None:
+    c = cuboid([5, 5, 5])
+    assert isinstance(c.color(), Bosl2Solid)
+    assert isinstance(c.color("blue"), Bosl2Solid)
+    assert isinstance(c.color(alpha=0.5), Bosl2Solid)
+    assert isinstance(c.color("green", alpha=0.3), Bosl2Solid)
+    assert isinstance(c.color("#ff0000"), Bosl2Solid)
+    assert isinstance(c.color([1.0, 0.5, 0.0]), Bosl2Solid)
+
+
 def test_other_primitives_build() -> None:
     assert isinstance(sphere(radius=5), Bosl2Solid)
     assert isinstance(cyl(height=10, radius=3), Bosl2Solid)
