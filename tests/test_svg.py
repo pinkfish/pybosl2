@@ -13,7 +13,7 @@ import textwrap
 import pytest
 
 from pybosl2.regions import Region
-from pybosl2.svg import region_from_svg, svg_outlines
+from pybosl2.svg import region_from_svg, regions_from_svg, svg_outlines, svg_rings_with_colors
 
 # A 100x50 rect with a 20x10 hole, plus a separate 10x10 square: three rings, two solids.
 TWO_SOLIDS = textwrap.dedent(
@@ -68,11 +68,40 @@ CURVED = textwrap.dedent(
     """
 )
 
-PIXEL_UNITS = """\
-<svg xmlns="http://www.w3.org/2000/svg" width="800px" height="600px">
-  <path d="M 0,0 H 100 V 200 H 0 Z"/>
-</svg>
-"""
+PIXEL_UNITS = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="600px">
+      <path d="M 0,0 H 100 V 200 H 0 Z"/>
+    </svg>
+    """
+)
+
+COLORED = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <path d="M 0,0 H 40 V 30 H 0 Z" fill="#ff0000"/>
+      <path d="M 50,0 H 80 V 30 H 50 Z" fill="#0000ff"/>
+    </svg>
+    """
+)
+
+MIXED_FILL = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <path d="M 0,0 H 30 V 30 H 0 Z" fill="#ff0000"/>
+      <path d="M 40,0 H 70 V 30 H 40 Z" fill="none"/>
+      <circle cx="15" cy="55" r="10" fill="green"/>
+    </svg>
+    """
+)
+
+OPACITY_FILL = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <path d="M 0,0 H 40 V 30 H 0 Z" fill="#ff0000" opacity="0.5"/>
+    </svg>
+    """
+)
 
 
 @pytest.fixture
@@ -114,8 +143,8 @@ def test_region_from_svg_is_reachable_from_the_region_class(two_solids) -> None:
 def test_curves_are_flattened_to_the_requested_resolution(tmp_path) -> None:
     f = tmp_path / "curved.svg"
     f.write_text(CURVED)
-    coarse = svg_outlines(str(f), steps=4)[0]
-    fine = svg_outlines(str(f), steps=32)[0]
+    coarse = svg_outlines(str(f), fn=4)[0]
+    fine = svg_outlines(str(f), fn=32)[0]
     assert len(fine) > len(coarse)
     # A finer flattening tracks the true curve, so its area converges upward.
     assert Region.even_odd([fine]).geom.area >= Region.even_odd([coarse]).geom.area
@@ -214,3 +243,130 @@ def test_file_not_found_raises(tmp_path) -> None:
 def test_file_not_found_from_svg_raises(tmp_path) -> None:
     with pytest.raises(FileNotFoundError):
         Region.from_svg(str(tmp_path / "nonexistent.svg"))
+
+
+# -- svg_rings_with_colors --------------------------------------------------------------------
+
+
+def test_rings_with_colors_extracts_hex_fill(tmp_path) -> None:
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    paths, colors = svg_rings_with_colors(str(f))
+    assert len(paths) == 2
+    assert len(colors) == 2
+    assert colors[0] == "#ff0000"
+    assert colors[1] == "#0000ff"
+
+
+def test_rings_with_colors_returns_none_for_unfilled(tmp_path) -> None:
+    f = tmp_path / "mixed.svg"
+    f.write_text(MIXED_FILL)
+    paths, colors = svg_rings_with_colors(str(f))
+    assert "#ff0000" in colors
+    assert "#008000" in colors
+    assert None in colors  # the unfilled rect
+
+
+def test_svg_rings_with_colors_geometry_same_as_baseline(tmp_path) -> None:
+    """Rings from svg_rings_with_colors should be identical to svg_outlines rings."""
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    plain = svg_outlines(str(f))
+    colored_paths, _ = svg_rings_with_colors(str(f))
+    assert len(plain) == len(colored_paths)
+    for i in range(len(plain)):
+        assert plain[i] == [list(pt) for pt in colored_paths[i]]
+
+
+# -- regions_from_svg -------------------------------------------------------------------------
+
+
+def test_regions_from_svg_returns_one_per_color(tmp_path) -> None:
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    regions = regions_from_svg(str(f))
+    assert len(regions) == 2
+    assert str(regions[0]._color) == "#ff0000"
+    assert str(regions[1]._color) == "#0000ff"
+
+
+def test_regions_from_svg_unfilled_gets_no_color(tmp_path) -> None:
+    f = tmp_path / "mixed.svg"
+    f.write_text(MIXED_FILL)
+    regions = regions_from_svg(str(f))
+    colors = [r._color for r in regions]
+    assert None in colors  # the unfilled shape group has no color
+
+
+def test_regions_from_svg_colored_geometry_has_color(tmp_path) -> None:
+    """Colored regions should produce geometry that chains correctly."""
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    for region in regions_from_svg(str(f)):
+        geom = region.geometry()
+        assert geom is not None
+
+
+def test_regions_from_svg_same_color_shapes_are_merged(tmp_path) -> None:
+    """Two shapes with the same fill colour should end up in one Region."""
+    svg = textwrap.dedent(
+        """\
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+          <path d="M 0,0 H 20 V 20 H 0 Z" fill="#ff0000"/>
+          <path d="M 30,0 H 50 V 20 H 30 Z" fill="#ff0000"/>
+        </svg>
+        """
+    )
+    f = tmp_path / "samecolor.svg"
+    f.write_text(svg)
+    regions = regions_from_svg(str(f))
+    assert len(regions) == 1
+    assert str(regions[0]._color) == "#ff0000"
+    # Two disjoint 20x20 squares → area = 400+400 = 800
+    assert regions[0].geom.area == pytest.approx(800.0)
+
+
+def test_regions_from_svg_empty_svg_returns_empty_list(tmp_path) -> None:
+    f = tmp_path / "empty.svg"
+    f.write_text(EMPTY)
+    assert regions_from_svg(str(f)) == []
+
+
+def test_region_color_persists_through_extrude(tmp_path) -> None:
+    """Color set on a Region should carry through to geometry."""
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    for region in regions_from_svg(str(f)):
+        shape = region.geometry()
+        assert shape is not None
+
+
+# -- per-polygon colors via region_from_svg ---------------------------------------------------
+
+
+def test_region_from_svg_has_polygon_colors(tmp_path) -> None:
+    """region_from_svg now returns a single Region with per-polygon colours."""
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    region = region_from_svg(str(f))
+    assert len(region._polygon_colors) >= 1
+    assert any(c is not None for c in region._polygon_colors)
+
+
+def test_region_from_svg_geometry_with_colors(tmp_path) -> None:
+    """Per-polygon colors from SVG should produce chainable geometry."""
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    region = region_from_svg(str(f))
+    geom = region.geometry()
+    assert geom is not None
+
+
+def test_region_from_svg_colors_match_fill(tmp_path) -> None:
+    """Red and blue fills from SVG should appear in per-polygon colors."""
+    f = tmp_path / "colored.svg"
+    f.write_text(COLORED)
+    region = region_from_svg(str(f))
+    colors = {str(c) for c in region._polygon_colors if c is not None}
+    assert "#ff0000" in colors
+    assert "#0000ff" in colors

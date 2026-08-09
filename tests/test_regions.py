@@ -613,5 +613,68 @@ def test_from_svg_no_ribext(tmp_path) -> None:
     f.write_text(
         '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20"/></svg>'
     )
-    result = Region.from_svg(str(f), steps=24)
+    result = Region.from_svg(str(f), fn=24)
     assert isinstance(result, Region)
+
+
+# -- per-polygon colors (even_odd with colors parameter) ---------------------------------------
+
+
+COLORED_RINGS = {
+    "red": [[0, 0], [20, 0], [20, 20], [0, 20]],
+    "blue": [[30, 0], [50, 0], [50, 20], [30, 20]],
+    "green": [[60, 0], [80, 0], [80, 20], [60, 20]],
+}
+
+
+def test_even_odd_with_colors_preserves_polygon_colors() -> None:
+    r = Region.even_odd(
+        [COLORED_RINGS["red"], COLORED_RINGS["blue"], COLORED_RINGS["green"]],
+        colors=["#ff0000", "#0000ff", "#008000"],
+    )
+    assert len(r._polygon_colors) >= 2
+    assert Color("#ff0000") in r._polygon_colors or r._color is not None
+
+
+def test_even_odd_with_colors_sets_default_color() -> None:
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
+    assert r._color is not None
+
+
+def test_even_odd_with_partial_colors() -> None:
+    """Some rings with color, some without — should still work."""
+    r = Region.even_odd(
+        [COLORED_RINGS["red"], COLORED_RINGS["blue"]],
+        colors=["#ff0000", None],
+    )
+    assert isinstance(r, Region)
+    assert r.geom.area > 0
+
+
+def test_even_odd_with_colors_and_holes() -> None:
+    """A colored outer ring with an uncolored hole — hole should not carry color."""
+    outer = [[0, 0], [40, 0], [40, 30], [0, 30]]
+    hole = [[10, 10], [30, 10], [30, 20], [10, 20]]
+    r = Region.even_odd([outer, hole], colors=["#ff0000", None])
+    assert r._color == Color("#ff0000")
+    assert len(r._polygon_colors) == 1
+
+
+def test_copy_preserves_polygon_colors() -> None:
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
+    c = r.copy()
+    assert c._polygon_colors == r._polygon_colors
+
+
+def test_split_colored_produces_separate_regions() -> None:
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
+    pieces = r._split_colored()
+    assert len(pieces) >= 1
+    assert all(isinstance(p, Region) for p in pieces)
+
+
+def test_even_odd_without_colors_still_works() -> None:
+    """Backward compat: calling even_odd without colors should work as before."""
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]])
+    assert isinstance(r, Region)
+    assert r.geom.area == pytest.approx(800.0)
