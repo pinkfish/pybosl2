@@ -676,3 +676,53 @@ def test_split_polygons_single_polygon() -> None:
     r = Region(SQUARE)
     pieces = r._split_polygons()
     assert len(pieces) == 1
+
+
+# -- overlapping different-colour unions (first wins the overlap) ------------------------------
+
+
+def test_even_odd_overlap_first_color_wins() -> None:
+    """Red and blue squares overlap → red keeps full shape, blue has red subtracted."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#0000ff"))])
+    assert len(r._polygon_colors) == 2
+    assert r.geom.area == pytest.approx(1000.0)  # red=600 + blue=600-200
+
+
+def test_even_odd_same_color_overlap_merged() -> None:
+    """Same-colour overlapping squares → unioned into one piece."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#ff0000"))])
+    assert len(r._polygon_colors) == 1
+    assert r.geom.area == pytest.approx(1000.0)
+
+
+def test_even_odd_three_colors_overlap() -> None:
+    """Red, green, blue stacked → first wins each overlap boundary."""
+    red = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]]).color(Color("#ff0000"))
+    green = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]]).color(Color("#008000"))
+    blue = Path2D([[40, 0], [70, 0], [70, 20], [40, 20]]).color(Color("#0000ff"))
+    r = Region.even_odd([red, green, blue])
+    assert len(r._polygon_colors) >= 2
+    # red=600, green=600-200=400, blue=600-200=400 = 1400
+    assert r.geom.area == pytest.approx(1400.0)
+
+
+def test_even_odd_disjoint_different_colors() -> None:
+    """Disjoint different-colour squares → separate pieces, no overlap to resolve."""
+    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
+    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#0000ff"))])
+    assert len(r._polygon_colors) == 2
+    assert r.geom.area == pytest.approx(800.0)
+
+
+def test_even_odd_uncolored_does_not_block_colored() -> None:
+    """An uncolored path does not subtract from earlier colored paths."""
+    a = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]]).color(Color("#ff0000"))
+    b = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]])  # no color
+    r = Region.even_odd([a, b])
+    # Both keep full area since the uncolored path has no color to fight
+    assert r.geom.area == pytest.approx(1200.0)
