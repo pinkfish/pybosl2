@@ -104,8 +104,8 @@ def osimport(
             from pybosl2 import shapes2d as s2
 
             result = s2.osimport(tmp.name).resize([40, 40, 0]).linear_extrude(height=2)
-            os.unlink(tmp.name)
             result.show()
+            os.unlink(tmp.name)
 
     """
     kwargs: dict[str, object] = {}

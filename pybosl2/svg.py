@@ -160,9 +160,7 @@ def region_from_svg(
         ImportError: If ``svgelements`` is not installed.
 
     Examples:
-        An imported drawing, inset and extruded into a plate:
-
-        .. pythonscad-example::
+        An imported drawing, inset and extruded into a plate::
 
             import os, tempfile
             tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
@@ -313,9 +311,7 @@ def regions_from_svg(
         ImportError: If ``svgelements`` is not installed.
 
     Examples:
-        An imported drawing with two colours, extruded and shown side by side:
-
-        .. pythonscad-example::
+        An imported drawing with two colours, extruded and shown side by side::
 
             import os, tempfile
             tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
