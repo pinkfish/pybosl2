@@ -32,6 +32,7 @@ dependencies = [
     "numpy",
     "typing-extensions",
     "webcolors>=25",
+    "svgelements>=1.9",
 ]
 
 [project.optional-dependencies]
