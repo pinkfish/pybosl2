@@ -68,6 +68,15 @@ CURVED = textwrap.dedent(
     """
 )
 
+# A long cubic bezier: M0,0 → C0,200,200,200,200,0 — arc length ~300 user units.
+LONG_CURVE = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+      <path d="M 0,0 C 0,200 200,200 200,0 Z"/>
+    </svg>
+    """
+)
+
 PIXEL_UNITS = textwrap.dedent(
     """\
     <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="600px">
@@ -140,14 +149,91 @@ def test_region_from_svg_is_reachable_from_the_region_class(two_solids) -> None:
     assert Region.from_svg(two_solids).geom.area == pytest.approx(region_from_svg(two_solids).geom.area)
 
 
-def test_curves_are_flattened_to_the_requested_resolution(tmp_path) -> None:
+# -- curve resolution (fn / fs) -------------------------------------------------------------
+
+
+def test_fn_gives_absolute_point_count(tmp_path) -> None:
+    """When fn >= 3, each curved segment gets exactly that many points."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    ring = svg_outlines(str(f), fn=8)[0]
+    # The cubic bezier M0,0→C→Z: Close is skipped, Move is one point,
+    # the bezier itself contributes fn=8 points, minus the duplicated close point.
+    # So total = 1 (move) + 8 (bezier) = 9 minus last dup.
+    # The ring is closed (Z), so the last point equals the first.  Path2D wants bare ring.
+    assert 7 <= len(ring) <= 10  # ~1 move + 8 bezier pts, minus close dup
+
+
+def test_fn_higher_gives_more_points_than_lower(tmp_path) -> None:
     f = tmp_path / "curved.svg"
     f.write_text(CURVED)
     coarse = svg_outlines(str(f), fn=4)[0]
     fine = svg_outlines(str(f), fn=32)[0]
     assert len(fine) > len(coarse)
-    # A finer flattening tracks the true curve, so its area converges upward.
     assert Region.even_odd([fine]).geom.area >= Region.even_odd([coarse]).geom.area
+
+
+def test_fs_produces_more_points_for_longer_curve(tmp_path) -> None:
+    """A longer curve (LONG_CURVE) should produce more points than a short one at the same fs."""
+    f_short = tmp_path / "short.svg"
+    f_short.write_text(CURVED)
+    f_long = tmp_path / "long.svg"
+    f_long.write_text(LONG_CURVE)
+    short_ring = svg_outlines(str(f_short), fs=5.0)[0]
+    long_ring = svg_outlines(str(f_long), fs=5.0)[0]
+    assert len(long_ring) > len(short_ring)
+
+
+def test_fs_lower_gives_more_points(tmp_path) -> None:
+    """Smaller fs → finer resolution → more points per unit length."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    coarse = svg_outlines(str(f), fs=10.0)[0]
+    fine = svg_outlines(str(f), fs=2.0)[0]
+    assert len(fine) > len(coarse)
+
+
+def test_fn_overrides_fs(tmp_path) -> None:
+    """When fn is set, fs is ignored — point count is absolute."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    ring = svg_outlines(str(f), fn=6, fs=100.0)[0]
+    # fs=100 would normally give 3 points (min).  fn=6 overrides.
+    assert len(ring) >= 5  # more than the fs=100 minimum of ~3
+
+
+def test_default_fs_is_2(tmp_path) -> None:
+    """Without fn/fs, the default fs=2.0 should give a reasonable point count."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    ring = svg_outlines(str(f))[0]
+    assert len(ring) > 3
+
+
+def test_svg_rings_with_colors_uses_same_resolution(tmp_path) -> None:
+    """svg_rings_with_colors and svg_outlines should produce the same point counts."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    outline_ring = svg_outlines(str(f), fn=12)[0]
+    colored_paths, _ = svg_rings_with_colors(str(f), fn=12)
+    assert len(outline_ring) == len(colored_paths[0])
+
+
+def test_fn_is_ignored_when_none(tmp_path) -> None:
+    """fn=None falls back to fs-based resolution."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    ring = svg_outlines(str(f), fn=None, fs=2.0)[0]
+    assert len(ring) > 3
+
+
+def test_fa_is_accepted_but_does_not_affect_bezier_count(tmp_path) -> None:
+    """fa is accepted for API parity but bezier flattening uses fn/fs only."""
+    f = tmp_path / "curved.svg"
+    f.write_text(CURVED)
+    ring_fa12 = svg_outlines(str(f), fa=12.0)[0]
+    ring_fa1 = svg_outlines(str(f), fa=1.0)[0]
+    assert len(ring_fa12) == len(ring_fa1)
 
 
 def test_geometry_renders_every_solid_not_just_the_first(two_solids) -> None:
