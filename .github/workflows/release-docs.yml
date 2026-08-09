@@ -1,20 +1,19 @@
-name: docs
+name: release-docs
 
+# Build a versioned snapshot of the docs whenever a release is published and
+# push it to the gh-pages branch under /v<version>/.  The dev docs (built by
+# docs.yml) live at the branch root, so both are served side by side.
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
   build:
-    name: build sphinx docs
+    name: build release docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -55,7 +54,6 @@ jobs:
           sudo chmod +x "$BIN"
           echo "PYTHONSCAD_BIN=$BIN" >> "$GITHUB_ENV"
           echo "$(dirname "$BIN")" >> "$GITHUB_PATH"
-          "$BIN" --version
         env:
           GH_TOKEN: ${{ github.token }}
 
@@ -63,19 +61,48 @@ jobs:
         run: |
           pip install -e '.[docs]'
 
+      - name: Resolve version directory
+        id: version
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          VDIR="v${VERSION}"
+          echo "version_dir=${VDIR}" >> "$GITHUB_OUTPUT"
+          echo "Resolved version directory: ${VDIR}"
+
       - name: Build HTML
         run: |
           set -o pipefail
           make -C docs html 2>&1 | tee sphinx.log
 
-      - name: Checkout existing gh-pages and merge
+      - name: Move built docs into versioned subdirectory
         run: |
-          mkdir -p _site
+          VDIR="${{ steps.version.outputs.version_dir }}"
+          mkdir -p "_site/${VDIR}" "_site/latest"
+          cp -a wiki/* "_site/${VDIR}/"
+          cp -a wiki/* "_site/latest/"
+
+      - name: Checkout existing gh-pages and prune old versions
+        run: |
+          VDIR="${{ steps.version.outputs.version_dir }}"
+          # Clone the gh-pages branch into a temp dir to merge with our new build
           git clone --depth 1 --branch gh-pages \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" _ghpages
-          rsync -a _ghpages/ _site/
+          # Copy all EXISTING content (dev docs, old version dirs) into _site,
+          # then overlay our new versioned/latest docs on top.
+          rsync -a --exclude "${VDIR}" --exclude latest _ghpages/ _site/
           rm -rf _ghpages
-          rsync -a wiki/ _site/
+          # Prune: keep only the 5 most recent v* directories (by name sort)
+          shopt -s nullglob
+          VERSIONS=( _site/v*/ )
+          shopt -u nullglob
+          if [ ${#VERSIONS[@]} -gt 5 ]; then
+            # sort descending, keep first 5, delete the rest
+            readarray -t SORTED < <(printf '%s\n' "${VERSIONS[@]}" | sort -rV)
+            for ((i=5; i<${#SORTED[@]}; i++)); do
+              echo "Pruning old version: ${SORTED[$i]}"
+              rm -rf "${SORTED[$i]}"
+            done
+          fi
 
       - name: Verify output is not empty
         run: |
@@ -86,7 +113,7 @@ jobs:
             exit 1
           fi
 
-      - name: Deploy dev docs to gh-pages
+      - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
