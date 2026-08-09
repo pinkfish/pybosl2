@@ -117,18 +117,11 @@ class Region:
 
         """
         self._color: "Color | None" = None
-        self._polygon_colors: list["Color | None"] = []
         if isinstance(paths, (Polygon, MultiPolygon)):
             if paths.is_empty:
                 self._polygon = MultiPolygon()
             elif isinstance(paths, MultiPolygon):
-                # Normalise: merge overlapping polygons into non-overlapping pieces so the
-                # region's top-level polygons never overlap.  unary_union splits overlaps
-                # at their intersection boundaries, producing distinct disjoint pieces.
-                from shapely.ops import unary_union as _unary_union
-
-                merged = _unary_union(list(paths.geoms))
-                self._polygon = MultiPolygon([merged]) if isinstance(merged, Polygon) else merged
+                self._polygon = paths
             else:
                 self._polygon = MultiPolygon([paths])
             return
@@ -157,7 +150,6 @@ class Region:
         c = Region.__new__(Region)
         c._polygon = self._polygon
         c._color = self._color
-        c._polygon_colors = list(self._polygon_colors)
         return c
 
     def __len__(self) -> int:
@@ -234,11 +226,7 @@ class Region:
         return region_from_svg(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color)
 
     @classmethod
-    def even_odd(
-        cls,
-        paths: "Sequence[Path2D | Sequence[Sequence[float]]]",
-        colors: "Sequence[Color | str | None] | None" = None,
-    ) -> "Region":
+    def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
         """Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD ``polygon(paths=)``).
 
         The default constructor is outer-plus-holes: outline 0 bounds the region and every
@@ -251,21 +239,15 @@ class Region:
         the rule SVG and OpenSCAD's multi-path ``polygon()`` use, so it is the one to use for
         imported or traced outlines.
 
-        When *colors* is provided (one per path), the fill colour of each solid ring is
-        preserved through the nesting resolution: same-colour solids are unioned together,
-        while different-colour solids stay as separate polygons inside the Region so
-        :meth:`geometry` and :meth:`linear_extrude` can render each in its own colour.
+        Each *paths* entry may be a :class:`~pybosl2.path2d.Path2D` carrying its own colour
+        via :meth:`~pybosl2.path2d.Path2D.color`.  The first coloured solid ring's colour
+        is used as the Region's :attr:`_color`.
 
         Args:
             paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or point sequence.
-            colors: Optional per-path fill colours (a :class:`Color`, ``#rrggbb`` string or ``None``).
 
         Returns:
             A :class:`Region` whose solid area is the even-odd interpretation of *paths*.
-            When *colors* are provided (or the *paths* are :class:`~pybosl2.path2d.Path2D`
-            objects carrying their own colour), the resulting polygons each preserve their
-            colour inside :attr:`_polygon_colors` so :meth:`geometry` and
-            :meth:`linear_extrude` render them in the correct colours.
 
         Examples:
             Two disjoint squares, each with a hole -- four outlines, two solids::
@@ -277,36 +259,19 @@ class Region:
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union as _unary_union
 
-        from pybosl2.color import Color as _Color
-
         rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
         polys = [_Polygon(r._points) for r in rings if len(r) >= 3]
         if not polys:
             return cls()
 
-        resolved_colors: list[_Color | None] = []
-        if colors is not None:
-            color_iter = iter(colors)
-            for r in rings:
-                if len(r) < 3:
-                    continue
-                try:
-                    c = next(color_iter)
-                    resolved_colors.append(_Color(c) if isinstance(c, str) else c)
-                except StopIteration:
-                    resolved_colors.append(None)
-        else:
-            for r in rings:
-                if len(r) < 3:
-                    continue
-                resolved_colors.append(r._color if r._color is not None else None)
+        ring_colors = [r._color if r._color is not None else None for r in rings if len(r) >= 3]
 
         probes = [_Point(poly.exterior.coords[0]) for poly in polys]
         depths = [
             sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
         ]
 
-        color_groups: dict[_Color | None, list[_Polygon]] = {}
+        pieces = []
         for i, poly in enumerate(polys):
             if depths[i] % 2:
                 continue
@@ -319,32 +284,14 @@ class Region:
             if not piece.is_valid:
                 piece = piece.buffer(0)
             if not piece.is_empty:
-                color_groups.setdefault(resolved_colors[i], []).append(piece)
+                pieces.append(piece)
 
-        if not color_groups:
+        if not pieces:
             return cls()
 
-        all_polys: list[Polygon] = []
-        polygon_colors: list[_Color | None] = []
-        for color, pieces in color_groups.items():
-            merged = _unary_union(pieces)
-            if isinstance(merged, _Polygon):
-                if not merged.is_empty:
-                    all_polys.append(merged)
-                    polygon_colors.append(color)
-            else:
-                for p in merged.geoms:
-                    if not p.is_empty:
-                        all_polys.append(p)
-                        polygon_colors.append(color)
-
-        if not all_polys:
-            return cls()
-        result_geom = MultiPolygon(all_polys) if len(all_polys) > 1 else all_polys[0]
-        region = cls(result_geom)
-        region._polygon_colors = polygon_colors
-        region._color = next((c for c in polygon_colors if c is not None), None)
-        return region
+        result = cls(_unary_union(pieces))
+        result._color = next((c for c in ring_colors if c is not None), None)
+        return result
 
     @classmethod
     def with_holes(
@@ -477,11 +424,7 @@ class Region:
         return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
 
     def geometry(self) -> "Bosl2Shape2D":
-        """2-D geometry: the outline with the holes subtracted.
-
-        When :attr:`_polygon_colors` is populated (e.g. from an SVG import with coloured
-        fills), each polygon is coloured individually before being unioned into the final shape.
-        Otherwise the region's single :attr:`_color` is applied to the whole result.
+        """2-D geometry: every polygon in the region, each with its holes subtracted.
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
@@ -490,19 +433,14 @@ class Region:
         """
         polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
         shape = None
-        for i, poly in enumerate(polys):
+        for poly in polys:
             if poly.is_empty:
                 continue
             piece = Path2D(list(poly.exterior.coords)[:-1], closed=True).polygon()
             for interior in poly.interiors:
                 piece = piece - Path2D(list(interior.coords)[:-1], closed=True).polygon()
-            poly_color = (
-                self._polygon_colors[i]
-                if i < len(self._polygon_colors) and self._polygon_colors[i] is not None
-                else self._color
-            )
-            if poly_color is not None and hasattr(piece, "color"):
-                piece = piece.color(poly_color)
+            if self._color is not None and hasattr(piece, "color"):
+                piece = piece.color(self._color)
             shape = piece if shape is None else (shape | piece)
         if shape is None:  # an empty region still has to produce something chainable
             from pythonscad import polygon as _polygon
@@ -527,43 +465,31 @@ class Region:
         return result
 
     def _split_polygons(self) -> "list[Region]":
-        """Return sub-Regions, one per distinct non-overlapping polygon, grouped by colour.
+        """Return sub-Regions, one per polygon in the underlying geometry.
 
-        Polygons with the same colour are unioned together (flattening overlaps and merging
-        adjacent pieces) so that :meth:`linear_extrude` does not duplicate work or leave
-        internal seams.  Different-colour polygons stay separate.
+        Overlapping polygons are unioned together via ``unary_union`` so that
+        :meth:`linear_extrude` does not duplicate work or leave internal seams.
+        Each sub-Region inherits this region's :attr:`_color`.
         """
         from shapely.ops import unary_union as _unary_union
 
-        from pybosl2.color import Color as _Color  # noqa: TC001
-
-        polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
-
-        color_groups: dict[_Color | None, list[Polygon]] = {}
-        for i, poly in enumerate(polys):
-            if poly.is_empty:
-                continue
-            c = self._polygon_colors[i] if i < len(self._polygon_colors) else None
-            if c is None:
-                c = self._color
-            color_groups.setdefault(c, []).append(poly)
-
+        if self._polygon.is_empty:
+            return [self]
+        if isinstance(self._polygon, Polygon):
+            return [self]
+        merged = _unary_union(list(self._polygon.geoms))
         pieces: list[Region] = []
-        for color, group_polys in color_groups.items():
-            merged = _unary_union(group_polys)
-            if isinstance(merged, Polygon):
-                if not merged.is_empty:
-                    r = Region(merged)
-                    if color is not None:
-                        r._color = color
+        if isinstance(merged, Polygon):
+            if not merged.is_empty:
+                r = Region(merged)
+                r._color = self._color
+                pieces.append(r)
+        else:
+            for p in merged.geoms:
+                if not p.is_empty:
+                    r = Region(p)
+                    r._color = self._color
                     pieces.append(r)
-            else:
-                for p in merged.geoms:
-                    if not p.is_empty:
-                        r = Region(p)
-                        if color is not None:
-                            r._color = color
-                        pieces.append(r)
         return pieces if pieces else [self]
 
     @classmethod

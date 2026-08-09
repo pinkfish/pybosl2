@@ -425,34 +425,3 @@ def test_region_color_persists_through_extrude(tmp_path) -> None:
     for region in regions_from_svg(str(f)):
         shape = region.geometry()
         assert shape is not None
-
-
-# -- per-polygon colors via region_from_svg ---------------------------------------------------
-
-
-def test_region_from_svg_has_polygon_colors(tmp_path) -> None:
-    """region_from_svg now returns a single Region with per-polygon colours."""
-    f = tmp_path / "colored.svg"
-    f.write_text(COLORED)
-    region = region_from_svg(str(f))
-    assert len(region._polygon_colors) >= 1
-    assert any(c is not None for c in region._polygon_colors)
-
-
-def test_region_from_svg_geometry_with_colors(tmp_path) -> None:
-    """Per-polygon colors from SVG should produce chainable geometry."""
-    f = tmp_path / "colored.svg"
-    f.write_text(COLORED)
-    region = region_from_svg(str(f))
-    geom = region.geometry()
-    assert geom is not None
-
-
-def test_region_from_svg_colors_match_fill(tmp_path) -> None:
-    """Red and blue fills from SVG should appear in per-polygon colors."""
-    f = tmp_path / "colored.svg"
-    f.write_text(COLORED)
-    region = region_from_svg(str(f))
-    colors = {str(c) for c in region._polygon_colors if c is not None}
-    assert "#ff0000" in colors
-    assert "#0000ff" in colors
