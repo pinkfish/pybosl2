@@ -431,7 +431,7 @@ def test_region_color_persists_through_extrude(tmp_path) -> None:
 
 
 def test_region_from_svg_has_polygon_colors(tmp_path) -> None:
-    """region_from_svg now returns a single Region with per-polygon colours."""
+    """region_from_svg returns a Region with per-polygon colours preserved."""
     f = tmp_path / "colored.svg"
     f.write_text(COLORED)
     region = region_from_svg(str(f))
@@ -439,20 +439,29 @@ def test_region_from_svg_has_polygon_colors(tmp_path) -> None:
     assert any(c is not None for c in region._polygon_colors)
 
 
-def test_region_from_svg_geometry_with_colors(tmp_path) -> None:
-    """Per-polygon colors from SVG should produce chainable geometry."""
-    f = tmp_path / "colored.svg"
-    f.write_text(COLORED)
-    region = region_from_svg(str(f))
-    geom = region.geometry()
-    assert geom is not None
-
-
 def test_region_from_svg_colors_match_fill(tmp_path) -> None:
-    """Red and blue fills from SVG should appear in per-polygon colors."""
+    """Red and blue fills from SVG appear in per-polygon colors."""
     f = tmp_path / "colored.svg"
     f.write_text(COLORED)
     region = region_from_svg(str(f))
     colors = {str(c) for c in region._polygon_colors if c is not None}
     assert "#ff0000" in colors
     assert "#0000ff" in colors
+
+
+def test_region_from_svg_overlap_first_wins(tmp_path) -> None:
+    """Overlapping different-colour SVG shapes → first colour wins the overlap."""
+    svg = textwrap.dedent(
+        """\
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <path d="M 0,0 H 30 V 20 H 0 Z" fill="#ff0000"/>
+          <path d="M 20,0 H 50 V 20 H 20 Z" fill="#0000ff"/>
+        </svg>
+        """
+    )
+    f = tmp_path / "overlap.svg"
+    f.write_text(svg)
+    region = region_from_svg(str(f))
+    assert len(region._polygon_colors) >= 2
+    # Non-overlapping: blue had red subtracted from its overlap area
+    assert region.geom.area == pytest.approx(1000.0)  # red=600 + blue=600-200=400

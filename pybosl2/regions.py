@@ -109,9 +109,13 @@ class Region:
     def __init__(self, paths: Any = ()) -> None:
         """Create a region from path outlines or a shapely geometry.
 
+        When *paths* is a list of :class:`~pybosl2.path2d.Path2D` objects that
+        each carry a colour (via :meth:`~pybosl2.path2d.Path2D.color`), the
+        colours are read from the paths rather than passed separately.
+
         Args:
-            paths: The outlines; each is coerced to a :class:`Path2D`. A
-                single flat point list is treated as one outline.  A
+            paths: The outlines; each is coerced to a :class:`Path2D`. A single
+                flat point list is treated as one outline.  A
                 ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also
                 accepted.
 
@@ -228,79 +232,65 @@ class Region:
         return region_from_svg(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color)
 
     @classmethod
-    def even_odd(
-        cls,
-        paths: "Sequence[Path2D | Sequence[Sequence[float]]]",
-        colors: "Sequence[Color | str | None] | None" = None,
-    ) -> "Region":
-        """Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD ``polygon(paths=)``).
+    def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
+        """Create a region from outlines nested by the EVEN-ODD rule.
 
-        The default constructor is outer-plus-holes: outline 0 bounds the region and every
-        other outline is a hole in it. That is right for a ring, and wrong for a traced drawing
-        with several disjoint solids -- those extra solids come out subtracted instead of
-        added, which still produces geometry and so fails silently.
+        Colours are read from each :class:`~pybosl2.path2d.Path2D` object (via
+        :meth:`~pybosl2.path2d.Path2D.color`).  Same-colour solids are unioned
+        together; different-colour solids are kept as separate non-overlapping
+        polygons inside the region -- the first colour in order wins any overlap
+        so :meth:`geometry` and :meth:`linear_extrude` render each in its own
+        colour.  Uncoloured paths are transparent: they do not participate in
+        overlap resolution.
 
-        Even-odd instead decides each outline by how many others CONTAIN it: enclosed by an
-        even number (zero included) makes it solid, by an odd number makes it a hole. That is
-        the rule SVG and OpenSCAD's multi-path ``polygon()`` use, so it is the one to use for
-        imported or traced outlines.
-
-        When *colors* is provided (one per path), the fill colour of each solid ring is
-        preserved through the nesting resolution: same-colour solids are unioned together,
-        while different-colour solids stay as separate polygons inside the Region so
-        :meth:`geometry` and :meth:`linear_extrude` can render each in its own colour.
+        The default constructor is outer-plus-holes: outline 0 bounds the region
+        and every other outline is a hole in it.  Even-odd instead decides each
+        outline by how many others CONTAIN it, which is the rule SVG and
+        OpenSCAD's multi-path ``polygon()`` use.
 
         Args:
-            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or point sequence.
-            colors: Optional per-path fill colours (a :class:`Color`, ``#rrggbb`` string or ``None``).
+            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or
+                point sequence.  Coloured ``Path2D`` objects carry their colour
+                through to the result.
 
         Returns:
-            A :class:`Region` whose solid area is the even-odd interpretation of *paths*.
-            When *colors* are provided (or the *paths* are :class:`~pybosl2.path2d.Path2D`
-            objects carrying their own colour), the resulting polygons each preserve their
-            colour inside :attr:`_polygon_colors` so :meth:`geometry` and
-            :meth:`linear_extrude` render them in the correct colours.
+            A :class:`Region` whose solid area is the even-odd interpretation
+            of *paths*.  The :attr:`_polygon_colors` list tracks which polygon
+            has which colour.
 
         Examples:
             Two disjoint squares, each with a hole -- four outlines, two solids::
 
                 Region.even_odd([outer_a, hole_a, outer_b, hole_b])
 
+            Overlapping red and blue squares -- first colour wins the overlap::
+
+                from pybosl2 import Path2D, Region
+                from pybosl2.color import Color
+
+                red = Path2D([[0,0],[30,0],[30,20],[0,20]]).color(Color("#ff0000"))
+                blue = Path2D([[20,0],[50,0],[50,20],[20,20]]).color(Color("#0000ff"))
+                Region.even_odd([red, blue]).geometry().linear_extrude(height=3).show()
+
         """
         from shapely.geometry import Point as _Point
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union as _unary_union
-
-        from pybosl2.color import Color as _Color
 
         rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
         polys = [_Polygon(r._points) for r in rings if len(r) >= 3]
         if not polys:
             return cls()
 
-        resolved_colors: list[_Color | None] = []
-        if colors is not None:
-            color_iter = iter(colors)
-            for r in rings:
-                if len(r) < 3:
-                    continue
-                try:
-                    c = next(color_iter)
-                    resolved_colors.append(_Color(c) if isinstance(c, str) else c)
-                except StopIteration:
-                    resolved_colors.append(None)
-        else:
-            for r in rings:
-                if len(r) < 3:
-                    continue
-                resolved_colors.append(r._color if r._color is not None else None)
+        ring_colors: list["Color | None"] = [r._color if r._color is not None else None for r in rings if len(r) >= 3]
 
         probes = [_Point(poly.exterior.coords[0]) for poly in polys]
         depths = [
             sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
         ]
 
-        color_groups: dict[_Color | None, list[_Polygon]] = {}
+        color_groups: dict["Color | None", list[_Polygon]] = {}
+        group_order: list["Color | None"] = []
         for i, poly in enumerate(polys):
             if depths[i] % 2:
                 continue
@@ -313,19 +303,32 @@ class Region:
             if not piece.is_valid:
                 piece = piece.buffer(0)
             if not piece.is_empty:
-                color_groups.setdefault(resolved_colors[i], []).append(piece)
+                c = ring_colors[i]
+                if c not in color_groups:
+                    group_order.append(c)
+                color_groups.setdefault(c, []).append(piece)
 
         if not color_groups:
             return cls()
 
         all_polys: list[Polygon] = []
-        polygon_colors: list[_Color | None] = []
-        for color, pieces in color_groups.items():
+        polygon_colors: list["Color | None"] = []
+        previous_union: Polygon | MultiPolygon | None = None
+
+        for color in group_order:
+            pieces = color_groups[color]
             merged = _unary_union(pieces)
+            # Uncoloured paths are transparent: they do not subtract from or
+            # get subtracted by coloured paths.  They just live alongside them.
+            if color is not None:
+                if previous_union is not None and merged.intersects(previous_union):
+                    merged = merged.difference(previous_union)
+                if merged.is_empty:
+                    continue
+                previous_union = merged if previous_union is None else previous_union.union(merged)
             if isinstance(merged, _Polygon):
-                if not merged.is_empty:
-                    all_polys.append(merged)
-                    polygon_colors.append(color)
+                all_polys.append(merged)
+                polygon_colors.append(color)
             else:
                 for p in merged.geoms:
                     if not p.is_empty:
@@ -471,11 +474,11 @@ class Region:
         return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
 
     def geometry(self) -> "Bosl2Shape2D":
-        """2-D geometry: the outline with the holes subtracted.
+        """2-D geometry: every polygon in the region, each with its holes subtracted.
 
-        When :attr:`_polygon_colors` is populated (e.g. from an SVG import with coloured
-        fills), each polygon is coloured individually before being unioned into the final shape.
-        Otherwise the region's single :attr:`_color` is applied to the whole result.
+        When :attr:`_polygon_colors` is populated each polygon is coloured individually
+        before being unioned into the final shape.  Otherwise the region's single
+        :attr:`_color` is applied to every piece.
 
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
@@ -498,7 +501,7 @@ class Region:
             if poly_color is not None and hasattr(piece, "color"):
                 piece = piece.color(poly_color)
             shape = piece if shape is None else (shape | piece)
-        if shape is None:  # an empty region still has to produce something chainable
+        if shape is None:
             from pythonscad import polygon as _polygon
 
             from pybosl2.shapes2d import Bosl2Shape2D
@@ -520,24 +523,51 @@ class Region:
             result = result.color(self._color)
         return result
 
-    def _split_colored(self) -> "list[Region]":
-        """Return sub-Regions, one per polygon, each carrying its own colour.
+    def _split_polygons(self) -> "list[Region]":
+        """Return sub-Regions, one per distinct colour group, with overlaps resolved.
 
-        Used internally by :meth:`linear_extrude` and :meth:`rotate_extrude` so
-        per-polygon colours from an SVG import survive the extrusion.
+        Same-colour polygons are unioned together; different-colour polygons are kept
+        as separate Regions.  The first colour wins any overlap so that no two
+        sub-Regions share geometry.  Used internally by :meth:`linear_extrude` so
+        that each colour group can be extruded and coloured independently.
+
+        Returns:
+            A list of :class:`Region` objects, one per colour group found in
+            :attr:`_polygon_colors`.  When :attr:`_polygon_colors` is empty the
+            region's single :attr:`_color` is used for every piece.
+
         """
-        if not self._polygon_colors:
-            return [self]
+        from shapely.ops import unary_union as _unary_union
+
+        from pybosl2.color import Color as _Color  # noqa: TC001
+
         polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
-        pieces: list[Region] = []
+
+        color_groups: dict[_Color | None, list[Polygon]] = {}
         for i, poly in enumerate(polys):
             if poly.is_empty:
                 continue
-            r = Region(poly)
             c = self._polygon_colors[i] if i < len(self._polygon_colors) else None
-            if c is not None:
-                r._color = c
-            pieces.append(r)
+            if c is None:
+                c = self._color
+            color_groups.setdefault(c, []).append(poly)
+
+        pieces: list[Region] = []
+        for color, group_polys in color_groups.items():
+            merged = _unary_union(group_polys)
+            if isinstance(merged, Polygon):
+                if not merged.is_empty:
+                    r = Region(merged)
+                    if color is not None:
+                        r._color = color
+                    pieces.append(r)
+            else:
+                for p in merged.geoms:
+                    if not p.is_empty:
+                        r = Region(p)
+                        if color is not None:
+                            r._color = color
+                        pieces.append(r)
         return pieces if pieces else [self]
 
     @classmethod
@@ -591,6 +621,11 @@ class Region:
     ) -> "Solid":
         """Extrude this region along +Z into a 3-D solid with holes included.
 
+        When the region contains multiple colour groups (via
+        :attr:`_polygon_colors`), each group is extruded separately and the
+        results are unioned -- so different-colour parts of an SVG drawing
+        become different-colour solids without manual splitting.
+
         The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under
         the default CSG backend, or a :class:`~pybosl2._sdf.shapes3d.PyShape` under
         ``use_backend("sdf")``. See :meth:`pybosl2.paths.Path2D.linear_extrude` for per-backend
@@ -615,55 +650,57 @@ class Region:
             :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).
 
         """
+        from functools import reduce
+
         from pybosl2._backend import current_backend, get_backend
         from pybosl2.exceptions import UnsupportedByBackendError
 
-        if self._polygon_colors:
-            from functools import reduce
-
-            pieces = self._split_colored()
-            extruded = [
-                p.linear_extrude(
-                    height,
-                    center=center,
-                    twist=twist,
-                    scale=scale,
-                    slices=slices,
-                    fn=fn,
-                    fa=fa,
-                    fs=fs,
+        pieces = self._split_polygons()
+        if len(pieces) == 1:
+            # Single polygon: use the backend's native outline+holes path
+            if current_backend() != "csg" and pieces[0].holes:
+                raise UnsupportedByBackendError(
+                    "linear_extrude (region with holes)",
+                    current_backend(),
+                    hint="the sdf prism unions its outlines' fields, so it cannot cut holes. "
+                    "Extrude the outline and subtract the holes' own extrusions, or build "
+                    "it on the csg backend.",
                 )
-                for p in pieces
-            ]
-            return reduce(lambda a, b: a | b, extruded)
+            from pybosl2._backend import given_arguments
 
-        if current_backend() != "csg" and self.holes:
-            raise UnsupportedByBackendError(
-                "linear_extrude (region with holes)",
-                current_backend(),
-                hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "
-                "the outline and subtract the holes' own extrusions, or build it on the csg backend.",
+            result = get_backend().linear_extrude(
+                list(pieces[0].paths),
+                height,
+                given_arguments(
+                    {
+                        "center": center,
+                        "twist": twist,
+                        "scale": scale,
+                        "slices": slices,
+                        "fn": fn,
+                        "fa": fa,
+                        "fs": fs,
+                    }
+                ),
             )
-        from pybosl2._backend import given_arguments
+            if pieces[0]._color is not None and hasattr(result, "color"):
+                result = result.color(pieces[0]._color)
+            return result
 
-        result = get_backend().linear_extrude(
-            list(self.paths),
-            height,
-            given_arguments(
-                {
-                    "center": center,
-                    "twist": twist,
-                    "scale": scale,
-                    "slices": slices,
-                    "fn": fn,
-                    "fa": fa,
-                    "fs": fs,
-                }
-            ),
-        )
-        if self._color is not None and hasattr(result, "color"):
-            result = result.color(self._color)
-        return result
+        extruded = [
+            p.linear_extrude(
+                height,
+                center=center,
+                twist=twist,
+                scale=scale,
+                slices=slices,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
+            for p in pieces
+        ]
+        return reduce(lambda a, b: a | b, extruded)
 
     def rotate_extrude(
         self,
@@ -794,7 +831,7 @@ class Region:
     def intersection(self, other: Region | Path2D) -> "Region":
         """Return the 2-D intersection of this region with other (the area they share).
 
-        Uses shapely for exact polygon coordinates.
+        Uses shapely for exact polygon coordinates.  The result inherits *self*'s colour.
 
         Args:
             other: the region to intersect with.
@@ -821,12 +858,15 @@ class Region:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
         r._polygon = result
+        r._color = self._color
         return r
 
     def union(self, other: Region | Path2D) -> "Region":
         """Return the 2-D union of this region and other (all area covered by either).
 
-        Uses shapely for exact polygon coordinates.
+        Uses shapely for exact polygon coordinates.  When *self* and *other* carry different
+        colours, the union inherits *self*'s colour -- the first path in the set wins the
+        overlap.
 
         Args:
             other: the region to union with.
@@ -853,12 +893,13 @@ class Region:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
         r._polygon = result
+        r._color = self._color
         return r
 
     def difference(self, other: Region | Path2D) -> "Region":
         """Return the 2-D difference: self with the area of other subtracted.
 
-        Uses shapely for exact polygon coordinates.
+        Uses shapely for exact polygon coordinates.  The result inherits *self*'s colour.
 
         Args:
             other: the region to subtract.
@@ -885,12 +926,13 @@ class Region:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
         r._polygon = result
+        r._color = self._color
         return r
 
     def symmetric_difference(self, other: Region | Path2D) -> "Region":
         """Return the 2-D symmetric difference (XOR): area in either region but not both.
 
-        Uses shapely for exact polygon coordinates.
+        Uses shapely for exact polygon coordinates.  The result inherits *self*'s colour.
 
         Args:
             other: the region to xor with.
@@ -906,6 +948,7 @@ class Region:
             return Region([])
         r = Region(_flatten_shapely_to_paths(result))
         r._polygon = result
+        r._color = self._color
         return r
 
     # Operator overloads for convenience (mirror Bosl2Shape2D's &/|/- operators).

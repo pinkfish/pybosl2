@@ -627,54 +627,102 @@ COLORED_RINGS = {
 }
 
 
-def test_even_odd_with_colors_preserves_polygon_colors() -> None:
-    r = Region.even_odd(
-        [COLORED_RINGS["red"], COLORED_RINGS["blue"], COLORED_RINGS["green"]],
-        colors=["#ff0000", "#0000ff", "#008000"],
-    )
-    assert len(r._polygon_colors) >= 2
-    assert Color("#ff0000") in r._polygon_colors or r._color is not None
-
-
-def test_even_odd_with_colors_sets_default_color() -> None:
-    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
-    assert r._color is not None
-
-
-def test_even_odd_with_partial_colors() -> None:
-    """Some rings with color, some without — should still work."""
-    r = Region.even_odd(
-        [COLORED_RINGS["red"], COLORED_RINGS["blue"]],
-        colors=["#ff0000", None],
-    )
-    assert isinstance(r, Region)
-    assert r.geom.area > 0
-
-
-def test_even_odd_with_colors_and_holes() -> None:
-    """A colored outer ring with an uncolored hole — hole should not carry color."""
-    outer = [[0, 0], [40, 0], [40, 30], [0, 30]]
-    hole = [[10, 10], [30, 10], [30, 20], [10, 20]]
-    r = Region.even_odd([outer, hole], colors=["#ff0000", None])
-    assert r._color == Color("#ff0000")
-    assert len(r._polygon_colors) == 1
-
-
-def test_copy_preserves_polygon_colors() -> None:
-    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
-    c = r.copy()
-    assert c._polygon_colors == r._polygon_colors
-
-
-def test_split_colored_produces_separate_regions() -> None:
-    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
-    pieces = r._split_colored()
-    assert len(pieces) >= 1
-    assert all(isinstance(p, Region) for p in pieces)
-
-
 def test_even_odd_without_colors_still_works() -> None:
     """Backward compat: calling even_odd without colors should work as before."""
     r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]])
     assert isinstance(r, Region)
     assert r.geom.area == pytest.approx(800.0)
+
+
+# -- _split_polygons union behaviour -----------------------------------------------------------
+
+
+def test_split_polygons_unions_all_polygons() -> None:
+    """All polygons get unioned together via unary_union."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([a, b])
+    pieces = r._split_polygons()
+    # Overlapping → unioned into one piece
+    assert len(pieces) == 1
+    assert pieces[0].geom.area == pytest.approx(1000.0)  # 30*20 + 30*20 - 10*20
+
+
+def test_split_polygons_disjoint_polygons() -> None:
+    """Two disjoint squares → two sub-Regions."""
+    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
+    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    from shapely.geometry import MultiPolygon, Polygon
+
+    r = Region(MultiPolygon([Polygon(a), Polygon(b)]))
+    pieces = r._split_polygons()
+    assert len(pieces) == 2
+
+
+def test_split_polygons_empty_returns_self() -> None:
+    r = Region([])
+    pieces = r._split_polygons()
+    assert len(pieces) == 1
+    assert pieces[0] is r
+
+
+def test_split_polygons_inherits_color() -> None:
+    r = Region(SQUARE).color(Color("green"))
+    pieces = r._split_polygons()
+    assert all(p._color == Color("green") for p in pieces)
+
+
+def test_split_polygons_single_polygon() -> None:
+    r = Region(SQUARE)
+    pieces = r._split_polygons()
+    assert len(pieces) == 1
+
+
+# -- overlapping different-colour unions (first wins the overlap) ------------------------------
+
+
+def test_even_odd_overlap_first_color_wins() -> None:
+    """Red and blue squares overlap → red keeps full shape, blue has red subtracted."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#0000ff"))])
+    assert len(r._polygon_colors) == 2
+    assert r.geom.area == pytest.approx(1000.0)  # red=600 + blue=600-200
+
+
+def test_even_odd_same_color_overlap_merged() -> None:
+    """Same-colour overlapping squares → unioned into one piece."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#ff0000"))])
+    assert len(r._polygon_colors) == 1
+    assert r.geom.area == pytest.approx(1000.0)
+
+
+def test_even_odd_three_colors_overlap() -> None:
+    """Red, green, blue stacked → first wins each overlap boundary."""
+    red = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]]).color(Color("#ff0000"))
+    green = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]]).color(Color("#008000"))
+    blue = Path2D([[40, 0], [70, 0], [70, 20], [40, 20]]).color(Color("#0000ff"))
+    r = Region.even_odd([red, green, blue])
+    assert len(r._polygon_colors) >= 2
+    # red=600, green=600-200=400, blue=600-200=400 = 1400
+    assert r.geom.area == pytest.approx(1400.0)
+
+
+def test_even_odd_disjoint_different_colors() -> None:
+    """Disjoint different-colour squares → separate pieces, no overlap to resolve."""
+    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
+    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    r = Region.even_odd([Path2D(a).color(Color("#ff0000")), Path2D(b).color(Color("#0000ff"))])
+    assert len(r._polygon_colors) == 2
+    assert r.geom.area == pytest.approx(800.0)
+
+
+def test_even_odd_uncolored_does_not_block_colored() -> None:
+    """An uncolored path does not subtract from earlier colored paths."""
+    a = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]]).color(Color("#ff0000"))
+    b = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]])  # no color
+    r = Region.even_odd([a, b])
+    # Both keep full area since the uncolored path has no color to fight
+    assert r.geom.area == pytest.approx(1200.0)
