@@ -504,6 +504,70 @@ def test_color_persists_across_copy() -> None:
     assert r.copy()._color == Color("red")
 
 
+# -- color_all ---------------------------------------------------------------------------------
+
+
+def test_color_all_sets_single_color() -> None:
+    r = Region(SQUARE).color_all(Color("blue"))
+    assert r._color == Color("blue")
+    assert r._polygon_colors == []
+
+
+def test_color_all_unions_overlapping_polygons() -> None:
+    """Two overlapping squares with different colors → color_all merges them."""
+    a = Path2D([[0, 0], [30, 0], [30, 20], [0, 20]]).color(Color("#ff0000"))
+    b = Path2D([[20, 0], [50, 0], [50, 20], [20, 20]]).color(Color("#0000ff"))
+    r = Region.even_odd([a, b])
+    assert len(r._polygon_colors) >= 2  # two colors before
+    simplified = r.color_all(Color("green"))
+    assert simplified._color == Color("green")
+    assert simplified._polygon_colors == []
+    # Overlapping merged: 30*20 + 30*20 - 10*20 = 1000
+    assert simplified.geom.area == pytest.approx(1000.0)
+
+
+def test_color_all_clears_polygon_colors() -> None:
+    """After color_all, _polygon_colors should be empty."""
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("#ff0000"))
+    b = Path2D([[40, 0], [60, 0], [60, 20], [40, 20]]).color(Color("#0000ff"))
+    r = Region.even_odd([a, b])
+    assert len(r._polygon_colors) == 2
+    result = r.color_all(Color("cyan"))
+    assert result._polygon_colors == []
+
+
+def test_color_all_on_single_polygon() -> None:
+    r = Region(SQUARE).color_all(Color("red"))
+    assert r._color == Color("red")
+    assert r.geom.area == pytest.approx(4800.0)
+
+
+def test_color_all_on_empty_region() -> None:
+    r = Region([]).color_all(Color("red"))
+    assert r._color == Color("red")
+    assert r._polygon_colors == []
+    assert r.geom.is_empty
+
+
+def test_color_all_does_not_modify_original() -> None:
+    a = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("#ff0000"))
+    b = Path2D([[40, 0], [60, 0], [60, 20], [40, 20]]).color(Color("#0000ff"))
+    r = Region.even_odd([a, b])
+    original_colors = list(r._polygon_colors)
+    r.color_all(Color("yellow"))
+    assert r._polygon_colors == original_colors  # original unchanged
+
+
+def test_color_all_flattens_disjoint_polygons() -> None:
+    """Two disjoint squares with same color stay separate after color_all union."""
+    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
+    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    r = Region.even_odd([Path2D(a), Path2D(b)]).color_all(Color("red"))
+    assert r._color == Color("red")
+    # Disjoint → unary_union keeps them as separate geoms in MultiPolygon
+    assert r.geom.area == pytest.approx(800.0)
+
+
 # -- geometry() with multi-polygon regions ----------------------------------------------------
 
 

@@ -150,6 +150,33 @@ class Region:
         copy._color = c
         return copy
 
+    def color_all(self, c: "Color") -> "Region":
+        """Return a simplified copy with every polygon set to the same colour.
+
+        All polygons are unioned together (same-colour overlaps merge into one
+        shape) and the per-polygon colour list is collapsed to a single entry.
+        The result has :attr:`_polygon_colors` cleared since every piece is the
+        same colour, and :attr:`_color` set to *c*.
+
+        Args:
+            c: The colour to apply to every polygon.  Must not be ``None``.
+
+        Returns:
+            A new :class:`Region` where every polygon has colour *c* and
+            overlapping polygons are merged into non-overlapping pieces.
+
+        """
+        from shapely.ops import unary_union as _unary_union
+
+        new = self.copy()
+        new._color = c
+        polys = list(new._polygon.geoms) if isinstance(new._polygon, MultiPolygon) else [new._polygon]
+        if polys:
+            merged = _unary_union(polys)
+            new._polygon = MultiPolygon([merged]) if isinstance(merged, Polygon) else merged
+        new._polygon_colors = []
+        return new
+
     def copy(self) -> "Region":
         """Return a shallow copy of this region."""
         c = Region.__new__(Region)
