@@ -1,0 +1,3167 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="shapes3d.html">
+      
+      
+        <link rel="next" href="cylinder.html">
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>Cuboid - pybosl2 (PythonSCAD port) 0.7.5 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=c6f4cd80" />
+        <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pybosl2.shapes3d.cuboid.roof" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.5 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.5 documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.5 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cuboid
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="index.html" title="pybosl2 (PythonSCAD port) 0.7.5 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.5 documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.5 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> CSG &amp; SDF backends</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Colour operators <wbr>(Colorable mixin) via Python&#39;s colorsys module</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Constants provided by BOSL2 <wbr>(BOSL2 constants.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Return Distributors:<wbr> line/grid/ring/arc/sphere/path copiers and reflected copies</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Cut rounded edge/corner/face profiles into a cuboid <wbr>(BOSL2 masks2d/masks3d)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="partitions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Planar half-<wbr>cuts and interlocking partitions <wbr>(jigsaw/dovetail/...<wbr> joints)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Statically typed shape constructors and backend-<wbr>neutral solid facade</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="texture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> The texture<wbr>() named-<wbr>texture engine <wbr>(BOSL2 skin.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Affine-<wbr>matrix reorient/apply and polar_<wbr>to_<wbr>xy <wbr>(BOSL2 transforms.<wbr>scad, coords.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Drawing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> 2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_11" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="shapes3d.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <span> 3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_11" id="__nav_2_11_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_11_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_11">
+            <span class="md-nav__icon md-icon"></span>
+            <span> 3-<wbr>D Shapes</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>Cuboid</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cuboid</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.roof" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.roof (Python function) — Raise a hip roof over a 2-D shape via its straight skeleton (native roof())."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>roof</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.roof">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.roof-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.roof-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cube" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.cube (Python function) — Return a cube with optional chamfering or rounding of edges and corners."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>cube</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.cube">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cube-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cube-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cuboid" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.cuboid (Python function) — Return a cube/cuboid with optional chamfering or rounding of edges and corners."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>cuboid</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.cuboid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cuboid-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cuboid-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.prismoid" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.prismoid (Python function) — Return a rectangular prismoid, built as the convex hull() of two (optionally rounded/chamfered) rects."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>prismoid</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.prismoid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.prismoid-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.prismoid-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.octahedron" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.octahedron (Python function) — Return an octahedron with axis-aligned points, built directly with polyhedron()."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>octahedron</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.octahedron">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.octahedron-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.octahedron-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.wedge" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.wedge (Python function) — Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, built directly with polyhedron()."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>wedge</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.wedge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.wedge-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.wedge-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.rect_tube" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.rect_tube (Python function) — BOSL2 rect_tube() -- a rectangular tube (a rectangle with a rectangular hole through it)."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>rect_<wbr>tube</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.rect_tube">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.rect_tube-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.rect_tube-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.regular_prism" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.regular_prism (Python function) — Return a regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>regular_<wbr>prism</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.regular_prism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.regular_prism-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.regular_prism-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cylinder.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cylinder &amp; Cone</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sphere.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sphere &amp; Teardrop</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="torus.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Torus</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extrusions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Extrusions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Native ops</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Evaluate, analyze and build Bezier curves, paths, and surface patches <wbr>(BOSL2 beziers.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="isosurface.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Metaball field primitives for VNF isosurface meshing <wbr>(BOSL2 metaballs3d.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> NURBS curve/surface evaluation and meshing <wbr>(de Boor)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span> Abstract :<wbr>class:<wbr>`Path` base class for 2-<wbr>D and 3-<wbr>D path types</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Object API for 2-<wbr>D paths and regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Path-<wbr>rounding core:<wbr> round_<wbr>corners and smooth_<wbr>path <wbr>(BOSL2 rounding.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Surface generators:<wbr> sweep, path_<wbr>sweep, skin, linear_<wbr>sweep, rotate_<wbr>sweep, spiral_<wbr>sweep <wbr>(BOSL2 skin.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Load SVG drawings into a Region of outlines</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> 3-<wbr>D turtle graphics <wbr>(the Turtle class)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vnf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> VNF <wbr>(vertices+faces) surface structure and grid meshing <wbr>(BOSL2 vnf.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Points, lines and polygon geometry helpers <wbr>(BOSL2 geometry.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> General numeric helpers and numerical calculus <wbr>(BOSL2 math.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Class-<wbr>based Quaternion representation and mathematics for 3-<wbr>D rotations</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Vector predicates and scalar-<wbr>vector operations <wbr>(BOSL2 vectors.<wbr>scad)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Standard ball-<wbr>bearing cartridge models &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> PCO-<wbr>1810 / PCO-<wbr>1881 bottle necks and caps &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Modular cubical truss segments and trusses &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Strongly-<wbr>typed enums for the pybosl2 parts library</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Gears:<wbr> spur <wbr>(with undercut), helical, herringbone, rack, ring, bevel, worm &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Living <wbr>(folding) hinges, knuckle hinges, and snap connectors &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Hooks and hook-<wbr>like parts <wbr>(the ring hook) &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Dovetail joints and snap-<wbr>pin connectors &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Linear <wbr>(LMx<wbr>UU) ball bearings and their pillow-<wbr>block housings &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Modular <wbr>(Loc-<wbr>Line style) ball-<wbr>and-<wbr>socket hose segments &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> NEMA stepper-<wbr>motor models and mounting masks &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> The five Platonic solids as watertight polyhedra &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Phillips, hex, Torx and Robertson driver-<wbr>recess masks &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Metric screws, nuts and screw holes built on the threading port</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> V-<wbr>groove sliders and rails &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Screw threading:<wbr> threaded rods and nuts <wbr>(ISO/trapezoidal/acme/square/buttress) &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Tripod mount plates:<wbr> RC2 &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> FDM-<wbr>optimised walls:<wbr> sparse, corrugated, thinning and struts &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Routed bundles of wires &amp;#128736;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Extrusions, bounding box, chain hull, and minkowski-<wbr>based transforms</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.roof" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.roof (Python function) — Raise a hip roof over a 2-D shape via its straight skeleton (native roof())."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>roof</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.roof">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.roof-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.roof-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cube" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.cube (Python function) — Return a cube with optional chamfering or rounding of edges and corners."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>cube</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.cube">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cube-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cube-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cuboid" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.cuboid (Python function) — Return a cube/cuboid with optional chamfering or rounding of edges and corners."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>cuboid</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.cuboid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cuboid-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.cuboid-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.prismoid" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.prismoid (Python function) — Return a rectangular prismoid, built as the convex hull() of two (optionally rounded/chamfered) rects."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>prismoid</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.prismoid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.prismoid-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.prismoid-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.octahedron" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.octahedron (Python function) — Return an octahedron with axis-aligned points, built directly with polyhedron()."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>octahedron</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.octahedron">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.octahedron-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.octahedron-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.wedge" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.wedge (Python function) — Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, built directly with polyhedron()."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>wedge</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.wedge">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.wedge-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.wedge-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.rect_tube" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.rect_tube (Python function) — BOSL2 rect_tube() -- a rectangular tube (a rectangle with a rectangular hole through it)."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>rect_<wbr>tube</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.rect_tube">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.rect_tube-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.rect_tube-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.regular_prism" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.shapes3d.cuboid.regular_prism (Python function) — Return a regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon."><span>pybosl2.<wbr>shapes3d.<wbr>cuboid.<wbr>regular_<wbr>prism</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.shapes3d.cuboid.regular_prism">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.regular_prism-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.shapes3d.cuboid.regular_prism-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="cuboid">Cuboid<a class="headerlink" href="#cuboid" title="Link to this heading">¶</a></h1>
+<p style="margin-top:0;margin-bottom:1.2em">&#9881;&#65039; <b><a href="specs/shapes3d.html">Spec sheet &rarr;</a></b> &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.</p><p id="module-pybosl2.shapes3d.cuboid">Cubes, prismoids, wedges and general polygonal prism shapes.</p>
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.shapes3d.cuboid.roof">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">roof</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.roof.shape" title="pybosl2.shapes3d.cuboid.roof.shape (Python parameter)"><span class="n"><span class="pre">shape</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.roof.method" title="pybosl2.shapes3d.cuboid.roof.method (Python parameter)"><span class="n"><span class="pre">method</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;straight&#39;</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#roof"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.roof" title="Link to this definition">¶</a></dt>
+<dd><p>Raise a hip roof over a 2-D <em>shape</em> via its straight skeleton (native <code class="docutils literal notranslate"><span class="pre">roof()</span></code>).</p>
+<p>Like <code class="xref py py-func docutils literal notranslate"><span class="pre">linear_sweep()</span></code>, this turns a 2-D outline into a 3-D solid, but the top is
+a peaked roof (each edge slopes inward at 45 degrees to the skeleton) rather than a flat
+extrusion. <em>shape</em> is any 2-D object – a native <code class="docutils literal notranslate"><span class="pre">square</span></code>/<code class="docutils literal notranslate"><span class="pre">circle</span></code>/<code class="docutils literal notranslate"><span class="pre">polygon</span></code>, a
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Path2D.polygon()</span></code>, or a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> wrapping one. <em>method</em> selects the skeleton
+algorithm. PythonSCAD-only (no BOSL2 counterpart); covered by the STL render tests.</p>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">roof</span><span class="p">,</span> <span class="n">shapes2d</span> <span class="k">as</span> <span class="n">s2</span>
+
+<span class="n">roof</span><span class="p">(</span><span class="n">s2</span><span class="o">.</span><span class="n">square</span><span class="p">([</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/44b01e06eb1dfa4f.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/44b01e06eb1dfa4f.stl">⬇ Download STL mesh</a></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.roof-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.roof-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.roof.shape"><span class="sig-name descname">shape</span><span class="p"> : </span><span class="desctype"><span class="desctype">object</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.roof.shape" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.roof.method"><span class="sig-name descname">method</span><span class="p"> : </span><span class="desctype"><span class="desctype">str</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.roof.method" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.roof-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.roof-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>CsgSolid</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.cube">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">cube</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.size" title="pybosl2.shapes3d.cuboid.cube.size (Python parameter) — size of the cube, a number or length-3 vector"><span class="n"><span class="pre">size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.center" title="pybosl2.shapes3d.cuboid.cube.center (Python parameter) — if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.chamfer" title="pybosl2.shapes3d.cuboid.cube.chamfer (Python parameter) — chamfer size along all edges (default none)"><span class="n"><span class="pre">chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.rounding" title="pybosl2.shapes3d.cuboid.cube.rounding (Python parameter) — rounding radius along all edges (default none)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.edges" title="pybosl2.shapes3d.cuboid.cube.edges (Python parameter) — edge specifier — &quot;ALL&quot;, &quot;NONE&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;, or list of direction vectors"><span class="n"><span class="pre">edges</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.except_edges" title="pybosl2.shapes3d.cuboid.cube.except_edges (Python parameter) — edges to exclude from chamfer/rounding"><span class="n"><span class="pre">except_edges</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.trimcorners" title="pybosl2.shapes3d.cuboid.cube.trimcorners (Python parameter) — trim corners where 3+ edges meet (default True)"><span class="n"><span class="pre">trimcorners</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.teardrop" title="pybosl2.shapes3d.cuboid.cube.teardrop (Python parameter) — limit the overhang angle for FDM printing (default False)"><span class="n"><span class="pre">teardrop</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.anchor" title="pybosl2.shapes3d.cuboid.cube.anchor (Python parameter) — anchor point (default Anchor.CENTER)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.spin" title="pybosl2.shapes3d.cuboid.cube.spin (Python parameter) — Z-axis rotation in degrees after anchor (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.orient" title="pybosl2.shapes3d.cuboid.cube.orient (Python parameter) — direction to rotate the top towards, after spin (default Anchor.TOP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.fn" title="pybosl2.shapes3d.cuboid.cube.fn (Python parameter) — arc smoothness overrides"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.fa" title="pybosl2.shapes3d.cuboid.cube.fa (Python parameter) — arc smoothness overrides"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cube.fs" title="pybosl2.shapes3d.cuboid.cube.fs (Python parameter) — arc smoothness overrides"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#cube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube" title="Link to this definition">¶</a></dt>
+<dd><p>Return a cube with optional chamfering or rounding of edges and corners.</p>
+<p>Delegates to <a class="reference internal" href="#pybosl2.shapes3d.cuboid.cuboid" title="pybosl2.shapes3d.cuboid.cuboid (Python function) — Return a cube/cuboid with optional chamfering or rounding of edges and corners."><code class="xref py py-func docutils literal notranslate"><span class="pre">cuboid()</span></code></a> with the full set of edge/corner chamfer and rounding options.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.cube-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.cube.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.size" title="Permalink to this definition">¶</a></dt><dd><p>size of the cube, a number or length-3 vector</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.center" title="Permalink to this definition">¶</a></dt><dd><p>if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.chamfer"><span class="sig-name descname">chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.chamfer" title="Permalink to this definition">¶</a></dt><dd><p>chamfer size along all edges (default none)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.rounding" title="Permalink to this definition">¶</a></dt><dd><p>rounding radius along all edges (default none)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.edges"><span class="sig-name descname">edges</span><span class="p"> : </span><span class="desctype"><span class="desctype">EdgeAtom | list[EdgeAtom]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.edges" title="Permalink to this definition">¶</a></dt><dd><p>edge specifier — “ALL”, “NONE”, “X”, “Y”, “Z”, or list of direction vectors</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.except_edges"><span class="sig-name descname">except_edges</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[EdgeAtom] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.except_edges" title="Permalink to this definition">¶</a></dt><dd><p>edges to exclude from chamfer/rounding</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.trimcorners"><span class="sig-name descname">trimcorners</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.trimcorners" title="Permalink to this definition">¶</a></dt><dd><p>trim corners where 3+ edges meet (default True)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.teardrop"><span class="sig-name descname">teardrop</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.teardrop" title="Permalink to this definition">¶</a></dt><dd><p>limit the overhang angle for FDM printing (default False)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default Anchor.CENTER)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees after anchor (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards, after spin (default Anchor.TOP)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.fn" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.fa" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cube.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube.fs" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.cube-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cube-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<p>Basic cube:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span>
+
+<span class="n">cube</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/7ae38ae508700809.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7ae38ae508700809.stl">⬇ Download STL mesh</a></p>
+<p>Cube with chamfered edges:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span>
+
+<span class="n">cube</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/d071f3ceff8d0084.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/d071f3ceff8d0084.stl">⬇ Download STL mesh</a></p>
+<p>Cube with rounded edges:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span>
+
+<span class="n">cube</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/eec46b4147920f2a.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/eec46b4147920f2a.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.cuboid">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">cuboid</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.size" title="pybosl2.shapes3d.cuboid.cuboid.size (Python parameter) — size of the cuboid, a number or length-3 vector"><span class="n"><span class="pre">size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.p1" title="pybosl2.shapes3d.cuboid.cuboid.p1 (Python parameter) — align the cuboid's corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT)"><span class="n"><span class="pre">p1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.p2" title="pybosl2.shapes3d.cuboid.cuboid.p2 (Python parameter) — if given with p1, defines the cuboid's opposing cornerpoint"><span class="n"><span class="pre">p2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.chamfer" title="pybosl2.shapes3d.cuboid.cuboid.chamfer (Python parameter) — chamfer size, inset from sides (default: no chamfer)"><span class="n"><span class="pre">chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.rounding" title="pybosl2.shapes3d.cuboid.cuboid.rounding (Python parameter) — edge rounding radius (default: no rounding)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.edges" title="pybosl2.shapes3d.cuboid.cuboid.edges (Python parameter) — edges to mask (default &quot;ALL&quot;)"><span class="n"><span class="pre">edges</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.except_edges" title="pybosl2.shapes3d.cuboid.cuboid.except_edges (Python parameter) — edges to explicitly not mask (BOSL2's except= synonym; except is a Python keyword)"><span class="n"><span class="pre">except_edges</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.trimcorners" title="pybosl2.shapes3d.cuboid.cuboid.trimcorners (Python parameter) — round/chamfer corners where three treated edges meet (default True)"><span class="n"><span class="pre">trimcorners</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.teardrop" title="pybosl2.shapes3d.cuboid.cuboid.teardrop (Python parameter) — enable teardrop rounding (not supported by this pure-Python port)"><span class="n"><span class="pre">teardrop</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.anchor" title="pybosl2.shapes3d.cuboid.cuboid.anchor (Python parameter) — anchor point (default Anchor.CENTER)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.spin" title="pybosl2.shapes3d.cuboid.cuboid.spin (Python parameter) — Z-axis rotation in degrees (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.orient" title="pybosl2.shapes3d.cuboid.cuboid.orient (Python parameter) — direction to rotate the top towards (default Anchor.TOP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.fn" title="pybosl2.shapes3d.cuboid.cuboid.fn (Python parameter) — arc smoothness overrides for rounded edges/corners"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.fa" title="pybosl2.shapes3d.cuboid.cuboid.fa (Python parameter) — arc smoothness overrides for rounded edges/corners"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.cuboid.fs" title="pybosl2.shapes3d.cuboid.cuboid.fs (Python parameter) — arc smoothness overrides for rounded edges/corners"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#cuboid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid" title="Link to this definition">¶</a></dt>
+<dd><p>Return a cube/cuboid with optional chamfering or rounding of edges and corners.</p>
+<p>Built directly from cube()/cylinder()/sphere()/hull()/minkowski(), mirroring BOSL2’s own
+cuboid() algorithm (which is itself CSG composition of primitive shapes at each corner,
+not raw polyhedron mesh math).</p>
+<p>You cannot mix chamfering and rounding on the same call. Negative chamfers/roundings
+create external fillets, but only apply to edges around the top or bottom face.</p>
+<p>Note: <cite>teardrop=</cite> is not supported by this pure-Python port.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.cuboid-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.cuboid.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.size" title="Permalink to this definition">¶</a></dt><dd><p>size of the cuboid, a number or length-3 vector</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.p1"><span class="sig-name descname">p1</span><span class="p"> : </span><span class="desctype"><span class="desctype">Point | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.p1" title="Permalink to this definition">¶</a></dt><dd><p>align the cuboid’s corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.p2"><span class="sig-name descname">p2</span><span class="p"> : </span><span class="desctype"><span class="desctype">Point | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.p2" title="Permalink to this definition">¶</a></dt><dd><p>if given with p1, defines the cuboid’s opposing cornerpoint</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.chamfer"><span class="sig-name descname">chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.chamfer" title="Permalink to this definition">¶</a></dt><dd><p>chamfer size, inset from sides (default: no chamfer)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.rounding" title="Permalink to this definition">¶</a></dt><dd><p>edge rounding radius (default: no rounding)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.edges"><span class="sig-name descname">edges</span><span class="p"> : </span><span class="desctype"><span class="desctype">EdgeAtom | list[EdgeAtom]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.edges" title="Permalink to this definition">¶</a></dt><dd><p>edges to mask (default <code class="docutils literal notranslate"><span class="pre">&quot;ALL&quot;</span></code>)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.except_edges"><span class="sig-name descname">except_edges</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[EdgeAtom] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.except_edges" title="Permalink to this definition">¶</a></dt><dd><p>edges to explicitly not mask (BOSL2’s <cite>except=</cite> synonym; <cite>except</cite> is a Python keyword)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.trimcorners"><span class="sig-name descname">trimcorners</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.trimcorners" title="Permalink to this definition">¶</a></dt><dd><p>round/chamfer corners where three treated edges meet (default True)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.teardrop"><span class="sig-name descname">teardrop</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.teardrop" title="Permalink to this definition">¶</a></dt><dd><p>enable teardrop rounding (not supported by this pure-Python port)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default Anchor.CENTER)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards (default Anchor.TOP)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.fn" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides for rounded edges/corners</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.fa" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides for rounded edges/corners</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.cuboid.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid.fs" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides for rounded edges/corners</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.cuboid-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.cuboid-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/b91431a314cdfbbb.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/b91431a314cdfbbb.stl">⬇ Download STL mesh</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/2f7a7eb92ff3d914.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/2f7a7eb92ff3d914.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.prismoid">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">prismoid</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.size1" title="pybosl2.shapes3d.cuboid.prismoid.size1 (Python parameter) — [width, length] of the bottom end"><span class="n"><span class="pre">size1</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.size2" title="pybosl2.shapes3d.cuboid.prismoid.size2 (Python parameter) — [width, length] of the top end"><span class="n"><span class="pre">size2</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.height" title="pybosl2.shapes3d.cuboid.prismoid.height (Python parameter) — height of the prism"><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.shift" title="pybosl2.shapes3d.cuboid.prismoid.shift (Python parameter) — [X,Y] shift of the top center relative to the bottom center"><span class="n"><span class="pre">shift</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.rounding" title="pybosl2.shapes3d.cuboid.prismoid.rounding (Python parameter) — vertical-edge roundover radius, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.rounding1" title="pybosl2.shapes3d.cuboid.prismoid.rounding1 (Python parameter) — roundover radius for the bottom of the vertical-ish edges"><span class="n"><span class="pre">rounding1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.rounding2" title="pybosl2.shapes3d.cuboid.prismoid.rounding2 (Python parameter) — roundover radius for the top of the vertical-ish edges"><span class="n"><span class="pre">rounding2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.chamfer" title="pybosl2.shapes3d.cuboid.prismoid.chamfer (Python parameter) — vertical-edge chamfer size, or per-corner list (default 0)"><span class="n"><span class="pre">chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.chamfer1" title="pybosl2.shapes3d.cuboid.prismoid.chamfer1 (Python parameter) — chamfer size for the bottom of the vertical-ish edges"><span class="n"><span class="pre">chamfer1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.chamfer2" title="pybosl2.shapes3d.cuboid.prismoid.chamfer2 (Python parameter) — chamfer size for the top of the vertical-ish edges"><span class="n"><span class="pre">chamfer2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.length" title="pybosl2.shapes3d.cuboid.prismoid.length (Python parameter) — height of the prism"><span class="n"><span class="pre">length</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.center" title="pybosl2.shapes3d.cuboid.prismoid.center (Python parameter) — if given, overrides anchor"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.anchor" title="pybosl2.shapes3d.cuboid.prismoid.anchor (Python parameter) — anchor point (default BOTTOM)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.spin" title="pybosl2.shapes3d.cuboid.prismoid.spin (Python parameter) — Z-axis rotation in degrees after anchor (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.orient" title="pybosl2.shapes3d.cuboid.prismoid.orient (Python parameter) — direction to rotate the top towards, after spin (default UP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.fn" title="pybosl2.shapes3d.cuboid.prismoid.fn (Python parameter) — arc smoothness overrides for rounded corners"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.fa" title="pybosl2.shapes3d.cuboid.prismoid.fa (Python parameter) — arc smoothness overrides for rounded corners"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.prismoid.fs" title="pybosl2.shapes3d.cuboid.prismoid.fs (Python parameter) — arc smoothness overrides for rounded corners"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#prismoid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid" title="Link to this definition">¶</a></dt>
+<dd><p>Return a rectangular prismoid, built as the convex hull() of two (optionally rounded/chamfered) rects.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.prismoid-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.prismoid.size1"><span class="sig-name descname">size1</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.size1" title="Permalink to this definition">¶</a></dt><dd><p>[width, length] of the bottom end</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.size2"><span class="sig-name descname">size2</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.size2" title="Permalink to this definition">¶</a></dt><dd><p>[width, length] of the top end</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.height" title="Permalink to this definition">¶</a></dt><dd><p>height of the prism</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.length" title="Permalink to this definition">¶</a></dt><dd><p>height of the prism</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.shift"><span class="sig-name descname">shift</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.shift" title="Permalink to this definition">¶</a></dt><dd><p>[X,Y] shift of the top center relative to the bottom center</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.rounding" title="Permalink to this definition">¶</a></dt><dd><p>vertical-edge roundover radius, or per-corner list [X+Y+,X-Y+,X-Y-,X+Y-] (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.rounding1"><span class="sig-name descname">rounding1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.rounding1" title="Permalink to this definition">¶</a></dt><dd><p>roundover radius for the bottom of the vertical-ish edges</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.rounding2"><span class="sig-name descname">rounding2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.rounding2" title="Permalink to this definition">¶</a></dt><dd><p>roundover radius for the top of the vertical-ish edges</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.chamfer"><span class="sig-name descname">chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.chamfer" title="Permalink to this definition">¶</a></dt><dd><p>vertical-edge chamfer size, or per-corner list (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.chamfer1"><span class="sig-name descname">chamfer1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.chamfer1" title="Permalink to this definition">¶</a></dt><dd><p>chamfer size for the bottom of the vertical-ish edges</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.chamfer2"><span class="sig-name descname">chamfer2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.chamfer2" title="Permalink to this definition">¶</a></dt><dd><p>chamfer size for the top of the vertical-ish edges</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.center" title="Permalink to this definition">¶</a></dt><dd><p>if given, overrides anchor</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default BOTTOM)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees after anchor (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards, after spin (default UP)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.fn" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides for rounded corners</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.fa" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides for rounded corners</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.prismoid.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid.fs" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides for rounded corners</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.prismoid-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.prismoid-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">prismoid</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/b4eb6b962364f17d.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/b4eb6b962364f17d.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.octahedron">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">octahedron</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.octahedron.size" title="pybosl2.shapes3d.cuboid.octahedron.size (Python parameter) — width of the octahedron, tip to tip"><span class="n"><span class="pre">size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.octahedron.anchor" title="pybosl2.shapes3d.cuboid.octahedron.anchor (Python parameter) — anchor point (default CENTER)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.octahedron.spin" title="pybosl2.shapes3d.cuboid.octahedron.spin (Python parameter) — Z-axis rotation in degrees after anchor (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.octahedron.orient" title="pybosl2.shapes3d.cuboid.octahedron.orient (Python parameter) — direction to rotate the top towards, after spin (default UP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#octahedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron" title="Link to this definition">¶</a></dt>
+<dd><p>Return an octahedron with axis-aligned points, built directly with polyhedron().</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.octahedron-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.octahedron.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron.size" title="Permalink to this definition">¶</a></dt><dd><p>width of the octahedron, tip to tip</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.octahedron.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default CENTER)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.octahedron.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees after anchor (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.octahedron.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards, after spin (default UP)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.octahedron-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.octahedron-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">octahedron</span>
+
+<span class="n">octahedron</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/3727d3f17ef60d92.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/3727d3f17ef60d92.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.wedge">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">wedge</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.wedge.size" title="pybosl2.shapes3d.cuboid.wedge.size (Python parameter) — [width, thickness, height]"><span class="n"><span class="pre">size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.wedge.center" title="pybosl2.shapes3d.cuboid.wedge.center (Python parameter) — if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.wedge.anchor" title="pybosl2.shapes3d.cuboid.wedge.anchor (Python parameter) — anchor point (default FRONT+LEFT+BOTTOM)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Point</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.wedge.spin" title="pybosl2.shapes3d.cuboid.wedge.spin (Python parameter) — Z-axis rotation in degrees after anchor (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.wedge.orient" title="pybosl2.shapes3d.cuboid.wedge.orient (Python parameter) — direction to rotate the top towards, after spin (default UP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#wedge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge" title="Link to this definition">¶</a></dt>
+<dd><p>Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, built directly with polyhedron().</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.wedge-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.wedge.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge.size" title="Permalink to this definition">¶</a></dt><dd><p>[width, thickness, height]</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.wedge.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge.center" title="Permalink to this definition">¶</a></dt><dd><p>if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.wedge.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default FRONT+LEFT+BOTTOM)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.wedge.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees after anchor (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.wedge.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards, after spin (default UP)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.wedge-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.wedge-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">wedge</span>
+
+<span class="n">wedge</span><span class="p">([</span><span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">])</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/10198e08746617f1.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/10198e08746617f1.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.rect_tube">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">rect_tube</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.height" title="pybosl2.shapes3d.cuboid.rect_tube.height (Python parameter) — height of the tube (default 1)"><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.size" title="pybosl2.shapes3d.cuboid.rect_tube.size (Python parameter) — outer [X,Y] size of the tube"><span class="n"><span class="pre">size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.isize" title="pybosl2.shapes3d.cuboid.rect_tube.isize (Python parameter) — inner [X,Y] size of the tube"><span class="n"><span class="pre">isize</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.center" title="pybosl2.shapes3d.cuboid.rect_tube.center (Python parameter) — if given, overrides anchor"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.shift" title="pybosl2.shapes3d.cuboid.rect_tube.shift (Python parameter) — [X,Y] shift of the top center relative to the bottom center"><span class="n"><span class="pre">shift</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.wall" title="pybosl2.shapes3d.cuboid.rect_tube.wall (Python parameter) — wall thickness"><span class="n"><span class="pre">wall</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.size1" title="pybosl2.shapes3d.cuboid.rect_tube.size1 (Python parameter) — outer [X,Y] size at the bottom/top"><span class="n"><span class="pre">size1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.size2" title="pybosl2.shapes3d.cuboid.rect_tube.size2 (Python parameter) — outer [X,Y] size at the bottom/top"><span class="n"><span class="pre">size2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.isize1" title="pybosl2.shapes3d.cuboid.rect_tube.isize1 (Python parameter) — inner [X,Y] size at the bottom/top"><span class="n"><span class="pre">isize1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.isize2" title="pybosl2.shapes3d.cuboid.rect_tube.isize2 (Python parameter) — inner [X,Y] size at the bottom/top"><span class="n"><span class="pre">isize2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.rounding" title="pybosl2.shapes3d.cuboid.rect_tube.rounding (Python parameter) — outer edge rounding radius (overall/bottom/top)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.rounding1" title="pybosl2.shapes3d.cuboid.rect_tube.rounding1 (Python parameter) — outer edge rounding radius (overall/bottom/top)"><span class="n"><span class="pre">rounding1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.rounding2" title="pybosl2.shapes3d.cuboid.rect_tube.rounding2 (Python parameter) — outer edge rounding radius (overall/bottom/top)"><span class="n"><span class="pre">rounding2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_rounding" title="pybosl2.shapes3d.cuboid.rect_tube.inner_rounding (Python parameter) — inner edge rounding radius (default: same as rounding)"><span class="n"><span class="pre">inner_rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_rounding1" title="pybosl2.shapes3d.cuboid.rect_tube.inner_rounding1 (Python parameter) — inner edge rounding radius (default: same as rounding)"><span class="n"><span class="pre">inner_rounding1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_rounding2" title="pybosl2.shapes3d.cuboid.rect_tube.inner_rounding2 (Python parameter) — inner edge rounding radius (default: same as rounding)"><span class="n"><span class="pre">inner_rounding2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.chamfer" title="pybosl2.shapes3d.cuboid.rect_tube.chamfer (Python parameter) — outer edge chamfer size (overall/bottom/top)"><span class="n"><span class="pre">chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.chamfer1" title="pybosl2.shapes3d.cuboid.rect_tube.chamfer1 (Python parameter) — outer edge chamfer size (overall/bottom/top)"><span class="n"><span class="pre">chamfer1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.chamfer2" title="pybosl2.shapes3d.cuboid.rect_tube.chamfer2 (Python parameter) — outer edge chamfer size (overall/bottom/top)"><span class="n"><span class="pre">chamfer2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer" title="pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer (Python parameter) — inner edge chamfer size (default: same as chamfer)"><span class="n"><span class="pre">inner_chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer1" title="pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer1 (Python parameter) — inner edge chamfer size (default: same as chamfer)"><span class="n"><span class="pre">inner_chamfer1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer2" title="pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer2 (Python parameter) — inner edge chamfer size (default: same as chamfer)"><span class="n"><span class="pre">inner_chamfer2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.anchor" title="pybosl2.shapes3d.cuboid.rect_tube.anchor (Python parameter) — anchor point (default BOTTOM)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Point</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.spin" title="pybosl2.shapes3d.cuboid.rect_tube.spin (Python parameter) — Z-axis rotation in degrees after anchor (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.orient" title="pybosl2.shapes3d.cuboid.rect_tube.orient (Python parameter) — direction to rotate the top towards, after spin (default UP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.rect_tube.length" title="pybosl2.shapes3d.cuboid.rect_tube.length (Python parameter) — length of the tube (default 1)"><span class="n"><span class="pre">length</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#rect_tube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube" title="Link to this definition">¶</a></dt>
+<dd><p>BOSL2 rect_tube() – a rectangular tube (a rectangle with a rectangular hole through it).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.rect_tube-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.height" title="Permalink to this definition">¶</a></dt><dd><p>height of the tube (default 1)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.length" title="Permalink to this definition">¶</a></dt><dd><p>length of the tube (default 1)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.size" title="Permalink to this definition">¶</a></dt><dd><p>outer [X,Y] size of the tube</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.isize"><span class="sig-name descname">isize</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.isize" title="Permalink to this definition">¶</a></dt><dd><p>inner [X,Y] size of the tube</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.center" title="Permalink to this definition">¶</a></dt><dd><p>if given, overrides anchor</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.shift"><span class="sig-name descname">shift</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.shift" title="Permalink to this definition">¶</a></dt><dd><p>[X,Y] shift of the top center relative to the bottom center</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.wall"><span class="sig-name descname">wall</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.wall" title="Permalink to this definition">¶</a></dt><dd><p>wall thickness</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.size1"><span class="sig-name descname">size1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.size1" title="Permalink to this definition">¶</a></dt><dd><p>outer [X,Y] size at the bottom/top</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.size2"><span class="sig-name descname">size2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.size2" title="Permalink to this definition">¶</a></dt><dd><p>outer [X,Y] size at the bottom/top</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.isize1"><span class="sig-name descname">isize1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.isize1" title="Permalink to this definition">¶</a></dt><dd><p>inner [X,Y] size at the bottom/top</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.isize2"><span class="sig-name descname">isize2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.isize2" title="Permalink to this definition">¶</a></dt><dd><p>inner [X,Y] size at the bottom/top</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.rounding" title="Permalink to this definition">¶</a></dt><dd><p>outer edge rounding radius (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.rounding1"><span class="sig-name descname">rounding1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.rounding1" title="Permalink to this definition">¶</a></dt><dd><p>outer edge rounding radius (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.rounding2"><span class="sig-name descname">rounding2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.rounding2" title="Permalink to this definition">¶</a></dt><dd><p>outer edge rounding radius (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.inner_rounding"><span class="sig-name descname">inner_rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_rounding" title="Permalink to this definition">¶</a></dt><dd><p>inner edge rounding radius (default: same as rounding)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.inner_rounding1"><span class="sig-name descname">inner_rounding1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_rounding1" title="Permalink to this definition">¶</a></dt><dd><p>inner edge rounding radius (default: same as rounding)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.inner_rounding2"><span class="sig-name descname">inner_rounding2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_rounding2" title="Permalink to this definition">¶</a></dt><dd><p>inner edge rounding radius (default: same as rounding)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.chamfer"><span class="sig-name descname">chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.chamfer" title="Permalink to this definition">¶</a></dt><dd><p>outer edge chamfer size (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.chamfer1"><span class="sig-name descname">chamfer1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.chamfer1" title="Permalink to this definition">¶</a></dt><dd><p>outer edge chamfer size (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.chamfer2"><span class="sig-name descname">chamfer2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.chamfer2" title="Permalink to this definition">¶</a></dt><dd><p>outer edge chamfer size (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer"><span class="sig-name descname">inner_chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer" title="Permalink to this definition">¶</a></dt><dd><p>inner edge chamfer size (default: same as chamfer)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer1"><span class="sig-name descname">inner_chamfer1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer1" title="Permalink to this definition">¶</a></dt><dd><p>inner edge chamfer size (default: same as chamfer)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer2"><span class="sig-name descname">inner_chamfer2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.inner_chamfer2" title="Permalink to this definition">¶</a></dt><dd><p>inner edge chamfer size (default: same as chamfer)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default BOTTOM)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees after anchor (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.rect_tube.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards, after spin (default UP)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.rect_tube-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.rect_tube-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect_tube</span>
+
+<span class="n">rect_tube</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">wall</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/0ce33822b9becdb2.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/0ce33822b9becdb2.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.shapes3d.cuboid.regular_prism">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.shapes3d.cuboid.</span></span><span class="sig-name descname"><span class="pre">regular_prism</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.sides" title="pybosl2.shapes3d.cuboid.regular_prism.sides (Python parameter) — number of sides (integer &gt;= 3)"><span class="n"><span class="pre">sides</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.height" title="pybosl2.shapes3d.cuboid.regular_prism.height (Python parameter) — prism height (default 1)"><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.radius" title="pybosl2.shapes3d.cuboid.regular_prism.radius (Python parameter) — overall size (see above)"><span class="n"><span class="pre">radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.diameter" title="pybosl2.shapes3d.cuboid.regular_prism.diameter (Python parameter) — overall size (see above)"><span class="n"><span class="pre">diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.radius1" title="pybosl2.shapes3d.cuboid.regular_prism.radius1 (Python parameter) — bottom/top circumradius for a tapered prism"><span class="n"><span class="pre">radius1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.radius2" title="pybosl2.shapes3d.cuboid.regular_prism.radius2 (Python parameter) — bottom/top circumradius for a tapered prism"><span class="n"><span class="pre">radius2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.inner_radius" title="pybosl2.shapes3d.cuboid.regular_prism.inner_radius (Python parameter) — overall size (see above)"><span class="n"><span class="pre">inner_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.inner_diameter" title="pybosl2.shapes3d.cuboid.regular_prism.inner_diameter (Python parameter) — overall size (see above)"><span class="n"><span class="pre">inner_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.side" title="pybosl2.shapes3d.cuboid.regular_prism.side (Python parameter) — overall size (see above)"><span class="n"><span class="pre">side</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.length" title="pybosl2.shapes3d.cuboid.regular_prism.length (Python parameter) — prism height (default 1)"><span class="n"><span class="pre">length</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.chamfer" title="pybosl2.shapes3d.cuboid.regular_prism.chamfer (Python parameter) — end chamfer size (overall/bottom/top)"><span class="n"><span class="pre">chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.chamfer1" title="pybosl2.shapes3d.cuboid.regular_prism.chamfer1 (Python parameter) — end chamfer size (overall/bottom/top)"><span class="n"><span class="pre">chamfer1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.chamfer2" title="pybosl2.shapes3d.cuboid.regular_prism.chamfer2 (Python parameter) — end chamfer size (overall/bottom/top)"><span class="n"><span class="pre">chamfer2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.rounding" title="pybosl2.shapes3d.cuboid.regular_prism.rounding (Python parameter) — end rounding radius (overall/bottom/top)"><span class="n"><span class="pre">rounding</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.rounding1" title="pybosl2.shapes3d.cuboid.regular_prism.rounding1 (Python parameter) — end rounding radius (overall/bottom/top)"><span class="n"><span class="pre">rounding1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.rounding2" title="pybosl2.shapes3d.cuboid.regular_prism.rounding2 (Python parameter) — end rounding radius (overall/bottom/top)"><span class="n"><span class="pre">rounding2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.circumscribe" title="pybosl2.shapes3d.cuboid.regular_prism.circumscribe (Python parameter) — circumscribe the nominal radius (scale by 1/cos(180/sides)) (default False)"><span class="n"><span class="pre">circumscribe</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.realign" title="pybosl2.shapes3d.cuboid.regular_prism.realign (Python parameter) — rotate by half a facet so a face, not a vertex, faces +X (default False)"><span class="n"><span class="pre">realign</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.shift" title="pybosl2.shapes3d.cuboid.regular_prism.shift (Python parameter) — [X,Y] shift of the top center relative to the bottom center"><span class="n"><span class="pre">shift</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.center" title="pybosl2.shapes3d.cuboid.regular_prism.center (Python parameter) — if given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.anchor" title="pybosl2.shapes3d.cuboid.regular_prism.anchor (Python parameter) — anchor point (default CENTER)"><span class="n"><span class="pre">anchor</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.spin" title="pybosl2.shapes3d.cuboid.regular_prism.spin (Python parameter) — Z-axis rotation in degrees after anchor (default 0)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.orient" title="pybosl2.shapes3d.cuboid.regular_prism.orient (Python parameter) — direction to rotate the top towards, after spin (default UP)"><span class="n"><span class="pre">orient</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.fn" title="pybosl2.shapes3d.cuboid.regular_prism.fn (Python parameter) — arc smoothness overrides"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.fa" title="pybosl2.shapes3d.cuboid.regular_prism.fa (Python parameter) — arc smoothness overrides"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.shapes3d.cuboid.regular_prism.fs" title="pybosl2.shapes3d.cuboid.regular_prism.fs (Python parameter) — arc smoothness overrides"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/shapes3d/cuboid.html#regular_prism"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism" title="Link to this definition">¶</a></dt>
+<dd><p>Return a regular sides-sided prism (or frustum) – the sides-gon analogue of cyl(): a regular polygon.</p>
+<p>cross-section extruded along Z, with optional per-end chamfer or rounding. Built the same
+way cyl() is (native cylinder with fn=sides for the plain case; a revolved half-profile with
+fn=sides for chamfered/rounded ends), so it shares cyl()’s exact rim geometry.</p>
+<p>Sizing gives the CIRCUMradius (vertex distance) unless noted – exactly one of <code class="docutils literal notranslate"><span class="pre">radius</span></code>/<code class="docutils literal notranslate"><span class="pre">diameter</span></code>
+(radius/diameter to the vertices), <code class="docutils literal notranslate"><span class="pre">inner_radius</span></code>/<code class="docutils literal notranslate"><span class="pre">inner_diameter</span></code> (inradius/apothem to the face centers,
+converted via <code class="docutils literal notranslate"><span class="pre">/cos(180/sides)</span></code>), or <code class="docutils literal notranslate"><span class="pre">side</span></code> (edge length, converted via <code class="docutils literal notranslate"><span class="pre">/(2</span> <span class="pre">sin(180/sides))</span></code>).
+<code class="docutils literal notranslate"><span class="pre">radius1</span></code>/<code class="docutils literal notranslate"><span class="pre">radius2</span></code> (or the corresponding taper) set the bottom/top radius independently for a frustum.</p>
+<p>Note: BOSL2 regular_prism()’s texture=/teardrop= options are not ported (they need the VNF
+texturing machinery this pure-Python port doesn’t implement).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.shapes3d.cuboid.regular_prism-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.sides"><span class="sig-name descname">sides</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.sides" title="Permalink to this definition">¶</a></dt><dd><p>number of sides (integer &gt;= 3)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.height" title="Permalink to this definition">¶</a></dt><dd><p>prism height (default 1)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.length" title="Permalink to this definition">¶</a></dt><dd><p>prism height (default 1)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.radius" title="Permalink to this definition">¶</a></dt><dd><p>overall size (see above)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.diameter" title="Permalink to this definition">¶</a></dt><dd><p>overall size (see above)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.inner_radius"><span class="sig-name descname">inner_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.inner_radius" title="Permalink to this definition">¶</a></dt><dd><p>overall size (see above)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.inner_diameter"><span class="sig-name descname">inner_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.inner_diameter" title="Permalink to this definition">¶</a></dt><dd><p>overall size (see above)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.side"><span class="sig-name descname">side</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.side" title="Permalink to this definition">¶</a></dt><dd><p>overall size (see above)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.radius1"><span class="sig-name descname">radius1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.radius1" title="Permalink to this definition">¶</a></dt><dd><p>bottom/top circumradius for a tapered prism</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.radius2"><span class="sig-name descname">radius2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.radius2" title="Permalink to this definition">¶</a></dt><dd><p>bottom/top circumradius for a tapered prism</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.chamfer"><span class="sig-name descname">chamfer</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.chamfer" title="Permalink to this definition">¶</a></dt><dd><p>end chamfer size (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.chamfer1"><span class="sig-name descname">chamfer1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.chamfer1" title="Permalink to this definition">¶</a></dt><dd><p>end chamfer size (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.chamfer2"><span class="sig-name descname">chamfer2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.chamfer2" title="Permalink to this definition">¶</a></dt><dd><p>end chamfer size (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.rounding"><span class="sig-name descname">rounding</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.rounding" title="Permalink to this definition">¶</a></dt><dd><p>end rounding radius (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.rounding1"><span class="sig-name descname">rounding1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.rounding1" title="Permalink to this definition">¶</a></dt><dd><p>end rounding radius (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.rounding2"><span class="sig-name descname">rounding2</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.rounding2" title="Permalink to this definition">¶</a></dt><dd><p>end rounding radius (overall/bottom/top)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.circumscribe"><span class="sig-name descname">circumscribe</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.circumscribe" title="Permalink to this definition">¶</a></dt><dd><p>circumscribe the nominal radius (scale by 1/cos(180/sides)) (default False)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.realign"><span class="sig-name descname">realign</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.realign" title="Permalink to this definition">¶</a></dt><dd><p>rotate by half a facet so a face, not a vertex, faces +X (default False)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.shift"><span class="sig-name descname">shift</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.shift" title="Permalink to this definition">¶</a></dt><dd><p>[X,Y] shift of the top center relative to the bottom center</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.center" title="Permalink to this definition">¶</a></dt><dd><p>if given, overrides anchor (True -&gt; CENTER, False -&gt; BOTTOM)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.anchor" title="Permalink to this definition">¶</a></dt><dd><p>anchor point (default CENTER)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.spin" title="Permalink to this definition">¶</a></dt><dd><p>Z-axis rotation in degrees after anchor (default 0)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.orient"><span class="sig-name descname">orient</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.orient" title="Permalink to this definition">¶</a></dt><dd><p>direction to rotate the top towards, after spin (default UP)</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.fn" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.fa" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides</p>
+</dd>
+<dt id="pybosl2.shapes3d.cuboid.regular_prism.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism.fs" title="Permalink to this definition">¶</a></dt><dd><p>arc smoothness overrides</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.shapes3d.cuboid.regular_prism-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.shapes3d.cuboid.regular_prism-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">regular_prism</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">regular_prism</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/4b4a3e650ef9eb01.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/4b4a3e650ef9eb01.stl">⬇ Download STL mesh</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">regular_prism</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">regular_prism</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">inner_radius</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/e4112bf1625d55bd.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/e4112bf1625d55bd.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="shapes3d.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: 3-D Shapes">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                3-D Shapes
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="cylinder.html" class="md-footer__link md-footer__link--next" aria-label="Next: Cylinder">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Cylinder
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    8.2.3.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="_static/stl_viewer.js?v=6fcc5409"></script>
+    
+  </body>
+</html>
