@@ -1081,7 +1081,7 @@
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.regions.Region.even_odd (Python method) — Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD polygon(paths=))."><span>even_<wbr>odd</span></span>
+      <span title="pybosl2.regions.Region.even_odd (Python method) — Create a region from outlines nested by the EVEN-ODD rule."><span>even_<wbr>odd</span></span>
     </span>
   </a>
   
@@ -1415,7 +1415,7 @@
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: the outline with the holes subtracted."><span>geometry</span></span>
+      <span title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: every polygon in the region, each with its holes subtracted."><span>geometry</span></span>
     </span>
   </a>
   
@@ -3149,7 +3149,7 @@
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.regions.Region.even_odd (Python method) — Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD polygon(paths=))."><span>even_<wbr>odd</span></span>
+      <span title="pybosl2.regions.Region.even_odd (Python method) — Create a region from outlines nested by the EVEN-ODD rule."><span>even_<wbr>odd</span></span>
     </span>
   </a>
   
@@ -3483,7 +3483,7 @@
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: the outline with the holes subtracted."><span>geometry</span></span>
+      <span title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: every polygon in the region, each with its holes subtracted."><span>geometry</span></span>
     </span>
   </a>
   
@@ -4071,7 +4071,7 @@ directly. Operator overloads (<code class="docutils literal notranslate"><span c
 </code></pre></div>
 </div>
 <p>Or use the shorthand <a class="reference internal" href="#pybosl2.regions.Region.with_holes" title="pybosl2.regions.Region.with_holes (Python method) — Create a region from an outline plus hole outlines."><code class="xref py py-meth docutils literal notranslate"><span class="pre">with_holes()</span></code></a> for a more readable call.</p>
-<p>For native-geometry output (e.g. extrusion), call <a class="reference internal" href="#pybosl2.regions.Region.geometry" title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: the outline with the holes subtracted."><code class="xref py py-meth docutils literal notranslate"><span class="pre">geometry()</span></code></a>
+<p>For native-geometry output (e.g. extrusion), call <a class="reference internal" href="#pybosl2.regions.Region.geometry" title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: every polygon in the region, each with its holes subtracted."><code class="xref py py-meth docutils literal notranslate"><span class="pre">geometry()</span></code></a>
 which converts paths to <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region-parameters" title="Permalink to this headline">¶</a></dt>
@@ -4195,35 +4195,32 @@ Pass <code class="docutils literal notranslate"><span class="pre">None</span></c
 
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.even_odd">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">even_odd</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.even_odd.paths" title="pybosl2.regions.Region.even_odd.paths (Python parameter) — The outlines, each a Path2D or point sequence."><span class="n"><span class="pre">paths</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.even_odd.colors" title="pybosl2.regions.Region.even_odd.colors (Python parameter) — Optional per-path fill colours (a Color, #rrggbb string or None)."><span class="n"><span class="pre">colors</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.even_odd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.even_odd" title="Link to this definition">¶</a></dt>
-<dd><p>Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD <code class="docutils literal notranslate"><span class="pre">polygon(paths=)</span></code>).</p>
-<p>The default constructor is outer-plus-holes: outline 0 bounds the region and every
-other outline is a hole in it. That is right for a ring, and wrong for a traced drawing
-with several disjoint solids – those extra solids come out subtracted instead of
-added, which still produces geometry and so fails silently.</p>
-<p>Even-odd instead decides each outline by how many others CONTAIN it: enclosed by an
-even number (zero included) makes it solid, by an odd number makes it a hole. That is
-the rule SVG and OpenSCAD’s multi-path <code class="docutils literal notranslate"><span class="pre">polygon()</span></code> use, so it is the one to use for
-imported or traced outlines.</p>
-<p>When <em>colors</em> is provided (one per path), the fill colour of each solid ring is
-preserved through the nesting resolution: same-colour solids are unioned together,
-while different-colour solids stay as separate polygons inside the Region so
-<a class="reference internal" href="#pybosl2.regions.Region.geometry" title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: the outline with the holes subtracted."><code class="xref py py-meth docutils literal notranslate"><span class="pre">geometry()</span></code></a> and <a class="reference internal" href="#pybosl2.regions.Region.linear_extrude" title="pybosl2.regions.Region.linear_extrude (Python method) — Extrude this region along +Z into a 3-D solid with holes included."><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_extrude()</span></code></a> can render each in its own colour.</p>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">even_odd</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.even_odd.paths" title="pybosl2.regions.Region.even_odd.paths (Python parameter) — The outlines, each a Path2D or point sequence."><span class="n"><span class="pre">paths</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.even_odd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.even_odd" title="Link to this definition">¶</a></dt>
+<dd><p>Create a region from outlines nested by the EVEN-ODD rule.</p>
+<p>Colours are read from each <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> object (via
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">color()</span></code>).  Same-colour solids are unioned
+together; different-colour solids are kept as separate non-overlapping
+polygons inside the region – the first colour in order wins any overlap
+so <a class="reference internal" href="#pybosl2.regions.Region.geometry" title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: every polygon in the region, each with its holes subtracted."><code class="xref py py-meth docutils literal notranslate"><span class="pre">geometry()</span></code></a> and <a class="reference internal" href="#pybosl2.regions.Region.linear_extrude" title="pybosl2.regions.Region.linear_extrude (Python method) — Extrude this region along +Z into a 3-D solid with holes included."><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_extrude()</span></code></a> render each in its own
+colour.  Uncoloured paths are transparent: they do not participate in
+overlap resolution.</p>
+<p>The default constructor is outer-plus-holes: outline 0 bounds the region
+and every other outline is a hole in it.  Even-odd instead decides each
+outline by how many others CONTAIN it, which is the rule SVG and
+OpenSCAD’s multi-path <code class="docutils literal notranslate"><span class="pre">polygon()</span></code> use.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.even_odd-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.even_odd-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.regions.Region.even_odd.paths"><span class="sig-name descname">paths</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Path2D | Sequence[Sequence[float]]]</span></span><a class="headerlink" href="#pybosl2.regions.Region.even_odd.paths" title="Permalink to this definition">¶</a></dt><dd><p>The outlines, each a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> or point sequence.</p>
-</dd>
-<dt id="pybosl2.regions.Region.even_odd.colors"><span class="sig-name descname">colors</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[<a class="reference internal" href="color.html#pybosl2.color.Color" title="pybosl2.color.Color (Python class) — Bases: object">Color</a> | str | None] | None</span></span><a class="headerlink" href="#pybosl2.regions.Region.even_odd.colors" title="Permalink to this definition">¶</a></dt><dd><p>Optional per-path fill colours (a <code class="xref py py-class docutils literal notranslate"><span class="pre">Color</span></code>, <code class="docutils literal notranslate"><span class="pre">#rrggbb</span></code> string or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p>
+<dt id="pybosl2.regions.Region.even_odd.paths"><span class="sig-name descname">paths</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Path2D | Sequence[Sequence[float]]]</span></span><a class="headerlink" href="#pybosl2.regions.Region.even_odd.paths" title="Permalink to this definition">¶</a></dt><dd><p>The outlines, each a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> or
+point sequence.  Coloured <code class="docutils literal notranslate"><span class="pre">Path2D</span></code> objects carry their colour
+through to the result.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.regions.Region.even_odd-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.even_odd-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>A <a class="reference internal" href="#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> whose solid area is the even-odd interpretation of <em>paths</em>.
-When <em>colors</em> are provided (or the <em>paths</em> are <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>
-objects carrying their own colour), the resulting polygons each preserve their
-colour inside <code class="xref py py-attr docutils literal notranslate"><span class="pre">_polygon_colors</span></code> so <a class="reference internal" href="#pybosl2.regions.Region.geometry" title="pybosl2.regions.Region.geometry (Python method) — 2-D geometry: the outline with the holes subtracted."><code class="xref py py-meth docutils literal notranslate"><span class="pre">geometry()</span></code></a> and
-<a class="reference internal" href="#pybosl2.regions.Region.linear_extrude" title="pybosl2.regions.Region.linear_extrude (Python method) — Extrude this region along +Z into a 3-D solid with holes included."><code class="xref py py-meth docutils literal notranslate"><span class="pre">linear_extrude()</span></code></a> render them in the correct colours.</p>
+<dd class="field-even"><p>A <a class="reference internal" href="#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> whose solid area is the even-odd interpretation
+of <em>paths</em>.  The <code class="xref py py-attr docutils literal notranslate"><span class="pre">_polygon_colors</span></code> list tracks which polygon
+has which colour.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.regions.Region.even_odd-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.even_odd-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object">Region</a></p>
@@ -4232,6 +4229,15 @@ colour inside <code class="xref py py-attr docutils literal notranslate"><span c
 <p class="example rubric">Examples</p>
 <p>Two disjoint squares, each with a hole – four outlines, two solids:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">Region</span><span class="o">.</span><span class="n">even_odd</span><span class="p">([</span><span class="n">outer_a</span><span class="p">,</span> <span class="n">hole_a</span><span class="p">,</span> <span class="n">outer_b</span><span class="p">,</span> <span class="n">hole_b</span><span class="p">])</span>
+</code></pre></div>
+</div>
+<p>Overlapping red and blue squares – first colour wins the overlap:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span><span class="p">,</span> <span class="n">Region</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
+
+<span class="n">red</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">30</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">30</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">]])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">Color</span><span class="p">(</span><span class="s2">&quot;#ff0000&quot;</span><span class="p">))</span>
+<span class="n">blue</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">20</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">50</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">]])</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">Color</span><span class="p">(</span><span class="s2">&quot;#0000ff&quot;</span><span class="p">))</span>
+<span class="n">Region</span><span class="o">.</span><span class="n">even_odd</span><span class="p">([</span><span class="n">red</span><span class="p">,</span> <span class="n">blue</span><span class="p">])</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </dd></dl>
@@ -4376,10 +4382,10 @@ a list applies per-corner radii.</p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.geometry">
 <span class="sig-name descname"><span class="pre">geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.geometry" title="Link to this definition">¶</a></dt>
-<dd><p>2-D geometry: the outline with the holes subtracted.</p>
-<p>When <code class="xref py py-attr docutils literal notranslate"><span class="pre">_polygon_colors</span></code> is populated (e.g. from an SVG import with coloured
-fills), each polygon is coloured individually before being unioned into the final shape.
-Otherwise the region’s single <code class="xref py py-attr docutils literal notranslate"><span class="pre">_color</span></code> is applied to the whole result.</p>
+<dd><p>2-D geometry: every polygon in the region, each with its holes subtracted.</p>
+<p>When <code class="xref py py-attr docutils literal notranslate"><span class="pre">_polygon_colors</span></code> is populated each polygon is coloured individually
+before being unioned into the final shape.  Otherwise the region’s single
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_color</span></code> is applied to every piece.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.geometry-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.geometry-returns" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Shape2D</span></code>, so the result chains straight into the 2-D
@@ -4436,6 +4442,10 @@ geometries. Accepts a flat list or multiple arguments:</p>
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.regions.Region.linear_extrude">
 <span class="sig-name descname"><span class="pre">linear_extrude</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.height" title="pybosl2.regions.Region.linear_extrude.height (Python parameter) — The extrusion height along +Z."><span class="n"><span class="pre">height</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.center" title="pybosl2.regions.Region.linear_extrude.center (Python parameter) — Extrude symmetrically along Z if True (default False)."><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.twist" title="pybosl2.regions.Region.linear_extrude.twist (Python parameter) — Twist angle in degrees over the full height (default 0)."><span class="n"><span class="pre">twist</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.scale" title="pybosl2.regions.Region.linear_extrude.scale (Python parameter) — Scale factor for the top cross-section (default 1.0)."><span class="n"><span class="pre">scale</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">1.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.slices" title="pybosl2.regions.Region.linear_extrude.slices (Python parameter) — Number of intermediate layers for twist/scale (auto if None)."><span class="n"><span class="pre">slices</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.fn" title="pybosl2.regions.Region.linear_extrude.fn (Python parameter) — Smoothness override for the angular resolution."><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.fa" title="pybosl2.regions.Region.linear_extrude.fa (Python parameter) — Smoothness override for the minimum angle."><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.linear_extrude.fs" title="pybosl2.regions.Region.linear_extrude.fs (Python parameter) — Smoothness override for the minimum segment length."><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.linear_extrude"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.linear_extrude" title="Link to this definition">¶</a></dt>
 <dd><p>Extrude this region along +Z into a 3-D solid with holes included.</p>
+<p>When the region contains multiple colour groups (via
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_polygon_colors</span></code>), each group is extruded separately and the
+results are unioned – so different-colour parts of an SVG drawing
+become different-colour solids without manual splitting.</p>
 <p>The result depends on the active backend: a <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> under
 the default CSG backend, or a <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code> under
 <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code>. See <code class="xref py py-meth docutils literal notranslate"><span class="pre">pybosl2.paths.Path2D.linear_extrude()</span></code> for per-backend
@@ -4583,7 +4593,7 @@ red – path <code class="docutils literal notranslate"><span class="pre">a</spa
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.intersection">
 <span class="sig-name descname"><span class="pre">intersection</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.intersection.other" title="pybosl2.regions.Region.intersection.other (Python parameter) — the region to intersect with."><span class="n"><span class="pre">other</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.intersection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.intersection" title="Link to this definition">¶</a></dt>
 <dd><p>Return the 2-D intersection of this region with other (the area they share).</p>
-<p>Uses shapely for exact polygon coordinates.</p>
+<p>Uses shapely for exact polygon coordinates.  The result inherits <em>self</em>’s colour.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.intersection-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.intersection-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -4614,7 +4624,9 @@ red – path <code class="docutils literal notranslate"><span class="pre">a</spa
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.union">
 <span class="sig-name descname"><span class="pre">union</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.union.other" title="pybosl2.regions.Region.union.other (Python parameter) — the region to union with."><span class="n"><span class="pre">other</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.union"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.union" title="Link to this definition">¶</a></dt>
 <dd><p>Return the 2-D union of this region and other (all area covered by either).</p>
-<p>Uses shapely for exact polygon coordinates.</p>
+<p>Uses shapely for exact polygon coordinates.  When <em>self</em> and <em>other</em> carry different
+colours, the union inherits <em>self</em>’s colour – the first path in the set wins the
+overlap.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.union-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.union-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -4645,7 +4657,7 @@ red – path <code class="docutils literal notranslate"><span class="pre">a</spa
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.difference">
 <span class="sig-name descname"><span class="pre">difference</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.difference.other" title="pybosl2.regions.Region.difference.other (Python parameter) — the region to subtract."><span class="n"><span class="pre">other</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.difference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.difference" title="Link to this definition">¶</a></dt>
 <dd><p>Return the 2-D difference: self with the area of other subtracted.</p>
-<p>Uses shapely for exact polygon coordinates.</p>
+<p>Uses shapely for exact polygon coordinates.  The result inherits <em>self</em>’s colour.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.difference-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.difference-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -4676,7 +4688,7 @@ red – path <code class="docutils literal notranslate"><span class="pre">a</spa
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.symmetric_difference">
 <span class="sig-name descname"><span class="pre">symmetric_difference</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.symmetric_difference.other" title="pybosl2.regions.Region.symmetric_difference.other (Python parameter) — the region to xor with."><span class="n"><span class="pre">other</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.symmetric_difference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.symmetric_difference" title="Link to this definition">¶</a></dt>
 <dd><p>Return the 2-D symmetric difference (XOR): area in either region but not both.</p>
-<p>Uses shapely for exact polygon coordinates.</p>
+<p>Uses shapely for exact polygon coordinates.  The result inherits <em>self</em>’s colour.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.symmetric_difference-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.symmetric_difference-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
