@@ -92,20 +92,11 @@ def osimport(
         A :class:`Bosl2Shape2D` wrapping the imported outline.
 
     Examples:
-        An imported SVG outline, scaled to fit and extruded:
-
-        .. pythonscad-example::
-
-            import os, tempfile
-            tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
-            tmp.write('<svg xmlns="http://www.w3.org/2000/svg"><path d="M10,10H90V90H10Z"/></svg>')
-            tmp.close()
+        Import a 2-D drawing, resize it and extrude::
 
             from pybosl2 import shapes2d as s2
 
-            result = s2.osimport(tmp.name).resize([40, 40, 0]).linear_extrude(height=2)
-            result.show()
-            os.unlink(tmp.name)
+            s2.osimport("drawing.svg").resize([40, 40, 0]).linear_extrude(height=2).show()
 
     """
     kwargs: dict[str, object] = {}
