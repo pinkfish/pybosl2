@@ -103,6 +103,22 @@ jobs:
               rm -rf "${SORTED[$i]}"
             done
           fi
+          # Generate versions.json — a sorted list of all deployed version dirs.
+          shopt -s nullglob
+          VDIRS=( _site/v*/ )
+          shopt -u nullglob
+          VNAMES=()
+          for d in "${VDIRS[@]}"; do
+            VNAMES+=( "$(basename "$d")" )
+          done
+          readarray -t SORTED < <(printf '%s\n' "${VNAMES[@]}" | sort -rV)
+          printf '%s\n' "${SORTED[@]}" | python3 -c "
+import json, sys
+versions = [v.strip() for v in sys.stdin if v.strip()]
+with open('_site/versions.json', 'w') as f:
+    json.dump(versions, f)
+print(f'versions.json written with {len(versions)} entries: {versions}')
+"
 
       - name: Verify output is not empty
         run: |

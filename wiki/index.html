@@ -37,7 +37,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=1e5c14c0" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=c6f4cd80" />
         <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1811,8 +1811,66 @@ curves and surfaces, <a class="reference internal" href="vnf.html#pybosl2.vnf.VN
    background:rgba(56,189,240,0.07);font-size:1.05em;">
   &#9881;&#65039; <b><a href="specs/index.html">Visual parts catalog &amp; spec sheets &rarr;</a></b>
   &nbsp;&mdash;&nbsp; the gears, hinges, joiners, cube-truss and ball-bearing modules with
-  technical schematics and metrics measured from real rendered STL.
-</p><h2 id="rendered-examples">Rendered examples<a class="headerlink" href="#rendered-examples" title="Link to this heading">¶</a></h2>
+   technical schematics and metrics measured from real rendered STL.
+</p><div id="version-links" style="margin:1.2em 0;padding:10px 18px;
+     border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
+     font-size:0.92em;display:none">
+  <b>Released versions:</b> <span id="version-list"></span>
+  &ensp;<b><a id="latest-link" href="">latest &rarr;</a></b>
+</div>
+
+<div id="dev-notice" style="margin:1.2em 0;padding:10px 18px;
+     border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
+     font-size:0.92em;display:none">
+  &#9888;&#65039; <b>This is the unreleased development version.</b>
+  See the <a href="latest/index.html">latest stable release</a> for production use.
+</div>
+
+<!-- version loader -->
+<script>
+(function(){
+  var dev = document.getElementById('dev-notice');
+  var box = document.getElementById('version-links');
+  var list = document.getElementById('version-list');
+  var lat = document.getElementById('latest-link');
+  var base = window.location.pathname.replace(/\/$/,'').replace(/\/[^\/]+$/,'/');
+  var isVer = /\/v\d+\.\d+\.\d+\//.test(window.location.pathname);
+  if (isVer) {
+    lat.setAttribute('href', base + 'latest/index.html');
+    box.style.display = 'block';
+    fetch(base + 'versions.json')
+      .then(function(r){return r.json();})
+      .then(function(vers){
+        var n = Math.min(vers.length,5);
+        for (var i=0; i<n; i++) {
+          var v = vers[i], a = document.createElement('a');
+          a.href = base + v + '/index.html';
+          a.textContent = v;
+          list.appendChild(a);
+          if (i < n-1) list.appendChild(document.createTextNode(' · '));
+        }
+      })
+      .catch(function(){});
+  } else {
+    dev.style.display = 'block';
+    lat.setAttribute('href', 'latest/index.html');
+    box.style.display = 'block';
+    fetch('versions.json')
+      .then(function(r){return r.json();})
+      .then(function(vers){
+        var n = Math.min(vers.length,5);
+        for (var i=0; i<n; i++) {
+          var v = vers[i], a = document.createElement('a');
+          a.href = v + '/index.html';
+          a.textContent = v;
+          list.appendChild(a);
+          if (i < n-1) list.appendChild(document.createTextNode(' · '));
+        }
+      })
+      .catch(function(){});
+  }
+})();
+</script><h2 id="rendered-examples">Rendered examples<a class="headerlink" href="#rendered-examples" title="Link to this heading">¶</a></h2>
 <p>Every documented function with a rendered example shows both the exact PythonSCAD code and what the
 real PythonSCAD binary builds for it, via the <code class="docutils literal notranslate"><span class="pre">pythonscad-example</span></code> directive (in
 <code class="docutils literal notranslate"><span class="pre">docs/_ext/pybosl2_example.py</span></code>): an <strong>interactive 3-D viewer</strong> for the exported STL mesh (rotate,
@@ -2017,138 +2075,9 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 <li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.Path">pybosl2.paths.Path</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#pybosl2.paths.SubdivideMethod">pybosl2.paths.SubdivideMethod</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
-<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
@@ -2166,6 +2095,136 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 <li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#raises">Raises</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
@@ -2203,6 +2262,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 <li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#parameters">Parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#return-type">Return type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="paths.html#returns">Returns</a></li>
@@ -2680,7 +2740,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 
 
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="_static/stl_viewer.js?v=f724b851"></script>
+        <script type="module" src="_static/stl_viewer.js?v=6fcc5409"></script>
 
   </body>
 </html>

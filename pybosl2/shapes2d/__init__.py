@@ -40,6 +40,7 @@ from .ops import (
     cross,
     fill,
     hull,
+    osimport,
     round2d,
     shell2d,
     text,
@@ -92,6 +93,7 @@ __all__ = [
     "shell2d",
     "cross",
     "fill",
+    "osimport",
     "hull",
     "_finish",
 ]

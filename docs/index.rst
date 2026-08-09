@@ -16,8 +16,70 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
       background:rgba(56,189,240,0.07);font-size:1.05em;">
      &#9881;&#65039; <b><a href="specs/index.html">Visual parts catalog &amp; spec sheets &rarr;</a></b>
      &nbsp;&mdash;&nbsp; the gears, hinges, joiners, cube-truss and ball-bearing modules with
-     technical schematics and metrics measured from real rendered STL.
+      technical schematics and metrics measured from real rendered STL.
    </p>
+
+.. raw:: html
+
+   <div id="version-links" style="margin:1.2em 0;padding:10px 18px;
+        border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
+        font-size:0.92em;display:none">
+     <b>Released versions:</b> <span id="version-list"></span>
+     &ensp;<b><a id="latest-link" href="">latest &rarr;</a></b>
+   </div>
+
+   <div id="dev-notice" style="margin:1.2em 0;padding:10px 18px;
+        border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
+        font-size:0.92em;display:none">
+     &#9888;&#65039; <b>This is the unreleased development version.</b>
+     See the <a href="latest/index.html">latest stable release</a> for production use.
+   </div>
+
+   <!-- version loader -->
+   <script>
+   (function(){
+     var dev = document.getElementById('dev-notice');
+     var box = document.getElementById('version-links');
+     var list = document.getElementById('version-list');
+     var lat = document.getElementById('latest-link');
+     var base = window.location.pathname.replace(/\/$/,'').replace(/\/[^\/]+$/,'/');
+     var isVer = /\/v\d+\.\d+\.\d+\//.test(window.location.pathname);
+     if (isVer) {
+       lat.setAttribute('href', base + 'latest/index.html');
+       box.style.display = 'block';
+       fetch(base + 'versions.json')
+         .then(function(r){return r.json();})
+         .then(function(vers){
+           var n = Math.min(vers.length,5);
+           for (var i=0; i<n; i++) {
+             var v = vers[i], a = document.createElement('a');
+             a.href = base + v + '/index.html';
+             a.textContent = v;
+             list.appendChild(a);
+             if (i < n-1) list.appendChild(document.createTextNode(' · '));
+           }
+         })
+         .catch(function(){});
+     } else {
+       dev.style.display = 'block';
+       lat.setAttribute('href', 'latest/index.html');
+       box.style.display = 'block';
+       fetch('versions.json')
+         .then(function(r){return r.json();})
+         .then(function(vers){
+           var n = Math.min(vers.length,5);
+           for (var i=0; i<n; i++) {
+             var v = vers[i], a = document.createElement('a');
+             a.href = v + '/index.html';
+             a.textContent = v;
+             list.appendChild(a);
+             if (i < n-1) list.appendChild(document.createTextNode(' · '));
+           }
+         })
+         .catch(function(){});
+     }
+   })();
+   </script>
 
 Rendered examples
 -----------------

@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from .base import Bosl2Solid
+from .base import Bosl2Solid, osimport
 from .cuboid import (
     cube,
     cuboid,
@@ -74,6 +74,7 @@ def __getattr__(name: str) -> object:
 
 __all__ = [
     "Bosl2Solid",
+    "osimport",
     "cube",
     "cuboid",
     "prismoid",

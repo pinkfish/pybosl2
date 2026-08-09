@@ -17,7 +17,7 @@
 
 
 
-        <title>pybosl2.parts.linear_bearings - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
+        <title>pybosl2.parts.linear_bearings - pybosl2 (PythonSCAD port) 0.7.2 documentation</title>
 
 
 
@@ -35,7 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=1e5c14c0" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=c6f4cd80" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.2 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.2 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -87,7 +87,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.1 documentation
+            pybosl2 (PythonSCAD port) 0.7.2 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,12 +218,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.2 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.2 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.7.1 documentation
+    pybosl2 (PythonSCAD port) 0.7.2 documentation
   </label>
 
     <div class="md-nav__source">
@@ -1789,6 +1789,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">teardrop</span><span class="p">,</span> <span class="n">tube</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;LinearBearings&quot;</span><span class="p">,</span> <span class="s2">&quot;LinearBearingSpec&quot;</span><span class="p">]</span>
@@ -1863,7 +1864,7 @@
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
         <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
         <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
-        <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;silver&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="p">:</span> <span class="n">Color</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1919,7 +1920,8 @@
             <span class="p">]</span>
         <span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="k">if</span> <span class="n">color</span> <span class="k">else</span> <span class="n">result</span></div>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">color</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;silver&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LinearBearings.lmxuu_bearing">
@@ -1928,8 +1930,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">lmxuu_bearing</span><span class="p">(</span><span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;silver&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmxuu_bearing()).&quot;&quot;&quot;</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">LinearBearings</span><span class="o">.</span><span class="n">lmxuu_info</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">color_val</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span> <span class="k">if</span> <span class="n">color</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">LinearBearings</span><span class="o">.</span><span class="n">linear_bearing</span><span class="p">(</span>
-            <span class="n">length</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span>
+            <span class="n">length</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color_val</span>
         <span class="p">)</span></div>
 
 
@@ -2114,7 +2117,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="../../../_static/stl_viewer.js?v=f724b851"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=6fcc5409"></script>
 
   </body>
 </html>
