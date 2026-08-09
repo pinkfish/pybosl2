@@ -311,16 +311,25 @@ class Region:
 
         ring_colors: list["Color | None"] = [r._color if r._color is not None else None for r in rings if len(r) >= 3]
 
-        probes = [_Point(poly.exterior.coords[0]) for poly in polys]
+        probes = []
+        for poly in polys:
+            coords = poly.exterior.coords
+            # Midpoint of the first edge, shifted slightly inward so the probe is
+            # strictly inside the polygon and on no other polygon's boundary.
+            x0, y0 = float(coords[0][0]), float(coords[0][1])
+            x1, y1 = float(coords[1][0]), float(coords[1][1])
+            mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+            dx, dy = x1 - x0, y1 - y0
+            probes.append(_Point(mx - dy * 1e-6, my + dx * 1e-6))
         depths = [
             sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
         ]
 
         color_groups: dict["Color | None", list[_Polygon]] = {}
         group_order: list["Color | None"] = []
+        nested_colored: list[tuple["Color | None", _Polygon]] = []
         for i, poly in enumerate(polys):
-            if depths[i] % 2:
-                continue
+            c = ring_colors[i]
             holes = [
                 o.exterior.coords
                 for j, o in enumerate(polys)
@@ -329,11 +338,18 @@ class Region:
             piece = _Polygon(poly.exterior.coords, holes)
             if not piece.is_valid:
                 piece = piece.buffer(0)
-            if not piece.is_empty:
-                c = ring_colors[i]
-                if c not in color_groups:
-                    group_order.append(c)
-                color_groups.setdefault(c, []).append(piece)
+            if piece.is_empty:
+                continue
+            if depths[i] % 2:
+                # Odd depth = hole in the enclosing solid.  If this ring has a colour,
+                # keep it as a separate nested solid that fills its own hole -- it does
+                # not overlap the parent polygon and so must not be subtracted from it.
+                if c is not None:
+                    nested_colored.append((c, _Polygon(poly.exterior.coords)))
+                continue
+            if c not in color_groups:
+                group_order.append(c)
+            color_groups.setdefault(c, []).append(piece)
 
         if not color_groups:
             return cls()
@@ -356,6 +372,27 @@ class Region:
             if isinstance(merged, _Polygon):
                 all_polys.append(merged)
                 polygon_colors.append(color)
+            else:
+                for p in merged.geoms:
+                    if not p.is_empty:
+                        all_polys.append(p)
+                        polygon_colors.append(color)
+
+        if not all_polys and not nested_colored:
+            return cls()
+
+        # Nested coloured rings (odd depth with a fill colour) sit inside holes
+        # cut by their parent solids.  They do not overlap those parents and
+        # therefore must not participate in the first-wins subtraction above.
+        nested_groups: dict["Color | None", list[_Polygon]] = {}
+        for c, piece in nested_colored:
+            nested_groups.setdefault(c, []).append(piece)
+        for color, pieces in nested_groups.items():
+            merged = _unary_union(pieces)
+            if isinstance(merged, _Polygon):
+                if not merged.is_empty:
+                    all_polys.append(merged)
+                    polygon_colors.append(color)
             else:
                 for p in merged.geoms:
                     if not p.is_empty:

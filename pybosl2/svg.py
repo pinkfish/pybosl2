@@ -240,7 +240,7 @@ def svg_rings_with_colors(
     for element in SVG.parse(file).elements():
         if not isinstance(element, Shape):
             continue
-        fill_color: str | None = _shape_fill_hex(getattr(element, "fill", None))
+        fill_color: str | None = _shape_fill_hex(element)
         for subpath in _SVGPath(element).as_subpaths():
             ring: list[list[float]] = []
             for segment in subpath:
@@ -263,18 +263,27 @@ def svg_rings_with_colors(
     return paths, colors
 
 
-def _shape_fill_hex(fill: object) -> str | None:
-    """Extract a ``#rrggbb`` hex string from an svgelements fill, or ``None``.
+def _shape_fill_hex(element: object) -> str | None:
+    """Extract a ``#rrggbb`` hex string from an svgelements Shape, or ``None``.
 
-    ``fill="none"`` (transparent) and pattern/gradient fills return ``None``.
-    An absent ``fill`` attribute (SVG default = black) is treated as a real
-    ``#000000`` colour.  ``fill-opacity`` is already baked into the hex string
-    by svgelements (e.g. ``fill-opacity=0.5`` on ``#ff0000`` → ``#ff000080``).
+    ``fill="none"``, pattern/gradient fills, and the SVG's own default fill
+    (black when no ``fill`` attribute is present at all) all return ``None`` --
+    only explicitly set solid-colour fills produce a hex string.
+    ``fill-opacity`` is already baked into the hex string by svgelements
+    (e.g. ``fill-opacity=0.5`` on ``#ff0000`` → ``#ff000080``).
     """
+    fill = getattr(element, "fill", None)
     if fill is None:
         return None
     if hasattr(fill, "value") and fill.value is None:
         return None
+    # If the SVG source had no fill attribute at all, svgelements assigns
+    # the SVG default (black), but we treat that as geometry-only with no
+    # colour -- only an explicitly set fill counts.
+    if hasattr(element, "values"):
+        raw_attrs: dict[str, object] = dict(element.values.get("attributes", {}))
+        if "fill" not in raw_attrs:
+            return None
     if hasattr(fill, "hex"):
         raw = fill.hex
         if raw is None:
