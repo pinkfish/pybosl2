@@ -116,10 +116,8 @@ class Region:
                 accepted.
 
         """
-        # Set on EVERY construction path: the shapely-geometry branch below returns early, and
-        # a Region built that way (Region.even_odd, Region.from_svg, any boolean result) used
-        # to come back without it -- .geometry() then died with AttributeError: '_color'.
         self._color: "Color | None" = None
+        self._polygon_colors: list["Color | None"] = []
         if isinstance(paths, (Polygon, MultiPolygon)):
             if paths.is_empty:
                 self._polygon = MultiPolygon()
@@ -153,6 +151,7 @@ class Region:
         c = Region.__new__(Region)
         c._polygon = self._polygon
         c._color = self._color
+        c._polygon_colors = list(self._polygon_colors)
         return c
 
     def __len__(self) -> int:
@@ -197,7 +196,15 @@ class Region:
         return self.geom
 
     @classmethod
-    def from_svg(cls, file: str, steps: int = 12, flip_y: bool = True) -> "Region":
+    def from_svg(
+        cls,
+        file: str,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float = 2.0,
+        flip_y: bool = True,
+        color: str | None = None,
+    ) -> "Region":
         """Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).
 
         Real path data rather than the renderer's opaque imported handle, so the drawing can be
@@ -205,8 +212,12 @@ class Region:
 
         Args:
             file: Path to the SVG.
-            steps: Points per curved segment when flattening.
+            fn: Minimum fragment count per curved segment (``>= 3`` → absolute point count).
+            fa: Minimum angle in degrees (accepted for API parity).
+            fs: Minimum fragment size in SVG user units (default ``2.0``).
             flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).
+            color: When set, overrides every shape's fill colour with this hex string.
+                Pass ``None`` (the default) to use the SVG's own colours.
 
         Returns:
             A :class:`Region` of the drawing, nested by the even-odd rule.
@@ -214,10 +225,14 @@ class Region:
         """
         from pybosl2.svg import region_from_svg
 
-        return region_from_svg(file, steps=steps, flip_y=flip_y)
+        return region_from_svg(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color)
 
     @classmethod
-    def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
+    def even_odd(
+        cls,
+        paths: "Sequence[Path2D | Sequence[Sequence[float]]]",
+        colors: "Sequence[Color | str | None] | None" = None,
+    ) -> "Region":
         """Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD ``polygon(paths=)``).
 
         The default constructor is outer-plus-holes: outline 0 bounds the region and every
@@ -230,11 +245,21 @@ class Region:
         the rule SVG and OpenSCAD's multi-path ``polygon()`` use, so it is the one to use for
         imported or traced outlines.
 
+        When *colors* is provided (one per path), the fill colour of each solid ring is
+        preserved through the nesting resolution: same-colour solids are unioned together,
+        while different-colour solids stay as separate polygons inside the Region so
+        :meth:`geometry` and :meth:`linear_extrude` can render each in its own colour.
+
         Args:
             paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or point sequence.
+            colors: Optional per-path fill colours (a :class:`Color`, ``#rrggbb`` string or ``None``).
 
         Returns:
             A :class:`Region` whose solid area is the even-odd interpretation of *paths*.
+            When *colors* are provided (or the *paths* are :class:`~pybosl2.path2d.Path2D`
+            objects carrying their own colour), the resulting polygons each preserve their
+            colour inside :attr:`_polygon_colors` so :meth:`geometry` and
+            :meth:`linear_extrude` render them in the correct colours.
 
         Examples:
             Two disjoint squares, each with a hole -- four outlines, two solids::
@@ -246,21 +271,36 @@ class Region:
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union as _unary_union
 
+        from pybosl2.color import Color as _Color
+
         rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
         polys = [_Polygon(r._points) for r in rings if len(r) >= 3]
         if not polys:
             return cls()
 
-        # Nesting depth is measured from a VERTEX of the ring, not an interior point: a
-        # representative point of a ring that has a hole punched through its middle can land
-        # inside that hole, which counts the ring as nested in its own child.
+        resolved_colors: list[_Color | None] = []
+        if colors is not None:
+            color_iter = iter(colors)
+            for r in rings:
+                if len(r) < 3:
+                    continue
+                try:
+                    c = next(color_iter)
+                    resolved_colors.append(_Color(c) if isinstance(c, str) else c)
+                except StopIteration:
+                    resolved_colors.append(None)
+        else:
+            for r in rings:
+                if len(r) < 3:
+                    continue
+                resolved_colors.append(r._color if r._color is not None else None)
+
         probes = [_Point(poly.exterior.coords[0]) for poly in polys]
         depths = [
             sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
         ]
 
-        # Even depth (zero included) is solid, odd is a hole in whatever encloses it.
-        pieces = []
+        color_groups: dict[_Color | None, list[_Polygon]] = {}
         for i, poly in enumerate(polys):
             if depths[i] % 2:
                 continue
@@ -270,18 +310,35 @@ class Region:
                 if j != i and depths[j] == depths[i] + 1 and poly.contains(probes[j])
             ]
             piece = _Polygon(poly.exterior.coords, holes)
-            # Traced artwork routinely has rings that touch themselves; unioning those raises
-            # "TopologyException: side location conflict". buffer(0) repairs the ring rather
-            # than letting one bad outline take out the whole drawing.
             if not piece.is_valid:
                 piece = piece.buffer(0)
             if not piece.is_empty:
-                pieces.append(piece)
-        if not pieces:
+                color_groups.setdefault(resolved_colors[i], []).append(piece)
+
+        if not color_groups:
             return cls()
-        # unary_union over the whole set, not a running fold: it is both more robust on
-        # near-degenerate input and markedly faster than N pairwise unions.
-        return cls(_unary_union(pieces))
+
+        all_polys: list[Polygon] = []
+        polygon_colors: list[_Color | None] = []
+        for color, pieces in color_groups.items():
+            merged = _unary_union(pieces)
+            if isinstance(merged, _Polygon):
+                if not merged.is_empty:
+                    all_polys.append(merged)
+                    polygon_colors.append(color)
+            else:
+                for p in merged.geoms:
+                    if not p.is_empty:
+                        all_polys.append(p)
+                        polygon_colors.append(color)
+
+        if not all_polys:
+            return cls()
+        result_geom = MultiPolygon(all_polys) if len(all_polys) > 1 else all_polys[0]
+        region = cls(result_geom)
+        region._polygon_colors = polygon_colors
+        region._color = next((c for c in polygon_colors if c is not None), None)
+        return region
 
     @classmethod
     def with_holes(
@@ -416,23 +473,30 @@ class Region:
     def geometry(self) -> "Bosl2Shape2D":
         """2-D geometry: the outline with the holes subtracted.
 
+        When :attr:`_polygon_colors` is populated (e.g. from an SVG import with coloured
+        fills), each polygon is coloured individually before being unioned into the final shape.
+        Otherwise the region's single :attr:`_color` is applied to the whole result.
+
         Returns:
             A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D
             operators and the extruders.
 
         """
-        # Built from the underlying geometry, NOT from paths[0]-minus-the-rest: a region can
-        # hold several disjoint solids (a boolean result, an even-odd trace, an imported
-        # drawing), and the outer+holes reading renders only the first of them -- an imported
-        # SVG came back as one component of the artwork with the rest subtracted.
         polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
         shape = None
-        for poly in polys:
+        for i, poly in enumerate(polys):
             if poly.is_empty:
                 continue
             piece = Path2D(list(poly.exterior.coords)[:-1], closed=True).polygon()
             for interior in poly.interiors:
                 piece = piece - Path2D(list(interior.coords)[:-1], closed=True).polygon()
+            poly_color = (
+                self._polygon_colors[i]
+                if i < len(self._polygon_colors) and self._polygon_colors[i] is not None
+                else self._color
+            )
+            if poly_color is not None and hasattr(piece, "color"):
+                piece = piece.color(poly_color)
             shape = piece if shape is None else (shape | piece)
         if shape is None:  # an empty region still has to produce something chainable
             from pythonscad import polygon as _polygon
@@ -440,8 +504,6 @@ class Region:
             from pybosl2.shapes2d import Bosl2Shape2D
 
             shape = Bosl2Shape2D(_polygon([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]))
-        if self._color is not None:
-            shape = shape.color(self._color)
         return shape
 
     def fill(self) -> "Bosl2Shape2D":
@@ -457,6 +519,26 @@ class Region:
         if self._color is not None and hasattr(result, "color"):
             result = result.color(self._color)
         return result
+
+    def _split_colored(self) -> "list[Region]":
+        """Return sub-Regions, one per polygon, each carrying its own colour.
+
+        Used internally by :meth:`linear_extrude` and :meth:`rotate_extrude` so
+        per-polygon colours from an SVG import survive the extrusion.
+        """
+        if not self._polygon_colors:
+            return [self]
+        polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
+        pieces: list[Region] = []
+        for i, poly in enumerate(polys):
+            if poly.is_empty:
+                continue
+            r = Region(poly)
+            c = self._polygon_colors[i] if i < len(self._polygon_colors) else None
+            if c is not None:
+                r._color = c
+            pieces.append(r)
+        return pieces if pieces else [self]
 
     @classmethod
     def hull(cls, *others: Region | Path2D) -> "Region":
@@ -535,6 +617,25 @@ class Region:
         """
         from pybosl2._backend import current_backend, get_backend
         from pybosl2.exceptions import UnsupportedByBackendError
+
+        if self._polygon_colors:
+            from functools import reduce
+
+            pieces = self._split_colored()
+            extruded = [
+                p.linear_extrude(
+                    height,
+                    center=center,
+                    twist=twist,
+                    scale=scale,
+                    slices=slices,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
+                )
+                for p in pieces
+            ]
+            return reduce(lambda a, b: a | b, extruded)
 
         if current_backend() != "csg" and self.holes:
             raise UnsupportedByBackendError(
