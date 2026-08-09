@@ -51,7 +51,12 @@ def _curve_point_count(segment: object, fn: int | None, fs: float) -> int:
     """
     if fn is not None and fn >= 3:
         return fn
-    length: float = segment.length()  # type: ignore[attr-defined]
+    # error=: svgelements' length() defaults to an extremely tight tolerance and reaches it by
+    # recursive subdivision -- 4.8 MILLION segment_length calls for the 236 curves in a 7 KB
+    # drawing, 196s to load one file. The result here only picks a fragment COUNT, so a tenth
+    # of a fragment is far more precision than the ceil() below can use. Same counts, ~80x
+    # faster per segment.
+    length: float = segment.length(error=max(fs / 10.0, 1e-3))  # type: ignore[attr-defined]
     return max(3, math.ceil(length / fs))
 
 
