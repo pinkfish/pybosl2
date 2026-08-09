@@ -71,7 +71,7 @@ def _html_spec_exists(filename: str) -> bool:
 
 def _resolve_docs_href(href: str) -> bool:
     """Check whether an href points to a real resource."""
-    if href.startswith(("http://", "https://", "#", "mailto:")):
+    if href.startswith(("http://", "https://", "#", "mailto:", "latest/", "v")):
         return True
 
     # spec sheet links: specs/<name>.html

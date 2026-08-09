@@ -43,6 +43,7 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import cylinder as _ocylinder_native
     from pythonscad import hull as _ohull
     from pythonscad import minkowski as _ominkowski
+    from pythonscad import osimport as _oosimport
     from pythonscad import polyhedron as _opolyhedron
     from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import sphere as _osphere_native
@@ -52,6 +53,7 @@ else:
     _ocylinder_native = native("cylinder")
     _ohull = native("hull")
     _ominkowski = native("minkowski")
+    _oosimport = native("osimport")
     _opolyhedron = native("polyhedron")
     _orotate_extrude = native("rotate_extrude")
     _osphere_native = native("sphere")
@@ -104,6 +106,49 @@ def _osphere(
         if full is not None:
             kw[nat] = full
     return _osphere_native(**kw)
+
+
+def osimport(
+    file: str,
+    convexity: int | None = None,
+    origin: "Sequence[float] | None" = None,
+    center: bool | None = None,
+) -> "Bosl2Solid":
+    """Import a 3-D mesh (STL, OFF, 3MF, AMF) as a :class:`Bosl2Solid` (OpenSCAD ``import()``).
+
+    The wrapped counterpart of the bare native ``osimport()``, so an imported mesh joins the
+    fluent API instead of being a raw handle a caller has to keep unwrapping -- it can be
+    anchored, transformed, coloured and cut like any other solid.
+
+    Relative paths resolve against the PROCESS working directory, not the calling module, so
+    pass an absolute path if the asset lives beside your source.
+
+    Use :func:`pybosl2.shapes2d.osimport` for 2-D drawings (SVG/DXF).
+
+    Args:
+        file: Path to the mesh to import.
+        convexity: Convexity hint for preview rendering.
+        origin: For 2-D formats read as 3-D, the origin offset.
+        center: Center the imported mesh on the origin.
+
+    Returns:
+        A :class:`Bosl2Solid` wrapping the imported mesh.
+
+    Examples:
+        An imported STL, cut down to its bottom half:
+
+        .. pythonscad-example::
+
+            from pybosl2.shapes3d import osimport, cuboid
+
+            (osimport("part.stl") - cuboid([100, 100, 50]).up(25)).show()
+
+    """
+    kwargs: dict[str, object] = {}
+    for value, name in ((convexity, "convexity"), (origin, "origin"), (center, "center")):
+        if value is not None:
+            kwargs[name] = value
+    return Bosl2Solid(_oosimport(file, **kwargs))
 
 
 def _as_native_3d(obj: object) -> "PyOpenSCAD":

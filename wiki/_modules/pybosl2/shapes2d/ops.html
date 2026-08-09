@@ -17,7 +17,7 @@
 
 
 
-        <title>pybosl2.shapes2d.ops - pybosl2 (PythonSCAD port) 0.7.1 documentation</title>
+        <title>pybosl2.shapes2d.ops - pybosl2 (PythonSCAD port) 0.7.2 documentation</title>
 
 
 
@@ -35,7 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=1e5c14c0" />
+        <link rel="stylesheet" type="text/css" href="../../../_static/stl_viewer.css?v=c6f4cd80" />
         <link rel="stylesheet" type="text/css" href="../../../_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -74,7 +74,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.2 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.2 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -87,7 +87,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            pybosl2 (PythonSCAD port) 0.7.1 documentation
+            pybosl2 (PythonSCAD port) 0.7.2 documentation
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -218,12 +218,12 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.1 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.1 documentation" data-md-component="logo">
+    <a href="../../../index.html" title="pybosl2 (PythonSCAD port) 0.7.2 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.2 documentation" data-md-component="logo">
 
 
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
     </a>
-    pybosl2 (PythonSCAD port) 0.7.1 documentation
+    pybosl2 (PythonSCAD port) 0.7.2 documentation
   </label>
 
     <div class="md-nav__source">
@@ -1812,6 +1812,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">fill</span> <span class="k">as</span> <span class="n">_ofill</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">hull</span> <span class="k">as</span> <span class="n">_ohull</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">osimport</span> <span class="k">as</span> <span class="n">_oosimport</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_opolygon</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_osquare</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span> <span class="k">as</span> <span class="n">_otext</span>
@@ -1819,9 +1820,60 @@
     <span class="n">_ocircle</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>
     <span class="n">_ofill</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;fill&quot;</span><span class="p">)</span>
     <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
+    <span class="n">_oosimport</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;osimport&quot;</span><span class="p">)</span>
     <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
     <span class="n">_osquare</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
     <span class="n">_otext</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="osimport">
+<a class="viewcode-back" href="../../../ops.html#pybosl2.shapes2d.ops.osimport">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">osimport</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">layer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">dpi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a 2-D drawing (SVG or DXF) as a :class:`Bosl2Shape2D` (OpenSCAD ``import()``).</span>
+
+<span class="sd">    The wrapped counterpart of the bare native ``osimport()``, so an imported outline joins the</span>
+<span class="sd">    fluent API instead of being a raw handle a caller has to keep unwrapping -- it can be</span>
+<span class="sd">    offset, filled, hulled, coloured and extruded like any other 2-D shape.</span>
+
+<span class="sd">    Relative paths resolve against the PROCESS working directory, not the calling module, so</span>
+<span class="sd">    pass an absolute path if the asset lives beside your source.</span>
+
+<span class="sd">    Use :func:`pybosl2.shapes3d.osimport` for 3-D meshes (STL/OFF/3MF).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file: Path to the drawing to import.</span>
+<span class="sd">        convexity: Convexity hint for preview rendering.</span>
+<span class="sd">        layer: For DXF, the layer to import.</span>
+<span class="sd">        dpi: For SVG, dots per inch used to convert lengths.</span>
+<span class="sd">        center: Center the imported drawing on the origin.</span>
+<span class="sd">        id: For SVG, the id of the single element to import.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A :class:`Bosl2Shape2D` wrapping the imported outline.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        An imported SVG outline, scaled to fit and extruded:</span>
+
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2 import shapes2d as s2</span>
+
+<span class="sd">            s2.osimport(&quot;logo.svg&quot;).resize([40, 40, 0]).linear_extrude(height=2).show()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">((</span><span class="n">convexity</span><span class="p">,</span> <span class="s2">&quot;convexity&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;layer&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">dpi</span><span class="p">,</span> <span class="s2">&quot;dpi&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">),</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_oosimport</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
 
 
 <div class="viewcode-block" id="fill">
@@ -1897,8 +1949,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">orad</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">irad</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">orad</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;outer_radius must be &gt;= 0, got </span><span class="si">{</span><span class="n">orad</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">assert</span> <span class="n">irad</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;inner_radius must be &gt;= 0, got </span><span class="si">{</span><span class="n">irad</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;round2d(): must give children&quot;</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">irad</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2161,7 +2211,7 @@
 
 
         <script src="../../../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="../../../_static/stl_viewer.js?v=f724b851"></script>
+        <script type="module" src="../../../_static/stl_viewer.js?v=6fcc5409"></script>
 
   </body>
 </html>

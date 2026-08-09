@@ -194,6 +194,62 @@ class Region:
         return self.geom
 
     @classmethod
+    def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
+        """Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD ``polygon(paths=)``).
+
+        The default constructor is outer-plus-holes: outline 0 bounds the region and every
+        other outline is a hole in it. That is right for a ring, and wrong for a traced drawing
+        with several disjoint solids -- those extra solids come out subtracted instead of
+        added, which still produces geometry and so fails silently.
+
+        Even-odd instead decides each outline by how many others CONTAIN it: enclosed by an
+        even number (zero included) makes it solid, by an odd number makes it a hole. That is
+        the rule SVG and OpenSCAD's multi-path ``polygon()`` use, so it is the one to use for
+        imported or traced outlines.
+
+        Args:
+            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or point sequence.
+
+        Returns:
+            A :class:`Region` whose solid area is the even-odd interpretation of *paths*.
+
+        Examples:
+            Two disjoint squares, each with a hole -- four outlines, two solids::
+
+                Region.even_odd([outer_a, hole_a, outer_b, hole_b])
+
+        """
+        from shapely.geometry import Point as _Point
+        from shapely.geometry import Polygon as _Polygon
+
+        rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
+        polys = [_Polygon(r._points) for r in rings if len(r) >= 3]
+        if not polys:
+            return cls()
+
+        # Nesting depth is measured from a VERTEX of the ring, not an interior point: a
+        # representative point of a ring that has a hole punched through its middle can land
+        # inside that hole, which counts the ring as nested in its own child.
+        probes = [_Point(poly.exterior.coords[0]) for poly in polys]
+        depths = [
+            sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
+        ]
+
+        # Even depth (zero included) is solid, odd is a hole in whatever encloses it.
+        result = None
+        for i, poly in enumerate(polys):
+            if depths[i] % 2:
+                continue
+            holes = [
+                o.exterior.coords
+                for j, o in enumerate(polys)
+                if j != i and depths[j] == depths[i] + 1 and poly.contains(probes[j])
+            ]
+            piece = _Polygon(poly.exterior.coords, holes)
+            result = piece if result is None else result.union(piece)
+        return cls(result) if result is not None else cls()
+
+    @classmethod
     def with_holes(
         cls,
         outline: Path2D,

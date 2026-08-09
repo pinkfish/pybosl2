@@ -47,6 +47,7 @@ if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-l
     from pythonscad import circle as _ocircle
     from pythonscad import fill as _ofill
     from pythonscad import hull as _ohull
+    from pythonscad import osimport as _oosimport
     from pythonscad import polygon as _opolygon
     from pythonscad import square as _osquare
     from pythonscad import text as _otext
@@ -54,9 +55,57 @@ else:
     _ocircle = native("circle")
     _ofill = native("fill")
     _ohull = native("hull")
+    _oosimport = native("osimport")
     _opolygon = native("polygon")
     _osquare = native("square")
     _otext = native("text")
+
+
+def osimport(
+    file: str,
+    convexity: int | None = None,
+    layer: str | None = None,
+    dpi: float | None = None,
+    center: bool | None = None,
+    id: str | None = None,  # noqa: A002
+) -> Bosl2Shape2D:
+    """Import a 2-D drawing (SVG or DXF) as a :class:`Bosl2Shape2D` (OpenSCAD ``import()``).
+
+    The wrapped counterpart of the bare native ``osimport()``, so an imported outline joins the
+    fluent API instead of being a raw handle a caller has to keep unwrapping -- it can be
+    offset, filled, hulled, coloured and extruded like any other 2-D shape.
+
+    Relative paths resolve against the PROCESS working directory, not the calling module, so
+    pass an absolute path if the asset lives beside your source.
+
+    Use :func:`pybosl2.shapes3d.osimport` for 3-D meshes (STL/OFF/3MF).
+
+    Args:
+        file: Path to the drawing to import.
+        convexity: Convexity hint for preview rendering.
+        layer: For DXF, the layer to import.
+        dpi: For SVG, dots per inch used to convert lengths.
+        center: Center the imported drawing on the origin.
+        id: For SVG, the id of the single element to import.
+
+    Returns:
+        A :class:`Bosl2Shape2D` wrapping the imported outline.
+
+    Examples:
+        An imported SVG outline, scaled to fit and extruded:
+
+        .. pythonscad-example::
+
+            from pybosl2 import shapes2d as s2
+
+            s2.osimport("logo.svg").resize([40, 40, 0]).linear_extrude(height=2).show()
+
+    """
+    kwargs: dict[str, object] = {}
+    for value, name in ((convexity, "convexity"), (layer, "layer"), (dpi, "dpi"), (center, "center"), (id, "id")):
+        if value is not None:
+            kwargs[name] = value
+    return Bosl2Shape2D(_oosimport(file, **kwargs))
 
 
 def fill(children: "Shape2DLike") -> Bosl2Shape2D:

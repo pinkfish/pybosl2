@@ -415,3 +415,41 @@ def test_region_color_carries_through_stroke() -> None:
     r = Region([[[0, 0], [30, 0], [30, 20], [0, 20]]]).color(Color([0.3, 0.6, 0.9]))
     result = r.stroke(width=1)
     assert result._color == Color([0.3, 0.6, 0.9])
+
+
+# -- even-odd nesting -----------------------------------------------------------------------
+#
+# The default constructor is outer-plus-holes: outline 0 bounds the region, every other outline
+# is a hole in it. For a traced drawing with several disjoint solids that is silently wrong --
+# the extra solids get subtracted. A 118-outline SVG trace rendered visibly broken through it
+# while still producing geometry, which is exactly the failure mode that survives a smoke test.
+
+SQ_A = [[0, 0], [10, 0], [10, 10], [0, 10]]
+HOLE_A = [[3, 3], [7, 3], [7, 7], [3, 7]]
+SQ_B = [[20, 0], [30, 0], [30, 10], [20, 10]]
+HOLE_B = [[23, 3], [27, 3], [27, 7], [23, 7]]
+
+
+def test_even_odd_keeps_disjoint_solids_solid() -> None:
+    """Two separate rings stay two solids -- the case the outer+holes model gets wrong."""
+    assert Region.even_odd([SQ_A, HOLE_A, SQ_B, HOLE_B]).geom.area == pytest.approx(168.0)
+
+
+def test_even_odd_matches_the_default_for_a_simple_ring() -> None:
+    """One outline plus one hole is the case both models agree on."""
+    assert Region.even_odd([SQ_A, HOLE_A]).geom.area == pytest.approx(84.0)
+    assert Region([SQ_A, HOLE_A]).geom.area == pytest.approx(84.0)
+
+
+def test_even_odd_single_outline_is_just_the_outline() -> None:
+    assert Region.even_odd([SQ_A]).geom.area == pytest.approx(100.0)
+
+
+def test_even_odd_island_inside_a_hole_is_solid_again() -> None:
+    """Depth 2 is solid: an island in a hole comes back, which is what 'even-odd' means."""
+    island = [[4, 4], [6, 4], [6, 6], [4, 6]]
+    assert Region.even_odd([SQ_A, HOLE_A, island]).geom.area == pytest.approx(88.0)
+
+
+def test_even_odd_of_nothing_is_empty() -> None:
+    assert len(Region.even_odd([])) == 0

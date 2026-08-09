@@ -35,7 +35,7 @@
 
 
         <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
-        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=1e5c14c0" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=c6f4cd80" />
         <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
 
@@ -1800,8 +1800,12 @@
 </li>
       <li><a href="vectors.html#pybosl2.vectors.add_scalar">add_scalar() (in module pybosl2.vectors)</a>
 </li>
-      <li><a href="screw_drive.html#pybosl2.parts.screw_drive.PhillipsSpec.alpha">alpha (pybosl2.parts.screw_drive.PhillipsSpec attribute)</a>
+      <li><a href="color.html#pybosl2.color.Color.alpha">alpha (pybosl2.color.Color property)</a>
+
+      <ul>
+        <li><a href="screw_drive.html#pybosl2.parts.screw_drive.PhillipsSpec.alpha">(pybosl2.parts.screw_drive.PhillipsSpec attribute)</a>
 </li>
+      </ul></li>
       <li><a href="enums.html#pybosl2.enums.StaggerMode.ALT">ALT (pybosl2.enums.StaggerMode attribute)</a>
 
       <ul>
@@ -1986,8 +1990,16 @@
       </ul></li>
       <li><a href="screws.html#pybosl2.parts.screws.ThreadPitches.coarse">coarse (pybosl2.parts.screws.ThreadPitches attribute)</a>
 </li>
-      <li><a href="color.html#pybosl2.color.Colorable.color">color() (pybosl2.color.Colorable method)</a>
+      <li><a href="color.html#pybosl2.color.Color">Color (class in pybosl2.color)</a>
 </li>
+      <li><a href="color.html#pybosl2.color.Colorable.color">color() (pybosl2.color.Colorable method)</a>
+
+      <ul>
+        <li><a href="paths.html#pybosl2.paths.Path.color">(pybosl2.paths.Path method)</a>
+</li>
+        <li><a href="regions.html#pybosl2.regions.Region.color">(pybosl2.regions.Region method)</a>
+</li>
+      </ul></li>
       <li><a href="color.html#pybosl2.color.Colorable.color_this">color_this() (pybosl2.color.Colorable method)</a>
 </li>
       <li><a href="color.html#pybosl2.color.Colorable">Colorable (class in pybosl2.color)</a>
@@ -2010,6 +2022,12 @@
 </li>
       <li><a href="rounding.html#pybosl2.rounding.Roundable.convex_offset_extrude">convex_offset_extrude() (pybosl2.rounding.Roundable method)</a>
 </li>
+      <li><a href="paths.html#pybosl2.paths.Path.copy">copy() (pybosl2.paths.Path method)</a>
+
+      <ul>
+        <li><a href="regions.html#pybosl2.regions.Region.copy">(pybosl2.regions.Region method)</a>
+</li>
+      </ul></li>
       <li><a href="masking.html#pybosl2.masking.corner_profile">corner_profile() (in module pybosl2.masking)</a>
 </li>
       <li><a href="walls.html#pybosl2.parts.walls.CorrugatedWall">CorrugatedWall (class in pybosl2.parts.walls)</a>
@@ -2220,11 +2238,13 @@
 </li>
       <li><a href="nurbs.html#pybosl2.nurbs.NurbsCurve.elevate_degree">elevate_degree() (pybosl2.nurbs.NurbsCurve method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="circle.html#pybosl2.shapes2d.circle.ellipse">ellipse() (in module pybosl2.shapes2d.circle)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="beziers.html#pybosl2.beziers.Bezier.end">end() (pybosl2.beziers.Bezier static method)</a>
+</li>
+      <li><a href="regions.html#pybosl2.regions.Region.even_odd">even_odd() (pybosl2.regions.Region class method)</a>
 </li>
       <li><a href="quaternions.html#pybosl2.quaternions.Quaternion.exp">exp() (pybosl2.quaternions.Quaternion class method)</a>
 </li>
@@ -2421,6 +2441,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="gears.html#pybosl2.parts.gears.HerringboneGear">HerringboneGear (class in pybosl2.parts.gears)</a>
+</li>
+      <li><a href="color.html#pybosl2.color.Color.hex">hex (pybosl2.color.Color property)</a>
 </li>
       <li><a href="screw_drive.html#pybosl2.parts.screw_drive.hex_mask">hex_mask() (in module pybosl2.parts.screw_drive)</a>
 </li>
@@ -2927,10 +2949,10 @@
 </li>
       <li><a href="skin.html#pybosl2.skin.os_chamfer">os_chamfer() (in module pybosl2.skin)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="skin.html#pybosl2.skin.os_circle">os_circle() (in module pybosl2.skin)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="skin.html#pybosl2.skin.os_flat">os_flat() (in module pybosl2.skin)</a>
 </li>
       <li><a href="skin.html#pybosl2.skin.os_profile">os_profile() (in module pybosl2.skin)</a>
@@ -2938,6 +2960,8 @@
       <li><a href="skin.html#pybosl2.skin.os_smooth">os_smooth() (in module pybosl2.skin)</a>
 </li>
       <li><a href="skin.html#pybosl2.skin.os_teardrop">os_teardrop() (in module pybosl2.skin)</a>
+</li>
+      <li><a href="ops.html#pybosl2.shapes2d.ops.osimport">osimport() (in module pybosl2.shapes2d.ops)</a>
 </li>
       <li><a href="skin.html#pybosl2.skin.OSType">OSType (class in pybosl2.skin)</a>
 </li>
@@ -3421,10 +3445,14 @@
         <li><a href="vnf.html#pybosl2.vnf.VNF.reverse">(pybosl2.vnf.VNF method)</a>
 </li>
       </ul></li>
-      <li><a href="constants.html#pybosl2.constants.RIGHT">RIGHT (in module pybosl2.constants)</a>
+      <li><a href="color.html#pybosl2.color.Color.rgb">rgb (pybosl2.color.Color property)</a>
+</li>
+      <li><a href="color.html#pybosl2.color.Color.rgba">rgba (pybosl2.color.Color property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="constants.html#pybosl2.constants.RIGHT">RIGHT (in module pybosl2.constants)</a>
+</li>
       <li><a href="partitions.html#pybosl2.partitions.Partitionable.right_half">right_half() (pybosl2.partitions.Partitionable method)</a>
 </li>
       <li><a href="square.html#pybosl2.shapes2d.square.right_triangle">right_triangle() (in module pybosl2.shapes2d.square)</a>
@@ -4376,7 +4404,7 @@
 
 
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="_static/stl_viewer.js?v=f724b851"></script>
+        <script type="module" src="_static/stl_viewer.js?v=6fcc5409"></script>
 
   </body>
 </html>
