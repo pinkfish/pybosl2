@@ -116,6 +116,10 @@ class Region:
                 accepted.
 
         """
+        # Set on EVERY construction path: the shapely-geometry branch below returns early, and
+        # a Region built that way (Region.even_odd, Region.from_svg, any boolean result) used
+        # to come back without it -- .geometry() then died with AttributeError: '_color'.
+        self._color: "Color | None" = None
         if isinstance(paths, (Polygon, MultiPolygon)):
             if paths.is_empty:
                 self._polygon = MultiPolygon()
@@ -136,7 +140,6 @@ class Region:
         paths_list = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in items]
         outer = paths_list[0]._points
         holes = [h._points for h in paths_list[1:]]
-        self._color: "Color | None" = None
         self._polygon = MultiPolygon([Polygon(outer, holes)])
 
     def color(self, c: "Color") -> "Region":
@@ -194,6 +197,26 @@ class Region:
         return self.geom
 
     @classmethod
+    def from_svg(cls, file: str, steps: int = 12, flip_y: bool = True) -> "Region":
+        """Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).
+
+        Real path data rather than the renderer's opaque imported handle, so the drawing can be
+        measured, offset, rounded or tessellated like anything else -- and needs no renderer.
+
+        Args:
+            file: Path to the SVG.
+            steps: Points per curved segment when flattening.
+            flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).
+
+        Returns:
+            A :class:`Region` of the drawing, nested by the even-odd rule.
+
+        """
+        from pybosl2.svg import region_from_svg
+
+        return region_from_svg(file, steps=steps, flip_y=flip_y)
+
+    @classmethod
     def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
         """Create a region from outlines nested by the EVEN-ODD rule (OpenSCAD ``polygon(paths=)``).
 
@@ -221,6 +244,7 @@ class Region:
         """
         from shapely.geometry import Point as _Point
         from shapely.geometry import Polygon as _Polygon
+        from shapely.ops import unary_union as _unary_union
 
         rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
         polys = [_Polygon(r._points) for r in rings if len(r) >= 3]
@@ -236,7 +260,7 @@ class Region:
         ]
 
         # Even depth (zero included) is solid, odd is a hole in whatever encloses it.
-        result = None
+        pieces = []
         for i, poly in enumerate(polys):
             if depths[i] % 2:
                 continue
@@ -246,8 +270,18 @@ class Region:
                 if j != i and depths[j] == depths[i] + 1 and poly.contains(probes[j])
             ]
             piece = _Polygon(poly.exterior.coords, holes)
-            result = piece if result is None else result.union(piece)
-        return cls(result) if result is not None else cls()
+            # Traced artwork routinely has rings that touch themselves; unioning those raises
+            # "TopologyException: side location conflict". buffer(0) repairs the ring rather
+            # than letting one bad outline take out the whole drawing.
+            if not piece.is_valid:
+                piece = piece.buffer(0)
+            if not piece.is_empty:
+                pieces.append(piece)
+        if not pieces:
+            return cls()
+        # unary_union over the whole set, not a running fold: it is both more robust on
+        # near-degenerate input and markedly faster than N pairwise unions.
+        return cls(_unary_union(pieces))
 
     @classmethod
     def with_holes(
@@ -387,9 +421,25 @@ class Region:
             operators and the extruders.
 
         """
-        shape = self.outline.polygon()
-        for hole in self.holes:
-            shape = shape - hole.polygon()
+        # Built from the underlying geometry, NOT from paths[0]-minus-the-rest: a region can
+        # hold several disjoint solids (a boolean result, an even-odd trace, an imported
+        # drawing), and the outer+holes reading renders only the first of them -- an imported
+        # SVG came back as one component of the artwork with the rest subtracted.
+        polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
+        shape = None
+        for poly in polys:
+            if poly.is_empty:
+                continue
+            piece = Path2D(list(poly.exterior.coords)[:-1], closed=True).polygon()
+            for interior in poly.interiors:
+                piece = piece - Path2D(list(interior.coords)[:-1], closed=True).polygon()
+            shape = piece if shape is None else (shape | piece)
+        if shape is None:  # an empty region still has to produce something chainable
+            from pythonscad import polygon as _polygon
+
+            from pybosl2.shapes2d import Bosl2Shape2D
+
+            shape = Bosl2Shape2D(_polygon([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]))
         if self._color is not None:
             shape = shape.color(self._color)
         return shape

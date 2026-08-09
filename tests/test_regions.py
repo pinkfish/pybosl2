@@ -453,3 +453,165 @@ def test_even_odd_island_inside_a_hole_is_solid_again() -> None:
 
 def test_even_odd_of_nothing_is_empty() -> None:
     assert len(Region.even_odd([])) == 0
+
+
+# -- _color attribute on every construction path ---------------------------------------------
+#
+# Before the fix, shapely-initialised Regions (even_odd, from_svg, booleans) came back
+# without `_color`, and .geometry() died with AttributeError: '_color'.
+
+
+def test_color_attr_exists_on_default_constructor() -> None:
+    assert hasattr(Region(SQUARE), "_color")
+
+
+def test_color_attr_exists_on_even_odd() -> None:
+    assert hasattr(Region.even_odd([SQUARE, HOLE]), "_color")
+
+
+def test_color_attr_exists_on_boolean_result() -> None:
+    a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
+    b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
+    assert hasattr(a.union(b), "_color")
+    assert hasattr(a.intersection(b), "_color")
+    assert hasattr(a.difference(b), "_color")
+
+
+def test_color_attr_exists_on_shapely_init() -> None:
+    from shapely.geometry import MultiPolygon
+
+    mp = MultiPolygon()
+    assert hasattr(Region(mp), "_color")
+
+
+def test_color_attr_exists_on_hull() -> None:
+    a = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
+    b = Region([[30, 0], [50, 0], [50, 20], [30, 20]])
+    assert hasattr(Region.hull(a, b), "_color")
+
+
+def test_color_attr_exists_on_from_svg(tmp_path) -> None:
+    f = tmp_path / "test.svg"
+    f.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
+    )
+    r = Region.from_svg(str(f))
+    assert hasattr(r, "_color")
+
+
+def test_color_persists_across_copy() -> None:
+    r = Region(SQUARE).color(Color("red"))
+    assert r.copy()._color == Color("red")
+
+
+# -- geometry() with multi-polygon regions ----------------------------------------------------
+
+
+def test_geometry_renders_multiple_disjoint_solids() -> None:
+    """Two separate squares should both appear in the geometry, not just the first."""
+    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
+    b = [[40, 0], [60, 0], [60, 20], [40, 20]]
+    region = Region.even_odd([a, b])
+    geom = region.geometry()
+    assert geom is not None
+    assert region.geom.area == pytest.approx(800.0)  # 400 + 400
+
+
+def test_geometry_with_hole_region() -> None:
+    """A region with a hole should render the hole correctly in geometry."""
+    region = Region.with_holes(SQUARE, HOLE)  # type: ignore[arg-type]
+    geom = region.geometry()
+    assert geom is not None
+    # 80*60 - 40*20 = 4800 - 800 = 4000
+    from shapely.geometry import Polygon
+
+    outer = [(float(p[0]), float(p[1])) for p in region.outline]
+    holes = [[(float(p[0]), float(p[1])) for p in h] for h in region.holes]
+    assert Polygon(outer, holes).area == pytest.approx(4000.0)
+
+
+def test_empty_region_geometry_is_chainable() -> None:
+    """Empty region must still return something that .translate() etc don't crash on."""
+    geom = Region([]).geometry()
+    assert geom is not None
+    # Chaining operations on empty geometry should not raise.
+    translated = geom.translate([10, 0])
+    assert translated is not None
+
+
+def test_geometry_preserves_color() -> None:
+    """Color set on the region should propagate to the geometry."""
+    r = Region(SQUARE).color(Color("red"))
+    geom = r.geometry()
+    assert geom is not None
+
+
+# -- even_odd with difficult geometry --------------------------------------------------------
+
+
+def test_even_odd_handles_self_touching_ring() -> None:
+    """A figure-eight ring that touches itself should not crash even_odd."""
+    # Two squares joined at a single vertex — the shared vertex creates a self-touch.
+    fig8 = [[0, 0], [20, 0], [20, 20], [0, 20], [0, 0], [20, -20], [40, -20], [40, 0], [20, 0]]
+    r = Region.even_odd([fig8])
+    assert isinstance(r, Region)
+    assert r.geom.area > 0
+
+
+def test_even_odd_null_union_is_empty() -> None:
+    """Two disjoint rings with no enclosing polygon."""
+    a = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    b = [[20, 0], [30, 0], [30, 10], [20, 10]]
+    r = Region.even_odd([a, b])
+    assert len(r) != 0
+    assert r.geom.area == pytest.approx(200.0)
+
+
+def test_even_odd_zero_area_rings_are_ignored() -> None:
+    """Rings that collapse to zero area after buffer(0) should be dropped silently."""
+    from shapely.geometry import Polygon
+
+    p = Polygon([[0, 0], [0, 10], [0, 0]])  # degenerate, zero-area
+    invalid = list(p.exterior.coords)
+    r = Region.even_odd([invalid])
+    assert len(r) == 0
+
+
+# -- Region.from_svg --------------------------------------------------------------------------
+
+
+def test_from_svg_is_identical_to_region_from_svg(tmp_path) -> None:
+    f = tmp_path / "shape.svg"
+    f.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
+        '<path d="M 0,0 H 50 V 40 H 0 Z M 5,5 H 20 V 15 H 5 Z"/>'
+        "</svg>"
+    )
+    from pybosl2.svg import region_from_svg
+
+    r1 = region_from_svg(str(f))
+    r2 = Region.from_svg(str(f))
+    assert r1.geom.area == pytest.approx(r2.geom.area)
+    assert len(r1.paths) == len(r2.paths)
+
+
+def test_from_svg_returns_region_instance(tmp_path) -> None:
+    f = tmp_path / "box.svg"
+    f.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
+        '<rect x="10" y="10" width="40" height="30"/>'
+        "</svg>"
+    )
+    result = Region.from_svg(str(f))
+    assert isinstance(result, Region)
+    assert result.geom.area > 0
+
+
+def test_from_svg_no_ribext(tmp_path) -> None:
+    """from_svg should not require a renderer."""
+    f = tmp_path / "ribext.svg"
+    f.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20"/></svg>'
+    )
+    result = Region.from_svg(str(f), steps=24)
+    assert isinstance(result, Region)

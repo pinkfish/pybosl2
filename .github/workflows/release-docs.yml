@@ -112,12 +112,12 @@ jobs:
             VNAMES+=( "$(basename "$d")" )
           done
           printf '%s\n' "${VNAMES[@]}" | sort -rV | python3 << 'PYEOF'
-import json, sys
-versions = [v.strip() for v in sys.stdin if v.strip()]
-with open('_site/versions.json', 'w') as f:
-    json.dump(versions, f)
-print(f'versions.json written with {len(versions)} entries: {versions}')
-PYEOF
+          import json, sys
+          versions = [v.strip() for v in sys.stdin if v.strip()]
+          with open('_site/versions.json', 'w') as f:
+              json.dump(versions, f)
+          print(f'versions.json written with {len(versions)} entries: {versions}')
+          PYEOF
 
       - name: Verify output is not empty
         run: |
