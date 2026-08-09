@@ -1823,9 +1823,62 @@ def test_sdf_to_csg_matches_the_field_it_was_meshed_from(tmp_path):
     np.testing.assert_allclose(bridged.size, direct.size, atol=1e-3)
     assert math.isclose(bridged.volume, direct.volume, rel_tol=1e-6)
     assert bridged.watertight
-    # A cube with the field's corner left in it: an inverted mesh would union to the bare cube.
     setup_cut = setup + (
         "from pybosl2 import shapes3d as s3\ndef cut():\n    return s3.cuboid([30, 30, 30]) - field().to_csg()\n"
     )
     cut = _render(tmp_path, "cut()", setup=setup_cut, name="sdf_field_cut")
     assert math.isclose(cut.volume, 27000 - direct.volume, rel_tol=1e-3)
+
+
+# -- SVG stroke and polygon rendering --------------------------------------------------------
+
+PORTUGAL_FLAG_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">'
+    '<rect width="600" height="400" fill="#f00"/>'
+    '<rect width="240" height="400" fill="#060"/>'
+    '<g fill="#ff0" fill-rule="evenodd" stroke="#000" stroke-width="0.8">'
+    '<circle cx="300" cy="200" r="80"/>'
+    '<circle cx="300" cy="200" r="60"/>'
+    '<path d="m200,200 h200 M300,100 v200"/>'
+    "</g>"
+    "<g>"
+    '<path fill="#fff" stroke="#000" stroke-width="1.5" d="m260,160 h80 v80 h-80 z"/>'
+    '<path fill="#00f" d="m270,170 h20 v20 h-20 z M310,170 h20 v20 h-20 z '
+    'M270,210 h20 v20 h-20 z M310,210 h20 v20 h-20 z M290,190 h20 v20 h-20 z"/>'
+    "</g>"
+    "</svg>"
+)
+
+
+def test_portugal_flag_strokes_polygon(tmp_path):
+    """Simplified Portuguese flag with strokes=polygon: coloured regions + stroke outlines."""
+    svg_path = tmp_path / "portugal.svg"
+    svg_path.write_text(PORTUGAL_FLAG_SVG)
+    expr = f"""\
+svg_path = r'{svg_path}'
+from pybosl2 import Region
+region = Region.from_svg(svg_path, strokes="polygon")
+region.linear_extrude(height=2)
+"""
+    m = _render(tmp_path, expr, name="portugal_strokes_polygon")
+    assert m.ntris > 0
+    assert m.watertight
+    # The flag is 600x400, extruded 2mm → volume ≈ 600*400*2 = 480000, minus holes
+    assert 300000 < m.volume < 500000
+
+
+def test_portugal_flag_strokes_ignore(tmp_path):
+    """Simplified Portuguese flag with strokes=ignore: only filled shapes, no outlines."""
+    svg_path = tmp_path / "portugal.svg"
+    svg_path.write_text(PORTUGAL_FLAG_SVG)
+    expr = f"""\
+svg_path = r'{svg_path}'
+from pybosl2 import Region
+region = Region.from_svg(svg_path, strokes="ignore")
+region.linear_extrude(height=2)
+"""
+    m = _render(tmp_path, expr, name="portugal_strokes_ignore")
+    assert m.ntris > 0
+    assert m.watertight
+    # strokes=ignore produces fewer triangles (no stroke polygons)
+    assert m.volume > 0

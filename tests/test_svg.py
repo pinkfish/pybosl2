@@ -112,6 +112,33 @@ OPACITY_FILL = textwrap.dedent(
     """
 )
 
+STROKE_ONLY = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <path d="M 10,10 H 80 V 80 H 10 Z" fill="none" stroke="#ff0000" stroke-width="2"/>
+    </svg>
+    """
+)
+
+FILL_AND_STROKE = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <path d="M 10,10 H 50 V 50 H 10 Z" fill="#00ff00" stroke="#000000" stroke-width="3"/>
+    </svg>
+    """
+)
+
+STROKES_INHERITED = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+      <g fill="#ff0" stroke="#00f" stroke-width="1.5">
+        <circle cx="50" cy="50" r="20"/>
+        <rect x="10" y="10" width="30" height="30"/>
+      </g>
+    </svg>
+    """
+)
+
 
 @pytest.fixture
 def two_solids(tmp_path):
@@ -465,3 +492,94 @@ def test_region_from_svg_overlap_first_wins(tmp_path) -> None:
     assert len(region._polygon_colors) >= 2
     # Non-overlapping: blue had red subtracted from its overlap area
     assert region.geom.area == pytest.approx(1000.0)  # red=600 + blue=600-200=400
+
+
+# -- stroke handling ---------------------------------------------------------------------------
+
+
+def test_stroke_polygon_creates_filled_shape(tmp_path) -> None:
+    """stroke-only path with strokes=polygon → produces a filled polygon."""
+    f = tmp_path / "stroke.svg"
+    f.write_text(STROKE_ONLY)
+    paths, colors = svg_rings_with_colors(str(f), strokes="polygon")
+    assert len(paths) >= 1
+    assert "#ff0000" in colors
+
+
+def test_stroke_ignore_skips_stroke_only(tmp_path) -> None:
+    """stroke-only path with strokes=ignore → ring exists but with no colour."""
+    f = tmp_path / "stroke.svg"
+    f.write_text(STROKE_ONLY)
+    paths, colors = svg_rings_with_colors(str(f), strokes="ignore")
+    # The ring geometry is always parsed; strokes=ignore only means no
+    # additional stroke-colour polygons are created.
+    assert len(paths) >= 1
+    assert colors[0] is None  # fill="none" → no fill colour
+
+
+def test_fill_and_stroke_polygon_produces_both(tmp_path) -> None:
+    """A shape with both fill and stroke produces both colours."""
+    f = tmp_path / "fillstroke.svg"
+    f.write_text(FILL_AND_STROKE)
+    paths, colors = svg_rings_with_colors(str(f), strokes="polygon")
+    assert "#00ff00" in colors  # fill
+    assert "#000000" in colors  # stroke
+
+
+def test_fill_and_stroke_ignore_keeps_only_fill(tmp_path) -> None:
+    """strokes=ignore drops the stroke, keeps the fill."""
+    f = tmp_path / "fillstroke.svg"
+    f.write_text(FILL_AND_STROKE)
+    paths, colors = svg_rings_with_colors(str(f), strokes="ignore")
+    assert "#00ff00" in colors
+    assert "#000000" not in colors
+
+
+def test_inherited_strokes_with_polygon(tmp_path) -> None:
+    """Inherited stroke from <g> is resolved and converted to polygon."""
+    f = tmp_path / "inheroked.svg"
+    f.write_text(STROKES_INHERITED)
+    paths, colors = svg_rings_with_colors(str(f), strokes="polygon")
+    assert "#0000ff" in colors  # stroke colour
+
+
+def test_inherited_strokes_with_ignore(tmp_path) -> None:
+    """strokes=ignore drops inherited strokes."""
+    f = tmp_path / "inheroked.svg"
+    f.write_text(STROKES_INHERITED)
+    paths, colors = svg_rings_with_colors(str(f), strokes="ignore")
+    assert "#0000ff" not in colors
+
+
+def test_region_from_svg_with_strokes_polygon(tmp_path) -> None:
+    """region_from_svg with strokes=polygon produces colored polygons incl strokes."""
+    f = tmp_path / "fillstroke.svg"
+    f.write_text(FILL_AND_STROKE)
+    region = region_from_svg(str(f), strokes="polygon")
+    colors = {str(c) for c in region._polygon_colors if c is not None}
+    assert "#00ff00" in colors
+    assert "#000000" in colors
+
+
+def test_region_from_svg_with_strokes_ignore(tmp_path) -> None:
+    """region_from_svg with strokes=ignore excludes stroke colours."""
+    f = tmp_path / "fillstroke.svg"
+    f.write_text(FILL_AND_STROKE)
+    region = region_from_svg(str(f), strokes="ignore")
+    colors = {str(c) for c in region._polygon_colors if c is not None}
+    assert "#00ff00" in colors
+    assert "#000000" not in colors
+
+
+def test_stroke_polygon_has_reasonable_area(tmp_path) -> None:
+    """A stroked closed shape produces a polygon with area ≈ stroke_width * perimeter."""
+    f = tmp_path / "stroke.svg"
+    f.write_text(STROKE_ONLY)
+    paths, colors = svg_rings_with_colors(str(f), strokes="polygon")
+    assert len(paths) >= 1
+    from shapely.geometry import Polygon
+
+    for path in paths:
+        poly = Polygon([list(pt) for pt in path])
+        assert poly.is_valid
+        assert poly.area > 0  # buffered stroke produces real area

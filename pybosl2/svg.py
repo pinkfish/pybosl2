@@ -137,6 +137,7 @@ def region_from_svg(
     fs: float = DEFAULT_FS,
     flip_y: bool = True,
     color: str | None = None,
+    strokes: str = "polygon",
 ) -> "Region":
     """Load an SVG drawing as a :class:`~pybosl2.regions.Region`.
 
@@ -157,6 +158,8 @@ def region_from_svg(
         flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).
         color: When set, overrides every shape's fill colour with this hex string
             (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.
+        strokes: ``"polygon"`` (default) converts stroked paths into filled polygons.
+            ``"ignore"`` skips shapes that have only a stroke and no fill.
 
     Returns:
         A :class:`~pybosl2.regions.Region` of the drawing.
@@ -182,7 +185,7 @@ def region_from_svg(
     from pybosl2.color import Color
     from pybosl2.regions import Region
 
-    paths, colors = svg_rings_with_colors(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color)
+    paths, colors = svg_rings_with_colors(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes)
     if not paths:
         return Region()
     colored_paths = [p.color(Color(c)) if c is not None else p for p, c in zip(paths, colors, strict=True)]
@@ -196,6 +199,7 @@ def svg_rings_with_colors(
     fs: float = DEFAULT_FS,
     flip_y: bool = True,
     color: str | None = None,
+    strokes: str = "polygon",
 ) -> tuple[list[Path2D], list[str | None]]:
     """Return an SVG's outlines as :class:`~pybosl2.path2d.Path2D` objects and their fill colours.
 
@@ -216,6 +220,10 @@ def svg_rings_with_colors(
         flip_y: Negate Y so the drawing is not mirrored.
         color: When set, every returned ring gets this colour instead of the SVG's
             own fill colours.  Pass ``None`` (the default) to use the colours from the SVG.
+        strokes: How to handle stroked paths.  ``"polygon"`` (default) converts each
+            stroked path to a filled polygon via shapely buffering so strokes appear
+            as solid coloured pieces.  ``"ignore"`` skips shapes that have a stroke
+            but no fill colour.
 
     Returns:
         A ``(paths, colors)`` tuple where *paths* is ``[Path2D, ...]`` and *colors* is a
@@ -258,6 +266,28 @@ def svg_rings_with_colors(
             if len(ring) >= 3:
                 paths.append(Path2D(ring, closed=True))
                 colors.append(fill_color)
+        if strokes == "polygon":
+            stroke_color: str | None = _shape_stroke_hex(element)
+            if stroke_color is not None and (fill_color is None or fill_color != stroke_color):
+                stroke_width = float(getattr(element, "stroke_width", 1.0) or 1.0)
+                for subpath in _SVGPath(element).as_subpaths():
+                    stroke_ring_pts: list[list[float]] = []
+                    for segment in subpath:
+                        if isinstance(segment, Close):
+                            continue
+                        if isinstance(segment, (Move, Line)):
+                            stroke_ring_pts.append([float(segment.end.x), sign * float(segment.end.y)])
+                            continue
+                        count = _curve_point_count(segment, fn, fs)
+                        for i in range(1, count + 1):
+                            point = segment.point(i / count)
+                            stroke_ring_pts.append([float(point.x), sign * float(point.y)])
+                    if len(stroke_ring_pts) < 2:
+                        continue
+                    stroke_ring = _stroke_to_polygon(stroke_ring_pts, stroke_width / 2)
+                    if stroke_ring is not None and len(stroke_ring) >= 3:
+                        paths.append(Path2D(stroke_ring, closed=True))
+                        colors.append(stroke_color)
     if color is not None:
         colors = [color] * len(colors)
     return paths, colors
@@ -266,31 +296,56 @@ def svg_rings_with_colors(
 def _shape_fill_hex(element: object) -> str | None:
     """Extract a ``#rrggbb`` hex string from an svgelements Shape, or ``None``.
 
-    ``fill="none"``, pattern/gradient fills, and the SVG's own default fill
-    (black when no ``fill`` attribute is present at all) all return ``None`` --
-    only explicitly set solid-colour fills produce a hex string.
-    ``fill-opacity`` is already baked into the hex string by svgelements
-    (e.g. ``fill-opacity=0.5`` on ``#ff0000`` → ``#ff000080``).
+    ``fill="none"``, pattern/gradient fills, and the SVG's implicit black
+    default fill (no ``fill`` attribute, no inherited colour) all return
+    ``None``.  Inherited fills from a ``<g>`` group or similar produce the
+    resolved colour because svgelements propagates them to the child.
     """
     fill = getattr(element, "fill", None)
     if fill is None:
         return None
     if hasattr(fill, "value") and fill.value is None:
         return None
-    # If the SVG source had no fill attribute at all, svgelements assigns
-    # the SVG default (black), but we treat that as geometry-only with no
-    # colour -- only an explicitly set fill counts.
+    # An element whose raw SVG attributes lack a ``fill`` key did not set
+    # its own fill.  It may have inherited one (from a parent <g>) or it
+    # may be falling back to the SVG default (black).  svgelements resolves
+    # both, so we check whether the resolved colour is the default black --
+    # if so and there was no explicit fill, it is not a "real" colour.
     if hasattr(element, "values"):
         raw_attrs: dict[str, object] = dict(element.values.get("attributes", {}))
-        if "fill" not in raw_attrs:
+        if "fill" not in raw_attrs and fill.hex == "#000000" and fill.opacity == 1.0:
             return None
-    if hasattr(fill, "hex"):
-        raw = fill.hex
-        if raw is None:
-            return None
-        if isinstance(raw, str):
-            return raw
+    if hasattr(fill, "hex") and isinstance(fill.hex, str):
+        return fill.hex
     return None
+
+
+def _shape_stroke_hex(element: object) -> str | None:
+    """Extract stroke colour as a ``#rrggbb`` hex from an svgelements Shape, or ``None``."""
+    stroke = getattr(element, "stroke", None)
+    if stroke is None:
+        return None
+    if hasattr(stroke, "value") and stroke.value is None:
+        return None
+    if hasattr(stroke, "hex") and isinstance(stroke.hex, str):
+        return stroke.hex
+    return None
+
+
+def _stroke_to_polygon(ring: list[list[float]], radius: float) -> list[list[float]] | None:
+    """Buffer a linestring by *radius* and return the resulting polygon ring.
+
+    Returns ``None`` if the buffer produces no geometry or an empty polygon.
+    """
+    from shapely.geometry import LineString
+
+    if len(ring) < 2 or radius <= 0:
+        return None
+    line = LineString([(float(p[0]), float(p[1])) for p in ring])
+    buffered = line.buffer(radius, cap_style="round", join_style="round")
+    if buffered.is_empty:
+        return None
+    return [[float(x), float(y)] for x, y in buffered.exterior.coords[:-1]]
 
 
 def regions_from_svg(
@@ -300,6 +355,7 @@ def regions_from_svg(
     fs: float = DEFAULT_FS,
     flip_y: bool = True,
     color: str | None = None,
+    strokes: str = "polygon",
 ) -> list["Region"]:
     """Load an SVG drawing as a list of :class:`~pybosl2.regions.Region` objects, coloured.
 
@@ -316,6 +372,8 @@ def regions_from_svg(
         flip_y: Negate Y so the drawing is not mirrored.
         color: When set, overrides every shape's fill colour with this hex string
             (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.
+        strokes: ``"polygon"`` (default) converts stroked paths into filled polygons.
+            ``"ignore"`` skips shapes that have only a stroke and no fill.
 
     Returns:
         A list of :class:`~pybosl2.regions.Region` objects, one per distinct fill colour
@@ -348,7 +406,7 @@ def regions_from_svg(
     from pybosl2.color import Color
     from pybosl2.regions import Region
 
-    paths, colors = svg_rings_with_colors(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color)
+    paths, colors = svg_rings_with_colors(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes)
 
     groups: dict[str | None, list[Path2D]] = {}
     for path, color in zip(paths, colors, strict=True):

@@ -235,6 +235,7 @@ class Region:
         fs: float = 2.0,
         flip_y: bool = True,
         color: str | None = None,
+        strokes: str = "polygon",
     ) -> "Region":
         """Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).
 
@@ -249,6 +250,8 @@ class Region:
             flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).
             color: When set, overrides every shape's fill colour with this hex string.
                 Pass ``None`` (the default) to use the SVG's own colours.
+            strokes: ``"polygon"`` (default) converts stroked paths to filled polygons.
+                ``"ignore"`` skips shapes that have only a stroke and no fill.
 
         Returns:
             A :class:`Region` of the drawing, nested by the even-odd rule.
@@ -256,7 +259,7 @@ class Region:
         """
         from pybosl2.svg import region_from_svg
 
-        return region_from_svg(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color)
+        return region_from_svg(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes)
 
     @classmethod
     def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
