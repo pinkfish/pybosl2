@@ -84,23 +84,23 @@ jobs:
       - name: Checkout existing gh-pages and prune old versions
         run: |
           VDIR="${{ steps.version.outputs.version_dir }}"
-          # Clone the gh-pages branch into a temp dir to merge with our new build
           git clone --depth 1 --branch gh-pages \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" _ghpages
-          # Copy all EXISTING content (dev docs, old version dirs) into _site,
-          # then overlay our new versioned/latest docs on top.
           rsync -a --exclude "${VDIR}" --exclude latest _ghpages/ _site/
           rm -rf _ghpages
           # Prune: keep only the 5 most recent v* directories (by name sort)
           shopt -s nullglob
-          VERSIONS=( _site/v*/ )
+          VDIRS=( _site/v*/ )
           shopt -u nullglob
-          if [ ${#VERSIONS[@]} -gt 5 ]; then
-            # sort descending, keep first 5, delete the rest
-            readarray -t SORTED < <(printf '%s\n' "${VERSIONS[@]}" | sort -rV)
-            for ((i=5; i<${#SORTED[@]}; i++)); do
+          VNAMES=()
+          for d in "${VDIRS[@]}"; do
+            VNAMES+=( "$(basename "$d")" )
+          done
+          if [ ${#VNAMES[@]} -gt 5 ]; then
+            SORTED=( $(printf '%s\n' "${VNAMES[@]}" | sort -rV) )
+            for i in $(seq 5 $(( ${#SORTED[@]} - 1 )) ); do
               echo "Pruning old version: ${SORTED[$i]}"
-              rm -rf "${SORTED[$i]}"
+              rm -rf "_site/${SORTED[$i]}"
             done
           fi
           # Generate versions.json — a sorted list of all deployed version dirs.
@@ -111,14 +111,13 @@ jobs:
           for d in "${VDIRS[@]}"; do
             VNAMES+=( "$(basename "$d")" )
           done
-          readarray -t SORTED < <(printf '%s\n' "${VNAMES[@]}" | sort -rV)
-          printf '%s\n' "${SORTED[@]}" | python3 -c "
+          printf '%s\n' "${VNAMES[@]}" | sort -rV | python3 << 'PYEOF'
 import json, sys
 versions = [v.strip() for v in sys.stdin if v.strip()]
 with open('_site/versions.json', 'w') as f:
     json.dump(versions, f)
 print(f'versions.json written with {len(versions)} entries: {versions}')
-"
+PYEOF
 
       - name: Verify output is not empty
         run: |

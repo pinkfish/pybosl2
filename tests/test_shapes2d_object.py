@@ -707,3 +707,33 @@ def test_cyl_negative_rounding_produces_shape() -> None:
     from pybosl2.shapes3d import cyl
 
     assert isinstance(cyl(height=20, radius=10, rounding=-2), Bosl2Solid)
+
+
+# ── import2d / import3d coverage ────────────────────────────────────────────
+
+
+def test_osimport_2d_with_kwargs_creates_shape() -> None:
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(suffix=".svg") as f:
+        f.write(b'<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>')
+        f.flush()
+        result = s2.osimport(f.name, convexity=2, center=True)
+    assert isinstance(result, Bosl2Shape2D)
+
+
+def test_osimport_3d_with_kwargs_creates_shape() -> None:
+    import tempfile
+
+    from pybosl2.shapes3d import osimport as _oi3d
+
+    with tempfile.NamedTemporaryFile(suffix=".stl") as f:
+        stl = (
+            b"solid test\nfacet normal 0 0 0\nouter loop\n"
+            b"vertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\n"
+            b"endloop\nendfacet\nendsolid test"
+        )
+        f.write(stl)
+        f.flush()
+        result = _oi3d(f.name, convexity=2, center=True)
+    assert isinstance(result, Bosl2Solid)
