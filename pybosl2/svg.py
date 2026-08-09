@@ -170,8 +170,8 @@ def region_from_svg(
             from pybosl2 import Region
 
             result = Region.from_svg(tmp.name).offset(delta=-0.5).geometry().linear_extrude(height=2)
-            os.unlink(tmp.name)
             result.show()
+            os.unlink(tmp.name)
 
     """
     from pybosl2.color import Color
@@ -324,11 +324,11 @@ def regions_from_svg(
             from pybosl2.svg import regions_from_svg
 
             parts = regions_from_svg(tmp.name)
-            os.unlink(tmp.name)
             import pythonscad as ps
             for region in parts:
                 region.geometry().linear_extrude(height=3)
             ps.show()
+            os.unlink(tmp.name)
 
     """
     from pybosl2.color import Color
