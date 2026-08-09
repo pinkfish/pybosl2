@@ -85,9 +85,8 @@ jobs:
         run: |
           VDIR="${{ steps.version.outputs.version_dir }}"
           git clone --depth 1 --branch gh-pages \
-            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" _ghpages
-          rsync -a --exclude "${VDIR}" --exclude latest _ghpages/ _site/
-          rm -rf _ghpages
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" _ghpages 2>/dev/null && \
+            rsync -a --exclude "${VDIR}" --exclude latest _ghpages/ _site/ && rm -rf _ghpages || true
           # Prune: keep only the 5 most recent v* directories (by name sort)
           shopt -s nullglob
           VDIRS=( _site/v*/ )
