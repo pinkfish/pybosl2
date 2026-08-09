@@ -119,9 +119,16 @@ def region_from_svg(
 
         .. pythonscad-example::
 
+            import os, tempfile
+            tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
+            tmp.write('<svg xmlns="http://www.w3.org/2000/svg"><path d="M10,10H90V90H10Z"/></svg>')
+            tmp.close()
+
             from pybosl2 import Region
 
-            Region.from_svg("logo.svg").offset(delta=-0.5).geometry().linear_extrude(height=2).show()
+            result = Region.from_svg(tmp.name).offset(delta=-0.5).geometry().linear_extrude(height=2)
+            os.unlink(tmp.name)
+            result.show()
 
     """
     from pybosl2.regions import Region

@@ -96,9 +96,16 @@ def osimport(
 
         .. pythonscad-example::
 
+            import os, tempfile
+            tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
+            tmp.write('<svg xmlns="http://www.w3.org/2000/svg"><path d="M10,10H90V90H10Z"/></svg>')
+            tmp.close()
+
             from pybosl2 import shapes2d as s2
 
-            s2.osimport("logo.svg").resize([40, 40, 0]).linear_extrude(height=2).show()
+            result = s2.osimport(tmp.name).resize([40, 40, 0]).linear_extrude(height=2)
+            os.unlink(tmp.name)
+            result.show()
 
     """
     kwargs: dict[str, object] = {}
