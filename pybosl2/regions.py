@@ -122,7 +122,13 @@ class Region:
             if paths.is_empty:
                 self._polygon = MultiPolygon()
             elif isinstance(paths, MultiPolygon):
-                self._polygon = paths
+                # Normalise: merge overlapping polygons into non-overlapping pieces so the
+                # region's top-level polygons never overlap.  unary_union splits overlaps
+                # at their intersection boundaries, producing distinct disjoint pieces.
+                from shapely.ops import unary_union as _unary_union
+
+                merged = _unary_union(list(paths.geoms))
+                self._polygon = MultiPolygon([merged]) if isinstance(merged, Polygon) else merged
             else:
                 self._polygon = MultiPolygon([paths])
             return
@@ -520,24 +526,44 @@ class Region:
             result = result.color(self._color)
         return result
 
-    def _split_colored(self) -> "list[Region]":
-        """Return sub-Regions, one per polygon, each carrying its own colour.
+    def _split_polygons(self) -> "list[Region]":
+        """Return sub-Regions, one per distinct non-overlapping polygon, grouped by colour.
 
-        Used internally by :meth:`linear_extrude` and :meth:`rotate_extrude` so
-        per-polygon colours from an SVG import survive the extrusion.
+        Polygons with the same colour are unioned together (flattening overlaps and merging
+        adjacent pieces) so that :meth:`linear_extrude` does not duplicate work or leave
+        internal seams.  Different-colour polygons stay separate.
         """
-        if not self._polygon_colors:
-            return [self]
+        from shapely.ops import unary_union as _unary_union
+
+        from pybosl2.color import Color as _Color  # noqa: TC001
+
         polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
-        pieces: list[Region] = []
+
+        color_groups: dict[_Color | None, list[Polygon]] = {}
         for i, poly in enumerate(polys):
             if poly.is_empty:
                 continue
-            r = Region(poly)
             c = self._polygon_colors[i] if i < len(self._polygon_colors) else None
-            if c is not None:
-                r._color = c
-            pieces.append(r)
+            if c is None:
+                c = self._color
+            color_groups.setdefault(c, []).append(poly)
+
+        pieces: list[Region] = []
+        for color, group_polys in color_groups.items():
+            merged = _unary_union(group_polys)
+            if isinstance(merged, Polygon):
+                if not merged.is_empty:
+                    r = Region(merged)
+                    if color is not None:
+                        r._color = color
+                    pieces.append(r)
+            else:
+                for p in merged.geoms:
+                    if not p.is_empty:
+                        r = Region(p)
+                        if color is not None:
+                            r._color = color
+                        pieces.append(r)
         return pieces if pieces else [self]
 
     @classmethod
@@ -615,55 +641,57 @@ class Region:
             :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).
 
         """
+        from functools import reduce
+
         from pybosl2._backend import current_backend, get_backend
         from pybosl2.exceptions import UnsupportedByBackendError
 
-        if self._polygon_colors:
-            from functools import reduce
-
-            pieces = self._split_colored()
-            extruded = [
-                p.linear_extrude(
-                    height,
-                    center=center,
-                    twist=twist,
-                    scale=scale,
-                    slices=slices,
-                    fn=fn,
-                    fa=fa,
-                    fs=fs,
+        pieces = self._split_polygons()
+        if len(pieces) == 1:
+            # Single polygon: use the backend's native outline+holes path
+            if current_backend() != "csg" and pieces[0].holes:
+                raise UnsupportedByBackendError(
+                    "linear_extrude (region with holes)",
+                    current_backend(),
+                    hint="the sdf prism unions its outlines' fields, so it cannot cut holes. "
+                    "Extrude the outline and subtract the holes' own extrusions, or build "
+                    "it on the csg backend.",
                 )
-                for p in pieces
-            ]
-            return reduce(lambda a, b: a | b, extruded)
+            from pybosl2._backend import given_arguments
 
-        if current_backend() != "csg" and self.holes:
-            raise UnsupportedByBackendError(
-                "linear_extrude (region with holes)",
-                current_backend(),
-                hint="the sdf prism unions its outlines' fields, so it cannot cut holes. Extrude "
-                "the outline and subtract the holes' own extrusions, or build it on the csg backend.",
+            result = get_backend().linear_extrude(
+                list(pieces[0].paths),
+                height,
+                given_arguments(
+                    {
+                        "center": center,
+                        "twist": twist,
+                        "scale": scale,
+                        "slices": slices,
+                        "fn": fn,
+                        "fa": fa,
+                        "fs": fs,
+                    }
+                ),
             )
-        from pybosl2._backend import given_arguments
+            if pieces[0]._color is not None and hasattr(result, "color"):
+                result = result.color(pieces[0]._color)
+            return result
 
-        result = get_backend().linear_extrude(
-            list(self.paths),
-            height,
-            given_arguments(
-                {
-                    "center": center,
-                    "twist": twist,
-                    "scale": scale,
-                    "slices": slices,
-                    "fn": fn,
-                    "fa": fa,
-                    "fs": fs,
-                }
-            ),
-        )
-        if self._color is not None and hasattr(result, "color"):
-            result = result.color(self._color)
-        return result
+        extruded = [
+            p.linear_extrude(
+                height,
+                center=center,
+                twist=twist,
+                scale=scale,
+                slices=slices,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
+            for p in pieces
+        ]
+        return reduce(lambda a, b: a | b, extruded)
 
     def rotate_extrude(
         self,

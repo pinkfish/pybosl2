@@ -666,9 +666,9 @@ def test_copy_preserves_polygon_colors() -> None:
     assert c._polygon_colors == r._polygon_colors
 
 
-def test_split_colored_produces_separate_regions() -> None:
+def test_split_polygons_produces_separate_regions() -> None:
     r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
-    pieces = r._split_colored()
+    pieces = r._split_polygons()
     assert len(pieces) >= 1
     assert all(isinstance(p, Region) for p in pieces)
 
@@ -678,3 +678,147 @@ def test_even_odd_without_colors_still_works() -> None:
     r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]])
     assert isinstance(r, Region)
     assert r.geom.area == pytest.approx(800.0)
+
+
+# -- _split_polygons union behaviour -----------------------------------------------------------
+
+
+def test_split_polygons_unions_same_color_polygons() -> None:
+    """Two disjoint same-color polygons should be unioned into one Region."""
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["red"]], colors=["#ff0000", "#ff0000"])
+    pieces = r._split_polygons()
+    # They're disjoint 20x20 squares — after union they should still be separate in the
+    # MultiPolygon, but _split_polygons groups by colour and unions them into one merged geom.
+    # Since they're DISJOINT, unary_union returns a MultiPolygon with 2 geoms, each becoming
+    # a Region.  So we get 2 Regions, both red.
+    assert len(pieces) == 2
+    assert all(p._color == Color("#ff0000") for p in pieces)
+
+
+def test_split_polygons_keeps_different_colors_separate() -> None:
+    """Red and blue polygons stay in separate Regions."""
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]], colors=["#ff0000", "#0000ff"])
+    pieces = r._split_polygons()
+    assert len(pieces) == 2
+    colors = {p._color for p in pieces}
+    assert Color("#ff0000") in colors
+    assert Color("#0000ff") in colors
+
+
+def test_split_polygons_overlapping_same_color_merged() -> None:
+    """Two overlapping squares with the same colour → unioned into one piece."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([a, b], colors=["#ff0000", "#ff0000"])
+    pieces = r._split_polygons()
+    # Overlapping → unary_union merges them into one polygon
+    assert len(pieces) == 1
+    assert pieces[0]._color == Color("#ff0000")
+    # Area: 30*20 + 30*20 - 10*20 = 600 + 600 - 200 = 1000
+    assert pieces[0].geom.area == pytest.approx(1000.0)
+
+
+def test_split_polygons_overlapping_different_colors_kept_separate() -> None:
+    """Overlapping red and blue squares stay separate — colours are different."""
+    a = [[0, 0], [30, 0], [30, 20], [0, 20]]
+    b = [[20, 0], [50, 0], [50, 20], [20, 20]]
+    r = Region.even_odd([a, b], colors=["#ff0000", "#0000ff"])
+    pieces = r._split_polygons()
+    # Different colours → not merged.  Each becomes its own Region.
+    assert len(pieces) == 2
+    # Total area = 600 + 600 = 1200 (overlap counts twice — each piece keeps its shape)
+    total = sum(p.geom.area for p in pieces)
+    assert total == pytest.approx(1200.0)
+
+
+def test_split_polygons_adjacent_touching_same_color() -> None:
+    """Two adjacent squares sharing an edge with same colour."""
+    a = [[0, 0], [20, 0], [20, 20], [0, 20]]
+    b = [[20, 0], [40, 0], [40, 20], [20, 20]]
+    r = Region.even_odd([a, b], colors=["#ff0000", "#ff0000"])
+    pieces = r._split_polygons()
+    # Adjacent same-colour → unioned into one polygon
+    assert len(pieces) == 1
+    assert pieces[0].geom.area == pytest.approx(800.0)
+
+
+def test_split_polygons_fallback_color_from_region() -> None:
+    """Polygons without per-polygon colour inherit the region's default _color."""
+    r = Region.even_odd([COLORED_RINGS["red"], COLORED_RINGS["blue"]])
+    r._color = Color("green")
+    pieces = r._split_polygons()
+    assert len(pieces) >= 1
+    assert all(p._color == Color("green") for p in pieces)
+
+
+def test_split_polygons_partial_colors() -> None:
+    """Mix of colored and uncolored polygons — uncolored ones get _color default."""
+    r = Region.even_odd(
+        [COLORED_RINGS["red"], COLORED_RINGS["blue"]],
+        colors=["#ff0000", None],
+    )
+    r._color = Color("green")
+    pieces = r._split_polygons()
+    colors = {p._color for p in pieces}
+    assert Color("#ff0000") in colors  # from per-polygon
+    assert Color("green") in colors  # from _color fallback
+
+
+def test_split_polygons_empty_region_returns_self() -> None:
+    r = Region([])
+    pieces = r._split_polygons()
+    assert len(pieces) == 1
+    assert pieces[0] is r
+
+
+def test_split_polygons_single_polygon_no_color() -> None:
+    r = Region(SQUARE)
+    pieces = r._split_polygons()
+    assert len(pieces) == 1
+    assert pieces[0]._color is None
+
+
+# -- MultiPolygon normalisation on construction -------------------------------------------------
+
+
+def test_multipolygon_overlapping_input_is_normalized() -> None:
+    """Two overlapping squares passed as MultiPolygon → normalized to non-overlapping."""
+    from shapely.geometry import MultiPolygon, Polygon
+
+    p1 = Polygon([[0, 0], [30, 0], [30, 20], [0, 20]])
+    p2 = Polygon([[20, 0], [50, 0], [50, 20], [20, 20]])
+    mp = MultiPolygon([p1, p2])
+    r = Region(mp)
+    # Normalised: overlapping squares → split into non-overlapping pieces (3 pieces)
+    polys = list(r._polygon.geoms)
+    assert len(polys) >= 2  # at least 2 pieces after normalization
+    total = sum(p.area for p in polys)
+    assert total == pytest.approx(1000.0)  # 30*20 + 30*20 - 10*20 = 1000
+
+
+def test_multipolygon_disjoint_input_is_preserved() -> None:
+    """Two disjoint polygons passed as MultiPolygon stay as two."""
+    from shapely.geometry import MultiPolygon, Polygon
+
+    p1 = Polygon([[0, 0], [20, 0], [20, 20], [0, 20]])
+    p2 = Polygon([[30, 0], [50, 0], [50, 20], [30, 20]])
+    mp = MultiPolygon([p1, p2])
+    r = Region(mp)
+    assert len(list(r._polygon.geoms)) == 2
+    assert r.geom.area == pytest.approx(800.0)
+
+
+def test_multipolygon_empty_is_empty() -> None:
+    from shapely.geometry import MultiPolygon
+
+    r = Region(MultiPolygon())
+    assert r.geom.is_empty
+
+
+def test_single_polygon_input_not_affected() -> None:
+    """Single Polygon input is NOT normalized (performance: no need)."""
+    from shapely.geometry import Polygon
+
+    p = Polygon([[0, 0], [20, 0], [20, 20], [0, 20]])
+    r = Region(p)
+    assert len(list(r._polygon.geoms)) == 1
