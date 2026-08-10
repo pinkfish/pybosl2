@@ -8,7 +8,7 @@ import math
 
 import pytest
 
-from pybosl2._sdf import paths as sdf_paths
+from pybosl2.sdf import paths as sdf_paths
 
 SQRT2 = math.sqrt(2)
 

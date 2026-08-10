@@ -22,7 +22,7 @@
 #
 # The shape constructors below are the 3-D primitives BOTH backends expose; each dispatches by name
 # through the active backend's ``construct``. n-ary CSG (union/difference/intersection) dispatches to
-# the backend's own operators. The backend-specific modules (pybosl2.shapes3d, pybosl2._sdf) remain
+# the backend's own operators. The backend-specific modules (pybosl2.shapes3d, pybosl2.sdf) remain
 # directly importable for anything not yet unified here.
 
 from __future__ import annotations

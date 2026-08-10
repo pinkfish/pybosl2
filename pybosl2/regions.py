@@ -742,7 +742,7 @@ class Region:
         become different-colour solids without manual splitting.
 
         The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under
-        the default CSG backend, or a :class:`~pybosl2._sdf.shapes3d.PyShape` under
+        the default CSG backend, or a :class:`~pybosl2.sdf.shapes3d.PyShape` under
         ``use_backend("sdf")``. See :meth:`pybosl2.paths.Path2D.linear_extrude` for per-backend
         options.
 
@@ -766,7 +766,7 @@ class Region:
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or
-            :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).
+            :class:`~pybosl2.sdf.shapes3d.PyShape` (SDF).
 
         Example:
 

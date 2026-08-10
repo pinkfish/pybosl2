@@ -166,7 +166,7 @@ def _build_name_index() -> dict[str, dict[str, str]]:
     py_dir = REPO_ROOT / "pybosl2"
 
     for fpath in sorted(py_dir.rglob("*.py")):
-        if fpath.name.startswith("_") or "_sdf" in str(fpath):
+        if fpath.name.startswith("_") or "/sdf/" in str(fpath):
             continue
         rel = fpath.relative_to(py_dir)
         parts = list(rel.parts)
@@ -213,7 +213,7 @@ def _scan_modules() -> dict[str, dict[str, Any]]:
     modules: dict[str, dict[str, Any]] = {}
 
     for fpath in sorted(py_dir.rglob("*.py")):
-        if fpath.name.startswith("_") or "_sdf" in str(fpath):
+        if fpath.name.startswith("_") or "/sdf/" in str(fpath):
             continue
         rel = fpath.relative_to(py_dir)
         parts = list(rel.parts)

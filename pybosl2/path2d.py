@@ -1838,7 +1838,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         The extrusion uses whichever backend is active: a
         :class:`~pybosl2.shapes3d.Bosl2Solid` under the default CSG backend, a
-        :class:`~pybosl2._sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
+        :class:`~pybosl2.sdf.shapes3d.PyShape` under ``use_backend("sdf")``::
 
             plate = Path2D(pts).linear_extrude(height=4)          # -> Bosl2Solid
             with use_backend("sdf"):
@@ -1919,7 +1919,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Raises:
             pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --
             the SDF backend has no revolve; sweep the profile instead via
-            ``pybosl2._sdf.shapes3d.path_sweep()``.
+            ``pybosl2.sdf.shapes3d.path_sweep()``.
 
         """
         self._require_csg("rotate_extrude")

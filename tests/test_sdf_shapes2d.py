@@ -9,7 +9,7 @@ import math
 
 import pytest
 
-from pybosl2._sdf import shapes2d as sdf_s2d
+from pybosl2.sdf import shapes2d as sdf_s2d
 
 SQRT2 = math.sqrt(2)
 
@@ -502,3 +502,19 @@ class TestKeyhole2D:
     def test_keyhole_short_length_rejected(self) -> None:
         with pytest.raises(AssertionError):
             sdf_s2d.keyhole2d(length=3)
+
+
+class TestSdfInstanceMethods:
+    """revolve_sdf / linear_sweep_sdf as instance methods on PyShape2D."""
+
+    def test_revolve_sdf_instance_method(self) -> None:
+        rect = sdf_s2d.rect2d([4, 10]).translate([5, 0])
+        result = rect.revolve_sdf(angle=360, res=10)
+        assert result is not None
+        assert result.backend == "sdf"
+
+    def test_linear_sweep_sdf_instance_method(self) -> None:
+        circ = sdf_s2d.circle2d(radius=5)
+        result = circ.linear_sweep_sdf(height=4, res=10)
+        assert result is not None
+        assert result.backend == "sdf"

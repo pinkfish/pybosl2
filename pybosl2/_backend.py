@@ -208,7 +208,7 @@ def get_backend(name: str | None = None) -> "SolidBackend":
         if key == "csg":
             import pybosl2._csg
         elif key == "sdf":
-            import pybosl2._sdf  # noqa: F401  -- registers the SDF backend on import
+            import pybosl2.sdf  # noqa: F401  -- registers the SDF backend on import
     try:
         return _registry[key]
     except KeyError:
