@@ -4,29 +4,29 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Test suite for the backend-neutral 2D shape facade (pybosl2/shape2d.py)."""
+"""Test suite for the backend-neutral flat shape facade (pybosl2/flat.py)."""
 
-from pybosl2 import shape2d
+from pybosl2 import flat
 from pybosl2._backend import current_backend, use_backend
-from pybosl2.shape2d import Shape2D
+from pybosl2.flat import Flat
 
 
 def test_facade_defaults_to_csg() -> None:
-    """Verify that shape2d defaults to csg backend."""
-    s = shape2d.circle(radius=10)
+    """Verify that flat facade defaults to csg backend."""
+    s = flat.circle(radius=10)
     assert s.backend == "csg"
     assert type(s).__name__ == "CsgShape2D"
-    assert isinstance(s, Shape2D)
+    assert isinstance(s, Flat)
 
 
 def test_facade_obeys_use_backend_context() -> None:
     """Verify that use_backend changes the returned shape backend."""
     assert current_backend() == "csg"
     with use_backend("sdf"):
-        s = shape2d.circle(radius=10)
+        s = flat.circle(radius=10)
         assert s.backend == "sdf"
         assert type(s).__name__ == "SdfShape2D"
-    assert shape2d.square(5).backend == "csg"
+    assert flat.square(5).backend == "csg"
 
 
 def test_top_level_exports_obey_backend() -> None:

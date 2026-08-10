@@ -35,7 +35,8 @@ from pybosl2._helpers import quantup, union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, INCH
 from pybosl2.distributors import DistributableMatrix
-from pybosl2.shapes2d import circle, hexagon
+from pybosl2.flat import circle
+from pybosl2.shapes2d import hexagon
 from pybosl2.shapes2d import hull as _hull2d
 from pybosl2.shapes3d import cyl, prismoid
 from pybosl2.shapes3d.base import Bosl2Solid

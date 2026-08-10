@@ -7,7 +7,7 @@
 import pytest
 
 from pybosl2 import Anchor
-from pybosl2.shapes2d import circle, square
+from pybosl2.flat import circle, square
 
 
 def test_2d_attach() -> None:

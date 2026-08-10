@@ -4,12 +4,12 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/shape2d.py
-# FileSummary: Statically typed 2D shape constructors and backend-neutral shape facade.
+# LibFile: pybosl2/flat.py
+# FileSummary: Statically typed 2D shape constructors and backend-neutral flat shape facade.
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
-"""Statically typed 2D shape constructors and backend-neutral shape facade."""
+"""Statically typed 2D shape constructors and backend-neutral flat shape facade."""
 
 from __future__ import annotations
 
@@ -27,10 +27,10 @@ if TYPE_CHECKING:
 
 
 @runtime_checkable
-class Shape2D(Protocol):
+class Flat(Protocol):
     """The common 2-D shape contract both backend wrappers satisfy.
 
-    A ``Shape2D`` carries a ``backend`` tag; booleans/transforms return a ``Shape2D`` on the *same*
+    A ``Flat`` carries a ``backend`` tag; booleans/transforms return a ``Flat`` on the *same*
     backend, and combining shapes from two backends raises
     :class:`~pybosl2.exceptions.CrossBackendError`.
     """
@@ -70,6 +70,10 @@ class Shape2D(Protocol):
         ...
 
 
+# Backward compatibility alias
+Shape2D = Flat
+
+
 def circle(
     radius: float | None = None,
     diameter: float | None = None,
@@ -82,7 +86,7 @@ def circle(
     fa: float | None = None,
     fs: float | None = None,
     res: int | None = None,
-) -> Shape2D:
+) -> Flat:
     """Return a circle on the active backend.
 
     Creates a 2D circle with the specified parameters.
@@ -100,24 +104,24 @@ def circle(
         res: SDF backend's resolution (SDF backend only).
 
     Returns:
-        A 2-D Shape representing a circle.
+        A 2-D flat shape representing a circle.
 
     Examples:
         .. pythonscad-example::
 
-            from pybosl2.shape2d import circle
+            from pybosl2.flat import circle
             circle(radius=15).linear_extrude(height=5).show()
 
     """
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import circle2d
 
-        return cast("Shape2D", circle2d(radius=radius, diameter=diameter, res=res or 10))
+        return cast("Flat", circle2d(radius=radius, diameter=diameter, res=res or 10))
 
     from pybosl2.shapes2d.circle import circle as csg_circle
 
     return cast(
-        "Shape2D",
+        "Flat",
         csg_circle(
             radius=radius,
             diameter=diameter,
@@ -144,7 +148,7 @@ def square(
     fa: float | None = None,
     fs: float | None = None,
     res: int | None = None,
-) -> Shape2D:
+) -> Flat:
     """Return a square on the active backend.
 
     Creates a 2D square with the specified size and corner treatments.
@@ -162,12 +166,12 @@ def square(
         res: SDF backend's resolution (SDF backend only).
 
     Returns:
-        A 2-D Shape representing a square.
+        A 2-D flat shape representing a square.
 
     Examples:
         .. pythonscad-example::
 
-            from pybosl2.shape2d import square
+            from pybosl2.flat import square
             square(size=20, rounding=2).linear_extrude(height=5).show()
 
     """
@@ -178,12 +182,12 @@ def square(
             resolved_anchor = resolve_anchor(cast("Any", anchor)).vector_2d.tolist()
         except Exception:
             resolved_anchor = list(anchor)
-        return cast("Shape2D", square2d(size=size, anchor=resolved_anchor, res=res or 10))
+        return cast("Flat", square2d(size=size, anchor=resolved_anchor, res=res or 10))
 
     from pybosl2.shapes2d.square import square as csg_square
 
     return cast(
-        "Shape2D",
+        "Flat",
         csg_square(
             size=size,
             center=center,
@@ -209,7 +213,7 @@ def rect(
     fa: float | None = None,
     fs: float | None = None,
     res: int | None = None,
-) -> Shape2D:
+) -> Flat:
     """Return a rectangle on the active backend.
 
     Creates a 2D rectangle with the specified dimensions and corner treatments.
@@ -226,12 +230,12 @@ def rect(
         res: SDF backend's resolution (SDF backend only).
 
     Returns:
-        A 2-D Shape representing a rectangle.
+        A 2-D flat shape representing a rectangle.
 
     Examples:
         .. pythonscad-example::
 
-            from pybosl2.shape2d import rect
+            from pybosl2.flat import rect
             rect(size=[30, 20], rounding=3).linear_extrude(height=5).show()
 
     """
@@ -243,7 +247,7 @@ def rect(
         except Exception:
             resolved_anchor = list(anchor)
         return cast(
-            "Shape2D",
+            "Flat",
             rect2d(
                 size=size,
                 rounding=rounding,
@@ -256,7 +260,7 @@ def rect(
     from pybosl2.shapes2d.square import rect as csg_rect
 
     return cast(
-        "Shape2D",
+        "Flat",
         csg_rect(
             size=size,
             rounding=rounding,
@@ -276,7 +280,7 @@ def polygon(
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
     res: int | None = None,
-) -> Shape2D:
+) -> Flat:
     """Return a polygon on the active backend.
 
     Creates a 2D polygon from list of points.
@@ -288,25 +292,25 @@ def polygon(
         res: SDF backend's resolution (SDF backend only).
 
     Returns:
-        A 2-D Shape representing a polygon.
+        A 2-D flat shape representing a polygon.
 
     Examples:
         .. pythonscad-example::
 
-            from pybosl2.shape2d import polygon
+            from pybosl2.flat import polygon
             polygon(points=[[0, 0], [10, 0], [5, 10]]).linear_extrude(height=5).show()
 
     """
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import polygon2d
 
-        return cast("Shape2D", polygon2d(paths=points, res=res or 10))
+        return cast("Flat", polygon2d(paths=points, res=res or 10))
 
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d.square import polygon as csg_polygon
 
     return cast(
-        "Shape2D",
+        "Flat",
         csg_polygon(
             path=Path2D(points),
             anchor=anchor,
@@ -331,7 +335,7 @@ def text(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Shape2D:
+) -> Flat:
     """Return a text shape on the active backend.
 
     Creates a 2D shape representing the given text.
@@ -353,12 +357,12 @@ def text(
         fs: Arc smoothness overrides (CSG backend only).
 
     Returns:
-        A 2-D Shape representing text.
+        A 2-D flat shape representing text.
 
     Examples:
         .. pythonscad-example::
 
-            from pybosl2.shape2d import text
+            from pybosl2.flat import text
             text(text="BOSL2", size=10).linear_extrude(height=3).show()
 
     """
@@ -372,7 +376,7 @@ def text(
     from pybosl2.shapes2d.ops import text as csg_text
 
     return cast(
-        "Shape2D",
+        "Flat",
         csg_text(
             text=text,
             size=size,

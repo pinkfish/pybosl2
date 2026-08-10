@@ -1048,7 +1048,7 @@ class SpurGear2d:
         _or = _outer_radius_basic(center, teeth, None, False, helical, ps, shorten)
         result = Bosl2Shape2D(shape, size=[2 * _or, 2 * _or])
         if shaft_diam > 0 and not hide:
-            from pybosl2.shapes2d import circle as _circle2d
+            from pybosl2.flat import circle as _circle2d
 
             result = result - _circle2d(diameter=shaft_diam)
         self._shape: Bosl2Shape2D = result
