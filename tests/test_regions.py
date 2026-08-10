@@ -358,6 +358,37 @@ def test_region_linear_extrude() -> None:
     assert isinstance(result, Bosl2Solid)
 
 
+def test_linear_extrude_color_heights() -> None:
+    """color_heights maps colours to per-colour extrusion heights."""
+    red = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("red"))
+    blue = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("blue"))
+    r = Region.even_odd([red, blue.translate([25, 0])])
+    result = r.linear_extrude(height=5, color_heights={"red": 10, "blue": 3})
+    from pybosl2.shapes3d import Bosl2Solid
+
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_linear_extrude_color_heights_missing_color_uses_default() -> None:
+    """Colours not in the mapping fall back to the default height."""
+    red = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("red"))
+    green = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("green"))
+    r = Region.even_odd([red, green.translate([25, 0])])
+    result = r.linear_extrude(height=5, color_heights={"red": 10})
+    from pybosl2.shapes3d import Bosl2Solid
+
+    assert isinstance(result, Bosl2Solid)
+
+
+def test_linear_extrude_color_heights_single_piece() -> None:
+    """color_heights also applies to a single-piece region."""
+    r = Region([[0, 0], [20, 0], [20, 20], [0, 20]]).color(Color("red"))
+    result = r.linear_extrude(height=5, color_heights={"red": 10})
+    from pybosl2.shapes3d import Bosl2Solid
+
+    assert isinstance(result, Bosl2Solid)
+
+
 def test_region_rotate_extrude() -> None:
     r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
     result = r.rotate_extrude(angle=360)

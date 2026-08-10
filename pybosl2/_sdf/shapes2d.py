@@ -819,7 +819,7 @@ def trapezoid2d(
 _KEYHOLE_EPS = 1e-9
 
 
-def _arc_points(
+def _sampled_arc(
     centre: tuple[float, float],
     radius: float,
     start_deg: float,
@@ -909,18 +909,18 @@ def keyhole_outline(
         [big * (small + sh) / (big + sh), -length + big * dy / (big + sh)] if not stadium else [small, -length]
     )  # ...and where it meets the large circle
 
-    pts = _arc_points((0.0, 0.0), small, 0.0, 180.0, per_deg)  # small circle, over the top
+    pts = _sampled_arc((0.0, 0.0), small, 0.0, 180.0, per_deg)  # small circle, over the top
     pts.append([-wall_r[0], wall_r[1]])  # down the left wall
     if fillet:  # concave, so it is traced clockwise while the rest runs counter-clockwise
         to_circle = math.degrees(math.atan2(circle_r[1] - centre_r[1], -circle_r[0] + centre_r[0]))
-        pts += _arc_points((-centre_r[0], centre_r[1]), sh, 0.0, to_circle % 360 - 360, per_deg)
+        pts += _sampled_arc((-centre_r[0], centre_r[1]), sh, 0.0, to_circle % 360 - 360, per_deg)
 
     right = math.degrees(math.atan2(circle_r[1] + length, circle_r[0]))
-    pts += _arc_points((0.0, -length), big, 180 - right, (right + 360) - (180 - right), per_deg)
+    pts += _sampled_arc((0.0, -length), big, 180 - right, (right + 360) - (180 - right), per_deg)
 
     if fillet:
         from_circle = math.degrees(math.atan2(circle_r[1] - centre_r[1], circle_r[0] - centre_r[0]))
-        pts += _arc_points(centre_r, sh, from_circle, (180 - from_circle) % 360 - 360, per_deg)
+        pts += _sampled_arc(centre_r, sh, from_circle, (180 - from_circle) % 360 - 360, per_deg)
     else:
         pts.append(list(wall_r))  # sharp shoulder: the corner itself
 

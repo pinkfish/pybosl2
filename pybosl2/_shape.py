@@ -166,8 +166,6 @@ class BaseShape(Colorable, Distributable):
             out._dont_propagate = self._dont_propagate
         return out
 
-    _wrap_moved = _wrap
-
     def __scad__(self) -> Any:
         """Auto-unwrap conversion hook for the PythonSCAD C++ layer interop."""
         return self._unwrap(self)

@@ -334,10 +334,10 @@ def test_offset_of_spiky_star_is_simple(radius: float) -> None:
 def test_offset_keeps_winding_and_shrinks() -> None:
     """Shrinking must shrink: it must not turn the outline inside out."""
     outline = _toothed_circle()
-    before = Path2D._polygon_area(outline, signed=True)
+    before = Path2D.polygon_area(outline, signed=True)
     for amount in (-1.0, -3.0, -6.0):
         for offset in (outline.offset(radius=amount), outline.offset(delta=amount)):
-            after = Path2D._polygon_area(offset, signed=True)
+            after = Path2D.polygon_area(offset, signed=True)
             assert math.copysign(1, after) == math.copysign(1, before)  # same winding
             assert abs(after) < abs(before)  # actually smaller
 
@@ -660,19 +660,19 @@ def test_deduplicate_static() -> None:
 
 
 def test_polygon_area_static() -> None:
-    assert Path2D._polygon_area(SQUARE) == 4800
-    assert Path2D._polygon_area([[0, 0], [1, 0]]) == 0  # too few points
-    assert Path2D._polygon_area(UNIT) == 100
-    assert Path2D._polygon_area([]) == 0
+    assert Path2D.polygon_area(SQUARE) == 4800
+    assert Path2D.polygon_area([[0, 0], [1, 0]]) == 0  # too few points
+    assert Path2D.polygon_area(UNIT) == 100
+    assert Path2D.polygon_area([]) == 0
 
 
 def test_point_in_polygon_static() -> None:
     p = Path2D(SQUARE, closed=True)
-    assert Path2D._point_in_polygon(Point(40, 30), p) == 1
-    assert Path2D._point_in_polygon(Point(100, 100), p) == -1
-    assert Path2D._point_in_polygon(Point(0, 30), p) == 0  # on the boundary
-    assert Path2D._point_in_polygon(Point(0, 0), p) == 0  # corner on boundary
-    assert Path2D._point_in_polygon(Point(80, 60), p) == 0  # corner on boundary
+    assert Path2D.point_in_polygon(Point(40, 30), p) == 1
+    assert Path2D.point_in_polygon(Point(100, 100), p) == -1
+    assert Path2D.point_in_polygon(Point(0, 30), p) == 0  # on the boundary
+    assert Path2D.point_in_polygon(Point(0, 0), p) == 0  # corner on boundary
+    assert Path2D.point_in_polygon(Point(80, 60), p) == 0  # corner on boundary
 
 
 def test_path_length_accepts_3d() -> None:

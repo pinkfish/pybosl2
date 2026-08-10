@@ -43,9 +43,11 @@ from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import INCH
 from pybosl2.enums import VNFStyle
+from pybosl2.math import lerp as _math_lerp
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid, cylinder
+from pybosl2.vectors import v_theta as _v_theta
 from pybosl2.vnf import VNF
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -195,10 +197,6 @@ def _lookup(x: float, table: list[list[float]]) -> float:
     return float(np.interp(x, xs, ys))
 
 
-def _v_theta(v: list[float]) -> float:
-    return math.degrees(math.atan2(v[1], v[0]))
-
-
 def _zrot_pts(pts: list[list[float]], angle: float) -> list[list[float]]:
     a = math.radians(angle)
     c, s = math.cos(a), math.sin(a)
@@ -217,10 +215,9 @@ def _line_isect(l1: list[list[float]], l2: list[list[float]]) -> list[float]:
 
 
 def _vector_angle(three: list[list[float]]) -> float:
-    p0, p1, p2 = (np.asarray(p, float) for p in three)
-    v0, v1 = p0 - p1, p2 - p1
-    c = np.clip(np.dot(v0, v1) / (np.linalg.norm(v0) * np.linalg.norm(v1)), -1, 1)
-    return math.degrees(math.acos(c))
+    from pybosl2.geometry import vector_angle3
+
+    return vector_angle3(three[0], three[1], three[2])
 
 
 def _arc_corner(n: int, r: float, corner: list[list[float]]) -> list[list[float]]:
@@ -246,11 +243,9 @@ def _arc_corner(n: int, r: float, corner: list[list[float]]) -> list[list[float]
 
 
 def _dedup(pts: list[list[float]], eps: float = 1e-9) -> list[list[float]]:
-    out: list[list[float]] = []
-    for p in pts:
-        if not out or abs(p[0] - out[-1][0]) > eps or abs(p[1] - out[-1][1]) > eps:
-            out.append([float(p[0]), float(p[1])])
-    return out
+    from pybosl2.path2d import Path2D
+
+    return [list(p) for p in Path2D._deduplicate(pts, closed=False, eps=eps)]
 
 
 def _norm2(v: list[float]) -> float:
@@ -418,7 +413,7 @@ def _gear_tooth_profile(
 
 
 def _lerp(a: float, b: float, v: float) -> float:
-    return a + (b - a) * v
+    return float(_math_lerp(a, b, v))
 
 
 # ---------------------------------------------------------------------------

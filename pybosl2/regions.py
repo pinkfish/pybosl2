@@ -732,6 +732,7 @@ class Region:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
+        color_heights: "dict[str | Color, float] | None" = None,
     ) -> "Solid":
         """Extrude this region along +Z into a 3-D solid with holes included.
 
@@ -758,10 +759,28 @@ class Region:
             fn: Smoothness override for the angular resolution.
             fa: Smoothness override for the minimum angle.
             fs: Smoothness override for the minimum segment length.
+            color_heights: Optional dict mapping colour names (``"#ff0000"``, ``"red"``, or
+                :class:`~pybosl2.color.Color` objects) to a specific extrusion height.  Coloured
+                pieces that match a key are extruded by that height; pieces whose colour is not
+                in the mapping use the default *height*.
 
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid` (CSG) or
             :class:`~pybosl2._sdf.shapes3d.PyShape` (SDF).
+
+        Example:
+
+        .. code-block:: python
+
+            red = Path2D.square(20).color("red")
+            blue = Path2D.square(20).color("blue")
+            region = Region.even_odd([red, blue.move(25)])
+            solid = region.linear_extrude(
+                height=5,
+                color_heights={"red": 10, "blue": 3},
+            )
+            solid.show()
+            # The red square is 10 mm tall, the blue square is 3 mm tall.
 
         """
         from functools import reduce
@@ -770,6 +789,22 @@ class Region:
         from pybosl2.exceptions import UnsupportedByBackendError
 
         pieces = self._split_polygons()
+
+        # Normalize colour-keyed heights so string keys work alongside Color keys.
+        height_map: dict[Color, float] = {}
+        if color_heights:
+            from pybosl2.color import Color as _Color
+
+            for col, h in color_heights.items():
+                height_map[_Color(col) if not isinstance(col, _Color) else col] = h
+
+        def _height_for(region: Region) -> float:
+            if region._color is not None and height_map:
+                for c, h in height_map.items():
+                    if c == region._color:
+                        return h
+            return height
+
         if len(pieces) == 1:
             # Single polygon: use the backend's native outline+holes path
             if current_backend() != "csg" and pieces[0].holes:
@@ -782,9 +817,10 @@ class Region:
                 )
             from pybosl2._backend import given_arguments
 
+            piece_height = _height_for(pieces[0])
             result = get_backend().linear_extrude(
                 list(pieces[0].paths),
-                height,
+                piece_height,
                 given_arguments(
                     {
                         "center": center,
@@ -803,7 +839,7 @@ class Region:
 
         extruded = [
             p.linear_extrude(
-                height,
+                _height_for(p),
                 center=center,
                 twist=twist,
                 scale=scale,

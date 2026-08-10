@@ -462,12 +462,9 @@ class Turtle3D:
 
     @staticmethod
     def _dedup(points: Iterable[ArrayLike], eps: float = 1e-9) -> list[list[float]]:
-        out: list[list[float]] = []
-        for p in points:
-            p_arr = np.asarray(p, float)
-            if not out or np.linalg.norm(p_arr - np.asarray(out[-1])) > eps:
-                out.append([float(p_arr[0]), float(p_arr[1]), float(p_arr[2])])
-        return out
+        from pybosl2.path2d import Path2D
+
+        return [list(p) for p in Path2D._deduplicate(list(points), closed=False, eps=eps)]
 
     @staticmethod
     def _num(x: Any) -> float | None:

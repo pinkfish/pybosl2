@@ -51,7 +51,10 @@ if TYPE_CHECKING:
 
 import numpy as np
 
+from pybosl2._helpers import frag_count as _segs
+from pybosl2._helpers import scale4 as _scale4
 from pybosl2._helpers import translate4, zrot4
+from pybosl2._helpers import xrot4 as _xrot4
 from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_with_decorative_caps
 from pybosl2.enums import ResampleMethod, RoundingMethod, SamplingType, SkinMethod, SweepMethod, VNFStyle
 from pybosl2.points import Point
@@ -316,31 +319,7 @@ def clockwise_polygon(poly: Sequence[Sequence[float]] | Path2D) -> list[Sequence
     """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
     from pybosl2.path2d import Path2D
 
-    return list(poly) if Path2D._polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))  # type: ignore[arg-type]
-
-
-# (imported from pybosl2._helpers as translate4, zrot4)
-
-
-def _scale4(s: Sequence[float]) -> np.ndarray:
-    m = np.eye(4)
-    m[0, 0], m[1, 1] = s[0], s[1]
-    if len(s) > 2:
-        m[2, 2] = s[2]
-    return m
-
-
-def _xrot4(a: float) -> np.ndarray:
-    radius = math.radians(a)
-    c, s = math.cos(radius), math.sin(radius)
-    m = np.eye(4)
-    m[1, 1], m[1, 2], m[2, 1], m[2, 2] = c, -s, s, c
-    return m
-
-
-def _segs(radius: float) -> int:
-    """OpenSCAD's default $fa=12/$fs=2 facet count for a circle of radius *radius* (BOSL2 segs())."""
-    return max(5, math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0)))
+    return list(poly) if Path2D.polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))  # type: ignore[arg-type]
 
 
 def frame_map(

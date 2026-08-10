@@ -58,8 +58,7 @@ CUBETRUSS_BRACING = True
 CUBETRUSS_CLIP_THICKNESS = 1.6
 
 
-def _union(shapes: list[Any]) -> Any:
-    return union(shapes)
+_union = union
 
 
 def _cmask(length: float, chamfer: float, orient: str | None = None) -> Bosl2Solid:

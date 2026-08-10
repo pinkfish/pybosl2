@@ -27,6 +27,7 @@ import numpy as np
 from pybosl2._sdf._libfive import LVTree, lv
 from pybosl2._sdf.edges import _pick_radius
 from pybosl2.enums import EdgeMode
+from pybosl2.geometry import vector_angle3 as _vector_angle3
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -843,13 +844,6 @@ def _frag_count(r: float, fn: float | None = None, fa: float | None = None, fs: 
     fa = fa if fa else 12.0
     fs = fs if fs else 2.0
     return max(5, int(math.ceil(min(360.0 / fa, (2 * math.pi * abs(r)) / fs))))
-
-
-def _vector_angle3(p0: Sequence[float], p1: Sequence[float], p2: Sequence[float]) -> float:
-    v1 = _v_sub(p0, p1)
-    v2 = _v_sub(p2, p1)
-    cosang = max(-1.0, min(1.0, _v_dot(v1, v2) / (_v_norm(v1) * _v_norm(v2))))
-    return math.degrees(math.acos(cosang))
 
 
 def _circlecorner(

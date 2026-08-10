@@ -21,7 +21,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any
 
 from pybosl2._helpers import union
 from pybosl2.color import Color
@@ -30,8 +29,7 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid, teardrop, tube
 __all__ = ["LinearBearings", "LinearBearingSpec"]
 
 
-def _union(shapes: list[Any]) -> Any:
-    return union(shapes)
+_union = union
 
 
 @dataclass(frozen=True)

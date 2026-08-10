@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import math
 
+from pybosl2._helpers import frag_count as _segs
 from pybosl2.color import Color
 from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid
@@ -46,11 +47,6 @@ _WIRE_COLORS = [
     Color([0.7, 1.0, 0.5]),
     Color([0.6, 0.6, 1.0]),
 ]
-
-
-def _segs(r: float) -> int:
-    """OpenSCAD segs(r) with the default $fa=12, $fs=2."""
-    return max(5, math.ceil(min(360 / 12, 2 * math.pi * r / 2)))
 
 
 def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:

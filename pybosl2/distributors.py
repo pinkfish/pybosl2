@@ -256,7 +256,7 @@ def grid_copies(
         from pybosl2.points import Point
 
         return (
-            Path2D._point_in_polygon(
+            Path2D.point_in_polygon(
                 Point(float(pos[0]), float(pos[1])),
                 Path2D(inside) if not isinstance(inside, Path2D) else inside,
                 nonzero=bool(nonzero),

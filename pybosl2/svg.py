@@ -340,7 +340,9 @@ def svg_element_groups(
                             stroke_ring_pts.append([float(point.x), sign * float(point.y)])
                     if len(stroke_ring_pts) < 2:
                         continue
-                    stroke_ring = _stroke_to_polygon(stroke_ring_pts, stroke_width / 2)
+                    stroke_ring = _stroke_to_polygon(
+                        stroke_ring_pts, stroke_width / 2, _stroke_linecap(element), _stroke_linejoin(element)
+                    )
                     if stroke_ring is not None and len(stroke_ring) >= 3:
                         stroke_rings.append(Path2D(stroke_ring, closed=True))
                 # A stroke paints ON TOP of its own element's fill, so it is its own group.
@@ -416,8 +418,38 @@ def _shape_stroke_hex(element: object) -> str | None:
     return None
 
 
-def _stroke_to_polygon(ring: list[list[float]], radius: float) -> list[list[float]] | None:
+def _stroke_linecap(element: object) -> str:
+    """Return the ``stroke-linecap`` value, defaulting to ``"butt"`` (SVG's own default)."""
+    values = getattr(element, "values", None) or {}
+    return str(values.get("stroke-linecap", getattr(element, "stroke_linecap", None) or "butt"))
+
+
+def _stroke_linejoin(element: object) -> str:
+    """Return the ``stroke-linejoin`` value, defaulting to ``"miter"`` (SVG's own default)."""
+    values = getattr(element, "values", None) or {}
+    return str(values.get("stroke-linejoin", getattr(element, "stroke_linejoin", None) or "miter"))
+
+
+#: SVG stroke-linecap -> the shapely buffer cap style. SVG's default is "butt".
+_CAP_STYLES = {"butt": "flat", "round": "round", "square": "square"}
+#: SVG stroke-linejoin -> the shapely buffer join style. SVG's default is "miter".
+_JOIN_STYLES = {"miter": "mitre", "miter-clip": "mitre", "arcs": "mitre", "round": "round", "bevel": "bevel"}
+
+
+def _stroke_to_polygon(
+    ring: list[list[float]],
+    radius: float,
+    linecap: str = "butt",
+    linejoin: str = "miter",
+) -> list[list[float]] | None:
     """Buffer a linestring by *radius* and return the resulting polygon ring.
+
+    *linecap* and *linejoin* are the SVG properties, and they DEFAULT TO SVG'S DEFAULTS.
+    This used to buffer with round caps unconditionally, which silently made every stroked
+    shape half a stroke-width too big in each direction: a butt cap stops dead at the
+    endpoint, a round one bulges past it. On a flag drawn as strokes that is visible --
+    Scotland's saltire (stroke-width .6 under a scale(128 160), so a 48-unit radius) grew 4mm
+    past its own 60mm flag, and the US flag's stripes 1.7mm past theirs.
 
     Returns ``None`` if the buffer produces no geometry or an empty polygon.
     """
@@ -426,7 +458,11 @@ def _stroke_to_polygon(ring: list[list[float]], radius: float) -> list[list[floa
     if len(ring) < 2 or radius <= 0:
         return None
     line = LineString([(float(p[0]), float(p[1])) for p in ring])
-    buffered = line.buffer(radius, cap_style="round", join_style="round")
+    buffered = line.buffer(
+        radius,
+        cap_style=_CAP_STYLES.get(str(linecap).strip().lower(), "flat"),
+        join_style=_JOIN_STYLES.get(str(linejoin).strip().lower(), "mitre"),
+    )
     if buffered.is_empty:
         return None
     return [[float(x), float(y)] for x, y in buffered.exterior.coords[:-1]]

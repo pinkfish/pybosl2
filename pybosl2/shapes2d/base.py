@@ -145,10 +145,6 @@ def _opposite_angle_to_adjacent(opposite: float, angle: float) -> float:
     return opposite / math.tan(math.radians(angle))
 
 
-def _v_theta(vec: Sequence[float]) -> float:
-    return math.degrees(math.atan2(vec[1], vec[0]))
-
-
 def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
     """Return the 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
     return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])
@@ -157,16 +153,6 @@ def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
 def _sign(value: float) -> int:
     value = float(value)
     return (value > 0) - (value < 0)
-
-
-def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: Sequence[float]) -> float:
-    """Return the angle in degrees at vertex *b* of the corner a-b-c."""
-    vax = float(point_a[0]) - float(point_b[0])
-    vay = float(point_a[1]) - float(point_b[1])
-    vcx = float(point_c[0]) - float(point_b[0])
-    vcy = float(point_c[1]) - float(point_b[1])
-    cosv: float = (vax * vcx + vay * vcy) / (math.hypot(vax, vay) * math.hypot(vcx, vcy))
-    return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
 def _finish(

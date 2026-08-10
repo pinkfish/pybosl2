@@ -29,7 +29,6 @@
 from __future__ import annotations
 
 import math
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -45,6 +44,7 @@ from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2.constants import BACK, UP
 from pybosl2.enums import ResampleMethod
+from pybosl2.geometry import vector_angle3 as _vector_angle3
 from pybosl2.transforms import axis_angle_matrix, rot_from_to
 from pybosl2.vectors import unit
 
@@ -89,16 +89,6 @@ def _profile_factory(profile: object) -> Callable[[], Any]:
 
 def _point_left_of_line2d(p: Sequence[float], a: Sequence[float], b: Sequence[float]) -> float:
     return float((b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]))
-
-
-def _vector_angle3(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
-    va = [float(a[i]) - float(b[i]) for i in range(len(a))]
-    vc = [float(c[i]) - float(b[i]) for i in range(len(c))]
-    dot = sum(va[i] * vc[i] for i in range(len(va)))
-    na = math.hypot(*va) if len(va) > 1 else abs(va[0])
-    nc = math.hypot(*vc) if len(vc) > 1 else abs(vc[0])
-    cosv: float = dot / (na * nc)
-    return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
 
 
 def _planar_half(shape: Any, keep_positive_x: bool, s: float) -> Any:
@@ -444,16 +434,12 @@ class Extrudable:
 # ---------------------------------------------------------------------------
 
 
-class Miscellaneous(ABC):
+class Miscellaneous:
     """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods.
 
-    on :class:`~pybosl2.shapes3d.Bosl2Solid`.
+    on :class:`~pybosl2.shapes3d.Bosl2Solid`.  Requires ``_wrap`` (provided by
+    :class:`~pybosl2._shape.BaseShape`).
     """
-
-    @abstractmethod
-    def _wrap(self, new_shape: Any) -> "Bosl2Solid":  # pragma: no cover - provided by the host class (Bosl2Solid)
-        """Re-wrap a native shape as the host solid type."""
-        raise NotImplementedError
 
     def bounding_box(self, excess: float = 0) -> Bosl2Solid:
         """Return the smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
@@ -483,10 +469,10 @@ class Miscellaneous(ABC):
         sides = max(8, _frag_count(abs(radius)))
         sides = int(math.ceil(sides / 4) * 4)
         if radius > 0:
-            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))  # type: ignore[attr-defined]
+            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))  # type: ignore[attr-defined, no-any-return]
         big1 = _cube([size * 1.02] * 3, center=True)
         big2 = _cube([size] * 3, center=True)
-        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))  # type: ignore[attr-defined]
+        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))  # type: ignore[attr-defined, no-any-return]
 
     def round3d(
         self,

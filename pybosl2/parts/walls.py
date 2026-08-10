@@ -28,6 +28,7 @@ from typing import Any
 
 import numpy as np
 
+from pybosl2._helpers import frag_count as _segs
 from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid, cuboid
 from pybosl2.vnf import VNF
@@ -70,11 +71,6 @@ def _circle_2tangents(r: float, p1: list[float], p2: list[float], p3: list[float
     bis = bis / np.linalg.norm(bis)
     half = math.acos(float(np.clip(np.dot(v1, v2), -1.0, 1.0))) / 2
     return (p2a + bis * (r / math.sin(half))).tolist()  # type: ignore[no-any-return]
-
-
-def _segs(r: float) -> int:
-    """OpenSCAD segs(r) with the default $fa=12, $fs=2."""
-    return max(5, math.ceil(min(360 / 12, 2 * math.pi * r / 2)))
 
 
 def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bridge: float) -> Any:

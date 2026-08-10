@@ -52,12 +52,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _vector_angle3(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
-    """Return the angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
-    va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
-    vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
-    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
-    return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
+from pybosl2.geometry import vector_angle3 as _vector_angle3
 
 
 def _smooth_bez_fill(points: Sequence[Sequence[float]], k: float) -> list[list[float]]:
@@ -129,11 +124,14 @@ def _circlecorner(
     fs: float | None = None,
 ) -> list[list[float]]:
     """Return a circular-arc corner (BOSL2 _circlecorner())."""
-    from pybosl2._helpers import frag_count as _frag_count
-    from pybosl2.shapes2d import arc
+    d, radius = float(parm[0]), float(parm[1])
+
+    if len(points[1]) == 2:
+        from pybosl2.path2d import Path2D
+
+        return Path2D._circlecorner([[float(c) for c in p] for p in points], d, radius, fn, fa, fs)
 
     angle = _vector_angle3(points[0], points[1], points[2]) / 2
-    d, radius = float(parm[0]), float(parm[1])
     p1 = [float(points[1][i]) for i in range(len(points[1]))]
     dim = len(p1)
     prev = unit([float(points[0][i]) - p1[i] for i in range(dim)])
@@ -146,19 +144,9 @@ def _circlecorner(
     u = unit(sum_vec)
     scale = radius / math.sin(math.radians(angle))
     center = [scale * u[i] + p1[i] for i in range(dim)]
+    from pybosl2._helpers import frag_count as _frag_count
+
     sides = max(3, math.ceil((90 - angle) / 180 * _frag_count(radius, fn, fa, fs)))
-    if len(points[1]) == 2:
-        return [
-            [float(c) for c in p]
-            for p in arc(
-                sides,
-                center=[float(center[0]), float(center[1])],
-                points=[
-                    [float(start[0]), float(start[1])],
-                    [float(end[0]), float(end[1])],
-                ],
-            )
-        ]
     return _arc3d(center, start, end, sides)
 
 
@@ -299,13 +287,9 @@ def _round_corners(
 
 
 def _dedup(pts: Sequence[Sequence[float]], eps: float = 1e-9) -> list[list[float]]:
-    out: list[list[float]] = []
-    for p in pts:
-        if not out or not np.allclose(out[-1], p, rtol=0, atol=eps):
-            out.append([float(c) for c in p])
-    if len(out) > 1 and np.allclose(out[0], out[-1], rtol=0, atol=eps):
-        out.pop()
-    return out
+    from pybosl2.path2d import Path2D
+
+    return [list(p) for p in Path2D._deduplicate(pts, closed=True, eps=eps)]
 
 
 # ---------------------------------------------------------------------------
