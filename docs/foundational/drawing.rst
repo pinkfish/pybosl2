@@ -14,7 +14,7 @@ Arc & catenary
 Helix
 -----
 
-:meth:`pybosl2.path3d.Path3D.helix` — see the :doc:`paths` reference for full documentation.
+:meth:`pybosl2.path3d.Path3D.helix` — see the :doc:`/paths/paths` reference for full documentation.
 
 2-D Turtle
 ----------
@@ -26,7 +26,7 @@ The 2-D turtle is a standalone function that returns a :class:`~pybosl2.path2d.P
 3-D Turtle
 ----------
 
-The 3-D turtle is documented in :doc:`turtle3d`.
+The 3-D turtle is documented in :doc:`/paths/turtle3d`.
 
 Stroke & dashed stroke
 -----------------------
@@ -76,7 +76,7 @@ Coverage of BOSL2 ``drawing.scad``
        — the method forms that build unioned dash solids directly.
    * - ``turtle3d``
      - ported
-     - :doc:`turtle3d` — the 3-D turtle as a :class:`~pybosl2.turtle.turtle3d.Turtle3D` class with
+     - :doc:`/paths/turtle3d` — the 3-D turtle as a :class:`~pybosl2.turtle.turtle3d.Turtle3D` class with
        the full simple and compound command sets.
    * - ``debug_polygon`` / ``debug_region``
      - not ported
