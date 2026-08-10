@@ -1,0 +1,3595 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="beziers.html">
+      
+      
+        <link rel="next" href="nurbs.html">
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>Isosurface: marching cubes & metaballs - pybosl2 (PythonSCAD port) 0.7.9 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../_static/stl_viewer.css?v=c6f4cd80" />
+        <link rel="stylesheet" type="text/css" href="../_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#coverage-of-bosl2-isosurface-scad" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.9 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.9 documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.9 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Isosurface: marching cubes &amp; metaballs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.9 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.9 documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.9 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends:<wbr> CSG and SDF</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/circle.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Circle</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Colour:<wbr> colorspace conversion &amp; colour operators</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/cuboid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cuboid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/curves.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Curves</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/cylinder.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cylinder</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Distributors:<wbr> copiers &amp; reflected copies</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Drawing:<wbr> path generators &amp; renderers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/extrusions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Extrusions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Edge/corner masking</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native-<wbr>only mesh operations</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ops</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/partitions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions:<wbr> planar cuts &amp; interlocking splits</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/shapes3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/sphere.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sphere</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/square.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Square</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/texture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Textures</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/torus.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Torus</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Transforms <wbr>(affine / reorient)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bezier curves, paths and surfaces</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface:<wbr> marching cubes &amp; metaballs</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface:<wbr> marching cubes &amp; metaballs</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-of-bosl2-isosurface-scad" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Coverage of BOSL2 isosurface.<wbr>scad</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Examples</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-pybosl2.isosurface" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface (Python module)"><span>API reference</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_sphere (Python function) — Return a spherical metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>sphere</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_sphere">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_cuboid (Python function) — Return a rounded-cuboid metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>cuboid</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_cuboid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_torus (Python function) — Return a torus metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>torus</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_torus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_capsule (Python function) — Return a capsule (round-ended cylinder) metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>capsule</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_capsule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_disk (Python function) — Return a rounded-edge disk metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>disk</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_disk">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_octahedron (Python function) — Return a rounded-octahedron metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>octahedron</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_octahedron">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_connector (Python function) — Return a capsule metaball field spanning from p1 to p2."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>connector</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_connector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.metaballs2d (Python function) — Generate 2-D contour paths from metaball field primitives."><span>pybosl2.<wbr>isosurface.<wbr>metaballs2d</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.metaballs2d">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NURBS:<wbr> curves &amp; surfaces</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span>Paths</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Rounding:<wbr> round_<wbr>corners &amp; smooth_<wbr>path</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sweeps <wbr>(skin)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Svg</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Turtle <wbr>(3-<wbr>D)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vnf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Geometry helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Numeric helpers <wbr>(math)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Quaternions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Vector helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bottle caps:<wbr> PCO-<wbr>1810 &amp; PCO-<wbr>1881 necks and caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cube trusses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Enums</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gears</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hinges</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hooks</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Joiners</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Linear bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Modular hose</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NEMA steppers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regular<wbr>Polyhedron</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screw drives:<wbr> Phillips, hex, Torx &amp; Robertson recesses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screws:<wbr> metric screws, nuts &amp; screw holes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sliders &amp; rails</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Threading:<wbr> screw threads, rods &amp; nuts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Tripod mounts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Walls</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Wiring</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extras/miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Miscellaneous:<wbr> extrusions, bbox, hull &amp; minkowski</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-of-bosl2-isosurface-scad" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Coverage of BOSL2 isosurface.<wbr>scad</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Examples</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-pybosl2.isosurface" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface (Python module)"><span>API reference</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_sphere (Python function) — Return a spherical metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>sphere</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_sphere">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_sphere-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_cuboid (Python function) — Return a rounded-cuboid metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>cuboid</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_cuboid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_cuboid-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_torus (Python function) — Return a torus metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>torus</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_torus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_torus-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_capsule (Python function) — Return a capsule (round-ended cylinder) metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>capsule</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_capsule">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_capsule-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_disk (Python function) — Return a rounded-edge disk metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>disk</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_disk">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_disk-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_octahedron (Python function) — Return a rounded-octahedron metaball field."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>octahedron</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_octahedron">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_octahedron-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.mb_connector (Python function) — Return a capsule metaball field spanning from p1 to p2."><span>pybosl2.<wbr>isosurface.<wbr>mb_<wbr>connector</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.mb_connector">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.mb_connector-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.isosurface.metaballs2d (Python function) — Generate 2-D contour paths from metaball field primitives."><span>pybosl2.<wbr>isosurface.<wbr>metaballs2d</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.isosurface.metaballs2d">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.isosurface.metaballs2d-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="isosurface-marching-cubes-metaballs">Isosurface: marching cubes &amp; metaballs<a class="headerlink" href="#isosurface-marching-cubes-metaballs" title="Link to this heading">¶</a></h1>
+<p>Pure-Python port of the 3-D core of BOSL2’s <code class="docutils literal notranslate"><span class="pre">isosurface.scad</span></code>:
+<a class="reference internal" href="vnf.html#pybosl2.vnf.VNF.from_field" title="pybosl2.vnf.VNF.from_field (Python method) — Mesh a scalar field into a VNF via marching cubes."><code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.from_field()</span></code></a> meshes the level set of a scalar field over a voxel grid
+(marching cubes) into a <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>; the <code class="docutils literal notranslate"><span class="pre">mb_*</span></code> functions are metaball field
+primitives; and <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF.from_metaballs" title="pybosl2.vnf.VNF.from_metaballs (Python method) — Mesh transformed metaball primitives into a blobby VNF."><code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.from_metaballs()</span></code></a> sums transformed primitives and meshes the
+result into a blobby surface:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span><span class="n">field_fn</span><span class="p">,</span> <span class="n">isovalue</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">([(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span> <span class="p">(</span><span class="n">pos2</span><span class="p">,</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">))],</span> <span class="n">bounding_box</span><span class="o">=</span><span class="n">box</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p>A field primitive returns a value that grows toward infinity at its center and falls off with
+distance; the surface is drawn where the summed field reaches <em>isovalue</em> (default 1). Because the
+fields add, overlapping metaballs bulge together into a smooth blob. The <code class="docutils literal notranslate"><span class="pre">mb_*</span></code> formulas are
+pinned point-for-point to real BOSL2 in <code class="docutils literal notranslate"><span class="pre">tests/test_pybosl2_reorient.py</span></code>; the meshes are watertight
+and verified geometrically.</p>
+<p>The mesher uses the standard Paul Bourke marching-cubes triangle table, so its triangulation isn’t
+vertex-identical to BOSL2’s, but the surface it encloses is the same; face winding is fixed to
+outward via the VNF’s signed volume.</p>
+<h2 id="coverage-of-bosl2-isosurface-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">isosurface.scad</span></code><a class="headerlink" href="#coverage-of-bosl2-isosurface-scad" title="Link to this heading">¶</a></h2>
+<table class="docutils data align-default">
+<colgroup>
+<col style="width: 34.0%" />
+<col style="width: 16.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>BOSL2 function</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">isosurface</span></code></p></td>
+<td><p>ported</p></td>
+<td><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF.from_field" title="pybosl2.vnf.VNF.from_field (Python method) — Mesh a scalar field into a VNF via marching cubes."><code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.from_field()</span></code></a> – marching cubes over a field callable or a
+precomputed 3-D array; <code class="docutils literal notranslate"><span class="pre">voxel_size</span></code>/<code class="docutils literal notranslate"><span class="pre">voxel_count</span></code>, <code class="docutils literal notranslate"><span class="pre">closed</span></code>, <code class="docutils literal notranslate"><span class="pre">reverse</span></code>, range
+isovalues <code class="docutils literal notranslate"><span class="pre">[lo,</span> <span class="pre">hi]</span></code> (collapsed to a one-sided threshold).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">metaballs</span></code></p></td>
+<td><p>ported</p></td>
+<td><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF.from_metaballs" title="pybosl2.vnf.VNF.from_metaballs (Python method) — Mesh transformed metaball primitives into a blobby VNF."><code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.from_metaballs()</span></code></a> – a list of <code class="docutils literal notranslate"><span class="pre">(transform,</span> <span class="pre">metaball)</span></code> pairs (or the
+BOSL2 flat form).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mb_sphere</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_cuboid</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_torus</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_capsule</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_disk</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_octahedron</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_connector</span></code></p></td>
+<td><p>ported</p></td>
+<td><p>the 3-D metaball field primitives, with <code class="docutils literal notranslate"><span class="pre">cutoff</span></code> / <code class="docutils literal notranslate"><span class="pre">influence</span></code> / <code class="docutils literal notranslate"><span class="pre">negative</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mb_cyl</span></code></p></td>
+<td><p>not ported</p></td>
+<td><p>the revolved-profile (cone/rounded) field – a follow-up.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">contour</span></code> / <code class="docutils literal notranslate"><span class="pre">metaballs2d</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_circle</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_rect</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_trapezoid</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_stadium</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_ring</span></code> / <code class="docutils literal notranslate"><span class="pre">mb_connector2d</span></code></p></td>
+<td><p>not ported</p></td>
+<td><p>the 2-D analogues (marching squares) – a follow-up.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">debug</span></code> views, anchor/spin/orient</p></td>
+<td><p>not ported</p></td>
+<td><p>preview/attachment machinery.</p></td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<p>Two spheres merging into a peanut:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span><span class="p">,</span> <span class="n">mb_sphere</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[([</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span> <span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">))]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mi">40</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/37a5a76ee8dd13dc.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/37a5a76ee8dd13dc.stl">⬇ Download STL mesh</a></p>
+<p>A ring metaball plus a connecting bar:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span><span class="p">,</span> <span class="n">mb_connector</span><span class="p">,</span> <span class="n">mb_torus</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_torus</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="p">([</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_connector</span><span class="p">([</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">))]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="p">[[</span><span class="o">-</span><span class="mi">22</span><span class="p">,</span> <span class="o">-</span><span class="mi">22</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">22</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">10</span><span class="p">]],</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/f4affdee26cc4727.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/f4affdee26cc4727.stl">⬇ Download STL mesh</a></p>
+<p>The level set of a custom field function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">18</span> <span class="o">/</span> <span class="n">d</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bounding_box</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/a8ef94ffee62f99b.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/a8ef94ffee62f99b.stl">⬇ Download STL mesh</a></p>
+<h2 id="module-pybosl2.isosurface"><span id="api-reference"></span>API reference<a class="headerlink" href="#module-pybosl2.isosurface" title="Link to this heading">¶</a></h2>
+<p>Metaball field primitives for VNF isosurface meshing (BOSL2 metaballs3d.scad).</p>
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.isosurface.MetaballSpec">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">MetaballSpec</span></span><a class="headerlink" href="#pybosl2.isosurface.MetaballSpec" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">_MetaballSpec</span></code></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_sphere">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_sphere</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_sphere.radius" title="pybosl2.isosurface.mb_sphere.radius (Python parameter) — Sphere radius (mutually exclusive with diameter)."><span class="n"><span class="pre">radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_sphere.cutoff" title="pybosl2.isosurface.mb_sphere.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_sphere.influence" title="pybosl2.isosurface.mb_sphere.influence (Python parameter) — Blending strength (smaller = sharper)."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_sphere.negative" title="pybosl2.isosurface.mb_sphere.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_sphere.diameter" title="pybosl2.isosurface.mb_sphere.diameter (Python parameter) — Sphere diameter."><span class="n"><span class="pre">diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_sphere"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_sphere" title="Link to this definition">¶</a></dt>
+<dd><p>Return a spherical metaball field.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_sphere-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_sphere.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere.radius" title="Permalink to this definition">¶</a></dt><dd><p>Sphere radius (mutually exclusive with <em>diameter</em>).</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_sphere.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0. <code class="docutils literal notranslate"><span class="pre">inf</span></code> = no cutoff.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_sphere.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength (smaller = sharper).</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_sphere.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_sphere.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Sphere diameter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_sphere-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_sphere-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If no positive radius or diameter is given.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_sphere-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_sphere-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>_Metaball</em></p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">mb_sphere</span><span class="p">,</span> <span class="n">MetaballSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span><span class="n">MetaballSpec</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">15</span><span class="p">))]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/9f7315ed5b54f87b.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/9f7315ed5b54f87b.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_cuboid">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_cuboid</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_cuboid.size" title="pybosl2.isosurface.mb_cuboid.size (Python parameter) — A scalar (cube edge) or (dx, dy, dz) tuple."><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_cuboid.squareness" title="pybosl2.isosurface.mb_cuboid.squareness (Python parameter) — 0 = fully round, 1 = sharp square edges."><span class="n"><span class="pre">squareness</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.5</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_cuboid.cutoff" title="pybosl2.isosurface.mb_cuboid.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_cuboid.influence" title="pybosl2.isosurface.mb_cuboid.influence (Python parameter) — Blending strength."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_cuboid.negative" title="pybosl2.isosurface.mb_cuboid.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_cuboid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid" title="Link to this definition">¶</a></dt>
+<dd><p>Return a rounded-cuboid metaball field.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_cuboid-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_cuboid.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">tuple[float, float, float] | float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid.size" title="Permalink to this definition">¶</a></dt><dd><p>A scalar (cube edge) or <code class="docutils literal notranslate"><span class="pre">(dx,</span> <span class="pre">dy,</span> <span class="pre">dz)</span></code> tuple.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_cuboid.squareness"><span class="sig-name descname">squareness</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid.squareness" title="Permalink to this definition">¶</a></dt><dd><p>0 = fully round, 1 = sharp square edges.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_cuboid.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_cuboid.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_cuboid.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_cuboid-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_cuboid-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>squareness</em> is not in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_cuboid-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_cuboid-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>_Metaball</em></p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">mb_cuboid</span><span class="p">,</span> <span class="n">MetaballSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span><span class="n">MetaballSpec</span><span class="p">([</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_cuboid</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">squareness</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)),</span>
+        <span class="n">MetaballSpec</span><span class="p">([</span><span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_cuboid</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">squareness</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">25</span><span class="p">,</span> <span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/30a231169f8993c5.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/30a231169f8993c5.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_torus">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_torus</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.major_radius" title="pybosl2.isosurface.mb_torus.major_radius (Python parameter) — Distance from the origin to the tube centre."><span class="n"><span class="pre">major_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.minor_radius" title="pybosl2.isosurface.mb_torus.minor_radius (Python parameter) — Tube radius."><span class="n"><span class="pre">minor_radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.cutoff" title="pybosl2.isosurface.mb_torus.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.influence" title="pybosl2.isosurface.mb_torus.influence (Python parameter) — Blending strength."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.negative" title="pybosl2.isosurface.mb_torus.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.major_diameter" title="pybosl2.isosurface.mb_torus.major_diameter (Python parameter) — Overrides major_radius."><span class="n"><span class="pre">major_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_torus.minor_diameter" title="pybosl2.isosurface.mb_torus.minor_diameter (Python parameter) — Overrides minor_radius."><span class="n"><span class="pre">minor_diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_torus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_torus" title="Link to this definition">¶</a></dt>
+<dd><p>Return a torus metaball field.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_torus-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_torus-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_torus.major_radius"><span class="sig-name descname">major_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.major_radius" title="Permalink to this definition">¶</a></dt><dd><p>Distance from the origin to the tube centre.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_torus.minor_radius"><span class="sig-name descname">minor_radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.minor_radius" title="Permalink to this definition">¶</a></dt><dd><p>Tube radius.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_torus.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_torus.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_torus.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_torus.major_diameter"><span class="sig-name descname">major_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.major_diameter" title="Permalink to this definition">¶</a></dt><dd><p>Overrides <em>major_radius</em>.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_torus.minor_diameter"><span class="sig-name descname">minor_diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_torus.minor_diameter" title="Permalink to this definition">¶</a></dt><dd><p>Overrides <em>minor_radius</em>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_torus-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_torus-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_torus-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_torus-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If either radius is missing or non-positive.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_torus-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_torus-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>_Metaball</em></p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">mb_torus</span><span class="p">,</span> <span class="n">MetaballSpec</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds3D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span><span class="n">MetaballSpec</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_torus</span><span class="p">(</span><span class="n">major_radius</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">minor_radius</span><span class="o">=</span><span class="mi">5</span><span class="p">))]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/1dc4f23d9253f7ba.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/1dc4f23d9253f7ba.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_capsule">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_capsule</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_capsule.height" title="pybosl2.isosurface.mb_capsule.height (Python parameter) — Total length including rounded ends."><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_capsule.radius" title="pybosl2.isosurface.mb_capsule.radius (Python parameter) — Shaft radius."><span class="n"><span class="pre">radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_capsule.cutoff" title="pybosl2.isosurface.mb_capsule.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_capsule.influence" title="pybosl2.isosurface.mb_capsule.influence (Python parameter) — Blending strength."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_capsule.negative" title="pybosl2.isosurface.mb_capsule.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_capsule.diameter" title="pybosl2.isosurface.mb_capsule.diameter (Python parameter) — Shaft diameter."><span class="n"><span class="pre">diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_capsule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_capsule" title="Link to this definition">¶</a></dt>
+<dd><p>Return a capsule (round-ended cylinder) metaball field.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_capsule-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_capsule.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule.height" title="Permalink to this definition">¶</a></dt><dd><p>Total length including rounded ends.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_capsule.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule.radius" title="Permalink to this definition">¶</a></dt><dd><p>Shaft radius.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_capsule.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_capsule.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_capsule.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_capsule.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Shaft diameter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_capsule-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_capsule-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>height</em> or <em>radius</em> is missing, non-positive, or shaft too short.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_capsule-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_capsule-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>_Metaball</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_disk">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_disk</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_disk.height" title="pybosl2.isosurface.mb_disk.height (Python parameter) — Disk thickness."><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_disk.radius" title="pybosl2.isosurface.mb_disk.radius (Python parameter) — Outer radius."><span class="n"><span class="pre">radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_disk.cutoff" title="pybosl2.isosurface.mb_disk.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_disk.influence" title="pybosl2.isosurface.mb_disk.influence (Python parameter) — Blending strength."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_disk.negative" title="pybosl2.isosurface.mb_disk.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_disk.diameter" title="pybosl2.isosurface.mb_disk.diameter (Python parameter) — Outer diameter."><span class="n"><span class="pre">diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_disk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_disk" title="Link to this definition">¶</a></dt>
+<dd><p>Return a rounded-edge disk metaball field.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_disk-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_disk-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_disk.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_disk.height" title="Permalink to this definition">¶</a></dt><dd><p>Disk thickness.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_disk.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_disk.radius" title="Permalink to this definition">¶</a></dt><dd><p>Outer radius.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_disk.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_disk.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_disk.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_disk.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_disk.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_disk.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_disk.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_disk.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Outer diameter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_disk-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_disk-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_disk-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_disk-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>height</em> or <em>radius</em> is missing, non-positive, or too thin.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_disk-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_disk-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>_Metaball</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_octahedron">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_octahedron</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_octahedron.size" title="pybosl2.isosurface.mb_octahedron.size (Python parameter) — A scalar (circumscribed cube edge) or (dx, dy, dz) tuple."><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_octahedron.squareness" title="pybosl2.isosurface.mb_octahedron.squareness (Python parameter) — 0 = round, 1 = sharp octahedron edges."><span class="n"><span class="pre">squareness</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.5</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_octahedron.cutoff" title="pybosl2.isosurface.mb_octahedron.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_octahedron.influence" title="pybosl2.isosurface.mb_octahedron.influence (Python parameter) — Blending strength."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_octahedron.negative" title="pybosl2.isosurface.mb_octahedron.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_octahedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron" title="Link to this definition">¶</a></dt>
+<dd><p>Return a rounded-octahedron metaball field.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_octahedron-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_octahedron.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">tuple[float, float, float] | float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron.size" title="Permalink to this definition">¶</a></dt><dd><p>A scalar (circumscribed cube edge) or <code class="docutils literal notranslate"><span class="pre">(dx,</span> <span class="pre">dy,</span> <span class="pre">dz)</span></code> tuple.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_octahedron.squareness"><span class="sig-name descname">squareness</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron.squareness" title="Permalink to this definition">¶</a></dt><dd><p>0 = round, 1 = sharp octahedron edges.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_octahedron.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_octahedron.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_octahedron.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_octahedron-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_octahedron-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>squareness</em> is not in <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_octahedron-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_octahedron-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><em>_Metaball</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.mb_connector">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">mb_connector</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.p1" title="pybosl2.isosurface.mb_connector.p1 (Python parameter) — Start Point."><span class="n"><span class="pre">p1</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.p2" title="pybosl2.isosurface.mb_connector.p2 (Python parameter) — End Point (must be distinct from p1)."><span class="n"><span class="pre">p2</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.radius" title="pybosl2.isosurface.mb_connector.radius (Python parameter) — Shaft radius."><span class="n"><span class="pre">radius</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.cutoff" title="pybosl2.isosurface.mb_connector.cutoff (Python parameter) — Distance beyond which the field is clamped to 0."><span class="n"><span class="pre">cutoff</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">inf</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.influence" title="pybosl2.isosurface.mb_connector.influence (Python parameter) — Blending strength."><span class="n"><span class="pre">influence</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.negative" title="pybosl2.isosurface.mb_connector.negative (Python parameter) — If True, produce a subtractive metaball."><span class="n"><span class="pre">negative</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.mb_connector.diameter" title="pybosl2.isosurface.mb_connector.diameter (Python parameter) — Shaft diameter."><span class="n"><span class="pre">diameter</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#mb_connector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.mb_connector" title="Link to this definition">¶</a></dt>
+<dd><p>Return a capsule metaball field spanning from <em>p1</em> to <em>p2</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.mb_connector-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_connector-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.mb_connector.p1"><span class="sig-name descname">p1</span><span class="p"> : </span><span class="desctype"><span class="desctype">Point</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.p1" title="Permalink to this definition">¶</a></dt><dd><p>Start <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code>.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_connector.p2"><span class="sig-name descname">p2</span><span class="p"> : </span><span class="desctype"><span class="desctype">Point</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.p2" title="Permalink to this definition">¶</a></dt><dd><p>End <code class="xref py py-class docutils literal notranslate"><span class="pre">Point</span></code> (must be distinct from <em>p1</em>).</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_connector.radius"><span class="sig-name descname">radius</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.radius" title="Permalink to this definition">¶</a></dt><dd><p>Shaft radius.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_connector.cutoff"><span class="sig-name descname">cutoff</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.cutoff" title="Permalink to this definition">¶</a></dt><dd><p>Distance beyond which the field is clamped to 0.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_connector.influence"><span class="sig-name descname">influence</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.influence" title="Permalink to this definition">¶</a></dt><dd><p>Blending strength.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_connector.negative"><span class="sig-name descname">negative</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.negative" title="Permalink to this definition">¶</a></dt><dd><p>If True, produce a subtractive metaball.</p>
+</dd>
+<dt id="pybosl2.isosurface.mb_connector.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.mb_connector.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Shaft diameter.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_connector-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_connector-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code> primitive.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.mb_connector-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_connector-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>radius</em> is missing, non-positive, or <em>p1</em> equals <em>p2</em>.</p>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.mb_connector-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.mb_connector-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>_Metaball</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.isosurface.metaballs2d">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">metaballs2d</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.spec" title="pybosl2.isosurface.metaballs2d.spec (Python parameter) — A list of _MetaballSpec entries, each holding a 4×4 transform and a _Metaball."><span class="n"><span class="pre">spec</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.bounding_box" title="pybosl2.isosurface.metaballs2d.bounding_box (Python parameter) — A Bounds2D."><span class="n"><span class="pre">bounding_box</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.pixel_size" title="pybosl2.isosurface.metaballs2d.pixel_size (Python parameter) — Isotropic pixel size."><span class="n"><span class="pre">pixel_size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.pixel_count" title="pybosl2.isosurface.metaballs2d.pixel_count (Python parameter) — Approximate total pixel count."><span class="n"><span class="pre">pixel_count</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.isovalue" title="pybosl2.isosurface.metaballs2d.isovalue (Python parameter) — Field threshold."><span class="n"><span class="pre">isovalue</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.closed" title="pybosl2.isosurface.metaballs2d.closed (Python parameter) — If True, return only closed contour loops."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.isosurface.metaballs2d.exact_bounds" title="pybosl2.isosurface.metaballs2d.exact_bounds (Python parameter) — If True, use bounding_box exactly."><span class="n"><span class="pre">exact_bounds</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/isosurface.html#metaballs2d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.isosurface.metaballs2d" title="Link to this definition">¶</a></dt>
+<dd><p>Generate 2-D contour paths from metaball field primitives.</p>
+<p>The metaball spec uses the same 3-D transforms and field primitives as
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">VNF.from_metaballs()</span></code>, but evaluated on the z=0 plane to produce
+a 2-D contour via marching squares.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.isosurface.metaballs2d-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.isosurface.metaballs2d.spec"><span class="sig-name descname">spec</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[_MetaballSpec]</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.spec" title="Permalink to this definition">¶</a></dt><dd><p>A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">_MetaballSpec</span></code> entries,
+each holding a 4×4 transform and a <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code>.</p>
+</dd>
+<dt id="pybosl2.isosurface.metaballs2d.bounding_box"><span class="sig-name descname">bounding_box</span><span class="p"> : </span><span class="desctype"><span class="desctype">Bounds2D</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.bounding_box" title="Permalink to this definition">¶</a></dt><dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds2D</span></code>.</p>
+</dd>
+<dt id="pybosl2.isosurface.metaballs2d.pixel_size"><span class="sig-name descname">pixel_size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.pixel_size" title="Permalink to this definition">¶</a></dt><dd><p>Isotropic pixel size.</p>
+</dd>
+<dt id="pybosl2.isosurface.metaballs2d.pixel_count"><span class="sig-name descname">pixel_count</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.pixel_count" title="Permalink to this definition">¶</a></dt><dd><p>Approximate total pixel count.</p>
+</dd>
+<dt id="pybosl2.isosurface.metaballs2d.isovalue"><span class="sig-name descname">isovalue</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.isovalue" title="Permalink to this definition">¶</a></dt><dd><p>Field threshold.  Defaults to 1.</p>
+</dd>
+<dt id="pybosl2.isosurface.metaballs2d.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.closed" title="Permalink to this definition">¶</a></dt><dd><p>If True, return only closed contour loops.</p>
+</dd>
+<dt id="pybosl2.isosurface.metaballs2d.exact_bounds"><span class="sig-name descname">exact_bounds</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d.exact_bounds" title="Permalink to this definition">¶</a></dt><dd><p>If True, use <em>bounding_box</em> exactly.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.isosurface.metaballs2d-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A list of contour paths, each a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.isosurface.metaballs2d-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.isosurface.metaballs2d-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>list[list[list[float]]]</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">mb_sphere</span><span class="p">,</span> <span class="n">MetaballSpec</span><span class="p">,</span> <span class="n">metaballs2d</span><span class="p">,</span> <span class="n">Bounds2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MetaballSpec</span><span class="p">([</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span>
+    <span class="n">MetaballSpec</span><span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span>
+<span class="p">]</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="n">metaballs2d</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">Bounds2D</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">pixel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">Path2D</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/edd25ea1605a8b62.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/edd25ea1605a8b62.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.isosurface.Metaball">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.isosurface.</span></span><span class="sig-name descname"><span class="pre">Metaball</span></span><a class="headerlink" href="#pybosl2.isosurface.Metaball" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code></p>
+</dd></dl>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="beziers.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Bezier curves, paths and surfaces">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Bezier curves, paths and surfaces
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="nurbs.html" class="md-footer__link md-footer__link--next" aria-label="Next: NURBS: curves &amp; surfaces">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                NURBS: curves &amp; surfaces
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    8.2.3.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../_static/stl_viewer.js?v=6fcc5409"></script>
+    
+  </body>
+</html>
