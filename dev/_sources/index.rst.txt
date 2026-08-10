@@ -47,7 +47,7 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
      var isVer = /\/v\d+\.\d+\.\d+/.test(path);
       var base;
       if (inDev) { base = path.replace(/\/dev.*/, '') + '/'; }
-      else if (isVer) { base = path.replace(/\/v\d+\.\d+\.\d+.*/, '') + '/'; }
+      else if (isVer) { base = path.replace(/\/v\\d+\\.\\d+\\.\\d+.*/, '') + '/'; }
       else { base = path + '/'; }
      if (isVer) {
        lat.setAttribute('href', base + 'index.html');
@@ -61,7 +61,7 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
              a.href = base + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
-             if (i < n-1) list.appendChild(document.createTextNode(' · '));
+             if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
            }
          })
          .catch(function(){});
@@ -78,7 +78,7 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
              a.href = base + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
-             if (i < n-1) list.appendChild(document.createTextNode(' · '));
+             if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
            }
          })
          .catch(function(){});
@@ -154,35 +154,35 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    backends/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Foundational
    :glob:
 
    foundational/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Paths, regions & surfaces
    :glob:
 
    paths/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Math & geometry
    :glob:
 
    math/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Parts library
    :glob:
 
    parts/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Extras
    :glob:
 
