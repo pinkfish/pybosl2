@@ -405,6 +405,10 @@ class TestSphere:
     def test_spheroid_is_a_plain_sphere(self) -> None:
         shape = sdf_s3d.spheroid(radius=3).mesh()
         assert math.isclose(float(shape.sample(3, 0, 0)), float(0), abs_tol=1e-7)
+        center, size = sdf_s3d.spheroid(radius=3).bounds()
+        assert size[0] == pytest.approx(6, abs=0.01)
+        assert size[1] == pytest.approx(6, abs=0.01)
+        assert size[2] == pytest.approx(6, abs=0.01)
 
 
 class TestTorus:
@@ -414,6 +418,10 @@ class TestTorus:
         assert math.isclose(float(shape.sample(12, 0, 0)), float(0), abs_tol=1e-7), "outer equator"
         assert math.isclose(float(shape.sample(8, 0, 0)), float(0), abs_tol=1e-7), "inner equator"
         assert math.isclose(float(shape.sample(10, 0, 2)), float(0), abs_tol=1e-7), "top of the tube"
+        center, size = sdf_s3d.torus(major_radius=10, minor_radius=2).bounds()
+        assert size[0] >= 22  # major_radius + minor_radius = 12, diameter = 24
+        assert size[1] >= 22
+        assert size[2] >= 3  # minor_radius * 2 = 4
 
 
 class TestCylinders:
@@ -422,11 +430,16 @@ class TestCylinders:
         assert math.isclose(float(shape.sample(5, 0, 0)), float(0), abs_tol=1e-7)
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=1e-7)
         assert shape.sample(0, 0, 0) < 0
+        center, size = sdf_s3d.cylinder(height=10, radius=5).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        assert size[0] == pytest.approx(10, abs=0.01)  # diameter = 2*radius
 
     def test_tapered_cylinder(self) -> None:
         shape = sdf_s3d.cylinder(height=10, radius1=5, radius2=2).mesh()
         assert math.isclose(float(shape.sample(5, 0, -5)), float(0), abs_tol=10 ** (-3)), "bottom rim"
         assert math.isclose(float(shape.sample(2, 0, 5)), float(0), abs_tol=10 ** (-3)), "top rim"
+        center, size = sdf_s3d.cylinder(height=10, radius1=5, radius2=2).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
 
     def test_cyl_uniform_rounding(self) -> None:
         r = 1.0
@@ -434,6 +447,10 @@ class TestCylinders:
         assert math.isclose(float(shape.sample(5, 0, 5)), float(round_offset(r)), abs_tol=10 ** (-6)), "rim corner"
         assert math.isclose(float(shape.sample(5, 0, 0)), float(0), abs_tol=10 ** (-9)), "flat side wall"
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=10 ** (-9)), "flat top cap"
+        # rounding expands bounds outward by r
+        r_bounds, r_size = sdf_s3d.cyl(height=10, radius=5, rounding=r).bounds()
+        p_bounds, p_size = sdf_s3d.cyl(height=10, radius=5).bounds()
+        assert r_size[0] >= p_size[0], "rounding should not shrink"
 
     def test_cyl_independent_top_bottom_chamfer(self) -> None:
         c2 = 1.5
@@ -498,6 +515,9 @@ class TestTubes:
         assert math.isclose(float(shape.sample(3, 0, 0)), float(0), abs_tol=1e-7), "inner wall"
         assert shape.sample(4, 0, 0) < 0, "inside the wall material"
         assert shape.sample(1, 0, 0) > 0, "inside the hollow bore"
+        center, size = sdf_s3d.tube(height=10, outer_radius=5, inner_radius=3).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        assert size[0] >= 8, "outer diameter = 10"
 
     def test_tube_requires_enough_parameters(self) -> None:
         with pytest.raises(AssertionError):
@@ -509,6 +529,9 @@ class TestTubes:
         assert math.isclose(float(shape.sample(8, 0, 0)), float(0), abs_tol=1e-7), "inner wall"
         assert shape.sample(9, 0, 0) < 0, "in the wall"
         assert shape.sample(0, 0, 0) > 0, "in the hollow bore"
+        center, size = sdf_s3d.rect_tube(height=10, size=[20, 16], isize=[16, 12], anchor=CENTER).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        assert size[0] >= 18, "outer size = 20"
 
 
 class TestPieSlice:
@@ -517,6 +540,9 @@ class TestPieSlice:
         assert shape.sample(3, 3, 0) < 0, "inside the 90deg wedge (Q1)"
         assert shape.sample(-3, 3, 0) > 0, "Q2 excluded"
         assert shape.sample(3, -3, 0) > 0, "Q4 excluded"
+        center, size = sdf_s3d.pie_slice(height=10, radius=5, angle=90).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        assert size[0] >= 4, "radius = 5"
 
     def test_reflex_sector(self) -> None:
         shape = sdf_s3d.pie_slice(height=10, radius=5, angle=270).mesh()
@@ -524,6 +550,8 @@ class TestPieSlice:
         assert shape.sample(-3, 3, 0) < 0, "Q2 included"
         assert shape.sample(-3, -3, 0) < 0, "Q3 included"
         assert shape.sample(3, -3, 0) > 0, "Q4 (270-360) excluded"
+        center, size = sdf_s3d.pie_slice(height=10, radius=5, angle=270).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
 
 
 class TestPrismoid:
@@ -532,12 +560,17 @@ class TestPrismoid:
         assert math.isclose(float(shape.sample(5, 0, 0)), float(0), abs_tol=1e-7)
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=1e-7)
         assert shape.sample(0, 0, 0) < 0
+        center, size = sdf_s3d.prismoid(size1=[10, 10], size2=[10, 10], height=10, anchor=CENTER).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        assert size[0] >= 8, "size1 = 10"
 
     def test_tapered(self) -> None:
         shape = sdf_s3d.prismoid(size1=[20, 20], size2=[10, 10], height=10, anchor=CENTER).mesh()
         assert math.isclose(float(shape.sample(10, 0, -5)), float(0), abs_tol=10 ** (-3)), "bottom rim (wider)"
         assert math.isclose(float(shape.sample(5, 0, 5)), float(0), abs_tol=10 ** (-3)), "top rim (narrower)"
         assert shape.sample(0, 0, 0) < 0
+        center, size = sdf_s3d.prismoid(size1=[20, 20], size2=[10, 10], height=10, anchor=CENTER).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
 
 
 class TestInteriorFillet:
@@ -660,6 +693,22 @@ class TestPolygonPrism:
         with pytest.raises(AssertionError):
             sdf_s3d.polygon_prism(self.L_PATH, height=5, rounding_top=6)
 
+    def test_polygon_prism_chamfer_top(self) -> None:
+        shape = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_top=1).mesh()
+        assert shape is not None
+        # chamfered top: surface at the corner should be modified
+        center, size = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_top=1).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        # interior should still be solid
+        assert shape.sample(20, 7.5, 5) < 0, "center is inside"
+
+    def test_polygon_prism_chamfer_bottom(self) -> None:
+        shape = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_bottom=1).mesh()
+        assert shape is not None
+        center, size = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_bottom=1).bounds()
+        assert size[2] == pytest.approx(10, abs=0.01)
+        assert shape.sample(20, 7.5, 5) < 0, "center is inside"
+
 
 class TestTeardropAndOnion:
     def test_teardrop(self) -> None:
@@ -686,6 +735,9 @@ class TestTeardropAndOnion:
         assert shape.sample(0, 0, 0) < 0
         apex = r / math.sin(math.radians(angle))
         assert math.isclose(float(shape.sample(0, 0, apex)), float(0), abs_tol=10 ** (-3))
+        center, size = sdf_s3d.onion(radius=r, angle=angle, anchor=CENTER).bounds()
+        assert size[0] >= 5
+        assert size[2] >= 3
 
 
 class TestHeightfield:
@@ -694,10 +746,15 @@ class TestHeightfield:
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=1e-7)
         assert shape.sample(0, 0, 0) < 0
         assert shape.sample(0, 0, 10) > 0
+        center, size = sdf_s3d.heightfield(lambda _x, _y: 5, size=[20, 20], bottom=-5, maxz=10).bounds()
+        assert size[0] >= 18
+        assert size[1] >= 18
 
     def test_varying_heightfield(self) -> None:
         shape = sdf_s3d.heightfield(lambda x, _y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).mesh()
         assert math.isclose(float(shape.sample(10, 0, 1)), float(0), abs_tol=1e-7)
+        center, size = sdf_s3d.heightfield(lambda x, _y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).bounds()
+        assert size[0] >= 18
 
     def test_rejects_non_callable_data(self) -> None:
         with pytest.raises(AssertionError):
@@ -1005,15 +1062,28 @@ class TestPassthroughMethods:
             pass  # mock doesn't fully support partition yet
 
     def test_regular_prism_rounding_and_chamfer(self) -> None:
-        # Verify that regular_prism supports rounding and chamfering under SDF
         s_round = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, rounding=2)
         assert s_round is not None
+        center, size = s_round.bounds()
+        assert size[2] == pytest.approx(20, abs=0.01)
+        assert size[0] > 0
+        assert size[1] > 0
+
         s_chamfer = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, chamfer=2)
         assert s_chamfer is not None
+        center, size = s_chamfer.bounds()
+        assert size[2] == pytest.approx(20, abs=0.01)
+        assert size[0] > 0
+        assert size[1] > 0
 
     def test_tube_rounding_and_chamfer(self) -> None:
-        # Verify that tube supports rounding and chamfering under SDF
         t_round = sdf_s3d.tube(height=20, outer_radius=15, inner_radius=10, rounding=1)
         assert t_round is not None
+        center, size = t_round.bounds()
+        assert size[2] == pytest.approx(20, abs=0.01)
+        assert size[0] >= 28
+
         t_chamfer = sdf_s3d.tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
         assert t_chamfer is not None
+        center, size = t_chamfer.bounds()
+        assert size[2] == pytest.approx(20, abs=0.01)

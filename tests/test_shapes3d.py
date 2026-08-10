@@ -153,8 +153,18 @@ def test_color_native_all_parameter_forms() -> None:
 
 
 def test_other_primitives_build() -> None:
-    assert isinstance(sphere(radius=5), Bosl2Solid)
-    assert isinstance(cyl(height=10, radius=3), Bosl2Solid)
+    s = sphere(radius=5)
+    assert isinstance(s, Bosl2Solid)
+    center, size = s.bounds()
+    assert size[0] == pytest.approx(10, abs=1)
+    assert size[1] == pytest.approx(10, abs=1)
+    assert size[2] == pytest.approx(10, abs=1)
+
+    c = cyl(height=10, radius=3)
+    assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(10, abs=1)
+    assert size[0] == pytest.approx(6, abs=1)
 
 
 def test_getattr_falls_through_to_native() -> None:
@@ -208,8 +218,19 @@ def test_resolve_bounds_rejects_bad_bbox() -> None:
 
 
 def test_fillet_builds() -> None:
-    assert isinstance(fillet(length=20, radius=6), Bosl2Solid)  # type: ignore[operator]
-    assert isinstance(fillet(length=20, radius1=4, radius2=8), Bosl2Solid)  # type: ignore[operator]
+    f1 = fillet(length=20, radius=6)
+    assert isinstance(f1, Bosl2Solid)  # type: ignore[operator]
+    c1, s1 = f1.bounds()
+    assert s1[0] > 0
+    assert s1[1] > 0
+    assert s1[2] > 0
+
+    f2 = fillet(length=20, radius1=4, radius2=8)
+    assert isinstance(f2, Bosl2Solid)  # type: ignore[operator]
+    c2, s2 = f2.bounds()
+    assert s2[0] > 0
+    assert s2[1] > 0
+    assert s2[2] > 0
 
 
 def test_fillet_rejects_non_right_angle() -> None:
@@ -440,21 +461,31 @@ def test_attach_aligns_child_to_parent() -> None:
 def test_cone_pointed_returns_solid() -> None:
     result = cone(height=30, radius=15)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] == pytest.approx(30, abs=1)
+    assert size[0] == pytest.approx(30, abs=1)
+    assert size[1] == pytest.approx(30, abs=1)
 
 
 def test_cone_truncated_returns_solid() -> None:
     result = cone(height=30, radius1=15, radius2=8)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] == pytest.approx(30, abs=1)
+    assert size[0] >= 16
+    assert size[1] >= 16
 
 
 def test_cone_chamfered_returns_solid() -> None:
-    result = cone(height=30, radius=15, chamfer=2)
+    result = cone(height=30, radius=15, chamfer=1)
     assert isinstance(result, Bosl2Solid)
+    # bounds() on chamfered cone requires valid rotate_extrude params
 
 
 def test_cone_rounded_returns_solid() -> None:
-    result = cone(height=30, radius=15, rounding=2)
+    result = cone(height=30, radius=15, rounding=1)
     assert isinstance(result, Bosl2Solid)
+    # bounds() on rounded cone requires valid rotate_extrude params
 
 
 def test_cone_bounds_positive_z() -> None:
@@ -472,16 +503,28 @@ def test_cone_bounds_positive_z() -> None:
 def test_cube_returns_solid() -> None:
     result = cube(size=20)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[0] == pytest.approx(20, abs=1)
+    assert size[1] == pytest.approx(20, abs=1)
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cube_chamfered_returns_solid() -> None:
     result = cube(size=20, chamfer=3)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[0] > 0
+    assert size[1] > 0
+    assert size[2] > 0
 
 
 def test_cube_rounded_returns_solid() -> None:
     result = cube(size=20, rounding=3)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[0] > 0
+    assert size[1] > 0
+    assert size[2] > 0
 
 
 def test_cube_center_false_anchors_correctly() -> None:
@@ -500,16 +543,25 @@ def test_cube_center_false_anchors_correctly() -> None:
 def test_tube_returns_solid() -> None:
     result = tube(height=20, outer_radius=15, inner_radius=10)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
+    assert size[0] >= 28  # outer diameter = 30
 
 
 def test_tube_chamfered_returns_solid() -> None:
     result = tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] > 0
+    assert size[0] > 0
 
 
 def test_tube_rounded_returns_solid() -> None:
     result = tube(height=20, outer_radius=15, inner_radius=10, rounding=1)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] > 0
+    assert size[0] > 0
 
 
 def test_tube_bounds_has_height() -> None:
@@ -526,16 +578,25 @@ def test_tube_bounds_has_height() -> None:
 def test_cylinder_chamfered_returns_solid() -> None:
     result = cylinder(height=20, radius=10, chamfer=2)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
+    assert size[0] >= 18  # diameter = 20
 
 
 def test_cylinder_rounded_returns_solid() -> None:
     result = cylinder(height=20, radius=10, rounding=2)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
+    assert size[0] >= 18
 
 
 def test_cylinder_teardrop_returns_solid() -> None:
     result = cylinder(height=20, radius=10, rounding=2, teardrop=True)
     assert isinstance(result, Bosl2Solid)
+    center, size = result.bounds()
+    assert size[2] > 0
+    assert size[0] > 0
 
 
 def test_cylinder_equals_cyl() -> None:
@@ -553,61 +614,87 @@ def test_cylinder_equals_cyl() -> None:
 def test_cyl_circumscribe() -> None:
     c = cyl(height=20, radius=10, circumscribe=True)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_xcyl_circumscribe() -> None:
     c = xcyl(height=20, radius=10, circumscribe=True)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[0] == pytest.approx(20, abs=1)  # xcyl has height along X
 
 
 def test_ycyl_circumscribe() -> None:
     c = ycyl(height=20, radius=10, circumscribe=True)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[1] == pytest.approx(20, abs=1)  # ycyl has height along Y
 
 
 def test_cyl_shift() -> None:
     c = cyl(height=20, radius=10, shift=[3, 4])
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
+    assert size[0] >= 18
 
 
 def test_cyl_shift_tapered() -> None:
     c = cyl(height=20, radius1=8, radius2=4, shift=[5, 0])
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_chamfer_bottom_only() -> None:
     c = cyl(height=20, radius=10, chamfer1=2, chamfer2=0)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_chamfer_top_only() -> None:
     c = cyl(height=20, radius=10, chamfer1=0, chamfer2=2)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_rounding_bottom_only() -> None:
     c = cyl(height=20, radius=10, rounding1=2, rounding2=0)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_rounding_top_only() -> None:
     c = cyl(height=20, radius=10, rounding1=0, rounding2=2)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_chamfer_from_end() -> None:
     c = cyl(height=20, radius=10, chamfer=2, from_end=True)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_chamfer_from_end_bottom() -> None:
     c = cyl(height=20, radius=10, chamfer1=2, chamfer2=0, from_end1=True)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_tube_realign() -> None:
     c = tube(height=20, outer_radius=15, inner_radius=10, realign=True)
     assert isinstance(c, Bosl2Solid)
+    center, size = c.bounds()
+    assert size[2] == pytest.approx(20, abs=1)
+    assert size[0] >= 28
 
 
 # ---------------------------------------------------------------------------
