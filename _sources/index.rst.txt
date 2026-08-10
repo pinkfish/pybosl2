@@ -32,7 +32,7 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
         border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
         font-size:0.92em;display:none">
      &#9888;&#65039; <b>This is the unreleased development version.</b>
-     See the <a href="latest/index.html">latest stable release</a> for production use.
+     See the <a href="../index.html">latest stable release</a> for production use.
    </div>
 
    <!-- version loader -->
@@ -42,10 +42,15 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
      var box = document.getElementById('version-links');
      var list = document.getElementById('version-list');
      var lat = document.getElementById('latest-link');
-     var base = window.location.pathname.replace(/\/$/,'').replace(/\/[^\/]+$/,'/');
-     var isVer = /\/v\d+\.\d+\.\d+\//.test(window.location.pathname);
+     var path = window.location.pathname.replace(/\/$/,'');
+     var inDev = /\/dev\//.test(path) || /\/dev$/.test(path);
+     var isVer = /\/v\d+\.\d+\.\d+/.test(path);
+      var base;
+      if (inDev) { base = path.replace(/\/dev.*/, '') + '/'; }
+      else if (isVer) { base = path.replace(/\/v\\d+\\.\\d+\\.\\d+.*/, '') + '/'; }
+      else { base = path + '/'; }
      if (isVer) {
-       lat.setAttribute('href', base + 'latest/index.html');
+       lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
        fetch(base + 'versions.json')
          .then(function(r){return r.json();})
@@ -56,24 +61,24 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
              a.href = base + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
-             if (i < n-1) list.appendChild(document.createTextNode(' · '));
+             if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
            }
          })
          .catch(function(){});
      } else {
        dev.style.display = 'block';
-       lat.setAttribute('href', 'latest/index.html');
+       lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
-       fetch('versions.json')
+       fetch(base + 'versions.json')
          .then(function(r){return r.json();})
          .then(function(vers){
            var n = Math.min(vers.length,5);
            for (var i=0; i<n; i++) {
              var v = vers[i], a = document.createElement('a');
-             a.href = v + '/index.html';
+             a.href = base + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
-             if (i < n-1) list.appendChild(document.createTextNode(' · '));
+             if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
            }
          })
          .catch(function(){});
@@ -139,83 +144,50 @@ primitives and transforms most models start from; **Paths, regions & surfaces** 
 2-D/3-D modelling toolkit; **Math & geometry** the numeric helpers; and **Parts library** the
 ready-made mechanical parts — each with a visual spec sheet in the catalog linked above.
 
+
+
 .. toctree::
    :maxdepth: 1
    :caption: Solid backends
+   :glob:
 
-    CSG & SDF backends <backends>
+   backends/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Foundational
+   :glob:
 
-    Colour operators (Colorable mixin) via Python's colorsys module <color>
-    Constants provided by BOSL2 (BOSL2 constants.scad) <constants>
-    Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies <distributors>
-    Statically typed 2D shape constructors and backend-neutral flat shape facade <flat>
-    Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d) <masking>
-    Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints) <partitions>
-    Statically typed shape constructors and backend-neutral solid facade <solid>
-    The texture() named-texture engine (BOSL2 skin.scad) <texture>
-    Affine-matrix reorient/apply and polar_to_xy (BOSL2 transforms.scad, coords.scad) <transforms>
-    Drawing <drawing>
-    2-D Shapes <shapes2d>
-    3-D Shapes <shapes3d>
-    Native ops <native_ops>
+   foundational/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Paths, regions & surfaces
+   :glob:
 
-    Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad) <beziers>
-    Metaball field primitives for VNF isosurface meshing (BOSL2 metaballs3d.scad) <isosurface>
-    NURBS curve/surface evaluation and meshing (de Boor) <nurbs>
-    Abstract :class:`Path` base class for 2-D and 3-D path types <paths>
-    Object API for 2-D paths and regions <regions>
-    Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad) <rounding>
-    Surface generators: sweep, path_sweep, skin, linear_sweep, rotate_sweep, spiral_sweep (BOSL2 skin.scad) <skin>
-    Load SVG drawings into a Region of outlines <svg>
-    3-D turtle graphics (the Turtle class) <turtle3d>
-    VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad) <vnf>
+   paths/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Math & geometry
+   :glob:
 
-    Points, lines and polygon geometry helpers (BOSL2 geometry.scad) <geometry>
-    General numeric helpers and numerical calculus (BOSL2 math.scad) <math>
-    Class-based Quaternion representation and mathematics for 3-D rotations <quaternions>
-    Vector predicates and scalar-vector operations (BOSL2 vectors.scad) <vectors>
+   math/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Parts library
+   :glob:
 
-    Standard ball-bearing cartridge models &#128736; <ball_bearings>
-    PCO-1810 / PCO-1881 bottle necks and caps &#128736; <bottlecaps>
-    Modular cubical truss segments and trusses &#128736; <cubetruss>
-    Strongly-typed enums for the pybosl2 parts library <enums>
-    Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm &#128736; <gears>
-    Living (folding) hinges, knuckle hinges, and snap connectors &#128736; <hinges>
-    Hooks and hook-like parts (the ring hook) &#128736; <hooks>
-    Dovetail joints and snap-pin connectors &#128736; <joiners>
-    Linear (LMxUU) ball bearings and their pillow-block housings &#128736; <linear_bearings>
-    Modular (Loc-Line style) ball-and-socket hose segments &#128736; <modular_hose>
-    NEMA stepper-motor models and mounting masks &#128736; <nema_steppers>
-    The five Platonic solids as watertight polyhedra &#128736; <polyhedra>
-    Phillips, hex, Torx and Robertson driver-recess masks &#128736; <screw_drive>
-    Metric screws, nuts and screw holes built on the threading port <screws>
-    V-groove sliders and rails &#128736; <sliders>
-    Screw threading: threaded rods and nuts (ISO/trapezoidal/acme/square/buttress) &#128736; <threading>
-    Tripod mount plates: RC2 &#128736; <tripod_mounts>
-    FDM-optimised walls: sparse, corrugated, thinning and struts &#128736; <walls>
-    Routed bundles of wires &#128736; <wiring>
+   parts/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Extras
+   :glob:
 
-    Extrusions, bounding box, chain hull, and minkowski-based transforms <miscellaneous>
+   extras/*
+
 
 .. toctree::
    :maxdepth: 1
