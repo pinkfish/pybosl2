@@ -815,3 +815,132 @@ def test_regions_from_svg_are_disjoint(tmp_path) -> None:
     dissolved = unary_union([r.geom for r in regions]).area
     assert total == pytest.approx(dissolved, abs=1e-6)
     assert dissolved == pytest.approx(100 * 100, abs=1e-6)
+
+
+# ---------------------------------------------------------------------------
+# Coverage: private helpers
+# ---------------------------------------------------------------------------
+
+
+class TestRingsToShapely:
+    """Coverage for _rings_to_shapely edge cases."""
+
+    def test_invalid_polygon_repaired_with_buffer(self) -> None:
+        """Self-intersecting polygon hits the buffer(0) repair path."""
+        from pybosl2.svg import _rings_to_shapely
+
+        result = _rings_to_shapely([[[0, 0], [10, 10], [0, 10], [10, 0]]])
+        assert result is not None
+
+    def test_empty_rings_returns_none(self) -> None:
+        """All rings resolve to empty polys → None."""
+        from pybosl2.svg import _rings_to_shapely
+
+        assert _rings_to_shapely([]) is None
+
+
+class TestShapelyToRings:
+    """Coverage for _shapely_to_rings edge cases."""
+
+    def test_none_returns_empty(self) -> None:
+        from pybosl2.svg import _shapely_to_rings
+
+        assert _shapely_to_rings(None) == []
+
+    def test_empty_geom_returns_empty(self) -> None:
+        from shapely.geometry import GeometryCollection
+
+        from pybosl2.svg import _shapely_to_rings
+
+        assert _shapely_to_rings(GeometryCollection()) == []
+
+    def test_zero_area_skipped(self) -> None:
+        from shapely.geometry import Polygon
+
+        from pybosl2.svg import _shapely_to_rings
+
+        poly = Polygon([[0, 0], [0, 0], [0, 0]])
+        assert _shapely_to_rings(poly) == []
+
+    def test_polygon_with_holes_returns_hole_rings(self) -> None:
+        from shapely.geometry import Polygon
+
+        from pybosl2.svg import _shapely_to_rings
+
+        outer = [[0, 0], [100, 0], [100, 100], [0, 100]]
+        hole = [[20, 20], [80, 20], [80, 80], [20, 80]]
+        poly = Polygon(outer, [hole])
+        rings = _shapely_to_rings(poly)
+        assert len(rings) == 2
+
+
+class TestClipRings:
+    """Coverage for _clip_rings edge cases."""
+
+    def test_empty_rings_returns_none(self) -> None:
+        from pybosl2.svg import _clip_rings
+
+        assert _clip_rings([], object()) is None
+
+
+class TestViewboxGeometry:
+    """Coverage for _viewbox_geometry edge cases."""
+
+    def test_missing_file_returns_none(self) -> None:
+        from pybosl2.svg import _viewbox_geometry
+
+        assert _viewbox_geometry("/nonexistent/path.svg", 1.0) is None
+
+    def test_zero_width_viewbox_returns_none(self, tmp_path) -> None:
+        from pybosl2.svg import _viewbox_geometry
+
+        f = tmp_path / "zero.svg"
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 100"/>')
+        assert _viewbox_geometry(str(f), 1.0) is None
+
+    def test_negative_height_viewbox_returns_none(self, tmp_path) -> None:
+        from pybosl2.svg import _viewbox_geometry
+
+        f = tmp_path / "neg.svg"
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 -1"/>')
+        assert _viewbox_geometry(str(f), 1.0) is None
+
+
+class TestResolveClip:
+    """Coverage for _resolve_clip edge cases."""
+
+    def test_non_matching_reference_returns_none(self, tmp_path) -> None:
+        from pybosl2.svg import _resolve_clip
+
+        f = tmp_path / "noclip.svg"
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>')
+        from svgelements import SVG
+
+        root = SVG.parse(str(f))
+        assert _resolve_clip("garbage", root, 1.0, None, 2.0) is None
+
+    def test_missing_clip_id_returns_none(self, tmp_path) -> None:
+        from pybosl2.svg import _resolve_clip
+
+        f = tmp_path / "missing.svg"
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>')
+        from svgelements import SVG
+
+        root = SVG.parse(str(f))
+        assert _resolve_clip("url(#nonexistent)", root, 1.0, None, 2.0) is None
+
+
+class TestSvgClipToViewbox:
+    """Coverage for clip_to_viewbox integration path."""
+
+    def test_clip_to_viewbox_strokes(self, tmp_path) -> None:
+        """Stroke with a clip mask exercises lines 513-514."""
+        f = tmp_path / "clip_stroke.svg"
+        f.write_text(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+            '<clipPath id="c"><rect x="0" y="0" width="50" height="50"/></clipPath>'
+            '<path d="M10,10h80v80H10z" fill="none" stroke="red" stroke-width="2" clip-path="url(#c)"/>'
+            "</svg>"
+        )
+        groups = svg_element_groups(str(f))
+        assert groups  # path appears as stroke group
