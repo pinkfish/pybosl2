@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/_sdf/joiners.py
+# LibFile: pybosl2/sdf/joiners.py
 #    Joining hardware: knuckle_hinge() and rabbit_clip().
 #
 
@@ -15,7 +15,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pybosl2._sdf.paths import (
+from pybosl2.constants import UP
+from pybosl2.parts.enums import Gender
+from pybosl2.sdf.paths import (
     bezpath_points,
     circle_circle_tangents,
     line_normal,
@@ -23,12 +25,10 @@ from pybosl2._sdf.paths import (
     path_tangents,
     path_to_bezpath,
 )
-from pybosl2._sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
-from pybosl2.constants import UP
-from pybosl2.parts.enums import Gender
+from pybosl2.sdf.shapes2d import PyShape2D, circle2d, polygon2d, rect2d, stroke2d
 
 if TYPE_CHECKING:
-    from pybosl2._sdf.shapes3d import PyShape
+    from pybosl2.sdf.shapes3d import PyShape
 
 
 def _attach(  # type: ignore[no-untyped-def]

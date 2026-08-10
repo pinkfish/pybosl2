@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""The libfive/SDF backend's profile-along-path sweep (pybosl2._sdf.shapes3d.path_sweep /
+"""The libfive/SDF backend's profile-along-path sweep (pybosl2.sdf.shapes3d.path_sweep /
 bezier_sweep): a 2-D convex profile swept along a 3-D path, realized as a signed-distance field.
 
 Construction is FFI-free (the libfive closure is not evaluated until mesh time), so the field is
@@ -20,9 +20,9 @@ from typing import Any
 import numpy as np
 import pytest
 
-import pybosl2._sdf.shapes3d as sdf
-from pybosl2._sdf.shapes3d import PyShape
+import pybosl2.sdf.shapes3d as sdf
 from pybosl2.beziers import Bezier
+from pybosl2.sdf.shapes3d import PyShape
 
 CIRCLE: list[list[float]] = [
     [2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 48, endpoint=False)
@@ -41,7 +41,7 @@ class _LVNumeric:
 @pytest.fixture
 def numeric_lv(monkeypatch: Any) -> None:
     # both modules: the sweep closure lives in shapes3d, the concave polygon SDF in paths
-    import pybosl2._sdf.paths as paths
+    import pybosl2.sdf.paths as paths
 
     shim = _LVNumeric()
     monkeypatch.setattr(sdf, "lv", shim)

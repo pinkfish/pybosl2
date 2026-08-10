@@ -88,6 +88,7 @@ ignore = ["D203", "D213", "D402"]
 "docs/**" = ["PT", "D"]
 "tests/**" = ["D"]
 "pysolidfive/**" = ["PT", "D"]
+"pybosl2/sdf/**" = ["D"]
 
 [tool.ruff.format]
 # Use double quotes for strings

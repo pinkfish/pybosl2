@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/_sdf/shapes2d.py
+# LibFile: pybosl2/sdf/shapes2d.py
 #    The 2-D layer: PyShape2D (the lazy symbolic 2-D SDF, extruded to a specific height to
 #    become a PyShape) and its constructors -- circle2d/rect2d/polygon2d/stroke2d/
 #    hull2d_discs/supershape2d.
@@ -21,9 +21,10 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
-from pybosl2._sdf._constants import CENTER
-from pybosl2._sdf._libfive import lv
-from pybosl2._sdf.paths import (
+from pybosl2.enums import EdgeMode
+from pybosl2.sdf._constants import CENTER
+from pybosl2.sdf._libfive import lv
+from pybosl2.sdf.paths import (
     _PENALTY,
     _collinear,
     _halfplane_max_sdf,
@@ -36,11 +37,10 @@ from pybosl2._sdf.paths import (
     as_path_list,
     as_points,
 )
-from pybosl2._sdf.paths import (
+from pybosl2.sdf.paths import (
     supershape_path as _supershape_path,
 )
-from pybosl2._sdf.shapes3d import PyShape
-from pybosl2.enums import EdgeMode
+from pybosl2.sdf.shapes3d import PyShape
 
 # ---------------------------------------------------------------------------
 # Section: 2-D shapes (PyShape2D) -- symbolic 2-D SDFs that extrude into PyShapes
@@ -339,7 +339,7 @@ class SdfShape2D:
 
     def revolve_sdf(self, angle: float = 360.0, res: int = 10) -> PyShape:
         """Revolve this 2-D profile around the Z axis, returning a 3-D PyShape."""
-        from pybosl2._sdf.skin import _revolve_sdf
+        from pybosl2.sdf.skin import _revolve_sdf
 
         return _revolve_sdf(self, angle=angle, res=res)
 
@@ -356,7 +356,7 @@ class SdfShape2D:
         res: int = 10,
     ) -> PyShape:
         """Extrude this 2-D SDF shape vertically with optional twist, scale, and XY shift."""
-        from pybosl2._sdf.skin import _linear_sweep_sdf
+        from pybosl2.sdf.skin import _linear_sweep_sdf
 
         return _linear_sweep_sdf(
             self,

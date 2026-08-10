@@ -9,7 +9,7 @@
 # cuboid/cube/sphere/cyl-family/torus/tube/pie_slice/prismoid/rect_tube/wedge/octahedron/
 # convex_polyhedron/teardrop/onion/heightfield, the standalone cutters
 # (interior_fillet/rounding_edge_mask/polygon_extrude), and polygon_prism (the
-# offset_sweep-equivalent extrusion with rim treatments). See pybosl2/_sdf/__init__.py's
+# offset_sweep-equivalent extrusion with rim treatments). See pybosl2/sdf/__init__.py's
 # module docstring for the design rationale.
 #
 
@@ -24,19 +24,21 @@ from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
-from pybosl2._sdf._constants import BOTTOM, CENTER, FRONT, LEFT
-from pybosl2._sdf._libfive import LVTree, lv
-from pybosl2._sdf.edges import (
+from pybosl2.distributors import Distributable
+from pybosl2.enums import EdgeMode
+from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT
+from pybosl2.sdf._libfive import LVTree, lv
+from pybosl2.sdf.edges import (
     _anchor_offset_box3,
     _anchor_offset_cyl,
     _anchor_offset_hull3,
     _anchor_offset_sphere,
     _pick_radius,
 )
-from pybosl2._sdf.edges import (
+from pybosl2.sdf.edges import (
     edges as resolve_edges,
 )
-from pybosl2._sdf.paths import (
+from pybosl2.sdf.paths import (
     _PENALTY,
     _SQRT2,
     _ccw,
@@ -49,8 +51,6 @@ from pybosl2._sdf.paths import (
     as_path_list,
     as_points,
 )
-from pybosl2.distributors import Distributable
-from pybosl2.enums import EdgeMode
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -589,7 +589,7 @@ class SdfSolid(Distributable):
     # ---- cuboid-only edge treatments ----
 
     def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: EdgeMode) -> PyShape:
-        assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pybosl2._sdf.cuboid())"
+        assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pybosl2.sdf.cuboid())"
         assert self.cuboid_edge_amounts is not None, (
             f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
         )
@@ -869,7 +869,7 @@ def cuboid(
     Built as a libfive signed distance function (F-Rep) and returned as a PyShape (meshed
     lazily, via frep(), on first use) -- see pybosl2.shapes3d.cuboid() for the equivalent
     BOSL2-style mesh-CSG version (identical `edges=`/`except_edges=` semantics; both accept
-    the same edge selector values, since pybosl2._sdf.edges's edge-set resolver is a
+    the same edge selector values, since pybosl2.sdf.edges's edge-set resolver is a
     byte-for-byte copy of pybosl2's own).
 
     `rounding` and `chamfer` are mutually exclusive in a single call (matching
@@ -891,13 +891,13 @@ def cuboid(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4)
             shape.show()
 
         .. pythonscad-example::
 
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], chamfer=4)
             shape.show()
 
@@ -907,7 +907,7 @@ def cuboid(
         .. pythonscad-example::
 
             from pybosl2 import Anchor
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cuboid([20.0, 20.0, 20.0], rounding=4, edges=Anchor.Z)
             shape.show()
 
@@ -1069,7 +1069,7 @@ def sphere(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.sphere(radius=10)
             shape.show()
 
@@ -1120,7 +1120,7 @@ def torus(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.torus(major_radius=15, minor_radius=5)
             shape.show()
 
@@ -1288,7 +1288,7 @@ def cyl(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.cyl(height=20, radius=8, rounding=2)
             shape.show()
 
@@ -1608,7 +1608,7 @@ def prismoid(
     CAVEAT: unlike pybosl2.shapes3d.prismoid(), this pure-libfive port does not support
     rounding/chamfer of the vertical edges (deriving an exact SDF for a *tapered* box's
     independently-radiused vertical edges was out of scope here -- use
-    pybosl2.shapes3d.prismoid() for that, or pybosl2._sdf.shapes3d.cuboid() for the non-tapered case). The SDF
+    pybosl2.shapes3d.prismoid() for that, or pybosl2.sdf.shapes3d.cuboid() for the non-tapered case). The SDF
     itself is built by linearly interpolating the local half-size/shift at each height `z`
     (clamped to the `[bottom, top]` range via min()/max(), so no true per-point conditional is
     needed) and taking the 2-D box distance in that local cross-section, intersected with the
@@ -1975,7 +1975,7 @@ def teardrop(
     Examples:
         .. pythonscad-example::
 
-            import pybosl2._sdf.shapes3d as sdf_s3d
+            import pybosl2.sdf.shapes3d as sdf_s3d
             shape = sdf_s3d.teardrop(height=10, radius=8)
             shape.show()
 
@@ -2090,7 +2090,7 @@ def heightfield(
     if size is None:
         size = [100, 100]
     assert callable(data), (
-        "pybosl2._sdf.shapes3d.heightfield() only supports callable data -- see the CAVEAT in its docstring."
+        "pybosl2.sdf.shapes3d.heightfield() only supports callable data -- see the CAVEAT in its docstring."
     )
     bx, by = size[0] / 2, size[1] / 2
 
@@ -2337,7 +2337,7 @@ def bezier_sweep(
     pybosl2's canonical :class:`pybosl2.beziers.Bezier` (``splinesteps`` segments) and swept by
     :func:`path_sweep`, so bezier generation and the signed-distance sweep compose directly::
 
-        from pybosl2._sdf.shapes3d import bezier_sweep
+        from pybosl2.sdf.shapes3d import bezier_sweep
         circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
         tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
     """

@@ -22,9 +22,9 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
 
 from pybosl2._backend import SolidBackend, register_backend
-from pybosl2._sdf import shapes3d as _s
+from pybosl2.sdf import shapes3d as _s
 
-__all__ = ["SdfBackend", "shapes2d", "skin", "joiners"]
+__all__: list[str] = []
 
 
 class SdfBackend:
@@ -36,7 +36,7 @@ class SdfBackend:
     _OWN_NAMES = {"sides": "num_sides"}
 
     def construct(self, shape: str, arguments: Mapping[str, Any]) -> _s.PyShape:
-        """Build the named shape via the vendored SDF constructors (pybosl2._sdf.shapes3d)."""
+        """Build the named shape via the vendored SDF constructors (pybosl2.sdf.shapes3d)."""
         fn = getattr(_s, shape, None)
         if not callable(fn):
             raise ValueError(f"the sdf backend has no shape constructor {shape!r}")
@@ -53,7 +53,7 @@ class SdfBackend:
         return _s.convex_polyhedron(points)
 
     def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> _s.PyShape:
-        """Extrude *paths* into an SDF prism via :func:`~pybosl2._sdf.shapes3d.polygon_prism`.
+        """Extrude *paths* into an SDF prism via :func:`~pybosl2.sdf.shapes3d.polygon_prism`.
 
         *paths* is one outline or a list of DISJOINT outlines -- the SDF prism is the min (union)
         of their fields, so it cannot express holes; a region with holes has no SDF equivalent
@@ -76,7 +76,7 @@ class SdfBackend:
                     "sdf",
                     hint="polygon_prism() extrudes a constant cross-section; build the shape on "
                     "the csg backend for a twisted/tapered extrusion, or sweep it with "
-                    "pybosl2._sdf.shapes3d.path_sweep(twist=...).",
+                    "pybosl2.sdf.shapes3d.path_sweep(twist=...).",
                 )
         assert not options, f"linear_extrude(): the sdf backend has no {sorted(options)} option(s)."
         shape = _s.polygon_prism(

@@ -9,7 +9,7 @@ import math
 
 import pytest
 
-from pybosl2._sdf import shapes2d as sdf_s2d
+from pybosl2.sdf import shapes2d as sdf_s2d
 
 SQRT2 = math.sqrt(2)
 

@@ -8,8 +8,8 @@ import math
 
 import pytest
 
-from pybosl2._sdf import joiners as sdf_joiners
-from pybosl2._sdf._constants import LEFT
+from pybosl2.sdf import joiners as sdf_joiners
+from pybosl2.sdf._constants import LEFT
 
 SQRT2 = math.sqrt(2)
 

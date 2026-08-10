@@ -355,7 +355,7 @@ class CsgSolid(BaseShape):
             2-D operators (``.offset()``, ``.fill()``, ``.hull()``) and the extruders.
 
         Note:
-            CSG only. The SDF backend's :meth:`~pybosl2._sdf.shapes3d.PyShape.projection` raises
+            CSG only. The SDF backend's :meth:`~pybosl2.sdf.shapes3d.PyShape.projection` raises
             :class:`~pybosl2.exceptions.UnsupportedByBackendError` -- a distance field has no
             closed-form 2-D shadow, and 2-D geometry is a CSG-backend notion.
 

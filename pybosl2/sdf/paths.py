@@ -24,10 +24,10 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._sdf._libfive import LVTree, lv
-from pybosl2._sdf.edges import _pick_radius
 from pybosl2.enums import EdgeMode
 from pybosl2.geometry import vector_angle3 as _vector_angle3
+from pybosl2.sdf._libfive import LVTree, lv
+from pybosl2.sdf.edges import _pick_radius
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

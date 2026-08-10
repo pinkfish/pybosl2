@@ -9,8 +9,8 @@ import math
 import pytest
 
 from pybosl2._edges_lang import Anchor
-from pybosl2._sdf import shapes3d as sdf_s3d
-from pybosl2._sdf._constants import BACK, CENTER, FRONT, LEFT, RIGHT, TOP
+from pybosl2.sdf import shapes3d as sdf_s3d
+from pybosl2.sdf._constants import BACK, CENTER, FRONT, LEFT, RIGHT, TOP
 
 SQRT2 = math.sqrt(2)
 

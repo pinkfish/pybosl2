@@ -11,8 +11,8 @@
 
 # ---------------------------------------------------------------------------
 # cuboid() edge-set machinery -- the shared mini-language in pybosl2._edges_lang (used by both
-# backends), imported rather than duplicated. Re-exported so pybosl2._sdf.paths and
-# pybosl2._sdf.shapes3d can keep importing these names from here. Importing _edges_lang (pure Python,
+# backends), imported rather than duplicated. Re-exported so pybosl2.sdf.paths and
+# pybosl2.sdf.shapes3d can keep importing these names from here. Importing _edges_lang (pure Python,
 # no numpy/native) keeps the SDF backend from depending on the large pybosl2.shapes3d CSG module.
 # ---------------------------------------------------------------------------
 from pybosl2._edges_lang import (

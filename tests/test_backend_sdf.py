@@ -60,6 +60,6 @@ def test_sdf_backend_does_not_import_the_csg_god_module() -> None:
     import subprocess
     import sys
 
-    code = "import pybosl2._sdf, sys; print('pybosl2.shapes3d' in sys.modules)"
+    code = "import pybosl2.sdf, sys; print('pybosl2.shapes3d' in sys.modules)"
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
-    assert out.stdout.strip() == "False", f"pybosl2._sdf pulled in pybosl2.shapes3d:\n{out.stdout}{out.stderr}"
+    assert out.stdout.strip() == "False", f"pybosl2.sdf pulled in pybosl2.shapes3d:\n{out.stdout}{out.stderr}"

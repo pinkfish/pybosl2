@@ -52,7 +52,7 @@ The shared 3-D surface both backends provide:
    * ``zcyl``
 
 plus the n-ary booleans ``union``, ``difference`` and ``intersection``. The backend-specific
-modules (:mod:`pybosl2.shapes3d`, ``pybosl2._sdf``) stay directly importable for anything not yet
+modules (:mod:`pybosl2.shapes3d`, ``pybosl2.sdf``) stay directly importable for anything not yet
 unified in the facade.
 
 Selecting a backend
@@ -191,7 +191,7 @@ Sweeping a profile along a path (SDF)
 -------------------------------------
 
 The SDF backend can sweep a 2-D profile (**convex or concave**) along a 3-D path directly as a
-distance field (``pybosl2._sdf.shapes3d.path_sweep`` / ``bezier_sweep``). The profile is placed in a
+distance field (``pybosl2.sdf.shapes3d.path_sweep`` / ``bezier_sweep``). The profile is placed in a
 rotation-minimizing frame at each path sample and unioned; the cross-section itself is evaluated with
 the convex-deficiency decomposition (the same one ``polygon_prism`` uses over the convex-only
 ``polygon_extrude``), so concave outlines are handled correctly. The result is a true SDF — it can be
@@ -200,7 +200,7 @@ generation stays pybosl2's canonical :class:`~pybosl2.beziers`; the sweep just c
 sampled curve::
 
     import math, numpy as np
-    from pybosl2._sdf.shapes3d import bezier_sweep
+    from pybosl2.sdf.shapes3d import bezier_sweep
 
     circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     tube = bezier_sweep(circle, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])

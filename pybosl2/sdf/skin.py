@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-# LibFile: pybosl2/_sdf/skin.py
+# LibFile: pybosl2/sdf/skin.py
 #    SDF-based sweep / skin / loft / revolve operations, mirroring the geometry-construction
 #    endpoints of pybosl2/skin.py.
 #
@@ -16,14 +16,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np  # noqa: TC002
 
-from pybosl2._sdf._libfive import lv
-from pybosl2._sdf.paths import _lv_hypot
-from pybosl2._sdf.shapes3d import PyShape
+from pybosl2.sdf._libfive import lv
+from pybosl2.sdf.paths import _lv_hypot
+from pybosl2.sdf.shapes3d import PyShape
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2._sdf.shapes2d import PyShape2D
+    from pybosl2.sdf.shapes2d import PyShape2D
 
 # ---------------------------------------------------------------------------
 #  pure-math helpers (same as pybosl2/skin.py, ported without VNF dependency)

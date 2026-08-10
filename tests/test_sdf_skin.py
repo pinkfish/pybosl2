@@ -4,9 +4,9 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-from pybosl2._sdf import shapes2d as sdf_s2d
-from pybosl2._sdf import shapes3d as sdf_s3d
-from pybosl2._sdf import skin as sdf_skin
+from pybosl2.sdf import shapes2d as sdf_s2d
+from pybosl2.sdf import shapes3d as sdf_s3d
+from pybosl2.sdf import skin as sdf_skin
 
 
 class TestRevolveSDF:
