@@ -32,7 +32,7 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
         border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
         font-size:0.92em;display:none">
      &#9888;&#65039; <b>This is the unreleased development version.</b>
-     See the <a href="latest/index.html">latest stable release</a> for production use.
+     See the <a href="../index.html">latest stable release</a> for production use.
    </div>
 
    <!-- version loader -->
@@ -45,7 +45,7 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
      var base = window.location.pathname.replace(/\/$/,'').replace(/\/[^\/]+$/,'/');
      var isVer = /\/v\d+\.\d+\.\d+\//.test(window.location.pathname);
      if (isVer) {
-       lat.setAttribute('href', base + 'latest/index.html');
+       lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
        fetch(base + 'versions.json')
          .then(function(r){return r.json();})
@@ -62,15 +62,15 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
          .catch(function(){});
      } else {
        dev.style.display = 'block';
-       lat.setAttribute('href', 'latest/index.html');
+       lat.setAttribute('href', '../index.html');
        box.style.display = 'block';
-       fetch('versions.json')
+       fetch('../versions.json')
          .then(function(r){return r.json();})
          .then(function(vers){
            var n = Math.min(vers.length,5);
            for (var i=0; i<n; i++) {
              var v = vers[i], a = document.createElement('a');
-             a.href = v + '/index.html';
+             a.href = '../' + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
              if (i < n-1) list.appendChild(document.createTextNode(' · '));
