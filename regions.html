@@ -884,6 +884,54 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.regions.Region.simplify (Python method) — Return a copy with each polygon simplified, keeping its colour."><span>simplify</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="simplify">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.regions.Region.color" class="md-nav__link">
     
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
@@ -3000,6 +3048,54 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.regions.Region.simplify (Python method) — Return a copy with each polygon simplified, keeping its colour."><span>simplify</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="simplify">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.simplify-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.regions.Region.color" class="md-nav__link">
     
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
@@ -4194,6 +4290,33 @@ accepted.</p>
 </div>
 <div class="stl-viewer" data-stl-uri="_stl/580d732eb6013a42.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/580d732eb6013a42.stl">⬇ Download STL mesh</a></p>
 </div></blockquote>
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.regions.Region.simplify">
+<span class="sig-name descname"><span class="pre">simplify</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.simplify.tolerance" title="pybosl2.regions.Region.simplify.tolerance (Python parameter) — maximum deviation, in the region's own units."><span class="n"><span class="pre">tolerance</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.simplify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.simplify" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy with each polygon simplified, keeping its colour.</p>
+<p>Douglas-Peucker, topology-preserving, applied per polygon so the per-piece colours
+survive – <code class="docutils literal notranslate"><span class="pre">shapely</span></code>’s own <code class="docutils literal notranslate"><span class="pre">simplify</span></code> on the whole geometry would return bare
+polygons and drop them.</p>
+<p>Worth doing on traced or imported artwork, where the point count reflects the
+drawing tool rather than anything the output can show: Wikipedia’s Flag of Portugal
+carries 33150 points, and a tolerance of 0.25 (0.02mm once that flag is 60mm wide)
+takes it to 11315 with the area unchanged to five figures.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.regions.Region.simplify-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.simplify-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.regions.Region.simplify.tolerance"><span class="sig-name descname">tolerance</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.regions.Region.simplify.tolerance" title="Permalink to this definition">¶</a></dt><dd><p>maximum deviation, in the region’s own units.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.regions.Region.simplify-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.simplify-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a>; <em>self</em> is unchanged.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.regions.Region.simplify-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.simplify-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><em>Region</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.color">
 <span class="sig-name descname"><span class="pre">color</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.regions.Region.color.c" title="pybosl2.regions.Region.color.c (Python parameter)"><span class="n"><span class="pre">c</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/regions.html#Region.color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.color" title="Link to this definition">¶</a></dt>
