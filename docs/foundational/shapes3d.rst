@@ -9,9 +9,6 @@
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   Cuboid <cuboid>
-   Cylinder & Cone <cylinder>
-   Sphere & Teardrop <sphere>
-   Torus <torus>
-   Extrusions <extrusions>
+   shapes3d/*

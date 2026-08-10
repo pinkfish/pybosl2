@@ -179,14 +179,14 @@
  },
  "hinges": {
   "pair": {
-   "tris": 370,
-   "vol": "5,886.5",
+   "tris": 492,
+   "vol": "5,811.5",
    "bbox": "40\u00d746\u00d76",
-   "wt": false
+   "wt": true
   },
   "knuckle": {
-   "tris": 212,
-   "vol": "3,102.8",
+   "tris": 276,
+   "vol": "2,960.5",
    "bbox": "40\u00d726\u00d76",
    "wt": true
   },
