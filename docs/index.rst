@@ -42,8 +42,13 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
      var box = document.getElementById('version-links');
      var list = document.getElementById('version-list');
      var lat = document.getElementById('latest-link');
-     var base = window.location.pathname.replace(/\/$/,'').replace(/\/[^\/]+$/,'/');
-     var isVer = /\/v\d+\.\d+\.\d+\//.test(window.location.pathname);
+     var path = window.location.pathname.replace(/\/$/,'');
+     var inDev = /\/dev\//.test(path) || /\/dev$/.test(path);
+     var isVer = /\/v\d+\.\d+\.\d+/.test(path);
+      var base;
+      if (inDev) { base = path.replace(/\/dev.*/, '') + '/'; }
+      else if (isVer) { base = path.replace(/\/v\d+\.\d+\.\d+.*/, '') + '/'; }
+      else { base = path + '/'; }
      if (isVer) {
        lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
@@ -62,15 +67,15 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
          .catch(function(){});
      } else {
        dev.style.display = 'block';
-       lat.setAttribute('href', '../index.html');
+       lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
-       fetch('../versions.json')
+       fetch(base + 'versions.json')
          .then(function(r){return r.json();})
          .then(function(vers){
            var n = Math.min(vers.length,5);
            for (var i=0; i<n; i++) {
              var v = vers[i], a = document.createElement('a');
-             a.href = '../' + v + '/index.html';
+             a.href = base + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
              if (i < n-1) list.appendChild(document.createTextNode(' · '));
@@ -139,81 +144,50 @@ primitives and transforms most models start from; **Paths, regions & surfaces** 
 2-D/3-D modelling toolkit; **Math & geometry** the numeric helpers; and **Parts library** the
 ready-made mechanical parts — each with a visual spec sheet in the catalog linked above.
 
+
+
 .. toctree::
    :maxdepth: 1
    :caption: Solid backends
+   :glob:
 
-    CSG & SDF backends <backends>
+   backends/*
 
 .. toctree::
    :maxdepth: 2
    :caption: Foundational
+   :glob:
 
-    Color <color>
-    Constants <constants>
-    Distributors <distributors>
-    Masking <masking>
-    Partitions <partitions>
-    Solid <solid>
-    Texture <texture>
-    Transforms <transforms>
-    Drawing <drawing>
-    2-D Shapes <shapes2d>
-    3-D Shapes <shapes3d>
-    Native ops <native_ops>
+   foundational/*
 
 .. toctree::
    :maxdepth: 2
    :caption: Paths, regions & surfaces
+   :glob:
 
-    Bezier <beziers>
-    Isosurface <isosurface>
-    NURBS <nurbs>
-    Paths <paths>
-    Regions <regions>
-    Rounding <rounding>
-    Skin <skin>
-    Turtle 3D <turtle3d>
-    VNF <vnf>
+   paths/*
 
 .. toctree::
    :maxdepth: 2
    :caption: Math & geometry
+   :glob:
 
-    Geometry <geometry>
-    Math <math>
-    Quaternions <quaternions>
-    Vectors <vectors>
+   math/*
 
 .. toctree::
    :maxdepth: 2
    :caption: Parts library
+   :glob:
 
-    Standard ball-bearing cartridge models &#128736; <ball_bearings>
-    PCO-1810 / PCO-1881 bottle necks and caps &#128736; <bottlecaps>
-    Modular cubical truss segments and trusses &#128736; <cubetruss>
-    Strongly-typed enums for the pybosl2 parts library <enums>
-    Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm &#128736; <gears>
-    Living (folding) hinges, knuckle hinges, and snap connectors &#128736; <hinges>
-    Hooks and hook-like parts (the ring hook) &#128736; <hooks>
-    Dovetail joints and snap-pin connectors &#128736; <joiners>
-    Linear (LMxUU) ball bearings and their pillow-block housings &#128736; <linear_bearings>
-    Modular (Loc-Line style) ball-and-socket hose segments &#128736; <modular_hose>
-    NEMA stepper-motor models and mounting masks &#128736; <nema_steppers>
-    The five Platonic solids as watertight polyhedra &#128736; <polyhedra>
-    Phillips, hex, Torx and Robertson driver-recess masks &#128736; <screw_drive>
-    Metric screws, nuts and screw holes built on the threading port <screws>
-    V-groove sliders and rails &#128736; <sliders>
-    Screw threading: threaded rods and nuts (ISO/trapezoidal/acme/square/buttress) &#128736; <threading>
-    Tripod mount plates: RC2 &#128736; <tripod_mounts>
-    FDM-optimised walls: sparse, corrugated, thinning and struts &#128736; <walls>
-    Routed bundles of wires &#128736; <wiring>
+   parts/*
 
 .. toctree::
    :maxdepth: 2
    :caption: Extras
+   :glob:
 
-    Extrusions <miscellaneous>
+   extras/*
+
 
 .. toctree::
    :maxdepth: 1

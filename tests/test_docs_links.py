@@ -33,7 +33,16 @@ DOCS_DIR = REPO_ROOT / "docs"
 SPECS_DIR = DOCS_DIR / "specs"
 WIKI_DIR = REPO_ROOT / "wiki"
 
-_CATEGORY_DIRS = ["foundational", "paths", "math", "parts", "extras", "backends"]
+_CATEGORY_DIRS = [
+    "foundational",
+    "foundational/shapes2d",
+    "foundational/shapes3d",
+    "paths",
+    "math",
+    "parts",
+    "extras",
+    "backends",
+]
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────

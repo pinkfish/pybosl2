@@ -9,8 +9,6 @@
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
-   Circle <circle>
-   Square & Rect <square>
-   Curves <curves>
-   Ops <ops>
+   shapes2d/*

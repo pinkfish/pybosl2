@@ -520,6 +520,7 @@ def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
     """Create missing .rst files for modules. Returns list of created paths."""
     created: list[str] = []
 
+    _3d_shapes = frozenset({"cuboid", "cylinder", "sphere", "torus", "extrusions"})
     for name, info in modules.items():
         cat = info.get("category", "Foundational")
         if cat == "__SKIP__":
@@ -528,6 +529,16 @@ def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
         if cat_dir is None:
             continue
         target_dir = DOCS_DIR / cat_dir
+
+        # Place 2-D/3-D shape stubs in subdirectories so the sidebar groups them.
+        module_path = info["module"]
+        is_3d = any(p == "shapes3d" for p in info["parts"])
+        is_2d = any(p == "shapes2d" for p in info["parts"])
+        if "shapes3d.base" not in module_path and is_3d and name in _3d_shapes:
+            target_dir = target_dir / "shapes3d"
+        elif is_2d and name in {"circle", "square", "curves", "ops"}:
+            target_dir = target_dir / "shapes2d"
+
         target_dir.mkdir(parents=True, exist_ok=True)
         rst_path = target_dir / f"{name}.rst"
         if rst_path.exists():

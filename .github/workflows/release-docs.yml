@@ -111,13 +111,20 @@ jobs:
           for d in "${VDIRS[@]}"; do
             VNAMES+=( "$(basename "$d")" )
           done
-          printf '%s\n' "${VNAMES[@]}" | sort -rV | python3 << 'PYEOF'
-          import json, sys
-          versions = [v.strip() for v in sys.stdin if v.strip()]
-          with open('_site/versions.json', 'w') as f:
-              json.dump(versions, f)
-          print(f'versions.json written with {len(versions)} entries: {versions}')
-          PYEOF
+          if [ ${#VNAMES[@]} -gt 0 ]; then
+            printf '%s\n' "${VNAMES[@]}" | sort -rV > _site/versions_list.txt
+            python3 -c "
+import json
+with open('_site/versions_list.txt') as f:
+    versions = [v.strip() for v in f if v.strip()]
+with open('_site/versions.json', 'w') as out:
+    json.dump(versions, out)
+    print(f'versions.json written with {len(versions)} entries: {versions}')
+            "
+          else
+            echo "ERROR: No v* version directories found in _site/. The Sphinx build may have failed."
+            exit 1
+          fi
 
       - name: Verify output is not empty
         run: |
