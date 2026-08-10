@@ -468,6 +468,77 @@ class SdfSolid(Distributable):
         """Return a list of multmatrix copies of this shape, one per matrix."""
         return [self.multmatrix(m) for m in mats]
 
+    def distribute_on_path(
+        self,
+        path: Any,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        start_pos: float | None = None,
+        dist: list[float] | None = None,
+        rotate_children: bool = True,
+    ) -> PyShape:
+        """Distribute copies of this solid along *path*, oriented to the 3-D path direction.
+
+        Works identically to :meth:`~pybosl2.shapes3d.Bosl2Solid.distribute_on_path`.
+
+        Args:
+            path: A :class:`~pybosl2.path3d.Path3D`.
+            num_copies: Number of copies.
+            spacing: Distance between copies.
+            start_pos: Starting position along the path.
+            dist: Explicit list of distances from path start.
+            rotate_children: If True, rotate each copy to align with the path.
+
+        Returns:
+            A :class:`PyShape` union of all positioned copies.
+        """
+        import math
+
+        import numpy as np
+
+        length = path.perimeter()
+        is_closed = getattr(path, "closed", False)
+        if dist is not None:
+            distances = sorted(float(x) for x in dist)
+        elif start_pos is not None:
+            if num_copies is not None and spacing is not None:
+                distances = [start_pos + i * spacing for i in range(num_copies)]
+            elif num_copies is not None:
+                distances = list(np.linspace(start_pos, length, num_copies))
+            else:
+                distances = list(np.arange(start_pos, length, spacing))
+        elif num_copies is not None and spacing is None:
+            distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
+        else:
+            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
+            ptlist = [i * spacing for i in range(cnt)]
+            center = sum(ptlist) / len(ptlist)
+            if is_closed:
+                distances = sorted((e - center) % length for e in ptlist)
+            else:
+                distances = [e + length / 2 - center for e in ptlist]
+        distances = [min(max(dst, 0.0), length) for dst in distances]
+        cutlist = path.cut_points(distances, closed=is_closed, direction=True)
+        results: list[PyShape] = []
+        for cp in cutlist:
+            copied = self.translate([float(v) for v in cp.point])
+            if rotate_children:
+                d = np.asarray(cp.direction, dtype=float)
+                n = np.asarray(cp.normal, dtype=float)
+                xv = d / (float(np.linalg.norm(d)) or 1)
+                zv = n / (float(np.linalg.norm(n)) or 1)
+                yv = np.cross(zv, xv)
+                yv = yv / (float(np.linalg.norm(yv)) or 1)
+                rotm = np.eye(4)
+                rotm[:3, 0], rotm[:3, 1], rotm[:3, 2] = xv, yv, zv
+                copied = copied.multmatrix(rotm.tolist())
+            results.append(copied)
+        out = results[0]
+        for r in results[1:]:
+            out = out | r
+        return out
+
     def to_sdf(self) -> PyShape:
         """Return self since the solid is already on the SDF backend (converter no-op)."""
         return self
@@ -487,6 +558,98 @@ class SdfSolid(Distributable):
         from pybosl2.shapes3d import Bosl2Solid
 
         return Bosl2Solid(self._baked())
+
+    def bounding_box(self, excess: float = 0) -> PyShape:
+        """Return the smallest axis-aligned cuboid containing this solid, grown by *excess*.
+
+        Uses the stored exact ``mn``/``mx`` bounds (no meshing needed).
+
+        Args:
+            excess: Extra padding added to each dimension.
+
+        Returns:
+            A new :class:`PyShape` cuboid whose bounding box encloses this solid plus
+            *excess* on every side.
+        """
+        center = [(a + b) / 2 for a, b in zip(self.mn, self.mx, strict=False)]
+        size = [b - a + 2 * excess for a, b in zip(self.mn, self.mx, strict=False)]
+        return cuboid(size).translate(center)
+
+    def inside(self, point: Sequence[float]) -> bool:
+        """Return ``True`` if *point* is inside (or on) this solid's surface.
+
+        Evaluates the signed-distance field at *point* -- exact, no meshing.
+
+        Args:
+            point: A 3-D point ``[x, y, z]``.
+
+        Returns:
+            ``True`` when the SDF at *point* is ≤ 0.
+        """
+        tree = self.sdf()
+        d = tree(float(point[0]), float(point[1]), float(point[2]))
+        return bool(float(d) <= 0)
+
+    def chain_hull(self, *others: PyShape) -> PyShape:
+        """Return the chain-hull of this shape with *others* in order.
+
+        Hulls consecutive pairs: ``hull(self, others[0]) | hull(others[0], others[1]) | ...``.
+
+        Returns:
+            A new :class:`PyShape` that is the union of the consecutive-pair hulls.
+        """
+        parts = [self] + list(others)
+        if len(parts) < 2:
+            return self
+        result: PyShape | None = None
+        for i in range(len(parts) - 1):
+            pair_hull = parts[i].hull(parts[i + 1])
+            result = pair_hull if result is None else result | pair_hull
+        return result  # type: ignore[return-value]
+
+    def offset3d(self, radius: float) -> PyShape:
+        """Expand (positive *radius*) or contract (negative *radius*) this solid's surface.
+
+        On the SDF backend this is exact and fast -- it adds or subtracts *radius*
+        from the signed-distance field.  No meshing or minkowski needed.
+
+        Args:
+            radius: Offset distance.  Positive expands outward, negative contracts inward.
+
+        Returns:
+            A new :class:`PyShape` with the offset surface.
+        """
+        fa = self._sdf_fn
+
+        def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+            return fa(x, y, z) - float(radius)
+
+        r = float(radius)
+        return PyShape(sdf_fn, [self.mn[i] - r for i in range(3)], [self.mx[i] + r for i in range(3)], self.res)
+
+    def round3d(
+        self,
+        radius: float | None = None,
+        outer_radius: float | None = None,
+        inner_radius: float | None = None,
+    ) -> PyShape:
+        """Round the corners of this solid (BOSL2 round3d()).
+
+        *radius* rounds all edges; *outer_radius* only convex corners;
+        *inner_radius* only concave corners.  Uses three offset passes on the SDF
+        field -- exact and fast, no minkowski.
+
+        Args:
+            radius: Radius for all corners.
+            outer_radius: Radius for convex (outer) corners only.
+            inner_radius: Radius for concave (inner) corners only.
+
+        Returns:
+            A new :class:`PyShape` with rounded edges.
+        """
+        orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
+        irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
+        return self.offset3d(orr).offset3d(-irr - orr).offset3d(irr)
 
     def __or__(self, other: PyShape) -> PyShape:
         _check_operand_backend("sdf", other)
@@ -694,23 +857,126 @@ class SdfSolid(Distributable):
         )
 
     def projection(self, cut: bool = False) -> Any:
-        """Not available on the SDF backend -- an implicit field has no closed-form 2-D shadow.
+        """Return the 2-D shadow of this solid, projected onto the XY plane.
 
-        Raises:
-            ~pybosl2.exceptions.UnsupportedByBackendError: always. Convert first
-            (``shape.to_csg().projection()``) if a meshed projection is acceptable.
+        Converts to CSG on first call (cached mesh), then uses the native projection.
 
+        Args:
+            cut: If True, slice at z=0 and project the cross-section.
+
+        Returns:
+            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
         """
-        _ = cut
-        from pybosl2.exceptions import UnsupportedByBackendError
+        return self.to_csg().projection(cut=cut)
 
-        raise UnsupportedByBackendError(
-            "projection",
-            "sdf",
-            hint="a signed-distance field has no closed-form 2-D shadow, and 2-D geometry is a "
-            "csg-backend notion. Mesh it first with shape.to_csg().projection() if that is "
-            "acceptable, or build the shape on the csg backend.",
-        )
+    def half_of(
+        self,
+        v: Sequence[float] = (1.0, 0.0, 0.0),
+        center: Sequence[float] = (0.0, 0.0, 0.0),
+        s: float | None = None,
+    ) -> PyShape:
+        """Keep the half of this solid on the positive side of the plane through *center* with normal *v*.
+
+        The mask size *s* defaults to the solid's own bounding box diagonal plus margin.
+
+        Args:
+            v: Plane normal direction (default: +X, keeps x ≥ 0 half).
+            center: Point the plane passes through.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape` representing the kept half.
+        """
+        if s is None:
+            diag = [self.mx[i] - self.mn[i] for i in range(3)]
+            s = 2.2 * math.sqrt(sum(d * d for d in diag)) + 2.0
+
+        half_mask = cuboid([s] * 3).translate([-s / 2 + float(center[i]) for i in range(3)])
+        # Align mask normal with the plane
+        v3 = np.asarray(v, dtype=float)
+        vn = float(np.linalg.norm(v3))
+        if vn > 0:
+            v3 = v3 / vn
+            z_axis = np.array([0.0, 0.0, 1.0])
+            if abs(float(np.dot(v3, z_axis))) > 0.9999:
+                axis = np.array([1.0, 0.0, 0.0])
+            else:
+                axis = np.cross(z_axis, v3)
+                axis = axis / float(np.linalg.norm(axis))
+            angle = math.degrees(math.acos(float(np.dot(z_axis, v3))))
+            half_mask = half_mask.rotate(angle, axis.tolist())
+        half_mask = half_mask.translate([float(center[i]) for i in range(3)])
+        return self & half_mask
+
+    def left_half(self, x: float = 0, s: float | None = None) -> PyShape:
+        return self.half_of([-1.0, 0.0, 0.0], [float(x), 0.0, 0.0], s)
+
+    def right_half(self, x: float = 0, s: float | None = None) -> PyShape:
+        return self.half_of([1.0, 0.0, 0.0], [float(x), 0.0, 0.0], s)
+
+    def front_half(self, y: float = 0, s: float | None = None) -> PyShape:
+        return self.half_of([0.0, -1.0, 0.0], [0.0, float(y), 0.0], s)
+
+    def back_half(self, y: float = 0, s: float | None = None) -> PyShape:
+        return self.half_of([0.0, 1.0, 0.0], [0.0, float(y), 0.0], s)
+
+    def bottom_half(self, z: float = 0, s: float | None = None) -> PyShape:
+        return self.half_of([0.0, 0.0, -1.0], [0.0, 0.0, float(z)], s)
+
+    def top_half(self, z: float = 0, s: float | None = None) -> PyShape:
+        return self.half_of([0.0, 0.0, 1.0], [0.0, 0.0, float(z)], s)
+
+    # ---- native CSG passthrough methods (delegate via to_csg()) ----
+
+    def minkowski(self, *others: PyShape) -> PyShape:
+        """Minkowski sum with *others*.
+
+        On the SDF backend this approximates the Minkowski sum as expanding
+        this solid by half the diagonal of each other shape via :meth:`offset3d`.
+        """
+        result = self
+        for o in others:
+            mn, mx = o.bounds()
+            diag = math.sqrt(sum((mx[i] - mn[i]) ** 2 for i in range(3)))
+            result = result.offset3d(diag / 2)
+        return result
+
+    def repair(self) -> PyShape:
+        """Re-mesh this SDF solid (rebuilds the polyhedron from a fresh mesh)."""
+        return self.to_csg().repair()  # type: ignore[no-any-return]
+
+    def render(self) -> PyShape:
+        """Return self — the SDF representation is already exact (no mesh simplification needed)."""
+        return self
+
+    def resize(self, newsize: Sequence[float]) -> PyShape:
+        """Scale this solid so its bounding box matches *newsize* in each axis.
+
+        A zero component leaves that axis unchanged.
+        """
+        _center, size = self.bounds()
+        scale_factors: list[float] = []
+        for i in range(3):
+            n = float(newsize[i])
+            s = size[i]
+            scale_factors.append(n / s if n > 0 and s > 0 else 1.0)
+        return self.scale(scale_factors)
+
+    def separate(self) -> list[PyShape]:
+        """Split disconnected lumps into individual solids via CSG conversion."""
+        return self.to_csg().separate()  # type: ignore[no-any-return]
+
+    def wrap(self, radius: float, fn: int | None = None) -> PyShape:
+        """Bend this solid around a cylinder of *radius* via CSG conversion."""
+        return self.to_csg().wrap(radius, fn=fn)  # type: ignore[no-any-return]
+
+    def pull(self, direction: Sequence[float], distance: float) -> PyShape:
+        """Stretch material in *direction* by *distance* via CSG conversion."""
+        return self.to_csg().pull(direction, distance)  # type: ignore[no-any-return]
+
+    def minkowski_difference(self, *diffs: PyShape, size: float = 1000) -> PyShape:
+        """Carve *diffs* out of this solid's surface via CSG conversion."""
+        return self.to_csg().minkowski_difference(*diffs, size=size)  # type: ignore[no-any-return]
 
 
 # ---------------------------------------------------------------------------

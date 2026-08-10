@@ -518,3 +518,18 @@ class TestSdfInstanceMethods:
         result = circ.linear_sweep_sdf(height=4, res=10)
         assert result is not None
         assert result.backend == "sdf"
+
+
+class TestFill:
+    """fill() on PyShape2D."""
+
+    def test_fill_on_circle(self) -> None:
+        shape = sdf_s2d.circle2d(radius=10)
+        filled = shape.fill()
+        assert filled is not None
+        assert filled.backend == "sdf"
+
+    def test_fill_on_rect(self) -> None:
+        shape = sdf_s2d.rect2d([10, 10])
+        filled = shape.fill()
+        assert filled is not None
