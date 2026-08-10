@@ -48,7 +48,7 @@ Coverage of BOSL2 ``screws.scad``
      - the two most common recesses; cut into the head (or the shaft top for a setscrew).
    * - phillips / torx drive recesses
      - ported separately
-     - available as masks in :doc:`screw_drive` (:class:`~pybosl2.parts.screw_drive`); not yet
+     - available as masks in :doc:`/parts/screw_drive` (:class:`~pybosl2.parts.screw_drive`); not yet
        wired into :class:`~pybosl2.parts.screws.Screw`'s ``drive=`` argument.
    * - UTS / imperial specs, shoulder screws, named anchors, per-tolerance thread classes
      - not ported
