@@ -700,7 +700,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.partitions.Partitionable (Python class) — Bases: ABC"><span>pybosl2.<wbr>partitions.<wbr>Partitionable</span></span>
+      <span title="pybosl2.partitions.Partitionable (Python class) — Bases: object"><span>pybosl2.<wbr>partitions.<wbr>Partitionable</span></span>
     </span>
   </a>
   
@@ -2511,7 +2511,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.partitions.Partitionable (Python class) — Bases: ABC"><span>pybosl2.<wbr>partitions.<wbr>Partitionable</span></span>
+      <span title="pybosl2.partitions.Partitionable (Python class) — Bases: object"><span>pybosl2.<wbr>partitions.<wbr>Partitionable</span></span>
     </span>
   </a>
   
@@ -3090,12 +3090,13 @@ Pair a plain mask with an <code class="docutils literal notranslate"><span class
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">Partitionable</span></span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Mixin adding the partitions.scad planar cuts and the partition() split as methods.</p>
 <p>Inherited by <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>. A half-cut intersects the solid with a
 half-space mask whose size defaults to the object’s own bounding box (so BOSL2’s <code class="docutils literal notranslate"><span class="pre">s=</span></code>
 argument is optional). <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> follows a 2-D <a class="reference internal" href="#pybosl2.partitions.partition_path" title="pybosl2.partitions.partition_path (Python function) — Build a 2-D interlocking cut path from a list of segment descriptors (BOSL2 partition_path())."><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> to make an
-interlocking cut face instead of a flat plane.</p>
+interlocking cut face instead of a flat plane.  Requires <code class="docutils literal notranslate"><span class="pre">_wrap</span></code> (provided by
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShape</span></code>).</p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.partitions.Partitionable.half_of">
 <span class="sig-name descname"><span class="pre">half_of</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.v" title="pybosl2.partitions.Partitionable.half_of.v (Python parameter)"><span class="n"><span class="pre">v</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.center" title="pybosl2.partitions.Partitionable.half_of.center (Python parameter)"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.s" title="pybosl2.partitions.Partitionable.half_of.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.cut_path" title="pybosl2.partitions.Partitionable.half_of.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.cut_angle" title="pybosl2.partitions.Partitionable.half_of.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.offset" title="pybosl2.partitions.Partitionable.half_of.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/partitions.html#Partitionable.half_of"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of" title="Link to this definition">¶</a></dt>

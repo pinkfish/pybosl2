@@ -1992,7 +1992,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.miscellaneous.Miscellaneous (Python class) — Bases: ABC"><span>pybosl2.<wbr>miscellaneous.<wbr>Miscellaneous</span></span>
+      <span title="pybosl2.miscellaneous.Miscellaneous (Python class) — Bases: object"><span>pybosl2.<wbr>miscellaneous.<wbr>Miscellaneous</span></span>
     </span>
   </a>
   
@@ -2601,7 +2601,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.miscellaneous.Miscellaneous (Python class) — Bases: ABC"><span>pybosl2.<wbr>miscellaneous.<wbr>Miscellaneous</span></span>
+      <span title="pybosl2.miscellaneous.Miscellaneous (Python class) — Bases: object"><span>pybosl2.<wbr>miscellaneous.<wbr>Miscellaneous</span></span>
     </span>
   </a>
   
@@ -3123,9 +3123,10 @@ native 2-D object (text, multi-part shapes) that is not a single polygon.</p>
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.miscellaneous.Miscellaneous">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.miscellaneous.</span></span><span class="sig-name descname"><span class="pre">Miscellaneous</span></span><a class="reference internal" href="_modules/pybosl2/miscellaneous.html#Miscellaneous"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.miscellaneous.Miscellaneous" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods.</p>
-<p>on <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>.</p>
+<p>on <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>.  Requires <code class="docutils literal notranslate"><span class="pre">_wrap</span></code> (provided by
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShape</span></code>).</p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.miscellaneous.Miscellaneous.bounding_box">
 <span class="sig-name descname"><span class="pre">bounding_box</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.miscellaneous.Miscellaneous.bounding_box.excess" title="pybosl2.miscellaneous.Miscellaneous.bounding_box.excess (Python parameter)"><span class="n"><span class="pre">excess</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pybosl2/miscellaneous.html#Miscellaneous.bounding_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.miscellaneous.Miscellaneous.bounding_box" title="Link to this definition">¶</a></dt>
