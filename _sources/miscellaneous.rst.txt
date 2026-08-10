@@ -5,7 +5,7 @@ Pure-Python port of BOSL2's ``miscellaneous.scad`` -- the extrusions (``extrude_
 ``path_extrude2d``, ``path_extrude``, ``cylindrical_extrude``), the bounding box, ``chain_hull``,
 and the minkowski-based transforms (``minkowski_difference``, ``offset3d``, ``round3d``).
 
-The two path extrusions are methods on :class:`~pybosl2.paths` / :class:`~pybosl2._sdf.skin.path3d`,
+The two path extrusions are methods on :class:`~pybosl2.paths` / :class:`~pybosl2.sdf.skin.path3d`,
 and -- unlike BOSL2, which extrudes its *children* -- they take the 2-D cross-section as a
 **profile argument**::
 
@@ -39,7 +39,7 @@ Coverage of BOSL2 ``miscellaneous.scad``
    * - ``path_extrude``
      - ported
      - :meth:`~pybosl2.miscellaneous.Extrudable.path_extrude` -- extrude a profile along a 2-D/3-D
-       path (mitre-clipped segments). :func:`~pybosl2._sdf.shapes3d` is faster for a single polygon.
+       path (mitre-clipped segments). :func:`~pybosl2.sdf.shapes3d` is faster for a single polygon.
    * - ``cylindrical_extrude``
      - ported
      - :func:`~pybosl2.miscellaneous` -- wrap a 2-D profile around a cylinder.

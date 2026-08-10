@@ -4,7 +4,7 @@ Rounding: round_corners & smooth_path
 Pure-Python port of the path-rounding core of BOSL2's ``rounding.scad``:
 :meth:`~pybosl2.rounding.Roundable.round_corners` rounds every corner of a path, and
 :meth:`~pybosl2.rounding.Roundable.smooth_path` fits a continuous-curvature curve through a path. Both work on
-2-D and 3-D paths and are methods on :class:`~pybosl2.paths` and :class:`~pybosl2._sdf.skin.path3d`::
+2-D and 3-D paths and are methods on :class:`~pybosl2.paths` and :class:`~pybosl2.sdf.skin.path3d`::
 
     Path([[0, 0], [40, 0], [40, 30], [0, 30]]).round_corners(radius=5)
     Path([[0, 0], [40, 0], [40, 30], [0, 30]]).round_corners(method="smooth", joint=8)
