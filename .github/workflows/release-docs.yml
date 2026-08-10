@@ -115,14 +115,8 @@ jobs:
           done
           if [ ${#VNAMES[@]} -gt 0 ]; then
             printf '%s\n' "${VNAMES[@]}" | sort -rV > _site/versions_list.txt
-            python3 -c "
-import json
-with open('_site/versions_list.txt') as f:
-    versions = [v.strip() for v in f if v.strip()]
-with open('_site/versions.json', 'w') as out:
-    json.dump(versions, out)
-    print(f'versions.json written with {len(versions)} entries: {versions}')
-            "
+            python3 -c "import json; lines=[l.strip() for l in open('_site/versions_list.txt') if l.strip()]; json.dump(lines, open('_site/versions.json','w')); print(f'versions.json written with {len(lines)} entries: {lines}')"
+            rm -f _site/versions_list.txt
           else
             echo "ERROR: No v* version directories found in _site/. The Sphinx build may have failed."
             exit 1
