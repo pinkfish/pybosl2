@@ -210,8 +210,8 @@ class CsgShape2D(BaseShape):
        `Visual spec sheet <specs/shapes2d.html>`_ — measurements and STL previews
     """
 
-    #: which realize backend produced this shape -- 2-D geometry is exact-CSG only (see
-    #: pybosl2/_backend.py); the SDF backend has no 2-D surface.
+    #: Which realize backend produced this shape (always "csg" for Bosl2Shape2D).
+    #: The SDF backend uses SdfShape2D for 2-D geometry.
     backend = "csg"
     _bbox: tuple[list[float], list[float]] | None = None
 
