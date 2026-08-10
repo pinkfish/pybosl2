@@ -988,7 +988,7 @@ class TestPassthroughMethods:
             result = s.minkowski_difference(d)
             assert result is not None
         except (AttributeError, ValueError, TypeError):
-            pass  # mock may not support native bounds
+            pass  # mock minkowski ops are incomplete
 
     def test_oversample_delegates_to_csg(self) -> None:
         s = sdf_s3d.cuboid([4, 4, 4])
@@ -1002,4 +1002,4 @@ class TestPassthroughMethods:
             assert a is not None
             assert b is not None
         except (AttributeError, ValueError, TypeError):
-            pass  # mock doesn't support native bounds needed by partition
+            pass  # mock doesn't fully support partition yet

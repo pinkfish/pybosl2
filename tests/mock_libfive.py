@@ -123,6 +123,14 @@ class _FrepResult:
         self.res = res
         self.offset = [0.0, 0.0, 0.0]
 
+    @property
+    def position(self):
+        return [self.mn[i] + self.offset[i] for i in range(3)]
+
+    @property
+    def size(self):
+        return [self.mx[i] - self.mn[i] for i in range(3)]
+
     def translate(self, v):
         r = _FrepResult(self.sdf, self.mn, self.mx, self.res)
         r.offset = [self.offset[i] + v[i] for i in range(3)]
@@ -394,10 +402,17 @@ class _AabbSolid:
         if mn is None or mx is None:
             return _AabbSolid()
         z0, z1 = (-float(height) / 2, float(height) / 2) if center else (0.0, float(height))
-        # Support 2D bounds to 3D bounds promotion
         z_min = mn[2] if len(mn) > 2 else 0.0
         z_max = mx[2] if len(mx) > 2 else 0.0
         return _AabbSolid([mn[0], mn[1], z_min + z0], [mx[0], mx[1], z_max + z1])
+
+    @property
+    def paths(self) -> list:
+        """Return the bounding rectangle as a 2-D path for projection tests."""
+        mn, mx = self.mn, self.mx
+        if mn is None or mx is None:
+            return []
+        return [[[mn[0], mn[1]], [mx[0], mn[1]], [mx[0], mx[1]], [mn[0], mx[1]]]]
 
     # -- directional move convenience methods (match Bosl2Solid interface) -----
 
