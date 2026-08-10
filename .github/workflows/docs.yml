@@ -1,5 +1,8 @@
 name: docs
 
+# Build dev docs from main branch and push to gh-pages under /dev/.
+# The root of gh-pages holds the latest release (built by release-docs.yml),
+# and /vX.Y.Z/ directories hold older releases.
 on:
   push:
     branches: [main]
@@ -68,13 +71,16 @@ jobs:
           set -o pipefail
           make -C docs html 2>&1 | tee sphinx.log
 
-      - name: Checkout existing gh-pages and merge
+      - name: Move dev docs into dev subdirectory
         run: |
           mkdir -p _site
+          rsync -a wiki/ _site/dev/
+
+      - name: Checkout existing gh-pages and keep old content
+        run: |
           git clone --depth 1 --branch gh-pages \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" _ghpages 2>/dev/null && \
-            rsync -a _ghpages/ _site/ && rm -rf _ghpages || true
-          rsync -a wiki/ _site/
+            rsync -a --exclude dev _ghpages/ _site/ && rm -rf _ghpages || true
 
       - name: Verify output is not empty
         run: |

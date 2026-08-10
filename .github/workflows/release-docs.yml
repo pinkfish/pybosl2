@@ -1,8 +1,9 @@
 name: release-docs
 
 # Build a versioned snapshot of the docs whenever a release is published and
-# push it to the gh-pages branch under /v<version>/.  The dev docs (built by
-# docs.yml) live at the branch root, so both are served side by side.
+# push it to the gh-pages branch root (latest release) and /v<version>/ (archive).
+# The dev docs (built by docs.yml) live under /dev/, so all three are served side
+# by side: root = latest release, /dev/ = main-branch docs, /vX.Y.Z/ = old releases.
 on:
   release:
     types: [published]
@@ -74,19 +75,19 @@ jobs:
           set -o pipefail
           make -C docs html 2>&1 | tee sphinx.log
 
-      - name: Move built docs into versioned subdirectory
+      - name: Move built docs into versioned subdirectory and root
         run: |
           VDIR="${{ steps.version.outputs.version_dir }}"
-          mkdir -p "_site/${VDIR}" "_site/latest"
+          mkdir -p "_site/${VDIR}"
           cp -a wiki/* "_site/${VDIR}/"
-          cp -a wiki/* "_site/latest/"
+          cp -a wiki/* "_site/"
 
-      - name: Checkout existing gh-pages and prune old versions
+      - name: Checkout existing gh-pages and preserve old versions
         run: |
           VDIR="${{ steps.version.outputs.version_dir }}"
           git clone --depth 1 --branch gh-pages \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" _ghpages 2>/dev/null && \
-            rsync -a --exclude "${VDIR}" --exclude latest _ghpages/ _site/ && rm -rf _ghpages || true
+            rsync -a --exclude "${VDIR}" --exclude dev _ghpages/ _site/ && rm -rf _ghpages || true
           # Prune: keep only the 5 most recent v* directories (by name sort)
           shopt -s nullglob
           VDIRS=( _site/v*/ )

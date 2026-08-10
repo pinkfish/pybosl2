@@ -2319,13 +2319,15 @@ def polygon_prism(
     height: float,
     rounding_top: float = 0,
     rounding_bottom: float = 0,
+    chamfer_top: float = 0,
+    chamfer_bottom: float = 0,
     res: int = 10,
 ) -> PyShape:
     """Extrude an arbitrary SIMPLE polygon as a 3-D libfive SDF.
 
     The polygon (convex or concave) uses _polygon_sdf_xy() for exact 2-D SDF, unlike
     polygon_extrude()'s convex-only half-planes. Extrudes from z=0 up to z=height,
-    with optional circular treatments on each end rim -- the same job as real BOSL2's
+    with optional circular/flat treatments on each end rim -- the same job as real BOSL2's
     offset_sweep(path, height=height, bottom=os_circle(b), top=os_circle(t)), and the same sign
     convention for the radii: positive is a convex roundover eased into the rim, negative is an
     outward flare, 0 leaves that rim square. Sits on z=0 (not centered), matching offset_sweep.
@@ -2346,6 +2348,8 @@ def polygon_prism(
         height:               extrusion height (z from 0 to height)
         rounding_top:    top-rim treatment: >0 roundover radius, <0 flare, 0 square (default 0)
         rounding_bottom: bottom-rim treatment, same convention (default 0)
+        chamfer_top:     top-rim chamfer size (default 0)
+        chamfer_bottom:  bottom-rim chamfer size (default 0)
         res:             libfive meshing resolution passed to frep() (default 10)
 
     """
@@ -2358,6 +2362,8 @@ def polygon_prism(
     assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
     assert abs(rounding_top) < height, "polygon_prism(): rim treatments must be smaller than height"
     assert abs(rounding_bottom) < height, "polygon_prism(): rim treatments must be smaller than height"
+    assert chamfer_top < height, "polygon_prism(): rim treatments must be smaller than height"
+    assert chamfer_bottom < height, "polygon_prism(): rim treatments must be smaller than height"
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d2d = None
@@ -2376,6 +2382,9 @@ def polygon_prism(
                 out,
                 lv.min(lv.max(q1, q2), 0) + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0)) - rt,
             )
+        elif chamfer_top > 0:
+            out = lv.max(out, (d2d + (z - height) + chamfer_top) / _SQRT2)
+
         if rounding_bottom > 0:
             rb = rounding_bottom
             q1, q2 = d2d + rb, -z + rb
@@ -2383,6 +2392,8 @@ def polygon_prism(
                 out,
                 lv.min(lv.max(q1, q2), 0) + _lv_hypot(lv.max(q1, 0), lv.max(q2, 0)) - rb,
             )
+        elif chamfer_bottom > 0:
+            out = lv.max(out, (d2d + (-z) + chamfer_bottom) / _SQRT2)
 
         # Flares union on a ring of added material curving from tangent-to-the-wall out to the
         # rim plane along a quarter circle. The ring is deliberately built on the UNSIGNED
@@ -2656,14 +2667,6 @@ def regular_prism(
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0.0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0.0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0.0)
-    if c1v or c2v:
-        from pybosl2.exceptions import UnsupportedByBackendError
-
-        raise UnsupportedByBackendError(
-            "chamfer",
-            "sdf",
-            hint="regular_prism() chamfer is not supported on SDF backend; use rounding instead.",
-        )
 
     pts = [[_m.cos(2 * _m.pi * i / num_sides) * rad, _m.sin(2 * _m.pi * i / num_sides) * rad] for i in range(num_sides)]
     if realign:
@@ -2675,7 +2678,15 @@ def regular_prism(
             for p in pts
         ]
 
-    prism = polygon_prism(pts, length, rounding_top=r2v, rounding_bottom=r1v, res=res)
+    prism = polygon_prism(
+        pts,
+        length,
+        rounding_top=r2v,
+        rounding_bottom=r1v,
+        chamfer_top=c2v,
+        chamfer_bottom=c1v,
+        res=res,
+    )
     offset = _anchor_offset_hull3(
         [[p[0], p[1], -length / 2] for p in pts] + [[p[0], p[1], length / 2] for p in pts],
         anchor,

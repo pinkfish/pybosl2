@@ -1003,3 +1003,17 @@ class TestPassthroughMethods:
             assert b is not None
         except (AttributeError, ValueError, TypeError):
             pass  # mock doesn't fully support partition yet
+
+    def test_regular_prism_rounding_and_chamfer(self) -> None:
+        # Verify that regular_prism supports rounding and chamfering under SDF
+        s_round = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, rounding=2)
+        assert s_round is not None
+        s_chamfer = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, chamfer=2)
+        assert s_chamfer is not None
+
+    def test_tube_rounding_and_chamfer(self) -> None:
+        # Verify that tube supports rounding and chamfering under SDF
+        t_round = sdf_s3d.tube(height=20, outer_radius=15, inner_radius=10, rounding=1)
+        assert t_round is not None
+        t_chamfer = sdf_s3d.tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
+        assert t_chamfer is not None
