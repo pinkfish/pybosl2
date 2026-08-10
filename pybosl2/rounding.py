@@ -63,7 +63,7 @@ def _smooth_bez_fill(points: Sequence[Sequence[float]], k: float) -> list[list[f
 def _bezcorner(
     points: Sequence[Sequence[float]], parm: float | Sequence[float], fn: int = 0, fs: float = 2.0
 ) -> list[list[float]]:
-    """Return a continuous-curvature (bezier) corner (BOSL2 _bezcorner())."""
+    """Return a continuous-curvature (bezier) corner."""
     from pybosl2.beziers import Bezier
 
     if isinstance(parm, (list, tuple, np.ndarray)):
@@ -87,7 +87,7 @@ def _bezcorner(
 
 
 def _chamfcorner(points: Sequence[Sequence[float]], parm: Sequence[float]) -> list[list[float]]:
-    """Return a straight chamfer across a corner (BOSL2 _chamfcorner())."""
+    """Return a straight chamfer across a corner."""
     diameter = float(parm[0])
     p1 = [float(points[1][i]) for i in range(len(points[1]))]
     dim = len(p1)
@@ -123,7 +123,7 @@ def _circlecorner(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    """Return a circular-arc corner (BOSL2 _circlecorner())."""
+    """Return a circular-arc corner."""
     d, radius = float(parm[0]), float(parm[1])
 
     if len(points[1]) == 2:
@@ -354,7 +354,7 @@ class Roundable:
         fs: float | None = None,
         k: float | None = None,
     ) -> object:
-        """Round every corner of this path (BOSL2 round_corners()).
+        """Round every corner of this path.
 
         *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
         or ``"chamfer"`` (a straight bevel). Size the roundover with exactly one of *radius* (circle
@@ -417,7 +417,7 @@ class Roundable:
         uniform: bool = False,
         closed: bool | None = None,
     ) -> object:
-        """Fit a smooth continuous-curvature curve through this path (BOSL2 smooth_path(), method="edges").
+        """Fit a smooth continuous-curvature curve through this path.
 
         Runs a cubic bezier through every point, matching the path's tangents, and samples it
         with *splinesteps* points per segment. *size* / *relsize* bound how far the curve may bow away
@@ -465,7 +465,7 @@ class Roundable:
         endcap: CapType = CapType.ROUND,
         joint: CapType = CapType.ROUND,
     ) -> object:
-        """Offset this 2-D path to create a thickened outline Region (BOSL2 offset_stroke())."""
+        """Offset this 2-D path to create a thickened outline Region."""
         path_self = cast("Path", self)
         return _offset_stroke(
             cast("Sequence[Sequence[float]]", self),
@@ -484,7 +484,7 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
-        """Offset sweep/extrusion of this 2-D shape (BOSL2 offset_sweep())."""
+        """Offset sweep/extrusion of this 2-D shape."""
         from pybosl2.skin import _offset_sweep as _os
 
         return _os(
@@ -506,7 +506,7 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
-        """Offset sweep/extrusion of this 2-D shape (BOSL2 convex_offset_extrude())."""
+        """Offset sweep/extrusion of this 2-D shape."""
         from pybosl2.skin import _convex_offset_extrude as _coe
 
         return _coe(
@@ -533,7 +533,7 @@ class Roundable:
         joint_bot: float | dict[str, object] | None = None,
         k_sides: float | list[float] | None = None,
     ) -> object:
-        """Return the rounded prism between this path and a top path (BOSL2 rounded_prism())."""
+        """Return the rounded prism between this path and a top path."""
         from pybosl2.skin import _rounded_prism as _rp
 
         # joint_bot / k_sides are BOSL2's names for joint_bottom / curvature_sides
@@ -561,7 +561,7 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
-        """Join this prism to a base plane with a filleted transition (BOSL2 join_prism())."""
+        """Join this prism to a base plane with a filleted transition."""
         from pybosl2.skin import _join_prism as _jp
 
         return _jp(
@@ -583,7 +583,7 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
-        """Construct a filleted prism connecting two objects (BOSL2 prism_connector())."""
+        """Construct a filleted prism connecting two objects."""
         from pybosl2.skin import _prism_connector as _pc
 
         return _pc(
@@ -606,7 +606,7 @@ class Roundable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
-        """Attach a filleted prism with optional rounded end (BOSL2 attach_prism())."""
+        """Attach a filleted prism with optional rounded end."""
         from pybosl2.skin import _attach_prism as _ap
 
         return _ap(
@@ -625,7 +625,7 @@ class Roundable:
         thickness: float,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> object:
-        """Create a mask to generate a round-edged cutout in a cylindrical shell (BOSL2 bent_cutout_mask())."""
+        """Create a mask to generate a round-edged cutout in a cylindrical shell."""
         from pybosl2.skin import _bent_cutout_mask as _bcm
 
         return _bcm(

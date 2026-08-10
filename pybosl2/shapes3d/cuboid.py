@@ -691,7 +691,7 @@ def rect_tube(
     orient: Anchor | Sequence[float] = Anchor.TOP,
     length: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 rect_tube() -- a rectangular tube (a rectangle with a rectangular hole through it).
+    """Return a rectangular tube (a rectangle with a rectangular hole through it).
 
     Args:
         height:        height of the tube (default 1)

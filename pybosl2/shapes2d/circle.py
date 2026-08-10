@@ -95,7 +95,7 @@ def circle(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a circle, built with the builtin circle(), by radius/diameter, or fit to points.
+    """Return a circle by radius/diameter, or fit to points.
 
     If `corner` is given three 2-D points, the circle is centered to be tangent to both
     segments of that path, on the inside corner. If `points` is given three 2-D points,
@@ -401,7 +401,7 @@ def keyhole(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders (BOSL2 keyhole()).
+    """Return a keyhole slot -- a small circle joined to a larger one by tangent shoulders.
 
     Args:
         length:         overall length between the two circle centers (default 15)
@@ -482,7 +482,7 @@ def ring(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a 2-D ring (annulus) between two concentric radii (BOSL2 ring(), full-annulus form).
+    """Return a 2-D ring (annulus) between two concentric radii (full-annulus form).
 
     Give either both radii (*radius1*/*radius2* or *diameter1*/*diameter2*) or one radius plus
     *ring_width*. The arc / 3-point / corner / width+thickness forms of BOSL2 ``ring()`` are

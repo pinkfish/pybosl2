@@ -123,7 +123,7 @@ def _partition_subpath(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Path2D:
-    """Return the simple named cut sub-paths used by the mask builders (BOSL2 _partition_subpath())."""
+    """Return the simple named cut sub-paths used by the mask builders."""
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import arc
 
@@ -224,7 +224,7 @@ def _partition_cutpath(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Path2D:
-    """One row of the named cut sub-path, repeated to span *length* (BOSL2 _partition_cutpath())."""
+    """One row of the named cut sub-path, repeated to span *length*."""
     _ = h
     cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
     sub: list[list[float]] | Path2D
@@ -258,7 +258,7 @@ def _ptn_sect(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Path2D:
-    """One section of a partition_path, with the full BOSL2 modifier grammar (BOSL2 _ptn_sect())."""
+    """One section of a partition_path, with the full BOSL2 modifier grammar."""
     from pybosl2._helpers import frag_count as _frag_count
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d import arc
@@ -435,7 +435,7 @@ def partition_path(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Path2D:
-    """Build a 2-D interlocking cut path from a list of segment descriptors (BOSL2 partition_path()).
+    """Build a 2-D interlocking cut path from a list of segment descriptors.
 
     Each item of *pathdesc* is a numeric length (a flat section), a 2-D path (used as-is), or a
     named section pattern -- ``"flat"``, ``"sawtooth"``, ``"square"``, ``"triangle"``, ``"halfsine"``,
@@ -503,7 +503,7 @@ def partition_path(
 
 
 def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = True) -> Path2D:
-    """Re-lay *minor_path* (a partition pattern) along *major_path* (BOSL2 _ptn_path_redirect())."""
+    """Re-lay *minor_path* (a partition pattern) along *major_path*."""
     from pybosl2.path2d import Path2D
 
     major2 = _merge_collinear(major_path)
@@ -580,7 +580,7 @@ def partition_mask(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """Return a mask to remove half of an object, leaving an interlocking edge (BOSL2 partition_mask()).
+    """Return a mask to remove half of an object, leaving an interlocking edge.
 
     Intersect it with (or subtract it from) a solid to keep the half within *w* of the cut plane.
     Pair a plain mask with an ``inverse=True`` one to split a part into two mating pieces.
@@ -642,7 +642,7 @@ def partition_cut_mask(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """Return a thin mask to cut an object into two mating pieces (BOSL2 partition_cut_mask()).
+    """Return a thin mask to cut an object into two mating pieces.
 
     Subtract it from a solid to split it along the cut path with a *slop*-wide kerf.
 
@@ -739,7 +739,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the half of this solid on the side the normal *v* points to (BOSL2 half_of()).
+        """Keep the half of this solid on the side the normal *v* points to.
 
         *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
         (the mask size) defaults to twice the object's bounding-box reach, so it rarely needs
@@ -780,7 +780,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the left (-X) half, cut at ``X=x`` (BOSL2 left_half())."""
+        """Keep the left (-X) half, cut at ``X=x``."""
         return self.half_of(
             LEFT,
             center=[x, 0, 0],
@@ -798,7 +798,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the right (+X) half, cut at ``X=x`` (BOSL2 right_half())."""
+        """Keep the right (+X) half, cut at ``X=x``."""
         return self.half_of(
             RIGHT,
             center=[x, 0, 0],
@@ -816,7 +816,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the front (-Y) half, cut at ``Y=y`` (BOSL2 front_half())."""
+        """Keep the front (-Y) half, cut at ``Y=y``."""
         return self.half_of(
             FRONT,
             center=[0, y, 0],
@@ -834,7 +834,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the back (+Y) half, cut at ``Y=y`` (BOSL2 back_half())."""
+        """Keep the back (+Y) half, cut at ``Y=y``."""
         return self.half_of(
             BACK,
             center=[0, y, 0],
@@ -852,7 +852,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the bottom (-Z) half, cut at ``Z=z`` (BOSL2 bottom_half())."""
+        """Keep the bottom (-Z) half, cut at ``Z=z``."""
         return self.half_of(
             DOWN,
             center=[0, 0, z],
@@ -870,7 +870,7 @@ class Partitionable:
         cut_angle: float = 0,
         offset: float = 0,
     ) -> Self:
-        """Keep the top (+Z) half, cut at ``Z=z`` (BOSL2 top_half())."""
+        """Keep the top (+Z) half, cut at ``Z=z``."""
         return self.half_of(
             UP,
             center=[0, 0, z],
@@ -893,7 +893,7 @@ class Partitionable:
         fa: float | None = None,
         fs: float | None = None,
     ) -> list[Self]:
-        """Cut this solid into two interlocking pieces, spread apart (BOSL2 partition()).
+        """Cut this solid into two interlocking pieces, spread apart.
 
         Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved
         *spread* apart along the (spun) Y axis so they print separately and snap back together.

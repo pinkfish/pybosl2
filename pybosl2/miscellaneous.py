@@ -114,7 +114,7 @@ def extrude_from_to(
     slices: int | None = None,
     convexity: int = 10,
 ) -> Bosl2Solid:
-    """Linearly extrude a 2-D *profile* between two 3-D points (BOSL2 extrude_from_to()).
+    """Linearly extrude a 2-D *profile* between two 3-D points.
 
     The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between
     them. *profile* is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory.
@@ -229,7 +229,7 @@ def cylindrical_extrude(
 
 
 def chain_hull(*objects: object) -> Bosl2Solid:
-    """Union the hulls of each consecutive pair of *objects* (BOSL2 chain_hull()).
+    """Union the hulls of each consecutive pair of *objects*.
 
     Examples:
         .. pythonscad-example::
@@ -254,7 +254,7 @@ def chain_hull(*objects: object) -> Bosl2Solid:
 
 
 def minkowski_difference(base: object, *diffs: object, size: float = 1000, convexity: int = 10) -> Bosl2Solid:
-    """Carve *diffs* out of the surface of *base* (BOSL2 minkowski_difference())."""
+    """Carve *diffs* out of the surface of *base*."""
     _ = (size, convexity)
     from pythonscad import cube as _cube
     from pythonscad import minkowski as _mink
@@ -300,7 +300,7 @@ class Extrudable:
         s: float | None = None,
         convexity: int = 10,
     ) -> Bosl2Solid:
-        """Extrude a 2-D *profile* along this 2-D path, standing it vertically (BOSL2 path_extrude2d()).
+        """Extrude a 2-D *profile* along this 2-D path, standing it vertically.
 
         Builds a straight run for each segment and a revolved fillet at each corner, unioned into a
         3-D "moulding" that follows the path. *caps* rounds the two open ends (the profile must be
@@ -367,7 +367,7 @@ class Extrudable:
         convexity: int = 10,
         clipsize: float = 100,
     ) -> Bosl2Solid:
-        """Extrude a 2-D *profile* along this path in 3-D (BOSL2 path_extrude()).
+        """Extrude a 2-D *profile* along this path in 3-D.
 
         Places an oriented linear extrusion for each segment and clips it at the mitre planes
         between segments. A 2-D Path2D is lifted to the ``z=0`` plane first. For most sweeps
@@ -442,7 +442,7 @@ class Miscellaneous:
     """
 
     def bounding_box(self, excess: float = 0) -> Bosl2Solid:
-        """Return the smallest axis-aligned cuboid containing this solid, grown by *excess* (BOSL2 bounding_box()).
+        """Return the smallest axis-aligned cuboid containing this solid, grown by *excess*.
 
         Uses the native bounding box, so it is exact and fast (BOSL2's projection/minkowski trick is
         not needed here).
@@ -453,7 +453,7 @@ class Miscellaneous:
         return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
 
     def offset3d(self, radius: float, size: float = 1000, convexity: int = 10) -> Bosl2Solid:
-        """Expand (or, for negative *radius*, contract) the surface of this solid by *radius* (BOSL2 offset3d()).
+        """Expand (or, for negative *radius*, contract) the surface of this solid by *radius*.
 
         Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.
         """
@@ -481,7 +481,7 @@ class Miscellaneous:
         inner_radius: float | None = None,
         size: float = 1000,
     ) -> Bosl2Solid:
-        """Round the corners of this solid (BOSL2 round3d()): *radius* rounds all, *outer_radius* only convex,.
+        """Round the corners of this solid: *radius* rounds all, *outer_radius* only convex,.
 
         *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.
         """

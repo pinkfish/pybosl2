@@ -374,7 +374,7 @@ class Colorable(ABC):
         return self._color_native(rgb, a)
 
     def highlight(self, highlight: bool = True) -> Self:
-        """Apply the ``#`` debug modifier (BOSL2 highlight()).
+        """Apply the ``#`` debug modifier.
 
         Args:
             highlight: If True (default), apply the highlight modifier.

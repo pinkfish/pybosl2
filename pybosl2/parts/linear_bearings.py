@@ -148,7 +148,7 @@ class LinearBearings:
 
     @staticmethod
     def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> Bosl2Solid:
-        """Return a standard LMxUU linear bearing for a *size* mm rod (BOSL2 lmxuu_bearing())."""
+        """Return a standard LMxUU linear bearing for a *size* mm rod."""
         spec = LinearBearings.lmxuu_info(size)
         color_val = Color(color) if color else None
         return LinearBearings.linear_bearing(
@@ -242,7 +242,7 @@ class LinearBearings:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a pillow-block housing sized for a standard LMxUU bearing (BOSL2 lmxuu_housing())."""
+        """Return a pillow-block housing sized for a standard LMxUU bearing."""
         spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing_housing(
             diameter=spec.outer_diameter,

@@ -538,10 +538,10 @@ def line_normal(p1: Sequence[float], p2: Sequence[float]) -> NDArray[np.float64]
 
 
 def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> NDArray[np.float64]:
-    """BOSL2 deriv(): numerical first derivative of vector-valued samples, with either a.
+    """Compute the numerical first derivative of vector-valued samples.
 
-    scalar step or a per-segment step list (the non-uniform variant path_tangents() feeds
-    with segment lengths).
+    Supports either a scalar step or a per-segment step list (the non-uniform variant
+    path_tangents() feeds with segment lengths).
     """
     pts = np.asarray(data, dtype=float)
     n_pts = len(pts)
@@ -594,9 +594,10 @@ def deriv(data: ArrayLike, h: "float | ArrayLike" = 1, closed: bool = False) -> 
 
 
 def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -> NDArray[np.float64]:
-    """BOSL2 path_tangents(): unit tangent at each path point (uniform=False weights the.
+    """Compute unit tangents at each path point.
 
-    derivative by segment lengths, which is what rabbit_clip() uses).
+    When *uniform* is False the derivative is weighted by segment lengths, which is what
+    rabbit_clip() uses.
     """
     pts = as_points(path)
     if uniform:
@@ -659,10 +660,11 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
     size=None,
     relsize=None,
 ) -> NDArray[np.float64]:
-    """BOSL2 path_to_bezpath(): a cubic bezier path through the input points with the given.
+    """Build a cubic bezier path through the input points.
 
-    (or derived) tangents, control-point lengths chosen so the curve deviates from each
-    segment by `size` (absolute) or `relsize` (fraction of segment length).
+    Uses the given (or derived) tangents, with control-point lengths chosen so the
+    curve deviates from each segment by *size* (absolute) or *relsize* (fraction of
+    segment length).
     """
     assert size is None or relsize is None, "Can't define both size and relsize"
     path = as_points(path)
