@@ -152,6 +152,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     Colour operators (Colorable mixin) via Python's colorsys module <color>
     Constants provided by BOSL2 (BOSL2 constants.scad) <constants>
     Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies <distributors>
+    Statically typed 2D shape constructors and backend-neutral flat shape facade <flat>
     Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d) <masking>
     Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints) <partitions>
     Statically typed shape constructors and backend-neutral solid facade <solid>

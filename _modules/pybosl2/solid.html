@@ -438,6 +438,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span> Statically typed 2D shape constructors and backend-<wbr>neutral flat shape facade</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../masking.html" class="md-nav__link">
         
   
@@ -2352,6 +2376,12 @@
     <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2382,6 +2412,12 @@
                 <span class="s2">&quot;inner_diameter&quot;</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
                 <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="n">side</span><span class="p">,</span>
                 <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
                 <span class="s2">&quot;realign&quot;</span><span class="p">:</span> <span class="n">realign</span><span class="p">,</span>
                 <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
                 <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
@@ -2600,6 +2636,12 @@
     <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">wall</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2628,6 +2670,12 @@
                 <span class="s2">&quot;inner_diameter&quot;</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
                 <span class="s2">&quot;wall&quot;</span><span class="p">:</span> <span class="n">wall</span><span class="p">,</span>
                 <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
                 <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
                 <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
                 <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
