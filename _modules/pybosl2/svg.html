@@ -1812,7 +1812,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;svg_outlines&quot;</span><span class="p">,</span> <span class="s2">&quot;region_from_svg&quot;</span><span class="p">,</span> <span class="s2">&quot;svg_rings_with_colors&quot;</span><span class="p">,</span> <span class="s2">&quot;regions_from_svg&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;svg_outlines&quot;</span><span class="p">,</span> <span class="s2">&quot;region_from_svg&quot;</span><span class="p">,</span> <span class="s2">&quot;svg_rings_with_colors&quot;</span><span class="p">,</span> <span class="s2">&quot;svg_element_groups&quot;</span><span class="p">,</span> <span class="s2">&quot;regions_from_svg&quot;</span><span class="p">]</span>
 
 <span class="c1">#: Default minimum fragment count (``fn``).  When set (``&gt;= 3``) it overrides *fa*/*fs*</span>
 <span class="c1">#: for curved SVG segments, giving an absolute number of points per segment.</span>
@@ -1931,6 +1931,7 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_FS</span><span class="p">,</span>
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an SVG drawing as a :class:`~pybosl2.regions.Region`.</span>
 
@@ -1939,9 +1940,11 @@
 <span class="sd">    round, tessellate or use as a lid pattern -- and it needs no renderer, so SVG-derived</span>
 <span class="sd">    shapes become testable without one.</span>
 
-<span class="sd">    Nesting is resolved with the EVEN-ODD rule (:meth:`~pybosl2.regions.Region.even_odd`),</span>
-<span class="sd">    which is what a traced drawing means by a hole: an outline inside one solid cuts it, an</span>
-<span class="sd">    outline inside that hole is solid again.</span>
+<span class="sd">    Nesting is resolved with the EVEN-ODD rule (:meth:`~pybosl2.regions.Region.even_odd`)</span>
+<span class="sd">    among shapes of the SAME colour -- what a traced drawing means by a hole: an outline</span>
+<span class="sd">    inside one solid cuts it, an outline inside that hole is solid again. Shapes of</span>
+<span class="sd">    DIFFERENT colours are composited in SVG paint order instead, each covering whatever was</span>
+<span class="sd">    drawn before it, so the returned pieces never overlap.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file: Path to the SVG.</span>
@@ -1951,6 +1954,8 @@
 <span class="sd">        flip_y: Negate Y so the drawing is not mirrored (SVG&#39;s Y axis points down).</span>
 <span class="sd">        color: When set, overrides every shape&#39;s fill colour with this hex string</span>
 <span class="sd">            (e.g. ``&quot;#ff0000&quot;``).  Pass ``None`` (the default) to use the SVG&#39;s own colours.</span>
+<span class="sd">        strokes: ``&quot;polygon&quot;`` (default) converts stroked paths into filled polygons.</span>
+<span class="sd">            ``&quot;ignore&quot;`` skips shapes that have only a stroke and no fill.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~pybosl2.regions.Region` of the drawing.</span>
@@ -1973,28 +1978,81 @@
 <span class="sd">            os.unlink(tmp.name)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_shapely_unary_union</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
-    <span class="n">paths</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="n">svg_rings_with_colors</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">svg_element_groups</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">groups</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">()</span>
-    <span class="n">colored_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">Color</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
-    <span class="k">return</span> <span class="n">Region</span><span class="o">.</span><span class="n">even_odd</span><span class="p">(</span><span class="n">colored_paths</span><span class="p">)</span></div>
+
+    <span class="c1"># ONE COLOUR IS ONE SHAPE; DIFFERENT COLOURS ARE LAYERS IN PAINT ORDER.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Neither rule alone works. Resolving every ring of the whole file in a single even-odd</span>
+    <span class="c1"># pass (what this used to do) makes any nested shape a HOLE, so the Portuguese flag&#39;s</span>
+    <span class="c1"># green field became a hole in its red one and its coat of arms became holes in the</span>
+    <span class="c1"># field it sits on. But strict SVG paint order is just as wrong for drawings meant as</span>
+    <span class="c1"># CAD input: a plate and its holes are usually separate &lt;path&gt; elements with no fill, and</span>
+    <span class="c1"># painting one over the other would leave a solid plate with no holes at all.</span>
+    <span class="c1">#</span>
+    <span class="c1"># Splitting on colour serves both, because it follows what is actually visible. Shapes</span>
+    <span class="c1"># sharing a colour are indistinguishable once painted, so reading the nested ones as</span>
+    <span class="c1"># holes loses nothing and keeps the plate-with-holes convention. Shapes of DIFFERENT</span>
+    <span class="c1"># colours are visible as separate things and must obey paint order.</span>
+    <span class="c1"># CONSECUTIVE same-colour shapes only. Pooling every shape of a colour into one layer</span>
+    <span class="c1"># instead would date that layer from the LAST time the colour appeared, so a single late</span>
+    <span class="c1"># red detail anywhere in a drawing hoists the red BACKGROUND above everything painted</span>
+    <span class="c1"># after it -- on the flag that erased the green field completely.</span>
+    <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">hex_color</span><span class="p">,</span> <span class="n">rings</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">layers</span> <span class="ow">and</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">hex_color</span><span class="p">:</span>
+            <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">hex_color</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">rings</span><span class="p">)))</span>
+
+    <span class="c1"># Composite back to front, so each layer is clipped by everything drawn over it: one</span>
+    <span class="c1"># difference and one union per layer instead of re-clipping every earlier layer each</span>
+    <span class="c1"># time. Disjoint by construction, which is what keeps each colour body manifold.</span>
+    <span class="n">placed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">object</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">covered</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">hex_color</span><span class="p">,</span> <span class="n">layer_rings</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">layers</span><span class="p">):</span>
+        <span class="n">piece</span> <span class="o">=</span> <span class="n">Region</span><span class="o">.</span><span class="n">even_odd</span><span class="p">(</span><span class="n">layer_rings</span><span class="p">)</span><span class="o">.</span><span class="n">geom</span>
+        <span class="k">if</span> <span class="n">piece</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">covered</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">piece</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">covered</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">piece</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># Clipping can leave a layer as several polygons that merely TOUCH along the cut.</span>
+            <span class="c1"># Extruded separately those share faces, so the colour&#39;s body comes out</span>
+            <span class="c1"># non-manifold; dissolving merges them back into one polygon each.</span>
+            <span class="n">piece</span> <span class="o">=</span> <span class="n">_shapely_unary_union</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+        <span class="n">covered</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="n">covered</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">covered</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+        <span class="n">placed</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">Color</span><span class="p">(</span><span class="n">hex_color</span><span class="p">)</span> <span class="k">if</span> <span class="n">hex_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">piece</span><span class="p">))</span>
+    <span class="n">placed</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Region</span><span class="o">.</span><span class="n">_from_colored_pieces</span><span class="p">(</span><span class="n">placed</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="svg_rings_with_colors">
-<a class="viewcode-back" href="../../svg.html#pybosl2.svg.svg_rings_with_colors">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">svg_rings_with_colors</span><span class="p">(</span>
+<div class="viewcode-block" id="svg_element_groups">
+<a class="viewcode-back" href="../../svg.html#pybosl2.svg.svg_element_groups">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">svg_element_groups</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_FN</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_FA</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_FS</span><span class="p">,</span>
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an SVG&#39;s outlines as :class:`~pybosl2.path2d.Path2D` objects and their fill colours.</span>
+    <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an SVG&#39;s shapes, IN PAINT ORDER, each with its own rings kept together.</span>
+
+<span class="sd">    This grouping is the thing compositing needs and flattening destroys: a ring nested</span>
+<span class="sd">    inside another means &quot;hole&quot; only when both came from the SAME element (that is what</span>
+<span class="sd">    ``fill-rule`` decides). Two separate elements that happen to nest -- a flag&#39;s green</span>
+<span class="sd">    field drawn on top of its red one -- are not a solid and a hole, they are two shapes,</span>
+<span class="sd">    the later one painted over the earlier.</span>
 
 <span class="sd">    Every subpath of every shape becomes one closed :class:`~pybosl2.path2d.Path2D`; the colour</span>
 <span class="sd">    list gives the hex fill colour of the shape each ring came from (or ``None`` for shapes</span>
@@ -2013,10 +2071,14 @@
 <span class="sd">        flip_y: Negate Y so the drawing is not mirrored.</span>
 <span class="sd">        color: When set, every returned ring gets this colour instead of the SVG&#39;s</span>
 <span class="sd">            own fill colours.  Pass ``None`` (the default) to use the colours from the SVG.</span>
+<span class="sd">        strokes: How to handle stroked paths.  ``&quot;polygon&quot;`` (default) converts each</span>
+<span class="sd">            stroked path to a filled polygon via shapely buffering so strokes appear</span>
+<span class="sd">            as solid coloured pieces.  ``&quot;ignore&quot;`` skips shapes that have a stroke</span>
+<span class="sd">            but no fill colour.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A ``(paths, colors)`` tuple where *paths* is ``[Path2D, ...]`` and *colors* is a</span>
-<span class="sd">        parallel list of ``&quot;#rrggbb&quot;`` hex strings or ``None`` for unfilled shapes.</span>
+<span class="sd">        ``[(colour, [Path2D, ...]), ...]`` in document (paint) order -- one entry per</span>
+<span class="sd">        filled shape, plus one per stroked shape (a stroke paints over its own fill).</span>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        ImportError: If ``svgelements`` is not installed.</span>
@@ -2032,12 +2094,12 @@
 
     <span class="n">_</span> <span class="o">=</span> <span class="n">fa</span>  <span class="c1"># accepted for API parity; bezier curves use *fn*/*fs* only</span>
     <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">flip_y</span> <span class="k">else</span> <span class="mf">1.0</span>
-    <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">SVG</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">elements</span><span class="p">():</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Shape</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">fill_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_shape_fill_hex</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;fill&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">fill_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_shape_fill_hex</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+        <span class="n">fill_rings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">subpath</span> <span class="ow">in</span> <span class="n">_SVGPath</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">.</span><span class="n">as_subpaths</span><span class="p">():</span>
             <span class="n">ring</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">subpath</span><span class="p">:</span>
@@ -2053,33 +2115,122 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ring</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">ring</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-                <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fill_color</span><span class="p">)</span>
+                <span class="n">fill_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">fill_rings</span><span class="p">:</span>
+            <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fill_color</span><span class="p">,</span> <span class="n">fill_rings</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">strokes</span> <span class="o">==</span> <span class="s2">&quot;polygon&quot;</span><span class="p">:</span>
+            <span class="n">stroke_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_shape_stroke_hex</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stroke_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="n">fill_color</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">fill_color</span> <span class="o">!=</span> <span class="n">stroke_color</span><span class="p">):</span>
+                <span class="n">stroke_width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;stroke_width&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="n">stroke_rings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">subpath</span> <span class="ow">in</span> <span class="n">_SVGPath</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">.</span><span class="n">as_subpaths</span><span class="p">():</span>
+                    <span class="n">stroke_ring_pts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">subpath</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">Close</span><span class="p">):</span>
+                            <span class="k">continue</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="p">(</span><span class="n">Move</span><span class="p">,</span> <span class="n">Line</span><span class="p">)):</span>
+                            <span class="n">stroke_ring_pts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
+                            <span class="k">continue</span>
+                        <span class="n">count</span> <span class="o">=</span> <span class="n">_curve_point_count</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">point</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">point</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+                            <span class="n">stroke_ring_pts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">stroke_ring_pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">stroke_ring</span> <span class="o">=</span> <span class="n">_stroke_to_polygon</span><span class="p">(</span><span class="n">stroke_ring_pts</span><span class="p">,</span> <span class="n">stroke_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">stroke_ring</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stroke_ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+                        <span class="n">stroke_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">stroke_ring</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                <span class="c1"># A stroke paints ON TOP of its own element&#39;s fill, so it is its own group.</span>
+                <span class="k">if</span> <span class="n">stroke_rings</span><span class="p">:</span>
+                    <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">stroke_color</span><span class="p">,</span> <span class="n">stroke_rings</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">color</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">[(</span><span class="n">color</span><span class="p">,</span> <span class="n">rings</span><span class="p">)</span> <span class="k">for</span> <span class="n">_c</span><span class="p">,</span> <span class="n">rings</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">groups</span></div>
+
+
+
+<div class="viewcode-block" id="svg_rings_with_colors">
+<a class="viewcode-back" href="../../svg.html#pybosl2.svg.svg_rings_with_colors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">svg_rings_with_colors</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_FN</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DEFAULT_FA</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_FS</span><span class="p">,</span>
+    <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path2D&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every closed ring in an SVG, flattened, with the fill colour of each.</span>
+
+<span class="sd">    The element each ring came from is NOT preserved -- use</span>
+<span class="sd">    :func:`svg_element_groups` when that matters (it does for compositing: nesting means</span>
+<span class="sd">    &quot;hole&quot; only WITHIN one element).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">element_color</span><span class="p">,</span> <span class="n">rings</span> <span class="ow">in</span> <span class="n">svg_element_groups</span><span class="p">(</span>
+        <span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">:</span>
+            <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+            <span class="n">colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element_color</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">paths</span><span class="p">,</span> <span class="n">colors</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_shape_fill_hex</span><span class="p">(</span><span class="n">fill</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a ``#rrggbb`` hex string from an svgelements fill, or ``None``.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_shape_fill_hex</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract a ``#rrggbb`` hex string from an svgelements Shape, or ``None``.</span>
 
-<span class="sd">    ``fill=&quot;none&quot;`` (transparent) and pattern/gradient fills return ``None``.</span>
-<span class="sd">    An absent ``fill`` attribute (SVG default = black) is treated as a real</span>
-<span class="sd">    ``#000000`` colour.  ``fill-opacity`` is already baked into the hex string</span>
-<span class="sd">    by svgelements (e.g. ``fill-opacity=0.5`` on ``#ff0000`` → ``#ff000080``).</span>
+<span class="sd">    ``fill=&quot;none&quot;``, pattern/gradient fills, and the SVG&#39;s implicit black</span>
+<span class="sd">    default fill (no ``fill`` attribute, no inherited colour) all return</span>
+<span class="sd">    ``None``.  Inherited fills from a ``&lt;g&gt;`` group or similar produce the</span>
+<span class="sd">    resolved colour because svgelements propagates them to the child.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fill</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;fill&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fill</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fill</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="s2">&quot;hex&quot;</span><span class="p">):</span>
-        <span class="n">raw</span> <span class="o">=</span> <span class="n">fill</span><span class="o">.</span><span class="n">hex</span>
-        <span class="k">if</span> <span class="n">raw</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># An element whose raw SVG attributes lack a ``fill`` key did not set</span>
+    <span class="c1"># its own fill.  It may have inherited one (from a parent &lt;g&gt;) or it</span>
+    <span class="c1"># may be falling back to the SVG default (black).  svgelements resolves</span>
+    <span class="c1"># both, so we check whether the resolved colour is the default black --</span>
+    <span class="c1"># if so and there was no explicit fill, it is not a &quot;real&quot; colour.</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">):</span>
+        <span class="n">raw_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attributes&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">if</span> <span class="s2">&quot;fill&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_attrs</span> <span class="ow">and</span> <span class="n">fill</span><span class="o">.</span><span class="n">hex</span> <span class="o">==</span> <span class="s2">&quot;#000000&quot;</span> <span class="ow">and</span> <span class="n">fill</span><span class="o">.</span><span class="n">opacity</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">raw</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fill</span><span class="p">,</span> <span class="s2">&quot;hex&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fill</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fill</span><span class="o">.</span><span class="n">hex</span>
     <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shape_stroke_hex</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract stroke colour as a ``#rrggbb`` hex from an svgelements Shape, or ``None``.&quot;&quot;&quot;</span>
+    <span class="n">stroke</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="s2">&quot;stroke&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stroke</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stroke</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">stroke</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">stroke</span><span class="p">,</span> <span class="s2">&quot;hex&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stroke</span><span class="o">.</span><span class="n">hex</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">stroke</span><span class="o">.</span><span class="n">hex</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stroke_to_polygon</span><span class="p">(</span><span class="n">ring</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Buffer a linestring by *radius* and return the resulting polygon ring.</span>
+
+<span class="sd">    Returns ``None`` if the buffer produces no geometry or an empty polygon.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">radius</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">([(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">])</span>
+    <span class="n">buffered</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">cap_style</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span> <span class="n">join_style</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">buffered</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">buffered</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
 
 
 <div class="viewcode-block" id="regions_from_svg">
@@ -2091,6 +2242,7 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_FS</span><span class="p">,</span>
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an SVG drawing as a list of :class:`~pybosl2.regions.Region` objects, coloured.</span>
 
@@ -2107,6 +2259,8 @@
 <span class="sd">        flip_y: Negate Y so the drawing is not mirrored.</span>
 <span class="sd">        color: When set, overrides every shape&#39;s fill colour with this hex string</span>
 <span class="sd">            (e.g. ``&quot;#ff0000&quot;``).  Pass ``None`` (the default) to use the SVG&#39;s own colours.</span>
+<span class="sd">        strokes: ``&quot;polygon&quot;`` (default) converts stroked paths into filled polygons.</span>
+<span class="sd">            ``&quot;ignore&quot;`` skips shapes that have only a stroke and no fill.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`~pybosl2.regions.Region` objects, one per distinct fill colour</span>
@@ -2139,7 +2293,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
-    <span class="n">paths</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="n">svg_rings_with_colors</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="n">paths</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="n">svg_rings_with_colors</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">)</span>
 
     <span class="n">groups</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
