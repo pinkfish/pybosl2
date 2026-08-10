@@ -1272,7 +1272,8 @@ SETUP = {
         "from pybosl2.shapes3d import cone\n"
     ),
     "shapes2d": (
-        "from pybosl2.shapes2d import circle, square, rect, trapezoid, star, ring, squircle, keyhole\n"
+        "from pybosl2.flat import circle, square, rect\n"
+        "from pybosl2.shapes2d import trapezoid, star, ring, squircle, keyhole\n"
         "from pybosl2.solid import pie_slice\n"
     ),
 }

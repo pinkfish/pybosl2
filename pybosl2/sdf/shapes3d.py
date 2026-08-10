@@ -1968,6 +1968,12 @@ def tube(
     ir2: float | None = None,
     id1: float | None = None,
     id2: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
     length: float | None = None,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
@@ -1992,10 +1998,22 @@ def tube(
     assert irad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
     assert irad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
 
-    sdf_fn = lambda x, y, z: lv.max(  # noqa: E731
-        _cylinder_sdf(x, y, z, length, rad1, rad2),
-        -_cylinder_sdf(x, y, z, length, irad1, irad2),
-    )
+    r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0.0)
+    r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0.0)
+    c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0.0)
+    c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0.0)
+    assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
+    mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
+
+    def outer_sdf(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        return _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode)
+
+    def inner_sdf(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        return _cylinder_sdf(x, y, z, length, irad1, irad2)
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        return lv.max(outer_sdf(x, y, z), -inner_sdf(x, y, z))
+
     maxr = max(rad1, rad2)
     shape = PyShape(sdf_fn, [-maxr, -maxr, -length / 2], [maxr, maxr, length / 2], res)
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor)
@@ -2579,6 +2597,12 @@ def regular_prism(
     inner_diameter: float | None = None,
     side: float | None = None,
     length: float | None = None,
+    rounding: float | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
     realign: bool = False,
     anchor: "Sequence[float]" = CENTER,
     res: int = 10,
@@ -2628,6 +2652,19 @@ def regular_prism(
             "regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
         )
 
+    r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0.0)
+    r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0.0)
+    c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0.0)
+    c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0.0)
+    if c1v or c2v:
+        from pybosl2.exceptions import UnsupportedByBackendError
+
+        raise UnsupportedByBackendError(
+            "chamfer",
+            "sdf",
+            hint="regular_prism() chamfer is not supported on SDF backend; use rounding instead.",
+        )
+
     pts = [[_m.cos(2 * _m.pi * i / num_sides) * rad, _m.sin(2 * _m.pi * i / num_sides) * rad] for i in range(num_sides)]
     if realign:
         pts = [
@@ -2638,7 +2675,7 @@ def regular_prism(
             for p in pts
         ]
 
-    prism = polygon_prism(pts, length, res=res)
+    prism = polygon_prism(pts, length, rounding_top=r2v, rounding_bottom=r1v, res=res)
     offset = _anchor_offset_hull3(
         [[p[0], p[1], -length / 2] for p in pts] + [[p[0], p[1], length / 2] for p in pts],
         anchor,
