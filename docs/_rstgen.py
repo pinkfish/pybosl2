@@ -243,7 +243,7 @@ def _scan_modules() -> dict[str, dict[str, Any]]:
 # Index.rst generation
 # ---------------------------------------------------------------------------
 
-_INDEX_PROLOGUE = """pybosl2 — a pure-Python PythonSCAD port of BOSL2
+_INDEX_PROLOGUE = r"""pybosl2 — a pure-Python PythonSCAD port of BOSL2
 ================================================
 
 ``pybosl2`` is a pure-Python / numpy port of the pieces of `BOSL2 <https://github.com/BelfrySCAD/BOSL2>`_
@@ -403,35 +403,35 @@ def _generate_index() -> None:
    backends/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Foundational
    :glob:
 
    foundational/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Paths, regions & surfaces
    :glob:
 
    paths/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Math & geometry
    :glob:
 
    math/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Parts library
    :glob:
 
    parts/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Extras
    :glob:
 
