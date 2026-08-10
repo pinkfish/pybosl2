@@ -132,6 +132,14 @@ class _FrepResult:
         # Subtract the accumulated translate offset to get back into the SDF's own frame.
         return self.sdf(px - self.offset[0], py - self.offset[1], pz - self.offset[2])
 
+    def projection(self, _cut=False):
+        """Stand-in for native projection: returns the XY bounding box as a 2-D AABB."""
+        mn, mx = self.mn, self.mx
+        off = self.offset
+        box_mn = [mn[0] + off[0], mn[1] + off[1], 0.0]
+        box_mx = [mx[0] + off[0], mx[1] + off[1], 0.0]
+        return _AabbSolid(box_mn, box_mx)
+
     def mesh(self, _triangulate=False, _color=False):
         """Numeric stand-in for the real app's solid.mesh() -> (points, faces): samples the
         SDF on a regular grid over the bounds and returns the world-frame points that fall

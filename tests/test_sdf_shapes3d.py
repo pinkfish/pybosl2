@@ -770,3 +770,125 @@ class TestSdfDistributors:
             assert mesh.sample(-10, 0, 0) < 0
             assert mesh.sample(10, 0, 0) < 0
             assert mesh.sample(0, 0, 0) > 0
+
+
+class TestBoundingBox:
+    """bounding_box() — exact AABB wrapping on SDF."""
+
+    def test_box_returns_sdf_cuboid(self) -> None:
+        s = sdf_s3d.sphere(radius=10)
+        box = s.bounding_box()
+        assert box is not None
+        assert box.backend == "sdf"
+
+    def test_box_with_excess(self) -> None:
+        s = sdf_s3d.sphere(radius=5)
+        box = s.bounding_box(excess=2)
+        _center, size = box.bounds()
+        assert size[0] == pytest.approx(14, abs=0.1)
+
+
+class TestInside:
+    """inside() — point containment on SDF."""
+
+    def test_center_is_inside(self) -> None:
+        s = sdf_s3d.sphere(radius=10)
+        assert s.inside([0, 0, 0])
+
+    def test_far_point_is_outside(self) -> None:
+        s = sdf_s3d.sphere(radius=5)
+        assert not s.inside([100, 0, 0])
+
+
+class TestChainHull:
+    """chain_hull() — sequential hull on SDF."""
+
+    def test_three_spheres_unioned(self) -> None:
+        a = sdf_s3d.sphere(radius=5).translate([0, 0, 0])
+        b = sdf_s3d.sphere(radius=5).translate([20, 0, 0])
+        c = sdf_s3d.sphere(radius=5).translate([40, 0, 0])
+        result = a.chain_hull(b, c)
+        assert result is not None
+        assert result.backend == "sdf"
+
+    def test_single_shape_returns_self(self) -> None:
+        s = sdf_s3d.cuboid([4, 4, 4])
+        assert s.chain_hull() is s
+
+
+class TestOffset3d:
+    """offset3d() / round3d() — SDF surface offset."""
+
+    def test_expand_sphere(self) -> None:
+        s = sdf_s3d.sphere(radius=5)
+        bigger = s.offset3d(2)
+        _center, size = bigger.bounds()
+        assert size[0] == pytest.approx(14, abs=0.1)
+
+    def test_contract_sphere(self) -> None:
+        s = sdf_s3d.sphere(radius=10)
+        smaller = s.offset3d(-3)
+        _center, size = smaller.bounds()
+        assert size[0] == pytest.approx(14, abs=0.1)
+
+    def test_round3d_runs(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        rounded = s.round3d(radius=1)
+        assert rounded is not None
+        assert rounded.backend == "sdf"
+
+
+class TestHalfOf:
+    """half_of() and direction variants on SDF."""
+
+    def test_right_half(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        half = s.right_half()
+        _center, size = half.bounds()
+        assert size[0] < 12
+
+    def test_top_half(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        half = s.top_half()
+        _center, size = half.bounds()
+        assert size[2] < 12
+
+    def test_left_half_alias(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        half = s.left_half(x=2)
+        assert half is not None
+
+
+class TestProjection:
+    """projection() — 2-D shadow from 3-D SDF."""
+
+    def test_projection_runs(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        result = s.projection()
+        assert result is not None
+
+    def test_projection_cut(self) -> None:
+        s = sdf_s3d.sphere(radius=10)
+        result = s.projection(cut=True)
+        assert result is not None
+
+
+class TestDistributeOnPath:
+    """distribute_on_path() — path-based distribution on SDF."""
+
+    def test_basic_distribution(self) -> None:
+        from pybosl2.path3d import Path3D
+
+        s = sdf_s3d.sphere(radius=2)
+        path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
+        result = s.distribute_on_path(path, num_copies=3)
+        assert result is not None
+        assert result.backend == "sdf"
+
+    def test_spaced_distribution(self) -> None:
+        from pybosl2.path3d import Path3D
+
+        s = sdf_s3d.sphere(radius=2)
+        path = Path3D([[0, 0, 0], [30, 0, 0]])
+        result = s.distribute_on_path(path, spacing=10)
+        assert result is not None

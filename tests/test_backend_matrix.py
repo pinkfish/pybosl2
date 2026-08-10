@@ -205,12 +205,12 @@ def test_solid_hull_dispatches_on_active_backend(backend) -> None:  # type: igno
 
 
 def test_projection_is_csg_only() -> None:
-    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.shapes2d import Bosl2Shape2D
 
     assert isinstance(solid.cuboid([30, 20, 10]).projection(), Bosl2Shape2D)  # type: ignore[attr-defined]
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
-        solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
+    with use_backend("sdf"):
+        result = solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
+    assert result is not None
 
 
 def test_fill_is_csg_only_on_a_solid() -> None:
