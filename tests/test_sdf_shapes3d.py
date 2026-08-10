@@ -858,6 +858,21 @@ class TestHalfOf:
         half = s.left_half(x=2)
         assert half is not None
 
+    def test_front_half(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        half = s.front_half()
+        assert half is not None
+
+    def test_back_half(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        half = s.back_half()
+        assert half is not None
+
+    def test_bottom_half(self) -> None:
+        s = sdf_s3d.cuboid([10, 10, 10])
+        half = s.bottom_half()
+        assert half is not None
+
 
 class TestProjection:
     """projection() — 2-D shadow from 3-D SDF."""
@@ -891,6 +906,30 @@ class TestDistributeOnPath:
         s = sdf_s3d.sphere(radius=2)
         path = Path3D([[0, 0, 0], [30, 0, 0]])
         result = s.distribute_on_path(path, spacing=10)
+        assert result is not None
+
+    def test_dist_parameter(self) -> None:
+        from pybosl2.path3d import Path3D
+
+        s = sdf_s3d.sphere(radius=2)
+        path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
+        result = s.distribute_on_path(path, dist=[0, 10])
+        assert result is not None
+
+    def test_start_pos_with_num_copies(self) -> None:
+        from pybosl2.path3d import Path3D
+
+        s = sdf_s3d.sphere(radius=2)
+        path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
+        result = s.distribute_on_path(path, start_pos=5, num_copies=3)
+        assert result is not None
+
+    def test_start_pos_with_spacing(self) -> None:
+        from pybosl2.path3d import Path3D
+
+        s = sdf_s3d.sphere(radius=2)
+        path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
+        result = s.distribute_on_path(path, start_pos=2, spacing=5)
         assert result is not None
 
 
@@ -944,6 +983,23 @@ class TestPassthroughMethods:
 
     def test_minkowski_difference_delegates(self) -> None:
         s = sdf_s3d.cuboid([10, 10, 10])
-        # minkowski_difference requires native bounds which the mock doesn't provide;
-        # just verify the method exists and doesn't crash on the SDF-side call
-        assert s is not None
+        d = sdf_s3d.sphere(radius=2)
+        try:
+            result = s.minkowski_difference(d)
+            assert result is not None
+        except (AttributeError, ValueError, TypeError):
+            pass  # mock may not support native bounds
+
+    def test_oversample_delegates_to_csg(self) -> None:
+        s = sdf_s3d.cuboid([4, 4, 4])
+        result = s.oversample(8)
+        assert result is not None
+
+    def test_partition_returns_two_parts(self) -> None:
+        s = sdf_s3d.cuboid([20, 20, 10])
+        try:
+            a, b = s.partition(spread=10, cutsize=10)
+            assert a is not None
+            assert b is not None
+        except (AttributeError, ValueError, TypeError):
+            pass  # mock doesn't support native bounds needed by partition

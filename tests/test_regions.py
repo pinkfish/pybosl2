@@ -821,3 +821,17 @@ def test_even_odd_uncolored_does_not_block_colored() -> None:
     r = Region.even_odd([a, b])
     # Both keep full area since the uncolored path has no color to fight
     assert r.geom.area == pytest.approx(1200.0)
+
+
+def test_simplify_single_polygon() -> None:
+    r = Region(SQUARE)
+    result = r.simplify(0.1)
+    assert result.geom.area == pytest.approx(4800.0, rel=0.01)
+
+
+def test_simplify_multi_polygon() -> None:
+    a = Path2D(SQUARE).color(Color("red"))
+    b = Path2D(SQUARE).color(Color("blue"))
+    r = Region.even_odd([a, b.translate([60, 0])])
+    result = r.simplify(0.1)
+    assert result.geom.area == pytest.approx(9600.0, rel=0.01)

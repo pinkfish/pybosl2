@@ -570,6 +570,17 @@ class SdfSolid(Distributable):
         Returns:
             A new :class:`PyShape` cuboid whose bounding box encloses this solid plus
             *excess* on every side.
+
+        Example:
+
+            .. code-block:: python
+
+                from pybosl2.solid import sphere, use_backend
+
+                with use_backend("sdf"):
+                    ball = sphere(radius=10)
+                    box = ball.bounding_box(excess=2)
+                    # box.bounds() → size=(24, 24, 24)   (20 + 2 × 2)
         """
         center = [(a + b) / 2 for a, b in zip(self.mn, self.mx, strict=False)]
         size = [b - a + 2 * excess for a, b in zip(self.mn, self.mx, strict=False)]
@@ -595,6 +606,9 @@ class SdfSolid(Distributable):
 
         Hulls consecutive pairs: ``hull(self, others[0]) | hull(others[0], others[1]) | ...``.
 
+        Args:
+            *others: Additional shapes to chain-hull with.
+
         Returns:
             A new :class:`PyShape` that is the union of the consecutive-pair hulls.
         """
@@ -618,6 +632,17 @@ class SdfSolid(Distributable):
 
         Returns:
             A new :class:`PyShape` with the offset surface.
+
+        Example:
+
+            .. code-block:: python
+
+                from pybosl2.solid import cuboid, use_backend
+
+                with use_backend("sdf"):
+                    box = cuboid([10, 20, 30])
+                    bigger = box.offset3d(2)   # all faces pushed out by 2 mm
+                    smaller = box.offset3d(-1)  # all faces pulled in by 1 mm
         """
         fa = self._sdf_fn
 
@@ -909,21 +934,75 @@ class SdfSolid(Distributable):
         return self & half_mask
 
     def left_half(self, x: float = 0, s: float | None = None) -> PyShape:
+        """Keep the half of this solid where x ≤ *x* (negative-X half).
+
+        Args:
+            x: X-coordinate of the cutting plane.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape`.
+        """
         return self.half_of([-1.0, 0.0, 0.0], [float(x), 0.0, 0.0], s)
 
     def right_half(self, x: float = 0, s: float | None = None) -> PyShape:
+        """Keep the half of this solid where x ≥ *x* (positive-X half).
+
+        Args:
+            x: X-coordinate of the cutting plane.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape`.
+        """
         return self.half_of([1.0, 0.0, 0.0], [float(x), 0.0, 0.0], s)
 
     def front_half(self, y: float = 0, s: float | None = None) -> PyShape:
+        """Keep the half of this solid where y ≤ *y* (negative-Y half).
+
+        Args:
+            y: Y-coordinate of the cutting plane.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape`.
+        """
         return self.half_of([0.0, -1.0, 0.0], [0.0, float(y), 0.0], s)
 
     def back_half(self, y: float = 0, s: float | None = None) -> PyShape:
+        """Keep the half of this solid where y ≥ *y* (positive-Y half).
+
+        Args:
+            y: Y-coordinate of the cutting plane.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape`.
+        """
         return self.half_of([0.0, 1.0, 0.0], [0.0, float(y), 0.0], s)
 
     def bottom_half(self, z: float = 0, s: float | None = None) -> PyShape:
+        """Keep the half of this solid where z ≤ *z* (negative-Z half).
+
+        Args:
+            z: Z-coordinate of the cutting plane.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape`.
+        """
         return self.half_of([0.0, 0.0, -1.0], [0.0, 0.0, float(z)], s)
 
     def top_half(self, z: float = 0, s: float | None = None) -> PyShape:
+        """Keep the half of this solid where z ≥ *z* (positive-Z half).
+
+        Args:
+            z: Z-coordinate of the cutting plane.
+            s: Half of the mask's side length (auto-sized from bounds if None).
+
+        Returns:
+            A new :class:`PyShape`.
+        """
         return self.half_of([0.0, 0.0, 1.0], [0.0, 0.0, float(z)], s)
 
     # ---- native CSG passthrough methods (delegate via to_csg()) ----
@@ -933,6 +1012,12 @@ class SdfSolid(Distributable):
 
         On the SDF backend this approximates the Minkowski sum as expanding
         this solid by half the diagonal of each other shape via :meth:`offset3d`.
+
+        Args:
+            *others: Additional shapes to compute the Minkowski sum with.
+
+        Returns:
+            A new :class:`PyShape`.
         """
         result = self
         for o in others:
@@ -942,17 +1027,42 @@ class SdfSolid(Distributable):
         return result
 
     def repair(self) -> PyShape:
-        """Re-mesh this SDF solid (rebuilds the polyhedron from a fresh mesh)."""
+        """Re-mesh this SDF solid (rebuilds the polyhedron from a fresh mesh).
+
+        Returns:
+            A new :class:`PyShape` built from a remeshed polyhedron.
+        """
         return self.to_csg().repair()  # type: ignore[no-any-return]
 
     def render(self) -> PyShape:
-        """Return self — the SDF representation is already exact (no mesh simplification needed)."""
+        """Return self — the SDF representation is already exact (no mesh simplification needed).
+
+        Returns:
+            This :class:`PyShape` unchanged.
+        """
         return self
 
     def resize(self, newsize: Sequence[float]) -> PyShape:
         """Scale this solid so its bounding box matches *newsize* in each axis.
 
         A zero component leaves that axis unchanged.
+
+        Args:
+            newsize: Target size ``[sx, sy, sz]``.  Zero entries leave the
+                corresponding axis untouched.
+
+        Returns:
+            A new :class:`PyShape` scaled to the target dimensions.
+
+        Example:
+
+            .. code-block:: python
+
+                from pybosl2.solid import cuboid, use_backend
+
+                with use_backend("sdf"):
+                    shape = cuboid([10, 20, 30]).resize([50, 0, 60])
+                    # shape.bounds() → size=[50, 20, 60]
         """
         _center, size = self.bounds()
         scale_factors: list[float] = []
@@ -963,20 +1073,103 @@ class SdfSolid(Distributable):
         return self.scale(scale_factors)
 
     def separate(self) -> list[PyShape]:
-        """Split disconnected lumps into individual solids via CSG conversion."""
+        """Split disconnected lumps into individual solids via CSG conversion.
+
+        Returns:
+            A list of :class:`PyShape` solids, one per connected component.
+        """
         return self.to_csg().separate()  # type: ignore[no-any-return]
 
     def wrap(self, radius: float, fn: int | None = None) -> PyShape:
-        """Bend this solid around a cylinder of *radius* via CSG conversion."""
+        """Bend this solid around a cylinder of *radius* via CSG conversion.
+
+        Args:
+            radius: Radius of the cylinder to wrap around.
+            fn: Smoothness override for the mesh.
+
+        Returns:
+            A new :class:`PyShape` wrapped around the cylinder.
+        """
         return self.to_csg().wrap(radius, fn=fn)  # type: ignore[no-any-return]
 
     def pull(self, direction: Sequence[float], distance: float) -> PyShape:
-        """Stretch material in *direction* by *distance* via CSG conversion."""
+        """Stretch material in *direction* by *distance* via CSG conversion.
+
+        Args:
+            direction: Direction vector ``[dx, dy, dz]`` to pull towards.
+            distance: Amount to pull by.
+
+        Returns:
+            A new :class:`PyShape` with pulled geometry.
+        """
         return self.to_csg().pull(direction, distance)  # type: ignore[no-any-return]
 
     def minkowski_difference(self, *diffs: PyShape, size: float = 1000) -> PyShape:
-        """Carve *diffs* out of this solid's surface via CSG conversion."""
+        """Carve *diffs* out of this solid's surface via CSG conversion.
+
+        Args:
+            *diffs: Shapes to subtract from the Minkowski-eroded surface.
+            size: Bounding-box size for the CSG conversion.
+
+        Returns:
+            A new :class:`PyShape` with the difference carved out.
+        """
         return self.to_csg().minkowski_difference(*diffs, size=size)  # type: ignore[no-any-return]
+
+    def oversample(self, sides: int) -> PyShape:
+        """Subdivide facets for a smoother mesh via CSG conversion.
+
+        Args:
+            sides: Number of sides to subdivide each facet to.
+
+        Returns:
+            A new :class:`PyShape` with subdivided facets.
+        """
+        return self.to_csg().oversample(sides)  # type: ignore[no-any-return]
+
+    def partition(
+        self,
+        spread: float = 10,
+        cutsize: float = 10,
+        cutpath: str = "jigsaw",
+        gap: float = 0,
+        cutpath_centered: bool = True,
+        spin: float = 0,
+        slop: float = 0.0,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> tuple[PyShape, PyShape]:
+        """Split this solid into two interlocking halves via CSG conversion.
+
+        Args:
+            spread: Distance between the two halves after splitting.
+            cutsize: Size of the mask beyond the part.
+            cutpath: Cut pattern; ``"jigsaw"``, ``"dovetail"``, etc.
+            gap: Clearance gap between the two halves.
+            cutpath_centered: Whether the cut-path is centered on the split plane.
+            spin: Spin angle for the cut-path.
+            slop: Extra slop for 3-D printed fits.
+            fn: Smoothness override.
+            fa: Minimum angle for smoothness.
+            fs: Minimum segment length for smoothness.
+
+        Returns:
+            A ``(left, right)`` tuple of :class:`PyShape` solids.
+        """
+        parts = self.to_csg().partition(
+            spread=spread,
+            cutsize=cutsize,
+            cutpath=cutpath,
+            gap=gap,
+            cutpath_centered=cutpath_centered,
+            spin=spin,
+            slop=slop,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        )
+        return parts[0], parts[1]
 
 
 # ---------------------------------------------------------------------------

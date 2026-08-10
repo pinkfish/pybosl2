@@ -144,6 +144,8 @@ class _FrepResult:
         # Permissive no-op for native methods called through Bosl2Solid passthroughs.
         if name == "separate":
             return lambda: [self]
+        if name == "partition":
+            return lambda **_k: [self, self]
         if name in (
             "repair",
             "wrap",
@@ -153,6 +155,7 @@ class _FrepResult:
             "resize",
             "minkowski",
             "hull",
+            "oversample",
         ):
             return lambda *_a, **_k: self
         raise AttributeError(name)
@@ -446,6 +449,8 @@ class _AabbSolid:
             "separate",
             "minkowski_difference",
             "resize",
+            "partition",
+            "wrap",
         ):
             return lambda *_a, **_k: self
         raise AttributeError(name)
