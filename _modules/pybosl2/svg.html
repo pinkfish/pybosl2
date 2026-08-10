@@ -1806,9 +1806,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
@@ -1932,6 +1936,7 @@
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
+    <span class="n">clip_to_viewbox</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an SVG drawing as a :class:`~pybosl2.regions.Region`.</span>
 
@@ -1956,6 +1961,9 @@
 <span class="sd">            (e.g. ``&quot;#ff0000&quot;``).  Pass ``None`` (the default) to use the SVG&#39;s own colours.</span>
 <span class="sd">        strokes: ``&quot;polygon&quot;`` (default) converts stroked paths into filled polygons.</span>
 <span class="sd">            ``&quot;ignore&quot;`` skips shapes that have only a stroke and no fill.</span>
+<span class="sd">        clip_to_viewbox: When True (the default), clip the drawing to the SVG&#39;s</span>
+<span class="sd">            ``viewBox`` if one is declared, so shapes that paint outside the</span>
+<span class="sd">            intended canvas are trimmed away.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~pybosl2.regions.Region` of the drawing.</span>
@@ -1983,7 +1991,16 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
-    <span class="n">groups</span> <span class="o">=</span> <span class="n">svg_element_groups</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">)</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">svg_element_groups</span><span class="p">(</span>
+        <span class="n">file</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">,</span>
+        <span class="n">clip_to_viewbox</span><span class="o">=</span><span class="n">clip_to_viewbox</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">groups</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">()</span>
 
@@ -2035,6 +2052,156 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_shape_rings</span><span class="p">(</span><span class="n">element</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">sign</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flatten one svgelements Shape into closed point rings.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">svgelements</span><span class="w"> </span><span class="kn">import</span> <span class="n">Close</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Move</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">svgelements</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">_SVGPath</span>
+
+    <span class="n">rings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">subpath</span> <span class="ow">in</span> <span class="n">_SVGPath</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">.</span><span class="n">as_subpaths</span><span class="p">():</span>
+        <span class="n">ring</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">subpath</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">Close</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="p">(</span><span class="n">Move</span><span class="p">,</span> <span class="n">Line</span><span class="p">)):</span>
+                <span class="n">ring</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
+                <span class="k">continue</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">_curve_point_count</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">point</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">point</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
+                <span class="n">ring</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ring</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">ring</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_rings_to_shapely</span><span class="p">(</span><span class="n">rings</span><span class="p">:</span> <span class="s2">&quot;list[list[list[float]]]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the shapely geometry a set of rings describes, even-odd, repaired.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">_Polygon</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
+
+    <span class="n">polys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">:</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">_Polygon</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">poly</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">poly</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="n">polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">polys</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">_unary_union</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shapely_to_rings</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rings for every polygon in a shapely geometry (exteriors AND holes).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">geom</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="s2">&quot;geoms&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">geom</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="s2">&quot;exterior&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">area</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">interior</span> <span class="ow">in</span> <span class="n">part</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clip_rings</span><span class="p">(</span><span class="n">rings</span><span class="p">:</span> <span class="s2">&quot;list[list[list[float]]]&quot;</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intersect a shape&#39;s rings with a clip geometry.&quot;&quot;&quot;</span>
+    <span class="n">geom</span> <span class="o">=</span> <span class="n">_rings_to_shapely</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">geom</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_viewbox_geometry</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sign</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the viewBox rectangle as shapely, in the same Y direction as the rings.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span> <span class="k">as</span> <span class="n">_box</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;viewBox\s*=\s*&quot;\s*([-\d.eE]+)[ ,]+([-\d.eE]+)[ ,]+([-\d.eE]+)[ ,]+([-\d.eE]+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">min_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">height</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">sign</span> <span class="o">*</span> <span class="p">(</span><span class="n">min_y</span> <span class="o">+</span> <span class="n">height</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_box</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="n">min_x</span> <span class="o">+</span> <span class="n">width</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">y0</span><span class="p">,</span> <span class="n">y1</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_walk_shapes</span><span class="p">(</span>
+    <span class="n">node</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">svg_root</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">sign</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">clip</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Iterator[tuple[object, Any]]&quot;</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield ``(shape, clip_geometry_or_None)`` for every Shape, honouring ``clip-path``.</span>
+
+<span class="sd">    ``&lt;clipPath&gt;`` is not decoration: a drawing can rely on it for its actual outline.</span>
+<span class="sd">    Japan&#39;s flag in flag-icons paints a 720-wide white rectangle and clips it to the 640-wide</span>
+<span class="sd">    viewport, so without this the flag came out 12% too long. The clip is INHERITED, so it is</span>
+<span class="sd">    carried down the tree here rather than read off each shape (svgelements does not copy a</span>
+<span class="sd">    group&#39;s clip-path onto its children).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">svgelements</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;values&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">reference</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip-path&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;clip_path&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reference</span><span class="p">:</span>
+        <span class="n">clipper</span> <span class="o">=</span> <span class="n">_resolve_clip</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">svg_root</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;transform&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">clipper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">clip</span> <span class="o">=</span> <span class="n">clipper</span> <span class="k">if</span> <span class="n">clip</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clip</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">clipper</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Shape</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">node</span><span class="p">,</span> <span class="n">clip</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="p">():</span>
+        <span class="k">yield from</span> <span class="n">_walk_shapes</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">svg_root</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">,</span> <span class="n">clip</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_clip</span><span class="p">(</span>
+    <span class="n">reference</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">svg_root</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">sign</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="s2">&quot;int | None&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">matrix</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the shapely geometry a ``clip-path=&quot;url(#id)&quot;`` reference names, or ``None``.</span>
+
+<span class="sd">    *matrix* is the referencing element&#39;s own transform, and it MUST be applied: a</span>
+<span class="sd">    ``&lt;clipPath&gt;`` lives in ``&lt;defs&gt;`` and so is parsed in the document&#39;s coordinates, but it</span>
+<span class="sd">    clips in the referencing element&#39;s space. Japan&#39;s flag hangs its clip rectangle off a</span>
+<span class="sd">    group with ``translate(88 -32)``; without that shift the clip lands 88 units left of where</span>
+<span class="sd">    it belongs and takes 20% of the flag with it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">svgelements</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span>
+
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s*url\(\s*#([^)\s]+)\s*\)&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">reference</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">svg_root</span><span class="p">,</span> <span class="s2">&quot;objects&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="c1"># Flatten UNFLIPPED, transform in the SVG&#39;s own coordinates, then flip -- the matrix is</span>
+    <span class="c1"># expressed in SVG space, so it cannot be applied to already-flipped points.</span>
+    <span class="n">rings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">target</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">target</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Shape</span><span class="p">):</span>
+            <span class="n">rings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_shape_rings</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">a</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">b</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">c</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">d</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">e</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">f</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">rings</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">a</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="n">e</span><span class="p">,</span> <span class="n">b</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">d</span> <span class="o">*</span> <span class="n">y</span> <span class="o">+</span> <span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">]</span> <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">]</span>
+    <span class="n">rings</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">x</span><span class="p">,</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">y</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">ring</span><span class="p">]</span> <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_rings_to_shapely</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="svg_element_groups">
 <a class="viewcode-back" href="../../svg.html#pybosl2.svg.svg_element_groups">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">svg_element_groups</span><span class="p">(</span>
@@ -2045,6 +2212,7 @@
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
+    <span class="n">clip_to_viewbox</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an SVG&#39;s shapes, IN PAINT ORDER, each with its own rings kept together.</span>
 
@@ -2075,6 +2243,8 @@
 <span class="sd">            stroked path to a filled polygon via shapely buffering so strokes appear</span>
 <span class="sd">            as solid coloured pieces.  ``&quot;ignore&quot;`` skips shapes that have a stroke</span>
 <span class="sd">            but no fill colour.</span>
+<span class="sd">        clip_to_viewbox: When True (the default), clip shapes to the SVG&#39;s ``viewBox``</span>
+<span class="sd">            if one is declared.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ``[(colour, [Path2D, ...]), ...]`` in document (paint) order -- one entry per</span>
@@ -2094,28 +2264,23 @@
 
     <span class="n">_</span> <span class="o">=</span> <span class="n">fa</span>  <span class="c1"># accepted for API parity; bezier curves use *fn*/*fs* only</span>
     <span class="n">sign</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="k">if</span> <span class="n">flip_y</span> <span class="k">else</span> <span class="mf">1.0</span>
+    <span class="n">svg_root</span> <span class="o">=</span> <span class="n">SVG</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="c1"># The VIEWPORT clips too: an SVG&#39;s viewBox is its visible extent and content outside it is</span>
+    <span class="c1"># not drawn (CSS `overflow: hidden` on the root). Drawings rely on that -- Scotland&#39;s</span>
+    <span class="c1"># saltire in flag-icons is one stroke run corner to corner, whose square ends stick out</span>
+    <span class="c1"># past the flag on every side. Honour it unless the caller asks not to.</span>
+    <span class="n">viewport</span> <span class="o">=</span> <span class="n">_viewbox_geometry</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sign</span><span class="p">)</span> <span class="k">if</span> <span class="n">clip_to_viewbox</span> <span class="k">else</span> <span class="kc">None</span>
+
     <span class="n">groups</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">SVG</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">elements</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">element</span><span class="p">,</span> <span class="n">clip</span> <span class="ow">in</span> <span class="n">_walk_shapes</span><span class="p">(</span><span class="n">svg_root</span><span class="p">,</span> <span class="n">svg_root</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Shape</span><span class="p">):</span>
             <span class="k">continue</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">clip</span> <span class="k">if</span> <span class="n">viewport</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">viewport</span> <span class="k">if</span> <span class="n">clip</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">clip</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">viewport</span><span class="p">))</span>
         <span class="n">fill_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_shape_fill_hex</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
-        <span class="n">fill_rings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">subpath</span> <span class="ow">in</span> <span class="n">_SVGPath</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">.</span><span class="n">as_subpaths</span><span class="p">():</span>
-            <span class="n">ring</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">subpath</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">Close</span><span class="p">):</span>
-                    <span class="k">continue</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="p">(</span><span class="n">Move</span><span class="p">,</span> <span class="n">Line</span><span class="p">)):</span>
-                    <span class="n">ring</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">segment</span><span class="o">.</span><span class="n">end</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
-                    <span class="k">continue</span>
-                <span class="n">count</span> <span class="o">=</span> <span class="n">_curve_point_count</span><span class="p">(</span><span class="n">segment</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-                    <span class="n">point</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">point</span><span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">count</span><span class="p">)</span>
-                    <span class="n">ring</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">x</span><span class="p">),</span> <span class="n">sign</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">y</span><span class="p">)])</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">ring</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">ring</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="n">ring</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">fill_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">raw_rings</span> <span class="o">=</span> <span class="n">_shape_rings</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">raw_rings</span><span class="p">:</span>
+            <span class="n">raw_rings</span> <span class="o">=</span> <span class="n">_shapely_to_rings</span><span class="p">(</span><span class="n">_clip_rings</span><span class="p">(</span><span class="n">raw_rings</span><span class="p">,</span> <span class="n">mask</span><span class="p">))</span>
+        <span class="n">fill_rings</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path2D</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">raw_rings</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">fill_rings</span><span class="p">:</span>
             <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fill_color</span><span class="p">,</span> <span class="n">fill_rings</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">strokes</span> <span class="o">==</span> <span class="s2">&quot;polygon&quot;</span><span class="p">:</span>
@@ -2141,7 +2306,11 @@
                         <span class="n">stroke_ring_pts</span><span class="p">,</span> <span class="n">stroke_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">_stroke_linecap</span><span class="p">(</span><span class="n">element</span><span class="p">),</span> <span class="n">_stroke_linejoin</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">stroke_ring</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">stroke_ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-                        <span class="n">stroke_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">stroke_ring</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">clipped</span> <span class="ow">in</span> <span class="n">_shapely_to_rings</span><span class="p">(</span><span class="n">_clip_rings</span><span class="p">([</span><span class="n">stroke_ring</span><span class="p">],</span> <span class="n">mask</span><span class="p">)):</span>
+                                <span class="n">stroke_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">clipped</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">stroke_rings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">stroke_ring</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
                 <span class="c1"># A stroke paints ON TOP of its own element&#39;s fill, so it is its own group.</span>
                 <span class="k">if</span> <span class="n">stroke_rings</span><span class="p">:</span>
                     <span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">stroke_color</span><span class="p">,</span> <span class="n">stroke_rings</span><span class="p">))</span>
@@ -2161,6 +2330,7 @@
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
+    <span class="n">clip_to_viewbox</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Path2D&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Every closed ring in an SVG, flattened, with the fill colour of each.</span>
 
@@ -2171,7 +2341,14 @@
     <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">element_color</span><span class="p">,</span> <span class="n">rings</span> <span class="ow">in</span> <span class="n">svg_element_groups</span><span class="p">(</span>
-        <span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span>
+        <span class="n">file</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">,</span>
+        <span class="n">clip_to_viewbox</span><span class="o">=</span><span class="n">clip_to_viewbox</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">:</span>
             <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
@@ -2279,6 +2456,7 @@
     <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
+    <span class="n">clip_to_viewbox</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load an SVG drawing as a list of :class:`~pybosl2.regions.Region` objects, coloured.</span>
 
@@ -2297,6 +2475,8 @@
 <span class="sd">            (e.g. ``&quot;#ff0000&quot;``).  Pass ``None`` (the default) to use the SVG&#39;s own colours.</span>
 <span class="sd">        strokes: ``&quot;polygon&quot;`` (default) converts stroked paths into filled polygons.</span>
 <span class="sd">            ``&quot;ignore&quot;`` skips shapes that have only a stroke and no fill.</span>
+<span class="sd">        clip_to_viewbox: When True (the default), clip shapes to the SVG&#39;s ``viewBox``</span>
+<span class="sd">            if one is declared.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`~pybosl2.regions.Region` objects, one per distinct fill colour</span>
@@ -2326,20 +2506,42 @@
 <span class="sd">            os.unlink(tmp.name)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
-    <span class="n">paths</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="n">svg_rings_with_colors</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">)</span>
+    <span class="c1"># Split the COMPOSITED drawing, rather than resolving each colour on its own. Pooling a</span>
+    <span class="c1"># colour&#39;s rings and running even_odd over them ignores everything painted on top, so the</span>
+    <span class="c1"># regions came back overlapping: Australia&#39;s blue was the whole 640x480 flag with the</span>
+    <span class="c1"># white Union Jack sitting on top of it, and every extruded body overlapped every other.</span>
+    <span class="c1"># region_from_svg already resolves paint order into disjoint pieces; this just groups the</span>
+    <span class="c1"># result by colour, so the two functions can no longer disagree about a drawing.</span>
+    <span class="n">composited</span> <span class="o">=</span> <span class="n">region_from_svg</span><span class="p">(</span>
+        <span class="n">file</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">,</span>
+        <span class="n">clip_to_viewbox</span><span class="o">=</span><span class="n">clip_to_viewbox</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">composited</span><span class="o">.</span><span class="n">geom</span><span class="p">,</span> <span class="s2">&quot;geoms&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">composited</span><span class="o">.</span><span class="n">geom</span><span class="p">]))</span>
+    <span class="n">colours</span> <span class="o">=</span> <span class="n">composited</span><span class="o">.</span><span class="n">_polygon_colors</span> <span class="ow">or</span> <span class="p">[</span><span class="n">composited</span><span class="o">.</span><span class="n">_color</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
 
-    <span class="n">groups</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">groups</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">grouped</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">object</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">part_colour</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">colours</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">part_colour</span><span class="p">)</span> <span class="k">if</span> <span class="n">part_colour</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
+            <span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">part_colour</span><span class="p">,</span> <span class="n">part</span><span class="p">))</span>
 
     <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Region</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">color_hex</span><span class="p">,</span> <span class="n">rings</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">region</span> <span class="o">=</span> <span class="n">Region</span><span class="o">.</span><span class="n">even_odd</span><span class="p">(</span><span class="n">rings</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">color_hex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">region</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">Color</span><span class="p">(</span><span class="n">color_hex</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+        <span class="n">pieces</span> <span class="o">=</span> <span class="n">grouped</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">Region</span><span class="o">.</span><span class="n">_from_colored_pieces</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span></div>
 
