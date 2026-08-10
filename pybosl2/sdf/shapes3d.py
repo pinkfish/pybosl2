@@ -926,6 +926,58 @@ class SdfSolid(Distributable):
     def top_half(self, z: float = 0, s: float | None = None) -> PyShape:
         return self.half_of([0.0, 0.0, 1.0], [0.0, 0.0, float(z)], s)
 
+    # ---- native CSG passthrough methods (delegate via to_csg()) ----
+
+    def minkowski(self, *others: PyShape) -> PyShape:
+        """Minkowski sum with *others*.
+
+        On the SDF backend this approximates the Minkowski sum as expanding
+        this solid by half the diagonal of each other shape via :meth:`offset3d`.
+        """
+        result = self
+        for o in others:
+            mn, mx = o.bounds()
+            diag = math.sqrt(sum((mx[i] - mn[i]) ** 2 for i in range(3)))
+            result = result.offset3d(diag / 2)
+        return result
+
+    def repair(self) -> PyShape:
+        """Re-mesh this SDF solid (rebuilds the polyhedron from a fresh mesh)."""
+        return self.to_csg().repair()  # type: ignore[no-any-return]
+
+    def render(self) -> PyShape:
+        """Return self — the SDF representation is already exact (no mesh simplification needed)."""
+        return self
+
+    def resize(self, newsize: Sequence[float]) -> PyShape:
+        """Scale this solid so its bounding box matches *newsize* in each axis.
+
+        A zero component leaves that axis unchanged.
+        """
+        _center, size = self.bounds()
+        scale_factors: list[float] = []
+        for i in range(3):
+            n = float(newsize[i])
+            s = size[i]
+            scale_factors.append(n / s if n > 0 and s > 0 else 1.0)
+        return self.scale(scale_factors)
+
+    def separate(self) -> list[PyShape]:
+        """Split disconnected lumps into individual solids via CSG conversion."""
+        return self.to_csg().separate()  # type: ignore[no-any-return]
+
+    def wrap(self, radius: float, fn: int | None = None) -> PyShape:
+        """Bend this solid around a cylinder of *radius* via CSG conversion."""
+        return self.to_csg().wrap(radius, fn=fn)  # type: ignore[no-any-return]
+
+    def pull(self, direction: Sequence[float], distance: float) -> PyShape:
+        """Stretch material in *direction* by *distance* via CSG conversion."""
+        return self.to_csg().pull(direction, distance)  # type: ignore[no-any-return]
+
+    def minkowski_difference(self, *diffs: PyShape, size: float = 1000) -> PyShape:
+        """Carve *diffs* out of this solid's surface via CSG conversion."""
+        return self.to_csg().minkowski_difference(*diffs, size=size)  # type: ignore[no-any-return]
+
 
 # ---------------------------------------------------------------------------
 # Section: Named CSG combinators (union / difference / intersection / hull)

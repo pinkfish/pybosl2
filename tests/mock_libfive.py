@@ -132,13 +132,30 @@ class _FrepResult:
         # Subtract the accumulated translate offset to get back into the SDF's own frame.
         return self.sdf(px - self.offset[0], py - self.offset[1], pz - self.offset[2])
 
-    def projection(self, _cut=False):
+    def projection(self, cut=False):  # noqa: ARG002
         """Stand-in for native projection: returns the XY bounding box as a 2-D AABB."""
         mn, mx = self.mn, self.mx
         off = self.offset
         box_mn = [mn[0] + off[0], mn[1] + off[1], 0.0]
         box_mx = [mx[0] + off[0], mx[1] + off[1], 0.0]
         return _AabbSolid(box_mn, box_mx)
+
+    def __getattr__(self, name):
+        # Permissive no-op for native methods called through Bosl2Solid passthroughs.
+        if name == "separate":
+            return lambda: [self]
+        if name in (
+            "repair",
+            "wrap",
+            "pull",
+            "render",
+            "minkowski_difference",
+            "resize",
+            "minkowski",
+            "hull",
+        ):
+            return lambda *_a, **_k: self
+        raise AttributeError(name)
 
     def mesh(self, _triangulate=False, _color=False):
         """Numeric stand-in for the real app's solid.mesh() -> (points, faces): samples the
@@ -426,6 +443,9 @@ class _AabbSolid:
             "wrap",
             "pull",
             "oversample",
+            "separate",
+            "minkowski_difference",
+            "resize",
         ):
             return lambda *_a, **_k: self
         raise AttributeError(name)

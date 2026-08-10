@@ -62,6 +62,8 @@ class SdfShape2D:
     which is almost never what you want, so extrude explicitly.
     """
 
+    backend = "sdf"
+
     def __init__(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float], res: int = 10):  # type: ignore[type-arg]
         self._sdf_fn = sdf_fn
         self.mn = [float(mn[0]), float(mn[1])]
@@ -278,6 +280,29 @@ class SdfShape2D:
         new_fn = lambda x, y: lv.abs(fn(x, y)) - width / 2  # noqa: E731
         g = width / 2
         return self._wrap(new_fn, [self.mn[0] - g, self.mn[1] - g], [self.mx[0] + g, self.mx[1] + g])
+
+    def fill(self) -> PyShape2D:
+        """Return a copy of this shape with all interior holes filled.
+
+        Extrudes to a thin 3-D solid, meshes, projects back to 2-D to drop
+        holes, and converts the resulting outline to an SDF polygon.
+
+        Returns:
+            A new :class:`PyShape2D` with holes removed.
+        """
+        extruded = self.extrude(0.1, res=self.res)
+        csg = extruded.to_csg()
+        projection = csg.projection(cut=True)
+        shapes = [projection] if not hasattr(projection, "__iter__") else list(projection)
+        if not shapes:
+            return self
+        pts: list[list[float]] = []
+        if hasattr(shapes[0], "paths"):
+            for p in shapes[0].paths:
+                pts.extend([[float(c[0]), float(c[1])] for c in p])
+        if not pts:
+            return self
+        return polygon2d(pts, res=self.res)
 
     # ---- to 3-D ----
 
