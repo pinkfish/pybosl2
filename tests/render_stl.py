@@ -64,9 +64,29 @@ class StlResult:
     stderr: str
 
 
+def _host_site_packages() -> list[str]:
+    """This interpreter's site-packages, to hand to the app's embedded one.
+
+    The app bundles its own Python, whose ``site.getsitepackages()`` returns paths INSIDE the
+    bundle -- so a dependency installed for the host interpreter (pybosl2 needs ``webcolors``)
+    is invisible to it and every render dies with ModuleNotFoundError before it draws anything.
+    CI gets away with the ``pythonLocation`` branch below; a local checkout has no such variable.
+    These are APPENDED, so the app's own numpy still wins over any host copy.
+    """
+    import site as _site
+
+    found = list(_site.getsitepackages())
+    user = _site.getusersitepackages()
+    found.append(user) if isinstance(user, str) else found.extend(user)
+    return [p for p in found if Path(p).is_dir()]
+
+
 _PREAMBLE = (
     "import sys, math, site, os, traceback\n"
     f"sys.path.insert(0, {str(REPO_ROOT)!r})\n"
+    f"for p in {_host_site_packages()!r}:\n"
+    "    if p not in sys.path:\n"
+    "        sys.path.append(p)\n"
     "for p in site.getsitepackages():\n"
     "    if p not in sys.path:\n"
     "        sys.path.append(p)\n"
@@ -100,6 +120,7 @@ _PREAMBLE = (
     "    iso_threaded_rod, iso_threaded_nut,\n"
     "    trapezoidal_threaded_rod, acme_threaded_rod,\n"
     "    square_threaded_rod, buttress_threaded_rod,\n"
+    "    trapezoidal_threaded_nut,\n"
     ")\n"
     "from pybosl2.parts.screws import Screw, Nut, ScrewHole\n"
     "from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType, NutShape\n"

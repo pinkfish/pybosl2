@@ -241,6 +241,20 @@ class Color:
 # ---------------------------------------------------------------------------
 
 
+def _to_native_colour(c: Any) -> Any:
+    """Convert a :class:`Color` to the ``[R, G, B]`` list the native ``color()`` builtin accepts.
+
+    A :class:`Color` means nothing to the backend -- it raises
+    ``TypeError: Unknown color representation`` -- so it has to become its ``[R, G, B]``
+    list first. :meth:`ColorMixin.color` always did this; :meth:`ColorMixin.recolor` and
+    :meth:`ColorMixin.color_this` did not, so ``cuboid(...).recolor(Color("green"))``
+    failed on a value ``.color(Color("green"))`` accepted. One helper now, used by all three.
+    """
+    if isinstance(c, Color):
+        return c._to_native()
+    return c
+
+
 class Colorable(ABC):
     """Mixin adding the color.scad colour operators as methods.
 
@@ -281,8 +295,7 @@ class Colorable(ABC):
         """
         if c is None and alpha is None:
             return self
-        native_c = c._to_native() if isinstance(c, Color) else (c if c is not None else None)
-        return self._color_native(native_c, alpha)
+        return self._color_native(_to_native_colour(c), alpha)
 
     def recolor(self, c: Any = "default", alpha: float | None = None) -> Self:
         """Set the colour of this object and its uncoloured descendants.
@@ -301,7 +314,7 @@ class Colorable(ABC):
         """
         if c is None or c == "default":
             return self
-        return self._color_native(c, alpha)
+        return self._color_native(_to_native_colour(c), alpha)
 
     def color_this(self, c: Any = "default", alpha: float | None = None) -> Self:
         """Colour just this object, without tinting its descendants.
@@ -320,7 +333,7 @@ class Colorable(ABC):
         """
         if c is None or c == "default":
             return self
-        return self._color_native(c, alpha)
+        return self._color_native(_to_native_colour(c), alpha)
 
     def hsl(self, height: float, s: float = 1.0, length: float = 0.5, a: float | None = None) -> Self:
         """Colour this object from an HSL hue/saturation/lightness.

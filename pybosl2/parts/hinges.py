@@ -155,17 +155,46 @@ class KnuckleHinge:
         """
         assert segs >= 2, "knuckle_hinge(): segs must be >= 2."
         seglen = (length - (segs - 1) * gap) / segs
+        mine = 1 if inner else 0
+
+        def knuckle_x(index: int) -> float:
+            return -length / 2 + seglen / 2 + index * (seglen + gap)
+
         parts: list[Bosl2Solid] = []
         for i in range(segs):
-            if (i % 2) != (1 if inner else 0):
+            if (i % 2) != mine:
                 continue
-            x = -length / 2 + seglen / 2 + i * (seglen + gap)
-            parts.append(cyl(height=seglen, diameter=knuckle_diam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).right(x))
+            parts.append(
+                cyl(height=seglen, diameter=knuckle_diam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).right(knuckle_x(i))
+            )
         ydir = -1 if inner else 1
         plate_w = arm + knuckle_diam / 2
         parts.append(cuboid([length, plate_w, thick], fn=fn, fa=fa, fs=fs).back(ydir * plate_w / 2))
         leaf = union(parts)
         leaf = leaf - cyl(height=length + 1, diameter=pin_diam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])
+        # A leaf may only occupy the space around the pin WHERE ITS OWN KNUCKLES ARE.
+        #
+        # The plate used to span the whole length and reach the axis, so both leaves filled
+        # the pin's neighbourhood everywhere: mated leaves shared a solid running the full
+        # length of the hinge, and no rotation was possible. Clearing only the other leaf's
+        # knuckles is not enough either -- the leftover plate roots still sweep through each
+        # other as soon as the hinge folds.
+        #
+        # So cut the pin's whole neighbourhood (radius + `gap`, the same clearance `gap`
+        # already gives axially between neighbouring knuckles) out of the plate, and keep it
+        # only across this leaf's own knuckles, which is what joins plate to knuckle. Every
+        # x along the hinge then belongs to exactly one leaf, at any fold angle. This is the
+        # same invariant the SDF `_sdf.joiners.knuckle_hinge` gets by extruding arm and
+        # knuckle together once per segment.
+        clearance = cyl(height=length + 2, diameter=knuckle_diam + 2 * gap, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])
+        keep = [
+            cuboid([seglen, knuckle_diam + 2 * gap + 2, knuckle_diam + 2 * gap + 2]).right(knuckle_x(i))
+            for i in range(segs)
+            if (i % 2) == mine
+        ]
+        if keep:
+            clearance = clearance - union(keep)
+        leaf = leaf - clearance
         self._solid: Bosl2Solid = Bosl2Solid(leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam])
         self._length: float = length
         self._arm: float = arm

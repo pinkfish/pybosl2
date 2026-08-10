@@ -19,7 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from render_stl import find_pythonscad_binary, golden_ok, render_object, stl_metrics
+from render_stl import find_pythonscad_binary, golden_ok, parse_stl, render_object, stl_metrics
 
 from pybosl2.parts.enums import ScrewDriveType, ScrewHeadType
 
@@ -1700,6 +1700,55 @@ def test_hinge_knuckle_builds(tmp_path):
     assert m.volume > 0
 
 
+@pytest.mark.parametrize("fold", [0, 45, 90, 120])
+def test_knuckle_hinge_leaves_never_share_volume(tmp_path, fold):
+    """The two leaves must not intersect, or the "hinge" is one fused solid.
+
+    This is THE property of a hinge and nothing was checking it: the leaves used to share a
+    solid running the hinge's whole length, because the leaf plate spanned the full length and
+    reached the pin axis, so it passed straight through the other leaf's knuckles. Building,
+    being watertight, and having a plausible bounding box were all still true.
+
+    Measured as volume additivity rather than by intersecting: |A u B| == |A| + |B| exactly
+    when A and B are disjoint, and unlike an intersection it cannot be fooled by an empty
+    result that merely fails to export.
+    """
+    leaves = (
+        "_o = KnuckleHinge(length=40, segs=5, inner=False).shape()\n"
+        f"_i = KnuckleHinge(length=40, segs=5, inner=True).shape().rotate([{fold}, 0, 0])\n"
+    )
+    outer = _render(tmp_path, "_o", setup=leaves, name=f"leaf_outer_{fold}")
+    inner = _render(tmp_path, "_i", setup=leaves, name=f"leaf_inner_{fold}")
+    both = _render(tmp_path, "_o | _i", setup=leaves, name=f"leaf_union_{fold}")
+
+    assert outer.volume > 0
+    assert inner.volume > 0
+    shared = outer.volume + inner.volume - both.volume
+    assert shared == pytest.approx(0.0, abs=1e-3 * both.volume), (
+        f"leaves overlap by {shared:.3f}mm^3 at fold={fold} "
+        f"({100 * shared / both.volume:.2f}% of the hinge) -- they cannot rotate about the pin"
+    )
+
+
+def test_knuckle_hinge_leaves_bottom_out_when_closed(tmp_path):
+    """...but a leaf pair DOES meet once folded far enough, and that is not a bug.
+
+    Both plates are centred on the pin axis, so each subtends about
+    +/-atan(thick/2 / (knuckle_diam/2 + gap)) about it; the leaves run out of room at roughly
+    180 - 2x that. Pinning the behaviour here says the clearance above is real geometry rather
+    than an over-generous cut that would leave a floppy hinge.
+    """
+    leaves = (
+        "_o = KnuckleHinge(length=40, segs=5, inner=False).shape()\n"
+        "_i = KnuckleHinge(length=40, segs=5, inner=True).shape().rotate([180, 0, 0])\n"
+    )
+    outer = _render(tmp_path, "_o", setup=leaves, name="closed_outer")
+    inner = _render(tmp_path, "_i", setup=leaves, name="closed_inner")
+    both = _render(tmp_path, "_o | _i", setup=leaves, name="closed_union")
+    shared = outer.volume + inner.volume - both.volume
+    assert shared > 0, "folded flat back on itself the leaves should meet"
+
+
 def test_worm_gear_builds(tmp_path):
     m = _render(tmp_path, "Worm(diameter=20, length=40).shape()", name="worm")
     assert m.watertight
@@ -1709,7 +1758,7 @@ def test_worm_gear_builds(tmp_path):
 def test_walls_thinning_wall_builds(tmp_path):
     m = _render(
         tmp_path,
-        "Walls.thinning_wall(height=40, length=80, thick=6, angle=15)",
+        "ThinningWall(height=40, length=80, thick=6, angle=15).shape()",
         name="thinwall",
     )
     assert m.watertight
@@ -1753,7 +1802,7 @@ def test_sliders_rail_builds(tmp_path):
 def test_tripod_rc2_plate_builds(tmp_path):
     m = _render_golden(
         tmp_path,
-        "TripodMounts.manfrotto_rc2_plate(fn=None, fa=None, fs=None)",
+        "ManfrottoRC2Plate(fn=None, fa=None, fs=None).shape()",
         name="rc2_plate",
     )
     assert m.watertight
@@ -1823,9 +1872,118 @@ def test_sdf_to_csg_matches_the_field_it_was_meshed_from(tmp_path):
     np.testing.assert_allclose(bridged.size, direct.size, atol=1e-3)
     assert math.isclose(bridged.volume, direct.volume, rel_tol=1e-6)
     assert bridged.watertight
-    # A cube with the field's corner left in it: an inverted mesh would union to the bare cube.
     setup_cut = setup + (
         "from pybosl2 import shapes3d as s3\ndef cut():\n    return s3.cuboid([30, 30, 30]) - field().to_csg()\n"
     )
     cut = _render(tmp_path, "cut()", setup=setup_cut, name="sdf_field_cut")
     assert math.isclose(cut.volume, 27000 - direct.volume, rel_tol=1e-3)
+
+
+# -- SVG stroke and polygon rendering --------------------------------------------------------
+
+PORTUGAL_FLAG_SVG = (
+    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">'
+    '<rect width="600" height="400" fill="#f00"/>'
+    '<rect width="240" height="400" fill="#060"/>'
+    '<g fill="#ff0" fill-rule="evenodd" stroke="#000" stroke-width="0.8">'
+    '<circle cx="300" cy="200" r="80"/>'
+    '<circle cx="300" cy="200" r="60"/>'
+    '<path d="m200,200 h200 M300,100 v200"/>'
+    "</g>"
+    "<g>"
+    '<path fill="#fff" stroke="#000" stroke-width="1.5" d="m260,160 h80 v80 h-80 z"/>'
+    '<path fill="#00f" d="m270,170 h20 v20 h-20 z M310,170 h20 v20 h-20 z '
+    'M270,210 h20 v20 h-20 z M310,210 h20 v20 h-20 z M290,190 h20 v20 h-20 z"/>'
+    "</g>"
+    "</svg>"
+)
+
+
+def _svg_setup(svg_path: Path) -> str:
+    """Module-level statements for an SVG render.
+
+    `expr` is spliced into `    obj = {expr}` INSIDE a try block, so it has to stay one
+    expression on one line -- imports and assignments go here instead, where render_object
+    drops them at module level.
+    """
+    return f"svg_path = r'{svg_path}'\nfrom pybosl2 import Region\n"
+
+
+def test_portugal_flag_strokes_polygon(tmp_path):
+    """Simplified Portuguese flag with strokes=polygon: coloured regions + stroke outlines."""
+    svg_path = tmp_path / "portugal.svg"
+    svg_path.write_text(PORTUGAL_FLAG_SVG)
+    m = _render(
+        tmp_path,
+        'Region.from_svg(svg_path, strokes="polygon").linear_extrude(height=2)',
+        setup=_svg_setup(svg_path),
+        name="portugal_strokes_polygon",
+    )
+    assert m.ntris > 0
+    assert m.watertight
+    # The flag is 600x400, extruded 2mm → volume ≈ 600*400*2 = 480000, minus holes
+    assert 300000 < m.volume < 500000
+
+
+def test_portugal_flag_strokes_ignore(tmp_path):
+    """Simplified Portuguese flag with strokes=ignore: only filled shapes, no outlines."""
+    svg_path = tmp_path / "portugal.svg"
+    svg_path.write_text(PORTUGAL_FLAG_SVG)
+    m = _render(
+        tmp_path,
+        'Region.from_svg(svg_path, strokes="ignore").linear_extrude(height=2)',
+        setup=_svg_setup(svg_path),
+        name="portugal_strokes_ignore",
+    )
+    assert m.ntris > 0
+    assert m.watertight
+    # strokes=ignore produces fewer triangles (no stroke polygons)
+    assert m.volume > 0
+
+
+# -- the real thing: Wikipedia's Flag of Portugal --------------------------------------------
+
+FLAG_OF_PORTUGAL = Path(__file__).resolve().parent / "svg_fixtures" / "flag_of_portugal.svg"
+
+
+def _open_edge_count(stl_path: Path) -> int:
+    """Edges used by exactly ONE triangle, i.e. a genuine hole in the surface.
+
+    Deliberately not `StlMetrics.watertight`, which wants every edge shared by exactly two
+    triangles. A multi-colour part legitimately fails that: separate colour bodies abut, and
+    a cut-out that touches another leaves an edge shared by four. Neither is an opening --
+    for "will this print" the question is whether the surface is CLOSED.
+    """
+    import collections
+
+    tris = np.round(parse_stl(stl_path), 4)
+    edges: collections.Counter = collections.Counter()
+    for tri in tris:
+        vs = [tuple(v) for v in tri]
+        for a, b in ((0, 1), (1, 2), (2, 0)):
+            edges[tuple(sorted((vs[a], vs[b])))] += 1
+    return sum(1 for count in edges.values() if count == 1)
+
+
+@pytest.mark.parametrize("strokes", ["ignore", "polygon"])
+def test_flag_of_portugal_extrudes_to_the_whole_flag(tmp_path, strokes):
+    """The real 600x400 flag, extruded 2mm, is exactly a 600x400x2 plate.
+
+    A hand-drawn national flag exercises what synthetic fixtures do not: 148 rings across
+    135 elements, 11 <use> clones, mixed winding, 20 self-intersecting outlines and a coat
+    of arms straddling both fields. Loading it used to abort inside shapely; then it loaded
+    with the green field 99% eaten; then with 96184mm^2 of a 240000mm^2 flag double-covered.
+
+    Volume is the assertion that catches all three at once: any missing piece, any
+    double-counted overlap, and it is no longer exactly 600*400*2.
+    """
+    setup = f"svg_path = r'{FLAG_OF_PORTUGAL}'\nfrom pybosl2 import Region\n"
+    m = _render(
+        tmp_path,
+        f'Region.from_svg(svg_path, strokes="{strokes}").linear_extrude(height=2)',
+        setup=setup,
+        name=f"portugal_real_{strokes}",
+    )
+    np.testing.assert_allclose(m.size, [600, 400, 2], atol=1e-3)
+    assert m.volume == pytest.approx(600 * 400 * 2, rel=1e-6)
+    assert _open_edge_count(tmp_path / f"portugal_real_{strokes}.stl") == 0
