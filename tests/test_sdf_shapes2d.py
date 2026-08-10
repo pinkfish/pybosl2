@@ -533,3 +533,44 @@ class TestFill:
         shape = sdf_s2d.rect2d([10, 10])
         filled = shape.fill()
         assert filled is not None
+
+
+class TestFlip:
+    """xflip / yflip on PyShape2D."""
+
+    def test_xflip_default(self) -> None:
+        shape = sdf_s2d.rect2d([10, 10])
+        result = shape.xflip()
+        assert result is not None
+        assert result.backend == "sdf"
+
+    def test_yflip_default(self) -> None:
+        shape = sdf_s2d.rect2d([10, 10])
+        result = shape.yflip()
+        assert result is not None
+        assert result.backend == "sdf"
+
+
+class TestHull2D:
+    """hull() on PyShape2D."""
+
+    def test_hull_two_shapes(self) -> None:
+        a = sdf_s2d.rect2d([10, 10])
+        b = sdf_s2d.rect2d([10, 10]).translate([20, 0])
+        result = a.hull(b)
+        assert result is not None
+        assert result.backend == "sdf"
+
+    def test_hull_no_others_returns_self(self) -> None:
+        a = sdf_s2d.rect2d([10, 10])
+        assert a.hull() is a
+
+
+class TestBounds2D:
+    """bounds() on PyShape2D."""
+
+    def test_bounds_square(self) -> None:
+        shape = sdf_s2d.rect2d([10, 8])
+        center, size = shape.bounds()
+        assert size[0] == pytest.approx(10)
+        assert size[1] == pytest.approx(8)

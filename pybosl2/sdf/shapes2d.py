@@ -304,6 +304,77 @@ class SdfShape2D:
             return self
         return polygon2d(pts, res=self.res)
 
+    def xflip(self, x: float = 0.0) -> PyShape2D:
+        """Mirror this shape across the vertical line x = *x*, keeping the copy left of it.
+
+        When *x* is 0 (the default) the result is the x≤0 half mirrored to the other side:
+        ``shape & mirror(VEC_X)`` where ``VEC_X = [1,0,0]``.
+
+        Args:
+            x: X-coordinate of the mirror line.
+
+        Returns:
+            A new :class:`PyShape2D` with the flipped half.
+        """
+        translated = self.translate([-float(x), 0.0])
+        mirrored = translated.mirror([1.0, 0.0])
+        return translated & mirrored
+
+    def yflip(self, y: float = 0.0) -> PyShape2D:
+        """Mirror this shape across the horizontal line y = *y*, keeping the copy below it.
+
+        When *y* is 0 (the default) the result is the y≤0 half mirrored to the other side:
+        ``shape & mirror(VEC_Y)`` where ``VEC_Y = [0,1,0]``.
+
+        Args:
+            y: Y-coordinate of the mirror line.
+
+        Returns:
+            A new :class:`PyShape2D` with the flipped half.
+        """
+        translated = self.translate([0.0, -float(y)])
+        mirrored = translated.mirror([0.0, 1.0])
+        return translated & mirrored
+
+    def hull(self, *others: PyShape2D) -> PyShape2D:
+        """Return the convex hull of this shape and *others* in 2-D.
+
+        Uses the SDF-based hull via the 3-D hull projection: extrudes each shape
+        to a thin solid, hulls the 3-D solids, then projects back to 2-D.
+
+        Args:
+            *others: Additional shapes to hull with.
+
+        Returns:
+            A new :class:`PyShape2D` representing the 2-D convex hull.
+        """
+        if not others:
+            return self
+        extruded = [s.extrude(0.01, res=s.res) for s in [self] + list(others)]
+        hull3d = extruded[0].hull(*extruded[1:])
+        csg = hull3d.to_csg()
+        projection = csg.projection(cut=True)
+        shapes = [projection] if not hasattr(projection, "__iter__") else list(projection)
+        if not shapes:
+            return self
+        pts: list[list[float]] = []
+        if hasattr(shapes[0], "paths"):
+            for p in shapes[0].paths:
+                pts.extend([[float(c[0]), float(c[1])] for c in p])
+        if not pts:
+            return self
+        return polygon2d(pts, res=self.res)
+
+    def bounds(self) -> tuple[list[float], list[float]]:
+        """Return ``(center, size)`` of the axis-aligned bounding box.
+
+        Returns:
+            A ``([cx, cy], [sx, sy])`` tuple in world coordinates.
+        """
+        center = [(a + b) / 2 for a, b in zip(self.mn, self.mx, strict=False)]
+        size = [b - a for a, b in zip(self.mn, self.mx, strict=False)]
+        return center, size
+
     # ---- to 3-D ----
 
     def extrude(
