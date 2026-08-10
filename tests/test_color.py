@@ -240,3 +240,32 @@ def test_hsl_edge_cases() -> None:
     assert cuboid([10, 10, 10]).hsl(0, 0, 0) is not None  # black
     assert cuboid([10, 10, 10]).hsl(0, 0, 1) is not None  # white
     assert cuboid([10, 10, 10]).hsl(360, 1, 0.5) is not None  # wrap-around
+
+
+# -- every colour operator must accept a Color, and must live ON the class -------------
+
+
+@pytest.mark.parametrize("method", ["color", "recolor", "color_this"])
+def test_colour_operators_accept_a_color_object(method: str) -> None:
+    """A Color must survive the trip to the native backend.
+
+    ``color()`` converted a Color to its [R, G, B] list before handing it over, but
+    ``recolor()`` and ``color_this()`` passed the object straight through and the backend
+    answered "TypeError: Unknown color representation" -- so the same argument worked or
+    failed depending on which operator you reached for.
+    """
+    solid = cuboid([10, 10, 10])
+    assert isinstance(getattr(solid, method)(Color("green")), Bosl2Solid)
+
+
+@pytest.mark.parametrize("method", ["color", "recolor", "color_this", "hsl", "hsv", "highlight", "ghost"])
+def test_colour_operators_are_defined_on_the_class(method: str) -> None:
+    """Colorable's operators must be attributes of the solid, not reached by fallthrough.
+
+    ``Bosl2Solid.__getattr__`` forwards unknown names to the wrapped NATIVE handle, which
+    has its own ``color``. So if these methods ever stop being class attributes -- one stray
+    unindented line in color.py is enough to end the class body early -- ``.color()`` keeps
+    working while silently becoming the native one, and only ``recolor``/``hsl``, which the
+    native handle lacks, fail. hasattr() on the CLASS bypasses that fallthrough entirely.
+    """
+    assert hasattr(Bosl2Solid, method), f"Colorable.{method} is not on Bosl2Solid"

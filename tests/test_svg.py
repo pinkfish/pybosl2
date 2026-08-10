@@ -9,11 +9,12 @@ handle from the renderer's own importer. Fixtures are written inline so the suit
 binary assets and runs without a renderer -- which is half the point of loading SVG this way."""
 
 import textwrap
+from pathlib import Path
 
 import pytest
 
 from pybosl2.regions import Region
-from pybosl2.svg import region_from_svg, regions_from_svg, svg_outlines, svg_rings_with_colors
+from pybosl2.svg import region_from_svg, regions_from_svg, svg_element_groups, svg_outlines, svg_rings_with_colors
 
 # A 100x50 rect with a 20x10 hole, plus a separate 10x10 square: three rings, two solids.
 TWO_SOLIDS = textwrap.dedent(
@@ -583,3 +584,162 @@ def test_stroke_polygon_has_reasonable_area(tmp_path) -> None:
         poly = Polygon([list(pt) for pt in path])
         assert poly.is_valid
         assert poly.area > 0  # buffered stroke produces real area
+
+
+# -- real-world SVG: Wikipedia's Flag of Portugal -------------------------------------------
+#
+# A hand-drawn national flag is a much harsher test than any synthetic fixture: 148 rings,
+# 37 <path> elements, 11 <use> clones, mixed winding directions, and 20 self-intersecting
+# outlines. Every bug below was found by loading this one file and none of them by the
+# synthetic SVGs above.
+
+FLAG_OF_PORTUGAL = Path(__file__).resolve().parent / "svg_fixtures" / "flag_of_portugal.svg"
+
+# The flag is 600x400 with the green field 2/5 of the width.
+_FLAG_AREA = 600 * 400
+_GREEN_AREA = 240 * 400
+
+
+def _flag_region(strokes: str):
+    return region_from_svg(str(FLAG_OF_PORTUGAL), strokes=strokes)
+
+
+@pytest.mark.parametrize("strokes", ["ignore", "polygon"])
+def test_flag_of_portugal_loads(strokes: str) -> None:
+    """It loads at all.
+
+    Self-intersecting rings used to abort the whole import from inside shapely with
+    "TopologyException: unable to assign free hole to a shell" -- one bad ring out of 148
+    took the entire drawing with it, because rings were only repaired AFTER their holes had
+    been assigned.
+    """
+    region = _flag_region(strokes)
+    assert not region._polygon.is_empty
+
+
+@pytest.mark.parametrize("strokes", ["ignore", "polygon"])
+def test_flag_of_portugal_covers_exactly_its_rectangle(strokes: str) -> None:
+    """The flag's outline is the 600x400 rectangle -- no more, no less."""
+    from shapely.ops import unary_union
+
+    region = _flag_region(strokes)
+    parts = list(getattr(region._polygon, "geoms", [region._polygon]))
+    assert unary_union(parts).area == pytest.approx(_FLAG_AREA, rel=1e-6)
+
+
+def test_flag_of_portugal_green_field_survives() -> None:
+    """The green field keeps its area, less only the arms that sit on it.
+
+    Regression test for the interior-probe winding bug. `even_odd` decides nesting by
+    asking which other rings contain a probe taken just inside each ring's first edge --
+    but "inside" was assumed to be one particular side, so for every CLOCKWISE ring the
+    probe landed outside its own polygon (97 of this flag's 153 rings) and matched nothing.
+    The green field was read as a sibling of the red one rather than sitting on it, and
+    first-colour-wins then ate it: 1107 of 96000 survived.
+
+    It is NOT the full 96000 -- the coat of arms straddles the two fields and is cut out of
+    both, which is the point of compositing them as layers.
+    """
+    region = _flag_region("ignore")
+    parts = list(getattr(region._polygon, "geoms", [region._polygon]))
+    green = sum(
+        p.area for p, c in zip(parts, region._polygon_colors, strict=True) if c is not None and str(c) == "#006600"
+    )
+    assert 0.8 * _GREEN_AREA < green < _GREEN_AREA
+
+
+@pytest.mark.parametrize("strokes", ["ignore", "polygon"])
+def test_flag_of_portugal_colours_do_not_overlap(strokes: str) -> None:
+    """No two coloured pieces share area.
+
+    Colour layers used to be stacked rather than composited -- nested coloured rings skipped
+    the subtraction entirely and were rebuilt from their bare exteriors -- so the arms sat
+    ON TOP of the fields instead of being cut from them and a colour could even overlap
+    ITSELF (8077mm^2 of this flag's yellow). 96184mm^2 of a 240000mm^2 flag was
+    double-covered, and the extruded mesh was not manifold.
+
+    Summing the parts and dissolving them must give the same number.
+    """
+    from shapely.ops import unary_union
+
+    region = _flag_region(strokes)
+    parts = list(getattr(region._polygon, "geoms", [region._polygon]))
+    assert region._polygon.area == pytest.approx(unary_union(parts).area, abs=1e-6)
+
+
+def test_flag_of_portugal_has_its_arms() -> None:
+    """The coat of arms survives: yellow armillary sphere, white shield, blue quinas."""
+    region = _flag_region("ignore")
+    colors = {str(c) for c in region._polygon_colors if c is not None}
+    assert {"#ff0000", "#006600", "#ffff00", "#ffffff", "#003399"} <= colors
+
+
+# -- svg_element_groups direct coverage -------------------------------------------------------
+
+
+def test_element_groups_stroke_only_polygon(tmp_path) -> None:
+    """stroke-only shape produces fill group (None color) + stroke group."""
+    f = tmp_path / "s.svg"
+    f.write_text(STROKE_ONLY)
+    groups = svg_element_groups(str(f), strokes="polygon")
+    assert len(groups) == 2
+    assert groups[0][0] is None  # fill="none"
+    assert groups[1][0] == "#ff0000"  # stroke color group
+
+
+def test_element_groups_stroke_only_ignore(tmp_path) -> None:
+    """strokes=ignore drops the stroke group entirely."""
+    f = tmp_path / "s.svg"
+    f.write_text(STROKE_ONLY)
+    groups = svg_element_groups(str(f), strokes="ignore")
+    assert len(groups) == 1
+    assert groups[0][0] is None
+
+
+def test_element_groups_fill_and_stroke_polygon(tmp_path) -> None:
+    """Shape with fill and different-colour stroke → both groups."""
+    f = tmp_path / "fs.svg"
+    f.write_text(FILL_AND_STROKE)
+    groups = svg_element_groups(str(f), strokes="polygon")
+    assert len(groups) == 2
+    colors = {g[0] for g in groups}
+    assert "#00ff00" in colors  # fill
+    assert "#000000" in colors  # stroke
+
+
+def test_element_groups_fill_matches_stroke_skip_duplicate(tmp_path) -> None:
+    """When stroke colour matches fill, no duplicate stroke group is created."""
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg">'
+        '<path d="M10,10H50V50H10Z" fill="red" stroke="red" stroke-width="2"/></svg>'
+    )
+    f = tmp_path / "same.svg"
+    f.write_text(svg)
+    groups = svg_element_groups(str(f), strokes="polygon")
+    assert len(groups) == 1  # only the fill group, no duplicate stroke
+
+
+def test_element_groups_inherited_strokes(tmp_path) -> None:
+    """Inherited <g> stroke produces stroke groups on child elements."""
+    f = tmp_path / "inh.svg"
+    f.write_text(STROKES_INHERITED)
+    groups = svg_element_groups(str(f), strokes="polygon")
+    colors = {g[0] for g in groups}
+    assert "#0000ff" in colors  # inherited stroke
+
+
+def test_element_groups_color_override(tmp_path) -> None:
+    """color= overrides all colours in the output."""
+    f = tmp_path / "fs.svg"
+    f.write_text(FILL_AND_STROKE)
+    groups = svg_element_groups(str(f), strokes="polygon", color="#ff00ff")
+    for g_color, _rings in groups:
+        assert g_color == "#ff00ff"
+
+
+def test_element_groups_empty_svg(tmp_path) -> None:
+    """Empty SVG produces no groups."""
+    f = tmp_path / "empty.svg"
+    f.write_text(EMPTY)
+    groups = svg_element_groups(str(f))
+    assert groups == []

@@ -36,6 +36,23 @@ if TYPE_CHECKING:  # for the annotations only -- importing shapes2d here would b
 __all__ = ["Region"]
 
 
+def _polygon_parts(geom: Any) -> list[Polygon]:
+    """Every non-empty ``Polygon`` in *geom*, whatever shapely handed back.
+
+    Repairing a ring with ``buffer(0)`` can return a ``Polygon``, a ``MultiPolygon`` (a
+    figure-eight outline is genuinely two polygons) or an empty ``GeometryCollection`` --
+    callers that then reach for ``.exterior`` break on the last two.
+    """
+    if geom.is_empty:
+        return []
+    if isinstance(geom, Polygon):
+        return [geom] if geom.area > 0 else []
+    parts: list[Polygon] = []
+    for part in getattr(geom, "geoms", ()):
+        parts.extend(_polygon_parts(part))
+    return parts
+
+
 def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
     """Extract all paths from a ``Polygon`` or ``MultiPolygon``.
 
@@ -215,6 +232,28 @@ class Region:
         """The underlying shapely geometry."""
         return self._polygon
 
+    @classmethod
+    def _from_colored_pieces(cls, pieces: "list[tuple[Any, Any]]") -> "Region":
+        """Build a Region from already-resolved ``(colour, shapely geometry)`` pairs.
+
+        For callers that have done their own compositing and just need the pieces carried
+        into a Region with their colours -- :func:`~pybosl2.svg.region_from_svg` resolves
+        SVG paint order itself, because that is per-element and :meth:`even_odd` is not.
+        The pieces are expected to be disjoint; nothing here re-clips them.
+        """
+        all_polys: list[Polygon] = []
+        colors: list["Color | None"] = []
+        for color, geom in pieces:
+            for part in _polygon_parts(geom):
+                all_polys.append(part)
+                colors.append(color)
+        if not all_polys:
+            return cls()
+        region = cls(MultiPolygon(all_polys) if len(all_polys) > 1 else all_polys[0])
+        region._polygon_colors = colors
+        region._color = next((c for c in colors if c is not None), None)
+        return region
+
     def to_shapely(self) -> MultiPolygon:
         """Return the shapely geometry for this region.
 
@@ -308,11 +347,28 @@ class Region:
         from shapely.ops import unary_union as _unary_union
 
         rings = [p if isinstance(p, Path2D) else Path2D(p, closed=True) for p in paths]
-        polys = [_Polygon(r._points) for r in rings if len(r) >= 3]
+
+        # Repair each ring BEFORE it is used for nesting or unioning. Real drawings are full
+        # of self-intersecting outlines -- 20 of the 148 rings in Wikipedia's Flag_of_Portugal
+        # are -- and an invalid ring poisons everything downstream: its holes cannot be matched
+        # to a shell and shapely aborts the whole union with
+        # "TopologyException: unable to assign free hole to a shell".
+        # Repairing afterwards (which is all `piece.buffer(0)` below used to do) is too late.
+        # buffer(0) legitimately splits a figure-eight into two polygons, so a repaired ring
+        # can yield several -- each becomes a ring in its own right, keeping its colour.
+        polys: list[Polygon] = []
+        ring_colors: list["Color | None"] = []
+        for ring in rings:
+            if len(ring) < 3:
+                continue
+            geom = _Polygon(ring._points)
+            if not geom.is_valid:
+                geom = geom.buffer(0)
+            for part in _polygon_parts(geom):
+                polys.append(part)
+                ring_colors.append(ring._color if ring._color is not None else None)
         if not polys:
             return cls()
-
-        ring_colors: list["Color | None"] = [r._color if r._color is not None else None for r in rings if len(r) >= 3]
 
         probes = []
         for poly in polys:
@@ -323,14 +379,28 @@ class Region:
             x1, y1 = float(coords[1][0]), float(coords[1][1])
             mx, my = (x0 + x1) / 2, (y0 + y1) / 2
             dx, dy = x1 - x0, y1 - y0
-            probes.append(_Point(mx - dy * 1e-6, my + dx * 1e-6))
+            # WHICH side is inward depends on the winding, so try both. Assuming one
+            # (this used to take `-dy, +dx` and nothing else) puts the probe OUTSIDE every
+            # clockwise ring -- 97 of the 153 rings in Wikipedia's Flag_of_Portugal -- and a
+            # probe outside its own polygon fails every containment test, so the nesting
+            # depth below is wrong for each of them: the flag's green field came out a
+            # top-level sibling of the red one instead of sitting on it.
+            for sx, sy in ((-dy, dx), (dy, -dx)):
+                probe = _Point(mx + sx * 1e-6, my + sy * 1e-6)
+                if poly.contains(probe):
+                    break
+            else:
+                # Degenerate first edge (a spike, or a duplicated point): fall back to a
+                # point shapely guarantees is inside. Safe here because these rings carry no
+                # holes yet -- holes are assigned further down.
+                probe = poly.representative_point()
+            probes.append(probe)
         depths = [
             sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
         ]
 
         color_groups: dict["Color | None", list[_Polygon]] = {}
         group_order: list["Color | None"] = []
-        nested_colored: list[tuple["Color | None", _Polygon]] = []
         for i, poly in enumerate(polys):
             c = ring_colors[i]
             holes = [
@@ -343,13 +413,16 @@ class Region:
                 piece = piece.buffer(0)
             if piece.is_empty:
                 continue
-            if depths[i] % 2:
-                # Odd depth = hole in the enclosing solid.  If this ring has a colour,
-                # keep it as a separate nested solid that fills its own hole -- it does
-                # not overlap the parent polygon and so must not be subtracted from it.
-                if c is not None:
-                    nested_colored.append((c, _Polygon(poly.exterior.coords)))
+            if depths[i] % 2 and c is None:
+                # Odd depth with no fill is just a hole in the ring enclosing it, which
+                # that ring has already cut. Nothing to add.
                 continue
+            # An odd-depth ring WITH a fill is a solid filling its own hole -- it joins its
+            # colour group like any other piece, keeping its own holes so the rings nested
+            # inside IT are not covered over. It used to be held back and appended at the
+            # end, skipping the subtraction below and built from its bare exterior: that is
+            # why a colour could overlap ITSELF (8077mm^2 of the Portuguese flag's yellow)
+            # and why the arms overlapped the fields they sit on.
             if c not in color_groups:
                 group_order.append(c)
             color_groups.setdefault(c, []).append(piece)
@@ -372,35 +445,9 @@ class Region:
                 if merged.is_empty:
                     continue
                 previous_union = merged if previous_union is None else previous_union.union(merged)
-            if isinstance(merged, _Polygon):
-                all_polys.append(merged)
+            for p in _polygon_parts(merged):
+                all_polys.append(p)
                 polygon_colors.append(color)
-            else:
-                for p in merged.geoms:
-                    if not p.is_empty:
-                        all_polys.append(p)
-                        polygon_colors.append(color)
-
-        if not all_polys and not nested_colored:
-            return cls()
-
-        # Nested coloured rings (odd depth with a fill colour) sit inside holes
-        # cut by their parent solids.  They do not overlap those parents and
-        # therefore must not participate in the first-wins subtraction above.
-        nested_groups: dict["Color | None", list[_Polygon]] = {}
-        for c, piece in nested_colored:
-            nested_groups.setdefault(c, []).append(piece)
-        for color, pieces in nested_groups.items():
-            merged = _unary_union(pieces)
-            if isinstance(merged, _Polygon):
-                if not merged.is_empty:
-                    all_polys.append(merged)
-                    polygon_colors.append(color)
-            else:
-                for p in merged.geoms:
-                    if not p.is_empty:
-                        all_polys.append(p)
-                        polygon_colors.append(color)
 
         if not all_polys:
             return cls()
