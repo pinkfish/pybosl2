@@ -77,3 +77,11 @@ def unit(
             return np.asarray(error, dtype=float)
         raise ValueError("Cannot normalize a zero vector")
     return arr / sides
+
+
+def v_theta(vec: Sequence[float]) -> float:
+    """Return the angle in degrees of the 2-D vector *vec*, measured counter-clockwise from +X.
+
+    Equivalent to ``math.degrees(math.atan2(vec[1], vec[0]))``.
+    """
+    return math.degrees(math.atan2(vec[1], vec[0]))

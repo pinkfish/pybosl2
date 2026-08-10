@@ -38,6 +38,7 @@ __all__ = [
     "is_collinear",
     "line_closest_point",
     "line_normal",
+    "vector_angle3",
 ]
 
 
@@ -254,3 +255,21 @@ def circle_circle_tangents(
         if not np.array_equal(p1, p2):
             result.append((Point.from_seq(p1), Point.from_seq(p2)))
     return result
+
+
+def vector_angle3(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
+    """Return the angle in degrees at vertex *b* of the corner formed by points a-b-c (2-D or 3-D).
+
+    Args:
+        a: First point.
+        b: Vertex point (the angle is measured at this vertex).
+        c: Third point.
+
+    Returns:
+        The interior angle in degrees, clamped to [0, 180].
+
+    """
+    va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
+    vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
+    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
+    return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))

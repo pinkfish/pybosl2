@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 import math
-from typing import Any
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
@@ -30,8 +29,7 @@ from pybosl2.vnf import VNF
 __all__ = ["Slider", "Rail"]
 
 
-def _union(shapes: list[Any]) -> Any:
-    return union(shapes)
+_union = union
 
 
 class Slider:

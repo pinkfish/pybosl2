@@ -49,6 +49,7 @@ from pybosl2._helpers import (
 )
 from pybosl2._native import native
 from pybosl2.constants import CENTER
+from pybosl2.vectors import v_theta as _v_theta
 
 from .base import (
     Bosl2Shape2D,
@@ -56,7 +57,6 @@ from .base import (
     _adjacent_angle_to_opposite,
     _finish,
     _opposite_angle_to_adjacent,
-    _v_theta,
 )
 
 if TYPE_CHECKING:

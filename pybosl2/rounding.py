@@ -52,12 +52,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
-def _vector_angle3(a: Sequence[float], b: Sequence[float], c: Sequence[float]) -> float:
-    """Return the angle in degrees at vertex *b* of the corner a-b-c (2-D or 3-D)."""
-    va = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
-    vc = np.asarray(c, dtype=float) - np.asarray(b, dtype=float)
-    cosv = float(np.dot(va, vc)) / (float(np.linalg.norm(va)) * float(np.linalg.norm(vc)))
-    return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
+from pybosl2.geometry import vector_angle3 as _vector_angle3
 
 
 def _smooth_bez_fill(points: Sequence[Sequence[float]], k: float) -> list[list[float]]:
@@ -299,13 +294,9 @@ def _round_corners(
 
 
 def _dedup(pts: Sequence[Sequence[float]], eps: float = 1e-9) -> list[list[float]]:
-    out: list[list[float]] = []
-    for p in pts:
-        if not out or not np.allclose(out[-1], p, rtol=0, atol=eps):
-            out.append([float(c) for c in p])
-    if len(out) > 1 and np.allclose(out[0], out[-1], rtol=0, atol=eps):
-        out.pop()
-    return out
+    from pybosl2.path2d import Path2D
+
+    return [list(p) for p in Path2D._deduplicate(pts, closed=True, eps=eps)]
 
 
 # ---------------------------------------------------------------------------

@@ -145,10 +145,6 @@ def _opposite_angle_to_adjacent(opposite: float, angle: float) -> float:
     return opposite / math.tan(math.radians(angle))
 
 
-def _v_theta(vec: Sequence[float]) -> float:
-    return math.degrees(math.atan2(vec[1], vec[0]))
-
-
 def _det2(vec_a: Sequence[float], vec_b: Sequence[float]) -> float:
     """Return the 2-D cross product a x b -- sign gives the turn direction (z of the 3-D cross)."""
     return float(vec_a[0] * vec_b[1] - vec_a[1] * vec_b[0])

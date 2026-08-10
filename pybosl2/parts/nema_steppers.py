@@ -36,8 +36,7 @@ class NemaMaskType(StrEnum):
     SCREWS = "screws"
 
 
-def _union(shapes: list[Bosl2Solid]) -> Bosl2Solid:
-    return union(shapes)  # type: ignore[no-any-return]
+_union = union
 
 
 @dataclass(frozen=True)

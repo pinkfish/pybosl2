@@ -1478,23 +1478,15 @@ def _finish3(
 
 
 def _anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
-    return [-a[i] * size[i] / 2 for i in range(3)]
+    from pybosl2._helpers import anchor_offset_box3
+
+    return anchor_offset_box3(size, anchor)
 
 
 def _anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
-    if a[0] == 0 and a[1] == 0 and a[2] == 0:
-        return [0.0, 0.0, 0.0]
-    # The anchor point is the support point of the hull in direction `anchor`. When several vertices
-    # tie for the maximum projection (a whole face for a face anchor, two vertices for an edge
-    # anchor), the anchor is their centroid -- the face/edge centre -- not an arbitrary tied corner.
-    projs = [p[0] * a[0] + p[1] * a[1] + p[2] * a[2] for p in points]
-    m = max(projs)
-    eps = 1e-7 * (1.0 + abs(m))
-    tied = [p for p, pr in zip(points, projs, strict=False) if pr >= m - eps]
-    sides = len(tied)
-    return [-sum(p[i] for p in tied) / sides for i in range(3)]
+    from pybosl2._helpers import anchor_offset_hull3
+
+    return anchor_offset_hull3(points, anchor)
 
 
 def _anchor_offset_cyl(
@@ -1504,19 +1496,9 @@ def _anchor_offset_cyl(
     anchor: Anchor | Sequence[float],
     axis: int = 2,
 ) -> list[float]:
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
-    az = a[axis]
-    r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)
-    radial_axes = [i for i in range(3) if i != axis]
-    radial = [a[i] for i in radial_axes]
-    rn = math.hypot(*radial)
-    if rn > 0:
-        radial = [x / rn * r_at for x in radial]
-    offset = [0.0, 0.0, 0.0]
-    offset[axis] = az * length / 2
-    for i, ax in enumerate(radial_axes):
-        offset[ax] = radial[i]
-    return [-x for x in offset]
+    from pybosl2._helpers import anchor_offset_cyl
+
+    return anchor_offset_cyl(radius1, radius2, length, anchor, axis)
 
 
 Bosl2Solid = CsgSolid

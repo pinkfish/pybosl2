@@ -100,6 +100,25 @@ def zrot4(angle_degrees: float) -> np.ndarray:
     return matrix
 
 
+def xrot4(angle_degrees: float) -> np.ndarray:
+    """4x4 rotation matrix of *angle_degrees* degrees about the X axis."""
+    rad = math.radians(angle_degrees)
+    c, s = math.cos(rad), math.sin(rad)
+    m = np.eye(4)
+    m[1, 1], m[1, 2], m[2, 1], m[2, 2] = c, -s, s, c
+    return m
+
+
+def scale4(s: Sequence[float]) -> np.ndarray:
+    """4x4 scale matrix for scaling factors *s* (2-D or 3-D)."""
+    m = np.eye(4)
+    m[0, 0] = float(s[0])
+    m[1, 1] = float(s[1])
+    if len(s) > 2:
+        m[2, 2] = float(s[2])
+    return m
+
+
 def rot_from_to4(source: Any, target: Any) -> np.ndarray:
     """4x4 rotation matrix rotating direction *source* onto direction *target*."""
     from pybosl2.transforms import axis_angle_matrix, rot_from_to
@@ -314,6 +333,57 @@ def anchor_offset_generic(
         return anchor_offset_hull(points, anchor)
     else:
         return anchor_offset_hull(points, anchor)
+
+
+def anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
+    """3-D box anchor offset: returns the translation vector for a box of *size* at *anchor*."""
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    return [-a[i] * size[i] / 2 for i in range(3)]
+
+
+def anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
+    """3-D convex hull anchor offset with centroid tie-breaking."""
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    if a[0] == 0 and a[1] == 0 and a[2] == 0:
+        return [0.0, 0.0, 0.0]
+    projs = [p[0] * a[0] + p[1] * a[1] + p[2] * a[2] for p in points]
+    m = max(projs)
+    eps = 1e-7 * (1.0 + abs(m))
+    tied = [p for p, pr in zip(points, projs, strict=False) if pr >= m - eps]
+    sides = len(tied)
+    return [-sum(p[i] for p in tied) / sides for i in range(3)]
+
+
+def anchor_offset_cyl(
+    radius1: float,
+    radius2: float,
+    length: float,
+    anchor: Anchor | Sequence[float],
+    axis: int = 2,
+) -> list[float]:
+    """3-D cylinder anchor offset along *axis* (0=X, 1=Y, 2=Z)."""
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    az = a[axis]
+    r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)
+    radial_axes = [i for i in range(3) if i != axis]
+    radial = [a[i] for i in radial_axes]
+    rn = math.hypot(*radial)
+    if rn > 0:
+        radial = [x / rn * r_at for x in radial]
+    offset = [0.0, 0.0, 0.0]
+    offset[axis] = az * length / 2
+    for i, ax in enumerate(radial_axes):
+        offset[ax] = radial[i]
+    return [-x for x in offset]
+
+
+def anchor_offset_sphere(r: float, anchor: Anchor | Sequence[float]) -> list[float]:
+    """3-D sphere anchor offset: project *anchor* direction onto the sphere surface."""
+    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    n = math.hypot(*a)
+    if n == 0:
+        return [0.0, 0.0, 0.0]
+    return [-a[i] / n * r for i in range(3)]
 
 
 def arc_points(

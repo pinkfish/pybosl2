@@ -845,7 +845,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             True if the path endpoints are coincident, False otherwise.
 
         """
-        return bool(Path2D._is_closed_path(self._points))
+        return bool(Path2D.is_closed_path(self._points))
 
     def close(self) -> "Path3D":
         """Append the start point if the path is not already closed.
@@ -868,7 +868,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 loop.stroke(width=1).show()
 
         """
-        return self.__class__(Path2D._close_path(self), closed=self.closed)
+        return self.__class__(Path2D.close_path(self), closed=self.closed)
 
     def cleanup(self) -> "Path3D":
         """Drop a duplicate closing point if present.
@@ -891,7 +891,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 result.stroke(width=1).show()
 
         """
-        return self.__class__(Path2D._cleanup_path(self), closed=self.closed)
+        return self.__class__(Path2D.cleanup_path(self), closed=self.closed)
 
     def reverse(self) -> "Path3D":
         """Return the same path wound in the opposite direction.

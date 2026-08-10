@@ -14,7 +14,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-import numpy as np
+import numpy as np  # noqa: TC002
 
 from pybosl2._sdf._libfive import lv
 from pybosl2._sdf.paths import _lv_hypot
@@ -44,43 +44,6 @@ def clockwise_polygon(poly: list[list[float]]) -> list:  # type: ignore[type-arg
         j = (i + 1) % n
         area += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1]
     return pts if area <= 0 else list(reversed(pts))
-
-
-def _scale4(s: Sequence[float]) -> np.ndarray:
-    m = np.eye(4)
-    m[0, 0], m[1, 1] = float(s[0]), float(s[1])
-    if len(s) > 2:
-        m[2, 2] = float(s[2])
-    return m
-
-
-def _xrot4(a: float) -> np.ndarray:
-    rad = math.radians(a)
-    c, s = math.cos(rad), math.sin(rad)
-    m = np.eye(4)
-    m[1, 1], m[1, 2], m[2, 1], m[2, 2] = c, -s, s, c
-    return m
-
-
-def _translate4(v: list[float]) -> np.ndarray:
-    m = np.eye(4)
-    m[0, 3] = float(v[0])
-    m[1, 3] = float(v[1])
-    m[2, 3] = float(v[2]) if len(v) > 2 else 0.0
-    return m
-
-
-def _zrot4(a: float) -> np.ndarray:
-    rad = math.radians(a)
-    c, s = math.cos(rad), math.sin(rad)
-    m = np.eye(4)
-    m[0, 0], m[0, 1], m[1, 0], m[1, 1] = c, -s, s, c
-    return m
-
-
-def _segs(radius: float) -> int:
-    """OpenSCAD's default $fa=12/$fs=2 facet count."""
-    return max(5, int(math.ceil(min(360.0 / 12.0, (2 * math.pi * abs(radius)) / 2.0))))
 
 
 def _apply_transform(m: np.ndarray, pt: Sequence[float]) -> list[float]:

@@ -28,7 +28,6 @@
 from __future__ import annotations
 
 import math
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Sequence
 
 if TYPE_CHECKING:
@@ -42,6 +41,7 @@ import numpy as np
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.enums import PartitionCutType
+from pybosl2.math import lerp as _lerp
 from pybosl2.transforms import axis_angle_matrix, rot_about_axis, rot_from_to
 from pybosl2.vectors import unit
 
@@ -96,10 +96,6 @@ def _skew(axy_deg: float, path: Sequence[Sequence[float]] | Path2D) -> Path2D:
 
     t = math.tan(math.radians(axy_deg))
     return Path2D([[float(p[0]) + float(p[1]) * t, float(p[1])] for p in path])
-
-
-def _lerp(a: float, b: float, u: float) -> float:
-    return a + (b - a) * u
 
 
 def _dedup(path: Sequence[Sequence[float]] | Path2D) -> Path2D:
@@ -681,19 +677,15 @@ def _as_vec3(v: Any) -> np.ndarray:
     return a
 
 
-class Partitionable(ABC):
+class Partitionable:
     """Mixin adding the partitions.scad planar cuts and the partition() split as methods.
 
     Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`. A half-cut intersects the solid with a
     half-space mask whose size defaults to the object's own bounding box (so BOSL2's ``s=``
     argument is optional). ``cut_path=`` follows a 2-D :func:`partition_path` to make an
-    interlocking cut face instead of a flat plane.
+    interlocking cut face instead of a flat plane.  Requires ``_wrap`` (provided by
+    :class:`~pybosl2._shape.BaseShape`).
     """
-
-    @abstractmethod
-    def _wrap(self, new_shape: Any) -> Self:  # pragma: no cover
-        """Re-wrap a native shape as the host solid type."""
-        raise NotImplementedError
 
     def _half_mask(
         self,
@@ -778,7 +770,7 @@ class Partitionable(ABC):
             center_pt, size = self.bounds()  # type: ignore[attr-defined]
             reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center_pt)))
             s = 2.2 * reach + 2.0
-        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))  # type: ignore[attr-defined]
+        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))  # type: ignore[attr-defined, no-any-return]
 
     def left_half(
         self,
