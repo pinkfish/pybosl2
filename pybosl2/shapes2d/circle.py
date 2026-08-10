@@ -47,6 +47,7 @@ from pybosl2._helpers import (
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 from pybosl2.geometry import is_collinear
+from pybosl2.geometry import vector_angle3 as _vector_angle
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 from pybosl2.vectors import unit
@@ -57,7 +58,6 @@ from .base import (
     _det2,
     _finish,
     _sign,
-    _vector_angle,
 )
 
 if TYPE_CHECKING:

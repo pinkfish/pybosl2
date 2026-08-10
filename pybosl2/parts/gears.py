@@ -215,10 +215,9 @@ def _line_isect(l1: list[list[float]], l2: list[list[float]]) -> list[float]:
 
 
 def _vector_angle(three: list[list[float]]) -> float:
-    p0, p1, p2 = (np.asarray(p, float) for p in three)
-    v0, v1 = p0 - p1, p2 - p1
-    c = np.clip(np.dot(v0, v1) / (np.linalg.norm(v0) * np.linalg.norm(v1)), -1, 1)
-    return math.degrees(math.acos(c))
+    from pybosl2.geometry import vector_angle3
+
+    return vector_angle3(three[0], three[1], three[2])
 
 
 def _arc_corner(n: int, r: float, corner: list[list[float]]) -> list[list[float]]:

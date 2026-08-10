@@ -155,16 +155,6 @@ def _sign(value: float) -> int:
     return (value > 0) - (value < 0)
 
 
-def _vector_angle(point_a: Sequence[float], point_b: Sequence[float], point_c: Sequence[float]) -> float:
-    """Return the angle in degrees at vertex *b* of the corner a-b-c."""
-    vax = float(point_a[0]) - float(point_b[0])
-    vay = float(point_a[1]) - float(point_b[1])
-    vcx = float(point_c[0]) - float(point_b[0])
-    vcy = float(point_c[1]) - float(point_b[1])
-    cosv: float = (vax * vcx + vay * vcy) / (math.hypot(vax, vay) * math.hypot(vcx, vcy))
-    return math.degrees(math.acos(max(-1.0, min(1.0, cosv))))
-
-
 def _finish(
     shape: PyOpenSCAD,
     offset: Anchor | Sequence[float],
