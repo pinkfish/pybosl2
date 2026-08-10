@@ -328,20 +328,20 @@ def _is_simple(pts: list[list[float]]) -> bool:
 class TestKeyholeSampling:
     """The arc sampler and ring cleanup keyhole_outline is assembled from."""
 
-    def test_arc_points_walks_the_sweep_end_to_end(self) -> None:
-        pts = sdf_s2d._arc_points((0.0, 0.0), 2.0, 0.0, 90.0, per_deg=1.0)
+    def test_sampled_arc_walks_the_sweep_end_to_end(self) -> None:
+        pts = sdf_s2d._sampled_arc((0.0, 0.0), 2.0, 0.0, 90.0, per_deg=1.0)
         assert pts[0] == pytest.approx([2.0, 0.0], abs=1e-9)
         assert pts[-1] == pytest.approx([0.0, 2.0], abs=1e-9)
         assert all(math.dist(p, (0.0, 0.0)) == pytest.approx(2.0, abs=1e-9) for p in pts)
 
-    def test_arc_points_sweeps_backwards_for_a_negative_sweep(self) -> None:
+    def test_sampled_arc_sweeps_backwards_for_a_negative_sweep(self) -> None:
         # the shoulder fillets are traced clockwise, against the rest of the outline
-        pts = sdf_s2d._arc_points((1.0, 1.0), 3.0, 90.0, -90.0, per_deg=1.0)
+        pts = sdf_s2d._sampled_arc((1.0, 1.0), 3.0, 90.0, -90.0, per_deg=1.0)
         assert pts[0] == pytest.approx([1.0, 4.0], abs=1e-9)
         assert pts[-1] == pytest.approx([4.0, 1.0], abs=1e-9)
 
-    def test_arc_points_always_returns_at_least_three_points(self) -> None:
-        assert len(sdf_s2d._arc_points((0.0, 0.0), 1.0, 0.0, 0.5, per_deg=0.1)) == 3
+    def test_sampled_arc_always_returns_at_least_three_points(self) -> None:
+        assert len(sdf_s2d._sampled_arc((0.0, 0.0), 1.0, 0.0, 0.5, per_deg=0.1)) == 3
 
     def test_dedupe_ring_drops_repeated_neighbours(self) -> None:
         ring = [[0.0, 0.0], [0.0, 0.0], [1.0, 0.0], [1.0, 0.0], [1.0, 1.0]]
