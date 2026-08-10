@@ -42,15 +42,6 @@ sys.path.insert(0, str(REPO_ROOT))
 # Toctree section order (left-to-right / top-to-bottom in the sidebar)
 # ---------------------------------------------------------------------------
 
-_CATEGORY_ORDER = [
-    "Solid backends",
-    "Foundational",
-    "Paths, regions & surfaces",
-    "Math & geometry",
-    "Parts library",
-    "Extras",
-]
-
 # ---------------------------------------------------------------------------
 # Metadata tag parsing
 # ---------------------------------------------------------------------------
@@ -296,8 +287,13 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
      var box = document.getElementById('version-links');
      var list = document.getElementById('version-list');
      var lat = document.getElementById('latest-link');
-     var base = window.location.pathname.replace(/\/$/,'').replace(/\/[^\/]+$/,'/');
-     var isVer = /\/v\d+\.\d+\.\d+\//.test(window.location.pathname);
+     var path = window.location.pathname.replace(/\/$/,'');
+     var inDev = /\/dev\//.test(path) || /\/dev$/.test(path);
+     var isVer = /\/v\d+\.\d+\.\d+/.test(path);
+      var base;
+      if (inDev) { base = path.replace(/\/dev.*/, '') + '/'; }
+      else if (isVer) { base = path.replace(/\/v\\d+\\.\\d+\\.\\d+.*/, '') + '/'; }
+      else { base = path + '/'; }
      if (isVer) {
        lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
@@ -316,15 +312,15 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
          .catch(function(){});
      } else {
        dev.style.display = 'block';
-       lat.setAttribute('href', '../index.html');
+       lat.setAttribute('href', base + 'index.html');
        box.style.display = 'block';
-       fetch('../versions.json')
+       fetch(base + 'versions.json')
          .then(function(r){return r.json();})
          .then(function(vers){
            var n = Math.min(vers.length,5);
            for (var i=0; i<n; i++) {
              var v = vers[i], a = document.createElement('a');
-             a.href = '../' + v + '/index.html';
+             a.href = base + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
              if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
@@ -395,111 +391,55 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
 """
 
 
-def _generate_index(modules: dict[str, dict[str, Any]]) -> None:
-    """Write docs/index.rst with a live toctree, grouped by DocCategory tag."""
-    # Group modules by category, skip internal ones
-    sections: dict[str, list[dict[str, Any]]] = {cat: [] for cat in _CATEGORY_ORDER}
-    for _name, info in modules.items():
-        cat = info.get("category", "Foundational")
-        if cat == "__SKIP__":
-            continue
-        sections.setdefault(cat, []).append(info)
+def _generate_index() -> None:
+    """Write docs/index.rst with glob-based toctrees auto-discovering RST files."""
+    toctree = """
 
-    lines: list[str] = [_INDEX_PROLOGUE]
+.. toctree::
+   :maxdepth: 1
+   :caption: Solid backends
+   :glob:
 
-    for caption in _CATEGORY_ORDER:
-        entries = sections.get(caption, [])
-        if not entries:
-            # Keep hand-written pages like drawing, backends
-            if caption == "Solid backends" and (DOCS_DIR / "backends.rst").exists():
-                lines.append(".. toctree::")
-                lines.append("   :maxdepth: 1")
-                lines.append("   :caption: Solid backends")
-                lines.append("")
-                lines.append("    CSG & SDF backends <backends>")
-                lines.append("")
-            continue
+   backends/*
 
-        lines.append(".. toctree::")
-        lines.append("   :maxdepth: 2")
-        lines.append(f"   :caption: {caption}")
-        lines.append("")
-        for info in sorted(entries, key=lambda x: x["page"]):
-            page = info["page"]
-            label = info["summary"] or page.replace("_", " ").title()
-            badge = " &#128736;" if _has_spec(page) else ""
-            lines.append(f"    {label}{badge} <{page}>")
-        lines.append("")
+.. toctree::
+   :maxdepth: 2
+   :caption: Foundational
+   :glob:
 
-    # Hand-written drawing page
-    if (DOCS_DIR / "drawing.rst").exists():
-        for i, line in enumerate(lines):
-            if line.strip() == ":caption: Foundational":
-                insert_at = i + 3
-                while insert_at < len(lines) and lines[insert_at].startswith("    "):
-                    insert_at += 1
-                lines.insert(insert_at, "    Drawing <drawing>")
-                break
+   foundational/*
 
-    # Group individual 2-D and 3-D shape pages under shapes2d/shapes3d
-    _2d_shapes = frozenset({"circle", "square", "curves", "ops"})
-    _3d_shapes = frozenset({"cuboid", "cylinder", "sphere", "torus", "extrusions"})
-    _shape_pages = _2d_shapes | _3d_shapes
+.. toctree::
+   :maxdepth: 2
+   :caption: Paths, regions & surfaces
+   :glob:
 
-    new_lines: list[str] = []
-    skip_until_blank = False
-    for line in lines:
-        if skip_until_blank:
-            if line.strip() == "":
-                skip_until_blank = False
-            continue
-        stripped = line.strip()
-        if stripped.startswith(":caption: Foundational"):
-            new_lines.append(line)
-            continue
-        if stripped.startswith(":caption:"):
-            new_lines.append(line)
-            continue
-        if any(
-            stripped == f"{label} <{page}>"
-            or stripped.startswith(f"{label} <{page}>")
-            or any(stripped.endswith(f"<{page}>") for page in _shape_pages)
-            for label in ("Circle", "Square", "Curves", "Ops", "Cuboid", "Cylinder", "Sphere", "Torus", "Extrusions")
-        ):
-            skip_until_blank = False
-            continue
-        new_lines.append(line)
+   paths/*
 
-    lines = new_lines
+.. toctree::
+   :maxdepth: 2
+   :caption: Math & geometry
+   :glob:
 
-    # Insert the grouped pages before the toctree ends in Foundational
-    for i, line in enumerate(lines):
-        if line.strip() == ":caption: Foundational":
-            insert_at = i + 3
-            while insert_at < len(lines) and lines[insert_at].strip() and not lines[insert_at].startswith(".."):
-                insert_at += 1
-            lines.insert(insert_at, "    3-D Shapes <shapes3d>")
-            lines.insert(insert_at, "    2-D Shapes <shapes2d>")
-            break
+   math/*
 
-    # Hand-written pages without corresponding .py modules
-    extra_pages = {
-        "Solid backends": ["CSG & SDF backends <backends>"],
-        "Foundational": ["Native ops <native_ops>"],
-    }
+.. toctree::
+   :maxdepth: 2
+   :caption: Parts library
+   :glob:
 
-    for i, line in enumerate(lines):
-        for caption, extras in extra_pages.items():
-            if line.strip() == f":caption: {caption}":
-                insert_at = i + 3
-                while insert_at < len(lines) and lines[insert_at].startswith("    "):
-                    insert_at += 1
-                for extra in extras:
-                    if extra not in "\n".join(lines[i : i + 20]):
-                        lines.insert(insert_at, f"    {extra}")
-                break
+   parts/*
 
-    # Specs catalog toctree
+.. toctree::
+   :maxdepth: 2
+   :caption: Extras
+   :glob:
+
+   extras/*
+"""
+    lines: list[str] = [_INDEX_PROLOGUE] + toctree.split("\n")
+
+    lines.append("")
     lines.append(".. toctree::")
     lines.append("   :maxdepth: 1")
     lines.append("   :caption: Parts catalog")
@@ -566,15 +506,31 @@ _PARTS_STUB = """{title}
 """
 
 
+_CATEGORY_DIRS: dict[str, str] = {
+    "Foundational": "foundational",
+    "Paths, regions & surfaces": "paths",
+    "Math & geometry": "math",
+    "Parts library": "parts",
+    "Extras": "extras",
+    "Solid backends": "backends",
+}
+
+
 def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
     """Create missing .rst files for modules. Returns list of created paths."""
     created: list[str] = []
 
     for name, info in modules.items():
-        rst_path = DOCS_DIR / f"{name}.rst"
-        if rst_path.exists():
+        cat = info.get("category", "Foundational")
+        if cat == "__SKIP__":
             continue
-        if info.get("category") == "__SKIP__":
+        cat_dir = _CATEGORY_DIRS.get(cat)
+        if cat_dir is None:
+            continue
+        target_dir = DOCS_DIR / cat_dir
+        target_dir.mkdir(parents=True, exist_ok=True)
+        rst_path = target_dir / f"{name}.rst"
+        if rst_path.exists():
             continue
 
         title = info.get("file_id", name).replace("_", " ").title()
@@ -675,7 +631,7 @@ def _validate(rst_path: Path, name_index: dict[str, Any]) -> list[str]:
 def validate_all(name_index: dict[str, Any]) -> list[str]:
     """Validate all .rst files and return a unified warning list."""
     all_warnings: list[str] = []
-    for rst_path in sorted(DOCS_DIR.glob("*.rst")):
+    for rst_path in sorted(DOCS_DIR.rglob("*.rst")):
         all_warnings.extend(_validate(rst_path, name_index))
     return all_warnings
 
@@ -691,7 +647,7 @@ def main(verbose: bool = True) -> list[str]:
     name_index = _build_name_index()
 
     created = _generate_stubs(modules)
-    _generate_index(modules)
+    _generate_index()
     warnings = validate_all(name_index)
 
     if verbose:

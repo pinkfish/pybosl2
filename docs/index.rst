@@ -149,14 +149,14 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 2
    :caption: Foundational
 
-    Colour operators (Colorable mixin) via Python's colorsys module <color>
-    Constants provided by BOSL2 (BOSL2 constants.scad) <constants>
-    Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies <distributors>
-    Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d) <masking>
-    Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints) <partitions>
-    Statically typed shape constructors and backend-neutral solid facade <solid>
-    The texture() named-texture engine (BOSL2 skin.scad) <texture>
-    Affine-matrix reorient/apply and polar_to_xy (BOSL2 transforms.scad, coords.scad) <transforms>
+    Color <color>
+    Constants <constants>
+    Distributors <distributors>
+    Masking <masking>
+    Partitions <partitions>
+    Solid <solid>
+    Texture <texture>
+    Transforms <transforms>
     Drawing <drawing>
     2-D Shapes <shapes2d>
     3-D Shapes <shapes3d>
@@ -166,24 +166,24 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 2
    :caption: Paths, regions & surfaces
 
-    Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad) <beziers>
-    Metaball field primitives for VNF isosurface meshing (BOSL2 metaballs3d.scad) <isosurface>
-    NURBS curve/surface evaluation and meshing (de Boor) <nurbs>
-    Abstract :class:`Path` base class for 2-D and 3-D path types <paths>
-    Object API for 2-D paths and regions <regions>
-    Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad) <rounding>
-    Surface generators: sweep, path_sweep, skin, linear_sweep, rotate_sweep, spiral_sweep (BOSL2 skin.scad) <skin>
-    3-D turtle graphics (the Turtle class) <turtle3d>
-    VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad) <vnf>
+    Bezier <beziers>
+    Isosurface <isosurface>
+    NURBS <nurbs>
+    Paths <paths>
+    Regions <regions>
+    Rounding <rounding>
+    Skin <skin>
+    Turtle 3D <turtle3d>
+    VNF <vnf>
 
 .. toctree::
    :maxdepth: 2
    :caption: Math & geometry
 
-    Points, lines and polygon geometry helpers (BOSL2 geometry.scad) <geometry>
-    General numeric helpers and numerical calculus (BOSL2 math.scad) <math>
-    Class-based Quaternion representation and mathematics for 3-D rotations <quaternions>
-    Vector predicates and scalar-vector operations (BOSL2 vectors.scad) <vectors>
+    Geometry <geometry>
+    Math <math>
+    Quaternions <quaternions>
+    Vectors <vectors>
 
 .. toctree::
    :maxdepth: 2
@@ -213,7 +213,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :maxdepth: 2
    :caption: Extras
 
-    Extrusions, bounding box, chain hull, and minkowski-based transforms <miscellaneous>
+    Extrusions <miscellaneous>
 
 .. toctree::
    :maxdepth: 1

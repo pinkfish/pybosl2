@@ -33,12 +33,14 @@ DOCS_DIR = REPO_ROOT / "docs"
 SPECS_DIR = DOCS_DIR / "specs"
 WIKI_DIR = REPO_ROOT / "wiki"
 
+_CATEGORY_DIRS = ["foundational", "paths", "math", "parts", "extras", "backends"]
+
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 
 def _rst_files() -> Iterator[Path]:
-    yield from DOCS_DIR.glob("*.rst")
+    yield from DOCS_DIR.rglob("*.rst")
 
 
 def _spec_htmls() -> Iterator[Path]:
@@ -78,10 +80,11 @@ def _resolve_docs_href(href: str) -> bool:
     if href.startswith("specs/"):
         return _html_spec_exists(Path(href).name)
 
-    # doc-relative links like circle.html
-    target = DOCS_DIR / href
-    if target.exists():
-        return True
+    # doc-relative links like circle.html — search all category dirs + root
+    for d in _CATEGORY_DIRS + [""]:
+        target = DOCS_DIR / d / href
+        if target.exists():
+            return True
 
     # wiki-relative: e.g. _static/..., _images/... — only check if wiki is built
     if WIKI_DIR.is_dir():
@@ -248,20 +251,24 @@ class TestIndexTocTree:
         failures: list[str] = []
         for match in _TOCTREE_RE.finditer(index):
             page = match.group(1)
-            if not (DOCS_DIR / f"{page}.rst").exists():
+            found_in_dirs = any((DOCS_DIR / d / f"{page}.rst").exists() for d in _CATEGORY_DIRS)
+            found_in_root = (DOCS_DIR / f"{page}.rst").exists()
+            if not found_in_dirs and not found_in_root:
                 failures.append(page)
         assert not failures, "Broken toctree entries:\n" + "\n".join(f"  - {f}" for f in failures)
 
     @pytest.mark.parametrize(
         "group_page",
-        [p for p in ["shapes2d.rst", "shapes3d.rst"] if (DOCS_DIR / p).exists()],
+        [p for p in ["shapes2d.rst", "shapes3d.rst"] if (DOCS_DIR / "foundational" / p).exists()],
     )
     def test_group_toctree_entries_exist(self, group_page: str) -> None:
-        text = (DOCS_DIR / group_page).read_text()
+        text = (DOCS_DIR / "foundational" / group_page).read_text()
         failures: list[str] = []
         for match in _TOCTREE_RE.finditer(text):
             page = match.group(1)
-            if not (DOCS_DIR / f"{page}.rst").exists():
+            found_in_dirs = any((DOCS_DIR / d / f"{page}.rst").exists() for d in _CATEGORY_DIRS)
+            found_in_root = (DOCS_DIR / f"{page}.rst").exists()
+            if not found_in_dirs and not found_in_root:
                 failures.append(page)
         assert not failures, f"Broken {group_page} toctree:\n" + "\n".join(f"  - {f}" for f in failures)
 
@@ -277,6 +284,8 @@ class TestSpecSheetCoverage:
             name = spec.stem
             if name == "index":
                 continue
-            if not (DOCS_DIR / f"{name}.rst").exists():
+            found = any((DOCS_DIR / d / f"{name}.rst").exists() for d in _CATEGORY_DIRS)
+            found = found or (DOCS_DIR / f"{name}.rst").exists()
+            if not found:
                 failures.append(name)
         assert not failures, "Spec sheets without API pages:\n" + "\n".join(f"  - {f}" for f in failures)
