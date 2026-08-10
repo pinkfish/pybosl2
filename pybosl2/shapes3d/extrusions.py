@@ -206,7 +206,7 @@ def text3d(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 text3d() -- 3-D extruded text, with anchor/spin/orient support.
+    """Return 3-D extruded text, with anchor/spin/orient support.
 
     Args:
         text:      text to create
@@ -276,7 +276,7 @@ def path_text(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 path_text() -- places text characters along a path.
+    """Place text characters along a path.
 
     Args:
         path:        path to place the text on

@@ -353,7 +353,7 @@ class BottleCaps:
 
     @staticmethod
     def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
-        """Return a PCO-1810 threaded beverage-bottle neck (BOSL2 pco1810_neck()).
+        """Return a PCO-1810 threaded beverage-bottle neck.
 
         Args:
             fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
@@ -382,7 +382,7 @@ class BottleCaps:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a cap for a PCO-1810 bottle (BOSL2 pco1810_cap()). ``texture`` other than ``"none"`` falls.
+        """Return a cap for a PCO-1810 bottle. ``texture`` other than ``"none"`` falls.
 
         back to a plain wall (surface texturing is not in this port).
 
@@ -409,7 +409,7 @@ class BottleCaps:
 
     @staticmethod
     def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
-        """Return a PCO-1881 threaded beverage-bottle neck (BOSL2 pco1881_neck()).
+        """Return a PCO-1881 threaded beverage-bottle neck.
 
         Args:
             fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.
@@ -438,7 +438,7 @@ class BottleCaps:
         fa: float | None = None,
         fs: float | None = None,
     ) -> Bosl2Solid:
-        """Return a cap for a PCO-1881 bottle (BOSL2 pco1881_cap()). ``texture`` other than ``"none"`` falls.
+        """Return a cap for a PCO-1881 bottle. ``texture`` other than ``"none"`` falls.
 
         back to a plain wall (surface texturing is not in this port).
 

@@ -456,7 +456,7 @@ def squircle(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """Return a squircle -- a rounded square that morphs between a square and a circle (BOSL2 squircle()).
+    """Return a squircle -- a rounded square that morphs between a square and a circle.
 
     *squareness* runs 0 (a circle) to 1 (a square). Only the default ``"fg"`` (Fong-Garcia) style
     is ported; the ``"superellipse"`` and ``"bezier"`` styles are not.

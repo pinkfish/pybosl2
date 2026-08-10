@@ -873,7 +873,7 @@ def tube(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 tube() -- a hollow cylindrical tube, with optional chamfer/rounding on end rims.
+    """Return a hollow cylindrical tube, with optional chamfer/rounding on end rims.
 
     Note: BOSL2's outer-radius parameters are named ``or``/``or1``/``or2``, which collide with the
     Python keyword ``or``; they are exposed here as ``outer_radius``/``outer_radius1``/``outer_radius2`` instead.

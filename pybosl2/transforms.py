@@ -92,7 +92,7 @@ def rot_about_axis(
 
 
 def rot_inverse(t: np.ndarray) -> np.ndarray:
-    """Inverse of a rigid 4x4 transform (BOSL2 rot_inverse()): transpose the rotation,.
+    """Inverse of a rigid 4x4 transform: transpose the rotation,.
 
     un-translate.
     """
@@ -105,7 +105,7 @@ def rot_inverse(t: np.ndarray) -> np.ndarray:
 
 
 def rot_decode(m: np.ndarray, long: bool = False) -> list[Any]:
-    """Decode a rigid 4x4 transform into its screw motion (BOSL2 rot_decode()).
+    """Decode a rigid 4x4 transform into its screw motion.
 
     Returns ``[angle_degrees, axis, center, translation_along_axis]`` -- rotating by *angle* about the
     line through *center* in direction *axis* then translating along the axis reproduces *m*. *axis*,

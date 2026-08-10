@@ -743,3 +743,75 @@ def test_element_groups_empty_svg(tmp_path) -> None:
     f.write_text(EMPTY)
     groups = svg_element_groups(str(f))
     assert groups == []
+
+
+# -- clipping and per-colour splitting ------------------------------------------------------
+
+CLIPPED = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <defs><clipPath id="c"><path d="M-10 10h100v80H-10z"/></clipPath></defs>
+      <g clip-path="url(#c)" transform="translate(10 -10)">
+        <path fill="#ff0000" d="M-20 10h140v80h-140z"/>
+      </g>
+    </svg>
+    """
+)
+
+OVERHANG = textwrap.dedent(
+    """\
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <path fill="#00ff00" d="M-30 -30h160v160h-160z"/>
+    </svg>
+    """
+)
+
+
+def test_clip_path_is_applied_with_the_referencing_transform(tmp_path) -> None:
+    """A <clipPath> clips in the referencing element's space, transform and all.
+
+    A clipPath is defined in <defs>, so it parses in the document's coordinates while it
+    CLIPS in the coordinates of whatever references it. Ignoring the referencing transform
+    put Japan's flag 88 units off and cost it 20% of its area.
+    """
+    f = tmp_path / "clipped.svg"
+    f.write_text(CLIPPED)
+    region = region_from_svg(str(f))
+    min_x, min_y, max_x, max_y = region.geom.bounds
+    # clip x[-10,90] shifted by +10 -> x[0,100]; the rect itself spans x[-20,120] before that.
+    assert min_x == pytest.approx(0, abs=1e-6)
+    assert max_x == pytest.approx(100, abs=1e-6)
+
+
+def test_the_viewbox_clips_too(tmp_path) -> None:
+    """Content outside the viewBox is not drawn -- the viewport clips it."""
+    f = tmp_path / "overhang.svg"
+    f.write_text(OVERHANG)
+    clipped = region_from_svg(str(f))
+    assert clipped.geom.bounds == pytest.approx((0.0, -100.0, 100.0, 0.0), abs=1e-6)
+    # ...and a caller who wants the raw drawing can still have it.
+    raw = region_from_svg(str(f), clip_to_viewbox=False)
+    assert raw.geom.area > clipped.geom.area
+
+
+def test_regions_from_svg_are_disjoint(tmp_path) -> None:
+    """Per-colour regions must not overlap each other.
+
+    This used to pool each colour's rings and resolve them on their own, ignoring everything
+    painted on top: a flag's background came back as the WHOLE flag with every other colour
+    sitting on top of it, so the extruded bodies all overlapped.
+    """
+    from shapely.ops import unary_union
+
+    f = tmp_path / "layers.svg"
+    f.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        '<path fill="#ff0000" d="M0 0h100v100H0z"/>'
+        '<path fill="#0000ff" d="M0 0h40v100H0z"/>'
+        "</svg>"
+    )
+    regions = regions_from_svg(str(f))
+    total = sum(r.geom.area for r in regions)
+    dissolved = unary_union([r.geom for r in regions]).area
+    assert total == pytest.approx(dissolved, abs=1e-6)
+    assert dissolved == pytest.approx(100 * 100, abs=1e-6)

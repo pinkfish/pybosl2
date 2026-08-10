@@ -226,7 +226,7 @@ def polygon(
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
 ) -> Bosl2Shape2D:
-    """Return a polygon, built with the builtin polygon(), with anchor/spin support.
+    """Return a polygon with anchor/spin support.
 
     Args:
         path:   polygon path

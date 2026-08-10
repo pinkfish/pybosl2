@@ -78,7 +78,7 @@ def sphere(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """Return a sphere, built with the builtin sphere(), with BOSL2-style anchor/spin/orient support.
+    """Return a sphere with BOSL2-style anchor/spin/orient support.
 
     Note: `style=` is accepted for signature compatibility but not applied; the
     builtin sphere() is used directly.
@@ -220,7 +220,7 @@ def teardrop(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 teardrop() -- a teardrop shape, useful for 3D-printable horizontal holes.
+    """Return a teardrop shape, useful for 3D-printable horizontal holes.
 
     Args:
         height:    thickness of the teardrop (default 1)
@@ -304,7 +304,7 @@ def onion(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 onion() -- an onion-dome shape (a sphere with a conical cap).
+    """Return an onion-dome shape (a sphere with a conical cap).
 
     Args:
         radius:      radius of the spherical portion of the bottom (default 1)

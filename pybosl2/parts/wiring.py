@@ -50,7 +50,7 @@ _WIRE_COLORS = [
 
 
 def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:
-    """Return a hexagonal ring of packing centres spaced *d* apart (BOSL2 _hex_offset_ring()).
+    """Return a hexagonal ring of packing centres spaced *d* apart.
 
     ``lev=0`` is the single centre point; ``lev>=1`` is a hexagon of ``6*lev`` points.
     """
@@ -70,7 +70,7 @@ def _hex_offset_ring(d: float, lev: int) -> list[list[float]]:
 
 
 def _hex_offsets(n: int, d: float) -> list[list[float]]:
-    """Centres for the optimal hex packing of at least *n* circles of spacing *d* (BOSL2 _hex_offsets()).
+    """Centres for the optimal hex packing of at least *n* circles of spacing *d*.
 
     Fills out the final ring, so the result may hold more than *n* points.
     """

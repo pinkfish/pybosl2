@@ -17,9 +17,13 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+import pathlib
+import re
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from pybosl2.path2d import Path2D
     from pybosl2.regions import Region
 
@@ -138,6 +142,7 @@ def region_from_svg(
     flip_y: bool = True,
     color: str | None = None,
     strokes: str = "polygon",
+    clip_to_viewbox: bool = True,
 ) -> "Region":
     """Load an SVG drawing as a :class:`~pybosl2.regions.Region`.
 
@@ -162,6 +167,9 @@ def region_from_svg(
             (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.
         strokes: ``"polygon"`` (default) converts stroked paths into filled polygons.
             ``"ignore"`` skips shapes that have only a stroke and no fill.
+        clip_to_viewbox: When True (the default), clip the drawing to the SVG's
+            ``viewBox`` if one is declared, so shapes that paint outside the
+            intended canvas are trimmed away.
 
     Returns:
         A :class:`~pybosl2.regions.Region` of the drawing.
@@ -189,7 +197,16 @@ def region_from_svg(
     from pybosl2.color import Color
     from pybosl2.regions import Region
 
-    groups = svg_element_groups(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes)
+    groups = svg_element_groups(
+        file,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+        flip_y=flip_y,
+        color=color,
+        strokes=strokes,
+        clip_to_viewbox=clip_to_viewbox,
+    )
     if not groups:
         return Region()
 
@@ -240,6 +257,156 @@ def region_from_svg(
     return Region._from_colored_pieces(placed)
 
 
+def _shape_rings(element: object, sign: float, fn: "int | None", fs: float) -> list[list[list[float]]]:
+    """Flatten one svgelements Shape into closed point rings."""
+    from svgelements import Close, Line, Move
+    from svgelements import Path as _SVGPath
+
+    rings: list[list[list[float]]] = []
+    for subpath in _SVGPath(element).as_subpaths():
+        ring: list[list[float]] = []
+        for segment in subpath:
+            if isinstance(segment, Close):
+                continue
+            if isinstance(segment, (Move, Line)):
+                ring.append([float(segment.end.x), sign * float(segment.end.y)])
+                continue
+            count = _curve_point_count(segment, fn, fs)
+            for i in range(1, count + 1):
+                point = segment.point(i / count)
+                ring.append([float(point.x), sign * float(point.y)])
+        if len(ring) > 1 and ring[0] == ring[-1]:
+            ring.pop()
+        if len(ring) >= 3:
+            rings.append(ring)
+    return rings
+
+
+def _rings_to_shapely(rings: "list[list[list[float]]]") -> Any:
+    """Return the shapely geometry a set of rings describes, even-odd, repaired."""
+    from shapely.geometry import Polygon as _Polygon
+    from shapely.ops import unary_union as _unary_union
+
+    polys = []
+    for ring in rings:
+        poly = _Polygon(ring)
+        if not poly.is_valid:
+            poly = poly.buffer(0)
+        if not poly.is_empty:
+            polys.append(poly)
+    if not polys:
+        return None
+    return _unary_union(polys)
+
+
+def _shapely_to_rings(geom: Any) -> list[list[list[float]]]:
+    """Rings for every polygon in a shapely geometry (exteriors AND holes)."""
+    if geom is None or geom.is_empty:
+        return []
+    out: list[list[list[float]]] = []
+    for part in getattr(geom, "geoms", [geom]):
+        if not hasattr(part, "exterior"):
+            continue
+        if part.area <= 0:
+            continue
+        out.append([[float(x), float(y)] for x, y in list(part.exterior.coords)[:-1]])
+        for interior in part.interiors:
+            out.append([[float(x), float(y)] for x, y in list(interior.coords)[:-1]])
+    return out
+
+
+def _clip_rings(rings: "list[list[list[float]]]", mask: Any) -> Any:
+    """Intersect a shape's rings with a clip geometry."""
+    geom = _rings_to_shapely(rings)
+    if geom is None:
+        return None
+    return geom.intersection(mask)
+
+
+def _viewbox_geometry(file: str, sign: float) -> Any:
+    """Return the viewBox rectangle as shapely, in the same Y direction as the rings."""
+    from shapely.geometry import box as _box
+
+    try:
+        text = pathlib.Path(file).read_text(errors="replace")
+    except OSError:
+        return None
+    match = re.search(r'viewBox\s*=\s*"\s*([-\d.eE]+)[ ,]+([-\d.eE]+)[ ,]+([-\d.eE]+)[ ,]+([-\d.eE]+)', text)
+    if match is None:
+        return None
+    min_x, min_y, width, height = (float(v) for v in match.groups())
+    if width <= 0 or height <= 0:
+        return None
+    y0, y1 = sign * min_y, sign * (min_y + height)
+    return _box(min_x, min(y0, y1), min_x + width, max(y0, y1))
+
+
+def _walk_shapes(
+    node: object, svg_root: object, sign: float, fn: "int | None", fs: float, clip: Any = None
+) -> "Iterator[tuple[object, Any]]":
+    """Yield ``(shape, clip_geometry_or_None)`` for every Shape, honouring ``clip-path``.
+
+    ``<clipPath>`` is not decoration: a drawing can rely on it for its actual outline.
+    Japan's flag in flag-icons paints a 720-wide white rectangle and clips it to the 640-wide
+    viewport, so without this the flag came out 12% too long. The clip is INHERITED, so it is
+    carried down the tree here rather than read off each shape (svgelements does not copy a
+    group's clip-path onto its children).
+    """
+    from svgelements import Shape
+
+    values = getattr(node, "values", None) or {}
+    reference = values.get("clip-path") or values.get("clip_path")
+    if reference:
+        clipper = _resolve_clip(reference, svg_root, sign, fn, fs, getattr(node, "transform", None))
+        if clipper is not None:
+            clip = clipper if clip is None else clip.intersection(clipper)
+
+    if isinstance(node, Shape):
+        yield node, clip
+        return
+    for child in node if hasattr(node, "__iter__") else ():
+        yield from _walk_shapes(child, svg_root, sign, fn, fs, clip)
+
+
+def _resolve_clip(
+    reference: str, svg_root: object, sign: float, fn: "int | None", fs: float, matrix: Any = None
+) -> Any:
+    """Return the shapely geometry a ``clip-path="url(#id)"`` reference names, or ``None``.
+
+    *matrix* is the referencing element's own transform, and it MUST be applied: a
+    ``<clipPath>`` lives in ``<defs>`` and so is parsed in the document's coordinates, but it
+    clips in the referencing element's space. Japan's flag hangs its clip rectangle off a
+    group with ``translate(88 -32)``; without that shift the clip lands 88 units left of where
+    it belongs and takes 20% of the flag with it.
+    """
+    from svgelements import Shape
+
+    match = re.match(r"\s*url\(\s*#([^)\s]+)\s*\)", str(reference))
+    if match is None:
+        return None
+    target = (getattr(svg_root, "objects", None) or {}).get(match.group(1))
+    if target is None:
+        return None
+    # Flatten UNFLIPPED, transform in the SVG's own coordinates, then flip -- the matrix is
+    # expressed in SVG space, so it cannot be applied to already-flipped points.
+    rings: list[list[list[float]]] = []
+    for node in target if hasattr(target, "__iter__") else [target]:
+        if isinstance(node, Shape):
+            rings.extend(_shape_rings(node, 1.0, fn, fs))
+    if matrix is not None:
+        a, b, c, d, e, f = (
+            float(matrix.a),
+            float(matrix.b),
+            float(matrix.c),
+            float(matrix.d),
+            float(matrix.e),
+            float(matrix.f),
+        )
+        rings = [[[a * x + c * y + e, b * x + d * y + f] for x, y in ring] for ring in rings]
+    rings = [[[x, sign * y] for x, y in ring] for ring in rings]
+    return _rings_to_shapely(rings)
+
+
 def svg_element_groups(
     file: str,
     fn: int | None = DEFAULT_FN,
@@ -248,6 +415,7 @@ def svg_element_groups(
     flip_y: bool = True,
     color: str | None = None,
     strokes: str = "polygon",
+    clip_to_viewbox: bool = True,
 ) -> list[tuple[str | None, list[Path2D]]]:
     """Return an SVG's shapes, IN PAINT ORDER, each with its own rings kept together.
 
@@ -278,6 +446,8 @@ def svg_element_groups(
             stroked path to a filled polygon via shapely buffering so strokes appear
             as solid coloured pieces.  ``"ignore"`` skips shapes that have a stroke
             but no fill colour.
+        clip_to_viewbox: When True (the default), clip shapes to the SVG's ``viewBox``
+            if one is declared.
 
     Returns:
         ``[(colour, [Path2D, ...]), ...]`` in document (paint) order -- one entry per
@@ -297,28 +467,23 @@ def svg_element_groups(
 
     _ = fa  # accepted for API parity; bezier curves use *fn*/*fs* only
     sign = -1.0 if flip_y else 1.0
+    svg_root = SVG.parse(file)
+    # The VIEWPORT clips too: an SVG's viewBox is its visible extent and content outside it is
+    # not drawn (CSS `overflow: hidden` on the root). Drawings rely on that -- Scotland's
+    # saltire in flag-icons is one stroke run corner to corner, whose square ends stick out
+    # past the flag on every side. Honour it unless the caller asks not to.
+    viewport = _viewbox_geometry(file, sign) if clip_to_viewbox else None
+
     groups: list[tuple[str | None, list[Path2D]]] = []
-    for element in SVG.parse(file).elements():
+    for element, clip in _walk_shapes(svg_root, svg_root, sign, fn, fs):
         if not isinstance(element, Shape):
             continue
+        mask = clip if viewport is None else (viewport if clip is None else clip.intersection(viewport))
         fill_color: str | None = _shape_fill_hex(element)
-        fill_rings: list[Path2D] = []
-        for subpath in _SVGPath(element).as_subpaths():
-            ring: list[list[float]] = []
-            for segment in subpath:
-                if isinstance(segment, Close):
-                    continue
-                if isinstance(segment, (Move, Line)):
-                    ring.append([float(segment.end.x), sign * float(segment.end.y)])
-                    continue
-                count = _curve_point_count(segment, fn, fs)
-                for i in range(1, count + 1):
-                    point = segment.point(i / count)
-                    ring.append([float(point.x), sign * float(point.y)])
-            if len(ring) > 1 and ring[0] == ring[-1]:
-                ring.pop()
-            if len(ring) >= 3:
-                fill_rings.append(Path2D(ring, closed=True))
+        raw_rings = _shape_rings(element, sign, fn, fs)
+        if mask is not None and raw_rings:
+            raw_rings = _shapely_to_rings(_clip_rings(raw_rings, mask))
+        fill_rings = [Path2D(r, closed=True) for r in raw_rings]
         if fill_rings:
             groups.append((fill_color, fill_rings))
         if strokes == "polygon":
@@ -344,7 +509,11 @@ def svg_element_groups(
                         stroke_ring_pts, stroke_width / 2, _stroke_linecap(element), _stroke_linejoin(element)
                     )
                     if stroke_ring is not None and len(stroke_ring) >= 3:
-                        stroke_rings.append(Path2D(stroke_ring, closed=True))
+                        if mask is not None:
+                            for clipped in _shapely_to_rings(_clip_rings([stroke_ring], mask)):
+                                stroke_rings.append(Path2D(clipped, closed=True))
+                        else:
+                            stroke_rings.append(Path2D(stroke_ring, closed=True))
                 # A stroke paints ON TOP of its own element's fill, so it is its own group.
                 if stroke_rings:
                     groups.append((stroke_color, stroke_rings))
@@ -361,6 +530,7 @@ def svg_rings_with_colors(
     flip_y: bool = True,
     color: str | None = None,
     strokes: str = "polygon",
+    clip_to_viewbox: bool = True,
 ) -> tuple[list["Path2D"], list[str | None]]:
     """Every closed ring in an SVG, flattened, with the fill colour of each.
 
@@ -371,7 +541,14 @@ def svg_rings_with_colors(
     paths: list[Path2D] = []
     colors: list[str | None] = []
     for element_color, rings in svg_element_groups(
-        file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes
+        file,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+        flip_y=flip_y,
+        color=color,
+        strokes=strokes,
+        clip_to_viewbox=clip_to_viewbox,
     ):
         for ring in rings:
             paths.append(ring)
@@ -476,6 +653,7 @@ def regions_from_svg(
     flip_y: bool = True,
     color: str | None = None,
     strokes: str = "polygon",
+    clip_to_viewbox: bool = True,
 ) -> list["Region"]:
     """Load an SVG drawing as a list of :class:`~pybosl2.regions.Region` objects, coloured.
 
@@ -494,6 +672,8 @@ def regions_from_svg(
             (e.g. ``"#ff0000"``).  Pass ``None`` (the default) to use the SVG's own colours.
         strokes: ``"polygon"`` (default) converts stroked paths into filled polygons.
             ``"ignore"`` skips shapes that have only a stroke and no fill.
+        clip_to_viewbox: When True (the default), clip shapes to the SVG's ``viewBox``
+            if one is declared.
 
     Returns:
         A list of :class:`~pybosl2.regions.Region` objects, one per distinct fill colour
@@ -523,19 +703,41 @@ def regions_from_svg(
             os.unlink(tmp.name)
 
     """
-    from pybosl2.color import Color
     from pybosl2.regions import Region
 
-    paths, colors = svg_rings_with_colors(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes)
+    # Split the COMPOSITED drawing, rather than resolving each colour on its own. Pooling a
+    # colour's rings and running even_odd over them ignores everything painted on top, so the
+    # regions came back overlapping: Australia's blue was the whole 640x480 flag with the
+    # white Union Jack sitting on top of it, and every extruded body overlapped every other.
+    # region_from_svg already resolves paint order into disjoint pieces; this just groups the
+    # result by colour, so the two functions can no longer disagree about a drawing.
+    composited = region_from_svg(
+        file,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+        flip_y=flip_y,
+        color=color,
+        strokes=strokes,
+        clip_to_viewbox=clip_to_viewbox,
+    )
+    parts = list(getattr(composited.geom, "geoms", [composited.geom]))
+    colours = composited._polygon_colors or [composited._color] * len(parts)
 
-    groups: dict[str | None, list[Path2D]] = {}
-    for path, color in zip(paths, colors, strict=True):
-        groups.setdefault(color, []).append(path)
+    grouped: dict[str | None, list[tuple[object, object]]] = {}
+    order: list[str | None] = []
+    for part, part_colour in zip(parts, colours, strict=False):
+        key = str(part_colour) if part_colour is not None else None
+        if key not in grouped:
+            order.append(key)
+            grouped[key] = []
+        grouped[key].append((part_colour, part))
 
     results: list[Region] = []
-    for color_hex, rings in groups.items():
-        region = Region.even_odd(rings)
-        if color_hex is not None:
-            region = region.color(Color(color_hex))
+    for key in order:
+        pieces = grouped[key]
+        region = Region._from_colored_pieces(pieces)
+        if pieces[0][0] is not None:
+            region = region.color(pieces[0][0])  # type: ignore[arg-type]
         results.append(region)
     return results

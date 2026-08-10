@@ -317,7 +317,7 @@ def text(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Shape2D:
-    """2-D text, built directly with the builtin text() (which already supports halign/valign).
+    """Create 2-D text (halign/valign supported natively).
 
     Args:
         text:      text to create

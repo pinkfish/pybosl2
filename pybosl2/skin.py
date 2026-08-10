@@ -88,7 +88,7 @@ class Sweepable:
         style: VNFStyle = VNFStyle.MIN_EDGE,
         transforms: bool = False,
     ) -> VNF | Bosl2Solid | list[list[list[float]]]:
-        """Sweep *shape* along this path (BOSL2 path_sweep()).
+        """Sweep *shape* along this path.
 
         *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
         (using *normal* as a per-point normal list), or "natural" (the path's own normal). *twist*
@@ -136,7 +136,7 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
-        """Sweep 2-D *shape* along this 2-D path (BOSL2 path_sweep2d()).
+        """Sweep 2-D *shape* along this 2-D path.
 
         For each point on the profile, the path is offset by its X coordinate and lifted to Z = Y,
         producing a stack of profiles that are skinned into the final surface. Closed paths are
@@ -168,7 +168,7 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
-        """Extrude this 2-D profile linearly with optional twist/scale/shift (BOSL2 linear_sweep()).
+        """Extrude this 2-D profile linearly with optional twist/scale/shift.
 
         The profile is duplicated at *slices* positions along the Z axis; at each level the points
         are twisted (rotation around Z, degrees) and scaled (uniform scalar or 2-vector), then
@@ -205,7 +205,7 @@ class Sweepable:
         style: VNFStyle = VNFStyle.MIN_EDGE,
         start: float = 0.0,
     ) -> VNF | Bosl2Solid:
-        """Revolve this 2-D profile around the Z axis (BOSL2 rotate_sweep()).
+        """Revolve this 2-D profile around the Z axis.
 
         The profile is swept through *angle* degrees (default 360) around Z, starting at
         *start* degrees. When *angle* < 360 the profile is capped at both ends.
@@ -242,7 +242,7 @@ class Sweepable:
         center: bool = True,
         style: VNFStyle = VNFStyle.MIN_EDGE,
     ) -> VNF | Bosl2Solid:
-        """Sweep this 2-D profile along a helix (BOSL2 spiral_sweep()).
+        """Sweep this 2-D profile along a helix.
 
         The profile follows a helical path of *height* and *radius* (or separate start/end radii)
         over *turns* revolutions. Unlike rotate_sweep, the profile also gains height, producing
@@ -327,7 +327,7 @@ def frame_map(
     y: Sequence[float] | None = None,
     z: Sequence[float] | None = None,
 ) -> np.ndarray:
-    """Return the 4x4 rotation whose columns are the given orthonormal axes (BOSL2 frame_map()).
+    """Return the 4x4 rotation whose columns are the given orthonormal axes.
 
     Give any two of x/y/z (as 3-vectors); the third is filled in by the cross product.
     """
@@ -572,7 +572,7 @@ def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequen
 def slice_profiles(
     profiles: Sequence[Sequence[Sequence[float]]], slices: int, closed: bool = False
 ) -> list[list[list[float]]]:
-    """Interpolate *slices* extra profiles between each consecutive pair (BOSL2 slice_profiles()).
+    """Interpolate *slices* extra profiles between each consecutive pair.
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
     lists; the interpolation is vertex-by-vertex.
@@ -821,7 +821,7 @@ def subdivide_and_slice(
     method: ResampleMethod = ResampleMethod.LENGTH,  # noqa: ARG001
     closed: bool = False,
 ) -> list[list[list[float]]]:
-    """Resample every profile up to *numpoints* then interpolate *slices* between them (BOSL2 subdivide_and_slice()).
+    """Resample every profile up to *numpoints* then interpolate *slices* between them.
 
     *numpoints* defaults to the largest profile's length; "lcm" uses the least common multiple of
     the profile lengths. Returns the stacked list of (equal-length) profiles.
@@ -1727,7 +1727,7 @@ def _closest_angle(alpha: float, beta: float) -> float:
 
 
 def _smooth(data: Sequence[float], length: int, closed: bool = False, angle: bool = False) -> list[float]:
-    """Moving-average smooth of *data* over a window of *length* (BOSL2 _smooth()).
+    """Moving-average smooth of *data* over a window of *length*.
 
     With *angle*, values are unwrapped to the nearest congruent angle before averaging so the mean
     does not jump across the +/-180 boundary. Ends are padded with the edge value (open case).
@@ -1761,7 +1761,7 @@ def rot_resample(
     closed: bool = False,
     method: ResampleMethod = ResampleMethod.LENGTH,
 ) -> list[list[list[float]]]:
-    """Resample a list of 4x4 transforms to uniform screw-motion spacing (BOSL2 rot_resample()).
+    """Resample a list of 4x4 transforms to uniform screw-motion spacing.
 
     Interpolates between successive transforms along their screw motion (via :func:`rot_decode`),
     optionally adding *twist* and *scale* (smoothed over *smoothlen*). Handy for regularizing the

@@ -1243,7 +1243,7 @@ class VNF:
         return _polyhedron(points=self.vertices, faces=[f[::-1] for f in self.faces], convexity=10)
 
     def geometry(self) -> Any:
-        """Return the VNF as native polyhedron geometry, matching Path2D/Region's geometry() surface."""
+        """Return the VNF as native polyhedron geometry."""
         return self.polyhedron()
 
     @classmethod

@@ -74,7 +74,7 @@ def pie_slice(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 pie_slice() -- a pie slice, wedge of a cylinder/cone.
+    """Return a pie slice, wedge of a cylinder/cone.
 
     Args:
         height:    height of the pie slice
@@ -156,7 +156,7 @@ def torus(
     fa: float | None = None,
     fs: float | None = None,
 ) -> Bosl2Solid:
-    """BOSL2 torus() -- a torus (donut) shape.
+    """Return a torus (donut) shape.
 
     Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python
     keyword `or`; it is exposed here as `outer_radius` instead.
