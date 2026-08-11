@@ -46,40 +46,36 @@ curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
      var box = document.getElementById('version-links');
      var list = document.getElementById('version-list');
      var lat = document.getElementById('latest-link');
-     var path = window.location.pathname.replace(/\/$/,'');
-     var inDev = /\/dev\//.test(path) || /\/dev$/.test(path);
-     var isVer = /\/v\d+\.\d+\.\d+/.test(path);
-      var base;
-      if (inDev) { base = path.replace(/\/dev.*/, '') + '/'; }
-      else if (isVer) { base = path.replace(/\/v\\d+\\.\\d+\\.\\d+.*/, '') + '/'; }
-      else { base = path + '/'; }
-     if (isVer) {
-       lat.setAttribute('href', base + 'index.html');
-       box.style.display = 'block';
-       fetch(base + 'versions.json')
+      var path = window.location.pathname;
+      var isVer = /\/v\d+\.\d+\.\d+/.test(path);
+      var root = '/';
+      if (isVer) {
+        lat.setAttribute('href', root + 'index.html');
+        box.style.display = 'block';
+        fetch(root + 'versions.json')
+          .then(function(r){return r.json();})
+          .then(function(vers){
+            var n = Math.min(vers.length,5);
+            for (var i=0; i<n; i++) {
+              var v = vers[i], a = document.createElement('a');
+              a.href = root + v + '/index.html';
+              a.textContent = v;
+              list.appendChild(a);
+              if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
+            }
+          })
+          .catch(function(){});
+      } else {
+        dev.style.display = 'block';
+        lat.setAttribute('href', root + 'index.html');
+        box.style.display = 'block';
+        fetch(root + 'versions.json')
          .then(function(r){return r.json();})
          .then(function(vers){
            var n = Math.min(vers.length,5);
            for (var i=0; i<n; i++) {
              var v = vers[i], a = document.createElement('a');
-             a.href = base + v + '/index.html';
-             a.textContent = v;
-             list.appendChild(a);
-             if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
-           }
-         })
-         .catch(function(){});
-     } else {
-       dev.style.display = 'block';
-       lat.setAttribute('href', base + 'index.html');
-       box.style.display = 'block';
-       fetch(base + 'versions.json')
-         .then(function(r){return r.json();})
-         .then(function(vers){
-           var n = Math.min(vers.length,5);
-           for (var i=0; i<n; i++) {
-             var v = vers[i], a = document.createElement('a');
-             a.href = base + v + '/index.html';
+              a.href = root + v + '/index.html';
              a.textContent = v;
              list.appendChild(a);
              if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
