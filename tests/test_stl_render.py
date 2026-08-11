@@ -1882,7 +1882,7 @@ def test_sdf_to_csg_matches_the_field_it_was_meshed_from(tmp_path):
 # -- SVG stroke and polygon rendering --------------------------------------------------------
 
 PORTUGAL_FLAG_SVG = (
-    '<svg xmlns="https://www.w3.org/2000/svg" width="600" height="400">'
+    '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400">'
     '<rect width="600" height="400" fill="#f00"/>'
     '<rect width="240" height="400" fill="#060"/>'
     '<g fill="#ff0" fill-rule="evenodd" stroke="#000" stroke-width="0.8">'

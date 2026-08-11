@@ -15,7 +15,7 @@ shapes3d
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">cuboid([30, 20, 15])</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="3-D primitives schematic" xmlns="https://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M80,120 L120,60 L180,60 L220,120 L180,180 L120,180 Z M120,60 L120,180 M220,120 L180,180" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="3-D primitives schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M80,120 L120,60 L180,60 L220,120 L180,180 L120,180 Z M120,60 L120,180 M220,120 L180,180" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
       </div>
       <div class="spec-info">

@@ -19,7 +19,7 @@ from pybosl2.svg import region_from_svg, regions_from_svg, svg_element_groups, s
 # A 100x50 rect with a 20x10 hole, plus a separate 10x10 square: three rings, two solids.
 TWO_SOLIDS = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100">
       <path d="M 0,0 H 100 V 50 H 0 Z"/>
       <path d="M 10,10 H 30 V 20 H 10 Z"/>
       <path d="M 150,0 H 160 V 10 H 150 Z"/>
@@ -28,24 +28,24 @@ TWO_SOLIDS = textwrap.dedent(
 )
 
 EMPTY = """\
-<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
 </svg>
 """
 
 NO_SHAPES = """\
-<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
   <g id="empty-group"/>
 </svg>
 """
 
 MOVE_ONLY = """\
-<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
   <path d="M 10,10 M 20,20 M 30,30"/>
 </svg>
 """
 
 NESTED_G = """\
-<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
   <g>
     <g>
       <path d="M 0,0 H 40 V 30 H 0 Z"/>
@@ -55,7 +55,7 @@ NESTED_G = """\
 """
 
 TEXT_ELEMENT = """\
-<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
   <text x="10" y="30">hello</text>
   <path d="M 0,0 H 50 V 40 H 0 Z"/>
 </svg>
@@ -63,7 +63,7 @@ TEXT_ELEMENT = """\
 
 CURVED = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
       <path d="M 0,0 C 0,50 50,50 50,0 Z"/>
     </svg>
     """
@@ -72,7 +72,7 @@ CURVED = textwrap.dedent(
 # A long cubic bezier: M0,0 → C0,200,200,200,200,0 — arc length ~300 user units.
 LONG_CURVE = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
       <path d="M 0,0 C 0,200 200,200 200,0 Z"/>
     </svg>
     """
@@ -80,7 +80,7 @@ LONG_CURVE = textwrap.dedent(
 
 PIXEL_UNITS = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="800px" height="600px">
+    <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="600px">
       <path d="M 0,0 H 100 V 200 H 0 Z"/>
     </svg>
     """
@@ -88,7 +88,7 @@ PIXEL_UNITS = textwrap.dedent(
 
 COLORED = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
       <path d="M 0,0 H 40 V 30 H 0 Z" fill="#ff0000"/>
       <path d="M 50,0 H 80 V 30 H 50 Z" fill="#0000ff"/>
     </svg>
@@ -97,7 +97,7 @@ COLORED = textwrap.dedent(
 
 MIXED_FILL = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
       <path d="M 0,0 H 30 V 30 H 0 Z" fill="#ff0000"/>
       <path d="M 40,0 H 70 V 30 H 40 Z" fill="none"/>
       <circle cx="15" cy="55" r="10" fill="green"/>
@@ -107,7 +107,7 @@ MIXED_FILL = textwrap.dedent(
 
 OPACITY_FILL = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
       <path d="M 0,0 H 40 V 30 H 0 Z" fill="#ff0000" opacity="0.5"/>
     </svg>
     """
@@ -115,7 +115,7 @@ OPACITY_FILL = textwrap.dedent(
 
 STROKE_ONLY = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
       <path d="M 10,10 H 80 V 80 H 10 Z" fill="none" stroke="#ff0000" stroke-width="2"/>
     </svg>
     """
@@ -123,7 +123,7 @@ STROKE_ONLY = textwrap.dedent(
 
 FILL_AND_STROKE = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
       <path d="M 10,10 H 50 V 50 H 10 Z" fill="#00ff00" stroke="#000000" stroke-width="3"/>
     </svg>
     """
@@ -131,7 +131,7 @@ FILL_AND_STROKE = textwrap.dedent(
 
 STROKES_INHERITED = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
       <g fill="#ff0" stroke="#00f" stroke-width="1.5">
         <circle cx="50" cy="50" r="20"/>
         <rect x="10" y="10" width="30" height="30"/>
@@ -332,7 +332,7 @@ def test_region_from_svg_empty_svg_is_empty_region(tmp_path) -> None:
 def test_region_from_svg_has_color_attr(tmp_path) -> None:
     f = tmp_path / "shape.svg"
     f.write_text(
-        '<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
     )
     r = region_from_svg(str(f))
     assert hasattr(r, "_color")
@@ -341,7 +341,7 @@ def test_region_from_svg_has_color_attr(tmp_path) -> None:
 def test_region_from_svg_flip_y_false_is_not_mirrored(tmp_path) -> None:
     f = tmp_path / "shape.svg"
     f.write_text(
-        '<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
     )
     r = region_from_svg(str(f), flip_y=False)
     # With flip_y=False, Y stays positive (SVG Y=30 stays ~30 in user coords)
@@ -425,7 +425,7 @@ def test_regions_from_svg_same_color_shapes_are_merged(tmp_path) -> None:
     """Two shapes with the same fill colour should end up in one Region."""
     svg = textwrap.dedent(
         """\
-        <svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
           <path d="M 0,0 H 20 V 20 H 0 Z" fill="#ff0000"/>
           <path d="M 30,0 H 50 V 20 H 30 Z" fill="#ff0000"/>
         </svg>
@@ -481,7 +481,7 @@ def test_region_from_svg_overlap_first_wins(tmp_path) -> None:
     """Overlapping different-colour SVG shapes → first colour wins the overlap."""
     svg = textwrap.dedent(
         """\
-        <svg xmlns="https://www.w3.org/2000/svg">
+        <svg xmlns="http://www.w3.org/2000/svg">
           <path d="M 0,0 H 30 V 20 H 0 Z" fill="#ff0000"/>
           <path d="M 20,0 H 50 V 20 H 20 Z" fill="#0000ff"/>
         </svg>
@@ -710,7 +710,7 @@ def test_element_groups_fill_and_stroke_polygon(tmp_path) -> None:
 def test_element_groups_fill_matches_stroke_skip_duplicate(tmp_path) -> None:
     """When stroke colour matches fill, no duplicate stroke group is created."""
     svg = (
-        '<svg xmlns="https://www.w3.org/2000/svg">'
+        '<svg xmlns="http://www.w3.org/2000/svg">'
         '<path d="M10,10H50V50H10Z" fill="red" stroke="red" stroke-width="2"/></svg>'
     )
     f = tmp_path / "same.svg"
@@ -749,7 +749,7 @@ def test_element_groups_empty_svg(tmp_path) -> None:
 
 CLIPPED = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
       <defs><clipPath id="c"><path d="M-10 10h100v80H-10z"/></clipPath></defs>
       <g clip-path="url(#c)" transform="translate(10 -10)">
         <path fill="#ff0000" d="M-20 10h140v80h-140z"/>
@@ -760,7 +760,7 @@ CLIPPED = textwrap.dedent(
 
 OVERHANG = textwrap.dedent(
     """\
-    <svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
       <path fill="#00ff00" d="M-30 -30h160v160h-160z"/>
     </svg>
     """
@@ -805,7 +805,7 @@ def test_regions_from_svg_are_disjoint(tmp_path) -> None:
 
     f = tmp_path / "layers.svg"
     f.write_text(
-        '<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
         '<path fill="#ff0000" d="M0 0h100v100H0z"/>'
         '<path fill="#0000ff" d="M0 0h40v100H0z"/>'
         "</svg>"
@@ -895,14 +895,14 @@ class TestViewboxGeometry:
         from pybosl2.svg import _viewbox_geometry
 
         f = tmp_path / "zero.svg"
-        f.write_text('<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 0 100"/>')
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 0 100"/>')
         assert _viewbox_geometry(str(f), 1.0) is None
 
     def test_negative_height_viewbox_returns_none(self, tmp_path) -> None:
         from pybosl2.svg import _viewbox_geometry
 
         f = tmp_path / "neg.svg"
-        f.write_text('<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 100 -1"/>')
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 -1"/>')
         assert _viewbox_geometry(str(f), 1.0) is None
 
 
@@ -913,7 +913,7 @@ class TestResolveClip:
         from pybosl2.svg import _resolve_clip
 
         f = tmp_path / "noclip.svg"
-        f.write_text('<svg xmlns="https://www.w3.org/2000/svg"/>')
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>')
         from svgelements import SVG
 
         root = SVG.parse(str(f))
@@ -923,7 +923,7 @@ class TestResolveClip:
         from pybosl2.svg import _resolve_clip
 
         f = tmp_path / "missing.svg"
-        f.write_text('<svg xmlns="https://www.w3.org/2000/svg"/>')
+        f.write_text('<svg xmlns="http://www.w3.org/2000/svg"/>')
         from svgelements import SVG
 
         root = SVG.parse(str(f))
@@ -937,7 +937,7 @@ class TestSvgClipToViewbox:
         """Stroke with a clip mask exercises lines 513-514."""
         f = tmp_path / "clip_stroke.svg"
         f.write_text(
-            '<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
             '<clipPath id="c"><rect x="0" y="0" width="50" height="50"/></clipPath>'
             '<path d="M10,10h80v80H10z" fill="none" stroke="red" stroke-width="2" clip-path="url(#c)"/>'
             "</svg>"

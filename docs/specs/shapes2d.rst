@@ -15,7 +15,7 @@ shapes2d
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">circle(radius=15).linear_extrude(height=2)</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="2-D primitives schematic" xmlns="https://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M70,70 L210,70 L210,190 L70,190 Z M110,40 L170,40 L170,220 L110,220 Z M70,130 L210,130 M140,70 L140,190" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="2-D primitives schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M70,70 L210,70 L210,190 L70,190 Z M110,40 L170,40 L170,220 L110,220 Z M70,130 L210,130 M140,70 L140,190" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
       </div>
       <div class="spec-info">

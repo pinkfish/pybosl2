@@ -15,7 +15,7 @@ bottlecaps
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">pco1810_neck(fa=6)</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Bottle neck and cap schematic" xmlns="https://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M120,50 L120,190 M140,50 L140,190 M160,50 L160,190 M100,80 L180,80 M100,160 L180,160 M115,80 Q115,30 140,20 Q165,30 165,80" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Bottle neck and cap schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M120,50 L120,190 M140,50 L140,190 M160,50 L160,190 M100,80 L180,80 M100,160 L180,160 M115,80 Q115,30 140,20 Q165,30 165,80" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
       </div>
       <div class="spec-info">

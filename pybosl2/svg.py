@@ -182,7 +182,7 @@ def region_from_svg(
 
             import os, tempfile
             tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
-            tmp.write('<svg xmlns="https://www.w3.org/2000/svg"><path d="M10,10H90V90H10Z"/></svg>')
+            tmp.write('<svg xmlns="http://www.w3.org/2000/svg"><path d="M10,10H90V90H10Z"/></svg>')
             tmp.close()
 
             from pybosl2 import Region
@@ -687,7 +687,7 @@ def regions_from_svg(
 
             import os, tempfile
             tmp = tempfile.NamedTemporaryFile(suffix=".svg", mode="w", delete=False)
-            tmp.write('<svg xmlns="https://www.w3.org/2000/svg">'
+            tmp.write('<svg xmlns="http://www.w3.org/2000/svg">'
                       '<path d="M10,10H40V40H10Z" fill="#ff0000"/>'
                       '<path d="M50,10H80V40H50Z" fill="#0000ff"/>'
                       '</svg>')

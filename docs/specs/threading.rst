@@ -15,7 +15,7 @@ threading
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Threaded rod and nut schematic" xmlns="https://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M80,120 L120,60 L140,60 L100,120 M110,150 L160,80 L180,80 L130,150 M190,90 L210,120 M230,30 L250,60 M260,20 L260,50 M280,150 L320,90 L340,90 L300,150" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Threaded rod and nut schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M80,120 L120,60 L140,60 L100,120 M110,150 L160,80 L180,80 L130,150 M190,90 L210,120 M230,30 L250,60 M260,20 L260,50 M280,150 L320,90 L340,90 L300,150" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
       </div>
       <div class="spec-info">
