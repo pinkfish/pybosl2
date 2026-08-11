@@ -73,7 +73,8 @@ jobs:
 
       - name: Move dev docs into dev subdirectory
         run: |
-          mkdir -p _site
+          mkdir -p _site/dev
+          rm -rf _site/dev/*
           rsync -a wiki/ _site/dev/
 
       - name: Checkout existing gh-pages and keep old content
