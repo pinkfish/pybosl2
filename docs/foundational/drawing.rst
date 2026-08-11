@@ -1,5 +1,5 @@
-Drawing: path generators & renderers
-=====================================
+Drawing
+=======
 
 The drawing functions are distributed across the modules where they naturally live.
 *Path generators* return points; *path renderers* turn points into geometry.

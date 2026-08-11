@@ -1,5 +1,5 @@
-Distributors: copiers & reflected copies
-========================================
+Distributors
+============
 
 Pure-Python port of BOSL2's ``distributors.scad`` -- the "copiers" that duplicate a shape into a
 line, grid, ring, arc, sphere, or path pattern, plus the reflected-copy helpers. Each copier is a

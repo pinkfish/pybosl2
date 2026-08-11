@@ -1,5 +1,5 @@
-Solid backends: CSG and SDF
-===========================
+Backends
+========
 
 ``pybosl2`` can realize a solid two different ways, and the choice is a switchable *backend*:
 

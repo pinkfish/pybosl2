@@ -11,7 +11,7 @@
 #    positioning is derived from first principles using the same offset vectors
 #    as cuboid()'s own rounding.
 #
-# FileSummary: Cut rounded edge/corner/face profiles into a cuboid (BOSL2 masks2d/masks3d).
+# FileSummary: Masking
 # DocCategory: Foundational
 # FileGroup: BOSL2
 

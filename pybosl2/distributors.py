@@ -23,7 +23,7 @@
 #    pull in the mixin during its own import without a cycle); Path2D/Region/point-in-polygon are
 #    imported lazily inside the few functions that need them.
 #
-# FileSummary: Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies.
+# FileSummary: Distributors
 # DocCategory: Foundational
 # FileGroup: BOSL2
 

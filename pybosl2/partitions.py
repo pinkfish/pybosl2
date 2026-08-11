@@ -19,7 +19,7 @@
 #    primitives, shapes2d.arc, and Bosl2Solid are imported lazily inside the functions that need
 #    them, so shapes3d.py can pull in the mixin during its own import without a cycle.
 #
-# FileSummary: Planar half-cuts and interlocking partitions (jigsaw/dovetail/... joints).
+# FileSummary: Partitions
 # DocCategory: Foundational
 # FileGroup: BOSL2
 

@@ -13,7 +13,7 @@
 #    colour method rather than through an alpha parameter — matching how
 #    OpenSCAD's ``%`` (ghost/background) modifier works.
 #
-# FileSummary: Colour operators (Colorable mixin) via Python's colorsys module.
+# FileSummary: Color
 # DocCategory: Foundational
 # FileGroup: BOSL2
 
