@@ -35,21 +35,21 @@ let looping = false;
 function getRenderer() {
   if (renderer || rendererFailed) return renderer;
   try {
-    const canvas = document.createElement("canvas");
-    canvas.style.cssText = "position:fixed;width:1px;height:1px;top:-9999px;pointer-events:none";
-    document.body.appendChild(canvas);
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.domElement.style.cssText = "position:fixed;width:1px;height:1px;top:-9999px;pointer-events:none";
+    document.body.appendChild(renderer.domElement);
     renderer.setPixelRatio(1); // viewers size themselves in device pixels already
     renderer.setScissorTest(true);
-    canvas.addEventListener("webglcontextlost", (e) => {
+    renderer.domElement.addEventListener("webglcontextlost", (e) => {
       e.preventDefault(); // lets the browser restore this context instead of dropping it
     });
-    canvas.addEventListener("webglcontextrestored", () => {
+    renderer.domElement.addEventListener("webglcontextrestored", () => {
       for (const v of viewers) v.dirty = true;
     });
   } catch {
     rendererFailed = true;
-    for (const v of viewers) v.fail("WebGL is unavailable in this browser.");
+    looping = false; // stop the render loop – WebGL is unavailable
+    for (const v of viewers) v.fail("WebGL is unavailable — check chrome://settings/system");
   }
   return renderer;
 }
@@ -211,9 +211,17 @@ class Viewer {
   }
 
   fail(message) {
-    if (!this.status) return;
-    this.status.textContent = message;
-    this.status.classList.add("stl-viewer-error");
+    if (this.status) {
+      if (this.uri) {
+        this.status.innerHTML =
+          '<a href="' + this.uri + '" download>&#8681; Download STL mesh</a>'
+          + '<br><small style="opacity:0.65">WebGL is unavailable &mdash; <a href="https://support.google.com/chrome/answer/6138473">enable hardware acceleration</a> in Chrome, or try <a href="chrome://flags/#enable-webgl-swiftshader">SwiftShader</a> for software rendering.</small>';
+        this.status.classList.add("stl-viewer-fallback");
+      } else {
+        this.status.textContent = message;
+        this.status.classList.add("stl-viewer-error");
+      }
+    }
   }
 }
 
