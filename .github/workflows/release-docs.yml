@@ -88,7 +88,7 @@ jobs:
           # Clean existing version directory and root (preserve v*/ and dev/ subdirs).
           mkdir -p "_site/${VDIR}"
           rm -rf "_site/${VDIR}"/*
-          find _site -maxdepth 1 ! -name '_site' ! -name 'v*' ! -name 'dev' ! -name 'versions.json' ! -name '.nojekyll' \
+          find _site -maxdepth 1 ! -name '_site' ! -name 'v*' ! -name 'dev' ! -name 'versions.json' ! -name '.nojekyll' ! -name 'CNAME' \
             -exec rm -rf {} + 2>/dev/null || true
 
           cp -a wiki/* "_site/${VDIR}/"
