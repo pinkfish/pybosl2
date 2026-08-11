@@ -13,7 +13,7 @@ ball bearings
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">ball_bearing("608")</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">ball_bearing("608")</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Schematic of an open ball bearing with 9 balls in the race." xmlns="http://www.w3.org/2000/svg"><circle cx="230" cy="118" r="96" fill="none" stroke="var(--ink-dim)" stroke-width="1.8"/><circle cx="230" cy="118" r="88" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="230" cy="118" r="40" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.8"/><circle cx="230" cy="118" r="48" fill="none" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="230" cy="118" r="66" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5"/><circle cx="296.0" cy="118.0" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="280.6" cy="160.4" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="241.5" cy="183.0" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="197.0" cy="175.2" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="168.0" cy="140.6" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="168.0" cy="95.4" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="197.0" cy="60.8" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="241.5" cy="53.0" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="280.6" cy="75.6" r="11.8" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><text x="230" y="234" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">9 balls · pitch &Oslash;</text></svg></div>
         </div>
@@ -44,9 +44,9 @@ ball bearings
 
     <script id="spec-data" type="application/json">[{"id": "608", "label": "608", "uri": "_stl/ball_bearings-608.stl", "code": "BallBearings.ball_bearing(\"608\")", "part": "ball_bearing(\"608\")", "tris": 2328, "vol": "1,640.6", "bbox": "22\u00d722\u00d77", "wt": true}, {"id": "6902zz", "label": "6902ZZ", "uri": "_stl/ball_bearings-6902zz.stl", "code": "BallBearings.ball_bearing(\"6902ZZ\")", "part": "ball_bearing(\"6902ZZ\")", "tris": 696, "vol": "2,862.2", "bbox": "28\u00d728\u00d77", "wt": true}, {"id": "r8", "label": "R8", "uri": "_stl/ball_bearings-r8.stl", "code": "BallBearings.ball_bearing(\"R8\")", "part": "ball_bearing(\"R8\")", "tris": 2978, "vol": "2,400.7", "bbox": "29\u00d728\u00d76", "wt": false}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ ball bearings
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ ball bearings
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ ball bearings
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ ball bearings
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();

@@ -13,7 +13,7 @@ shapes3d
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">cuboid([30, 20, 15])</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">cuboid([30, 20, 15])</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="3-D primitives schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M80,120 L120,60 L180,60 L220,120 L180,180 L120,180 Z M120,60 L120,180 M220,120 L180,180" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
@@ -44,9 +44,9 @@ shapes3d
 
     <script id="spec-data" type="application/json">[{"id": "cuboid", "label": "cuboid", "uri": "_stl/shapes3d-cuboid.stl", "code": "cuboid([30, 20, 15])", "part": "cuboid([30, 20, 15])", "tris": 12, "vol": "9,000.0", "bbox": "30\u00d720\u00d715", "wt": true}, {"id": "sphere", "label": "sphere", "uri": "_stl/shapes3d-sphere.stl", "code": "sphere(radius=15)", "part": "sphere(radius=15)", "tris": 896, "vol": "13,880.9", "bbox": "30\u00d730\u00d730", "wt": true}, {"id": "cylinder", "label": "cylinder", "uri": "_stl/shapes3d-cylinder.stl", "code": "cylinder(height=20, radius=8)", "part": "cylinder(height=20, radius=8)", "tris": 100, "vol": "3,982.2", "bbox": "16\u00d716\u00d720", "wt": true}, {"id": "cone", "label": "cone", "uri": "_stl/shapes3d-cone.stl", "code": "cone(height=20, radius1=10, radius2=3, chamfer=1)", "part": "cone(height=20, radius1=10, radius2=3, chamfer=1)", "tris": 360, "vol": "2,902.4", "bbox": "20\u00d720\u00d720", "wt": false}, {"id": "prismoid", "label": "prismoid", "uri": "_stl/shapes3d-prismoid.stl", "code": "prismoid(size1=[20, 20], size2=[10, 10], height=15)", "part": "prismoid(size1=[20, 20], size2=[10, 10], height=15)", "tris": 12, "vol": "3,500.0", "bbox": "20\u00d720\u00d715", "wt": true}, {"id": "torus", "label": "torus", "uri": "_stl/shapes3d-torus.stl", "code": "torus(major_radius=12, minor_radius=4)", "part": "torus(major_radius=12, minor_radius=4)", "tris": 780, "vol": "3,617.5", "bbox": "32\u00d732\u00d78", "wt": true}, {"id": "tube", "label": "tube", "uri": "_stl/shapes3d-tube.stl", "code": "tube(height=20, outer_radius=10, inner_radius=6)", "part": "tube(height=20, outer_radius=10, inner_radius=6)", "tris": 196, "vol": "4,016.4", "bbox": "20\u00d720\u00d720", "wt": true}, {"id": "teardrop", "label": "teardrop", "uri": "_stl/shapes3d-teardrop.stl", "code": "teardrop(height=20, radius=10)", "part": "teardrop(height=20, radius=10)", "tris": 92, "vol": "6,676.4", "bbox": "20\u00d720\u00d724", "wt": true}, {"id": "capsule", "label": "capsule", "uri": "_stl/shapes3d-capsule.stl", "code": "spheroid(radius=12)", "part": "spheroid(radius=12)", "tris": 896, "vol": "7,107.0", "bbox": "24\u00d724\u00d724", "wt": true}, {"id": "rounded-cuboid", "label": "rounded cuboid", "uri": "_stl/shapes3d-rounded-cuboid.stl", "code": "cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)", "part": "cuboid([30, 20, 15], rounding=4, edges=Anchor.Z, except_edges=TOP+FRONT+RIGHT)", "tris": 36, "vol": "8,943.7", "bbox": "30\u00d720\u00d715", "wt": true}, {"id": "chamfered-cylinder", "label": "chamfered cyl", "uri": "_stl/shapes3d-chamfered-cylinder.stl", "code": "cylinder(height=20, radius=10, chamfer=2)", "part": "cylinder(height=20, radius=10, chamfer=2)", "tris": 360, "vol": "6,004.5", "bbox": "20\u00d720\u00d720", "wt": false}, {"id": "octahedron", "label": "octahedron", "uri": "_stl/shapes3d-octahedron.stl", "code": "octahedron(20)", "part": "octahedron(20)", "tris": 8, "vol": "1,333.3", "bbox": "20\u00d720\u00d720", "wt": true}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ shapes3d
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ shapes3d
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ shapes3d
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ shapes3d
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();

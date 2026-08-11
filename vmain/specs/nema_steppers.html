@@ -2347,7 +2347,7 @@
 <h1 id="nema-steppers"><span id="spec-nema-steppers"></span>nema steppers<a class="headerlink" href="#nema-steppers" title="Link to this heading">¶</a></h1>
 <p class="spec-lede">Models of NEMA-standard stepper motors — body, plinth, shaft and mounting holes — plus the bolt-pattern mask to difference out of a mounting plate.</p><div class="spec-panel">
   <div class="spec-draw">
-    <div class="spec-caption"><span id="vpart">NemaMotor(17).shape()</span><span>interactive &middot; drag to orbit</span></div>
+    <div class="spec-caption"><span id="vpart">NemaMotor(17).shape()</span></div>
     <div class="spec-viewer" id="viewer">
       <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Mounting-face view of a NEMA stepper motor: square body, four corner bolt holes, central shaft." xmlns="http://www.w3.org/2000/svg"><rect x="138" y="24" width="184" height="184" rx="14" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/><rect x="168" y="54" width="124" height="124" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5" opacity="0.7"/><line x1="168" y1="224" x2="292" y2="224" stroke="var(--ink-faint)" stroke-width="1"/><text x="230" y="238" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">bolt spacing 31 mm · NEMA 17</text><circle cx="230" cy="116" r="34" fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.6"/><circle cx="230" cy="116" r="14" fill="color-mix(in srgb,var(--accent) 22%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.6"/><circle cx="168" cy="54" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="168" cy="178" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="292" cy="54" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="292" cy="178" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/></svg></div>
     </div>
@@ -2374,9 +2374,9 @@
   </div>
 </div><script id="spec-data" type="application/json">[{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaMotor(17).shape()", "part": "NemaMotor(17).shape()", "tris": 290, "vol": "43,858.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaMotor(23).shape()", "part": "NemaMotor(23).shape()", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaMotor(8).shape()", "part": "NemaMotor(8).shape()", "tris": 262, "vol": "10,312.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaMountMask(17).shape()", "part": "NemaMountMask(17).shape()", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}]</script>
 <script type="module">
-import * as THREE from "https://esm.sh/three@0.160.0";
-import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
 (function() {
   const dataEl = document.getElementById("spec-data");
@@ -2391,13 +2391,11 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
   const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
   function resize() {
-    const w = box.clientWidth, h = box.clientHeight || 300;
-    // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-    // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-    // box (overflow:hidden) shows only its top-left corner.
+    const w = box.clientWidth, h = Math.max(300, box.clientHeight);
     renderer.setSize(w, Math.max(1, h));
     camera.aspect = w / Math.max(1, h);
     camera.updateProjectionMatrix();
+    controls.update();
   }
 
   function initThree() {
@@ -2448,6 +2446,9 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
       camera.far = r * 100;
       camera.updateProjectionMatrix();
       controls.target.set(0, 0, 0);
+      controls.update();
+      camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+      camera.lookAt(0, 0, 0);
       if (poster) poster.style.display = "none";
       const hint = box.querySelector(".hint");
       if (hint) hint.remove();
@@ -2461,7 +2462,7 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
           + "justify-content:center;padding:1em;color:#a00;"
           + "background:rgba(255,255,255,0.8);font-size:0.85em;"
         );
-        h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+        h.textContent = "Could not load STL — file may be missing";
         box.appendChild(h);
       }
     });
@@ -2485,7 +2486,7 @@ import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/control
 
   const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
   buttons.forEach((b, i) => {
-    b.addEventListener("click", () => { selectVariant(i); });
+    b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
   });
   selectVariant(0);
 })();
@@ -2602,7 +2603,7 @@ setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied
     
       
         <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="../_static/stl_viewer.js?v=cd7264b7"></script>
+        <script type="module" src="../_static/stl_viewer.js?v=8eb3f512"></script>
     
   </body>
 </html>

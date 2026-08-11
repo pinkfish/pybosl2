@@ -13,7 +13,7 @@ hinges
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">KnuckleHingePair(length=40, segs=5).shape()</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">KnuckleHingePair(length=40, segs=5).shape()</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Plan view of a five-knuckle butt hinge." xmlns="http://www.w3.org/2000/svg">
     <defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
@@ -61,9 +61,9 @@ hinges
 
     <script id="spec-data" type="application/json">[{"id": "pair", "label": "knuckle pair", "uri": "_stl/hinges-pair.stl", "code": "KnuckleHingePair(length=40, segs=5).shape()", "part": "KnuckleHingePair(length=40, segs=5).shape()", "tris": 492, "vol": "5,811.5", "bbox": "40\u00d746\u00d76", "wt": true}, {"id": "knuckle", "label": "single leaf", "uri": "_stl/hinges-knuckle.stl", "code": "KnuckleHinge(length=40, segs=5).shape()", "part": "KnuckleHinge(length=40, segs=5).shape()", "tris": 276, "vol": "2,960.5", "bbox": "40\u00d726\u00d76", "wt": true}, {"id": "snap-lock", "label": "snap lock", "uri": "_stl/hinges-snap-lock.stl", "code": "SnapLock().shape()", "part": "SnapLock().shape()", "tris": 36, "vol": "181.7", "bbox": "5\u00d75\u00d78", "wt": true}, {"id": "snap-socket", "label": "snap socket", "uri": "_stl/hinges-snap-socket.stl", "code": "SnapSocket().shape()", "part": "SnapSocket().shape()", "tris": 76, "vol": "179.6", "bbox": "5\u00d75\u00d78", "wt": true}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -78,13 +78,11 @@ hinges
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -135,6 +133,9 @@ hinges
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -148,7 +149,7 @@ hinges
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -172,7 +173,7 @@ hinges
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();

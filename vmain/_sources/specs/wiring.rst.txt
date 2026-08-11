@@ -13,7 +13,7 @@ wiring
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">WireBundle(PATH, wires=13, rounding=10).shape()</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">WireBundle(PATH, wires=13, rounding=10).shape()</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Cross-section of a 13-wire bundle, hex-packed and colour-coded." xmlns="http://www.w3.org/2000/svg"><circle cx="230.0" cy="116.0" r="14.1" fill="#333333" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="245.0" cy="142.0" r="14.1" fill="#ff3333" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="215.0" cy="142.0" r="14.1" fill="#00cc00" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="200.0" cy="116.0" r="14.1" fill="#ffff33" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="215.0" cy="90.0" r="14.1" fill="#4c4cff" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="245.0" cy="90.0" r="14.1" fill="#ffffff" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="260.0" cy="116.0" r="14.1" fill="#b27f00" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="275.0" cy="142.0" r="14.1" fill="#7f7f7f" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="260.0" cy="168.0" r="14.1" fill="#33e5e5" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="230.0" cy="168.0" r="14.1" fill="#cc00cc" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="200.0" cy="168.0" r="14.1" fill="#009999" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="185.0" cy="142.0" r="14.1" fill="#ffb2b2" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="170.0" cy="116.0" r="14.1" fill="#ff7fff" stroke="var(--ink-dim)" stroke-width="1.1"/><text x="230" y="224" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">13 wires · hex-packed · 17-colour table</text></svg></div>
         </div>
@@ -44,9 +44,9 @@ wiring
 
     <script id="spec-data" type="application/json">[{"id": "13", "label": "13 wires", "uri": "_stl/wiring-13.stl", "code": "WireBundle(PATH, wires=13, rounding=10).shape()", "part": "WireBundle(PATH, wires=13, rounding=10).shape()", "tris": 10348, "vol": "6,974.3", "bbox": "60\u00d759\u00d754", "wt": false}, {"id": "7", "label": "7 wires", "uri": "_stl/wiring-7.stl", "code": "WireBundle(PATH, wires=7, rounding=10).shape()", "part": "WireBundle(PATH, wires=7, rounding=10).shape()", "tris": 5572, "vol": "3,703.2", "bbox": "56\u00d756\u00d753", "wt": false}, {"id": "1", "label": "1 wire", "uri": "_stl/wiring-1.stl", "code": "WireBundle(PATH, wires=1, rounding=10).shape()", "part": "WireBundle(PATH, wires=1, rounding=10).shape()", "tris": 796, "vol": "529.0", "bbox": "52\u00d752\u00d751", "wt": true}, {"id": "thick", "label": "thick gauge", "uri": "_stl/wiring-thick.stl", "code": "WireBundle(PATH, wires=7, wirediam=3, rounding=15).shape()", "part": "WireBundle(PATH, wires=7, wirediam=3, rounding=15).shape()", "tris": 5572, "vol": "8,043.4", "bbox": "59\u00d759\u00d754", "wt": false}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ wiring
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ wiring
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ wiring
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ wiring
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();
