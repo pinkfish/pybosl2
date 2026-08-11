@@ -1,6 +1,10 @@
 pybosl2 — a pure-Python PythonSCAD port of BOSL2
 ================================================
 
+.. image:: _static/title.jpeg
+   :alt: pybosl2
+   :align: center
+
 ``pybosl2`` is a pure-Python / numpy port of the pieces of `BOSL2 <https://github.com/BelfrySCAD/BOSL2>`_
 that this toolkit uses, with **no** ``osuse()``/BOSL2 runtime dependency. Every operation hangs off
 an object — :class:`~pybosl2.path2d.Path2D` for 2-D outlines, :class:`~pybosl2.regions.Region` for
