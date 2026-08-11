@@ -1,5 +1,5 @@
-Edge/corner masking
-===================
+Masking
+=======
 .. automodule:: pybosl2.masking
    :members:
    :undoc-members:

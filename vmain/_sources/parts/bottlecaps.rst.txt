@@ -1,5 +1,5 @@
-Bottle caps: PCO-1810 & PCO-1881 necks and caps
-===============================================
+Bottle caps
+===========
 
 .. raw:: html
 

@@ -1,5 +1,5 @@
-Miscellaneous: extrusions, bbox, hull & minkowski
-=================================================
+Miscellaneous
+=============
 
 Pure-Python port of BOSL2's ``miscellaneous.scad`` -- the extrusions (``extrude_from_to``,
 ``path_extrude2d``, ``path_extrude``, ``cylindrical_extrude``), the bounding box, ``chain_hull``,

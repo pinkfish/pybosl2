@@ -1,5 +1,5 @@
-Screw drives: Phillips, hex, Torx & Robertson recesses
-======================================================
+Screw drives
+============
 
 .. raw:: html
 

@@ -1,5 +1,5 @@
-Colour: colorspace conversion & colour operators
-================================================
+Color
+=====
 
 Pure-Python port of BOSL2's ``color.scad`` -- the HSL/HSV -> RGB conversions, the
 :func:`~pybosl2.color` helper, and the colour operators added onto

@@ -1,5 +1,5 @@
-Transforms (affine / reorient)
-==============================
+Transforms
+==========
 .. automodule:: pybosl2.transforms
    :members:
    :undoc-members:

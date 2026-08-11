@@ -1,5 +1,5 @@
-NURBS: curves & surfaces
-========================
+NURBS
+=====
 
 Pure-Python port of the NURBS **evaluation** API from BOSL2's ``nurbs.scad``, as two classes:
 :class:`~pybosl2.nurbs.NurbsCurve` (evaluate a curve, sample it into a path, raise its degree) and

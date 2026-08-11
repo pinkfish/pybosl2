@@ -1,5 +1,5 @@
-Sweeps (skin)
-=============
+Skin
+====
 
 Pure-Python port of the surface generators from BOSL2's ``skin.scad`` — every one builds a
 :class:`~pybosl2.vnf` you render with ``.polyhedron()``.

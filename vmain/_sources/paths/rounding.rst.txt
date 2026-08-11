@@ -1,5 +1,5 @@
-Rounding: round_corners & smooth_path
-=====================================
+Rounding
+========
 
 Pure-Python port of the path-rounding core of BOSL2's ``rounding.scad``:
 :meth:`~pybosl2.rounding.Roundable.round_corners` rounds every corner of a path, and
