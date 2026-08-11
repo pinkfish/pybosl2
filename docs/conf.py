@@ -109,12 +109,14 @@ html_extra_path = ["_extra"]
 
 html_theme = "sphinx_immaterial"
 html_static_path: list[str] = ["_static"]
+html_favicon = "_static/favicon.png"
 html_css_files: list[str] = ["specs.css"]
 
 
 html_theme_options = {
     "icon": {
         "repo": "fontawesome/brands/github",
+        "logo": "_static/logo.png",
     },
     "site_url": "https://pinkfish.github.io/pybosl2/",
     "repo_url": "https://github.com/pinkfish/pybosl2/",
