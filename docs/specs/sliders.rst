@@ -42,7 +42,7 @@ sliders
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "slider", "label": "slider", "uri": "../_stl/sliders-slider.stl", "code": "Slider(l=30, base=10, wall=4, slop=0.2).shape()", "part": "Slider(l=30, base=10, wall=4, slop=0.2).shape()", "tris": 100, "vol": "8,307.2", "bbox": "30\u00d718\u00d720", "wt": true}, {"id": "rail", "label": "rail", "uri": "../_stl/sliders-rail.stl", "code": "Rail(l=100, w=10, h=10).shape()", "part": "Rail(l=100, w=10, h=10).shape()", "tris": 52, "vol": "6,861.2", "bbox": "10\u00d7100\u00d710", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "slider", "label": "slider", "uri": "_stl/sliders-slider.stl", "code": "Slider(l=30, base=10, wall=4, slop=0.2).shape()", "part": "Slider(l=30, base=10, wall=4, slop=0.2).shape()", "tris": 100, "vol": "8,307.2", "bbox": "30\u00d718\u00d720", "wt": true}, {"id": "rail", "label": "rail", "uri": "_stl/sliders-rail.stl", "code": "Rail(l=100, w=10, h=10).shape()", "part": "Rail(l=100, w=10, h=10).shape()", "tris": 52, "vol": "6,861.2", "bbox": "10\u00d7100\u00d710", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://esm.sh/three@0.160.0";
     import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
