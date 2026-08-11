@@ -577,6 +577,24 @@ def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
     return created
 
 
+_HANDWRITTEN_PAGES = frozenset({"index", "drawing", "native_ops", "shapes2d", "shapes3d", "backends"})
+
+
+def _cleanup_stale_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
+    """Remove .rst files that no longer correspond to any module. Returns list of deleted names."""
+    known = frozenset(modules)
+    deleted: list[str] = []
+    for rst_path in sorted(DOCS_DIR.rglob("*.rst")):
+        if rst_path.parent.name == "specs":
+            continue
+        name = rst_path.stem
+        if name in _HANDWRITTEN_PAGES or name in known:
+            continue
+        rst_path.unlink()
+        deleted.append(name)
+    return deleted
+
+
 # ---------------------------------------------------------------------------
 # Validation
 # ---------------------------------------------------------------------------
@@ -658,12 +676,15 @@ def main(verbose: bool = True) -> list[str]:
     name_index = _build_name_index()
 
     created = _generate_stubs(modules)
+    stale = _cleanup_stale_stubs(modules)
     _generate_index()
     warnings = validate_all(name_index)
 
     if verbose:
         if created:
             print(f"_rstgen: created {len(created)} stub(s): {', '.join(created)}")
+        if stale:
+            print(f"_rstgen: removed {len(stale)} stale stub(s): {', '.join(stale)}")
         print(f"_rstgen: {len(modules)} modules indexed")
         if warnings:
             print(f"_rstgen: {len(warnings)} broken cross-references:")
