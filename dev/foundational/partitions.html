@@ -1,0 +1,3475 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="native_ops.html">
+      
+      
+        <link rel="next" href="shapes2d.html">
+      
+      
+      <link rel="icon" href="">
+    
+    
+      
+        <title>Partitions - pybosl2 (PythonSCAD port) 0.7.10 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../_static/stl_viewer.css?v=c6f4cd80" />
+        <link rel="stylesheet" type="text/css" href="../_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#planar-half-cuts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.10 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.10 documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.10 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Partitions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.10 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.10 documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.10 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Backends</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Color</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Distributors</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Drawing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Masking</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Mesh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#planar-half-cuts" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Planar half-<wbr>cuts</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interlocking-partitions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Interlocking partitions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-of-bosl2-partitions-scad" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Coverage of BOSL2 partitions.<wbr>scad</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Examples</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-pybosl2.partitions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions (Python module)"><span>API reference</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.partition_path (Python function) — Build a 2-D interlocking cut path from a list of segment descriptors."><span>pybosl2.<wbr>partitions.<wbr>partition_<wbr>path</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.partition_path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_mask" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.partition_mask (Python function) — Return a mask to remove half of an object, leaving an interlocking edge."><span>pybosl2.<wbr>partitions.<wbr>partition_<wbr>mask</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.partition_mask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_mask-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_mask-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_cut_mask" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.partition_cut_mask (Python function) — Return a thin mask to cut an object into two mating pieces."><span>pybosl2.<wbr>partitions.<wbr>partition_<wbr>cut_<wbr>mask</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.partition_cut_mask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_cut_mask-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_cut_mask-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable" class="md-nav__link">
+    
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable (Python class) — Bases: object"><span>pybosl2.<wbr>partitions.<wbr>Partitionable</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.Partitionable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.half_of" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.half_of (Python method) — Keep the half of this solid on the side the normal v points to."><span>half_<wbr>of</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="half_of">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.half_of-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.half_of-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.left_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.left_half (Python method) — Keep the left (-X) half, cut at X=x."><span>left_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="left_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.left_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.left_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.right_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.right_half (Python method) — Keep the right (+X) half, cut at X=x."><span>right_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="right_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.right_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.right_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.front_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.front_half (Python method) — Keep the front (-Y) half, cut at Y=y."><span>front_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="front_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.front_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.front_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.back_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.back_half (Python method) — Keep the back (+Y) half, cut at Y=y."><span>back_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="back_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.back_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.back_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.bottom_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.bottom_half (Python method) — Keep the bottom (-Z) half, cut at Z=z."><span>bottom_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="bottom_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.bottom_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.bottom_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.top_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.top_half (Python method) — Keep the top (+Z) half, cut at Z=z."><span>top_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="top_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.top_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.top_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.partition" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.partition (Python method) — Cut this solid into two interlocking pieces, spread apart."><span>partition</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="partition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.partition-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.partition-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="shapes3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="texture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Textures</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Transforms</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Beziers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/isosurface.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NURBS</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span>Paths</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Rounding</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Skin</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Svg</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Turtle <wbr>(3-<wbr>D)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../paths/vnf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Geometry helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Numeric helpers <wbr>(math)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Quaternions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Vector helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bottle caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cube trusses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Enums</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gears</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hinges</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hooks</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Joiners</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Linear bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Modular hose</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NEMA steppers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regular<wbr>Polyhedron</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screw drives</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screws</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sliders &amp; rails</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Threading</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Tripod mounts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Walls</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Wiring</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extras/miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Miscellaneous</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#planar-half-cuts" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Planar half-<wbr>cuts</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interlocking-partitions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Interlocking partitions</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-of-bosl2-partitions-scad" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Coverage of BOSL2 partitions.<wbr>scad</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Examples</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#module-pybosl2.partitions" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions (Python module)"><span>API reference</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.partition_path (Python function) — Build a 2-D interlocking cut path from a list of segment descriptors."><span>pybosl2.<wbr>partitions.<wbr>partition_<wbr>path</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.partition_path">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_path-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_mask" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.partition_mask (Python function) — Return a mask to remove half of an object, leaving an interlocking edge."><span>pybosl2.<wbr>partitions.<wbr>partition_<wbr>mask</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.partition_mask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_mask-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_mask-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_cut_mask" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.partition_cut_mask (Python function) — Return a thin mask to cut an object into two mating pieces."><span>pybosl2.<wbr>partitions.<wbr>partition_<wbr>cut_<wbr>mask</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.partition_cut_mask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_cut_mask-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.partition_cut_mask-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable" class="md-nav__link">
+    
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable (Python class) — Bases: object"><span>pybosl2.<wbr>partitions.<wbr>Partitionable</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.partitions.Partitionable">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.half_of" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.half_of (Python method) — Keep the half of this solid on the side the normal v points to."><span>half_<wbr>of</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="half_of">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.half_of-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.half_of-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.left_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.left_half (Python method) — Keep the left (-X) half, cut at X=x."><span>left_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="left_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.left_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.left_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.right_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.right_half (Python method) — Keep the right (+X) half, cut at X=x."><span>right_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="right_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.right_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.right_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.front_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.front_half (Python method) — Keep the front (-Y) half, cut at Y=y."><span>front_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="front_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.front_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.front_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.back_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.back_half (Python method) — Keep the back (+Y) half, cut at Y=y."><span>back_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="back_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.back_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.back_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.bottom_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.bottom_half (Python method) — Keep the bottom (-Z) half, cut at Z=z."><span>bottom_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="bottom_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.bottom_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.bottom_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.top_half" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.top_half (Python method) — Keep the top (+Z) half, cut at Z=z."><span>top_<wbr>half</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="top_half">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.top_half-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.top_half-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.partition" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.partitions.Partitionable.partition (Python method) — Cut this solid into two interlocking pieces, spread apart."><span>partition</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="partition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.partition-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.partitions.Partitionable.partition-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="partitions">Partitions<a class="headerlink" href="#partitions" title="Link to this heading">¶</a></h1>
+<p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code> – slice an object with a plane, or partition a
+large object into two interlocking pieces for printing. The cut operators are methods on
+<code class="xref py py-class docutils literal notranslate"><span class="pre">shapes3d</span></code> via the <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-class docutils literal notranslate"><span class="pre">partitions</span></code></a> mixin; the
+2-D cut-path generators return <a class="reference internal" href="../paths/paths.html#module-pybosl2.paths" title="pybosl2.paths (Python module)"><code class="xref py py-class docutils literal notranslate"><span class="pre">paths</span></code></a> objects and the mask builders return
+Bosl2Solids.</p>
+<h2 id="planar-half-cuts">Planar half-cuts<a class="headerlink" href="#planar-half-cuts" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">left_half</span></code> / <code class="docutils literal notranslate"><span class="pre">right_half</span></code> / <code class="docutils literal notranslate"><span class="pre">front_half</span></code> / <code class="docutils literal notranslate"><span class="pre">back_half</span></code> / <code class="docutils literal notranslate"><span class="pre">top_half</span></code> / <code class="docutils literal notranslate"><span class="pre">bottom_half</span></code>
+keep one side of an axis-aligned plane, and <code class="docutils literal notranslate"><span class="pre">half_of(v,</span> <span class="pre">cp)</span></code> cuts at any plane. Each intersects
+the solid with a half-space mask <strong>auto-sized from the object’s own bounding box</strong>, so BOSL2’s
+<code class="docutils literal notranslate"><span class="pre">s=</span></code> mask-size argument is optional:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">left_half</span><span class="p">()</span>          <span class="c1"># keep the -X half</span>
+<span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">bottom_half</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>      <span class="c1"># cut at Z=5, keep below</span>
+<span class="n">sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span><span class="o">.</span><span class="n">half_of</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>            <span class="c1"># cut on an arbitrary plane through the centre</span>
+</code></pre></div>
+</div>
+<p>Passing <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> (a 2-D <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a>) makes the cut face follow an
+interlocking profile instead of a flat plane; <code class="docutils literal notranslate"><span class="pre">cut_angle</span></code> spins that face about the normal and
+<code class="docutils literal notranslate"><span class="pre">offset</span></code> grows the mask.</p>
+<h2 id="interlocking-partitions">Interlocking partitions<a class="headerlink" href="#interlocking-partitions" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">.partition()</span></code> cuts a solid into two mating pieces along a joint (jigsaw, dovetail, hammerhead,
+…) and spreads them apart, returning <code class="docutils literal notranslate"><span class="pre">[back_piece,</span> <span class="pre">front_piece]</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">back</span><span class="p">,</span> <span class="n">front</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">spread</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;dovetail&quot;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p><a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> builds the joint profile from a list of segment
+descriptors, and <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> / <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a>
+give the raw masks if you want to cut manually. Every <code class="docutils literal notranslate"><span class="pre">partition_path</span></code> output is pinned to the
+real BOSL2 in <code class="docutils literal notranslate"><span class="pre">tests/test_pybosl2_reorient.py</span></code>.</p>
+<h2 id="coverage-of-bosl2-partitions-scad">Coverage of BOSL2 <code class="docutils literal notranslate"><span class="pre">partitions.scad</span></code><a class="headerlink" href="#coverage-of-bosl2-partitions-scad" title="Link to this heading">¶</a></h2>
+<table class="docutils data align-default">
+<colgroup>
+<col style="width: 34.0%" />
+<col style="width: 16.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>BOSL2 function</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">half_of</span></code></p></td>
+<td><p>ported</p></td>
+<td><p><a class="reference internal" href="#pybosl2.partitions.Partitionable.half_of" title="pybosl2.partitions.Partitionable.half_of (Python method) — Keep the half of this solid on the side the normal v points to."><code class="xref py py-meth docutils literal notranslate"><span class="pre">half_of()</span></code></a> – any plane; <code class="docutils literal notranslate"><span class="pre">cut_path</span></code> /
+<code class="docutils literal notranslate"><span class="pre">cut_angle</span></code> / <code class="docutils literal notranslate"><span class="pre">offset</span></code> supported. Auto-sizes the mask; the 2-D <code class="docutils literal notranslate"><span class="pre">planar</span></code> form is not
+ported (Bosl2Solid is 3-D).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">left_half</span></code> / <code class="docutils literal notranslate"><span class="pre">right_half</span></code> / <code class="docutils literal notranslate"><span class="pre">front_half</span></code> / <code class="docutils literal notranslate"><span class="pre">back_half</span></code> / <code class="docutils literal notranslate"><span class="pre">top_half</span></code> / <code class="docutils literal notranslate"><span class="pre">bottom_half</span></code></p></td>
+<td><p>ported</p></td>
+<td><p>the six axis half-cuts, as methods.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partition</span></code></p></td>
+<td><p>ported</p></td>
+<td><p><a class="reference internal" href="#pybosl2.partitions.Partitionable.partition" title="pybosl2.partitions.Partitionable.partition (Python method) — Cut this solid into two interlocking pieces, spread apart."><code class="xref py py-meth docutils literal notranslate"><span class="pre">partition()</span></code></a> – returns the two interlocking pieces
+(<code class="docutils literal notranslate"><span class="pre">spread</span></code>/<code class="docutils literal notranslate"><span class="pre">cutsize</span></code>/<code class="docutils literal notranslate"><span class="pre">cutpath</span></code>/<code class="docutils literal notranslate"><span class="pre">gap</span></code>/<code class="docutils literal notranslate"><span class="pre">spin</span></code>/<code class="docutils literal notranslate"><span class="pre">slop</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">partition_mask</span></code> / <code class="docutils literal notranslate"><span class="pre">partition_cut_mask</span></code></p></td>
+<td><p>ported</p></td>
+<td><p><a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> / <a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">partition_path</span></code></p></td>
+<td><p>ported</p></td>
+<td><p><a class="reference internal" href="#module-pybosl2.partitions" title="pybosl2.partitions (Python module)"><code class="xref py py-func docutils literal notranslate"><span class="pre">partitions()</span></code></a> – the full segment grammar, including the
+<code class="docutils literal notranslate"><span class="pre">xflip</span></code>/<code class="docutils literal notranslate"><span class="pre">yflip</span></code>/<code class="docutils literal notranslate"><span class="pre">addflip</span></code>/<code class="docutils literal notranslate"><span class="pre">wave</span></code>/<code class="docutils literal notranslate"><span class="pre">Nx</span></code>/<code class="docutils literal notranslate"><span class="pre">WxH</span></code>/<code class="docutils literal notranslate"><span class="pre">skew:</span></code>/<code class="docutils literal notranslate"><span class="pre">pinch:</span></code> modifiers and
+the <code class="docutils literal notranslate"><span class="pre">altpath</span></code> redirect.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">show_frameref</span></code></p></td>
+<td><p>not ported</p></td>
+<td><p>a preview-only frame-reference arrow (no geometry payload).</p></td>
+</tr>
+</tbody>
+</table>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<p>A box split into two dovetail-jointed pieces, spread apart:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">back</span><span class="p">,</span> <span class="n">front</span> <span class="o">=</span> <span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">spread</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;dovetail&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="n">back</span> <span class="o">|</span> <span class="n">front</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/943c4543c12619c1.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/943c4543c12619c1.stl">⬇ Download STL mesh</a></p>
+<p>A jigsaw cut face on one half of a long bar:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_path</span><span class="p">,</span> <span class="n">shapes3d</span> <span class="k">as</span> <span class="n">s3</span>
+
+<span class="n">cut</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">s3</span><span class="o">.</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span><span class="o">.</span><span class="n">back_half</span><span class="p">(</span><span class="n">cut_path</span><span class="o">=</span><span class="n">cut</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/0662b14c9215662f.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/0662b14c9215662f.stl">⬇ Download STL mesh</a></p>
+<h2 id="module-pybosl2.partitions"><span id="api-reference"></span>API reference<a class="headerlink" href="#module-pybosl2.partitions" title="Link to this heading">¶</a></h2>
+<p>Planar half-cuts and interlocking partitions (jigsaw/dovetail/… joints).</p>
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.partitions.partition_path">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_path</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.pathdesc" title="pybosl2.partitions.partition_path.pathdesc (Python parameter) — list of segment descriptors"><span class="n"><span class="pre">pathdesc</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.repeat" title="pybosl2.partitions.partition_path.repeat (Python parameter) — repeat the whole pathdesc this many times (default 1)"><span class="n"><span class="pre">repeat</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.y" title="pybosl2.partitions.partition_path.y (Python parameter) — if given, close the path at this Y (for a polygon); its sign orients the result"><span class="n"><span class="pre">y</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.altpath" title="pybosl2.partitions.partition_path.altpath (Python parameter) — optional base path the pattern is redirected along"><span class="n"><span class="pre">altpath</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.seglen" title="pybosl2.partitions.partition_path.seglen (Python parameter) — default length for named sections (default 25)"><span class="n"><span class="pre">seglen</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">25</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.segwidth" title="pybosl2.partitions.partition_path.segwidth (Python parameter) — default width for named sections (default 25)"><span class="n"><span class="pre">segwidth</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">25</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.fn" title="pybosl2.partitions.partition_path.fn (Python parameter) — number of fragments for circle resolution."><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.fa" title="pybosl2.partitions.partition_path.fa (Python parameter) — minimum fragment angle for circle resolution."><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_path.fs" title="pybosl2.partitions.partition_path.fs (Python parameter) — minimum fragment size for circle resolution."><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#partition_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.partition_path" title="Link to this definition">¶</a></dt>
+<dd><p>Build a 2-D interlocking cut path from a list of segment descriptors.</p>
+<p>Each item of <em>pathdesc</em> is a numeric length (a flat section), a 2-D path (used as-is), or a
+named section pattern – <code class="docutils literal notranslate"><span class="pre">&quot;flat&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;sawtooth&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;square&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;triangle&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;halfsine&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;semicircle&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;sinewave&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;comb&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;finger&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;dovetail&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;hammerhead&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;jigsaw&quot;</span></code> – optionally suffixed with space-separated modifiers (<code class="docutils literal notranslate"><span class="pre">&quot;3x&quot;</span></code> repeat, <code class="docutils literal notranslate"><span class="pre">&quot;30x20&quot;</span></code>
+resize, <code class="docutils literal notranslate"><span class="pre">&quot;xflip&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;yflip&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;addflip&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;wave&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;skew:15&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;pinch:33&quot;</span></code> /
+<code class="docutils literal notranslate"><span class="pre">&quot;pinch:20deg&quot;</span></code>). Modifiers apply left to right.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.partition_path-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_path-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.partition_path.pathdesc"><span class="sig-name descname">pathdesc</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Any]</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.pathdesc" title="Permalink to this definition">¶</a></dt><dd><p>list of segment descriptors</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.repeat"><span class="sig-name descname">repeat</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.repeat" title="Permalink to this definition">¶</a></dt><dd><p>repeat the whole <em>pathdesc</em> this many times (default 1)</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.y"><span class="sig-name descname">y</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.y" title="Permalink to this definition">¶</a></dt><dd><p>if given, close the path at this Y (for a polygon); its sign orients the result</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.altpath"><span class="sig-name descname">altpath</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.altpath" title="Permalink to this definition">¶</a></dt><dd><p>optional base path the pattern is redirected along</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.seglen"><span class="sig-name descname">seglen</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.seglen" title="Permalink to this definition">¶</a></dt><dd><p>default length for named sections (default 25)</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.segwidth"><span class="sig-name descname">segwidth</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.segwidth" title="Permalink to this definition">¶</a></dt><dd><p>default width for named sections (default 25)</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.fn" title="Permalink to this definition">¶</a></dt><dd><p>number of fragments for circle resolution.</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.fa" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment angle for circle resolution.</p>
+</dd>
+<dt id="pybosl2.partitions.partition_path.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_path.fs" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment size for circle resolution.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.partition_path-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_path-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> (closed when <em>y</em> is given).</p>
+</dd>
+<dt class="field-odd" id="pybosl2.partitions.partition_path-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_path-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>Path2D</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<p>A wall profile mixing jigsaw and hammerhead joints, stroked into a divider:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_path</span>
+
+<span class="n">wall</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;jigsaw yflip&quot;</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+<span class="n">wall</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/4b89b97e6c935636.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/4b89b97e6c935636.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.partitions.partition_mask">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_mask</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.length" title="pybosl2.partitions.partition_mask.length (Python parameter) — length of the cut axis"><span class="n"><span class="pre">length</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">100</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.w" title="pybosl2.partitions.partition_mask.w (Python parameter) — width of the kept part, back from the cut plane"><span class="n"><span class="pre">w</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">100</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.height" title="pybosl2.partitions.partition_mask.height (Python parameter) — height of the part"><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">100</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.cutsize" title="pybosl2.partitions.partition_mask.cutsize (Python parameter) — cut-pattern width (scalar, or [length, width])"><span class="n"><span class="pre">cutsize</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">10</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.cutpath" title="pybosl2.partitions.partition_mask.cutpath (Python parameter) — named cut pattern or an explicit 2-D path"><span class="n"><span class="pre">cutpath</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;jigsaw&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.gap" title="pybosl2.partitions.partition_mask.gap (Python parameter) — empty gaps between pattern iterations"><span class="n"><span class="pre">gap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.cutpath_centered" title="pybosl2.partitions.partition_mask.cutpath_centered (Python parameter) — keep the pattern centered (default True)"><span class="n"><span class="pre">cutpath_centered</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.inverse" title="pybosl2.partitions.partition_mask.inverse (Python parameter) — build the mating (inverted) mask"><span class="n"><span class="pre">inverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.slop" title="pybosl2.partitions.partition_mask.slop (Python parameter) — shrink the mask by this much for a printer-fit clearance"><span class="n"><span class="pre">slop</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.fn" title="pybosl2.partitions.partition_mask.fn (Python parameter) — number of fragments for circle resolution."><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.fa" title="pybosl2.partitions.partition_mask.fa (Python parameter) — minimum fragment angle for circle resolution."><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_mask.fs" title="pybosl2.partitions.partition_mask.fs (Python parameter) — minimum fragment size for circle resolution."><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#partition_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.partition_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Return a mask to remove half of an object, leaving an interlocking edge.</p>
+<p>Intersect it with (or subtract it from) a solid to keep the half within <em>w</em> of the cut plane.
+Pair a plain mask with an <code class="docutils literal notranslate"><span class="pre">inverse=True</span></code> one to split a part into two mating pieces.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.partition_mask-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_mask-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.partition_mask.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.length" title="Permalink to this definition">¶</a></dt><dd><p>length of the cut axis</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.w"><span class="sig-name descname">w</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.w" title="Permalink to this definition">¶</a></dt><dd><p>width of the kept part, back from the cut plane</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.height" title="Permalink to this definition">¶</a></dt><dd><p>height of the part</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.cutsize"><span class="sig-name descname">cutsize</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.cutsize" title="Permalink to this definition">¶</a></dt><dd><p>cut-pattern width (scalar, or <code class="docutils literal notranslate"><span class="pre">[length,</span> <span class="pre">width]</span></code>)</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.cutpath"><span class="sig-name descname">cutpath</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | Path2D</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.cutpath" title="Permalink to this definition">¶</a></dt><dd><p>named cut pattern or an explicit 2-D path</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.gap"><span class="sig-name descname">gap</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.gap" title="Permalink to this definition">¶</a></dt><dd><p>empty gaps between pattern iterations</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.cutpath_centered"><span class="sig-name descname">cutpath_centered</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.cutpath_centered" title="Permalink to this definition">¶</a></dt><dd><p>keep the pattern centered (default True)</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.inverse"><span class="sig-name descname">inverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.inverse" title="Permalink to this definition">¶</a></dt><dd><p>build the mating (inverted) mask</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.slop"><span class="sig-name descname">slop</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.slop" title="Permalink to this definition">¶</a></dt><dd><p>shrink the mask by this much for a printer-fit clearance</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.fn" title="Permalink to this definition">¶</a></dt><dd><p>number of fragments for circle resolution.</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.fa" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment angle for circle resolution.</p>
+</dd>
+<dt id="pybosl2.partitions.partition_mask.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_mask.fs" title="Permalink to this definition">¶</a></dt><dd><p>minimum fragment size for circle resolution.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.partition_mask-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_mask-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<p>A jigsaw-pattern mask for a 100×100×10 mm part:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_mask</span>
+
+<span class="p">(</span><span class="n">cuboid</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span> <span class="o">&amp;</span> <span class="n">partition_mask</span><span class="p">(</span><span class="n">w</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;jigsaw&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.15</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/7fbaa40856f96178.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7fbaa40856f96178.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.partitions.partition_cut_mask">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">partition_cut_mask</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.length" title="pybosl2.partitions.partition_cut_mask.length (Python parameter)"><span class="n"><span class="pre">length</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">100</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.height" title="pybosl2.partitions.partition_cut_mask.height (Python parameter)"><span class="n"><span class="pre">height</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">100</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.cutsize" title="pybosl2.partitions.partition_cut_mask.cutsize (Python parameter)"><span class="n"><span class="pre">cutsize</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">10</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.cutpath" title="pybosl2.partitions.partition_cut_mask.cutpath (Python parameter)"><span class="n"><span class="pre">cutpath</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;jigsaw&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.gap" title="pybosl2.partitions.partition_cut_mask.gap (Python parameter)"><span class="n"><span class="pre">gap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.cutpath_centered" title="pybosl2.partitions.partition_cut_mask.cutpath_centered (Python parameter)"><span class="n"><span class="pre">cutpath_centered</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.slop" title="pybosl2.partitions.partition_cut_mask.slop (Python parameter)"><span class="n"><span class="pre">slop</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.fn" title="pybosl2.partitions.partition_cut_mask.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.fa" title="pybosl2.partitions.partition_cut_mask.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.partition_cut_mask.fs" title="pybosl2.partitions.partition_cut_mask.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#partition_cut_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask" title="Link to this definition">¶</a></dt>
+<dd><p>Return a thin mask to cut an object into two mating pieces.</p>
+<p>Subtract it from a solid to split it along the cut path with a <em>slop</em>-wide kerf.</p>
+<p class="example rubric">Examples</p>
+<p>Split a 100×100×10 mm plate with a jigsaw cut:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_cut_mask</span>
+
+<span class="n">mask</span> <span class="o">=</span> <span class="n">partition_cut_mask</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cutsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">mask</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/76c9a692e089ec08.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/76c9a692e089ec08.stl">⬇ Download STL mesh</a></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.partition_cut_mask-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.partition_cut_mask.length"><span class="sig-name descname">length</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.length" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.height"><span class="sig-name descname">height</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.height" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.cutsize"><span class="sig-name descname">cutsize</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.cutsize" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.cutpath"><span class="sig-name descname">cutpath</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | Path2D</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.cutpath" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.gap"><span class="sig-name descname">gap</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.gap" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.cutpath_centered"><span class="sig-name descname">cutpath_centered</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.cutpath_centered" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.slop"><span class="sig-name descname">slop</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.slop" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.partition_cut_mask.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.partition_cut_mask-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.partition_cut_mask-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Bosl2Solid</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.partitions.</span></span><span class="sig-name descname"><span class="pre">Partitionable</span></span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Mixin adding the partitions.scad planar cuts and the partition() split as methods.</p>
+<p>Inherited by <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code>. A half-cut intersects the solid with a
+half-space mask whose size defaults to the object’s own bounding box (so BOSL2’s <code class="docutils literal notranslate"><span class="pre">s=</span></code>
+argument is optional). <code class="docutils literal notranslate"><span class="pre">cut_path=</span></code> follows a 2-D <a class="reference internal" href="#pybosl2.partitions.partition_path" title="pybosl2.partitions.partition_path (Python function) — Build a 2-D interlocking cut path from a list of segment descriptors."><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> to make an
+interlocking cut face instead of a flat plane.  Requires <code class="docutils literal notranslate"><span class="pre">_wrap</span></code> (provided by
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseShape</span></code>).</p>
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.partitions.Partitionable.half_of">
+<span class="sig-name descname"><span class="pre">half_of</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.v" title="pybosl2.partitions.Partitionable.half_of.v (Python parameter)"><span class="n"><span class="pre">v</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.center" title="pybosl2.partitions.Partitionable.half_of.center (Python parameter)"><span class="n"><span class="pre">center</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.s" title="pybosl2.partitions.Partitionable.half_of.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.cut_path" title="pybosl2.partitions.Partitionable.half_of.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.cut_angle" title="pybosl2.partitions.Partitionable.half_of.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.half_of.offset" title="pybosl2.partitions.Partitionable.half_of.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.half_of"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the half of this solid on the side the normal <em>v</em> points to.</p>
+<p><em>center</em> is a point on the cut plane, or a scalar distance to shift the plane along <em>v</em>. <em>s</em>
+(the mask size) defaults to twice the object’s bounding-box reach, so it rarely needs
+setting. <em>cut_path</em> follows a 2-D <a class="reference internal" href="#pybosl2.partitions.partition_path" title="pybosl2.partitions.partition_path (Python function) — Build a 2-D interlocking cut path from a list of segment descriptors."><code class="xref py py-func docutils literal notranslate"><span class="pre">partition_path()</span></code></a> for an interlocking cut face;
+<em>cut_angle</em> spins that face about <em>v</em>; <em>offset</em> grows the mask.</p>
+<p class="example rubric">Examples</p>
+<p>Cut a cube in half along a jigsaw pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.partitions</span><span class="w"> </span><span class="kn">import</span> <span class="n">partition_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">UP</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">partition_path</span><span class="p">([</span><span class="s2">&quot;finger&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;finger&quot;</span><span class="p">],</span> <span class="n">seglen</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">half_of</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">cut_path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/8bad71d378663bb2.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/8bad71d378663bb2.stl">⬇ Download STL mesh</a></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.half_of-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.half_of.v"><span class="sig-name descname">v</span><span class="p"> : </span><span class="desctype"><span class="desctype">Any</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of.v" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.half_of.center"><span class="sig-name descname">center</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | list[float] | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of.center" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.half_of.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.half_of.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.half_of.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.half_of.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.half_of-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.half_of-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable.left_half">
+<span class="sig-name descname"><span class="pre">left_half</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.left_half.x" title="pybosl2.partitions.Partitionable.left_half.x (Python parameter)"><span class="n"><span class="pre">x</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.left_half.s" title="pybosl2.partitions.Partitionable.left_half.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.left_half.cut_path" title="pybosl2.partitions.Partitionable.left_half.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.left_half.cut_angle" title="pybosl2.partitions.Partitionable.left_half.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.left_half.offset" title="pybosl2.partitions.Partitionable.left_half.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.left_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the left (-X) half, cut at <code class="docutils literal notranslate"><span class="pre">X=x</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.left_half-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.left_half.x"><span class="sig-name descname">x</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half.x" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.left_half.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.left_half.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.left_half.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.left_half.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.left_half-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.left_half-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable.right_half">
+<span class="sig-name descname"><span class="pre">right_half</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.right_half.x" title="pybosl2.partitions.Partitionable.right_half.x (Python parameter)"><span class="n"><span class="pre">x</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.right_half.s" title="pybosl2.partitions.Partitionable.right_half.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.right_half.cut_path" title="pybosl2.partitions.Partitionable.right_half.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.right_half.cut_angle" title="pybosl2.partitions.Partitionable.right_half.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.right_half.offset" title="pybosl2.partitions.Partitionable.right_half.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.right_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the right (+X) half, cut at <code class="docutils literal notranslate"><span class="pre">X=x</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.right_half-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.right_half.x"><span class="sig-name descname">x</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half.x" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.right_half.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.right_half.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.right_half.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.right_half.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.right_half-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.right_half-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable.front_half">
+<span class="sig-name descname"><span class="pre">front_half</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.front_half.y" title="pybosl2.partitions.Partitionable.front_half.y (Python parameter)"><span class="n"><span class="pre">y</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.front_half.s" title="pybosl2.partitions.Partitionable.front_half.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.front_half.cut_path" title="pybosl2.partitions.Partitionable.front_half.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.front_half.cut_angle" title="pybosl2.partitions.Partitionable.front_half.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.front_half.offset" title="pybosl2.partitions.Partitionable.front_half.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.front_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the front (-Y) half, cut at <code class="docutils literal notranslate"><span class="pre">Y=y</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.front_half-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.front_half.y"><span class="sig-name descname">y</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half.y" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.front_half.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.front_half.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.front_half.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.front_half.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.front_half-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.front_half-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable.back_half">
+<span class="sig-name descname"><span class="pre">back_half</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.back_half.y" title="pybosl2.partitions.Partitionable.back_half.y (Python parameter)"><span class="n"><span class="pre">y</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.back_half.s" title="pybosl2.partitions.Partitionable.back_half.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.back_half.cut_path" title="pybosl2.partitions.Partitionable.back_half.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.back_half.cut_angle" title="pybosl2.partitions.Partitionable.back_half.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.back_half.offset" title="pybosl2.partitions.Partitionable.back_half.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.back_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the back (+Y) half, cut at <code class="docutils literal notranslate"><span class="pre">Y=y</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.back_half-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.back_half.y"><span class="sig-name descname">y</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half.y" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.back_half.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.back_half.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.back_half.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.back_half.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.back_half-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.back_half-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable.bottom_half">
+<span class="sig-name descname"><span class="pre">bottom_half</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.bottom_half.z" title="pybosl2.partitions.Partitionable.bottom_half.z (Python parameter)"><span class="n"><span class="pre">z</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.bottom_half.s" title="pybosl2.partitions.Partitionable.bottom_half.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.bottom_half.cut_path" title="pybosl2.partitions.Partitionable.bottom_half.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.bottom_half.cut_angle" title="pybosl2.partitions.Partitionable.bottom_half.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.bottom_half.offset" title="pybosl2.partitions.Partitionable.bottom_half.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.bottom_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the bottom (-Z) half, cut at <code class="docutils literal notranslate"><span class="pre">Z=z</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.bottom_half-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.bottom_half.z"><span class="sig-name descname">z</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half.z" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.bottom_half.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.bottom_half.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.bottom_half.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.bottom_half.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.bottom_half-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.bottom_half-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.partitions.Partitionable.top_half">
+<span class="sig-name descname"><span class="pre">top_half</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.top_half.z" title="pybosl2.partitions.Partitionable.top_half.z (Python parameter)"><span class="n"><span class="pre">z</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.top_half.s" title="pybosl2.partitions.Partitionable.top_half.s (Python parameter)"><span class="n"><span class="pre">s</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.top_half.cut_path" title="pybosl2.partitions.Partitionable.top_half.cut_path (Python parameter)"><span class="n"><span class="pre">cut_path</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.top_half.cut_angle" title="pybosl2.partitions.Partitionable.top_half.cut_angle (Python parameter)"><span class="n"><span class="pre">cut_angle</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.top_half.offset" title="pybosl2.partitions.Partitionable.top_half.offset (Python parameter)"><span class="n"><span class="pre">offset</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.top_half"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half" title="Link to this definition">¶</a></dt>
+<dd><p>Keep the top (+Z) half, cut at <code class="docutils literal notranslate"><span class="pre">Z=z</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.top_half-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.top_half.z"><span class="sig-name descname">z</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half.z" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.top_half.s"><span class="sig-name descname">s</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half.s" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.top_half.cut_path"><span class="sig-name descname">cut_path</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half.cut_path" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.top_half.cut_angle"><span class="sig-name descname">cut_angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half.cut_angle" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.top_half.offset"><span class="sig-name descname">offset</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half.offset" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.top_half-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.top_half-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>Self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.partitions.Partitionable.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.spread" title="pybosl2.partitions.Partitionable.partition.spread (Python parameter)"><span class="n"><span class="pre">spread</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">10</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.cutsize" title="pybosl2.partitions.Partitionable.partition.cutsize (Python parameter)"><span class="n"><span class="pre">cutsize</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">10</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.cutpath" title="pybosl2.partitions.Partitionable.partition.cutpath (Python parameter)"><span class="n"><span class="pre">cutpath</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;jigsaw&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.gap" title="pybosl2.partitions.Partitionable.partition.gap (Python parameter)"><span class="n"><span class="pre">gap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.cutpath_centered" title="pybosl2.partitions.Partitionable.partition.cutpath_centered (Python parameter)"><span class="n"><span class="pre">cutpath_centered</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.spin" title="pybosl2.partitions.Partitionable.partition.spin (Python parameter)"><span class="n"><span class="pre">spin</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.slop" title="pybosl2.partitions.Partitionable.partition.slop (Python parameter)"><span class="n"><span class="pre">slop</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.fn" title="pybosl2.partitions.Partitionable.partition.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.fa" title="pybosl2.partitions.Partitionable.partition.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.partitions.Partitionable.partition.fs" title="pybosl2.partitions.Partitionable.partition.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/partitions.html#Partitionable.partition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition" title="Link to this definition">¶</a></dt>
+<dd><p>Cut this solid into two interlocking pieces, spread apart.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">[back_piece,</span> <span class="pre">front_piece]</span></code> – the two halves with matched joining edges, moved
+<em>spread</em> apart along the (spun) Y axis so they print separately and snap back together.
+The joint follows <em>cutpath</em> (<code class="docutils literal notranslate"><span class="pre">&quot;jigsaw&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;dovetail&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;hammerhead&quot;</span></code>, …); <em>spin</em>
+rotates the cut direction; <em>slop</em> leaves a printer-fit clearance.</p>
+<p class="example rubric">Examples</p>
+<p>Split a block into two dovetailed halves:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+<span class="n">halves</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">spread</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">cutpath</span><span class="o">=</span><span class="s2">&quot;dovetail&quot;</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+<span class="n">halves</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/1c74560720aa5a38.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/1c74560720aa5a38.stl">⬇ Download STL mesh</a></p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.partitions.Partitionable.partition-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.partitions.Partitionable.partition.spread"><span class="sig-name descname">spread</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.spread" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.cutsize"><span class="sig-name descname">cutsize</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.cutsize" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.cutpath"><span class="sig-name descname">cutpath</span><span class="p"> : </span><span class="desctype"><span class="desctype">str | Path2D</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.cutpath" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.gap"><span class="sig-name descname">gap</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.gap" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.cutpath_centered"><span class="sig-name descname">cutpath_centered</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.cutpath_centered" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.spin"><span class="sig-name descname">spin</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.spin" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.slop"><span class="sig-name descname">slop</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.slop" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.fn"><span class="sig-name descname">fn</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.fn" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.fa"><span class="sig-name descname">fa</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.fa" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.partitions.Partitionable.partition.fs"><span class="sig-name descname">fs</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition.fs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.partitions.Partitionable.partition-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.partitions.Partitionable.partition-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>list[Self]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="native_ops.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mesh">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Mesh
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="shapes2d.html" class="md-footer__link md-footer__link--next" aria-label="Next: 2-D Shapes">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                2-D Shapes
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    8.2.3.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../_static/stl_viewer.js?v=6fcc5409"></script>
+    
+  </body>
+</html>
