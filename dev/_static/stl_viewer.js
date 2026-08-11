@@ -255,6 +255,13 @@ function init() {
     viewers.push(v);
     seen.observe(el);
     resized.observe(el);
+    // Check if already in viewport – observer fires asynchronously
+    const rect = el.getBoundingClientRect();
+    if (rect.bottom >= -300 && rect.top <= window.innerHeight + 300) {
+      v.visible = true;
+      v.syncSize();
+      v.load();
+    }
   }
 
   if (!looping) {
