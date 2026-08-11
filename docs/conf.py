@@ -118,7 +118,7 @@ html_theme_options = {
     "icon": {
         "repo": "fontawesome/brands/github",
     },
-    "site_url": "https://pinkfish.github.io/pybosl2/",
+    "site_url": "https://pybosl2.org/",
     "repo_url": "https://github.com/pinkfish/pybosl2/",
     "repo_name": "pybosl2",
     "features": [

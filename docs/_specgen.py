@@ -1604,7 +1604,7 @@ _RST_VIEWER = """.. raw:: html
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">{part}</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">{part}</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster">{svg}</div>
         </div>
@@ -1637,9 +1637,9 @@ _RST_SCRIPT = """.. raw:: html
 
     <script id="spec-data" type="application/json">{data}</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import {{ STLLoader }} from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import {{ OrbitControls }} from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import {{ STLLoader }} from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import {{ OrbitControls }} from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {{
       const dataEl = document.getElementById("spec-data");
@@ -1654,13 +1654,11 @@ _RST_SCRIPT = """.. raw:: html
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {{
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }}
 
       function initThree() {{
@@ -1711,6 +1709,9 @@ _RST_SCRIPT = """.. raw:: html
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -1724,7 +1725,7 @@ _RST_SCRIPT = """.. raw:: html
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }}
         }});
@@ -1748,7 +1749,7 @@ _RST_SCRIPT = """.. raw:: html
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {{
-        b.addEventListener("click", () => {{ selectVariant(i); }});
+        b.addEventListener("click", (e) => {{ e.preventDefault(); selectVariant(i); }});
       }});
       selectVariant(0);
     }})();
