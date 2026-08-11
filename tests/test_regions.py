@@ -524,7 +524,7 @@ def test_color_attr_exists_on_hull() -> None:
 def test_color_attr_exists_on_from_svg(tmp_path) -> None:
     f = tmp_path / "test.svg"
     f.write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
+        '<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100"><path d="M 0,0 H 40 V 30 H 0 Z"/></svg>'
     )
     r = Region.from_svg(str(f))
     assert hasattr(r, "_color")
@@ -678,7 +678,7 @@ def test_even_odd_zero_area_rings_are_ignored() -> None:
 def test_from_svg_is_identical_to_region_from_svg(tmp_path) -> None:
     f = tmp_path / "shape.svg"
     f.write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
+        '<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">'
         '<path d="M 0,0 H 50 V 40 H 0 Z M 5,5 H 20 V 15 H 5 Z"/>'
         "</svg>"
     )
@@ -693,7 +693,7 @@ def test_from_svg_is_identical_to_region_from_svg(tmp_path) -> None:
 def test_from_svg_returns_region_instance(tmp_path) -> None:
     f = tmp_path / "box.svg"
     f.write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
+        '<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100">'
         '<rect x="10" y="10" width="40" height="30"/>'
         "</svg>"
     )
@@ -706,7 +706,7 @@ def test_from_svg_no_ribext(tmp_path) -> None:
     """from_svg should not require a renderer."""
     f = tmp_path / "ribext.svg"
     f.write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20"/></svg>'
+        '<svg xmlns="https://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20"/></svg>'
     )
     result = Region.from_svg(str(f), fn=24)
     assert isinstance(result, Region)

@@ -181,7 +181,9 @@ def _simple_svg(icon_path: str, label: str = "") -> str:
 
 
 def _svg(body, w=460, h=240, label=""):
-    return f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" xmlns="http://www.w3.org/2000/svg">{body}</svg>'
+    return (
+        f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{label}" xmlns="https://www.w3.org/2000/svg">{body}</svg>'
+    )
 
 
 def gear_svg(teeth=20):

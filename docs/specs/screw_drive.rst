@@ -15,7 +15,7 @@ screw drive
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">PhillipsMask(size="#2", l=10).shape()</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Screw drive recess schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M100,100 L120,40 L140,40 L160,100 M130,40 L130,200 M80,160 L180,160 M60,140 L200,140 M70,120 L190,120" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Screw drive recess schematic" xmlns="https://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M100,100 L120,40 L140,40 L160,100 M130,40 L130,200 M80,160 L180,160 M60,140 L200,140 M70,120 L190,120" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
       </div>
       <div class="spec-info">

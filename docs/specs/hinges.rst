@@ -15,7 +15,7 @@ hinges
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">KnuckleHingePair(length=40, segs=5).shape()</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Plan view of a five-knuckle butt hinge." xmlns="http://www.w3.org/2000/svg">
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Plan view of a five-knuckle butt hinge." xmlns="https://www.w3.org/2000/svg">
     <defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
       <line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs>
     <rect x="30" y="20" width="400" height="78" rx="4" fill="url(#h)" stroke="var(--ink-dim)" stroke-width="1.5"/>

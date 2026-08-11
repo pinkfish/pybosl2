@@ -716,7 +716,7 @@ def test_osimport_2d_with_kwargs_creates_shape() -> None:
     import tempfile
 
     with tempfile.NamedTemporaryFile(suffix=".svg") as f:
-        f.write(b'<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>')
+        f.write(b'<svg xmlns="https://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>')
         f.flush()
         result = s2.osimport(f.name, convexity=2, center=True)
     assert isinstance(result, Bosl2Shape2D)

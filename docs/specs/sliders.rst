@@ -15,7 +15,7 @@ sliders
       <div class="spec-draw">
         <div class="spec-caption"><span id="vpart">Slider(l=30, base=10, wall=4, slop=0.2).shape()</span></div>
         <div class="spec-viewer" id="viewer">
-          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="V-groove slider and rail schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M60,140 L160,70 M60,160 L160,90 M60,100 L160,30 M130,60 L280,60 L280,140 Z" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="V-groove slider and rail schematic" xmlns="https://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M60,140 L160,70 M60,160 L160,90 M60,100 L160,30 M130,60 L280,60 L280,140 Z" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
       </div>
       <div class="spec-info">
