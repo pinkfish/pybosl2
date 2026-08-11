@@ -1878,40 +1878,36 @@ curves and surfaces, <a class="reference internal" href="paths/vnf.html#pybosl2.
   var box = document.getElementById('version-links');
   var list = document.getElementById('version-list');
   var lat = document.getElementById('latest-link');
-  var path = window.location.pathname.replace(/\/$/,'');
-  var inDev = /\/dev\//.test(path) || /\/dev$/.test(path);
-  var isVer = /\/v\d+\.\d+\.\d+/.test(path);
-   var base;
-   if (inDev) { base = path.replace(/\/dev.*/, '') + '/'; }
-   else if (isVer) { base = path.replace(/\/v\\d+\\.\\d+\\.\\d+.*/, '') + '/'; }
-   else { base = path + '/'; }
-  if (isVer) {
-    lat.setAttribute('href', base + 'index.html');
-    box.style.display = 'block';
-    fetch(base + 'versions.json')
+   var path = window.location.pathname;
+   var isVer = /\/v\d+\.\d+\.\d+/.test(path);
+   var root = '/';
+   if (isVer) {
+     lat.setAttribute('href', root + 'index.html');
+     box.style.display = 'block';
+     fetch(root + 'versions.json')
+       .then(function(r){return r.json();})
+       .then(function(vers){
+         var n = Math.min(vers.length,5);
+         for (var i=0; i<n; i++) {
+           var v = vers[i], a = document.createElement('a');
+           a.href = root + v + '/index.html';
+           a.textContent = v;
+           list.appendChild(a);
+           if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
+         }
+       })
+       .catch(function(){});
+   } else {
+     dev.style.display = 'block';
+     lat.setAttribute('href', root + 'index.html');
+     box.style.display = 'block';
+     fetch(root + 'versions.json')
       .then(function(r){return r.json();})
       .then(function(vers){
         var n = Math.min(vers.length,5);
         for (var i=0; i<n; i++) {
           var v = vers[i], a = document.createElement('a');
-          a.href = base + v + '/index.html';
-          a.textContent = v;
-          list.appendChild(a);
-          if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
-        }
-      })
-      .catch(function(){});
-  } else {
-    dev.style.display = 'block';
-    lat.setAttribute('href', base + 'index.html');
-    box.style.display = 'block';
-    fetch(base + 'versions.json')
-      .then(function(r){return r.json();})
-      .then(function(vers){
-        var n = Math.min(vers.length,5);
-        for (var i=0; i<n; i++) {
-          var v = vers[i], a = document.createElement('a');
-          a.href = base + v + '/index.html';
+           a.href = root + v + '/index.html';
           a.textContent = v;
           list.appendChild(a);
           if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
@@ -2144,7 +2140,7 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
     
       
         <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
-        <script type="module" src="_static/stl_viewer.js?v=6fcc5409"></script>
+        <script type="module" src="_static/stl_viewer.js?v=cd7264b7"></script>
     
   </body>
 </html>
