@@ -13,7 +13,7 @@ linear bearings
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">lmXuu_bearing(8)</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">lmXuu_bearing(8)</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Longitudinal cutaway of a linear ball bearing running on a rod." xmlns="http://www.w3.org/2000/svg"><rect x="80.0" y="60.0" width="300" height="116" rx="8" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/><rect x="66.0" y="87.0" width="328" height="62" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.4"/><line x1="54.0" y1="118" x2="406.0" y2="118" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/><circle cx="101.4" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="101.4" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="144.3" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="144.3" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="187.1" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="187.1" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="230.0" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="230.0" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="272.9" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="272.9" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="315.7" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="315.7" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="358.6" cy="73.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><circle cx="358.6" cy="162.5" r="7.4" fill="color-mix(in srgb,var(--accent) 24%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.1"/><text x="230" y="198.0" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">shell &amp; ball tracks · runs on a rod</text></svg></div>
         </div>
@@ -44,9 +44,9 @@ linear bearings
 
     <script id="spec-data" type="application/json">[{"id": "lm8uu", "label": "LM8UU", "uri": "_stl/linear_bearings-lm8uu.stl", "code": "LinearBearings.lmXuu_bearing(8)", "part": "lmXuu_bearing(8)", "tris": 816, "vol": "2,997.1", "bbox": "15\u00d715\u00d724", "wt": true}, {"id": "housing", "label": "LM8UU housing", "uri": "_stl/linear_bearings-housing.stl", "code": "LinearBearings.lmXuu_housing(8)", "part": "lmXuu_housing(8)", "tris": 508, "vol": "6,499.2", "bbox": "27\u00d724\u00d724", "wt": true}, {"id": "lm12uu", "label": "LM12UU", "uri": "_stl/linear_bearings-lm12uu.stl", "code": "LinearBearings.lmXuu_bearing(12)", "part": "lmXuu_bearing(12)", "tris": 1088, "vol": "6,932.1", "bbox": "21\u00d721\u00d730", "wt": true}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ linear bearings
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ linear bearings
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ linear bearings
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ linear bearings
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();

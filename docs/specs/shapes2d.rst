@@ -13,7 +13,7 @@ shapes2d
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">circle(radius=15).linear_extrude(height=2)</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">circle(radius=15).linear_extrude(height=2)</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="2-D primitives schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M70,70 L210,70 L210,190 L70,190 Z M110,40 L170,40 L170,220 L110,220 Z M70,130 L210,130 M140,70 L140,190" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
@@ -44,9 +44,9 @@ shapes2d
 
     <script id="spec-data" type="application/json">[{"id": "circle", "label": "circle", "uri": "_stl/shapes2d-circle.stl", "code": "circle(radius=15).linear_extrude(height=2)", "part": "circle(radius=15).linear_extrude(height=2)", "tris": 116, "vol": "1,403.4", "bbox": "30\u00d730\u00d72", "wt": true}, {"id": "square", "label": "square", "uri": "_stl/shapes2d-square.stl", "code": "square(size=30).linear_extrude(height=2)", "part": "square(size=30).linear_extrude(height=2)", "tris": 12, "vol": "1,800.0", "bbox": "30\u00d730\u00d72", "wt": true}, {"id": "rect", "label": "rectangle", "uri": "_stl/shapes2d-rect.stl", "code": "rect(size=[30, 20], rounding=5).linear_extrude(height=2)", "part": "rect(size=[30, 20], rounding=5).linear_extrude(height=2)", "tris": 76, "vol": "1,153.1", "bbox": "30\u00d720\u00d72", "wt": true}, {"id": "trapezoid", "label": "trapezoid", "uri": "_stl/shapes2d-trapezoid.stl", "code": "trapezoid(height=30, width1=40, width2=20).linear_extrude(height=2)", "part": "trapezoid(height=30, width1=40, width2=20).linear_extrude(height=2)", "tris": 12, "vol": "1,800.0", "bbox": "40\u00d730\u00d72", "wt": true}, {"id": "star", "label": "star", "uri": "_stl/shapes2d-star.stl", "code": "star(tips=5, radius=25, inner_radius=10).linear_extrude(height=2)", "part": "star(tips=5, radius=25, inner_radius=10).linear_extrude(height=2)", "tris": 36, "vol": "1,469.5", "bbox": "45\u00d748\u00d72", "wt": true}, {"id": "ring", "label": "ring", "uri": "_stl/shapes2d-ring.stl", "code": "ring(radius=18, ring_width=6).linear_extrude(height=2)", "part": "ring(radius=18, ring_width=6).linear_extrude(height=2)", "tris": 240, "vol": "1,571.8", "bbox": "48\u00d748\u00d72", "wt": true}, {"id": "pie-slice", "label": "pie slice", "uri": "_stl/shapes2d-pie-slice.stl", "code": "pie_slice(radius=20, angle=120, height=5)", "part": "pie_slice(radius=20, angle=120, height=5)", "tris": 64, "vol": "2,078.9", "bbox": "30\u00d720\u00d75", "wt": true}, {"id": "squircle", "label": "squircle", "uri": "_stl/shapes2d-squircle.stl", "code": "squircle(30, squareness=0.6).linear_extrude(height=2)", "part": "squircle(30, squareness=0.6).linear_extrude(height=2)", "tris": 124, "vol": "1,128.7", "bbox": "30\u00d730\u00d72", "wt": false}, {"id": "keyhole", "label": "keyhole", "uri": "_stl/shapes2d-keyhole.stl", "code": "keyhole(length=25, radius1=4, radius2=9).linear_extrude(height=2)", "part": "keyhole(length=25, radius1=4, radius2=9).linear_extrude(height=2)", "tris": 136, "vol": "810.6", "bbox": "18\u00d738\u00d72", "wt": true}, {"id": "rounded-square", "label": "rounded square", "uri": "_stl/shapes2d-rounded-square.stl", "code": "rect(size=[30, 30], rounding=8).linear_extrude(height=2)", "part": "rect(size=[30, 30], rounding=8).linear_extrude(height=2)", "tris": 124, "vol": "1,686.8", "bbox": "30\u00d730\u00d72", "wt": true}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ shapes2d
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ shapes2d
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ shapes2d
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ shapes2d
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();

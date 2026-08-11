@@ -13,7 +13,7 @@ screw drive
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">PhillipsMask(size="#2", l=10).shape()</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">PhillipsMask(size="#2", l=10).shape()</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Screw drive recess schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M100,100 L120,40 L140,40 L160,100 M130,40 L130,200 M80,160 L180,160 M60,140 L200,140 M70,120 L190,120" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
@@ -44,9 +44,9 @@ screw drive
 
     <script id="spec-data" type="application/json">[{"id": "phillips", "label": "Phillips #2", "uri": "_stl/screw_drive-phillips.stl", "code": "PhillipsMask(size=\"#2\", l=10).shape()", "part": "PhillipsMask(size=\"#2\", l=10).shape()", "tris": 176, "vol": "29.3", "bbox": "6\u00d76\u00d74", "wt": true}, {"id": "hex", "label": "hex 3 mm", "uri": "_stl/screw_drive-hex.stl", "code": "hex_mask(size=3, l=10)", "part": "hex_mask(size=3, l=10)", "tris": 20, "vol": "80.9", "bbox": "4\u00d73\u00d710", "wt": true}, {"id": "torx", "label": "Torx T30", "uri": "_stl/screw_drive-torx.stl", "code": "TorxMask(size=30, l=10).shape()", "part": "TorxMask(size=30, l=10).shape()", "tris": 188, "vol": "176.3", "bbox": "6\u00d75\u00d710", "wt": true}, {"id": "robertson", "label": "Robertson #2", "uri": "_stl/screw_drive-robertson.stl", "code": "RobertsonMask(size=\"#2\", l=10).shape()", "part": "RobertsonMask(size=\"#2\", l=10).shape()", "tris": 74, "vol": "93.4", "bbox": "4\u00d74\u00d710", "wt": true}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ screw drive
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ screw drive
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ screw drive
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ screw drive
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();

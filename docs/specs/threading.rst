@@ -13,7 +13,7 @@ threading
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()</span><span>interactive &middot; drag to orbit</span></div>
+        <div class="spec-caption"><span id="vpart">iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Threaded rod and nut schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M80,120 L120,60 L140,60 L100,120 M110,150 L160,80 L180,80 L130,150 M190,90 L210,120 M230,30 L250,60 M260,20 L260,50 M280,150 L320,90 L340,90 L300,150" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
@@ -44,9 +44,9 @@ threading
 
     <script id="spec-data" type="application/json">[{"id": "iso-rod", "label": "ISO rod", "uri": "_stl/threading-iso-rod.stl", "code": "iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()", "part": "iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape()", "tris": 6172, "vol": "8,055.3", "bbox": "20\u00d720\u00d730", "wt": true}, {"id": "iso-nut", "label": "ISO nut", "uri": "_stl/threading-iso-nut.stl", "code": "iso_threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).shape()", "part": "iso_threaded_nut(nutwidth=13, id=8, h=6.8, pitch=1.25).shape()", "tris": 796, "vol": "610.8", "bbox": "15\u00d713\u00d77", "wt": true}, {"id": "trapezoidal", "label": "trapezoidal rod", "uri": "_stl/threading-trapezoidal.stl", "code": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1).shape()", "part": "trapezoidal_threaded_rod(d=20, l=30, pitch=4, fa=6, fs=1).shape()", "tris": 3932, "vol": "7,699.5", "bbox": "20\u00d720\u00d730", "wt": true}, {"id": "acme", "label": "ACME rod", "uri": "_stl/threading-acme.stl", "code": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).shape()", "part": "acme_threaded_rod(d=12.7, l=30, pitch=2.54, fa=6, fs=1).shape()", "tris": 3996, "vol": "3,098.2", "bbox": "13\u00d713\u00d730", "wt": true}]</script>
     <script type="module">
-    import * as THREE from "https://esm.sh/three@0.160.0";
-    import { STLLoader } from "https://esm.sh/three@0.160.0/examples/jsm/loaders/STLLoader.js";
-    import { OrbitControls } from "https://esm.sh/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+    import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+    import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";
+    import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
     (function() {
       const dataEl = document.getElementById("spec-data");
@@ -61,13 +61,11 @@ threading
       const primaryColor = css("--md-accent-fg-color") || "#6f9ac9";
 
       function resize() {
-        const w = box.clientWidth, h = box.clientHeight || 300;
-        // updateStyle must stay on: setPixelRatio() scales the drawing buffer, and without the
-        // matching CSS size the canvas lays out devicePixelRatio times too large and the .spec-viewer
-        // box (overflow:hidden) shows only its top-left corner.
+        const w = box.clientWidth, h = Math.max(300, box.clientHeight);
         renderer.setSize(w, Math.max(1, h));
         camera.aspect = w / Math.max(1, h);
         camera.updateProjectionMatrix();
+        controls.update();
       }
 
       function initThree() {
@@ -118,6 +116,9 @@ threading
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
+          controls.update();
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -131,7 +132,7 @@ threading
               + "justify-content:center;padding:1em;color:#a00;"
               + "background:rgba(255,255,255,0.8);font-size:0.85em;"
             );
-            h.textContent = "serve the docs over HTTP for the interactive 3-D view";
+            h.textContent = "Could not load STL — file may be missing";
             box.appendChild(h);
           }
         });
@@ -155,7 +156,7 @@ threading
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {
-        b.addEventListener("click", () => { selectVariant(i); });
+        b.addEventListener("click", (e) => { e.preventDefault(); selectVariant(i); });
       });
       selectVariant(0);
     })();
