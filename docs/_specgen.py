@@ -1782,7 +1782,7 @@ def module_page(key: str, m: dict, metrics: dict) -> str:
             {
                 "id": vid,
                 "label": label,
-                "uri": f"../_stl/{key}-{vid}.stl",
+                "uri": f"_stl/{key}-{vid}.stl",
                 "code": code,
                 "part": part,
                 "tris": mm.get("tris"),

@@ -11,7 +11,7 @@
 #    numpy: every vector-valued function here returns a real numpy ndarray
 #    (float64) rather than a plain list.
 #
-# FileSummary: General numeric helpers and numerical calculus (BOSL2 math.scad).
+# FileSummary: Maths
 # DocCategory: Math & geometry
 # FileGroup: BOSL2
 
