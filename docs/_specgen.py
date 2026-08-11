@@ -1705,13 +1705,14 @@ _RST_SCRIPT = """.. raw:: html
           camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
           // Depth range tied to the model: a fixed 0.01/1e6 span leaves so little depth precision
           // that big parts z-fight and shimmer while orbiting.
+          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
+          // Depth range tied to the model: a fixed 0.01/1e6 span leaves so little depth precision
+          // that big parts z-fight and shimmer while orbiting.
           camera.near = r / 100;
           camera.far = r * 100;
           camera.updateProjectionMatrix();
           controls.target.set(0, 0, 0);
           controls.update();
-          camera.position.set(r * 1.4, -r * 1.8, r * 1.15);
-          camera.lookAt(0, 0, 0);
           if (poster) poster.style.display = "none";
           const hint = box.querySelector(".hint");
           if (hint) hint.remove();
@@ -1749,7 +1750,7 @@ _RST_SCRIPT = """.. raw:: html
 
       const buttons = document.querySelectorAll(".spec-tags button.spec-tag");
       buttons.forEach((b, i) => {{
-        b.addEventListener("click", (e) => {{ e.preventDefault(); selectVariant(i); }});
+        b.addEventListener("click", () => {{ selectVariant(i); }});
       }});
       selectVariant(0);
     }})();
