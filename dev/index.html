@@ -1,0 +1,2146 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+        <link rel="next" href="backends/backends.html">
+      
+      
+      <link rel="icon" href="_static/favicon.png">
+    
+    
+      
+        <title>pybosl2 (PythonSCAD port) 0.7.10 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="_static/stl_viewer.css?v=c6f4cd80" />
+        <link rel="stylesheet" type="text/css" href="_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rendered-examples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="#" title="pybosl2 (PythonSCAD port) 0.7.10 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.10 documentation" data-md-component="logo">
+      <img src="_static/logo.png" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.10 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pybosl2 — a pure-Python PythonSCAD port of BOSL2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="#" title="pybosl2 (PythonSCAD port) 0.7.10 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.10 documentation" data-md-component="logo">
+      <img src="_static/logo.png" alt="logo">
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.10 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="backends/backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Backends</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Color</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Distributors</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Drawing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Masking</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Mesh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/partitions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/shapes3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/texture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Textures</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="foundational/transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Transforms</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Beziers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/isosurface.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NURBS</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span>Paths</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Rounding</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Skin</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Svg</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Turtle <wbr>(3-<wbr>D)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths/vnf.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="math/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Geometry helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="math/math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="math/quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Quaternions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="math/vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Vector helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bottle caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cube trusses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Enums</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gears</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hinges</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hooks</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Joiners</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Linear bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Modular hose</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NEMA steppers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regular<wbr>Polyhedron</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screw drives</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screws</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sliders &amp; rails</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Threading</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Tripod mounts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Walls</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parts/wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Wiring</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="extras/miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Miscellaneous</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rendered-examples" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Rendered examples</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>API reference</span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="pybosl2-a-pure-python-pythonscad-port-of-bosl2">pybosl2 — a pure-Python PythonSCAD port of BOSL2<a class="headerlink" href="#pybosl2-a-pure-python-pythonscad-port-of-bosl2" title="Link to this heading">¶</a></h1>
+<img alt="pybosl2" class="align-center" src="_images/title.jpeg" />
+<p><code class="docutils literal notranslate"><span class="pre">pybosl2</span></code> is a pure-Python / numpy port of the pieces of <a class="reference external" href="https://github.com/BelfrySCAD/BOSL2">BOSL2</a>
+that this toolkit uses, with <strong>no</strong> <code class="docutils literal notranslate"><span class="pre">osuse()</span></code>/BOSL2 runtime dependency. Every operation hangs off
+an object — <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> for 2-D outlines, <a class="reference internal" href="paths/regions.html#pybosl2.regions.Region" title="pybosl2.regions.Region (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Region</span></code></a> for
+outlines-with-holes, <a class="reference internal" href="paths/beziers.html#pybosl2.beziers.Bezier" title="pybosl2.beziers.Bezier (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bezier</span></code></a> / <a class="reference internal" href="paths/beziers.html#pybosl2.beziers.BezierPatch" title="pybosl2.beziers.BezierPatch (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">BezierPatch</span></code></a> for bezier
+curves and surfaces, <a class="reference internal" href="paths/vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> for vertex-face meshes, and the
+<code class="docutils literal notranslate"><span class="pre">pybosl2.shapes3d.Bosl2Solid</span></code> primitives — so new code reads as fluent chains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">]])</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">r</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<p style="margin:1.4em 0;padding:14px 18px;border:1px solid #38bdf0;border-radius:10px;
+   background:rgba(56,189,240,0.07);font-size:1.05em;">
+  &#9881;&#65039; <b><a href="specs/index.html">Visual parts catalog &amp; spec sheets &rarr;</a></b>
+  &nbsp;&mdash;&nbsp; the gears, hinges, joiners, cube-truss and ball-bearing modules with
+   technical schematics and metrics measured from real rendered STL.
+</p><div id="version-links" style="margin:1.2em 0;padding:10px 18px;
+     border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
+     font-size:0.92em;display:none">
+  <b>Released versions:</b> <span id="version-list"></span>
+  &ensp;<b><a id="latest-link" href="">latest &rarr;</a></b>
+</div>
+
+<div id="dev-notice" style="margin:1.2em 0;padding:10px 18px;
+     border:1px solid var(--md-default-fg-color--lightest,#ddd);border-radius:10px;
+     font-size:0.92em;display:none">
+  &#9888;&#65039; <b>This is the unreleased development version.</b>
+  See the <a href="../index.html">latest stable release</a> for production use.
+</div>
+
+<!-- version loader -->
+<script>
+(function(){
+  var dev = document.getElementById('dev-notice');
+  var box = document.getElementById('version-links');
+  var list = document.getElementById('version-list');
+  var lat = document.getElementById('latest-link');
+   var path = window.location.pathname;
+   var isVer = /\/v\d+\.\d+\.\d+/.test(path);
+   var root = '/';
+   if (isVer) {
+     lat.setAttribute('href', root + 'index.html');
+     box.style.display = 'block';
+     fetch(root + 'versions.json')
+       .then(function(r){return r.json();})
+       .then(function(vers){
+         var n = Math.min(vers.length,5);
+         for (var i=0; i<n; i++) {
+           var v = vers[i], a = document.createElement('a');
+           a.href = root + v + '/index.html';
+           a.textContent = v;
+           list.appendChild(a);
+           if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
+         }
+       })
+       .catch(function(){});
+   } else {
+     dev.style.display = 'block';
+     lat.setAttribute('href', root + 'index.html');
+     box.style.display = 'block';
+     fetch(root + 'versions.json')
+      .then(function(r){return r.json();})
+      .then(function(vers){
+        var n = Math.min(vers.length,5);
+        for (var i=0; i<n; i++) {
+          var v = vers[i], a = document.createElement('a');
+           a.href = root + v + '/index.html';
+          a.textContent = v;
+          list.appendChild(a);
+          if (i < n-1) list.appendChild(document.createTextNode(' \u00b7 '));
+        }
+      })
+      .catch(function(){});
+  }
+})();
+</script><h2 id="rendered-examples">Rendered examples<a class="headerlink" href="#rendered-examples" title="Link to this heading">¶</a></h2>
+<p>Every documented function with a rendered example shows both the exact PythonSCAD code and what the
+real PythonSCAD binary builds for it, via the <code class="docutils literal notranslate"><span class="pre">pythonscad-example</span></code> directive (in
+<code class="docutils literal notranslate"><span class="pre">docs/_ext/pybosl2_example.py</span></code>): an <strong>interactive 3-D viewer</strong> for the exported STL mesh (rotate,
+pan and zoom — served by the <code class="docutils literal notranslate"><span class="pre">stl_viewer</span></code> extension’s three.js viewer, a working drop-in for the
+<code class="docutils literal notranslate"><span class="pre">sphinxstl</span></code> <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">stl::</span></code> directive), plus a <strong>download link</strong> to the mesh. Two-dimensional or
+open-surface examples that have no solid mesh fall back to a static preview image.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>The interactive viewers fetch each <code class="docutils literal notranslate"><span class="pre">.stl</span></code> over HTTP, so view the built docs through a web
+server (for example <code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">http.server</span></code> from <code class="docutils literal notranslate"><span class="pre">pybosl2/wiki</span></code>) rather than opening the
+HTML files directly with a <code class="docutils literal notranslate"><span class="pre">file://</span></code> URL, where browsers block the local mesh fetch. You can
+also embed a viewer for any STL yourself with <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">stl::</span> <span class="pre">path/to/mesh.stl</span></code>.</p>
+</div>
+<p>A cuboid primitive:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+<span class="n">cuboid</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/80d1ebb58411b002.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/80d1ebb58411b002.stl">⬇ Download STL mesh</a></p>
+<p>A bezier surface patch, meshed to a VNF and rendered as a polyhedron:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BezierPatch</span>
+
+<span class="n">patch</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span>
+    <span class="p">[[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">16</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span>
+<span class="p">]</span>
+<span class="n">BezierPatch</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span><span class="o">.</span><span class="n">sheet</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">6</span><span class="p">],</span> <span class="n">splinesteps</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/0b5727f4e7893b85.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/0b5727f4e7893b85.stl">⬇ Download STL mesh</a></p>
+<p>Sweeping a profile along a bezier curve:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+<span class="n">Bezier</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">splinesteps</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/6d97e77593a5121f.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/6d97e77593a5121f.stl">⬇ Download STL mesh</a></p>
+<h2 id="api-reference">API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h2>
+<p>The modules are grouped by role, mirroring BOSL2’s own organisation. <strong>Foundational</strong> holds the
+primitives and transforms most models start from; <strong>Paths, regions &amp; surfaces</strong> the advanced
+2-D/3-D modelling toolkit; <strong>Math &amp; geometry</strong> the numeric helpers; and <strong>Parts library</strong> the
+ready-made mechanical parts — each with a visual spec sheet in the catalog linked above.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Solid backends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="backends/backends.html">Backends</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Foundational</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="foundational/color.html">Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/constants.html">Direction constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/distributors.html">Distributors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/drawing.html">Drawing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/flat.html">Flat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/masking.html">Masking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/native_ops.html">Mesh</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/partitions.html">Partitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/shapes2d.html">2-D Shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/shapes3d.html">3-D Shapes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/solid.html">Solid</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/texture.html">Textures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundational/transforms.html">Transforms</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Paths, regions &amp; surfaces</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="paths/beziers.html">Beziers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/isosurface.html">Isosurface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/nurbs.html">NURBS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/paths.html">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/regions.html">Regions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/rounding.html">Rounding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/skin.html">Skin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/svg.html">Svg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/turtle3d.html">Turtle (3-D)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="paths/vnf.html">VNF meshes</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Math &amp; geometry</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="math/geometry.html">Geometry helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math/math.html">Maths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math/quaternions.html">Quaternions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="math/vectors.html">Vector helpers</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Parts library</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="parts/ball_bearings.html">Ball bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/bottlecaps.html">Bottle caps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/cubetruss.html">Cube trusses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/enums.html">Enums</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/gears.html">Gears</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/hinges.html">Hinges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/hooks.html">Hooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/joiners.html">Joiners</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/linear_bearings.html">Linear bearings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/modular_hose.html">Modular hose</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/nema_steppers.html">NEMA steppers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/polyhedra.html">RegularPolyhedron</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/screw_drive.html">Screw drives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/screws.html">Screws</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/sliders.html">Sliders &amp; rails</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/threading.html">Threading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/tripod_mounts.html">Tripod mounts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/walls.html">Walls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parts/wiring.html">Wiring</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Extras</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="extras/miscellaneous.html">Miscellaneous</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Parts catalog</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="specs/index.html"> Visual specs &amp;rarr;</a></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+        
+          
+          <a href="backends/backends.html" class="md-footer__link md-footer__link--next" aria-label="Next: Backends">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Backends
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    8.2.3.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": ".", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="_static/stl_viewer.js?v=8eb3f512"></script>
+    
+  </body>
+</html>
