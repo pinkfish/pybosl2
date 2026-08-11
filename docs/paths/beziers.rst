@@ -1,5 +1,5 @@
-Bezier curves, paths and surfaces
-=================================
+Beziers
+=======
 .. automodule:: pybosl2.beziers
    :members:
    :undoc-members:

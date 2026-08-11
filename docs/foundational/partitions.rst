@@ -1,5 +1,5 @@
-Partitions: planar cuts & interlocking splits
-=============================================
+Partitions
+==========
 
 Pure-Python port of BOSL2's ``partitions.scad`` -- slice an object with a plane, or partition a
 large object into two interlocking pieces for printing. The cut operators are methods on

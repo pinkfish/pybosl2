@@ -1,5 +1,5 @@
-Native-only mesh operations
-===========================
+Mesh
+====
 
 These operations wrap PythonSCAD builtins that **BOSL2 has no counterpart for**, exposed as
 first-class ``pybosl2.shapes3d.Bosl2Solid`` methods (and one 2-D→3-D constructor) so they chain

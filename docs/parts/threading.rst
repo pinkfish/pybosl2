@@ -1,5 +1,5 @@
-Threading: screw threads, rods & nuts
-=====================================
+Threading
+=========
 
 .. raw:: html
 

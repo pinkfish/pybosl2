@@ -28,7 +28,7 @@
 #    ``nurbs_interp_surface`` (constrained least-squares fitting) and the ``debug_nurbs`` display
 #    modules.
 #
-# FileSummary: NURBS curve/surface evaluation and meshing (de Boor).
+# FileSummary: NURBS
 # DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 

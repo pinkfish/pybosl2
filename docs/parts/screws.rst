@@ -1,5 +1,5 @@
-Screws: metric screws, nuts & screw holes
-=========================================
+Screws
+======
 
 Pure-Python port of the core of BOSL2's ``screws.scad``, built on top of the
 :class:`~pybosl2.parts.threading` thread generator. Three classes turn a

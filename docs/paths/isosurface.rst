@@ -1,5 +1,5 @@
-Isosurface: marching cubes & metaballs
-======================================
+Isosurface
+==========
 
 Pure-Python port of the 3-D core of BOSL2's ``isosurface.scad``:
 :meth:`VNF.from_field() <pybosl2.vnf.VNF.from_field>` meshes the level set of a scalar field over a voxel grid
