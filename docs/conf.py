@@ -109,6 +109,8 @@ html_extra_path = ["_extra"]
 
 html_theme = "sphinx_immaterial"
 html_static_path: list[str] = ["_static"]
+html_favicon = "_static/favicon.png"
+html_logo = "_static/logo.png"
 html_css_files: list[str] = ["specs.css"]
 
 

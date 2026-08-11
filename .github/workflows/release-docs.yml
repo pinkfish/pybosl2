@@ -92,7 +92,7 @@ jobs:
             -exec rm -rf {} + 2>/dev/null || true
 
           cp -a wiki/* "_site/${VDIR}/"
-          cp -a wiki/* "_site/"
+          rsync -a wiki/ _site/
 
       - name: Prune old versions and write versions.json
         run: |
