@@ -1,0 +1,3732 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="turtle3d.html">
+      
+      
+        <link rel="next" href="../math/geometry.html">
+      
+      
+      <link rel="icon" href="../_static/favicon.png">
+    
+    
+      
+        <title>VNF meshes - pybosl2 (PythonSCAD port) 0.7.10 documentation</title>
+      
+    
+    
+      
+        
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.cf2c65c97ee1b6f01.min.css?v=0a68cab4" />
+        <link rel="stylesheet" type="text/css" href="../_static/stl_viewer.css?v=abc98148" />
+        <link rel="stylesheet" type="text/css" href="../_static/specs.css?v=b38570de" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pybosl2.vnf.VNF" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.10 documentation" class="md-header__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.10 documentation" data-md-component="logo">
+      <img src="../_static/logo.png" alt="logo">
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pybosl2 (PythonSCAD port) 0.7.10 documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              VNF meshes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="pybosl2 (PythonSCAD port) 0.7.10 documentation" class="md-nav__button md-logo" aria-label="pybosl2 (PythonSCAD port) 0.7.10 documentation" data-md-component="logo">
+      <img src="../_static/logo.png" alt="logo">
+    </a>
+    pybosl2 (PythonSCAD port) 0.7.10 documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pinkfish/pybosl2/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pybosl2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid backends</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Solid backends</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/backends.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Backends</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Foundational</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Foundational</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/color.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Color</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/constants.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/distributors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Distributors</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/drawing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Drawing</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/flat.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Flat</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/masking.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Masking</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/native_ops.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Mesh</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/partitions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Partitions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/shapes2d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>2-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/shapes3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>3-<wbr>D Shapes</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/solid.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Solid</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/texture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Textures</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../foundational/transforms.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Transforms</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Paths, regions &amp; surfaces</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Paths, regions &amp; surfaces</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="beziers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Beziers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="isosurface.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Isosurface</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="nurbs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NURBS</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="paths.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python parameter" class="objinfo-icon objinfo-icon__sub-data" title="Python parameter">p</span>
+  
+  <span class="md-ellipsis">
+    <span title="pybosl2.path2d.MinkowskiJoin.__init__.values (Python parameter)"><span>Paths</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="regions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="rounding.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Rounding</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="skin.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Skin</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="svg.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Svg</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="turtle3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Turtle <wbr>(3-<wbr>D)</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="#" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>VNF meshes</span>
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF" class="md-nav__link">
+    
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF (Python class) — Bases: object"><span>pybosl2.<wbr>vnf.<wbr>VNF</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.vnf.VNF">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.bounds" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.bounds (Python method) — Axis-aligned Bounds3D of the VNF."><span>bounds</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="bounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.bounds-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.reverse" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.reverse (Python method) — Return a copy with every face wound the other way (flips the surface normals)."><span>reverse</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="reverse">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.reverse-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.volume" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.volume (Python method) — Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward."><span>volume</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="volume">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.volume-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.union" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.union (Python method) — Merge a list of VNFs into one, offsetting each VNF&#39;s face indices (BOSL2 vnf_join())."><span>union</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="union">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.union-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.union-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.join (Python method) — Merge multiple VNFs into a single consolidated VNF with shared vertices."><span>join</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="join">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.halfspace (Python method) — Clip a VNF to one side of a plane, optionally closing the cut face."><span>halfspace</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="halfspace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.slice (Python method) — Slice a VNF into two VNFs along a plane, closing both cut faces."><span>slice</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="slice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.vertex_array" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.vertex_array (Python method) — Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array())."><span>vertex_<wbr>array</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="vertex_array">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.vertex_array-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.vertex_array-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.tri_array" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.tri_array (Python method) — Build a VNF from an array of rows whose lengths may differ (BOSL2 vnf_tri_array())."><span>tri_<wbr>array</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="tri_array">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.tri_array-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.tri_array-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.polyhedron" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.polyhedron (Python method) — Native geometry for this VNF via PythonSCAD&#39;s polyhedron(points=, faces=)."><span>polyhedron</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="polyhedron">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.polyhedron-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.geometry" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.geometry (Python method) — Return the VNF as native polyhedron geometry."><span>geometry</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="geometry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.geometry-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.from_field (Python method) — Mesh a scalar field into a VNF via marching cubes."><span>from_<wbr>field</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="from_field">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.from_metaballs (Python method) — Mesh transformed metaball primitives into a blobby VNF."><span>from_<wbr>metaballs</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="from_metaballs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_skin" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.from_skin (Python method) — Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid."><span>from_<wbr>skin</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="from_skin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_skin-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_skin-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.contour (Python function) — Generate 2-D contour paths at a given isovalue from a scalar field."><span>pybosl2.<wbr>vnf.<wbr>contour</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.vnf.contour">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Math &amp; geometry</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Math &amp; geometry</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Geometry helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/math.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/quaternions.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Quaternions</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../math/vectors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Vector helpers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts library</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts library</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/ball_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Ball bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/bottlecaps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bottle caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/cubetruss.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Cube trusses</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/enums.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Enums</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/gears.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Gears</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/hinges.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hinges</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/hooks.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Hooks</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/joiners.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Joiners</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/linear_bearings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Linear bearings</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/modular_hose.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Modular hose</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/nema_steppers.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>NEMA steppers</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/polyhedra.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Regular<wbr>Polyhedron</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/screw_drive.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screw drives</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/screws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Screws</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/sliders.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Sliders &amp; rails</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/threading.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Threading</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/tripod_mounts.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Tripod mounts</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/walls.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Walls</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parts/wiring.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Wiring</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Extras</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Extras</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extras/miscellaneous.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Miscellaneous</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    <span>Parts catalog</span>
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            <span>Parts catalog</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../specs/index.html" class="md-nav__link">
+        
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.71 20.29-1.42 1.42a1 1 0 0 1-1.41 0L7 9.85A3.8 3.8 0 0 1 6 10a4 4 0 0 1-3.78-5.3l2.54 2.54.53-.53 1.42-1.42.53-.53L4.7 2.22A4 4 0 0 1 10 6a3.8 3.8 0 0 1-.15 1l11.86 11.88a1 1 0 0 1 0 1.41M2.29 18.88a1 1 0 0 0 0 1.41l1.42 1.42a1 1 0 0 0 1.41 0l5.47-5.46-2.83-2.83M20 2l-4 2v2l-2.17 2.17 2 2L18 8h2l2-4Z"/></svg>
+  
+  
+  <span class="md-ellipsis">
+    <span> Visual specs &amp;rarr;</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF" class="md-nav__link">
+    
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF (Python class) — Bases: object"><span>pybosl2.<wbr>vnf.<wbr>VNF</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.vnf.VNF">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.bounds" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.bounds (Python method) — Axis-aligned Bounds3D of the VNF."><span>bounds</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="bounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.bounds-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.reverse" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.reverse (Python method) — Return a copy with every face wound the other way (flips the surface normals)."><span>reverse</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="reverse">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.reverse-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.volume" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.volume (Python method) — Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward."><span>volume</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="volume">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.volume-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.union" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.union (Python method) — Merge a list of VNFs into one, offsetting each VNF&#39;s face indices (BOSL2 vnf_join())."><span>union</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="union">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.union-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.union-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.join (Python method) — Merge multiple VNFs into a single consolidated VNF with shared vertices."><span>join</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="join">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.join-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.halfspace (Python method) — Clip a VNF to one side of a plane, optionally closing the cut face."><span>halfspace</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="halfspace">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.halfspace-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.slice (Python method) — Slice a VNF into two VNFs along a plane, closing both cut faces."><span>slice</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="slice">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.slice-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.vertex_array" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.vertex_array (Python method) — Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array())."><span>vertex_<wbr>array</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="vertex_array">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.vertex_array-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.vertex_array-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.tri_array" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.tri_array (Python method) — Build a VNF from an array of rows whose lengths may differ (BOSL2 vnf_tri_array())."><span>tri_<wbr>array</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="tri_array">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.tri_array-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.tri_array-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.polyhedron" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.polyhedron (Python method) — Native geometry for this VNF via PythonSCAD&#39;s polyhedron(points=, faces=)."><span>polyhedron</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="polyhedron">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.polyhedron-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.geometry" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.geometry (Python method) — Return the VNF as native polyhedron geometry."><span>geometry</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="geometry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.geometry-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.from_field (Python method) — Mesh a scalar field into a VNF via marching cubes."><span>from_<wbr>field</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="from_field">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_field-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.from_metaballs (Python method) — Mesh transformed metaball primitives into a blobby VNF."><span>from_<wbr>metaballs</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="from_metaballs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_metaballs-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_skin" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.VNF.from_skin (Python method) — Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid."><span>from_<wbr>skin</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="from_skin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_skin-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.VNF.from_skin-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour" class="md-nav__link">
+    
+      <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.vnf.contour (Python function) — Generate 2-D contour paths at a given isovalue from a scalar field."><span>pybosl2.<wbr>vnf.<wbr>contour</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="pybosl2.vnf.contour">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour-parameters" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Parameters</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour-returns" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.vnf.contour-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset" role="main">
+                
+                
+                  
+
+
+<h1 id="module-pybosl2.vnf"><span id="vnf-meshes"></span>VNF meshes<a class="headerlink" href="#module-pybosl2.vnf" title="Link to this heading">¶</a></h1>
+<p>VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad).</p>
+<dl class="py class objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VNF</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.__init__.vertices" title="pybosl2.vnf.VNF.__init__.vertices (Python parameter) — list of [x, y, z] points"><span class="n"><span class="pre">vertices</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.__init__.faces" title="pybosl2.vnf.VNF.__init__.faces (Python parameter) — list of index lists (each polygon into vertices)"><span class="n"><span class="pre">faces</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A VNF surface: <code class="docutils literal notranslate"><span class="pre">vertices</span></code> (3-D points) plus <code class="docutils literal notranslate"><span class="pre">faces</span></code> (index polygons into vertices).</p>
+<p>Renders to PythonSCAD’s native <code class="docutils literal notranslate"><span class="pre">polyhedron</span></code> via <a class="reference internal" href="#pybosl2.vnf.VNF.polyhedron" title="pybosl2.vnf.VNF.polyhedron (Python method) — Native geometry for this VNF via PythonSCAD's polyhedron(points=, faces=)."><code class="xref py py-meth docutils literal notranslate"><span class="pre">polyhedron()</span></code></a>. Build one from a
+rectangular grid of sample points with <a class="reference internal" href="#pybosl2.vnf.VNF.vertex_array" title="pybosl2.vnf.VNF.vertex_array (Python method) — Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array())."><code class="xref py py-meth docutils literal notranslate"><span class="pre">vertex_array()</span></code></a>, merge several with
+<a class="reference internal" href="#pybosl2.vnf.VNF.union" title="pybosl2.vnf.VNF.union (Python method) — Merge a list of VNFs into one, offsetting each VNF's face indices (BOSL2 vnf_join())."><code class="xref py py-meth docutils literal notranslate"><span class="pre">union()</span></code></a>, or mesh a scalar field with <a class="reference internal" href="#pybosl2.vnf.VNF.from_field" title="pybosl2.vnf.VNF.from_field (Python method) — Mesh a scalar field into a VNF via marching cubes."><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_field()</span></code></a> and combine metaball
+primitives with <a class="reference internal" href="#pybosl2.vnf.VNF.from_metaballs" title="pybosl2.vnf.VNF.from_metaballs (Python method) — Mesh transformed metaball primitives into a blobby VNF."><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_metaballs()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.__init__.vertices"><span class="sig-name descname">vertices</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[list[float]] | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.__init__.vertices" title="Permalink to this definition">¶</a></dt><dd><p>list of [x, y, z] points</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.__init__.faces"><span class="sig-name descname">faces</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[list[int]] | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.__init__.faces" title="Permalink to this definition">¶</a></dt><dd><p>list of index lists (each polygon into <em>vertices</em>)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<p>Meshing a bumpy grid of sample points into a surface and rendering it as a polyhedron:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">grid</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">y</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/1a440a0de294fe91.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/1a440a0de294fe91.stl">⬇ Download STL mesh</a></p>
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.bounds" title="Link to this definition">¶</a></dt>
+<dd><p>Axis-aligned <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code> of the VNF.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.bounds-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.bounds-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><em>Bounds3D</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.reverse">
+<span class="sig-name descname"><span class="pre">reverse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.reverse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.reverse" title="Link to this definition">¶</a></dt>
+<dd><p>Return a copy with every face wound the other way (flips the surface normals).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.reverse-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.reverse-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><em>VNF</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.volume">
+<span class="sig-name descname"><span class="pre">volume</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.volume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.volume" title="Link to this definition">¶</a></dt>
+<dd><p>Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward.</p>
+<p>Used to detect and fix inverted meshes (a swept/skinned surface whose winding came out
+inside-out): <code class="docutils literal notranslate"><span class="pre">vnf</span> <span class="pre">if</span> <span class="pre">vnf.volume()</span> <span class="pre">&gt;=</span> <span class="pre">0</span> <span class="pre">else</span> <span class="pre">vnf.reverse()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.volume-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.volume-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.union">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">union</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.union.vnfs" title="pybosl2.vnf.VNF.union.vnfs (Python parameter)"><span class="n"><span class="pre">vnfs</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.union"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.union" title="Link to this definition">¶</a></dt>
+<dd><p>Merge a list of VNFs into one, offsetting each VNF’s face indices (BOSL2 vnf_join()).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.union-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.union-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.union.vnfs"><span class="sig-name descname">vnfs</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[<a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a>]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.union.vnfs" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.union-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.union-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><em>VNF</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.join">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.join.vnfs" title="pybosl2.vnf.VNF.join.vnfs (Python parameter) — A list of VNF objects to merge."><span class="n"><span class="pre">vnfs</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.join" title="Link to this definition">¶</a></dt>
+<dd><p>Merge multiple VNFs into a single consolidated VNF with shared vertices.</p>
+<p>Each input VNF’s vertices and faces are copied into a combined vertex array,
+with face indices offset appropriately.  No deduplication is performed.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.join-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.join-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.join.vnfs"><span class="sig-name descname">vnfs</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[<a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a>]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.join.vnfs" title="Permalink to this definition">¶</a></dt><dd><p>A list of <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> objects to merge.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.join-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.join-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> containing all vertices and faces from the inputs.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.vnf.VNF.join-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.join-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><em>VNF</em></a></p>
+</dd>
+</dl>
+<p>Examples:
+.. pythonscad-example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">([[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">],</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span> <span class="p">]])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">([[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="p">],</span> <span class="p">[</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="p">]])</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.halfspace">
+<span class="sig-name descname"><span class="pre">halfspace</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.halfspace.plane" title="pybosl2.vnf.VNF.halfspace.plane (Python parameter) — Plane equation [A, B, C, D]."><span class="n"><span class="pre">plane</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.halfspace.keep" title="pybosl2.vnf.VNF.halfspace.keep (Python parameter) — If True, keep the positive halfspace."><span class="n"><span class="pre">keep</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.halfspace.closed" title="pybosl2.vnf.VNF.halfspace.closed (Python parameter) — If True, triangulate and close the cut face."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.halfspace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace" title="Link to this definition">¶</a></dt>
+<dd><p>Clip a VNF to one side of a plane, optionally closing the cut face.</p>
+<p>A plane is defined as <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C,</span> <span class="pre">D]</span></code> for <code class="docutils literal notranslate"><span class="pre">A*x</span> <span class="pre">+</span> <span class="pre">B*y</span> <span class="pre">+</span> <span class="pre">C*z</span> <span class="pre">=</span> <span class="pre">D</span></code>.
+If <em>keep</em> is True, the positive halfspace (<code class="docutils literal notranslate"><span class="pre">A*x</span> <span class="pre">+</span> <span class="pre">B*y</span> <span class="pre">+</span> <span class="pre">C*z</span> <span class="pre">&gt;</span> <span class="pre">D</span></code>)
+is retained.  If <em>keep</em> is False, the negative halfspace is retained.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.halfspace-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.halfspace.plane"><span class="sig-name descname">plane</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace.plane" title="Permalink to this definition">¶</a></dt><dd><p>Plane equation <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C,</span> <span class="pre">D]</span></code>.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.halfspace.keep"><span class="sig-name descname">keep</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace.keep" title="Permalink to this definition">¶</a></dt><dd><p>If True, keep the positive halfspace.  Defaults to True.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.halfspace.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace.closed" title="Permalink to this definition">¶</a></dt><dd><p>If True, triangulate and close the cut face.  Defaults to True.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.halfspace-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> containing only the requested halfspace.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.vnf.VNF.halfspace-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>plane</em> does not have exactly 4 elements.</p>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.halfspace-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.halfspace-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a></p>
+</dd>
+</dl>
+<p>Examples:
+.. pythonscad-example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span><span class="p">,</span> <span class="n">Bounds3D</span>
+
+<span class="n">cube_vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="mi">5</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">cut</span> <span class="o">=</span> <span class="n">cube_vnf</span><span class="o">.</span><span class="n">halfspace</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cut</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.slice">
+<span class="sig-name descname"><span class="pre">slice</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.slice.plane" title="pybosl2.vnf.VNF.slice.plane (Python parameter) — Plane equation [A, B, C, D] for A*x + B*y + C*z = D."><span class="n"><span class="pre">plane</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.slice.closed" title="pybosl2.vnf.VNF.slice.closed (Python parameter) — If True, close both cut faces."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.slice" title="Link to this definition">¶</a></dt>
+<dd><p>Slice a VNF into two VNFs along a plane, closing both cut faces.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">(vnf_above,</span> <span class="pre">vnf_below)</span></code> where <em>vnf_above</em> is the positive
+halfspace and <em>vnf_below</em> is the negative halfspace.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.slice-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.slice-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.slice.plane"><span class="sig-name descname">plane</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.slice.plane" title="Permalink to this definition">¶</a></dt><dd><p>Plane equation <code class="docutils literal notranslate"><span class="pre">[A,</span> <span class="pre">B,</span> <span class="pre">C,</span> <span class="pre">D]</span></code> for <code class="docutils literal notranslate"><span class="pre">A*x</span> <span class="pre">+</span> <span class="pre">B*y</span> <span class="pre">+</span> <span class="pre">C*z</span> <span class="pre">=</span> <span class="pre">D</span></code>.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.slice.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.slice.closed" title="Permalink to this definition">¶</a></dt><dd><p>If True, close both cut faces.  Defaults to True.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.slice-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.slice-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">(above,</span> <span class="pre">below)</span></code> tuple of <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> objects.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.vnf.VNF.slice-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.slice-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>tuple[‘VNF’, ‘VNF’]</p>
+</dd>
+</dl>
+<p>Examples:
+.. pythonscad-example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span><span class="p">,</span> <span class="n">Bounds3D</span>
+
+<span class="n">cube_vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="mi">5</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="mi">0</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="n">voxel_size</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">above</span><span class="p">,</span> <span class="n">below</span> <span class="o">=</span> <span class="n">cube_vnf</span><span class="o">.</span><span class="n">slice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">above</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.vertex_array">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertex_array</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.points" title="pybosl2.vnf.VNF.vertex_array.points (Python parameter) — Input grid points."><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.caps" title="pybosl2.vnf.VNF.vertex_array.caps (Python parameter) — Cap specification for both ends: a single CapType, CapSpec, or a two-element pair [cap_start, cap_end]. Pass None (the default) for no caps."><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="pybosl2.vnf.VNF.vertex_array.col_wrap (Python parameter) — Close the column direction into a tube."><span class="n"><span class="pre">col_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="pybosl2.vnf.VNF.vertex_array.row_wrap (Python parameter) — Close the row direction into a torus."><span class="n"><span class="pre">row_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="pybosl2.vnf.VNF.vertex_array.reverse (Python parameter) — Flip face winding."><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.vertex_array.style" title="pybosl2.vnf.VNF.vertex_array.style (Python parameter) — Triangulation method."><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.vertex_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array" title="Link to this definition">¶</a></dt>
+<dd><p>Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</p>
+<p>Each grid cell becomes triangles (or a quad) chosen by <em>style</em>: “default”, “alt”,
+“min_edge”, “min_area”, “convex”, “concave”, “quincunx”, “quad”, “flip1”, “flip2”.
+<em>col_wrap</em>/<em>row_wrap</em> close the grid into a tube/torus; <em>caps</em> closes the
+column-wrapped ends with <code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code> or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CapSpec</span></code> styles (see <code class="xref py py-data docutils literal notranslate"><span class="pre">CapsSpec</span></code>).
+<em>reverse</em> flips face winding. Degenerate (zero-area) faces are dropped.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.vertex_array-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.vertex_array.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.points" title="Permalink to this definition">¶</a></dt><dd><p>Input grid points.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.vertex_array.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.caps" title="Permalink to this definition">¶</a></dt><dd><p>Cap specification for both ends: a single <code class="xref py py-class docutils literal notranslate"><span class="pre">CapType</span></code>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CapSpec</span></code>, or a two-element pair <code class="docutils literal notranslate"><span class="pre">[cap_start,</span> <span class="pre">cap_end]</span></code>.
+Pass <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) for no caps.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.vertex_array.col_wrap"><span class="sig-name descname">col_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.col_wrap" title="Permalink to this definition">¶</a></dt><dd><p>Close the column direction into a tube.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.vertex_array.row_wrap"><span class="sig-name descname">row_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.row_wrap" title="Permalink to this definition">¶</a></dt><dd><p>Close the row direction into a torus.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.vertex_array.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.reverse" title="Permalink to this definition">¶</a></dt><dd><p>Flip face winding.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.vertex_array.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a> | VnfStyle</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array.style" title="Permalink to this definition">¶</a></dt><dd><p>Triangulation method.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.vertex_array-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.vertex_array-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.tri_array">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tri_array</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.points" title="pybosl2.vnf.VNF.tri_array.points (Python parameter)"><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.caps" title="pybosl2.vnf.VNF.tri_array.caps (Python parameter)"><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.cap1" title="pybosl2.vnf.VNF.tri_array.cap1 (Python parameter)"><span class="n"><span class="pre">cap1</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.cap2" title="pybosl2.vnf.VNF.tri_array.cap2 (Python parameter)"><span class="n"><span class="pre">cap2</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.col_wrap" title="pybosl2.vnf.VNF.tri_array.col_wrap (Python parameter)"><span class="n"><span class="pre">col_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.row_wrap" title="pybosl2.vnf.VNF.tri_array.row_wrap (Python parameter)"><span class="n"><span class="pre">row_wrap</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.reverse" title="pybosl2.vnf.VNF.tri_array.reverse (Python parameter)"><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.tri_array.limit_bunching" title="pybosl2.vnf.VNF.tri_array.limit_bunching (Python parameter)"><span class="n"><span class="pre">limit_bunching</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.tri_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array" title="Link to this definition">¶</a></dt>
+<dd><p>Build a VNF from an array of rows whose lengths may differ (BOSL2 vnf_tri_array()).</p>
+<p>Triangulates between adjacent rows by repeatedly adding the shortest new edge, so it
+meshes triangular / irregular point arrays (what the degenerate bezier patches produce).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.tri_array-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.tri_array.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[list[list[float]]]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.points" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.cap1"><span class="sig-name descname">cap1</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.cap1" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.cap2"><span class="sig-name descname">cap2</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.cap2" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.col_wrap"><span class="sig-name descname">col_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.col_wrap" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.row_wrap"><span class="sig-name descname">row_wrap</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.row_wrap" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.reverse" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+<dt id="pybosl2.vnf.VNF.tri_array.limit_bunching"><span class="sig-name descname">limit_bunching</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array.limit_bunching" title="Permalink to this definition">¶</a></dt><dd><p></p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.tri_array-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.tri_array-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><em>VNF</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.polyhedron">
+<span class="sig-name descname"><span class="pre">polyhedron</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.polyhedron" title="Link to this definition">¶</a></dt>
+<dd><p>Native geometry for this VNF via PythonSCAD’s <code class="docutils literal notranslate"><span class="pre">polyhedron(points=,</span> <span class="pre">faces=)</span></code>.</p>
+<p>A VNF winds its faces counter-clockwise seen from outside (so <a class="reference internal" href="#pybosl2.vnf.VNF.volume" title="pybosl2.vnf.VNF.volume (Python method) — Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward."><code class="xref py py-meth docutils literal notranslate"><span class="pre">volume()</span></code></a> is positive
+for a solid); <code class="docutils literal notranslate"><span class="pre">polyhedron()</span></code> wants them the other way round, so each face is reversed
+on the way out. Handing them over as-is builds the solid inside out – it still looks
+right on its own, but every union or difference with it then does the opposite of what
+it should.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.polyhedron-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.polyhedron-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><em>Any</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VNF.geometry">
+<span class="sig-name descname"><span class="pre">geometry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.geometry" title="Link to this definition">¶</a></dt>
+<dd><p>Return the VNF as native polyhedron geometry.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.geometry-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.geometry-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><em>Any</em></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.from_field">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_field</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.f" title="pybosl2.vnf.VNF.from_field.f (Python parameter) — A Path3D, a 3-D numpy array, a (N,3) → (N,) callable, or a (:class:`~pybosl2.path3d.Path3D`) → (N,) callable."><span class="n"><span class="pre">f</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.isovalue" title="pybosl2.vnf.VNF.from_field.isovalue (Python parameter) — Scalar threshold."><span class="n"><span class="pre">isovalue</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.bounding_box" title="pybosl2.vnf.VNF.from_field.bounding_box (Python parameter) — A Bounds3D or None (auto-computed from array shape when f is an array)."><span class="n"><span class="pre">bounding_box</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.voxel_size" title="pybosl2.vnf.VNF.from_field.voxel_size (Python parameter) — Isotropic voxel size."><span class="n"><span class="pre">voxel_size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.voxel_count" title="pybosl2.vnf.VNF.from_field.voxel_count (Python parameter) — Approximate total voxel count (ignored if voxel_size given)."><span class="n"><span class="pre">voxel_count</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.closed" title="pybosl2.vnf.VNF.from_field.closed (Python parameter) — If True, pad field so mesh closes at bounding-box faces."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.reverse" title="pybosl2.vnf.VNF.from_field.reverse (Python parameter) — If True, reverse inside/outside sense."><span class="n"><span class="pre">reverse</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_field.exact_bounds" title="pybosl2.vnf.VNF.from_field.exact_bounds (Python parameter) — If True, use bounding_box exactly."><span class="n"><span class="pre">exact_bounds</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.from_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_field" title="Link to this definition">¶</a></dt>
+<dd><p>Mesh a scalar field into a <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a> via marching cubes.</p>
+<p>The solid is the region where <code class="docutils literal notranslate"><span class="pre">f</span> <span class="pre">&gt;=</span> <span class="pre">isovalue</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.from_field-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.from_field.f"><span class="sig-name descname">f</span><span class="p"> : </span><span class="desctype"><span class="desctype">np.ndarray | Path3D | Callable[[np.ndarray], np.ndarray] | Callable[[Path3D], np.ndarray]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.f" title="Permalink to this definition">¶</a></dt><dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code>, a 3-D numpy array,
+a <code class="docutils literal notranslate"><span class="pre">(N,3)</span> <span class="pre">→</span> <span class="pre">(N,)</span></code> callable, or a
+<code class="docutils literal notranslate"><span class="pre">(:class:`~pybosl2.path3d.Path3D`)</span> <span class="pre">→</span> <span class="pre">(N,)</span></code> callable.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.isovalue"><span class="sig-name descname">isovalue</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.isovalue" title="Permalink to this definition">¶</a></dt><dd><p>Scalar threshold.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.bounding_box"><span class="sig-name descname">bounding_box</span><span class="p"> : </span><span class="desctype"><span class="desctype">Bounds3D | float | Sequence[float] | Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.bounding_box" title="Permalink to this definition">¶</a></dt><dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>
+(auto-computed from array shape when <em>f</em> is an array).</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.voxel_size"><span class="sig-name descname">voxel_size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.voxel_size" title="Permalink to this definition">¶</a></dt><dd><p>Isotropic voxel size.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.voxel_count"><span class="sig-name descname">voxel_count</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.voxel_count" title="Permalink to this definition">¶</a></dt><dd><p>Approximate total voxel count (ignored if <em>voxel_size</em> given).</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.closed" title="Permalink to this definition">¶</a></dt><dd><p>If True, pad field so mesh closes at bounding-box faces.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.reverse"><span class="sig-name descname">reverse</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.reverse" title="Permalink to this definition">¶</a></dt><dd><p>If True, reverse inside/outside sense.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_field.exact_bounds"><span class="sig-name descname">exact_bounds</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field.exact_bounds" title="Permalink to this definition">¶</a></dt><dd><p>If True, use <em>bounding_box</em> exactly.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.from_field-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.vnf.VNF.from_field-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><strong>NotImplementedError</strong> – If <em>isovalue</em> is a tuple range; only scalar thresholds are supported.</p>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.from_field-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_field-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a></p>
+</dd>
+</dl>
+<p>Examples:
+.. pythonscad-example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span><span class="p">,</span> <span class="n">Bounds3D</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="mi">20</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">+</span> <span class="n">z</span><span class="o">*</span><span class="n">z</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_field</span><span class="p">(</span>
+    <span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+    <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.from_metaballs">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_metaballs</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.spec" title="pybosl2.vnf.VNF.from_metaballs.spec (Python parameter) — A list of _MetaballSpec entries, each holding a transform (4×4 matrix or Point position) and a _Metaball."><span class="n"><span class="pre">spec</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.bounding_box" title="pybosl2.vnf.VNF.from_metaballs.bounding_box (Python parameter) — A Bounds3D."><span class="n"><span class="pre">bounding_box</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.voxel_size" title="pybosl2.vnf.VNF.from_metaballs.voxel_size (Python parameter) — Isotropic voxel size."><span class="n"><span class="pre">voxel_size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.voxel_count" title="pybosl2.vnf.VNF.from_metaballs.voxel_count (Python parameter) — Approximate total voxel count."><span class="n"><span class="pre">voxel_count</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.isovalue" title="pybosl2.vnf.VNF.from_metaballs.isovalue (Python parameter) — Field threshold."><span class="n"><span class="pre">isovalue</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">1</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.closed" title="pybosl2.vnf.VNF.from_metaballs.closed (Python parameter) — Close mesh at bounding-box faces."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_metaballs.exact_bounds" title="pybosl2.vnf.VNF.from_metaballs.exact_bounds (Python parameter) — Use bounding_box exactly."><span class="n"><span class="pre">exact_bounds</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.from_metaballs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs" title="Link to this definition">¶</a></dt>
+<dd><p>Mesh transformed metaball primitives into a blobby <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.from_metaballs-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.from_metaballs.spec"><span class="sig-name descname">spec</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[_MetaballSpec]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.spec" title="Permalink to this definition">¶</a></dt><dd><p>A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">_MetaballSpec</span></code> entries,
+each holding a transform (4×4 matrix or Point position) and a <code class="xref py py-class docutils literal notranslate"><span class="pre">_Metaball</span></code>.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_metaballs.bounding_box"><span class="sig-name descname">bounding_box</span><span class="p"> : </span><span class="desctype"><span class="desctype">Bounds3D | float | Sequence[float] | Sequence[Sequence[float]]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.bounding_box" title="Permalink to this definition">¶</a></dt><dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds3D</span></code>.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_metaballs.voxel_size"><span class="sig-name descname">voxel_size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.voxel_size" title="Permalink to this definition">¶</a></dt><dd><p>Isotropic voxel size.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_metaballs.voxel_count"><span class="sig-name descname">voxel_count</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.voxel_count" title="Permalink to this definition">¶</a></dt><dd><p>Approximate total voxel count.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_metaballs.isovalue"><span class="sig-name descname">isovalue</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.isovalue" title="Permalink to this definition">¶</a></dt><dd><p>Field threshold.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_metaballs.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.closed" title="Permalink to this definition">¶</a></dt><dd><p>Close mesh at bounding-box faces.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_metaballs.exact_bounds"><span class="sig-name descname">exact_bounds</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs.exact_bounds" title="Permalink to this definition">¶</a></dt><dd><p>Use <em>bounding_box</em> exactly.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.from_metaballs-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A <a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.vnf.VNF.from_metaballs-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_metaballs-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a></p>
+</dd>
+</dl>
+<p>Examples:
+.. pythonscad-example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaballSpec</span><span class="p">,</span> <span class="n">mb_sphere</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span><span class="p">,</span> <span class="n">Bounds3D</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MetaballSpec</span><span class="p">([</span><span class="o">-</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span>
+    <span class="n">MetaballSpec</span><span class="p">([</span><span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">mb_sphere</span><span class="p">(</span><span class="mi">12</span><span class="p">)),</span>
+<span class="p">]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_metaballs</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">,</span>
+    <span class="n">Bounds3D</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="n">voxel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.VNF.from_skin">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_skin</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.profiles" title="pybosl2.vnf.VNF.from_skin.profiles (Python parameter) — list of &gt;= 2 closed profiles (each a list of points)."><span class="n"><span class="pre">profiles</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.slices" title="pybosl2.vnf.VNF.from_skin.slices (Python parameter) — number of interpolated profiles inserted between each pair (int or per-gap list)"><span class="n"><span class="pre">slices</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.refine" title="pybosl2.vnf.VNF.from_skin.refine (Python parameter) — subdivide every profile by this factor before skinning (default 1)"><span class="n"><span class="pre">refine</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">1.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.method" title="pybosl2.vnf.VNF.from_skin.method (Python parameter) — &quot;direct&quot; (connect vertex i to vertex i) or &quot;reindex&quot; (rotate each profile to best-align with the previous)."><span class="n"><span class="pre">method</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.sampling" title="pybosl2.vnf.VNF.from_skin.sampling (Python parameter) — &quot;length&quot; or &quot;segment&quot; resampling (default &quot;length&quot;)"><span class="n"><span class="pre">sampling</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.caps" title="pybosl2.vnf.VNF.from_skin.caps (Python parameter) — cap the ends; supports decorative cap types"><span class="n"><span class="pre">caps</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="s1">&#39;butt&#39;</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.closed" title="pybosl2.vnf.VNF.from_skin.closed (Python parameter) — the stack loops back to the first profile (default False)"><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.style" title="pybosl2.vnf.VNF.from_skin.style (Python parameter) — vnf_vertex_array quad-subdivision style"><span class="n"><span class="pre">style</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.VNF.from_skin.z" title="pybosl2.vnf.VNF.from_skin.z (Python parameter) — per-profile Z heights, required when the profiles are 2-D"><span class="n"><span class="pre">z</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#VNF.from_skin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin" title="Link to this definition">¶</a></dt>
+<dd><p>Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</p>
+<p>Consecutive profiles are connected vertex-to-vertex; <em>slices</em> extra interpolated profiles are
+inserted between each pair to smooth the transition.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.VNF.from_skin-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.VNF.from_skin.profiles"><span class="sig-name descname">profiles</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[Sequence[float]]]</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.profiles" title="Permalink to this definition">¶</a></dt><dd><p>list of &gt;= 2 closed profiles (each a list of points). If 2-D, give matching <em>z</em>.</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.slices"><span class="sig-name descname">slices</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.slices" title="Permalink to this definition">¶</a></dt><dd><p>number of interpolated profiles inserted between each pair (int or per-gap list)</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.refine"><span class="sig-name descname">refine</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.refine" title="Permalink to this definition">¶</a></dt><dd><p>subdivide every profile by this factor before skinning (default 1)</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.method"><span class="sig-name descname">method</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.SkinMethod" title="pybosl2.enums.SkinMethod (Python class) — Bases: StrEnum">SkinMethod</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.method" title="Permalink to this definition">¶</a></dt><dd><p>“direct” (connect vertex i to vertex i) or “reindex” (rotate each profile to
+best-align with the previous).</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.sampling"><span class="sig-name descname">sampling</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.SamplingType" title="pybosl2.enums.SamplingType (Python class) — Bases: StrEnum">SamplingType</a> | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.sampling" title="Permalink to this definition">¶</a></dt><dd><p>“length” or “segment” resampling (default “length”)</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.caps" title="Permalink to this definition">¶</a></dt><dd><p>cap the ends; supports decorative cap types</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.closed" title="Permalink to this definition">¶</a></dt><dd><p>the stack loops back to the first profile (default False)</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.style" title="Permalink to this definition">¶</a></dt><dd><p>vnf_vertex_array quad-subdivision style</p>
+</dd>
+<dt id="pybosl2.vnf.VNF.from_skin.z"><span class="sig-name descname">z</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[float] | None</span></span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin.z" title="Permalink to this definition">¶</a></dt><dd><p>per-profile Z heights, required when the profiles are 2-D</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.VNF.from_skin-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.VNF.from_skin-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object">VNF</a> | Bosl2Solid</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<p>Skinning a round profile up to a square one (a lofted transition):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkinMethod</span>
+
+<span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+<span class="n">square</span> <span class="o">=</span> <span class="p">[[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]]</span>
+<span class="n">VNF</span><span class="o">.</span><span class="n">from_skin</span><span class="p">([</span><span class="n">circle</span><span class="p">,</span> <span class="n">square</span><span class="p">],</span> <span class="n">slices</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">SkinMethod</span><span class="o">.</span><span class="n">REINDEX</span><span class="p">,</span> <span class="n">z</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">])</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/9c7327f163963da1.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/9c7327f163963da1.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.vnf.VnfStyle">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">VnfStyle</span></span><a class="headerlink" href="#pybosl2.vnf.VnfStyle" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNFStyle</span></code></a></p>
+</dd></dl>
+
+<dl class="py function objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.vnf.contour">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.vnf.</span></span><span class="sig-name descname"><span class="pre">contour</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.f" title="pybosl2.vnf.contour.f (Python parameter) — A 2-D numpy array or a callable (N,2)→(N,) or (x,y)→float."><span class="n"><span class="pre">f</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.isovalue" title="pybosl2.vnf.contour.isovalue (Python parameter) — Scalar threshold."><span class="n"><span class="pre">isovalue</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.bounding_box" title="pybosl2.vnf.contour.bounding_box (Python parameter) — A Bounds2D."><span class="n"><span class="pre">bounding_box</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.pixel_size" title="pybosl2.vnf.contour.pixel_size (Python parameter) — Isotropic pixel size."><span class="n"><span class="pre">pixel_size</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.pixel_count" title="pybosl2.vnf.contour.pixel_count (Python parameter) — Approximate total pixel count (ignored if pixel_size given)."><span class="n"><span class="pre">pixel_count</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.closed" title="pybosl2.vnf.contour.closed (Python parameter) — If True, return only closed contour loops."><span class="n"><span class="pre">closed</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">True</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.vnf.contour.exact_bounds" title="pybosl2.vnf.contour.exact_bounds (Python parameter) — If True, use bounding_box exactly."><span class="n"><span class="pre">exact_bounds</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/vnf.html#contour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.vnf.contour" title="Link to this definition">¶</a></dt>
+<dd><p>Generate 2-D contour paths at a given isovalue from a scalar field.</p>
+<p>Uses marching squares on a uniform 2-D grid to trace the contour where
+<code class="docutils literal notranslate"><span class="pre">f(x,</span> <span class="pre">y)</span> <span class="pre">==</span> <span class="pre">isovalue</span></code>.  Returns a list of closed (or open) polyline
+paths, each being a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.vnf.contour-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.contour-parameters" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><dl class="simple api-field highlight">
+<dt id="pybosl2.vnf.contour.f"><span class="sig-name descname">f</span><span class="p"> : </span><span class="desctype"><span class="desctype">np.ndarray | Callable[[np.ndarray], np.ndarray]</span></span><a class="headerlink" href="#pybosl2.vnf.contour.f" title="Permalink to this definition">¶</a></dt><dd><p>A 2-D numpy array or a callable <code class="docutils literal notranslate"><span class="pre">(N,2)→(N,)</span></code> or <code class="docutils literal notranslate"><span class="pre">(x,y)→float</span></code>.</p>
+</dd>
+<dt id="pybosl2.vnf.contour.isovalue"><span class="sig-name descname">isovalue</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.vnf.contour.isovalue" title="Permalink to this definition">¶</a></dt><dd><p>Scalar threshold.</p>
+</dd>
+<dt id="pybosl2.vnf.contour.bounding_box"><span class="sig-name descname">bounding_box</span><span class="p"> : </span><span class="desctype"><span class="desctype">Bounds2D</span></span><a class="headerlink" href="#pybosl2.vnf.contour.bounding_box" title="Permalink to this definition">¶</a></dt><dd><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds2D</span></code>.</p>
+</dd>
+<dt id="pybosl2.vnf.contour.pixel_size"><span class="sig-name descname">pixel_size</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.vnf.contour.pixel_size" title="Permalink to this definition">¶</a></dt><dd><p>Isotropic pixel size.</p>
+</dd>
+<dt id="pybosl2.vnf.contour.pixel_count"><span class="sig-name descname">pixel_count</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.vnf.contour.pixel_count" title="Permalink to this definition">¶</a></dt><dd><p>Approximate total pixel count (ignored if <em>pixel_size</em> given).</p>
+</dd>
+<dt id="pybosl2.vnf.contour.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.contour.closed" title="Permalink to this definition">¶</a></dt><dd><p>If True, return only closed contour loops.</p>
+</dd>
+<dt id="pybosl2.vnf.contour.exact_bounds"><span class="sig-name descname">exact_bounds</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.vnf.contour.exact_bounds" title="Permalink to this definition">¶</a></dt><dd><p>If True, use <em>bounding_box</em> exactly.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even" id="pybosl2.vnf.contour-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.contour-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p>A list of contour paths, each a list of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.vnf.contour-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.vnf.contour-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>list[list[list[float]]]</p>
+</dd>
+</dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">contour</span><span class="p">,</span> <span class="n">Bounds2D</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">field</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">p</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">r</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="n">contour</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">Bounds2D</span><span class="p">(</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span> <span class="n">pixel_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">Path2D</span><span class="p">(</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/7863282ff05ed4f0.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7863282ff05ed4f0.stl">⬇ Download STL mesh</a></p>
+</dd></dl>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="turtle3d.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Turtle (3-D)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Turtle (3-D)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../math/geometry.html" class="md-footer__link md-footer__link--next" aria-label="Next: Geometry helpers">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Geometry helpers
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  
+  
+  <div class="md-footer-meta md-typeset">
+    
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-footer-copyright__highlight">
+        &#169; Copyright 2026, pinkfish.
+        
+    </div>
+  
+    Created using
+    <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
+    8.2.3.
+     and
+    <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
+  
+</div>
+      
+    </div>
+    
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "toc.follow", "toc.sticky", "content.code.copy", "content.tooltips"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+      
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
+        <script type="module" src="../_static/stl_viewer.js?v=0ab88475"></script>
+    
+  </body>
+</html>
