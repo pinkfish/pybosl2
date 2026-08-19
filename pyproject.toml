@@ -33,6 +33,7 @@ dependencies = [
     "typing-extensions",
     "webcolors>=25",
     "svgelements>=1.9",
+    "shapely>=2",
 ]
 
 [project.optional-dependencies]
@@ -46,12 +47,8 @@ test = [
     "typing-extensions",
     "shapely",
 ]
-# Accurate 2-D boolean ops (Region.intersection/union/difference) on concave
-# polygons. Without this extra the operations fall back to the PythonSCAD
-# geometry layer.
-geo = [
-    "shapely>=2",
-]
+# Retained for backward compatibility; shapely is now a required dependency.
+geo = []
 # Build the API docs (Sphinx autodoc). Needs pythonscad because the geometry
 # modules import it at load time, before autodoc can read their docstrings.
 docs = [
