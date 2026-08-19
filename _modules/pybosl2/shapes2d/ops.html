@@ -1818,7 +1818,7 @@
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Boolean operations, offsets, text and cross helpers.&quot;&quot;&quot;</span>
+<span class="sd">"""Boolean operations, offsets, text and cross helpers."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1850,7 +1850,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
 
-<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">,</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">,</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
@@ -1861,13 +1861,13 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_osquare</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span> <span class="k">as</span> <span class="n">_otext</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">_ocircle</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>
-    <span class="n">_ofill</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;fill&quot;</span><span class="p">)</span>
-    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
-    <span class="n">_oosimport</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;osimport&quot;</span><span class="p">)</span>
-    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
-    <span class="n">_osquare</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
-    <span class="n">_otext</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+    <span class="n">_ocircle</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"circle"</span><span class="p">)</span>
+    <span class="n">_ofill</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"fill"</span><span class="p">)</span>
+    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"hull"</span><span class="p">)</span>
+    <span class="n">_oosimport</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"osimport"</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
+    <span class="n">_osquare</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"square"</span><span class="p">)</span>
+    <span class="n">_otext</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"text"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="osimport">
@@ -1880,7 +1880,7 @@
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Import a 2-D drawing (SVG or DXF) as a :class:`Bosl2Shape2D` (OpenSCAD ``import()``).</span>
+<span class="w">    </span><span class="sd">"""Import a 2-D drawing (SVG or DXF) as a :class:`Bosl2Shape2D` (OpenSCAD ``import()``).</span>
 
 <span class="sd">    The wrapped counterpart of the bare native ``osimport()``, so an imported outline joins the</span>
 <span class="sd">    fluent API instead of being a raw handle a caller has to keep unwrapping -- it can be</span>
@@ -1907,11 +1907,11 @@
 
 <span class="sd">            from pybosl2 import shapes2d as s2</span>
 
-<span class="sd">            s2.osimport(&quot;drawing.svg&quot;).resize([40, 40, 0]).linear_extrude(height=2).show()</span>
+<span class="sd">            s2.osimport("drawing.svg").resize([40, 40, 0]).linear_extrude(height=2).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">((</span><span class="n">convexity</span><span class="p">,</span> <span class="s2">&quot;convexity&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">&quot;layer&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">dpi</span><span class="p">,</span> <span class="s2">&quot;dpi&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">),</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">((</span><span class="n">convexity</span><span class="p">,</span> <span class="s2">"convexity"</span><span class="p">),</span> <span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">"layer"</span><span class="p">),</span> <span class="p">(</span><span class="n">dpi</span><span class="p">,</span> <span class="s2">"dpi"</span><span class="p">),</span> <span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="s2">"center"</span><span class="p">),</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="s2">"id"</span><span class="p">)):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_oosimport</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
@@ -1920,8 +1920,8 @@
 
 <div class="viewcode-block" id="fill">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.fill">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="n">children</span><span class="p">:</span> <span class="s2">&quot;Shape2DLike&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;*children* with every hole filled in -- only the outermost outline survives.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="n">children</span><span class="p">:</span> <span class="s2">"Shape2DLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""*children* with every hole filled in -- only the outermost outline survives.</span>
 
 <span class="sd">    (OpenSCAD ``fill()``, the module form of :meth:`Bosl2Shape2D.fill`).</span>
 
@@ -1929,15 +1929,15 @@
 <span class="sd">        children: the 2-D shape to fill (a ``Bosl2Shape2D``, a native shape, a</span>
 <span class="sd">                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or a point list)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_ofill</span><span class="p">(</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">children</span><span class="p">)))</span></div>
 
 
 
 <div class="viewcode-block" id="hull">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.hull">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">:</span> <span class="s2">&quot;Shape2DLike | Sequence[Shape2DLike]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">:</span> <span class="s2">"Shape2DLike | Sequence[Shape2DLike]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of.</span>
 
 <span class="sd">    :meth:`Bosl2Shape2D.hull`).</span>
 
@@ -1946,11 +1946,11 @@
 <span class="sd">                  :class:`~pybosl2.paths.Path2D` / :class:`~pybosl2.regions.Region`, or point lists.</span>
 <span class="sd">                  A single list/tuple *of* shapes is also accepted.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_child_2d</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]  # a single list *of* shapes</span>
-    <span class="k">assert</span> <span class="n">items</span><span class="p">,</span> <span class="s2">&quot;hull(): needs at least one child.&quot;</span>
+    <span class="k">assert</span> <span class="n">items</span><span class="p">,</span> <span class="s2">"hull(): needs at least one child."</span>
     <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_ohull</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]))</span></div>
 
 
@@ -1966,18 +1966,18 @@
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">children</span><span class="p">:</span> <span class="s2">&quot;Bosl2Shape2D | PyOpenSCAD | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">children</span><span class="p">:</span> <span class="s2">"Bosl2Shape2D | PyOpenSCAD | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Round the concave and/or convex corners of arbitrary 2-D children, via chained .offset() calls.</span>
+<span class="w">    </span><span class="sd">"""Round the concave and/or convex corners of arbitrary 2-D children, via chained .offset() calls.</span>
 
 <span class="sd">    Giving `radius` rounds all corners; `inner_radius` alone rounds only concave corners;</span>
 <span class="sd">    `outer_radius` alone rounds only convex corners; giving both rounds each to a different</span>
 <span class="sd">    radius.</span>
 
-<span class="sd">    Note: BOSL2&#39;s outer-radius parameter is named `or`, exposed here as `outer_radius`.</span>
+<span class="sd">    Note: BOSL2's outer-radius parameter is named `or`, exposed here as `outer_radius`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        radius:       radius to round all concave and convex corners to</span>
@@ -1988,10 +1988,10 @@
 <span class="sd">        fa: arc smoothness overrides</span>
 <span class="sd">        fs: arc smoothness overrides</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">orad</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">irad</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;round2d(): must give children&quot;</span>
+    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"round2d(): must give children"</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">irad</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="p">(</span><span class="n">irad</span> <span class="o">+</span> <span class="n">orad</span><span class="p">))</span>
@@ -2005,14 +2005,14 @@
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="n">children</span><span class="p">:</span> <span class="s2">&quot;Bosl2Shape2D | PyOpenSCAD | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">children</span><span class="p">:</span> <span class="s2">"Bosl2Shape2D | PyOpenSCAD | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a hollow shell from 2-D children, with optional rounding.</span>
+<span class="w">    </span><span class="sd">"""Create a hollow shell from 2-D children, with optional rounding.</span>
 
-<span class="sd">    Note: BOSL2&#39;s outer-radius parameter is named `or`, exposed here as `outer_radius`.</span>
+<span class="sd">    Note: BOSL2's outer-radius parameter is named `or`, exposed here as `outer_radius`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        thickness:    shell thickness; positive expands outward, negative shrinks inward,</span>
@@ -2026,9 +2026,9 @@
 <span class="sd">        fa: arc smoothness overrides</span>
 <span class="sd">        fs: arc smoothness overrides</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;shell2d(): must give thickness&quot;</span>
-    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;shell2d(): must give children&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"shell2d(): must give thickness"</span>
+    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"shell2d(): must give children"</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thickness</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
         <span class="n">th</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">thickness</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">thickness</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">thickness</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2077,7 +2077,7 @@
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a 2-D cross (plus) shape: two perpendicular centred rectangles.</span>
+<span class="w">    </span><span class="sd">"""Return a 2-D cross (plus) shape: two perpendicular centred rectangles.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        size:      overall size, a scalar square or ``[width, length]`` (default ``[10, 10]``).</span>
@@ -2097,7 +2097,7 @@
 
 <span class="sd">            s2.cross(size=30).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
     <span class="k">if</span> <span class="n">arm_width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">aw</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">3</span><span class="p">]</span>
@@ -2133,39 +2133,39 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">text</span><span class="p">(</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-    <span class="n">font</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Liberation Sans&quot;</span><span class="p">,</span>
+    <span class="n">font</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Liberation Sans"</span><span class="p">,</span>
     <span class="n">halign</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">valign</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ltr&quot;</span><span class="p">,</span>
-    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
-    <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;latin&quot;</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;baseline&quot;</span><span class="p">,</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ltr"</span><span class="p">,</span>
+    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"en"</span><span class="p">,</span>
+    <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"latin"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"baseline"</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create 2-D text (halign/valign supported natively).</span>
+<span class="w">    </span><span class="sd">"""Create 2-D text (halign/valign supported natively).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        text:      text to create</span>
 <span class="sd">        size:      font size (default 10)</span>
-<span class="sd">        font:      font to use (default &quot;Liberation Sans&quot;)</span>
-<span class="sd">        halign:    horizontal alignment: &quot;left&quot;, &quot;center&quot;, &quot;right&quot; (default &quot;center&quot;)</span>
-<span class="sd">        valign:    vertical alignment: &quot;top&quot;, &quot;center&quot;, &quot;baseline&quot;, &quot;bottom&quot; (default: `anchor`)</span>
+<span class="sd">        font:      font to use (default "Liberation Sans")</span>
+<span class="sd">        halign:    horizontal alignment: "left", "center", "right" (default "center")</span>
+<span class="sd">        valign:    vertical alignment: "top", "center", "baseline", "bottom" (default: `anchor`)</span>
 <span class="sd">        spacing:   relative spacing multiplier between characters (default 1.0)</span>
-<span class="sd">        direction: text direction: &quot;ltr&quot;, &quot;rtl&quot;, &quot;ttb&quot;, &quot;btt&quot; (default &quot;ltr&quot;)</span>
-<span class="sd">        language:  language the text is in (default &quot;en&quot;)</span>
-<span class="sd">        script:    script the text is in (default &quot;latin&quot;)</span>
-<span class="sd">        anchor:    vertical alignment fallback used when valign isn&#39;t given (default &quot;baseline&quot;)</span>
+<span class="sd">        direction: text direction: "ltr", "rtl", "ttb", "btt" (default "ltr")</span>
+<span class="sd">        language:  language the text is in (default "en")</span>
+<span class="sd">        script:    script the text is in (default "latin")</span>
+<span class="sd">        anchor:    vertical alignment fallback used when valign isn't given (default "baseline")</span>
 <span class="sd">        spin:      Z-axis rotation in degrees (default 0)</span>
 <span class="sd">        fn: number of fragments for circle resolution.</span>
 <span class="sd">        fa: minimum fragment angle for circle resolution.</span>
 <span class="sd">        fs: minimum fragment size for circle resolution.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">halign</span> <span class="k">if</span> <span class="n">halign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;center&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">halign</span> <span class="k">if</span> <span class="n">halign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"center"</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">valign</span> <span class="k">if</span> <span class="n">valign</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">anchor</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_otext</span><span class="p">(</span>
         <span class="n">text</span><span class="p">,</span>

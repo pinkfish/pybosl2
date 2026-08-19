@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/math.py</span>
-<span class="c1">#    Pure-Python port of the pieces of BOSL2&#39;s math.scad that pybosl2/paths.py</span>
+<span class="c1">#    Pure-Python port of the pieces of BOSL2's math.scad that pybosl2/paths.py</span>
 <span class="c1">#    depends on (general numeric helpers and the deriv/deriv2/deriv3</span>
 <span class="c1">#    calculus functions). No osuse()/BOSL2 runtime dependency. Built on</span>
 <span class="c1">#    numpy: every vector-valued function here returns a real numpy ndarray</span>
@@ -1824,7 +1824,7 @@
 <span class="c1"># DocCategory: Math &amp; geometry</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;General numeric helpers and numerical calculus (BOSL2 math.scad).&quot;&quot;&quot;</span>
+<span class="sd">"""General numeric helpers and numerical calculus (BOSL2 math.scad)."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -1840,7 +1840,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">lerp</span><span class="p">(</span>
     <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linearly interpolate between *a* and *b* by fraction *t* (scalar or vector).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Linearly interpolate between *a* and *b* by fraction *t* (scalar or vector)."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span> <span class="o">*</span> <span class="n">t</span>  <span class="c1"># type: ignore[no-any-return]</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span>  <span class="c1"># type: ignore[operator]</span></div>
@@ -1855,13 +1855,13 @@
     <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return *sides* points linearly interpolated between *a* and *b*, as an (sides, dim) ndarray.</span>
+<span class="w">    </span><span class="sd">"""Return *sides* points linearly interpolated between *a* and *b*, as an (sides, dim) ndarray.</span>
 
 <span class="sd">    (or a length-sides 1-D ndarray for scalar *a*/*b*).</span>
 
 <span class="sd">    If endpoint is True, the last returned point equals *b*; otherwise the</span>
 <span class="sd">    range is divided into *sides* equal steps without reaching *b*.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sides</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -1919,12 +1919,12 @@
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Numeric first-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.</span>
+<span class="w">    </span><span class="sd">"""Numeric first-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.</span>
 
 <span class="sd">    Uses a symmetric derivative approximation for internal points and a</span>
 <span class="sd">    two-point method at the endpoints of an open path. If *height* is a list it</span>
 <span class="sd">    is treated as the (possibly non-uniform) per-segment sampling distance.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">_deriv_nonuniform</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">closed</span><span class="p">)</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1952,10 +1952,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">deriv2</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an.</span>
+<span class="w">    </span><span class="sd">"""Numeric second-derivative estimate of *data* (scalar- or vector-valued points), as an.</span>
 
 <span class="sd">    ndarray.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">closed</span><span class="p">:</span>
@@ -1993,10 +1993,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">deriv3</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Numeric third-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.</span>
+<span class="w">    </span><span class="sd">"""Numeric third-derivative estimate of *data* (scalar- or vector-valued points), as an ndarray.</span>
 
 <span class="sd">    Requires at least 5 points.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
     <span class="n">h3</span> <span class="o">=</span> <span class="n">height</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="n">height</span>
@@ -2036,7 +2036,7 @@
 <div class="viewcode-block" id="slerp">
 <a class="viewcode-back" href="../../math/math.html#pybosl2.math.slerp">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">slerp</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spherical linear interpolation between two 3-D vectors.</span>
+<span class="w">    </span><span class="sd">"""Spherical linear interpolation between two 3-D vectors.</span>
 
 <span class="sd">    Interpolates between vectors *a* and *b* along the great-circle arc</span>
 <span class="sd">    on a unit sphere and returns a unit-length vector. Input vectors need</span>
@@ -2053,17 +2053,17 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If either vector has zero length or the vectors are 180° apart.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">na</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">))</span>
     <span class="n">nb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">b</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">na</span> <span class="o">&lt;</span> <span class="n">EPSILON</span> <span class="ow">or</span> <span class="n">nb</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot slerp with zero-length vector&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot slerp with zero-length vector"</span><span class="p">)</span>
     <span class="n">u</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="n">na</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span>
     <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="n">nb</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">b</span><span class="p">]</span>
     <span class="n">dot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))))</span>
     <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">_math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No solution when vectors are 180° apart&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No solution when vectors are 180° apart"</span><span class="p">)</span>
     <span class="n">sin_theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sin_theta</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
         <span class="n">mid</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
@@ -2083,7 +2083,7 @@
     <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return *n* evenly-spaced unit vectors on the great-circle arc between *a* and *b*.</span>
+<span class="w">    </span><span class="sd">"""Return *n* evenly-spaced unit vectors on the great-circle arc between *a* and *b*.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        a: First 3-D vector (need not be unit length).</span>
@@ -2097,17 +2097,17 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If either vector has zero length or the vectors are 180° apart.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">na</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">))</span>
     <span class="n">nb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">b</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">na</span> <span class="o">&lt;</span> <span class="n">EPSILON</span> <span class="ow">or</span> <span class="n">nb</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot slerpn with zero-length vector&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot slerpn with zero-length vector"</span><span class="p">)</span>
     <span class="n">u</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="n">na</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span>
     <span class="n">v</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">/</span> <span class="n">nb</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">b</span><span class="p">]</span>
     <span class="n">dot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">u</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))))</span>
     <span class="n">theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span><span class="n">dot</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span> <span class="o">-</span> <span class="n">_math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No solution when vectors are 180° apart&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No solution when vectors are 180° apart"</span><span class="p">)</span>
     <span class="n">sin_theta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
     <span class="n">d</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">endpoint</span> <span class="k">else</span> <span class="n">n</span>
     <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2128,7 +2128,7 @@
 <div class="viewcode-block" id="modang">
 <a class="viewcode-back" href="../../math/math.html#pybosl2.math.modang">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">modang</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize an angle in degrees to the range [-180, 180).</span>
+<span class="w">    </span><span class="sd">"""Normalize an angle in degrees to the range [-180, 180).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: An angle in degrees.</span>
@@ -2136,7 +2136,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The equivalent angle in [-180, 180).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ang</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">x</span> <span class="o">%</span> <span class="mf">360.0</span>
     <span class="k">if</span> <span class="n">ang</span> <span class="o">&gt;=</span> <span class="mf">180.0</span><span class="p">:</span>
         <span class="n">ang</span> <span class="o">-=</span> <span class="mf">360.0</span>
@@ -2151,7 +2151,7 @@
     <span class="n">minval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">maxval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clamp *v* to the range [*minval*, *maxval*].</span>
+<span class="w">    </span><span class="sd">"""Clamp *v* to the range [*minval*, *maxval*].</span>
 
 <span class="sd">    If either bound is ``None``, that side is unconstrained.</span>
 
@@ -2163,7 +2163,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The constrained value.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">result</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">v</span>
     <span class="k">if</span> <span class="n">minval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">result</span> <span class="o">&lt;</span> <span class="n">minval</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">minval</span>
@@ -2176,7 +2176,7 @@
 <div class="viewcode-block" id="quant">
 <a class="viewcode-back" href="../../math/math.html#pybosl2.math.quant">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">quant</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Quantize *v* to the nearest integer multiple of *unit*.</span>
+<span class="w">    </span><span class="sd">"""Quantize *v* to the nearest integer multiple of *unit*.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        v: The value to quantize.</span>
@@ -2188,9 +2188,9 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If *unit* is not positive.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">unit</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quantum must be positive, got </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Quantum must be positive, got </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="n">unit</span><span class="p">)</span> <span class="o">*</span> <span class="n">unit</span></div>
 
 
@@ -2198,7 +2198,7 @@
 <div class="viewcode-block" id="mean">
 <a class="viewcode-back" href="../../math/math.html#pybosl2.math.mean">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Arithmetic mean of the elements in *v*.</span>
+<span class="w">    </span><span class="sd">"""Arithmetic mean of the elements in *v*.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        v: A non-empty sequence of numeric values.</span>
@@ -2209,9 +2209,9 @@
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If *v* is empty.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot compute mean of an empty sequence&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot compute mean of an empty sequence"</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
 
 </code></pre></div>

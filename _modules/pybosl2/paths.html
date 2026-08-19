@@ -1813,10 +1813,10 @@
 <span class="c1"># root for the full license text.</span>
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
-<span class="sd">&quot;&quot;&quot;Abstract :class:`Path` base class for 2-D and 3-D path types.</span>
+<span class="sd">"""Abstract :class:`Path` base class for 2-D and 3-D path types.</span>
 
 <span class="sd">Concrete math helpers live in :mod:`pybosl2._path_math`.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="c1"># LibFile: pybosl2/paths.py</span>
 <span class="c1"># FileSummary: Abstract Path base class + CutPoint type.</span>
@@ -1841,12 +1841,12 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.CutPoint">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CutPoint</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A point along a path where it was cut, with the index of the next segment.</span>
+<span class="w">    </span><span class="sd">"""A point along a path where it was cut, with the index of the next segment.</span>
 
 <span class="sd">    Returned by :meth:`~pybosl2.path2d.Path2D.cut_points` and related methods.</span>
 <span class="sd">    When requested with ``direction=True``, the *direction* and *normal*</span>
 <span class="sd">    attributes are populated; otherwise they are ``None``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">point</span><span class="p">:</span> <span class="n">Point</span>
     <span class="n">next_index</span><span class="p">:</span> <span class="nb">int</span>
@@ -1855,7 +1855,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_directed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;True if direction and normal vectors are present.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""True if direction and normal vectors are present."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">normal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
@@ -1867,16 +1867,16 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CutPoint&quot;</span><span class="p">,</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="s2">&quot;SubdivideMethod&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="SubdivideMethod">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.SubdivideMethod">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SubdivideMethod</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Method for subdividing a path.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Method for subdividing a path."""</span>
 
-    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">&quot;length&quot;</span>
-    <span class="n">SEGMENT</span> <span class="o">=</span> <span class="s2">&quot;segment&quot;</span></div>
+    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">"length"</span>
+    <span class="n">SEGMENT</span> <span class="o">=</span> <span class="s2">"segment"</span></div>
 
 
 
@@ -1886,46 +1886,46 @@
 <div class="viewcode-block" id="Path">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Path</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dimension-agnostic numeric path operations shared by :class:`Path2D` and :class:`Path3D`.</span>
+<span class="w">    </span><span class="sd">"""Dimension-agnostic numeric path operations shared by :class:`Path2D` and :class:`Path3D`.</span>
 
 <span class="sd">    Abstract base class. Subclasses must provide ``_points`` (:class:`numpy.ndarray`) and</span>
 <span class="sd">    ``closed`` (:class:`bool`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">_color</span><span class="p">:</span> <span class="s2">&quot;Color | None&quot;</span>
+    <span class="n">_color</span><span class="p">:</span> <span class="s2">"Color | None"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># noqa: ARG004</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a concrete Path2D or Path3D instance.</span>
+<span class="w">        </span><span class="sd">"""Create a concrete Path2D or Path3D instance.</span>
 
 <span class="sd">        Determine the point dimensionality and return the appropriate subclass.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">Path</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot instantiate abstract Path class without points to determine dimension.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot instantiate abstract Path class without points to determine dimension."</span><span class="p">)</span>
             <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="n">dim</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
-                <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Self&quot;</span><span class="p">,</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Path2D</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Self"</span><span class="p">,</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Path2D</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
-                <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Self&quot;</span><span class="p">,</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Path3D</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Self"</span><span class="p">,</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Path3D</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Path points must be 2-D or 3-D.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Path points must be 2-D or 3-D."</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Path.color">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.color">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">&quot;Color&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of this path with the given :class:`Color`.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Color"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy of this path with the given :class:`Color`."""</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">c</span>
         <span class="k">return</span> <span class="n">copy</span></div>
@@ -1935,38 +1935,38 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.copy">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a shallow copy of this path.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Return a shallow copy of this path."""</span></div>
 
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the instance."""</span>
         <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of items.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of items."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Point</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the item at index.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the item at index."""</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an iterator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether two objects are equal.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return whether two objects are equal."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_points</span><span class="p">))</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">closed</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The points as an (N, D) numpy array.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The points as an (N, D) numpy array."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
 
     <span class="c1"># -- Path2D length calculation -----------------------------------------------------------</span>
@@ -1975,15 +1975,15 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.segment_lengths">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">segment_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Length of each segment of the path, as an ndarray.</span>
+<span class="w">        </span><span class="sd">"""Length of each segment of the path, as an ndarray.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of segment lengths.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -1991,12 +1991,12 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.perimeter">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">perimeter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Total length along the path.</span>
+<span class="w">        </span><span class="sd">"""Total length along the path.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The total path length as a float.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2004,15 +2004,15 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.length_fractions">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">length_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Distance fraction of each point in the path (0 at start, 1 at end).</span>
+<span class="w">        </span><span class="sd">"""Distance fraction of each point in the path (0 at start, 1 at end).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of cumulative length fractions, from 0 to 1.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2020,23 +2020,23 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.closest_point">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">closest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the closest point on the path to *pt*.</span>
+<span class="w">        </span><span class="sd">"""Return the closest point on the path to *pt*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            pt: The query point as :class:`~pybosl2.points.Point` or ``[x, y, z]``.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.points.Point` of the closest point on the path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Path.tangent_array">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.tangent_array">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">tangent_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the unit tangent at every point of the path, as an (N, D) array (BOSL2 path_tangents).</span>
+<span class="w">        </span><span class="sd">"""Return the unit tangent at every point of the path, as an (N, D) array (BOSL2 path_tangents).</span>
 
 <span class="sd">        The shared implementation behind :meth:`tangents` for both dimensions. Always returns</span>
 <span class="sd">        one tangent per path point, never one per segment.</span>
@@ -2050,7 +2050,7 @@
 <span class="sd">        downstream of a one-point path moves with it.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 <span class="sd">            uniform: If True, estimate the derivative assuming equally spaced points. If False,</span>
 <span class="sd">                sample it at the true (non-uniform) segment lengths, which tracks a path whose</span>
 <span class="sd">                points are unevenly spaced far better.</span>
@@ -2061,7 +2061,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
@@ -2075,7 +2075,7 @@
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">uniform</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">segment_lengths</span><span class="p">(</span><span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
         <span class="n">derivs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">deriv</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">norms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">derivs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">norms</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">EPSILON</span><span class="p">),</span> <span class="s2">&quot;Cannot normalize a zero vector&quot;</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">norms</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">EPSILON</span><span class="p">),</span> <span class="s2">"Cannot normalize a zero vector"</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">derivs</span> <span class="o">/</span> <span class="n">norms</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -2084,16 +2084,16 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.tangents">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">tangents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return normalized tangent vector at each point of the path, as an ndarray.</span>
+<span class="w">        </span><span class="sd">"""Return normalized tangent vector at each point of the path, as an ndarray.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 <span class="sd">            uniform: If True, use uniform parameter spacing; if False, weight by segment lengths.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of unit tangent vectors, one per path point.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2101,19 +2101,19 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.normals">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tangents</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return normal vector (perpendicular to tangent, in the plane of the curve) at each point.</span>
+<span class="w">        </span><span class="sd">"""Return normal vector (perpendicular to tangent, in the plane of the curve) at each point.</span>
 
 <span class="sd">        For 2-D paths this is a 90-degree rotation of the tangent. For 3-D paths it is the</span>
 <span class="sd">        principal normal estimated via the triple-product cross.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            tangents: Optional pre-computed tangent vectors; computed automatically if None.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of unit normal vectors, one per path point.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2121,15 +2121,15 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.curvature">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">curvature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Numeric curvature estimate of the path at each point, as an ndarray.</span>
+<span class="w">        </span><span class="sd">"""Numeric curvature estimate of the path at each point, as an ndarray.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of curvature values, one per path point.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2137,15 +2137,15 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.torsion">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">torsion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Numeric torsion estimate of the path at each point, as an ndarray.</span>
+<span class="w">        </span><span class="sd">"""Numeric torsion estimate of the path at each point, as an ndarray.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of torsion values, one per path point.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2153,16 +2153,16 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.cut">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutdist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cut path into subpaths at the given ascending list of distances (or a single distance).</span>
+<span class="w">        </span><span class="sd">"""Cut path into subpaths at the given ascending list of distances (or a single distance).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cutdist: A single distance or a list of ascending distances from the start.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of subpath point lists.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2170,7 +2170,7 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.cut_getpaths">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_getpaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct sub-paths from the output of cut_points().</span>
+<span class="w">        </span><span class="sd">"""Reconstruct sub-paths from the output of cut_points().</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cutlist: Output from cut_points(), a list of :class:`CutPoint` entries.</span>
@@ -2179,7 +2179,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of subpath point lists.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2192,19 +2192,19 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">direction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cut path at given distance(s) from start.</span>
+<span class="w">        </span><span class="sd">"""Cut path at given distance(s) from start.</span>
 
 <span class="sd">        Returns a list of :class:`CutPoint` entries (or :class:`` if direction is True).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cutdist: A single distance or a list of ascending distances from the start.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 <span class="sd">            direction: If True, also include direction and normal at each cut point.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`CutPoint` or :class:`` entries, one per cut distance.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2212,7 +2212,7 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.cut_points_recurse">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_points_recurse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dists</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Walk the path accumulating distance until each cut distance is reached.</span>
+<span class="w">        </span><span class="sd">"""Walk the path accumulating distance until each cut distance is reached.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dists: Ordered list of distances from the start at which to cut.</span>
@@ -2221,7 +2221,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`CutPoint` entries, one per cut distance.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2229,7 +2229,7 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.cut_single">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cut_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ind</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-7</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CutPoint</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the single cut point at distance dist from segment ind.</span>
+<span class="w">        </span><span class="sd">"""Find the single cut point at distance dist from segment ind.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dist: Distance along the path from the given segment index.</span>
@@ -2240,7 +2240,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`CutPoint` with the cut point and its next segment index.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2248,7 +2248,7 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.cuts_path_normals">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cuts_path_normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute normals at each cut point from the path geometry.</span>
+<span class="w">        </span><span class="sd">"""Compute normals at each cut point from the path geometry.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cuts: List of cut entries from cut_points().</span>
@@ -2257,7 +2257,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of normal vectors, one per cut point.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2265,7 +2265,7 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.plane">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">plane</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.</span>
+<span class="w">        </span><span class="sd">"""Find the local plane defined by point ind, ind-1, and the nearest non-collinear point.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ind: Index of the first point defining the plane.</span>
@@ -2276,7 +2276,7 @@
 <span class="sd">            A 2x3 ndarray of two basis vectors defining the local plane, or None if no</span>
 <span class="sd">            non-collinear point is found.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2284,7 +2284,7 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.cuts_dir">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cuts_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cuts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">],</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute direction vectors at each cut point (blended from adjacent segments).</span>
+<span class="w">        </span><span class="sd">"""Compute direction vectors at each cut point (blended from adjacent segments).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cuts: List of cut entries from cut_points().</span>
@@ -2294,7 +2294,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of direction vectors, one per cut point.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2310,20 +2310,20 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SubdivideMethod</span> <span class="o">=</span> <span class="n">SubdivideMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subdivide the path into evenly spaced points.</span>
+<span class="w">        </span><span class="sd">"""Subdivide the path into evenly spaced points.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            points: Target total number of points.</span>
 <span class="sd">            points_per_segment: Number of points to add to each segment index.</span>
 <span class="sd">            maxlen: Maximum allowed segment length.</span>
 <span class="sd">            exact: If False, favor uniform sampling — point count may differ.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
 <span class="sd">            method: Subdivision method — ``LENGTH`` (uniform along path) or ``SEGMENT`` (per segment).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new path with the subdivided points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2336,17 +2336,17 @@
         <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Uniformly resample path to num_copies points, or to a spacing near spacing.</span>
+<span class="w">        </span><span class="sd">"""Uniformly resample path to num_copies points, or to a spacing near spacing.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            num_copies: Target number of points.</span>
 <span class="sd">            spacing: Approximate spacing between points.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of uniformly resampled path points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2354,19 +2354,19 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.select">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s1</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">u1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s2</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">u2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.</span>
+<span class="w">        </span><span class="sd">"""Portion of path from the u1 fraction of segment s1 to the u2 fraction of segment s2.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            s1: Starting segment index.</span>
 <span class="sd">            u1: Fraction along segment s1 (0 to 1).</span>
 <span class="sd">            s2: Ending segment index.</span>
 <span class="sd">            u2: Fraction along segment s2 (0 to 1).</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag; uses ``self.closed`` by default.</span>
+<span class="sd">            closed: Override the instance's closed flag; uses ``self.closed`` by default.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of points representing the selected portion of the path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2382,11 +2382,11 @@
         <span class="n">endcap2</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
         <span class="n">joints</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render the path as a stroked polygon outline (2-D) or solid tube (3-D).</span>
+<span class="w">        </span><span class="sd">"""Render the path as a stroked polygon outline (2-D) or solid tube (3-D).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            width: Stroke line width.</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
 <span class="sd">            endcaps: Default endcap style for both ends.</span>
 <span class="sd">            endcap1: Start endcap style (overrides endcaps).</span>
 <span class="sd">            endcap2: End endcap style (overrides endcaps).</span>
@@ -2395,7 +2395,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Path2D` for 2-D strokes, :class:`Bosl2Solid` for 3-D.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2409,18 +2409,18 @@
         <span class="n">fit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mindash</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Break the path into dashed segments and stroke them.</span>
+<span class="w">        </span><span class="sd">"""Break the path into dashed segments and stroke them.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            dashpat: Dash pattern [line_len, space_len, ...].</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
 <span class="sd">            fit: Scale the pattern to fit a whole number of repeats.</span>
 <span class="sd">            mindash: Drop a trailing dash shorter than this.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` for 2-D, :class:`Bosl2Solid` for 3-D.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2428,16 +2428,16 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.merge_collinear">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_collinear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove sequential collinear points and return a new path.</span>
+<span class="w">        </span><span class="sd">"""Remove sequential collinear points and return a new path.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
 <span class="sd">            eps: Epsilon for collinearity comparison.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new path with collinear points removed.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -2445,16 +2445,16 @@
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.Path.deduplicate">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">deduplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove duplicate consecutive points and return a new path.</span>
+<span class="w">        </span><span class="sd">"""Remove duplicate consecutive points and return a new path.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            closed: Override the instance&#39;s closed flag.</span>
+<span class="sd">            closed: Override the instance's closed flag.</span>
 <span class="sd">            eps: Epsilon for distance comparison.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new path with duplicate points removed.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 </div>
 

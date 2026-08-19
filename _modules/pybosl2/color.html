@@ -1815,18 +1815,18 @@
 
 <span class="c1"># LibFile: pybosl2/color.py</span>
 <span class="c1">#    Colour conversions and operators for the fluent object API.</span>
-<span class="c1">#    Uses Python&#39;s standard-library ``colorsys`` for HLS and HSV → RGB</span>
+<span class="c1">#    Uses Python's standard-library ``colorsys`` for HLS and HSV → RGB</span>
 <span class="c1">#    conversions.  The :class:`Colorable` mixin provides the fluent colour</span>
 <span class="c1">#    operators consumed by :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
 <span class="c1">#    Opacity is applied by chaining :meth:`~Colorable.ghost` after the</span>
 <span class="c1">#    colour method rather than through an alpha parameter — matching how</span>
-<span class="c1">#    OpenSCAD&#39;s ``%`` (ghost/background) modifier works.</span>
+<span class="c1">#    OpenSCAD's ``%`` (ghost/background) modifier works.</span>
 <span class="c1">#</span>
 <span class="c1"># FileSummary: Color</span>
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Colour operators (Colorable mixin) via Python&#39;s colorsys module.&quot;&quot;&quot;</span>
+<span class="sd">"""Colour operators (Colorable mixin) via Python's colorsys module."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1843,7 +1843,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseShape</span> <span class="k">as</span> <span class="n">Bosl2Shape</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rainbow&quot;</span><span class="p">,</span> <span class="s2">&quot;rainbow_colors&quot;</span><span class="p">,</span> <span class="s2">&quot;Colorable&quot;</span><span class="p">,</span> <span class="s2">&quot;Color&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"rainbow"</span><span class="p">,</span> <span class="s2">"rainbow_colors"</span><span class="p">,</span> <span class="s2">"Colorable"</span><span class="p">,</span> <span class="s2">"Color"</span><span class="p">]</span>
 
 <span class="c1"># Colour-name lookup is delegated to the ``webcolors`` library (Python CSS3</span>
 <span class="c1"># names).  Hex parsing and RGBA construction are handled locally.</span>
@@ -1863,9 +1863,9 @@
     <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate *sides* ``[R, G, B]`` colours stepped around the hue wheel.</span>
+<span class="w">    </span><span class="sd">"""Generate *sides* ``[R, G, B]`` colours stepped around the hue wheel.</span>
 
-<span class="sd">    Equivalent to BOSL2&#39;s ``rainbow()`` colour generation without applying the</span>
+<span class="sd">    Equivalent to BOSL2's ``rainbow()`` colour generation without applying the</span>
 <span class="sd">    colours to objects.  Uses :func:`colorsys.hsv_to_rgb` internally.</span>
 
 <span class="sd">    Args:</span>
@@ -1890,7 +1890,7 @@
 <span class="sd">            c = cuboid([5, 5, 10]).color(cols[2]).right(16)</span>
 <span class="sd">            (a | b | c).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">mh</span> <span class="o">=</span> <span class="n">maxhues</span> <span class="k">if</span> <span class="n">maxhues</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sides</span>
@@ -1911,7 +1911,7 @@
     <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bosl2Shape</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Colour each object in *items* a different hue.</span>
+<span class="w">    </span><span class="sd">"""Colour each object in *items* a different hue.</span>
 
 <span class="sd">    Each item must be a :class:`~pybosl2._shape.Bosl2Shape` (a</span>
 <span class="sd">    :class:`~pybosl2.shapes2d.Bosl2Shape2D` or</span>
@@ -1929,7 +1929,7 @@
 <span class="sd">        A list of coloured objects, one per element of *items*, each</span>
 <span class="sd">        preserving its original 2-D or 3-D type.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
     <span class="n">colors</span> <span class="o">=</span> <span class="n">rainbow_colors</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">),</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">maxhues</span><span class="o">=</span><span class="n">maxhues</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>  <span class="c1"># type: ignore[arg-type]</span></div>
@@ -1944,55 +1944,55 @@
 <div class="viewcode-block" id="Color">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Color">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Color</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A normalised RGBA colour from any input format.</span>
+<span class="w">    </span><span class="sd">"""A normalised RGBA colour from any input format.</span>
 
-<span class="sd">    Accepts a CSS colour name (``&quot;red&quot;``), a ``#rrggbb`` hex string, an</span>
+<span class="sd">    Accepts a CSS colour name (``"red"``), a ``#rrggbb`` hex string, an</span>
 <span class="sd">    ``[R, G, B]`` list or tuple (0-1 floats or 0-255 ints), or an</span>
 <span class="sd">    ``[R, G, B, A]`` list/tuple.  All components are stored as 0-1 floats.</span>
 
-<span class="sd">    ``Color(&quot;red&quot;).rgb`` → ``(1.0, 0.0, 0.0)``</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    ``Color("red").rgb`` → ``(1.0, 0.0, 0.0)``</span>
+<span class="sd">    """</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;_r&quot;</span><span class="p">,</span> <span class="s2">&quot;_g&quot;</span><span class="p">,</span> <span class="s2">&quot;_b&quot;</span><span class="p">,</span> <span class="s2">&quot;_a&quot;</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_r"</span><span class="p">,</span> <span class="s2">"_g"</span><span class="p">,</span> <span class="s2">"_b"</span><span class="p">,</span> <span class="s2">"_a"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalise a colour from any input format.</span>
+<span class="w">        </span><span class="sd">"""Normalise a colour from any input format.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            spec: A CSS colour name, ``#rrggbb`` hex string, ``[R,G,B]`` or</span>
 <span class="sd">                  ``[R,G,B,A]`` sequence (0-1 floats or 0-255 ints), or ``None``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
-                <span class="n">hex_val</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
+                <span class="n">hex_val</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-                    <span class="n">hex_val</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">hex_val</span><span class="p">)</span>
+                    <span class="n">hex_val</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">hex_val</span><span class="p">)</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_val</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">):</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;invalid hex colour: </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"invalid hex colour: </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">c</span> <span class="o">=</span> <span class="n">webcolors</span><span class="o">.</span><span class="n">hex_to_rgb</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="n">hex_val</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">c</span> <span class="o">=</span> <span class="n">webcolors</span><span class="o">.</span><span class="n">hex_to_rgb</span><span class="p">(</span><span class="sa">f</span><span class="s2">"#</span><span class="si">{</span><span class="n">hex_val</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">red</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">green</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">blue</span> <span class="o">/</span> <span class="mi">255</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hex_val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hex_val</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">],</span> <span class="mi">16</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;invalid hex colour: </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"invalid hex colour: </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
                 <span class="k">return</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">c</span> <span class="o">=</span> <span class="n">webcolors</span><span class="o">.</span><span class="n">name_to_rgb</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">red</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">green</span> <span class="o">/</span> <span class="mi">255</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">blue</span> <span class="o">/</span> <span class="mi">255</span>
                 <span class="k">return</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown colour name: </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown colour name: </span><span class="si">{</span><span class="n">spec</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;colour sequence needs at least 3 values, got </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"colour sequence needs at least 3 values, got </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="c1"># Detect int (0-255) vs float (0-1): if any value &gt; 1, treat as 0-255</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="p">(</span>
             <span class="mf">1.0</span> <span class="o">/</span> <span class="mi">255</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span> <span class="k">else</span> <span class="mf">1.0</span>
@@ -2005,40 +2005,40 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The (R, G, B) components as 0-1 floats.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The (R, G, B) components as 0-1 floats."""</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The (R, G, B, A) components as 0-1 floats.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The (R, G, B, A) components as 0-1 floats."""</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Alpha opacity, 0-1.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Alpha opacity, 0-1."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The ``#rrggbb`` hex string.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="sd">"""The ``#rrggbb`` hex string."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"#</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}{</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">255</span><span class="p">))</span><span class="si">:</span><span class="s2">02x</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_to_native</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a value suitable for passing to PythonSCAD&#39;s ``color()``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a value suitable for passing to PythonSCAD's ``color()``."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the hex string.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the hex string."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hex</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a debug representation.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Color(r=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, g=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, b=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a debug representation."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Color(r=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_r</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, g=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_g</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, b=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_b</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, a=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_a</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether two colours are equal.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return whether two colours are equal."""</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Color</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rgba</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">rgba</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
@@ -2049,7 +2049,7 @@
         <span class="k">return</span> <span class="bp">NotImplemented</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a hash of the colour.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a hash of the colour."""</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rgba</span><span class="p">)</span></div>
 
 
@@ -2060,14 +2060,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_to_native_colour</span><span class="p">(</span><span class="n">c</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a :class:`Color` to the ``[R, G, B]`` list the native ``color()`` builtin accepts.</span>
+<span class="w">    </span><span class="sd">"""Convert a :class:`Color` to the ``[R, G, B]`` list the native ``color()`` builtin accepts.</span>
 
 <span class="sd">    A :class:`Color` means nothing to the backend -- it raises</span>
 <span class="sd">    ``TypeError: Unknown color representation`` -- so it has to become its ``[R, G, B]``</span>
 <span class="sd">    list first. :meth:`ColorMixin.color` always did this; :meth:`ColorMixin.recolor` and</span>
-<span class="sd">    :meth:`ColorMixin.color_this` did not, so ``cuboid(...).recolor(Color(&quot;green&quot;))``</span>
-<span class="sd">    failed on a value ``.color(Color(&quot;green&quot;))`` accepted. One helper now, used by all three.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    :meth:`ColorMixin.color_this` did not, so ``cuboid(...).recolor(Color("green"))``</span>
+<span class="sd">    failed on a value ``.color(Color("green"))`` accepted. One helper now, used by all three.</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Color</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">_to_native</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">c</span>
@@ -2076,18 +2076,18 @@
 <div class="viewcode-block" id="Colorable">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Colorable</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin adding the color.scad colour operators as methods.</span>
+<span class="w">    </span><span class="sd">"""Mixin adding the color.scad colour operators as methods.</span>
 
 <span class="sd">    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`.  Every operator resolves</span>
-<span class="sd">    to the host&#39;s native colour primitives, which the host provides as</span>
+<span class="sd">    to the host's native colour primitives, which the host provides as</span>
 <span class="sd">    ``_color_native`` (PythonSCAD ``color()``), ``_highlight_native`` (the ``#``</span>
 <span class="sd">    modifier) and ``_ghost_native`` (the ``%`` modifier).</span>
 
 <span class="sd">    **Opacity** is applied by chaining :meth:`ghost` rather than through an</span>
-<span class="sd">    ``alpha`` parameter — this matches how OpenSCAD&#39;s ``%`` background modifier</span>
+<span class="sd">    ``alpha`` parameter — this matches how OpenSCAD's ``%`` background modifier</span>
 <span class="sd">    works.  For example ``box.hsl(0, 1, 0.5).ghost()`` produces a transparent</span>
 <span class="sd">    red box.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_color_native</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
@@ -2103,8 +2103,8 @@
 
 <div class="viewcode-block" id="Colorable.color">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.color">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">&quot;Color | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Color | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Colour this object.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            c: A :class:`Color` object, or ``None`` to leave colour unchanged.</span>
@@ -2114,7 +2114,7 @@
 <span class="sd">            This object with the colour applied, or ``self`` unchanged when both</span>
 <span class="sd">            *c* and *alpha* are ``None``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">_to_native_colour</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span></div>
@@ -2122,44 +2122,44 @@
 
 <div class="viewcode-block" id="Colorable.recolor">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.recolor">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">recolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the colour of this object and its uncoloured descendants.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">recolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Set the colour of this object and its uncoloured descendants.</span>
 
 <span class="sd">        In the native backend there is no ``$color`` attachment tree to revert</span>
-<span class="sd">        to, so ``&quot;default&quot;`` / ``None`` leaves the colour unchanged.</span>
+<span class="sd">        to, so ``"default"`` / ``None`` leaves the colour unchanged.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            c: A colour name, ``[R, G, B]`` list, or ``&quot;default&quot;``/``None`` to skip.</span>
+<span class="sd">            c: A colour name, ``[R, G, B]`` list, or ``"default"``/``None`` to skip.</span>
 <span class="sd">            alpha: Optional alpha transparency 0..1.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            This object recoloured, or ``self`` unchanged when *c* is ``&quot;default&quot;``</span>
+<span class="sd">            This object recoloured, or ``self`` unchanged when *c* is ``"default"``</span>
 <span class="sd">            or ``None``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">_to_native_colour</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Colorable.color_this">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.color_this">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">color_this</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour just this object, without tinting its descendants.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color_this</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Colour just this object, without tinting its descendants.</span>
 
 <span class="sd">        Equivalent to :meth:`color` in the native backend, where there is no</span>
 <span class="sd">        ``$color`` attachment tree to preserve separately.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            c: A colour name, ``[R, G, B]`` list, or ``&quot;default&quot;``/``None`` to skip.</span>
+<span class="sd">            c: A colour name, ``[R, G, B]`` list, or ``"default"``/``None`` to skip.</span>
 <span class="sd">            alpha: Optional alpha transparency 0..1.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            This object coloured, or ``self`` unchanged when *c* is ``&quot;default&quot;``</span>
+<span class="sd">            This object coloured, or ``self`` unchanged when *c* is ``"default"``</span>
 <span class="sd">            or ``None``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">_to_native_colour</span><span class="p">(</span><span class="n">c</span><span class="p">),</span> <span class="n">alpha</span><span class="p">)</span></div>
 
@@ -2167,7 +2167,7 @@
 <div class="viewcode-block" id="Colorable.hsl">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.hsl">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">hsl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object from an HSL hue/saturation/lightness.</span>
+<span class="w">        </span><span class="sd">"""Colour this object from an HSL hue/saturation/lightness.</span>
 
 <span class="sd">        Uses :func:`colorsys.hls_to_rgb` for the conversion.  For opacity, chain</span>
 <span class="sd">        :meth:`ghost` after this call or pass the alpha parameter *a*.</span>
@@ -2181,7 +2181,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured with the computed ``[R, G, B]`` value.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">rgb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colorsys</span><span class="o">.</span><span class="n">hls_to_rgb</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">s</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
 
@@ -2189,7 +2189,7 @@
 <div class="viewcode-block" id="Colorable.hsv">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.hsv">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">hsv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Colour this object from an HSV hue/saturation/value.</span>
+<span class="w">        </span><span class="sd">"""Colour this object from an HSV hue/saturation/value.</span>
 
 <span class="sd">        Uses :func:`colorsys.hsv_to_rgb` for the conversion.  For opacity, chain</span>
 <span class="sd">        :meth:`ghost` after this call or pass the alpha parameter *a*.</span>
@@ -2203,7 +2203,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            This object coloured with the computed ``[R, G, B]`` value.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">rgb</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colorsys</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="n">height</span> <span class="o">/</span> <span class="mi">360</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color_native</span><span class="p">(</span><span class="n">rgb</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span></div>
 
@@ -2211,7 +2211,7 @@
 <div class="viewcode-block" id="Colorable.highlight">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.highlight">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">highlight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">highlight</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the ``#`` debug modifier.</span>
+<span class="w">        </span><span class="sd">"""Apply the ``#`` debug modifier.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            highlight: If True (default), apply the highlight modifier.</span>
@@ -2221,14 +2221,14 @@
 <span class="sd">            This object with the highlight modifier applied, or *self* unchanged</span>
 <span class="sd">            when *highlight* is ``False``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_highlight_native</span><span class="p">()</span> <span class="k">if</span> <span class="n">highlight</span> <span class="k">else</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="Colorable.ghost">
 <a class="viewcode-back" href="../../foundational/color.html#pybosl2.color.Colorable.ghost">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ghost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ghost</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the ``%`` (transparent, non-interacting) debug modifier.</span>
+<span class="w">        </span><span class="sd">"""Apply the ``%`` (transparent, non-interacting) debug modifier.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ghost: If True (default), apply the ghost modifier.</span>
@@ -2238,7 +2238,7 @@
 <span class="sd">            This object with the ghost modifier applied, or *self* unchanged</span>
 <span class="sd">            when *ghost* is ``False``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ghost_native</span><span class="p">()</span> <span class="k">if</span> <span class="n">ghost</span> <span class="k">else</span> <span class="bp">self</span></div>
 </div>
 

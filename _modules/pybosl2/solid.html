@@ -1817,21 +1817,21 @@
 <span class="c1"># FileSummary: Statically typed shape constructors and backend-neutral solid facade.</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Statically typed shape constructors and backend-neutral solid facade.&quot;&quot;&quot;</span>
+<span class="sd">"""Statically typed shape constructors and backend-neutral solid facade."""</span>
 
 <span class="c1"># The backend-neutral solid facade: unified shape constructors that build on whichever backend is</span>
-<span class="c1"># active (``&quot;csg&quot;`` by default, ``&quot;sdf&quot;`` under ``use_backend(&quot;sdf&quot;)``). Each returns a common</span>
+<span class="c1"># active (``"csg"`` by default, ``"sdf"`` under ``use_backend("sdf")``). Each returns a common</span>
 <span class="c1"># :class:`~pybosl2._backend.Solid` -- a CsgSolid on the CSG backend, an SdfSolid on the SDF backend --</span>
 <span class="c1"># so the same code realizes exact CSG or an F-Rep/signed-distance field depending on context:</span>
 <span class="c1">#</span>
 <span class="c1">#     from pybosl2.solid import sphere, use_backend</span>
 <span class="c1">#     a = sphere(radius=10)                 # CSG (default) -&gt; CsgSolid</span>
-<span class="c1">#     with use_backend(&quot;sdf&quot;):</span>
+<span class="c1">#     with use_backend("sdf"):</span>
 <span class="c1">#         b = sphere(radius=10)             # libfive SDF   -&gt; SdfSolid</span>
 <span class="c1">#</span>
 <span class="c1"># The shape constructors below are the 3-D primitives BOTH backends expose; each dispatches by name</span>
-<span class="c1"># through the active backend&#39;s ``construct``. n-ary CSG (union/difference/intersection) dispatches to</span>
-<span class="c1"># the backend&#39;s own operators. The backend-specific modules (pybosl2.shapes3d, pybosl2.sdf) remain</span>
+<span class="c1"># through the active backend's ``construct``. n-ary CSG (union/difference/intersection) dispatches to</span>
+<span class="c1"># the backend's own operators. The backend-specific modules (pybosl2.shapes3d, pybosl2.sdf) remain</span>
 <span class="c1"># directly importable for anything not yet unified here.</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -1854,59 +1854,59 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span><span class="p">,</span> <span class="n">EdgeAtom</span>
 
 <span class="n">_SHARED_3D</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;cube&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cuboid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cylinder&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;octahedron&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;onion&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;pie_slice&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;prismoid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;rect_tube&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;regular_prism&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sphere&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;spheroid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;teardrop&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;torus&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;tube&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wedge&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;xcyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ycyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zcyl&quot;</span><span class="p">,</span>
+    <span class="s2">"cube"</span><span class="p">,</span>
+    <span class="s2">"cuboid"</span><span class="p">,</span>
+    <span class="s2">"cyl"</span><span class="p">,</span>
+    <span class="s2">"cylinder"</span><span class="p">,</span>
+    <span class="s2">"octahedron"</span><span class="p">,</span>
+    <span class="s2">"onion"</span><span class="p">,</span>
+    <span class="s2">"pie_slice"</span><span class="p">,</span>
+    <span class="s2">"prismoid"</span><span class="p">,</span>
+    <span class="s2">"rect_tube"</span><span class="p">,</span>
+    <span class="s2">"regular_prism"</span><span class="p">,</span>
+    <span class="s2">"sphere"</span><span class="p">,</span>
+    <span class="s2">"spheroid"</span><span class="p">,</span>
+    <span class="s2">"teardrop"</span><span class="p">,</span>
+    <span class="s2">"torus"</span><span class="p">,</span>
+    <span class="s2">"tube"</span><span class="p">,</span>
+    <span class="s2">"wedge"</span><span class="p">,</span>
+    <span class="s2">"xcyl"</span><span class="p">,</span>
+    <span class="s2">"ycyl"</span><span class="p">,</span>
+    <span class="s2">"zcyl"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;cube&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cuboid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cylinder&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;octahedron&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;onion&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;pie_slice&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;prismoid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;rect_tube&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;regular_prism&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;sphere&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;spheroid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;teardrop&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;torus&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;tube&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wedge&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;xcyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ycyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zcyl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;polyhedron&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;union&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;difference&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;intersection&quot;</span><span class="p">,</span>
+    <span class="s2">"cube"</span><span class="p">,</span>
+    <span class="s2">"cuboid"</span><span class="p">,</span>
+    <span class="s2">"cyl"</span><span class="p">,</span>
+    <span class="s2">"cylinder"</span><span class="p">,</span>
+    <span class="s2">"octahedron"</span><span class="p">,</span>
+    <span class="s2">"onion"</span><span class="p">,</span>
+    <span class="s2">"pie_slice"</span><span class="p">,</span>
+    <span class="s2">"prismoid"</span><span class="p">,</span>
+    <span class="s2">"rect_tube"</span><span class="p">,</span>
+    <span class="s2">"regular_prism"</span><span class="p">,</span>
+    <span class="s2">"sphere"</span><span class="p">,</span>
+    <span class="s2">"spheroid"</span><span class="p">,</span>
+    <span class="s2">"teardrop"</span><span class="p">,</span>
+    <span class="s2">"torus"</span><span class="p">,</span>
+    <span class="s2">"tube"</span><span class="p">,</span>
+    <span class="s2">"wedge"</span><span class="p">,</span>
+    <span class="s2">"xcyl"</span><span class="p">,</span>
+    <span class="s2">"ycyl"</span><span class="p">,</span>
+    <span class="s2">"zcyl"</span><span class="p">,</span>
+    <span class="s2">"polyhedron"</span><span class="p">,</span>
+    <span class="s2">"union"</span><span class="p">,</span>
+    <span class="s2">"difference"</span><span class="p">,</span>
+    <span class="s2">"intersection"</span><span class="p">,</span>
     <span class="c1"># backend controls, re-exported for convenience</span>
-    <span class="s2">&quot;use_backend&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;set_default_backend&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;current_backend&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Solid&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CrossBackendError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;UnsupportedByBackendError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;given_arguments&quot;</span><span class="p">,</span>
+    <span class="s2">"use_backend"</span><span class="p">,</span>
+    <span class="s2">"set_default_backend"</span><span class="p">,</span>
+    <span class="s2">"current_backend"</span><span class="p">,</span>
+    <span class="s2">"Solid"</span><span class="p">,</span>
+    <span class="s2">"CrossBackendError"</span><span class="p">,</span>
+    <span class="s2">"UnsupportedByBackendError"</span><span class="p">,</span>
+    <span class="s2">"given_arguments"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -1926,29 +1926,29 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cube on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a cube on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.cube`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;cube&quot;</span><span class="p">,</span>
+        <span class="s2">"cube"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"size"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -1972,30 +1972,30 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cuboid on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a cuboid on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.cuboid`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;cuboid&quot;</span><span class="p">,</span>
+        <span class="s2">"cuboid"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;edges&quot;</span><span class="p">:</span> <span class="n">edges</span><span class="p">,</span>
-                <span class="s2">&quot;except_edges&quot;</span><span class="p">:</span> <span class="n">except_edges</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"size"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"edges"</span><span class="p">:</span> <span class="n">edges</span><span class="p">,</span>
+                <span class="s2">"except_edges"</span><span class="p">:</span> <span class="n">except_edges</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2030,41 +2030,41 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cyl on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a cyl on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.cyl`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;cyl&quot;</span><span class="p">,</span>
+        <span class="s2">"cyl"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"shift"</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2098,40 +2098,40 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cylinder on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a cylinder on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.cylinder`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;cylinder&quot;</span><span class="p">,</span>
+        <span class="s2">"cylinder"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2148,16 +2148,16 @@
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an octahedron on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return an octahedron on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.octahedron`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;octahedron&quot;</span><span class="p">,</span> <span class="n">given_arguments</span><span class="p">({</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span> <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span> <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">})</span>
+        <span class="s2">"octahedron"</span><span class="p">,</span> <span class="n">given_arguments</span><span class="p">({</span><span class="s2">"size"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span> <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span> <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span> <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">})</span>
     <span class="p">)</span></div>
 
 
@@ -2178,29 +2178,29 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an onion on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return an onion on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.onion`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;onion&quot;</span><span class="p">,</span>
+        <span class="s2">"onion"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;angle&quot;</span><span class="p">:</span> <span class="n">angle</span><span class="p">,</span>
-                <span class="s2">&quot;cap_height&quot;</span><span class="p">:</span> <span class="n">cap_height</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"angle"</span><span class="p">:</span> <span class="n">angle</span><span class="p">,</span>
+                <span class="s2">"cap_height"</span><span class="p">:</span> <span class="n">cap_height</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2229,35 +2229,35 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a pie_slice on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a pie_slice on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.pie_slice`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;pie_slice&quot;</span><span class="p">,</span>
+        <span class="s2">"pie_slice"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;angle&quot;</span><span class="p">:</span> <span class="n">angle</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"angle"</span><span class="p">:</span> <span class="n">angle</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2282,31 +2282,31 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a prismoid on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a prismoid on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.prismoid`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;prismoid&quot;</span><span class="p">,</span>
+        <span class="s2">"prismoid"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;size1&quot;</span><span class="p">:</span> <span class="n">size1</span><span class="p">,</span>
-                <span class="s2">&quot;size2&quot;</span><span class="p">:</span> <span class="n">size2</span><span class="p">,</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"size1"</span><span class="p">:</span> <span class="n">size1</span><span class="p">,</span>
+                <span class="s2">"size2"</span><span class="p">:</span> <span class="n">size2</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"shift"</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2330,30 +2330,30 @@
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a rect_tube on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a rect_tube on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.rect_tube`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;rect_tube&quot;</span><span class="p">,</span>
+        <span class="s2">"rect_tube"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
-                <span class="s2">&quot;isize&quot;</span><span class="p">:</span> <span class="n">isize</span><span class="p">,</span>
-                <span class="s2">&quot;wall&quot;</span><span class="p">:</span> <span class="n">wall</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;inner_rounding&quot;</span><span class="p">:</span> <span class="n">inner_rounding</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"size"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span>
+                <span class="s2">"isize"</span><span class="p">:</span> <span class="n">isize</span><span class="p">,</span>
+                <span class="s2">"wall"</span><span class="p">:</span> <span class="n">wall</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"inner_rounding"</span><span class="p">:</span> <span class="n">inner_rounding</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2388,41 +2388,41 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a regular_prism on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a regular_prism on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.regular_prism`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;regular_prism&quot;</span><span class="p">,</span>
+        <span class="s2">"regular_prism"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;sides&quot;</span><span class="p">:</span> <span class="n">sides</span><span class="p">,</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;inner_radius&quot;</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
-                <span class="s2">&quot;inner_diameter&quot;</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;side&quot;</span><span class="p">:</span> <span class="n">side</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;realign&quot;</span><span class="p">:</span> <span class="n">realign</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"sides"</span><span class="p">:</span> <span class="n">sides</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"inner_radius"</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
+                <span class="s2">"inner_diameter"</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
+                <span class="s2">"side"</span><span class="p">:</span> <span class="n">side</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"realign"</span><span class="p">:</span> <span class="n">realign</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2443,27 +2443,27 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a sphere on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a sphere on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.sphere`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;sphere&quot;</span><span class="p">,</span>
+        <span class="s2">"sphere"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2484,27 +2484,27 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a spheroid on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a spheroid on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.spheroid`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;spheroid&quot;</span><span class="p">,</span>
+        <span class="s2">"spheroid"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2532,34 +2532,34 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a teardrop on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a teardrop on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.teardrop`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;teardrop&quot;</span><span class="p">,</span>
+        <span class="s2">"teardrop"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;angle&quot;</span><span class="p">:</span> <span class="n">angle</span><span class="p">,</span>
-                <span class="s2">&quot;cap_height&quot;</span><span class="p">:</span> <span class="n">cap_height</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"angle"</span><span class="p">:</span> <span class="n">angle</span><span class="p">,</span>
+                <span class="s2">"cap_height"</span><span class="p">:</span> <span class="n">cap_height</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2587,34 +2587,34 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a torus on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a torus on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.torus`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;torus&quot;</span><span class="p">,</span>
+        <span class="s2">"torus"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;major_radius&quot;</span><span class="p">:</span> <span class="n">major_radius</span><span class="p">,</span>
-                <span class="s2">&quot;minor_radius&quot;</span><span class="p">:</span> <span class="n">minor_radius</span><span class="p">,</span>
-                <span class="s2">&quot;major_diameter&quot;</span><span class="p">:</span> <span class="n">major_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;minor_diameter&quot;</span><span class="p">:</span> <span class="n">minor_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;outer_radius&quot;</span><span class="p">:</span> <span class="n">outer_radius</span><span class="p">,</span>
-                <span class="s2">&quot;inner_radius&quot;</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
-                <span class="s2">&quot;outer_diameter&quot;</span><span class="p">:</span> <span class="n">outer_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;inner_diameter&quot;</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"major_radius"</span><span class="p">:</span> <span class="n">major_radius</span><span class="p">,</span>
+                <span class="s2">"minor_radius"</span><span class="p">:</span> <span class="n">minor_radius</span><span class="p">,</span>
+                <span class="s2">"major_diameter"</span><span class="p">:</span> <span class="n">major_diameter</span><span class="p">,</span>
+                <span class="s2">"minor_diameter"</span><span class="p">:</span> <span class="n">minor_diameter</span><span class="p">,</span>
+                <span class="s2">"outer_radius"</span><span class="p">:</span> <span class="n">outer_radius</span><span class="p">,</span>
+                <span class="s2">"inner_radius"</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
+                <span class="s2">"outer_diameter"</span><span class="p">:</span> <span class="n">outer_diameter</span><span class="p">,</span>
+                <span class="s2">"inner_diameter"</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2647,39 +2647,39 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a tube on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a tube on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.tube`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;tube&quot;</span><span class="p">,</span>
+        <span class="s2">"tube"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;outer_radius&quot;</span><span class="p">:</span> <span class="n">outer_radius</span><span class="p">,</span>
-                <span class="s2">&quot;inner_radius&quot;</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
-                <span class="s2">&quot;outer_diameter&quot;</span><span class="p">:</span> <span class="n">outer_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;inner_diameter&quot;</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
-                <span class="s2">&quot;wall&quot;</span><span class="p">:</span> <span class="n">wall</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"outer_radius"</span><span class="p">:</span> <span class="n">outer_radius</span><span class="p">,</span>
+                <span class="s2">"inner_radius"</span><span class="p">:</span> <span class="n">inner_radius</span><span class="p">,</span>
+                <span class="s2">"outer_diameter"</span><span class="p">:</span> <span class="n">outer_diameter</span><span class="p">,</span>
+                <span class="s2">"inner_diameter"</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
+                <span class="s2">"wall"</span><span class="p">:</span> <span class="n">wall</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2697,17 +2697,17 @@
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a wedge on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a wedge on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.wedge`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;wedge&quot;</span><span class="p">,</span>
-        <span class="n">given_arguments</span><span class="p">({</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span> <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span> <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span> <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">}),</span>
+        <span class="s2">"wedge"</span><span class="p">,</span>
+        <span class="n">given_arguments</span><span class="p">({</span><span class="s2">"size"</span><span class="p">:</span> <span class="n">size</span><span class="p">,</span> <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span> <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span> <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span> <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span> <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">}),</span>
     <span class="p">)</span></div>
 
 
@@ -2739,40 +2739,40 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a xcyl on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a xcyl on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.xcyl`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;xcyl&quot;</span><span class="p">,</span>
+        <span class="s2">"xcyl"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2806,40 +2806,40 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a ycyl on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a ycyl on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.ycyl`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;ycyl&quot;</span><span class="p">,</span>
+        <span class="s2">"ycyl"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2873,40 +2873,40 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a zcyl on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a zcyl on the active backend.</span>
 
 <span class="sd">    See :func:`use_backend`; identical call, backend-appropriate realization. Only the</span>
 <span class="sd">    arguments actually given are passed on, so each backend sees the ones it knows:</span>
-<span class="sd">    *res* is the SDF backend&#39;s resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
-<span class="sd">    backend&#39;s. Anything outside this shared set lives on the backend&#39;s own constructor</span>
+<span class="sd">    *res* is the SDF backend's resolution and *spin*/*orient*/*fn*/*fa*/*fs* are the CSG</span>
+<span class="sd">    backend's. Anything outside this shared set lives on the backend's own constructor</span>
 <span class="sd">    (:func:`pybosl2.shapes3d.zcyl`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span>
-        <span class="s2">&quot;zcyl&quot;</span><span class="p">,</span>
+        <span class="s2">"zcyl"</span><span class="p">,</span>
         <span class="n">given_arguments</span><span class="p">(</span>
             <span class="p">{</span>
-                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-                <span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
-                <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
-                <span class="s2">&quot;radius1&quot;</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
-                <span class="s2">&quot;radius2&quot;</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
-                <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
-                <span class="s2">&quot;diameter1&quot;</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
-                <span class="s2">&quot;diameter2&quot;</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer&quot;</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer1&quot;</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
-                <span class="s2">&quot;chamfer2&quot;</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
-                <span class="s2">&quot;rounding&quot;</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
-                <span class="s2">&quot;rounding1&quot;</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
-                <span class="s2">&quot;rounding2&quot;</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
-                <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
-                <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                <span class="s2">&quot;spin&quot;</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
-                <span class="s2">&quot;orient&quot;</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
-                <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
-                <span class="s2">&quot;res&quot;</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
+                <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+                <span class="s2">"radius"</span><span class="p">:</span> <span class="n">radius</span><span class="p">,</span>
+                <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"diameter"</span><span class="p">:</span> <span class="n">diameter</span><span class="p">,</span>
+                <span class="s2">"diameter1"</span><span class="p">:</span> <span class="n">diameter1</span><span class="p">,</span>
+                <span class="s2">"diameter2"</span><span class="p">:</span> <span class="n">diameter2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
+                <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
+                <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
     <span class="p">)</span></div>
@@ -2916,12 +2916,12 @@
 <div class="viewcode-block" id="polyhedron">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.polyhedron">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">polyhedron</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">faces</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a polyhedron on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a polyhedron on the active backend.</span>
 
 <span class="sd">    Backends differ on what a polyhedron means (this is not part of the shared primitive surface):</span>
 <span class="sd">    the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF backend</span>
 <span class="sd">    ignores *faces* and builds the convex hull of *points* as a distance field.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">convexity</span><span class="o">=</span><span class="n">convexity</span><span class="p">)</span></div>
 
 
@@ -2929,7 +2929,7 @@
 <div class="viewcode-block" id="union">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.union">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the union of *solids* on the active backend (all operands must share the active backend).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the union of *solids* on the active backend (all operands must share the active backend)."""</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 
@@ -2937,7 +2937,7 @@
 <div class="viewcode-block" id="difference">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.difference">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the first solid minus the rest, on the active backend.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the first solid minus the rest, on the active backend."""</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 
@@ -2945,7 +2945,7 @@
 <div class="viewcode-block" id="intersection">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.intersection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the intersection of *solids* on the active backend.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the intersection of *solids* on the active backend."""</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 </code></pre></div>

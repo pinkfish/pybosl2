@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/vectors.py</span>
-<span class="c1">#    Pure-Python port of the pieces of BOSL2&#39;s vectors.scad that pybosl2/paths.py</span>
+<span class="c1">#    Pure-Python port of the pieces of BOSL2's vectors.scad that pybosl2/paths.py</span>
 <span class="c1">#    depends on.  All vector-valued parameters accept :class:`~pybosl2.points.Point`</span>
 <span class="c1">#    or any :class:`~collections.abc.Sequence` of floats.</span>
 <span class="c1">#</span>
@@ -1822,7 +1822,7 @@
 <span class="c1"># DocCategory: Math &amp; geometry</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Vector predicates and scalar-vector operations (BOSL2 vectors.scad).&quot;&quot;&quot;</span>
+<span class="sd">"""Vector predicates and scalar-vector operations (BOSL2 vectors.scad)."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -1841,10 +1841,10 @@
     <span class="n">zero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if *v* is a list/tuple/ndarray of finite numbers.</span>
+<span class="w">    </span><span class="sd">"""Check if *v* is a list/tuple/ndarray of finite numbers.</span>
 
 <span class="sd">    Optionally of a given length and/or zero-ness.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">v</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
@@ -1871,7 +1871,7 @@
 <div class="viewcode-block" id="add_scalar">
 <a class="viewcode-back" href="../../math/vectors.html#pybosl2.vectors.add_scalar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_scalar</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return *v* with scalar *s* added to every entry.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return *v* with scalar *s* added to every entry."""</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span></div>
 
 
@@ -1882,17 +1882,17 @@
     <span class="n">v</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">error</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize *v* to unit length.</span>
+<span class="w">    </span><span class="sd">"""Normalize *v* to unit length.</span>
 
 <span class="sd">    If *v* has (near) zero length, returns *error* if given, else raises</span>
-<span class="sd">    ValueError (matching BOSL2&#39;s default assert-on-zero-vector behavior).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    ValueError (matching BOSL2's default assert-on-zero-vector behavior).</span>
+<span class="sd">    """</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;</span> <span class="n">EPSILON</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot normalize a zero vector&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot normalize a zero vector"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">arr</span> <span class="o">/</span> <span class="n">sides</span></div>
 
 
@@ -1900,10 +1900,10 @@
 <div class="viewcode-block" id="v_theta">
 <a class="viewcode-back" href="../../math/vectors.html#pybosl2.vectors.v_theta">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">v_theta</span><span class="p">(</span><span class="n">vec</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the angle in degrees of the 2-D vector *vec*, measured counter-clockwise from +X.</span>
+<span class="w">    </span><span class="sd">"""Return the angle in degrees of the 2-D vector *vec*, measured counter-clockwise from +X.</span>
 
 <span class="sd">    Equivalent to ``math.degrees(math.atan2(vec[1], vec[0]))``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">vec</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">vec</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
 
 </code></pre></div>

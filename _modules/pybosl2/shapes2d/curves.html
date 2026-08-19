@@ -1818,7 +1818,7 @@
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Stars, teardrops, eggs, squircles and supershapes.&quot;&quot;&quot;</span>
+<span class="sd">"""Stars, teardrops, eggs, squircles and supershapes."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1870,7 +1870,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
 
-<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">,</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">,</span> <span class="s2">&quot;Path2D&quot;</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
+<span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">_ocircle</span>
@@ -1880,12 +1880,12 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_osquare</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span> <span class="k">as</span> <span class="n">_otext</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">_ocircle</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>
-    <span class="n">_ofill</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;fill&quot;</span><span class="p">)</span>
-    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
-    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
-    <span class="n">_osquare</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;square&quot;</span><span class="p">)</span>
-    <span class="n">_otext</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+    <span class="n">_ocircle</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"circle"</span><span class="p">)</span>
+    <span class="n">_ofill</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"fill"</span><span class="p">)</span>
+    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"hull"</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
+    <span class="n">_osquare</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"square"</span><span class="p">)</span>
+    <span class="n">_otext</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"text"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="star">
@@ -1906,9 +1906,9 @@
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">atype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnchorType</span> <span class="o">=</span> <span class="n">AnchorType</span><span class="o">.</span><span class="n">HULL</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an N-pointed star polygon, built directly with polygon().</span>
+<span class="w">    </span><span class="sd">"""Return an N-pointed star polygon, built directly with polygon().</span>
 
-<span class="sd">    Note: BOSL2&#39;s outer-radius parameter is named `or`, which collides with the Python</span>
+<span class="sd">    Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python</span>
 <span class="sd">    keyword `or`; it is exposed here as `outer_radius` instead.</span>
 
 <span class="sd">    Args:</span>
@@ -1934,11 +1934,11 @@
 
 <span class="sd">            s2.star(tips=5, radius=20, inner_radius=8).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;star(): must specify a radius (radius, diameter, outer_radius or outer_diameter).&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">tips</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;star(): must specify tips&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"star(): must specify a radius (radius, diameter, outer_radius or outer_diameter)."</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">tips</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"star(): must specify tips"</span>
     <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">stepr</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">180</span> <span class="o">*</span> <span class="n">step</span> <span class="o">/</span> <span class="n">tips</span><span class="p">))</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">180</span> <span class="o">*</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">tips</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1978,7 +1978,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().</span>
+<span class="w">    </span><span class="sd">"""Return a 2-D teardrop shape, useful for 3D-printable horizontal holes, built directly with polygon().</span>
 
 <span class="sd">    Note: `circumscribe` is approximated the same way as the inscribed case here.</span>
 
@@ -2002,7 +2002,7 @@
 
 <span class="sd">            s2.teardrop2d(radius=15, angle=45).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">circumscribe</span><span class="p">:</span>
         <span class="n">n</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
@@ -2010,7 +2010,7 @@
     <span class="n">minheight</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
     <span class="n">maxheight</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">cap_height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">cap_height</span> <span class="o">&gt;=</span> <span class="n">minheight</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;cap_height cannot be less than </span><span class="si">{</span><span class="n">minheight</span><span class="si">}</span><span class="s2"> but it is </span><span class="si">{</span><span class="n">cap_height</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="n">cap_height</span> <span class="o">&gt;=</span> <span class="n">minheight</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"cap_height cannot be less than </span><span class="si">{</span><span class="n">minheight</span><span class="si">}</span><span class="s2"> but it is </span><span class="si">{</span><span class="n">cap_height</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">pointy</span> <span class="o">=</span> <span class="n">cap_height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cap_height</span> <span class="o">&gt;=</span> <span class="n">maxheight</span>
     <span class="k">if</span> <span class="n">cap_height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pointy</span><span class="p">:</span>
         <span class="n">cap_top</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">maxheight</span><span class="p">]</span>
@@ -2051,7 +2051,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an egg-shaped 2-D outline, made of two circles joined by tangent arcs, built directly with polygon().</span>
+<span class="w">    </span><span class="sd">"""Return an egg-shaped 2-D outline, made of two circles joined by tangent arcs, built directly with polygon().</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        length:       length of the egg</span>
@@ -2074,17 +2074,17 @@
 
 <span class="sd">            s2.egg(length=30, radius1=10, radius2=8, arc_radius=20).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">radius1</span> <span class="o">=</span> <span class="n">radius1</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;egg(): must give radius1 or diameter1&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give radius1 or diameter1"</span><span class="p">)</span>
     <span class="n">radius2</span> <span class="o">=</span> <span class="n">radius2</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;egg(): must give radius2 or diameter2&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give radius2 or diameter2"</span><span class="p">)</span>
     <span class="n">arc_r</span> <span class="o">=</span> <span class="n">arc_radius</span> <span class="k">if</span> <span class="n">arc_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">arc_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">arc_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">arc_r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;egg(): must give arc_radius or arc_diameter&quot;</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;egg(): must give length&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give arc_radius or arc_diameter"</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"egg(): must give length"</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_egg_path</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">arc_r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
@@ -2102,12 +2102,12 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
     <span class="k">assert</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="k">assert</span> <span class="n">arc_radius</span> <span class="o">&gt;</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Side radius must be larger than length/2&quot;</span>
-    <span class="k">assert</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="n">radius1</span> <span class="o">+</span> <span class="n">radius2</span><span class="p">,</span> <span class="s2">&quot;Length must be longer than radius1+radius2&quot;</span>
+    <span class="k">assert</span> <span class="n">arc_radius</span> <span class="o">&gt;</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"Side radius must be larger than length/2"</span>
+    <span class="k">assert</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="n">radius1</span> <span class="o">+</span> <span class="n">radius2</span><span class="p">,</span> <span class="s2">"Length must be longer than radius1+radius2"</span>
     <span class="n">c1</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">radius1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
     <span class="n">c2</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">radius2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
     <span class="n">m_pts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">_circle_circle_intersection</span><span class="p">(</span><span class="n">arc_radius</span> <span class="o">-</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">arc_radius</span> <span class="o">-</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">c2</span><span class="p">)))</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_pts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;egg(): circles do not intersect for the given length/radius1/radius2/arc_radius.&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_pts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"egg(): circles do not intersect for the given length/radius1/radius2/arc_radius."</span>
     <span class="n">arcparms</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m_pts</span><span class="p">:</span>
         <span class="n">u1</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="n">c1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -2175,7 +2175,7 @@
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">atype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AnchorType</span> <span class="o">=</span> <span class="n">AnchorType</span><span class="o">.</span><span class="n">HULL</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a 2-D shape from the superformula, built directly with polygon().</span>
+<span class="w">    </span><span class="sd">"""Return a 2-D shape from the superformula, built directly with polygon().</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        step:   angle step size for sampling the superformula (smaller = slower, more accurate) (default 0.5)</span>
@@ -2200,7 +2200,7 @@
 
 <span class="sd">            s2.supershape(m1=3, radius=20).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">n_pts</span> <span class="o">=</span> <span class="n">count</span> <span class="k">if</span> <span class="n">count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">360.0</span> <span class="o">/</span> <span class="n">step</span><span class="p">)</span>
     <span class="n">n1v</span> <span class="o">=</span> <span class="n">n1</span> <span class="k">if</span> <span class="n">n1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span>
     <span class="n">m2v</span> <span class="o">=</span> <span class="n">m2</span> <span class="k">if</span> <span class="n">m2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">m1</span>
@@ -2225,7 +2225,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_linearize_squareness</span><span class="p">(</span><span class="n">squareness</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-    <span class="c1"># Chamberlain Fong (2016), &quot;Squircular Calculations&quot;, arXiv:1604.02174v5.</span>
+    <span class="c1"># Chamberlain Fong (2016), "Squircular Calculations", arXiv:1604.02174v5.</span>
     <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">d</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">c</span> <span class="o">*</span> <span class="n">squareness</span>
     <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="n">squareness</span> <span class="o">*</span> <span class="n">squareness</span> <span class="o">-</span> <span class="n">c</span> <span class="o">*</span> <span class="n">squareness</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span>
@@ -2234,10 +2234,10 @@
 <div class="viewcode-block" id="squircle_radius_fg">
 <a class="viewcode-back" href="../../../foundational/shapes2d/curves.html#pybosl2.shapes2d.curves.squircle_radius_fg">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">squircle_radius_fg</span><span class="p">(</span><span class="n">squareness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.</span>
+<span class="w">    </span><span class="sd">"""Return the Fong-Garcia squircle radius at *angle* degrees for squareness *squareness* and size.</span>
 
 <span class="sd">    *radius*.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">s2a</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">squareness</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">angle</span><span class="p">)))</span>
     <span class="k">return</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">s2a</span> <span class="o">*</span> <span class="n">s2a</span><span class="p">))</span> <span class="k">if</span> <span class="n">s2a</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">radius</span></div>
 
@@ -2275,22 +2275,22 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">squircle</span><span class="p">(</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="n">squareness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fg&quot;</span><span class="p">,</span>
+    <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"fg"</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a squircle -- a rounded square that morphs between a square and a circle.</span>
+<span class="w">    </span><span class="sd">"""Return a squircle -- a rounded square that morphs between a square and a circle.</span>
 
-<span class="sd">    *squareness* runs 0 (a circle) to 1 (a square). Only the default ``&quot;fg&quot;`` (Fong-Garcia) style</span>
-<span class="sd">    is ported; the ``&quot;superellipse&quot;`` and ``&quot;bezier&quot;`` styles are not.</span>
+<span class="sd">    *squareness* runs 0 (a circle) to 1 (a square). Only the default ``"fg"`` (Fong-Garcia) style</span>
+<span class="sd">    is ported; the ``"superellipse"`` and ``"bezier"`` styles are not.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        size:       scalar or [x, y] size of the bounding box</span>
 <span class="sd">        squareness: 0 (circle) .. 1 (square); default 0.5</span>
-<span class="sd">        style:      only &quot;fg&quot; is supported</span>
+<span class="sd">        style:      only "fg" is supported</span>
 <span class="sd">        anchor:     standard BOSL2 2-D anchor</span>
 <span class="sd">        spin:       standard BOSL2 2-D spin</span>
 <span class="sd">        fn: smoothness overrides</span>
@@ -2304,10 +2304,10 @@
 
 <span class="sd">            s2.squircle(40, squareness=0.7).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">squareness</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;squircle(): squareness must be between 0 and 1.&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">squareness</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"squircle(): squareness must be between 0 and 1."</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
-    <span class="k">assert</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">&quot;fg&quot;</span><span class="p">,</span> <span class="s1">&#39;squircle(): only the default &quot;fg&quot; style is ported.&#39;</span>
+    <span class="k">assert</span> <span class="n">style</span> <span class="o">==</span> <span class="s2">"fg"</span><span class="p">,</span> <span class="s1">'squircle(): only the default "fg" style is ported.'</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_squircle_fg_path</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">squareness</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
@@ -2323,7 +2323,7 @@
 <div class="viewcode-block" id="jittered_poly">
 <a class="viewcode-back" href="../../../foundational/shapes2d/curves.html#pybosl2.shapes2d.curves.jittered_poly">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">jittered_poly</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add tiny random jitter to a path&#39;s points.</span>
+<span class="w">    </span><span class="sd">"""Add tiny random jitter to a path's points.</span>
 
 <span class="sd">    Used to work around rendering artifacts from exactly-overlapping coplanar faces.</span>
 
@@ -2331,7 +2331,7 @@
 <span class="sd">        path: the path to add jitter to</span>
 <span class="sd">        dist: the amount to jitter points by (default 1/512)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">dist</span><span class="p">,</span> <span class="n">dist</span><span class="p">),</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">dist</span><span class="p">,</span> <span class="n">dist</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span></div>
 
 </code></pre></div>

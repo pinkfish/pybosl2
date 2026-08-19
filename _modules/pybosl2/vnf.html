@@ -1814,23 +1814,23 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/vnf.py</span>
-<span class="c1">#    Minimal pure-Python port of BOSL2&#39;s VNF (&quot;Vertices and Faces&quot;) structure</span>
+<span class="c1">#    Minimal pure-Python port of BOSL2's VNF ("Vertices and Faces") structure</span>
 <span class="c1">#    from vnf.scad -- just the pieces the bezier surface functions</span>
-<span class="c1">#    (pybosl2/beziers.py&#39;s BezierPatch) need to turn a grid of surface sample</span>
+<span class="c1">#    (pybosl2/beziers.py's BezierPatch) need to turn a grid of surface sample</span>
 <span class="c1">#    points into a polyhedron: vnf_vertex_array() (grid -&gt; VNF with the quad</span>
-<span class="c1">#    subdivision styles), vnf_join() (merge VNFs), and rendering to PythonSCAD&#39;s</span>
+<span class="c1">#    subdivision styles), vnf_join() (merge VNFs), and rendering to PythonSCAD's</span>
 <span class="c1">#    native polyhedron(). No osuse()/BOSL2 runtime dependency.</span>
 <span class="c1">#</span>
 <span class="c1">#    A VNF is [vertices, faces]: vertices a list of 3-D points, faces a list of</span>
 <span class="c1">#    index lists (each a polygon into `vertices`). That maps straight onto</span>
-<span class="c1">#    OpenSCAD&#39;s polyhedron(points=, faces=). The class carries the pair and, like</span>
+<span class="c1">#    OpenSCAD's polyhedron(points=, faces=). The class carries the pair and, like</span>
 <span class="c1">#    Path2D/Bezier, keeps every operation as a method.</span>
 <span class="c1">#</span>
 <span class="c1"># FileSummary: VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad).</span>
 <span class="c1"># DocCategory: Paths, regions &amp; surfaces</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad).&quot;&quot;&quot;</span>
+<span class="sd">"""VNF (vertices+faces) surface structure and grid meshing (BOSL2 vnf.scad)."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1865,7 +1865,7 @@
     <span class="n">c</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return parametric t (0..1) where the edge pt0→pt1 crosses the plane A*x+B*y+C*z=D.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return parametric t (0..1) where the edge pt0→pt1 crosses the plane A*x+B*y+C*z=D."""</span>
     <span class="n">d0</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">pt0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">pt0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">pt0</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">d</span>
     <span class="n">d1</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">pt1</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">d</span>
     <span class="n">denom</span> <span class="o">=</span> <span class="n">d0</span> <span class="o">-</span> <span class="n">d1</span>
@@ -1879,7 +1879,7 @@
     <span class="n">pt1</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linear interpolation between two 3-D points.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Linear interpolation between two 3-D points."""</span>
     <span class="k">return</span> <span class="p">[</span>
         <span class="n">pt0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">pt1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pt0</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="n">pt0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">pt1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">pt0</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
@@ -1892,7 +1892,7 @@
     <span class="n">b</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">c</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Signed triangle area from three 3-D points (half the cross-product magnitude).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Signed triangle area from three 3-D points (half the cross-product magnitude)."""</span>
     <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)))</span> <span class="o">*</span> <span class="mf">0.5</span>
@@ -1901,11 +1901,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_assemble_edge_paths</span><span class="p">(</span>
     <span class="n">edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble disconnected directed edges into closed loops.</span>
+<span class="w">    </span><span class="sd">"""Assemble disconnected directed edges into closed loops.</span>
 
 <span class="sd">    Each edge ``(i, j)`` is treated as a directed connection i→j.</span>
 <span class="sd">    Returns a list of vertex-index paths forming closed polygons.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">edges</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">adj</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
@@ -1977,7 +1977,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_msquare_index</span><span class="p">(</span><span class="n">fvals</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return 0..15 marching-square case index for 4 corner values.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return 0..15 marching-square case index for 4 corner values."""</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fvals</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">isovalue</span><span class="p">:</span>
@@ -1989,12 +1989,12 @@
     <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assemble 2-D line segments into connected paths (contour polygons).</span>
+<span class="w">    </span><span class="sd">"""Assemble 2-D line segments into connected paths (contour polygons).</span>
 
 <span class="sd">    Each segment is ``[[x0,y0], [x1,y1]]``.  Returns a list of paths,</span>
 <span class="sd">    each a list of ``[x, y]`` points.  If *closed* is True, only closed</span>
 <span class="sd">    loops are kept; otherwise dangling paths are also returned open.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">graph</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
@@ -2066,7 +2066,7 @@
     <span class="n">ys</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run marching squares on a 2-D scalar field, returning contour paths.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Run marching squares on a 2-D scalar field, returning contour paths."""</span>
     <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -2109,7 +2109,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_to_grid</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert points (Path3D, list of Path3D, arrays) to a 3-D numpy grid.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert points (Path3D, list of Path3D, arrays) to a 3-D numpy grid."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">Path3D</span><span class="p">):</span>
@@ -2159,7 +2159,7 @@
     <span class="n">bb</span><span class="p">:</span> <span class="n">Bounds2D</span><span class="p">,</span>
     <span class="n">pixel_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build uniform 2-D grid axes from a bounding box and pixel size.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Build uniform 2-D grid axes from a bounding box and pixel size."""</span>
     <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">min_x</span><span class="p">,</span> <span class="n">bb</span><span class="o">.</span><span class="n">max_x</span> <span class="o">+</span> <span class="n">pixel_size</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">)</span>
     <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">min_y</span><span class="p">,</span> <span class="n">bb</span><span class="o">.</span><span class="n">max_y</span> <span class="o">+</span> <span class="n">pixel_size</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span>
@@ -2185,7 +2185,7 @@
     <span class="n">pixel_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">exact_bounds</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Bounds2D</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve 2-D grid parameters from a bounding box and optional pixel size/count.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resolve 2-D grid parameters from a bounding box and optional pixel size/count."""</span>
     <span class="k">if</span> <span class="n">pixel_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">bb</span><span class="o">.</span><span class="n">max_x</span> <span class="o">-</span> <span class="n">bb</span><span class="o">.</span><span class="n">min_x</span><span class="p">,</span> <span class="n">bb</span><span class="o">.</span><span class="n">max_y</span> <span class="o">-</span> <span class="n">bb</span><span class="o">.</span><span class="n">min_y</span>
         <span class="n">pixvol</span> <span class="o">=</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="n">h</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">pixel_count</span> <span class="k">if</span> <span class="n">pixel_count</span> <span class="k">else</span> <span class="mi">32</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
@@ -2214,16 +2214,16 @@
     <span class="n">xs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">ys</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a 2-D scalar field on a grid, returning a 2-D numpy array.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Sample a 2-D scalar field on a grid, returning a 2-D numpy array."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">f</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+    <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">"ij"</span><span class="p">)</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">gx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">gy</span><span class="o">.</span><span class="n">ravel</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">pts</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">),):</span>
             <span class="k">return</span> <span class="n">vals</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">gx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;_sample_field_2d: callable f must accept (N,2) array and return (N,) array.&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"_sample_field_2d: callable f must accept (N,2) array and return (N,) array."</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="contour">
@@ -2237,7 +2237,7 @@
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">exact_bounds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate 2-D contour paths at a given isovalue from a scalar field.</span>
+<span class="w">    </span><span class="sd">"""Generate 2-D contour paths at a given isovalue from a scalar field.</span>
 
 <span class="sd">    Uses marching squares on a uniform 2-D grid to trace the contour where</span>
 <span class="sd">    ``f(x, y) == isovalue``.  Returns a list of closed (or open) polyline</span>
@@ -2268,7 +2268,7 @@
 <span class="sd">            paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)</span>
 <span class="sd">            Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">bb</span><span class="p">,</span> <span class="n">ps</span> <span class="o">=</span> <span class="n">_resolve_grid_2d</span><span class="p">(</span><span class="n">bounding_box</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="n">pixel_count</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="p">)</span>
     <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">_grid_axes_2d</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
     <span class="n">field_arr</span> <span class="o">=</span> <span class="n">_sample_field_2d</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
@@ -2287,9 +2287,9 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">f</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-    <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">gz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">)</span>
+    <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">gz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s2">"ij"</span><span class="p">)</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">gx</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">gy</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">gz</span><span class="o">.</span><span class="n">ravel</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">pts</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">),):</span>
@@ -2309,7 +2309,7 @@
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]:</span>
     <span class="k">if</span> <span class="n">closed</span><span class="p">:</span>
-        <span class="n">field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;constant&quot;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=-</span><span class="mf">1e30</span><span class="p">)</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"constant"</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=-</span><span class="mf">1e30</span><span class="p">)</span>
         <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span> <span class="n">xs</span><span class="p">,</span> <span class="p">[</span><span class="n">xs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])]])</span>
         <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">ys</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ys</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span> <span class="n">ys</span><span class="p">,</span> <span class="p">[</span><span class="n">ys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">ys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ys</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])]])</span>
         <span class="n">zs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">zs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">zs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">zs</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span> <span class="n">zs</span><span class="p">,</span> <span class="p">[</span><span class="n">zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">zs</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])]])</span>
@@ -2379,10 +2379,10 @@
     <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">trimax</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Triangulate between two rows (possibly unequal length) by shortest new edge.</span>
+<span class="w">    </span><span class="sd">"""Triangulate between two rows (possibly unequal length) by shortest new edge.</span>
 
 <span class="sd">    BOSL2 _lofttri.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">a1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">a2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">tris</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2430,11 +2430,11 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rows_as_float</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rows of plain floats.</span>
+<span class="w">    </span><span class="sd">"""Rows of plain floats.</span>
 
 <span class="sd">    An array converts in one C-level pass; rows that are already plain floats only need copying.</span>
 <span class="sd">    Converting a list of lists *through* numpy is slower than either, so it is not used here.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">rows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -2446,7 +2446,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rows_as_int</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rows of plain ints, converted the same way as :func:`_rows_as_float`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Rows of plain ints, converted the same way as :func:`_rows_as_float`."""</span>
     <span class="k">if</span> <span class="n">rows</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -2458,14 +2458,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_norms</span><span class="p">(</span><span class="n">vectors</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Length of each row vector.&quot;&quot;&quot;</span>
-    <span class="c1"># via a typed local: numpy&#39;s stubs type einsum() as Any, which --strict rejects returning</span>
-    <span class="n">lengths</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectors</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">"""Length of each row vector."""</span>
+    <span class="c1"># via a typed local: numpy's stubs type einsum() as Any, which --strict rejects returning</span>
+    <span class="n">lengths</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij,ij-&gt;i"</span><span class="p">,</span> <span class="n">vectors</span><span class="p">,</span> <span class="n">vectors</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">lengths</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_face_array</span><span class="p">(</span><span class="n">faces</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the faces as an (N, sides) index array, or None when they are not all the same length.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the faces as an (N, sides) index array, or None when they are not all the same length."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">faces</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">try</span><span class="p">:</span>
@@ -2476,7 +2476,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_fan_triangles</span><span class="p">(</span><span class="n">faces</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every face fan-triangulated, as an (N, 3) array of vertex indices.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Every face fan-triangulated, as an (N, 3) array of vertex indices."""</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">_face_array</span><span class="p">(</span><span class="n">faces</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">arr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
@@ -2492,9 +2492,9 @@
 <div class="viewcode-block" id="VNF">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VNF</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A VNF surface: ``vertices`` (3-D points) plus ``faces`` (index polygons into vertices).</span>
+<span class="w">    </span><span class="sd">"""A VNF surface: ``vertices`` (3-D points) plus ``faces`` (index polygons into vertices).</span>
 
-<span class="sd">    Renders to PythonSCAD&#39;s native ``polyhedron`` via :meth:`polyhedron`. Build one from a</span>
+<span class="sd">    Renders to PythonSCAD's native ``polyhedron`` via :meth:`polyhedron`. Build one from a</span>
 <span class="sd">    rectangular grid of sample points with :meth:`vertex_array`, merge several with</span>
 <span class="sd">    :meth:`union`, or mesh a scalar field with :meth:`from_field` and combine metaball</span>
 <span class="sd">    primitives with :meth:`from_metaballs`.</span>
@@ -2515,25 +2515,25 @@
 <span class="sd">                    for x in range(0, 60, 4)]</span>
 <span class="sd">            VNF.vertex_array(grid).polyhedron().show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">faces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the VNF with vertices and faces.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the VNF with vertices and faces."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span> <span class="o">=</span> <span class="n">_rows_as_float</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">faces</span> <span class="o">=</span> <span class="n">_rows_as_int</span><span class="p">(</span><span class="n">faces</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the VNF.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;VNF(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> verts, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span><span class="si">}</span><span class="s2"> faces)&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a string representation of the VNF."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"VNF(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> verts, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span><span class="si">}</span><span class="s2"> faces)"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the VNF has any faces.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check if the VNF has any faces."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="VNF.bounds">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.bounds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bounds3D</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Axis-aligned :class:`~pybosl2.bounds.Bounds3D` of the VNF.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Axis-aligned :class:`~pybosl2.bounds.Bounds3D` of the VNF."""</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">mn</span><span class="p">,</span> <span class="n">mx</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">arr</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bounds3D</span><span class="p">(</span>
@@ -2551,32 +2551,32 @@
 
 <div class="viewcode-block" id="VNF.reverse">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.reverse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy with every face wound the other way (flips the surface normals).&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy with every face wound the other way (flips the surface normals)."""</span>
         <span class="k">return</span> <span class="n">VNF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="p">[</span><span class="n">f</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="VNF.volume">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.volume">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">volume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward.</span>
+<span class="w">        </span><span class="sd">"""Signed enclosed volume (BOSL2 vnf_volume()); negative when the faces wind inward.</span>
 
 <span class="sd">        Used to detect and fix inverted meshes (a swept/skinned surface whose winding came out</span>
 <span class="sd">        inside-out): ``vnf if vnf.volume() &gt;= 0 else vnf.reverse()``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">tris</span> <span class="o">=</span> <span class="n">_fan_triangles</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span>  <span class="c1"># every face fan-triangulated, all at once</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">tris</span><span class="p">):</span>
             <span class="k">return</span> <span class="mf">0.0</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">v</span><span class="p">[</span><span class="n">tris</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">v</span><span class="p">[</span><span class="n">tris</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">v</span><span class="p">[</span><span class="n">tris</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">/</span> <span class="mf">6.0</span></div>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij,ij-&gt;i"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">/</span> <span class="mf">6.0</span></div>
 
 
 <div class="viewcode-block" id="VNF.union">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.union">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge a list of VNFs into one, offsetting each VNF&#39;s face indices (BOSL2 vnf_join()).&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"VNF"</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Merge a list of VNFs into one, offsetting each VNF's face indices (BOSL2 vnf_join())."""</span>
         <span class="n">vnfs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">vnfs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2593,10 +2593,10 @@
 <div class="viewcode-block" id="VNF.join">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.join">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">join</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge multiple VNFs into a single consolidated VNF with shared vertices.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">join</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">vnfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"VNF"</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Merge multiple VNFs into a single consolidated VNF with shared vertices.</span>
 
-<span class="sd">        Each input VNF&#39;s vertices and faces are copied into a combined vertex array,</span>
+<span class="sd">        Each input VNF's vertices and faces are copied into a combined vertex array,</span>
 <span class="sd">        with face indices offset appropriately.  No deduplication is performed.</span>
 
 <span class="sd">        Args:</span>
@@ -2614,7 +2614,7 @@
 <span class="sd">            b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])</span>
 <span class="sd">            VNF.join([a, b]).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">vnfs</span><span class="p">)</span></div>
 
 
@@ -2625,8 +2625,8 @@
         <span class="n">plane</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clip a VNF to one side of a plane, optionally closing the cut face.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Clip a VNF to one side of a plane, optionally closing the cut face.</span>
 
 <span class="sd">        A plane is defined as ``[A, B, C, D]`` for ``A*x + B*y + C*z = D``.</span>
 <span class="sd">        If *keep* is True, the positive halfspace (``A*x + B*y + C*z &gt; D``)</span>
@@ -2656,8 +2656,8 @@
 <span class="sd">            cut = cube_vnf.halfspace([0, 0, 1, 0], keep=True, closed=True)</span>
 <span class="sd">            cut.polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;halfspace(): plane must be [A, B, C, D].&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"halfspace(): plane must be [A, B, C, D]."</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">plane</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="n">verts_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts_in</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2747,8 +2747,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">plane</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">&quot;VNF&quot;</span><span class="p">,</span> <span class="s2">&quot;VNF&quot;</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Slice a VNF into two VNFs along a plane, closing both cut faces.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">"VNF"</span><span class="p">,</span> <span class="s2">"VNF"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Slice a VNF into two VNFs along a plane, closing both cut faces.</span>
 
 <span class="sd">        Returns ``(vnf_above, vnf_below)`` where *vnf_above* is the positive</span>
 <span class="sd">        halfspace and *vnf_below* is the negative halfspace.</span>
@@ -2773,7 +2773,7 @@
 <span class="sd">            above, below = cube_vnf.slice([0, 0, 1, 0], closed=True)</span>
 <span class="sd">            above.polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">above</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
         <span class="n">below</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">halfspace</span><span class="p">(</span><span class="n">plane</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">above</span><span class="p">,</span> <span class="n">below</span></div>
@@ -2785,16 +2785,16 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">vertex_array</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">points</span><span class="p">:</span> <span class="n">Path3D</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path3D</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-        <span class="n">caps</span><span class="p">:</span> <span class="s2">&quot;CapsSpec | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">caps</span><span class="p">:</span> <span class="s2">"CapsSpec | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">col_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">row_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">|</span> <span class="n">VnfStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build a VNF from a rectangular grid of 3-D points (BOSL2 vnf_vertex_array()).</span>
 
-<span class="sd">        Each grid cell becomes triangles (or a quad) chosen by *style*: &quot;default&quot;, &quot;alt&quot;,</span>
-<span class="sd">        &quot;min_edge&quot;, &quot;min_area&quot;, &quot;convex&quot;, &quot;concave&quot;, &quot;quincunx&quot;, &quot;quad&quot;, &quot;flip1&quot;, &quot;flip2&quot;.</span>
+<span class="sd">        Each grid cell becomes triangles (or a quad) chosen by *style*: "default", "alt",</span>
+<span class="sd">        "min_edge", "min_area", "convex", "concave", "quincunx", "quad", "flip1", "flip2".</span>
 <span class="sd">        *col_wrap*/*row_wrap* close the grid into a tube/torus; *caps* closes the</span>
 <span class="sd">        column-wrapped ends with :class:`~pybosl2.caps.CapType` or</span>
 <span class="sd">        :class:`~pybosl2.caps.CapSpec` styles (see :data:`~pybosl2.caps.CapsSpec`).</span>
@@ -2810,7 +2810,7 @@
 <span class="sd">            reverse: Flip face winding.</span>
 <span class="sd">            style: Triangulation method.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapType</span><span class="p">,</span> <span class="n">norm_caps</span>
 
         <span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CapSpec</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">)</span> <span class="k">if</span> <span class="n">caps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
@@ -2834,9 +2834,9 @@
         <span class="n">make_cap1</span><span class="p">,</span> <span class="n">cap1_round</span> <span class="o">=</span> <span class="n">_resolve_cap</span><span class="p">(</span><span class="n">cap1</span><span class="p">)</span>
         <span class="n">make_cap2</span><span class="p">,</span> <span class="n">cap2_round</span> <span class="o">=</span> <span class="n">_resolve_cap</span><span class="p">(</span><span class="n">cap2</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">make_cap1</span> <span class="ow">or</span> <span class="n">make_cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">col_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;col_wrap must be true if caps are requested&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"col_wrap must be true if caps are requested"</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">make_cap1</span> <span class="ow">or</span> <span class="n">make_cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;cannot combine caps with row_wrap&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"cannot combine caps with row_wrap"</span><span class="p">)</span>
 
         <span class="n">parr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># flattened, row-major</span>
         <span class="n">pcnt</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span>
@@ -2913,7 +2913,7 @@
         <span class="n">colcnt</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Which way each grid cell is cut, for every cell at once.</span>
+<span class="w">        </span><span class="sd">"""Which way each grid cell is cut, for every cell at once.</span>
 
 <span class="sd">        Returns a ``(cells, faces_per_cell, indices_per_face)`` array in the same order the cells</span>
 <span class="sd">        are walked -- row-major, and within a cell in the order the style lays the faces down.</span>
@@ -2921,10 +2921,10 @@
 <span class="sd">        Args:</span>
 <span class="sd">            style: The triangulation style.</span>
 <span class="sd">            parr: The grid points, flattened row-major.</span>
-<span class="sd">            i1: Index of each cell&#39;s first corner (and *i2*, *i3*, *i4* the rest, going round).</span>
-<span class="sd">            i2: Index of each cell&#39;s second corner.</span>
-<span class="sd">            i3: Index of each cell&#39;s third corner.</span>
-<span class="sd">            i4: Index of each cell&#39;s fourth corner.</span>
+<span class="sd">            i1: Index of each cell's first corner (and *i2*, *i3*, *i4* the rest, going round).</span>
+<span class="sd">            i2: Index of each cell's second corner.</span>
+<span class="sd">            i3: Index of each cell's third corner.</span>
+<span class="sd">            i4: Index of each cell's fourth corner.</span>
 <span class="sd">            cell_r: Grid row of each cell.</span>
 <span class="sd">            cell_c: Grid column of each cell.</span>
 <span class="sd">            pcnt: How many grid points there are (where the quincunx centres start).</span>
@@ -2934,7 +2934,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The face indices per cell.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">,</span> <span class="n">p4</span> <span class="o">=</span> <span class="n">parr</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i2</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i3</span><span class="p">],</span> <span class="n">parr</span><span class="p">[</span><span class="n">i4</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">QUAD</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="n">i4</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -2960,8 +2960,8 @@
             <span class="n">use_alt</span> <span class="o">=</span> <span class="n">_norms</span><span class="p">(</span><span class="n">p4</span> <span class="o">-</span> <span class="n">p2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_norms</span><span class="p">(</span><span class="n">p1</span> <span class="o">-</span> <span class="n">p3</span><span class="p">)</span> <span class="o">+</span> <span class="n">_EPS</span>
         <span class="k">elif</span> <span class="n">style</span> <span class="ow">in</span> <span class="p">(</span><span class="n">VNFStyle</span><span class="o">.</span><span class="n">CONVEX</span><span class="p">,</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">CONCAVE</span><span class="p">):</span>
             <span class="n">sides</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">reverse</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p3</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
-            <span class="n">dot4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">sides</span><span class="p">,</span> <span class="n">p4</span><span class="p">)</span>
-            <span class="n">dot1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">sides</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
+            <span class="n">dot4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij,ij-&gt;i"</span><span class="p">,</span> <span class="n">sides</span><span class="p">,</span> <span class="n">p4</span><span class="p">)</span>
+            <span class="n">dot1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij,ij-&gt;i"</span><span class="p">,</span> <span class="n">sides</span><span class="p">,</span> <span class="n">p1</span><span class="p">)</span>
             <span class="n">use_alt</span> <span class="o">=</span> <span class="n">dot4</span> <span class="o">&gt;</span> <span class="n">dot1</span> <span class="k">if</span> <span class="n">style</span> <span class="o">==</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">CONVEX</span> <span class="k">else</span> <span class="n">dot4</span> <span class="o">&lt;=</span> <span class="n">dot1</span>
             <span class="n">flat</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># a cell with no normal collapses to one triangle</span>
             <span class="k">if</span> <span class="n">flat</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
@@ -2981,7 +2981,7 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_keep_real_faces</span><span class="p">(</span><span class="n">cells</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">],</span> <span class="n">verts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the faces of *cells* that enclose an area, wound to match *reverse*.</span>
+<span class="w">        </span><span class="sd">"""Return the faces of *cells* that enclose an area, wound to match *reverse*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cells: Face indices per cell, as :meth:`_cell_faces` returns them.</span>
@@ -2991,7 +2991,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The faces, in cell order, with the degenerate ones dropped.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">flat</span> <span class="o">=</span> <span class="n">cells</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cells</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">verts</span><span class="p">[</span><span class="n">flat</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">verts</span><span class="p">[</span><span class="n">flat</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">verts</span><span class="p">[</span><span class="n">flat</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]]</span>
         <span class="n">keep</span> <span class="o">=</span> <span class="n">_norms</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">b</span> <span class="o">-</span> <span class="n">a</span><span class="p">,</span> <span class="n">c</span> <span class="o">-</span> <span class="n">a</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">_EPS</span>
@@ -3011,14 +3011,14 @@
         <span class="n">row_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">limit_bunching</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a VNF from an array of rows whose lengths may differ (BOSL2 vnf_tri_array()).</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build a VNF from an array of rows whose lengths may differ (BOSL2 vnf_tri_array()).</span>
 
 <span class="sd">        Triangulates between adjacent rows by repeatedly adding the shortest new edge, so it</span>
 <span class="sd">        meshes triangular / irregular point arrays (what the degenerate bezier patches produce).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">caps</span> <span class="ow">or</span> <span class="n">cap1</span> <span class="ow">or</span> <span class="n">cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;cannot combine caps with row_wrap&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"cannot combine caps with row_wrap"</span><span class="p">)</span>
         <span class="n">plen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
         <span class="n">st</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
@@ -3040,7 +3040,7 @@
             <span class="n">faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rng</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">plen</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="k">if</span> <span class="n">row_wrap</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)):</span>
             <span class="n">j</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">plen</span>
-            <span class="n">trimax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span> <span class="k">if</span> <span class="n">limit_bunching</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+            <span class="n">trimax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">[</span><span class="n">j</span><span class="p">])))</span> <span class="k">if</span> <span class="n">limit_bunching</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"inf"</span><span class="p">)</span>
             <span class="n">faces</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
                 <span class="n">_lofttri</span><span class="p">(</span>
                     <span class="n">st</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -3066,22 +3066,22 @@
 <div class="viewcode-block" id="VNF.polyhedron">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.polyhedron">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">polyhedron</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Native geometry for this VNF via PythonSCAD&#39;s ``polyhedron(points=, faces=)``.</span>
+<span class="w">        </span><span class="sd">"""Native geometry for this VNF via PythonSCAD's ``polyhedron(points=, faces=)``.</span>
 
 <span class="sd">        A VNF winds its faces counter-clockwise seen from outside (so :meth:`volume` is positive</span>
 <span class="sd">        for a solid); ``polyhedron()`` wants them the other way round, so each face is reversed</span>
 <span class="sd">        on the way out. Handing them over as-is builds the solid inside out -- it still looks</span>
 <span class="sd">        right on its own, but every union or difference with it then does the opposite of what</span>
 <span class="sd">        it should.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polyhedron</span> <span class="k">as</span> <span class="n">_polyhedron</span>
 
-        <span class="c1"># The native polyhedron() rejects an empty point list with a bare &quot;There must at least be</span>
-        <span class="c1"># one point in the polyhedron&quot;; say which VNF that came from instead.</span>
+        <span class="c1"># The native polyhedron() rejects an empty point list with a bare "There must at least be</span>
+        <span class="c1"># one point in the polyhedron"; say which VNF that came from instead.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;polyhedron(): this VNF has no geometry to build &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span><span class="si">}</span><span class="s2"> faces).&quot;</span>
+                <span class="sa">f</span><span class="s2">"polyhedron(): this VNF has no geometry to build "</span>
+                <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span><span class="si">}</span><span class="s2"> faces)."</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">_polyhedron</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span><span class="o">=</span><span class="p">[</span><span class="n">f</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">],</span> <span class="n">convexity</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span></div>
 
@@ -3089,7 +3089,7 @@
 <div class="viewcode-block" id="VNF.geometry">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.geometry">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the VNF as native polyhedron geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the VNF as native polyhedron geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span></div>
 
 
@@ -3106,8 +3106,8 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">exact_bounds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh a scalar field into a :class:`VNF` via marching cubes.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mesh a scalar field into a :class:`VNF` via marching cubes.</span>
 
 <span class="sd">        The solid is the region where ``f &gt;= isovalue``.</span>
 
@@ -3145,7 +3145,7 @@
 <span class="sd">                voxel_size=2,</span>
 <span class="sd">            ).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
         <span class="n">bb</span><span class="p">:</span> <span class="n">Bounds3D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -3203,8 +3203,8 @@
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">isovalue</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;from_field(): tuple (lo, hi) isovalue ranges are not yet implemented. &quot;</span>
-                <span class="s2">&quot;Use a single float isovalue instead.&quot;</span>
+                <span class="s2">"from_field(): tuple (lo, hi) isovalue ranges are not yet implemented. "</span>
+                <span class="s2">"Use a single float isovalue instead."</span>
             <span class="p">)</span>
         <span class="n">iso</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">isovalue</span><span class="p">)</span>
 
@@ -3229,7 +3229,7 @@
                 <span class="n">vs_final</span> <span class="o">=</span> <span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">max_x</span> <span class="o">-</span> <span class="n">bb</span><span class="o">.</span><span class="n">min_x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;from_field(): a callable field needs a bounding_box.&quot;</span>
+            <span class="k">assert</span> <span class="n">bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"from_field(): a callable field needs a bounding_box."</span>
             <span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span> <span class="o">=</span> <span class="n">_resolve_grid</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">,</span> <span class="n">voxel_count</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="p">)</span>
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">_sample_field</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
@@ -3255,8 +3255,8 @@
         <span class="n">isovalue</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">exact_bounds</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh transformed metaball primitives into a blobby :class:`VNF`.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mesh transformed metaball primitives into a blobby :class:`VNF`.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            spec: A list of :class:`_MetaballSpec` entries,</span>
@@ -3287,8 +3287,8 @@
 <span class="sd">                voxel_size=2,</span>
 <span class="sd">            ).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">spec</span><span class="p">,</span> <span class="s2">&quot;from_metaballs(): the spec is empty.&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="n">spec</span><span class="p">,</span> <span class="s2">"from_metaballs(): the spec is empty."</span>
 
         <span class="n">bb</span><span class="p">:</span> <span class="n">Bounds3D</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bounding_box</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">):</span>
@@ -3313,9 +3313,9 @@
                     <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bounding_box list must have length 2, 3 or 6.&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"bounding_box list must have length 2, 3 or 6."</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;bounding_box must be Bounds3D, float, or list/tuple.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"bounding_box must be Bounds3D, float, or list/tuple."</span><span class="p">)</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">_MetaballSpec</span>
 
@@ -3350,12 +3350,12 @@
         <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SkinMethod</span> <span class="o">=</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">,</span>
         <span class="n">sampling</span><span class="p">:</span> <span class="n">SamplingType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">caps</span><span class="p">:</span> <span class="s2">&quot;CapsSpec&quot;</span> <span class="o">=</span> <span class="s2">&quot;butt&quot;</span><span class="p">,</span>
+        <span class="n">caps</span><span class="p">:</span> <span class="s2">"CapsSpec"</span> <span class="o">=</span> <span class="s2">"butt"</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">z</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VNF | Bosl2Solid&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF | Bosl2Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</span>
 
 <span class="sd">        Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are</span>
 <span class="sd">        inserted between each pair to smooth the transition.</span>
@@ -3364,9 +3364,9 @@
 <span class="sd">            profiles: list of &gt;= 2 closed profiles (each a list of points). If 2-D, give matching *z*.</span>
 <span class="sd">            slices:   number of interpolated profiles inserted between each pair (int or per-gap list)</span>
 <span class="sd">            refine:   subdivide every profile by this factor before skinning (default 1)</span>
-<span class="sd">            method:   &quot;direct&quot; (connect vertex i to vertex i) or &quot;reindex&quot; (rotate each profile to</span>
+<span class="sd">            method:   "direct" (connect vertex i to vertex i) or "reindex" (rotate each profile to</span>
 <span class="sd">                      best-align with the previous).</span>
-<span class="sd">            sampling: &quot;length&quot; or &quot;segment&quot; resampling (default &quot;length&quot;)</span>
+<span class="sd">            sampling: "length" or "segment" resampling (default "length")</span>
 <span class="sd">            caps:     cap the ends; supports decorative cap types</span>
 <span class="sd">            closed:   the stack loops back to the first profile (default False)</span>
 <span class="sd">            style:    vnf_vertex_array quad-subdivision style</span>
@@ -3386,7 +3386,7 @@
 <span class="sd">                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]</span>
 <span class="sd">                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_skin</span>
 
         <span class="k">return</span> <span class="n">_skin</span><span class="p">(</span>
@@ -3405,9 +3405,9 @@
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;VNF&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;VnfStyle&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;contour&quot;</span><span class="p">,</span>
+    <span class="s2">"VNF"</span><span class="p">,</span>
+    <span class="s2">"VnfStyle"</span><span class="p">,</span>
+    <span class="s2">"contour"</span><span class="p">,</span>
 <span class="p">]</span>
 </code></pre></div>
 

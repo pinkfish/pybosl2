@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/nurbs.py</span>
-<span class="c1">#    Pure-Python port of the NURBS *evaluation* API from BOSL2&#39;s nurbs.scad, as two classes:</span>
+<span class="c1">#    Pure-Python port of the NURBS *evaluation* API from BOSL2's nurbs.scad, as two classes:</span>
 <span class="c1">#    :class:`NurbsCurve` (evaluate a curve, sample it into a path, raise its degree) and</span>
 <span class="c1">#    :class:`NurbsPatch` (sample a surface, mesh it into a VNF). All three flavours -- clamped,</span>
 <span class="c1">#    open and closed -- with weights (rational NURBS), knot multiplicities, and explicit knot</span>
@@ -1841,7 +1841,7 @@
 <span class="c1"># DocCategory: Paths, regions &amp; surfaces</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;NURBS curve/surface evaluation and meshing (de Boor).&quot;&quot;&quot;</span>
+<span class="sd">"""NURBS curve/surface evaluation and meshing (de Boor)."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1866,12 +1866,12 @@
 <span class="c1">#: A single point: any sequence of coordinates, or a numpy array of them.</span>
 <span class="n">PointLike</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-<span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_T&quot;</span><span class="p">)</span>
+<span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_T"</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;NurbsType&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NurbsCurve&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;NurbsPatch&quot;</span><span class="p">,</span>
+    <span class="s2">"NurbsType"</span><span class="p">,</span>
+    <span class="s2">"NurbsCurve"</span><span class="p">,</span>
+    <span class="s2">"NurbsPatch"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -1883,19 +1883,19 @@
 <div class="viewcode-block" id="NurbsType">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NurbsType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;NURBS curve/surface boundary condition.</span>
+<span class="w">    </span><span class="sd">"""NURBS curve/surface boundary condition.</span>
 
 <span class="sd">    Determines how the knot vector is built and whether the curve/surface wraps.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">CLAMPED</span> <span class="o">=</span> <span class="s2">&quot;clamped&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clamped (end-point-interpolating) — the default.&quot;&quot;&quot;</span>
+    <span class="n">CLAMPED</span> <span class="o">=</span> <span class="s2">"clamped"</span>
+<span class="w">    </span><span class="sd">"""Clamped (end-point-interpolating) — the default."""</span>
 
-    <span class="n">OPEN</span> <span class="o">=</span> <span class="s2">&quot;open&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Open (non-interpolating) B-spline.&quot;&quot;&quot;</span>
+    <span class="n">OPEN</span> <span class="o">=</span> <span class="s2">"open"</span>
+<span class="w">    </span><span class="sd">"""Open (non-interpolating) B-spline."""</span>
 
-    <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">&quot;closed&quot;</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Closed (periodic) — start and end connect.&quot;&quot;&quot;</span></div>
+    <span class="n">CLOSED</span> <span class="o">=</span> <span class="s2">"closed"</span>
+<span class="w">    </span><span class="sd">"""Closed (periodic) — start and end connect."""</span></div>
 
 
 
@@ -1905,7 +1905,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extend_knot_mult</span><span class="p">(</span><span class="n">mult</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">nxt</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extend a knot multiplicity vector periodically to sum to *length*.</span>
+<span class="w">    </span><span class="sd">"""Extend a knot multiplicity vector periodically to sum to *length*.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        mult: The multiplicity list to extend.</span>
@@ -1915,7 +1915,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The extended multiplicity list.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mult</span><span class="p">)</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
     <span class="k">while</span> <span class="nb">sum</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
@@ -1928,7 +1928,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extend_knot_vector</span><span class="p">(</span><span class="n">knots</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">nxt</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extend a knot vector periodically to *length* entries.</span>
+<span class="w">    </span><span class="sd">"""Extend a knot vector periodically to *length* entries.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        knots: The knot vector to extend.</span>
@@ -1938,7 +1938,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The extended knot vector.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">knots</span><span class="p">)</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
         <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">out</span><span class="p">[</span><span class="n">nxt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">out</span><span class="p">[</span><span class="n">nxt</span><span class="p">])</span>
@@ -1947,7 +1947,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_expand_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">mult</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expand a compact knot vector by repeating each knot by its multiplicity.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Expand a compact knot vector by repeating each knot by its multiplicity."""</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">repeat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">mult</span><span class="p">):</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">knots</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span> <span class="o">*</span> <span class="n">repeat</span>
@@ -1960,7 +1960,7 @@
     <span class="n">count</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">mult</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the knot multiplicities of a uniform knot vector.</span>
+<span class="w">    </span><span class="sd">"""Return the knot multiplicities of a uniform knot vector.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        nurbs_type: The boundary condition of the curve.</span>
@@ -1971,7 +1971,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        One multiplicity per distinct knot value.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">nurbs_type</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">:</span>
         <span class="n">base</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mult</span><span class="p">)</span> <span class="k">if</span> <span class="n">mult</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">count</span> <span class="o">-</span> <span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">base</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
@@ -1990,7 +1990,7 @@
     <span class="n">mult</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">knots</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the full (expanded) knot vector used to evaluate a curve.</span>
+<span class="w">    </span><span class="sd">"""Return the full (expanded) knot vector used to evaluate a curve.</span>
 
 <span class="sd">    With no explicit *knots* the vector is uniform, built from the multiplicities</span>
 <span class="sd">    of :func:`_knot_multiplicities`.  With explicit *knots* the vector is expanded</span>
@@ -2006,7 +2006,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The expanded knot vector.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">knots</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">mults</span> <span class="o">=</span> <span class="n">_knot_multiplicities</span><span class="p">(</span><span class="n">nurbs_type</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">mult</span><span class="p">)</span>
         <span class="n">span</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mults</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
@@ -2024,7 +2024,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_findspan</span><span class="p">(</span><span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">knot</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">nctrl</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Find the knot span index *k* with ``knot[k] &lt;= u &lt; knot[k+1]``.</span>
+<span class="w">    </span><span class="sd">"""Find the knot span index *k* with ``knot[k] &lt;= u &lt; knot[k+1]``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        u: The parameter value.</span>
@@ -2035,7 +2035,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The knot span index (clamped at the domain ends).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">u</span> <span class="o">&gt;=</span> <span class="n">knot</span><span class="p">[</span><span class="n">nctrl</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">nctrl</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="n">u</span> <span class="o">&lt;=</span> <span class="n">knot</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
@@ -2052,7 +2052,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_deboor</span><span class="p">(</span><span class="n">knot</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">ctrl</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate the B-spline at parameter *u* in span *k* using the de Boor algorithm.</span>
+<span class="w">    </span><span class="sd">"""Evaluate the B-spline at parameter *u* in span *k* using the de Boor algorithm.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        knot: The knot vector.</span>
@@ -2064,7 +2064,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The evaluated point as a numpy array.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">diameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ctrl</span><span class="p">[</span><span class="n">k</span> <span class="o">-</span> <span class="n">p</span> <span class="o">+</span> <span class="n">j</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
     <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
@@ -2081,24 +2081,24 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_homogeneous</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PointLike</span><span class="p">],</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lift *points* into homogeneous space by scaling each with its weight.&quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="s2">&quot;weights must match the number of control points.&quot;</span>
+<span class="w">    </span><span class="sd">"""Lift *points* into homogeneous space by scaling each with its weight."""</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="s2">"weights must match the number of control points."</span>
     <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_dehomogenise</span><span class="p">(</span><span class="n">point</span><span class="p">:</span> <span class="n">PointLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Project a homogeneous point back by dividing through by its final coordinate.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Project a homogeneous point back by dividing through by its final coordinate."""</span>
     <span class="n">w</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">/</span> <span class="n">w</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">point</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="k">if</span> <span class="n">w</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">point</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_column</span><span class="p">(</span><span class="n">grid</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">_T</span><span class="p">]],</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_T</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return column *index* from a 2-D grid.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return column *index* from a 2-D grid."""</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_copy_pair</span><span class="p">(</span><span class="n">pair</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copy a per-direction ``(u, v)`` pair of optional sequences, so callers cannot mutate it.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Copy a per-direction ``(u, v)`` pair of optional sequences, so callers cannot mutate it."""</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">list</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -2118,7 +2118,7 @@
     <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">u</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the parameter values at which to evaluate a curve.</span>
+<span class="w">    </span><span class="sd">"""Return the parameter values at which to evaluate a curve.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        knot: The expanded knot vector.</span>
@@ -2129,11 +2129,11 @@
 <span class="sd">        u: Explicit parameters in ``[0, 1]``, or ``None`` when *splinesteps* is given.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Parameter values in the curve&#39;s own knot domain.</span>
+<span class="sd">        Parameter values in the curve's own knot domain.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">splinesteps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">splinesteps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;splinesteps must be a positive integer.&quot;</span>
+        <span class="k">assert</span> <span class="n">splinesteps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"splinesteps must be a positive integer."</span>
         <span class="n">params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">knot</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">knot</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">):</span>
@@ -2142,9 +2142,9 @@
             <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">knot</span><span class="p">[</span><span class="n">count</span><span class="p">]))</span>
         <span class="k">return</span> <span class="n">params</span>
 
-    <span class="k">assert</span> <span class="n">u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must define exactly one of u and splinesteps.&quot;</span>
+    <span class="k">assert</span> <span class="n">u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Must define exactly one of u and splinesteps."</span>
     <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">u</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="o">-</span><span class="mf">1e-12</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-12</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">),</span> <span class="s2">&quot;u must lie in [0, 1].&quot;</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="o">-</span><span class="mf">1e-12</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-12</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">),</span> <span class="s2">"u must lie in [0, 1]."</span>
     <span class="k">if</span> <span class="n">nurbs_type</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">values</span>
     <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">knot</span><span class="p">[</span><span class="n">degree</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">knot</span><span class="p">[</span><span class="n">count</span><span class="p">])</span>
@@ -2161,7 +2161,7 @@
     <span class="n">nurbs_type</span><span class="p">:</span> <span class="n">NurbsType</span> <span class="o">=</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">,</span>
     <span class="n">knots</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the raw points on a NURBS curve as numpy arrays; the kernel behind :class:`NurbsCurve`.</span>
+<span class="w">    </span><span class="sd">"""Return the raw points on a NURBS curve as numpy arrays; the kernel behind :class:`NurbsCurve`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        control: The control points.</span>
@@ -2177,8 +2177,8 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The evaluated points, one numpy array per parameter value.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">splinesteps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">u</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must define exactly one of u and splinesteps.&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">splinesteps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">u</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Must define exactly one of u and splinesteps."</span>
     <span class="k">if</span> <span class="n">splinesteps</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">u</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">splinesteps</span> <span class="o">=</span> <span class="mi">16</span>
 
@@ -2195,7 +2195,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">pt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">rational</span><span class="p">]</span>
 
     <span class="k">assert</span> <span class="n">nurbs_type</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLOSED</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">control</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Not enough control points for a degree </span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nurbs_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> curve.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Not enough control points for a degree </span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nurbs_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> curve."</span>
     <span class="p">)</span>
     <span class="n">ctrl</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">control</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">nurbs_type</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">:</span>
@@ -2223,7 +2223,7 @@
     <span class="n">mult</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">knots</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample a patch of control points on a grid; the kernel behind :class:`NurbsPatch`.</span>
+<span class="w">    </span><span class="sd">"""Sample a patch of control points on a grid; the kernel behind :class:`NurbsPatch`.</span>
 
 <span class="sd">    Each control column is swept as a U curve, then each resulting row is swept</span>
 <span class="sd">    as a V curve.  A direction uses its explicit parameter list when given, and</span>
@@ -2243,7 +2243,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A grid (list of rows) of points.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="n">_patch_grid</span><span class="p">(</span>
             <span class="p">[</span><span class="n">_homogeneous</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">wrow</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">wrow</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">control</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
@@ -2297,7 +2297,7 @@
     <span class="n">mult</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
     <span class="n">knots</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate a patch of control points at one ``(u, v)`` pair.</span>
+<span class="w">    </span><span class="sd">"""Evaluate a patch of control points at one ``(u, v)`` pair.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        control: The rectangular grid of control points.</span>
@@ -2312,7 +2312,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A single point.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">homogeneous</span> <span class="o">=</span> <span class="n">_patch_point</span><span class="p">(</span>
             <span class="p">[</span><span class="n">_homogeneous</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">wrow</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span><span class="p">,</span> <span class="n">wrow</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">control</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
@@ -2341,7 +2341,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_nip</span><span class="p">(</span><span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">knot_vector</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the i-th B-spline basis function of degree *p* at *u*.</span>
+<span class="w">    </span><span class="sd">"""Return the i-th B-spline basis function of degree *p* at *u*.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        i: The basis function index.</span>
@@ -2352,7 +2352,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The basis function value ``N_{i,p}(u)``.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">&lt;=</span> <span class="n">knot_vector</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">m</span> <span class="o">-</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">u</span> <span class="o">&gt;=</span> <span class="n">knot_vector</span><span class="p">[</span><span class="n">m</span><span class="p">]):</span>
         <span class="k">return</span> <span class="mf">1.0</span>
@@ -2377,13 +2377,13 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_greville</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the Greville abscissae for a B-spline of degree *p*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute the Greville abscissae for a B-spline of degree *p*."""</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">)</span> <span class="o">-</span> <span class="n">p</span> <span class="o">-</span> <span class="mi">2</span>
     <span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">p</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_increment_knot_mults</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Increment every knot multiplicity by 1 for degree elevation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Increment every knot multiplicity by 1 for degree elevation."""</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">):</span>
@@ -2398,7 +2398,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_elevate_once</span><span class="p">(</span>
     <span class="n">ctrl</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">p</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">knot_vector</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Elevate the degree of a B-spline by 1.</span>
+<span class="w">    </span><span class="sd">"""Elevate the degree of a B-spline by 1.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        ctrl: The control points.</span>
@@ -2408,7 +2408,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A tuple of ``(new_control_points, new_knot_vector, new_degree)``.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctrl</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">p_new</span> <span class="o">=</span> <span class="n">p</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="n">knots_new</span> <span class="o">=</span> <span class="n">_increment_knot_mults</span><span class="p">(</span><span class="n">knot_vector</span><span class="p">)</span>
@@ -2430,7 +2430,7 @@
     <span class="n">knots</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">mult</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the compact knot vector a curve is elevated on.</span>
+<span class="w">    </span><span class="sd">"""Return the compact knot vector a curve is elevated on.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        count: The number of control points.</span>
@@ -2442,7 +2442,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The knot vector without the clamped end padding.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">knots</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">mult</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">span</span> <span class="o">=</span> <span class="n">count</span> <span class="o">-</span> <span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">nurbs_type</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span> <span class="k">else</span> <span class="n">count</span> <span class="o">+</span> <span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">span</span><span class="p">)]</span>
@@ -2466,7 +2466,7 @@
     <span class="n">weights</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">times</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise a curve&#39;s degree *times* times, preserving its shape.</span>
+<span class="w">    </span><span class="sd">"""Raise a curve's degree *times* times, preserving its shape.</span>
 
 <span class="sd">    Rational curves are elevated in homogeneous space and de-homogenised, so the</span>
 <span class="sd">    returned weights belong to the returned control points.</span>
@@ -2483,9 +2483,9 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A tuple of ``(control, degree, knots, weights)``.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">nurbs_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">,</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">OPEN</span><span class="p">),</span> <span class="s2">&quot;degree elevation needs a CLAMPED or OPEN curve.&quot;</span>
-    <span class="k">assert</span> <span class="n">times</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;times must be zero or a positive integer.&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="n">nurbs_type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">,</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">OPEN</span><span class="p">),</span> <span class="s2">"degree elevation needs a CLAMPED or OPEN curve."</span>
+    <span class="k">assert</span> <span class="n">times</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"times must be zero or a positive integer."</span>
     <span class="n">points</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">control</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">times</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -2523,11 +2523,11 @@
 <div class="viewcode-block" id="NurbsCurve">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsCurve">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NurbsCurve</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A NURBS curve: control points plus their knot structure, with every operation as a method.</span>
+<span class="w">    </span><span class="sd">"""A NURBS curve: control points plus their knot structure, with every operation as a method.</span>
 
 <span class="sd">    The object owns its whole definition -- degree, boundary condition, knot vector, knot</span>
 <span class="sd">    multiplicities and rational weights -- so operations chain off it instead of repeating six</span>
-<span class="sd">    arguments at every call (BOSL2&#39;s ``nurbs_curve()`` / ``nurbs_elevate_degree()``)::</span>
+<span class="sd">    arguments at every call (BOSL2's ``nurbs_curve()`` / ``nurbs_elevate_degree()``)::</span>
 
 <span class="sd">        NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3)</span>
 <span class="sd">        NurbsCurve(ctrl, 3).elevate_degree(2).point(0.5)</span>
@@ -2555,7 +2555,7 @@
 <span class="sd">            ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]</span>
 <span class="sd">            NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_control</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">_degree</span><span class="p">:</span> <span class="nb">int</span>
@@ -2573,7 +2573,7 @@
         <span class="n">mult</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">weights</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a NURBS curve from its control points and knot structure.</span>
+<span class="w">        </span><span class="sd">"""Initialize a NURBS curve from its control points and knot structure.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            control: A sequence of 2-D or 3-D control points (lists, a Path, or a numpy array).</span>
@@ -2583,17 +2583,17 @@
 <span class="sd">            mult: Knot multiplicities, or ``None``.</span>
 <span class="sd">            weights: Weights for a rational NURBS curve, or ``None``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">control</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;control points must be a 2-D array (N points x D dims), got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point&quot;</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;degree must be a positive integer, got </span><span class="si">{</span><span class="n">degree</span><span class="si">!r}</span><span class="s2">&quot;</span>
-        <span class="k">assert</span> <span class="n">degree</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;degree must be a positive integer, got </span><span class="si">{</span><span class="n">degree</span><span class="si">!r}</span><span class="s2">&quot;</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nurbs_type</span><span class="p">,</span> <span class="n">NurbsType</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;unknown NURBS type: </span><span class="si">{</span><span class="n">nurbs_type</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"control points must be a 2-D array (N points x D dims), got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point"</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">degree</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"degree must be a positive integer, got </span><span class="si">{</span><span class="n">degree</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">assert</span> <span class="n">degree</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"degree must be a positive integer, got </span><span class="si">{</span><span class="n">degree</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nurbs_type</span><span class="p">,</span> <span class="n">NurbsType</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"unknown NURBS type: </span><span class="si">{</span><span class="n">nurbs_type</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="k">assert</span> <span class="n">nurbs_type</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLOSED</span> <span class="ow">or</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;a degree </span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nurbs_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> curve needs at least </span><span class="si">{</span><span class="n">degree</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> control points&quot;</span>
+            <span class="sa">f</span><span class="s2">"a degree </span><span class="si">{</span><span class="n">degree</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">nurbs_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2"> curve needs at least </span><span class="si">{</span><span class="n">degree</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> control points"</span>
         <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">==</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;weights must match the number of control points.&quot;</span>
+        <span class="k">assert</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="o">==</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"weights must match the number of control points."</span>
         <span class="n">pts</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># the definition is fixed once built; make a new curve to change it</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_control</span> <span class="o">=</span> <span class="n">pts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span> <span class="o">=</span> <span class="n">degree</span>
@@ -2603,49 +2603,49 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of items.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of items."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the item at index.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the item at index."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an iterator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;NurbsCurve(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a string representation."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"NurbsCurve(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The control points as an (N, dim) numpy array.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The control points as an (N, dim) numpy array."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The control points as a plain list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The control points as a plain list."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The curve degree.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The curve degree."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">nurbs_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NurbsType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The boundary condition of the curve.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The boundary condition of the curve."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">knots</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The explicit knot vector, or ``None`` when the curve uses a uniform one.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The explicit knot vector, or ``None`` when the curve uses a uniform one."""</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_knots</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knots</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The rational weights, or ``None`` for a non-rational curve.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The rational weights, or ``None`` for a non-rational curve."""</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="c1"># -- evaluation ------------------------------------------------------------------------</span>
@@ -2653,7 +2653,7 @@
 <div class="viewcode-block" id="NurbsCurve.points">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsCurve.points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the curve at each parameter in *u*.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the curve at each parameter in *u*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            u: Parameter values, each in ``[0, 1]``.</span>
@@ -2661,14 +2661,14 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            An ``(len(u), dim)`` ndarray of points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="NurbsCurve.point">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsCurve.point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the curve at a single parameter value.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the curve at a single parameter value.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            u: The parameter value in ``[0, 1]``.</span>
@@ -2676,17 +2676,17 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A length-dim ndarray for the point at *u*.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">u</span><span class="p">)])[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="NurbsCurve.curve">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsCurve.curve">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample the whole curve into a path.</span>
+<span class="w">        </span><span class="sd">"""Sample the whole curve into a path.</span>
 
 <span class="sd">        Takes *splinesteps* uniform samples between every pair of knots, plus a sample at every knot, which is</span>
-<span class="sd">        BOSL2&#39;s ``nurbs_curve(..., splinesteps=)`` behaviour.  Closed curves come back as closed</span>
+<span class="sd">        BOSL2's ``nurbs_curve(..., splinesteps=)`` behaviour.  Closed curves come back as closed</span>
 <span class="sd">        paths.</span>
 
 <span class="sd">        Args:</span>
@@ -2706,7 +2706,7 @@
 <span class="sd">                ctrl = [[0, 0, 0], [10, 20, 5], [30, -10, 10], [50, 20, 0], [60, 0, 15]]</span>
 <span class="sd">                NurbsCurve(ctrl, 3).curve(splinesteps=12).stroke(width=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
@@ -2720,7 +2720,7 @@
 <div class="viewcode-block" id="NurbsCurve.elevate_degree">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsCurve.elevate_degree">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">elevate_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">times</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NurbsCurve</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise the curve&#39;s degree, keeping its shape.</span>
+<span class="w">        </span><span class="sd">"""Raise the curve's degree, keeping its shape.</span>
 
 <span class="sd">        Only :attr:`NurbsType.CLAMPED` and :attr:`NurbsType.OPEN` curves can be elevated (as in</span>
 <span class="sd">        BOSL2).  The result carries the knot vector the elevated curve needs, so it evaluates to</span>
@@ -2735,7 +2735,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            AssertionError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">control</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">_elevate_curve</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knots</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">,</span> <span class="n">times</span>
         <span class="p">)</span>
@@ -2744,7 +2744,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the raw evaluated points for *splinesteps* samples per span, or at the parameters *u*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the raw evaluated points for *splinesteps* samples per span, or at the parameters *u*."""</span>
         <span class="k">return</span> <span class="n">_curve_points</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="p">,</span>
@@ -2766,9 +2766,9 @@
 <div class="viewcode-block" id="NurbsPatch">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsPatch">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NurbsPatch</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A NURBS surface patch: a rectangular grid of control points, with its knot structure.</span>
+<span class="w">    </span><span class="sd">"""A NURBS surface patch: a rectangular grid of control points, with its knot structure.</span>
 
-<span class="sd">    The surface counterpart of :class:`NurbsCurve` (BOSL2&#39;s ``nurbs_patch_points()`` /</span>
+<span class="sd">    The surface counterpart of :class:`NurbsCurve` (BOSL2's ``nurbs_patch_points()`` /</span>
 <span class="sd">    ``nurbs_vnf()``).  Every per-direction setting is a ``(u, v)`` pair -- degree, boundary</span>
 <span class="sd">    condition, knot multiplicities, knot vectors and splinesteps::</span>
 
@@ -2801,7 +2801,7 @@
 <span class="sd">            ]</span>
 <span class="sd">            NurbsPatch(patch, (3, 3)).vnf().polyhedron().show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_control</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="n">_degree</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
@@ -2819,7 +2819,7 @@
         <span class="n">mult</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="n">weights</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a NURBS patch from a grid of control points and its knot structure.</span>
+<span class="w">        </span><span class="sd">"""Initialize a NURBS patch from a grid of control points and its knot structure.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            control: A rectangular grid of 3-D control points.</span>
@@ -2829,15 +2829,15 @@
 <span class="sd">            mult: Per-direction knot multiplicities ``(u_mult, v_mult)``.</span>
 <span class="sd">            weights: A weight matrix the same size as *control*, or ``None``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">NurbsPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">control</span><span class="p">),</span> <span class="s2">&quot;control must be a rectangular grid of points.&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="n">NurbsPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">control</span><span class="p">),</span> <span class="s2">"control must be a rectangular grid of points."</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">control</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;patch must be a 3-D array (rows x cols x dim), got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components&quot;</span>
-        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">degree</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;degree must be positive integers, got </span><span class="si">{</span><span class="n">degree</span><span class="si">!r}</span><span class="s2">&quot;</span>
-        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">NurbsType</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nurbs_type</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;unknown NURBS type: </span><span class="si">{</span><span class="n">nurbs_type</span><span class="si">!r}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"patch must be a 3-D array (rows x cols x dim), got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components"</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">d</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">degree</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"degree must be positive integers, got </span><span class="si">{</span><span class="n">degree</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">NurbsType</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">nurbs_type</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"unknown NURBS type: </span><span class="si">{</span><span class="n">nurbs_type</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="k">assert</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="p">(</span>
-            <span class="s2">&quot;weights must be the same size as the control-point grid.&quot;</span>
+            <span class="s2">"weights must be the same size as the control-point grid."</span>
         <span class="p">)</span>
         <span class="n">pts</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># the definition is fixed once built; make a new patch to change it</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_control</span> <span class="o">=</span> <span class="n">pts</span>
@@ -2848,27 +2848,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">row</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of items.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of items."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the item at index.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the item at index."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an iterator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a string representation."""</span>
         <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;NurbsPatch(&lt;</span><span class="si">{</span><span class="n">rows</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">cols</span><span class="si">}</span><span class="s2"> grid&gt;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"NurbsPatch(&lt;</span><span class="si">{</span><span class="n">rows</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">cols</span><span class="si">}</span><span class="s2"> grid&gt;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="si">}</span><span class="s2">)"</span>
 
 <div class="viewcode-block" id="NurbsPatch.is_patch">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsPatch.is_patch">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_patch</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if *x* looks like a NURBS patch (BOSL2 ``is_nurbs_patch()``).</span>
+<span class="w">        </span><span class="sd">"""Check if *x* looks like a NURBS patch (BOSL2 ``is_nurbs_patch()``).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            x: The object to test.</span>
@@ -2876,7 +2876,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            True if *x* is a rectangular 2-D array of point vectors with equal-length rows.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
             <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
@@ -2889,27 +2889,27 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The control points as a (rows, cols, 3) numpy array.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The control points as a (rows, cols, 3) numpy array."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The control-point grid as a plain list of rows.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The control-point grid as a plain list of rows."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_control</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The per-direction degree ``(u_degree, v_degree)``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The per-direction degree ``(u_degree, v_degree)``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">nurbs_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NurbsType</span><span class="p">,</span> <span class="n">NurbsType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The per-direction boundary condition ``(u_type, v_type)``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The per-direction boundary condition ``(u_type, v_type)``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The rational weight matrix, or ``None`` for a non-rational patch.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The rational weight matrix, or ``None`` for a non-rational patch."""</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="c1"># -- evaluation ------------------------------------------------------------------------</span>
@@ -2917,7 +2917,7 @@
 <div class="viewcode-block" id="NurbsPatch.point">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsPatch.point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the surface at a single ``(u, v)`` parameter pair.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the surface at a single ``(u, v)`` parameter pair.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            u: The parameter along U in ``[0, 1]``.</span>
@@ -2926,7 +2926,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A length-3 ndarray for the point at ``(u, v)``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="n">_patch_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_list</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mult</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_knots</span><span class="p">),</span>
             <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
@@ -2936,7 +2936,7 @@
 <div class="viewcode-block" id="NurbsPatch.points">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsPatch.points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the surface on the grid of parameters *u* x *v*.</span>
+<span class="w">        </span><span class="sd">"""Evaluate the surface on the grid of parameters *u* x *v*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            u: Parameter values along U, each in ``[0, 1]``.</span>
@@ -2945,14 +2945,14 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``(len(u), len(v), 3)`` ndarray of surface points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">(</span><span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="NurbsPatch.surface">
 <a class="viewcode-back" href="../../paths/nurbs.html#pybosl2.nurbs.NurbsPatch.surface">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample the whole surface on a uniform grid.</span>
+<span class="w">        </span><span class="sd">"""Sample the whole surface on a uniform grid.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            splinesteps: Per-direction samples per knot span (default ``(16,16)``).</span>
@@ -2960,7 +2960,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``(rows, cols, 3)`` ndarray of surface points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">(</span><span class="n">splinesteps</span><span class="o">=</span><span class="n">splinesteps</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
 
 
@@ -2971,9 +2971,9 @@
         <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VnfStyle</span> <span class="o">=</span> <span class="n">VnfStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
         <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">caps</span><span class="p">:</span> <span class="s2">&quot;CapsSpec | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">caps</span><span class="p">:</span> <span class="s2">"CapsSpec | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh the surface into a VNF.</span>
+<span class="w">        </span><span class="sd">"""Mesh the surface into a VNF.</span>
 
 <span class="sd">        Samples the patch with :meth:`surface` and builds the mesh with</span>
 <span class="sd">        :meth:`~pybosl2.vnf.VNF.vertex_array`.  Wrapping follows the boundary condition --</span>
@@ -2990,7 +2990,7 @@
 <span class="sd">            A :class:`~pybosl2.vnf.VNF`.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If *caps* are requested on a patch that isn&#39;t paired</span>
+<span class="sd">            AssertionError: If *caps* are requested on a patch that isn't paired</span>
 <span class="sd">                            ``CLAMPED``/``CLOSED`` (or the reverse).</span>
 
 <span class="sd">        Examples:</span>
@@ -3008,13 +3008,13 @@
 <span class="sd">                ]</span>
 <span class="sd">                NurbsPatch(patch, (3, 3)).vnf(splinesteps=(10, 10)).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapType</span><span class="p">,</span> <span class="n">norm_caps</span>
 
-        <span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;CapSpec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span> <span class="k">if</span> <span class="n">caps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
+        <span class="n">cap_specs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"CapSpec"</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span> <span class="k">if</span> <span class="n">caps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
         <span class="n">havecaps</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">!=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">NONE</span> <span class="k">for</span> <span class="n">cs</span> <span class="ow">in</span> <span class="n">cap_specs</span><span class="p">)</span>
         <span class="n">cappable</span> <span class="o">=</span> <span class="p">((</span><span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">,</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">),</span> <span class="p">(</span><span class="n">NurbsType</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">,</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLAMPED</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="n">havecaps</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span> <span class="ow">in</span> <span class="n">cappable</span><span class="p">,</span> <span class="s2">&quot;caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED).&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">havecaps</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span> <span class="ow">in</span> <span class="n">cappable</span><span class="p">,</span> <span class="s2">"caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED)."</span>
 
         <span class="c1"># caps close the column-wrapped ends, so a closed U direction is transposed into V</span>
         <span class="n">flip</span> <span class="o">=</span> <span class="n">havecaps</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nurbs_type</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">NurbsType</span><span class="o">.</span><span class="n">CLOSED</span>
@@ -3037,7 +3037,7 @@
         <span class="n">u</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the sampled grid of surface points, by splinesteps or at explicit parameters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the sampled grid of surface points, by splinesteps or at explicit parameters."""</span>
         <span class="k">return</span> <span class="n">_patch_grid</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_list</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_degree</span><span class="p">,</span>

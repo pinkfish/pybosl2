@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/parts/wiring.py</span>
-<span class="c1">#    Pure-Python port of BOSL2&#39;s wiring.scad: rendering for routed bundles of wires.</span>
+<span class="c1">#    Pure-Python port of BOSL2's wiring.scad: rendering for routed bundles of wires.</span>
 <span class="c1">#    :class:`WireBundle` sweeps a hexagonally-packed bundle of round wires along a path whose</span>
 <span class="c1">#    corners are rounded, colouring each wire from a 17-entry table.</span>
 <span class="c1">#    :func:`hex_offsets` exposes the optimal hex-packing centre points it uses.</span>
@@ -1823,7 +1823,7 @@
 <span class="c1"># DocCategory: Parts library</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Routed bundles of wires.&quot;&quot;&quot;</span>
+<span class="sd">"""Routed bundles of wires."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1834,7 +1834,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WireBundle&quot;</span><span class="p">,</span> <span class="s2">&quot;hex_offsets&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"WireBundle"</span><span class="p">,</span> <span class="s2">"hex_offsets"</span><span class="p">]</span>
 
 <span class="c1"># The 17 base wire colours, in the same order as BOSL2 wiring.scad.</span>
 <span class="n">_WIRE_COLORS</span> <span class="o">=</span> <span class="p">[</span>
@@ -1859,10 +1859,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_hex_offset_ring</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lev</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a hexagonal ring of packing centres spaced *d* apart.</span>
+<span class="w">    </span><span class="sd">"""Return a hexagonal ring of packing centres spaced *d* apart.</span>
 
 <span class="sd">    ``lev=0`` is the single centre point; ``lev&gt;=1`` is a hexagon of ``6*lev`` points.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">lev</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">lev</span> <span class="o">*</span> <span class="n">d</span>  <span class="c1"># hexagon circumradius; side length == r</span>
@@ -1879,10 +1879,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_hex_offsets</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Centres for the optimal hex packing of at least *n* circles of spacing *d*.</span>
+<span class="w">    </span><span class="sd">"""Centres for the optimal hex packing of at least *n* circles of spacing *d*.</span>
 
 <span class="sd">    Fills out the final ring, so the result may hold more than *n* points.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">arr</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">lev</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
@@ -1894,7 +1894,7 @@
 <div class="viewcode-block" id="hex_offsets">
 <a class="viewcode-back" href="../../../parts/wiring.html#pybosl2.parts.wiring.hex_offsets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">hex_offsets</span><span class="p">(</span><span class="n">sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the centre points for the optimal hexagonal packing of at least *sides* circles.</span>
+<span class="w">    </span><span class="sd">"""Return the centre points for the optimal hexagonal packing of at least *sides* circles.</span>
 
 <span class="sd">    Circles are spaced *diameter* apart.</span>
 
@@ -1905,7 +1905,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of ``[x, y]`` centre offsets.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_hex_offsets</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="n">diameter</span><span class="p">)</span></div>
 
 
@@ -1913,11 +1913,11 @@
 <div class="viewcode-block" id="WireBundle">
 <a class="viewcode-back" href="../../../parts/wiring.html#pybosl2.parts.wiring.WireBundle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WireBundle</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A bundle of round wires routed along a path with rounded corners.</span>
+<span class="w">    </span><span class="sd">"""A bundle of round wires routed along a path with rounded corners.</span>
 
 <span class="sd">    The wires are hex-packed in the bundle cross-section and each is coloured</span>
 <span class="sd">    from the 17-entry table (re-used, offset by *wirenum*, if there are more</span>
-<span class="sd">    than 17).  *wirediam* is each wire&#39;s diameter; *corner_steps* sets how</span>
+<span class="sd">    than 17).  *wirediam* is each wire's diameter; *corner_steps* sets how</span>
 <span class="sd">    finely the rounded corners are faceted.</span>
 
 <span class="sd">    Examples:</span>
@@ -1929,7 +1929,7 @@
 <span class="sd">            WireBundle([[50, 0, -50], [50, 50, -50], [0, 50, -50],</span>
 <span class="sd">                        [0, 0, -50], [0, 0, 0]], wires=13, rounding=10).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1940,7 +1940,7 @@
         <span class="n">wirenum</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">corner_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a wire bundle routed along *path*.</span>
+<span class="w">        </span><span class="sd">"""Create a wire bundle routed along *path*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path: A list of 3-D points defining the bundle route.</span>
@@ -1956,9 +1956,9 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If *wires* is less than 1.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">wires</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wire_bundle() needs at least one wire.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"wire_bundle() needs at least one wire."</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_segs</span><span class="p">(</span><span class="n">wirediam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
         <span class="n">offsets</span> <span class="o">=</span> <span class="n">_hex_offsets</span><span class="p">(</span><span class="n">wires</span><span class="p">,</span> <span class="n">wirediam</span><span class="p">)</span>
         <span class="n">rounded_path</span> <span class="o">=</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="p">(</span><span class="n">corner_steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
@@ -1982,25 +1982,25 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">wires</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of wires in the bundle.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of wires in the bundle."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wires</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">wirediam</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wire diameter in mm.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Wire diameter in mm."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wirediam</span>
 
 <div class="viewcode-block" id="WireBundle.shape">
 <a class="viewcode-back" href="../../../parts/wiring.html#pybosl2.parts.wiring.WireBundle.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the wire bundle geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the wire bundle geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="WireBundle.show">
 <a class="viewcode-back" href="../../../parts/wiring.html#pybosl2.parts.wiring.WireBundle.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the wire bundle in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the wire bundle in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
