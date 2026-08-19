@@ -1816,7 +1816,7 @@
 <span class="c1"># mypy: allow-untyped-defs</span>
 
 <span class="c1"># LibFile: pybosl2/parts/gears.py</span>
-<span class="c1">#    Pure-Python port of the core of BOSL2&#39;s (current) gears.scad. Gears are sized by circular pitch</span>
+<span class="c1">#    Pure-Python port of the core of BOSL2's (current) gears.scad. Gears are sized by circular pitch</span>
 <span class="c1">#    (``circ_pitch``), metric ``mod``, or ``diam_pitch``; the default 20-degree pressure angle and</span>
 <span class="c1">#    ``profile_shift=None`` (which corrects undercut on low-tooth-count gears) match BOSL2. The</span>
 <span class="c1">#    :class:`SpurGear2d` / :class:`SpurGear` teeth are generated the way BOSL2 does it:</span>
@@ -1837,7 +1837,7 @@
 <span class="c1"># DocCategory: Parts library</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm.&quot;&quot;&quot;</span>
+<span class="sd">"""Gears: spur (with undercut), helical, herringbone, rack, ring, bevel, worm."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1862,20 +1862,20 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># real stub-typed imports for the checker (identical to pre-lazy)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_opolygon</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;BevelGear&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;GearSpec&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;GearToothProfile&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HerringboneGear&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Rack&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Rack2d&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;RingGear&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SpurGear&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SpurGear2d&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Worm&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;WormGear&quot;</span><span class="p">,</span>
+    <span class="s2">"BevelGear"</span><span class="p">,</span>
+    <span class="s2">"GearSpec"</span><span class="p">,</span>
+    <span class="s2">"GearToothProfile"</span><span class="p">,</span>
+    <span class="s2">"HerringboneGear"</span><span class="p">,</span>
+    <span class="s2">"Rack"</span><span class="p">,</span>
+    <span class="s2">"Rack2d"</span><span class="p">,</span>
+    <span class="s2">"RingGear"</span><span class="p">,</span>
+    <span class="s2">"SpurGear"</span><span class="p">,</span>
+    <span class="s2">"SpurGear2d"</span><span class="p">,</span>
+    <span class="s2">"Worm"</span><span class="p">,</span>
+    <span class="s2">"WormGear"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">PI</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
@@ -1892,10 +1892,10 @@
     <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve the circular pitch from any of the accepted pitch inputs (BOSL2 circular_pitch()).</span>
+<span class="w">    </span><span class="sd">"""Resolve the circular pitch from any of the accepted pitch inputs (BOSL2 circular_pitch()).</span>
 
-<span class="sd">    When none is given, defaults to a circular pitch of 5 (like BOSL2&#39;s ``mod``-ish default gear).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    When none is given, defaults to a circular pitch of 5 (like BOSL2's ``mod``-ish default gear).</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pitch</span>
     <span class="k">if</span> <span class="n">circ_pitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1963,7 +1963,7 @@
     <span class="n">helical</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">profile_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimum profile shift to avoid undercut, or the given value (BOSL2 auto_profile_shift()).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Minimum profile shift to avoid undercut, or the given value (BOSL2 auto_profile_shift())."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile_shift</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">profile_shift</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">teeth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2030,7 +2030,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_arc_corner</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">corner</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;n-point arc of radius r rounding the corner ``[p0, p1, p2]`` (BOSL2 arc(corner=)).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""n-point arc of radius r rounding the corner ``[p0, p1, p2]`` (BOSL2 arc(corner=))."""</span>
     <span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">corner</span><span class="p">)</span>
     <span class="n">u0</span> <span class="o">=</span> <span class="p">(</span><span class="n">p0</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p0</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
     <span class="n">u1</span> <span class="o">=</span> <span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">p2</span> <span class="o">-</span> <span class="n">p1</span><span class="p">)</span>
@@ -2062,7 +2062,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_strip_left</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">undercut_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the inward &#39;jaggies&#39; the undercut can leave (BOSL2 strip_left).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Remove the inward 'jaggies' the undercut can leave (BOSL2 strip_left)."""</span>
     <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -2347,7 +2347,7 @@
     <span class="n">interior</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a simple symmetric involute tooth (the older BOSL2 profile) for the swept bevel/worm forms."""</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">_pitch_radius</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">_outer_radius_basic</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">interior</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">radius</span> <span class="o">=</span> <span class="n">_root_radius_basic</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">interior</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -2371,11 +2371,11 @@
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GearSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolved gear pitch and radius dimensions.</span>
+<span class="w">    </span><span class="sd">"""Resolved gear pitch and radius dimensions.</span>
 
 <span class="sd">    Construct from any pitch specification: ``GearSpec(pitch=5, teeth=20)``,</span>
 <span class="sd">    ``GearSpec(mod=2, teeth=30, helical=15)``, etc.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">teeth</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">circ_pitch</span><span class="p">:</span> <span class="nb">float</span>
@@ -2400,7 +2400,7 @@
         <span class="n">profile_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">shorten</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve pitch inputs and auto-correct profile shift for undercut.</span>
+<span class="w">        </span><span class="sd">"""Resolve pitch inputs and auto-correct profile shift for undercut.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            teeth: Number of teeth on the gear.</span>
@@ -2418,31 +2418,31 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;teeth&quot;</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;pressure_angle&quot;</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;helical&quot;</span><span class="p">,</span> <span class="n">helical</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;clearance&quot;</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;internal&quot;</span><span class="p">,</span> <span class="n">internal</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;shorten&quot;</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"teeth"</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"pressure_angle"</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"helical"</span><span class="p">,</span> <span class="n">helical</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"clearance"</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"internal"</span><span class="p">,</span> <span class="n">internal</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"shorten"</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
         <span class="n">cp</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;circ_pitch&quot;</span><span class="p">,</span> <span class="n">cp</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"circ_pitch"</span><span class="p">,</span> <span class="n">cp</span><span class="p">)</span>
         <span class="n">ps</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;profile_shift&quot;</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"profile_shift"</span><span class="p">,</span> <span class="n">ps</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">module</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Metric module (mm).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Metric module (mm)."""</span>
         <span class="k">return</span> <span class="n">_module_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circ_pitch</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pitch_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pitch-circle radius.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Pitch-circle radius."""</span>
         <span class="k">return</span> <span class="n">_pitch_radius</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">teeth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">helical</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">outer_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Outer (tip) radius.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Outer (tip) radius."""</span>
         <span class="k">return</span> <span class="n">_outer_radius_basic</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">circ_pitch</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">teeth</span><span class="p">,</span>
@@ -2455,7 +2455,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">root_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Root radius.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Root radius."""</span>
         <span class="k">return</span> <span class="n">_root_radius_basic</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">circ_pitch</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">teeth</span><span class="p">,</span>
@@ -2467,12 +2467,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">base_radius</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Base-circle radius of the involute.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Base-circle radius of the involute."""</span>
         <span class="k">return</span> <span class="n">_base_radius</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">teeth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pressure_angle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">helical</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">diametral_pitch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Diametral pitch (teeth per inch of pitch diameter).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Diametral pitch (teeth per inch of pitch diameter)."""</span>
         <span class="k">return</span> <span class="n">PI</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">circ_pitch</span>
 
 <div class="viewcode-block" id="GearSpec.circular_pitch">
@@ -2484,7 +2484,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circular pitch (mm/tooth) from any pitch input.</span>
+<span class="w">        </span><span class="sd">"""Circular pitch (mm/tooth) from any pitch input.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2495,7 +2495,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Resolved circular pitch in mm/tooth.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span></div>
 
 
@@ -2503,7 +2503,7 @@
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.GearSpec.pitch_value">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pitch_value</span><span class="p">(</span><span class="n">mod</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Circular pitch from the metric module.</span>
+<span class="w">        </span><span class="sd">"""Circular pitch from the metric module.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            mod: Metric module (mm/tooth).</span>
@@ -2511,7 +2511,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Circular pitch in mm/tooth.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">mod</span> <span class="o">*</span> <span class="n">PI</span></div>
 
 
@@ -2524,7 +2524,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Metric module from any pitch input.</span>
+<span class="w">        </span><span class="sd">"""Metric module from any pitch input.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2535,7 +2535,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Metric module value.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_module_value</span><span class="p">(</span><span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">))</span></div>
 
 
@@ -2548,7 +2548,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Diametral pitch (teeth per inch of pitch diameter) from any pitch input.</span>
+<span class="w">        </span><span class="sd">"""Diametral pitch (teeth per inch of pitch diameter) from any pitch input.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2559,7 +2559,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Diametral pitch value.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">PI</span> <span class="o">/</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span></div>
 
 
@@ -2572,7 +2572,7 @@
         <span class="n">helical</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">profile_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Minimum profile shift (modules) to avoid undercut.</span>
+<span class="w">        </span><span class="sd">"""Minimum profile shift (modules) to avoid undercut.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            teeth: Number of teeth on the gear.</span>
@@ -2583,7 +2583,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Profile shift value (modules).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span></div>
 
 
@@ -2591,7 +2591,7 @@
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.GearSpec.bevel_pitch_angle">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bevel_pitch_angle</span><span class="p">(</span><span class="n">teeth</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mate_teeth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">drive_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">90</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pitch angle (deg) for a bevel gear meshing another.</span>
+<span class="w">        </span><span class="sd">"""Pitch angle (deg) for a bevel gear meshing another.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            teeth: Number of teeth on the gear.</span>
@@ -2601,7 +2601,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Pitch angle in degrees.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span>
             <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">drive_angle</span><span class="p">)),</span> <span class="p">(</span><span class="n">mate_teeth</span> <span class="o">/</span> <span class="n">teeth</span><span class="p">)</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">drive_angle</span><span class="p">)))</span>
         <span class="p">)</span></div>
@@ -2621,7 +2621,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thickness of a worm gear matched to a worm.</span>
+<span class="w">        </span><span class="sd">"""Thickness of a worm gear matched to a worm.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2637,7 +2637,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Worm gear thickness in mm.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">worm_diam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">crowning</span>
         <span class="n">pitch_thick</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">worm_arc</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mi">2</span>
@@ -2664,7 +2664,7 @@
         <span class="n">mod</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Center-to-center distance for two meshing gears.</span>
+<span class="w">        </span><span class="sd">"""Center-to-center distance for two meshing gears.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            teeth1: Number of teeth on the first gear.</span>
@@ -2683,7 +2683,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Center-to-center meshing distance in mm.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">m_val</span> <span class="o">=</span> <span class="n">_module_value</span><span class="p">(</span><span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">))</span>
         <span class="n">ps1</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth1</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift1</span><span class="p">)</span>
         <span class="n">ps2</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth2</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift2</span><span class="p">)</span>
@@ -2732,7 +2732,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">_adendum</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
     <span class="n">diameter</span> <span class="o">=</span> <span class="n">_dedendum</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">a</span> <span class="o">+</span> <span class="n">diameter</span> <span class="o">&lt;</span> <span class="n">height</span><span class="p">,</span> <span class="s2">&quot;rack(): height must exceed adendum + dedendum.&quot;</span>
+    <span class="k">assert</span> <span class="n">a</span> <span class="o">+</span> <span class="n">diameter</span> <span class="o">&lt;</span> <span class="n">height</span><span class="p">,</span> <span class="s2">"rack(): height must exceed adendum + dedendum."</span>
     <span class="n">xa</span> <span class="o">=</span> <span class="n">a</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">pressure_angle</span><span class="p">))</span>
     <span class="n">xd</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">pressure_angle</span><span class="p">))</span>
     <span class="n">left</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">teeth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">center</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">center</span>
@@ -2753,7 +2753,7 @@
 <div class="viewcode-block" id="GearToothProfile">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.GearToothProfile">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GearToothProfile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The 2-D path of one involute gear tooth, rack-carved with real undercut.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The 2-D path of one involute gear tooth, rack-carved with real undercut."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2771,7 +2771,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the involute gear tooth profile.</span>
+<span class="w">        </span><span class="sd">"""Compute the involute gear tooth profile.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2791,7 +2791,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">circ_p</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="n">_gear_tooth_profile</span><span class="p">(</span>
@@ -2810,12 +2810,12 @@
 <div class="viewcode-block" id="GearToothProfile.path">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.GearToothProfile.path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the tooth profile as a 2-D point list.</span>
+<span class="w">        </span><span class="sd">"""Return the tooth profile as a 2-D point list.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of [x, y] points defining the tooth profile.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span></div>
 </div>
 
@@ -2824,7 +2824,7 @@
 <div class="viewcode-block" id="SpurGear2d">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear2d">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SpurGear2d</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D involute spur gear outline.</span>
+<span class="w">    </span><span class="sd">"""A 2-D involute spur gear outline.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A 30-tooth metric gear:</span>
@@ -2834,7 +2834,7 @@
 <span class="sd">            from pybosl2.parts.gears import SpurGear2d</span>
 <span class="sd">            SpurGear2d(mod=5, teeth=30).shape().linear_extrude(height=3).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2854,7 +2854,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 2-D spur gear.</span>
+<span class="w">        </span><span class="sd">"""Create a 2-D spur gear.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2876,7 +2876,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
         <span class="n">tooth</span> <span class="o">=</span> <span class="n">_gear_tooth_profile</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">internal</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
@@ -2898,20 +2898,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of teeth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
 <div class="viewcode-block" id="SpurGear2d.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear2d.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D gear outline.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D gear outline."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 <div class="viewcode-block" id="SpurGear2d.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear2d.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the gear in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the gear in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -2920,7 +2920,7 @@
 <div class="viewcode-block" id="SpurGear">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SpurGear</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3-D involute spur gear — helical and/or herringbone, with optional shaft bore.</span>
+<span class="w">    </span><span class="sd">"""A 3-D involute spur gear — helical and/or herringbone, with optional shaft bore.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A helical gear with a shaft bore:</span>
@@ -2930,7 +2930,7 @@
 <span class="sd">            from pybosl2.parts.gears import SpurGear</span>
 <span class="sd">            SpurGear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2956,7 +2956,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3-D spur gear.</span>
+<span class="w">        </span><span class="sd">"""Create a 3-D spur gear.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -2984,7 +2984,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">GearSpec</span><span class="p">(</span>
             <span class="n">teeth</span><span class="o">=</span><span class="n">teeth</span><span class="p">,</span>
             <span class="n">circ_pitch</span><span class="o">=</span><span class="n">circ_pitch</span><span class="p">,</span>
@@ -3061,20 +3061,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of teeth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
 <div class="viewcode-block" id="SpurGear.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the spur gear geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the spur gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="SpurGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the spur gear in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the spur gear in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -3083,7 +3083,7 @@
 <div class="viewcode-block" id="HerringboneGear">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.HerringboneGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HerringboneGear</span><span class="p">(</span><span class="n">SpurGear</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``.</span>
+<span class="w">    </span><span class="sd">"""A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A herringbone gear with a shaft bore:</span>
@@ -3093,7 +3093,7 @@
 <span class="sd">            from pybosl2.parts.gears import HerringboneGear</span>
 <span class="sd">            HerringboneGear(mod=5, teeth=18, thickness=25, helical=30, shaft_diam=15).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3117,7 +3117,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a herringbone gear.</span>
+<span class="w">        </span><span class="sd">"""Create a herringbone gear.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3143,7 +3143,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">circ_pitch</span><span class="o">=</span><span class="n">circ_pitch</span><span class="p">,</span>
             <span class="n">teeth</span><span class="o">=</span><span class="n">teeth</span><span class="p">,</span>
@@ -3172,7 +3172,7 @@
 <div class="viewcode-block" id="RingGear">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.RingGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RingGear</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An internal (ring) gear: a disk with inward-facing teeth cut into its bore.</span>
+<span class="w">    </span><span class="sd">"""An internal (ring) gear: a disk with inward-facing teeth cut into its bore.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -3180,7 +3180,7 @@
 <span class="sd">            from pybosl2.parts.gears import RingGear</span>
 <span class="sd">            RingGear(teeth=30, thickness=8, pressure_angle=14.5, helical=20).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3200,7 +3200,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an internal ring gear.</span>
+<span class="w">        </span><span class="sd">"""Create an internal ring gear.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3222,7 +3222,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
         <span class="n">_or</span> <span class="o">=</span> <span class="n">_outer_radius_basic</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">backing</span>
@@ -3243,20 +3243,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of teeth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
 <div class="viewcode-block" id="RingGear.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.RingGear.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ring gear geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the ring gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="RingGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.RingGear.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the ring gear in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the ring gear in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -3265,7 +3265,7 @@
 <div class="viewcode-block" id="Rack2d">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack2d">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Rack2d</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D involute rack outline — a straight bar of teeth.</span>
+<span class="w">    </span><span class="sd">"""A 2-D involute rack outline — a straight bar of teeth.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A 2-D rack extruded for STL export:</span>
@@ -3275,7 +3275,7 @@
 <span class="sd">            from pybosl2.parts.gears import Rack2d</span>
 <span class="sd">            Rack2d(mod=2, teeth=20, height=10).shape().linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3289,7 +3289,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 2-D rack.</span>
+<span class="w">        </span><span class="sd">"""Create a 2-D rack.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3305,7 +3305,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">_adendum</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">_rack2d_path</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
@@ -3314,14 +3314,14 @@
 <div class="viewcode-block" id="Rack2d.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack2d.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D rack outline.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D rack outline."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 <div class="viewcode-block" id="Rack2d.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack2d.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the rack in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the rack in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -3330,7 +3330,7 @@
 <div class="viewcode-block" id="Rack">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Rack</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 3-D rack: a linear toothed bar a gear rolls along.</span>
+<span class="w">    </span><span class="sd">"""A 3-D rack: a linear toothed bar a gear rolls along.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A rack to mesh with a spur gear:</span>
@@ -3340,7 +3340,7 @@
 <span class="sd">            from pybosl2.parts.gears import Rack</span>
 <span class="sd">            Rack(mod=5, teeth=20, thickness=10, height=12).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3356,7 +3356,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a 3-D rack.</span>
+<span class="w">        </span><span class="sd">"""Create a 3-D rack.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3374,7 +3374,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">_adendum</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
         <span class="n">diameter</span> <span class="o">=</span> <span class="n">_dedendum</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
@@ -3392,20 +3392,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of teeth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
 <div class="viewcode-block" id="Rack.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the rack geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the rack geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="Rack.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the rack in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the rack in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -3414,7 +3414,7 @@
 <div class="viewcode-block" id="BevelGear">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.BevelGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BevelGear</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A (potentially spiral) involute bevel gear.</span>
+<span class="w">    </span><span class="sd">"""A (potentially spiral) involute bevel gear.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A bevel gear with a shaft bore:</span>
@@ -3424,7 +3424,7 @@
 <span class="sd">            from pybosl2.parts.gears import BevelGear</span>
 <span class="sd">            BevelGear(mod=5, teeth=30, face_width=10, pitch_angle=45, shaft_diam=15).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3450,7 +3450,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a bevel gear.</span>
+<span class="w">        </span><span class="sd">"""Create a bevel gear.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3478,7 +3478,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">hide</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">slices_</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">cutter_radius</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">slices</span>
@@ -3548,20 +3548,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of teeth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
 <div class="viewcode-block" id="BevelGear.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.BevelGear.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the bevel gear geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the bevel gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="BevelGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.BevelGear.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the bevel gear in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the bevel gear in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -3570,7 +3570,7 @@
 <div class="viewcode-block" id="Worm">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Worm">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Worm</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worm — a screw that meshes a worm gear.</span>
+<span class="w">    </span><span class="sd">"""A worm — a screw that meshes a worm gear.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A worm with two starts:</span>
@@ -3580,7 +3580,7 @@
 <span class="sd">            from pybosl2.parts.gears import Worm</span>
 <span class="sd">            Worm(mod=5, diameter=30, length=80, starts=2).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3596,7 +3596,7 @@
         <span class="n">pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">diam_pitch</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a worm.</span>
+<span class="w">        </span><span class="sd">"""Create a worm.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3614,7 +3614,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">rack</span> <span class="o">=</span> <span class="n">_rack2d_path</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">polars</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">360</span> <span class="o">*</span> <span class="n">px</span> <span class="o">/</span> <span class="n">center</span> <span class="o">/</span> <span class="n">starts</span><span class="p">,</span> <span class="n">py</span> <span class="o">+</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">px</span><span class="p">,</span> <span class="n">py</span> <span class="ow">in</span> <span class="n">rack</span><span class="p">]</span>
@@ -3642,14 +3642,14 @@
 <div class="viewcode-block" id="Worm.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Worm.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the worm geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the worm geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="Worm.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Worm.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the worm in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the worm in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
@@ -3658,7 +3658,7 @@
 <div class="viewcode-block" id="WormGear">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.WormGear">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WormGear</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A worm gear, hobbed to mesh a matching :class:`Worm`.</span>
+<span class="w">    </span><span class="sd">"""A worm gear, hobbed to mesh a matching :class:`Worm`.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A worm gear with a shaft bore:</span>
@@ -3668,7 +3668,7 @@
 <span class="sd">            from pybosl2.parts.gears import WormGear</span>
 <span class="sd">            WormGear(mod=5, teeth=36, worm_diam=30, shaft_diam=15).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3691,7 +3691,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a worm gear.</span>
+<span class="w">        </span><span class="sd">"""Create a worm gear.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circ_pitch: Circular pitch in mm/tooth.</span>
@@ -3716,8 +3716,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">worm_arc</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;worm_gear(): worm_arc must be between 10 and 60 degrees.&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">worm_arc</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">"worm_gear(): worm_arc must be between 10 and 60 degrees."</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">_pitch_radius</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">PI</span> <span class="o">*</span> <span class="n">p</span>
@@ -3770,20 +3770,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of teeth.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
 <div class="viewcode-block" id="WormGear.shape">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.WormGear.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the worm gear geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the worm gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="WormGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.WormGear.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the worm gear in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the worm gear in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 

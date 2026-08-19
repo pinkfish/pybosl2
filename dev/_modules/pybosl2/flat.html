@@ -1818,7 +1818,7 @@
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Statically typed 2D shape constructors and backend-neutral flat shape facade.&quot;&quot;&quot;</span>
+<span class="sd">"""Statically typed 2D shape constructors and backend-neutral flat shape facade."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1839,59 +1839,59 @@
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat">[docs]</a>
 <span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Flat</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The common 2-D shape contract both backend wrappers satisfy.</span>
+<span class="w">    </span><span class="sd">"""The common 2-D shape contract both backend wrappers satisfy.</span>
 
 <span class="sd">    A ``Flat`` carries a ``backend`` tag; booleans/transforms return a ``Flat`` on the *same*</span>
 <span class="sd">    backend, and combining shapes from two backends raises</span>
 <span class="sd">    :class:`~pybosl2.exceptions.CrossBackendError`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Union of two 2D shapes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Union of two 2D shapes."""</span>
         <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Intersection of two 2D shapes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Intersection of two 2D shapes."""</span>
         <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Difference of two 2D shapes.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Difference of two 2D shapes."""</span>
         <span class="o">...</span>
 
 <div class="viewcode-block" id="Flat.translate">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.translate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate this shape by vector *v*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Translate this shape by vector *v*."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Flat.rotate">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.rotate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotate this shape by *a*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Rotate this shape by *a*."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Flat.scale">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.scale">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scale this shape by *v*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Scale this shape by *v*."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Flat.mirror">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.mirror">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mirror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mirror this shape across plane/axis *v*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across plane/axis *v*."""</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Flat.linear_extrude">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.linear_extrude">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this 2-D shape into a 3-D solid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Extrude this 2-D shape into a 3-D solid."""</span>
         <span class="o">...</span></div>
 </div>
 
@@ -1916,7 +1916,7 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a circle on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a circle on the active backend.</span>
 
 <span class="sd">    Creates a 2D circle with the specified parameters.</span>
 
@@ -1930,7 +1930,7 @@
 <span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
 <span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
 <span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        res: SDF backend&#39;s resolution (SDF backend only).</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a circle.</span>
@@ -1941,16 +1941,16 @@
 <span class="sd">            from pybosl2.flat import circle</span>
 <span class="sd">            circle(radius=15).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sdf&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle2d</span>
 
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Flat&quot;</span><span class="p">,</span> <span class="n">circle2d</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Flat"</span><span class="p">,</span> <span class="n">circle2d</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d.circle</span><span class="w"> </span><span class="kn">import</span> <span class="n">circle</span> <span class="k">as</span> <span class="n">csg_circle</span>
 
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="s2">&quot;Flat&quot;</span><span class="p">,</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
         <span class="n">csg_circle</span><span class="p">(</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
             <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
@@ -1981,7 +1981,7 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a square on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a square on the active backend.</span>
 
 <span class="sd">    Creates a 2D square with the specified size and corner treatments.</span>
 
@@ -1995,7 +1995,7 @@
 <span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
 <span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
 <span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        res: SDF backend&#39;s resolution (SDF backend only).</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a square.</span>
@@ -2006,20 +2006,20 @@
 <span class="sd">            from pybosl2.flat import square</span>
 <span class="sd">            square(size=20, rounding=2).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sdf&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">square2d</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">resolved_anchor</span> <span class="o">=</span> <span class="n">resolve_anchor</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Any&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="p">))</span><span class="o">.</span><span class="n">vector_2d</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">resolved_anchor</span> <span class="o">=</span> <span class="n">resolve_anchor</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Any"</span><span class="p">,</span> <span class="n">anchor</span><span class="p">))</span><span class="o">.</span><span class="n">vector_2d</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">resolved_anchor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Flat&quot;</span><span class="p">,</span> <span class="n">square2d</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">resolved_anchor</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Flat"</span><span class="p">,</span> <span class="n">square2d</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">resolved_anchor</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d.square</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">csg_square</span>
 
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="s2">&quot;Flat&quot;</span><span class="p">,</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
         <span class="n">csg_square</span><span class="p">(</span>
             <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
             <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
@@ -2049,7 +2049,7 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a rectangle on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a rectangle on the active backend.</span>
 
 <span class="sd">    Creates a 2D rectangle with the specified dimensions and corner treatments.</span>
 
@@ -2062,7 +2062,7 @@
 <span class="sd">        fn: Arc smoothness overrides (CSG backend only).</span>
 <span class="sd">        fa: Arc smoothness overrides (CSG backend only).</span>
 <span class="sd">        fs: Arc smoothness overrides (CSG backend only).</span>
-<span class="sd">        res: SDF backend&#39;s resolution (SDF backend only).</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a rectangle.</span>
@@ -2073,16 +2073,16 @@
 <span class="sd">            from pybosl2.flat import rect</span>
 <span class="sd">            rect(size=[30, 20], rounding=3).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sdf&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect2d</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">resolved_anchor</span> <span class="o">=</span> <span class="n">resolve_anchor</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Any&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="p">))</span><span class="o">.</span><span class="n">vector_2d</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">resolved_anchor</span> <span class="o">=</span> <span class="n">resolve_anchor</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Any"</span><span class="p">,</span> <span class="n">anchor</span><span class="p">))</span><span class="o">.</span><span class="n">vector_2d</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">resolved_anchor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-            <span class="s2">&quot;Flat&quot;</span><span class="p">,</span>
+            <span class="s2">"Flat"</span><span class="p">,</span>
             <span class="n">rect2d</span><span class="p">(</span>
                 <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
                 <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
@@ -2095,7 +2095,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d.square</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect</span> <span class="k">as</span> <span class="n">csg_rect</span>
 
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="s2">&quot;Flat&quot;</span><span class="p">,</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
         <span class="n">csg_rect</span><span class="p">(</span>
             <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
             <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
@@ -2119,7 +2119,7 @@
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a polygon on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a polygon on the active backend.</span>
 
 <span class="sd">    Creates a 2D polygon from list of points.</span>
 
@@ -2127,7 +2127,7 @@
 <span class="sd">        points: Sequence of 2-D points.</span>
 <span class="sd">        anchor: Anchor point.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor.</span>
-<span class="sd">        res: SDF backend&#39;s resolution (SDF backend only).</span>
+<span class="sd">        res: SDF backend's resolution (SDF backend only).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A 2-D flat shape representing a polygon.</span>
@@ -2138,17 +2138,17 @@
 <span class="sd">            from pybosl2.flat import polygon</span>
 <span class="sd">            polygon(points=[[0, 0], [10, 0], [5, 10]]).linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sdf&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon2d</span>
 
-        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Flat&quot;</span><span class="p">,</span> <span class="n">polygon2d</span><span class="p">(</span><span class="n">paths</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Flat"</span><span class="p">,</span> <span class="n">polygon2d</span><span class="p">(</span><span class="n">paths</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">res</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d.square</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">csg_polygon</span>
 
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="s2">&quot;Flat&quot;</span><span class="p">,</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
         <span class="n">csg_polygon</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">Path2D</span><span class="p">(</span><span class="n">points</span><span class="p">),</span>
             <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
@@ -2164,20 +2164,20 @@
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-    <span class="n">font</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Liberation Sans&quot;</span><span class="p">,</span>
+    <span class="n">font</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Liberation Sans"</span><span class="p">,</span>
     <span class="n">halign</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">valign</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
-    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ltr&quot;</span><span class="p">,</span>
-    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span><span class="p">,</span>
-    <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;latin&quot;</span><span class="p">,</span>
-    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;baseline&quot;</span><span class="p">,</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ltr"</span><span class="p">,</span>
+    <span class="n">language</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"en"</span><span class="p">,</span>
+    <span class="n">script</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"latin"</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"baseline"</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a text shape on the active backend.</span>
+<span class="w">    </span><span class="sd">"""Return a text shape on the active backend.</span>
 
 <span class="sd">    Creates a 2D shape representing the given text.</span>
 
@@ -2204,20 +2204,20 @@
 <span class="sd">        .. pythonscad-example::</span>
 
 <span class="sd">            from pybosl2.flat import text</span>
-<span class="sd">            text(text=&quot;BOSL2&quot;, size=10).linear_extrude(height=3).show()</span>
+<span class="sd">            text(text="BOSL2", size=10).linear_extrude(height=3).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;sdf&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
-            <span class="s2">&quot;text&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;sdf&quot;</span><span class="p">,</span>
-            <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;the sdf backend has no 2-D text support; build on the default (csg) backend.&quot;</span><span class="p">,</span>
+            <span class="s2">"text"</span><span class="p">,</span>
+            <span class="s2">"sdf"</span><span class="p">,</span>
+            <span class="n">hint</span><span class="o">=</span><span class="s2">"the sdf backend has no 2-D text support; build on the default (csg) backend."</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span> <span class="k">as</span> <span class="n">csg_text</span>
 
     <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="s2">&quot;Flat&quot;</span><span class="p">,</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
         <span class="n">csg_text</span><span class="p">(</span>
             <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
             <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>

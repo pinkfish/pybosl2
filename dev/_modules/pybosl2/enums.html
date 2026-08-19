@@ -1818,7 +1818,7 @@
 <span class="c1"># FileSummary: Strongly-typed enums for pybosl2.</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Strongly-typed enums for pybosl2.&quot;&quot;&quot;</span>
+<span class="sd">"""Strongly-typed enums for pybosl2."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
 
@@ -1826,138 +1826,138 @@
 <div class="viewcode-block" id="AttachTag">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.AttachTag">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AttachTag</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Attachment tags for boolean resolution.</span>
+<span class="w">    </span><span class="sd">"""Attachment tags for boolean resolution.</span>
 
 <span class="sd">    These values determine how attached shapes are combined with their parent</span>
 <span class="sd">    shape during realization (e.g. keep/remove/intersect).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">KEEP</span> <span class="o">=</span> <span class="s2">&quot;keep&quot;</span>
-    <span class="n">REMOVE</span> <span class="o">=</span> <span class="s2">&quot;remove&quot;</span>
-    <span class="n">INTERSECT</span> <span class="o">=</span> <span class="s2">&quot;intersect&quot;</span></div>
+    <span class="n">KEEP</span> <span class="o">=</span> <span class="s2">"keep"</span>
+    <span class="n">REMOVE</span> <span class="o">=</span> <span class="s2">"remove"</span>
+    <span class="n">INTERSECT</span> <span class="o">=</span> <span class="s2">"intersect"</span></div>
 
 
 
 <div class="viewcode-block" id="RoundingMethod">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.RoundingMethod">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RoundingMethod</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Corner-rounding strategy for :func:`round_corners` and :func:`smooth_path`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Corner-rounding strategy for :func:`round_corners` and :func:`smooth_path`."""</span>
 
-    <span class="n">CIRCLE</span> <span class="o">=</span> <span class="s2">&quot;circle&quot;</span>
-    <span class="n">SMOOTH</span> <span class="o">=</span> <span class="s2">&quot;smooth&quot;</span>
-    <span class="n">CHAMFER</span> <span class="o">=</span> <span class="s2">&quot;chamfer&quot;</span></div>
+    <span class="n">CIRCLE</span> <span class="o">=</span> <span class="s2">"circle"</span>
+    <span class="n">SMOOTH</span> <span class="o">=</span> <span class="s2">"smooth"</span>
+    <span class="n">CHAMFER</span> <span class="o">=</span> <span class="s2">"chamfer"</span></div>
 
 
 
 <div class="viewcode-block" id="VNFStyle">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.VNFStyle">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VNFStyle</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Quad-subdivision style for :func:`vnf_vertex_array` and related functions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Quad-subdivision style for :func:`vnf_vertex_array` and related functions."""</span>
 
-    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span>
-    <span class="n">ALT</span> <span class="o">=</span> <span class="s2">&quot;alt&quot;</span>
-    <span class="n">MIN_EDGE</span> <span class="o">=</span> <span class="s2">&quot;min_edge&quot;</span>
-    <span class="n">MIN_AREA</span> <span class="o">=</span> <span class="s2">&quot;min_area&quot;</span>
-    <span class="n">CONVEX</span> <span class="o">=</span> <span class="s2">&quot;convex&quot;</span>
-    <span class="n">CONCAVE</span> <span class="o">=</span> <span class="s2">&quot;concave&quot;</span>
-    <span class="n">QUINCUNX</span> <span class="o">=</span> <span class="s2">&quot;quincunx&quot;</span>
-    <span class="n">QUAD</span> <span class="o">=</span> <span class="s2">&quot;quad&quot;</span>
-    <span class="n">FLIP1</span> <span class="o">=</span> <span class="s2">&quot;flip1&quot;</span>
-    <span class="n">FLIP2</span> <span class="o">=</span> <span class="s2">&quot;flip2&quot;</span></div>
+    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="s2">"default"</span>
+    <span class="n">ALT</span> <span class="o">=</span> <span class="s2">"alt"</span>
+    <span class="n">MIN_EDGE</span> <span class="o">=</span> <span class="s2">"min_edge"</span>
+    <span class="n">MIN_AREA</span> <span class="o">=</span> <span class="s2">"min_area"</span>
+    <span class="n">CONVEX</span> <span class="o">=</span> <span class="s2">"convex"</span>
+    <span class="n">CONCAVE</span> <span class="o">=</span> <span class="s2">"concave"</span>
+    <span class="n">QUINCUNX</span> <span class="o">=</span> <span class="s2">"quincunx"</span>
+    <span class="n">QUAD</span> <span class="o">=</span> <span class="s2">"quad"</span>
+    <span class="n">FLIP1</span> <span class="o">=</span> <span class="s2">"flip1"</span>
+    <span class="n">FLIP2</span> <span class="o">=</span> <span class="s2">"flip2"</span></div>
 
 
 
 <div class="viewcode-block" id="SweepMethod">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.SweepMethod">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SweepMethod</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cross-section orientation method for :func:`path_sweep`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Cross-section orientation method for :func:`path_sweep`."""</span>
 
-    <span class="n">INCREMENTAL</span> <span class="o">=</span> <span class="s2">&quot;incremental&quot;</span>
-    <span class="n">MANUAL</span> <span class="o">=</span> <span class="s2">&quot;manual&quot;</span>
-    <span class="n">NATURAL</span> <span class="o">=</span> <span class="s2">&quot;natural&quot;</span></div>
+    <span class="n">INCREMENTAL</span> <span class="o">=</span> <span class="s2">"incremental"</span>
+    <span class="n">MANUAL</span> <span class="o">=</span> <span class="s2">"manual"</span>
+    <span class="n">NATURAL</span> <span class="o">=</span> <span class="s2">"natural"</span></div>
 
 
 
 <div class="viewcode-block" id="SkinMethod">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.SkinMethod">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SkinMethod</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vertex-connection method for :func:`skin` / :meth:`VNF.from_skin`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Vertex-connection method for :func:`skin` / :meth:`VNF.from_skin`."""</span>
 
-    <span class="n">DIRECT</span> <span class="o">=</span> <span class="s2">&quot;direct&quot;</span>
-    <span class="n">REINDEX</span> <span class="o">=</span> <span class="s2">&quot;reindex&quot;</span></div>
+    <span class="n">DIRECT</span> <span class="o">=</span> <span class="s2">"direct"</span>
+    <span class="n">REINDEX</span> <span class="o">=</span> <span class="s2">"reindex"</span></div>
 
 
 
 <div class="viewcode-block" id="PartitionCutType">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.PartitionCutType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PartitionCutType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cut profile style for :func:`partition` and :func:`partition_mask`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Cut profile style for :func:`partition` and :func:`partition_mask`."""</span>
 
-    <span class="n">FLAT</span> <span class="o">=</span> <span class="s2">&quot;flat&quot;</span>
-    <span class="n">SAWTOOTH</span> <span class="o">=</span> <span class="s2">&quot;sawtooth&quot;</span>
-    <span class="n">SINEWAVE</span> <span class="o">=</span> <span class="s2">&quot;sinewave&quot;</span>
-    <span class="n">COMB</span> <span class="o">=</span> <span class="s2">&quot;comb&quot;</span>
-    <span class="n">FINGER</span> <span class="o">=</span> <span class="s2">&quot;finger&quot;</span>
-    <span class="n">DOVETAIL</span> <span class="o">=</span> <span class="s2">&quot;dovetail&quot;</span>
-    <span class="n">HAMMERHEAD</span> <span class="o">=</span> <span class="s2">&quot;hammerhead&quot;</span>
-    <span class="n">JIGSAW</span> <span class="o">=</span> <span class="s2">&quot;jigsaw&quot;</span>
-    <span class="n">SQUARE</span> <span class="o">=</span> <span class="s2">&quot;square&quot;</span>
-    <span class="n">TRIANGLE</span> <span class="o">=</span> <span class="s2">&quot;triangle&quot;</span>
-    <span class="n">HALFSINE</span> <span class="o">=</span> <span class="s2">&quot;halfsine&quot;</span>
-    <span class="n">SEMICIRCLE</span> <span class="o">=</span> <span class="s2">&quot;semicircle&quot;</span></div>
+    <span class="n">FLAT</span> <span class="o">=</span> <span class="s2">"flat"</span>
+    <span class="n">SAWTOOTH</span> <span class="o">=</span> <span class="s2">"sawtooth"</span>
+    <span class="n">SINEWAVE</span> <span class="o">=</span> <span class="s2">"sinewave"</span>
+    <span class="n">COMB</span> <span class="o">=</span> <span class="s2">"comb"</span>
+    <span class="n">FINGER</span> <span class="o">=</span> <span class="s2">"finger"</span>
+    <span class="n">DOVETAIL</span> <span class="o">=</span> <span class="s2">"dovetail"</span>
+    <span class="n">HAMMERHEAD</span> <span class="o">=</span> <span class="s2">"hammerhead"</span>
+    <span class="n">JIGSAW</span> <span class="o">=</span> <span class="s2">"jigsaw"</span>
+    <span class="n">SQUARE</span> <span class="o">=</span> <span class="s2">"square"</span>
+    <span class="n">TRIANGLE</span> <span class="o">=</span> <span class="s2">"triangle"</span>
+    <span class="n">HALFSINE</span> <span class="o">=</span> <span class="s2">"halfsine"</span>
+    <span class="n">SEMICIRCLE</span> <span class="o">=</span> <span class="s2">"semicircle"</span></div>
 
 
 
 <div class="viewcode-block" id="Measure">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.Measure">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Measure</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rounding size specification for :func:`round_corners`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Rounding size specification for :func:`round_corners`."""</span>
 
-    <span class="n">RADIUS</span> <span class="o">=</span> <span class="s2">&quot;radius&quot;</span>
-    <span class="n">CUT</span> <span class="o">=</span> <span class="s2">&quot;cut&quot;</span>
-    <span class="n">JOINT</span> <span class="o">=</span> <span class="s2">&quot;joint&quot;</span>
-    <span class="n">WIDTH</span> <span class="o">=</span> <span class="s2">&quot;width&quot;</span></div>
+    <span class="n">RADIUS</span> <span class="o">=</span> <span class="s2">"radius"</span>
+    <span class="n">CUT</span> <span class="o">=</span> <span class="s2">"cut"</span>
+    <span class="n">JOINT</span> <span class="o">=</span> <span class="s2">"joint"</span>
+    <span class="n">WIDTH</span> <span class="o">=</span> <span class="s2">"width"</span></div>
 
 
 
 <div class="viewcode-block" id="EdgeMode">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.EdgeMode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EdgeMode</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Edge-treatment mode for SDF primitives.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Edge-treatment mode for SDF primitives."""</span>
 
-    <span class="n">ROUND</span> <span class="o">=</span> <span class="s2">&quot;round&quot;</span>
-    <span class="n">CHAMFER</span> <span class="o">=</span> <span class="s2">&quot;chamfer&quot;</span></div>
+    <span class="n">ROUND</span> <span class="o">=</span> <span class="s2">"round"</span>
+    <span class="n">CHAMFER</span> <span class="o">=</span> <span class="s2">"chamfer"</span></div>
 
 
 
 <div class="viewcode-block" id="SamplingType">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.SamplingType">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SamplingType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resampling strategy for :func:`skin` and related functions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resampling strategy for :func:`skin` and related functions."""</span>
 
-    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">&quot;length&quot;</span>
-    <span class="n">SEGMENT</span> <span class="o">=</span> <span class="s2">&quot;segment&quot;</span></div>
+    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">"length"</span>
+    <span class="n">SEGMENT</span> <span class="o">=</span> <span class="s2">"segment"</span></div>
 
 
 
 <div class="viewcode-block" id="ResampleMethod">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.ResampleMethod">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ResampleMethod</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resampling method for :func:`rot_resample`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Resampling method for :func:`rot_resample`."""</span>
 
-    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">&quot;length&quot;</span>
-    <span class="n">COUNT</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span></div>
+    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">"length"</span>
+    <span class="n">COUNT</span> <span class="o">=</span> <span class="s2">"count"</span></div>
 
 
 
 <div class="viewcode-block" id="StaggerMode">
 <a class="viewcode-back" href="../../parts/enums.html#pybosl2.enums.StaggerMode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StaggerMode</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stagger mode for :func:`grid_copies`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Stagger mode for :func:`grid_copies`."""</span>
 
-    <span class="n">NONE</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
-    <span class="n">STANDARD</span> <span class="o">=</span> <span class="s2">&quot;standard&quot;</span>
-    <span class="n">ALT</span> <span class="o">=</span> <span class="s2">&quot;alt&quot;</span></div>
+    <span class="n">NONE</span> <span class="o">=</span> <span class="s2">"none"</span>
+    <span class="n">STANDARD</span> <span class="o">=</span> <span class="s2">"standard"</span>
+    <span class="n">ALT</span> <span class="o">=</span> <span class="s2">"alt"</span></div>
 
 </code></pre></div>
 

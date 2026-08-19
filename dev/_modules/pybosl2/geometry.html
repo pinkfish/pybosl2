@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/geometry.py</span>
-<span class="c1">#    Pure-Python port of the pieces of BOSL2&#39;s geometry.scad that</span>
+<span class="c1">#    Pure-Python port of the pieces of BOSL2's geometry.scad that</span>
 <span class="c1">#    pybosl2/paths.py depends on.  No osuse()/BOSL2 runtime dependency.</span>
 <span class="c1">#    Handles 2-D and 3-D point collinearity, line normals, segment</span>
 <span class="c1">#    projection, line intersections, and circle tangents.</span>
@@ -1823,7 +1823,7 @@
 <span class="c1"># DocCategory: Math &amp; geometry</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Points, lines and polygon geometry helpers (BOSL2 geometry.scad).&quot;&quot;&quot;</span>
+<span class="sd">"""Points, lines and polygon geometry helpers (BOSL2 geometry.scad)."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1842,17 +1842,17 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;circle_circle_tangents&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;general_line_intersection&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;is_collinear&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;line_closest_point&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;line_normal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;vector_angle3&quot;</span><span class="p">,</span>
+    <span class="s2">"circle_circle_tangents"</span><span class="p">,</span>
+    <span class="s2">"general_line_intersection"</span><span class="p">,</span>
+    <span class="s2">"is_collinear"</span><span class="p">,</span>
+    <span class="s2">"line_closest_point"</span><span class="p">,</span>
+    <span class="s2">"line_normal"</span><span class="p">,</span>
+    <span class="s2">"vector_angle3"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cross2d</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;2-D cross product scalar: a_x * b_y - a_y * b_x.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""2-D cross product scalar: a_x * b_y - a_y * b_x."""</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 
@@ -1864,7 +1864,7 @@
     <span class="n">point3</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
     <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if three points lie on a common line (works in 2-D or 3-D).</span>
+<span class="w">    </span><span class="sd">"""Return True if three points lie on a common line (works in 2-D or 3-D).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        point1: First point.</span>
@@ -1875,7 +1875,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        True if the three points are collinear within *eps*.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">dx1</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span>
     <span class="n">dy1</span> <span class="o">=</span> <span class="n">point2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">y</span>
     <span class="n">dx2</span> <span class="o">=</span> <span class="n">point3</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span>
@@ -1905,7 +1905,7 @@
     <span class="n">point1</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
     <span class="n">point2</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the unit 2-D normal vector perpendicular to the line direction, pointing left.</span>
+<span class="w">    </span><span class="sd">"""Return the unit 2-D normal vector perpendicular to the line direction, pointing left.</span>
 
 <span class="sd">    Returns a :class:`~pybosl2.points.Point` of length 2, perpendicular to</span>
 <span class="sd">    the line from *point1* to *point2*.</span>
@@ -1917,7 +1917,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A unit-length :class:`~pybosl2.points.Point` normal to the line.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">unit</span><span class="p">([</span><span class="n">point1</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">point2</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">point2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">point1</span><span class="o">.</span><span class="n">x</span><span class="p">]))</span></div>
 
 
@@ -1928,10 +1928,10 @@
     <span class="n">segment</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">],</span>
     <span class="n">query_point</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Closest point on a bounded segment to a query point.</span>
+<span class="w">    </span><span class="sd">"""Closest point on a bounded segment to a query point.</span>
 
 <span class="sd">    Projects *query_point* onto the infinite line through the segment and then</span>
-<span class="sd">    clamps the parameter to the segment&#39;s bounds using :func:`numpy.clip`.</span>
+<span class="sd">    clamps the parameter to the segment's bounds using :func:`numpy.clip`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        segment: A ``(start, end)`` pair of :class:`~pybosl2.points.Point` objects.</span>
@@ -1940,7 +1940,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The closest point on the segment as an ndarray.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">query_point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1959,7 +1959,7 @@
     <span class="n">segment</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]],</span>
     <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if *point* lies on the bounded *segment* within tolerance *eps*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return True if *point* lies on the bounded *segment* within tolerance *eps*."""</span>
     <span class="n">start</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1980,7 +1980,7 @@
     <span class="n">line2</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">],</span>
     <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Intersection point of two infinite lines.</span>
+<span class="w">    </span><span class="sd">"""Intersection point of two infinite lines.</span>
 
 <span class="sd">    Computes the intersection of the lines through *line1* and *line2*.</span>
 <span class="sd">    Returns parametric positions so the caller can check segment bounds.</span>
@@ -1996,7 +1996,7 @@
 <span class="sd">        (0 at the first endpoint, 1 at the second).  Returns ``None``</span>
 <span class="sd">        for parallel or coincident lines.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">s1a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">s1b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">s2a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -2024,7 +2024,7 @@
     <span class="n">diameter1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Point</span><span class="p">,</span> <span class="n">Point</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tangent lines between two circles.</span>
+<span class="w">    </span><span class="sd">"""Tangent lines between two circles.</span>
 
 <span class="sd">    Computes up to four common tangent lines: two external tangents plus,</span>
 <span class="sd">    when the circles do not overlap, two internal (crossing) tangents.</span>
@@ -2042,7 +2042,7 @@
 <span class="sd">        Returns up to 4 entries (2 external + 2 internal), 2 entries when</span>
 <span class="sd">        only external tangents exist, or an empty list when no tangent can be drawn.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">r1v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius1</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter1</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="n">r2v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius2</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter2</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="n">c1_arr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -2084,7 +2084,7 @@
 <div class="viewcode-block" id="vector_angle3">
 <a class="viewcode-back" href="../../math/geometry.html#pybosl2.geometry.vector_angle3">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">vector_angle3</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">b</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">c</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the angle in degrees at vertex *b* of the corner formed by points a-b-c (2-D or 3-D).</span>
+<span class="w">    </span><span class="sd">"""Return the angle in degrees at vertex *b* of the corner formed by points a-b-c (2-D or 3-D).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        a: First point.</span>
@@ -2094,7 +2094,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        The interior angle in degrees, clamped to [0, 180].</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">va</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">vc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">cosv</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">va</span><span class="p">,</span> <span class="n">vc</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">va</span><span class="p">))</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vc</span><span class="p">)))</span>

@@ -1815,20 +1815,20 @@
 <span class="c1"># DocCategory: Paths, regions &amp; surfaces</span>
 
 <span class="c1"># LibFile: pybosl2/rounding.py</span>
-<span class="c1">#    Pure-Python port of the path-rounding core of BOSL2&#39;s rounding.scad: :func:`round_corners`</span>
-<span class="c1">#    (round every corner of a path -- ``&quot;circle&quot;``, ``&quot;smooth&quot;`` or ``&quot;chamfer&quot;``, sized by</span>
+<span class="c1">#    Pure-Python port of the path-rounding core of BOSL2's rounding.scad: :func:`round_corners`</span>
+<span class="c1">#    (round every corner of a path -- ``"circle"``, ``"smooth"`` or ``"chamfer"``, sized by</span>
 <span class="c1">#    ``radius``/``cut``/``joint``/``width``) and :func:`smooth_path` (fit a continuous-curvature</span>
 <span class="c1">#    bezier through a path). Both work on 2-D and 3-D paths and are exposed as methods on</span>
 <span class="c1">#    :class:`~pybosl2.paths.Path2D` and :class:`~pybosl2.paths.Path3D`.</span>
 <span class="c1">#</span>
 <span class="c1">#    ``round_corners`` and ``smooth_path`` are pinned point-for-point to the real BOSL2 output in</span>
-<span class="c1">#    tests/test_bosl2_reorient.py. The smooth/chamfer corners reuse the toolkit&#39;s</span>
+<span class="c1">#    tests/test_bosl2_reorient.py. The smooth/chamfer corners reuse the toolkit's</span>
 <span class="c1">#    :class:`~pybosl2.beziers.Bezier`; the circle corners reuse :func:`~pybosl2.shapes2d.arc` (2-D) or a</span>
 <span class="c1">#    slerp arc (3-D).</span>
 <span class="c1">#</span>
 <span class="c1">#</span>
 
-<span class="sd">&quot;&quot;&quot;Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad).&quot;&quot;&quot;</span>
+<span class="sd">"""Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad)."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1852,7 +1852,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;Roundable&quot;</span><span class="p">,</span>
+    <span class="s2">"Roundable"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -1872,7 +1872,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_bezcorner</span><span class="p">(</span>
     <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">parm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a continuous-curvature (bezier) corner.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a continuous-curvature (bezier) corner."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.beziers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parm</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
@@ -1896,7 +1896,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_chamfcorner</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">parm</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a straight chamfer across a corner.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a straight chamfer across a corner."""</span>
     <span class="n">diameter</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parm</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">p1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">]))]</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
@@ -1909,7 +1909,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_arc3d</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">start</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">end</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;*n* points along the short arc from *start* to *end* about *center* (slerp, any dimension).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""*n* points along the short arc from *start* to *end* about *center* (slerp, any dimension)."""</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">v0</span><span class="p">,</span> <span class="n">v1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">c</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">c</span>
     <span class="n">dot_v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">))</span>
@@ -1932,7 +1932,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a circular-arc corner.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return a circular-arc corner."""</span>
     <span class="n">d</span><span class="p">,</span> <span class="n">radius</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parm</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">parm</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
@@ -1978,32 +1978,32 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Round every corner of *path* (internal implementation).</span>
+<span class="w">    </span><span class="sd">"""Round every corner of *path* (internal implementation).</span>
 
 <span class="sd">    Public API: use :meth:`Path.round_corners` instead of calling this directly.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
-    <span class="n">curv_val</span> <span class="o">=</span> <span class="n">curvature</span> <span class="k">if</span> <span class="n">curvature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span>  <span class="c1"># `k` is BOSL2&#39;s name for curvature</span>
+    <span class="n">curv_val</span> <span class="o">=</span> <span class="n">curvature</span> <span class="k">if</span> <span class="n">curvature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span>  <span class="c1"># `k` is BOSL2's name for curvature</span>
 
     <span class="n">given</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="n">cut</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;joint&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"radius"</span><span class="p">,</span> <span class="n">radius</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"cut"</span><span class="p">,</span> <span class="n">cut</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"joint"</span><span class="p">,</span> <span class="n">joint</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"width"</span><span class="p">,</span> <span class="n">width</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="p">]</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">given</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Must give exactly one of radius, cut, joint or width.&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">given</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"Must give exactly one of radius, cut, joint or width."</span>
     <span class="n">measure</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">given</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Path2D has length </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">. Length must be 3 or more.&quot;</span>
-    <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CIRCLE</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="n">Measure</span><span class="o">.</span><span class="n">RADIUS</span><span class="p">,</span> <span class="s1">&#39;radius is allowed only with method=&quot;circle&quot;.&#39;</span>
-    <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CHAMFER</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="n">Measure</span><span class="o">.</span><span class="n">WIDTH</span><span class="p">,</span> <span class="s1">&#39;width is allowed only with method=&quot;chamfer&quot;.&#39;</span>
+    <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Path2D has length </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">. Length must be 3 or more."</span>
+    <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CIRCLE</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="n">Measure</span><span class="o">.</span><span class="n">RADIUS</span><span class="p">,</span> <span class="s1">'radius is allowed only with method="circle".'</span>
+    <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CHAMFER</span> <span class="ow">or</span> <span class="n">measure</span> <span class="o">!=</span> <span class="n">Measure</span><span class="o">.</span><span class="n">WIDTH</span><span class="p">,</span> <span class="s1">'width is allowed only with method="chamfer".'</span>
 
     <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
         <span class="n">parm</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sides</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -2012,13 +2012,13 @@
     <span class="k">if</span> <span class="n">curv_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="k">elif</span> <span class="n">curv_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_num</span><span class="p">(</span><span class="n">curv_val</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="s1">&#39;k is only allowed with method=&quot;smooth&quot;.&#39;</span>
-        <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">curv_val</span><span class="p">))]</span> <span class="o">*</span> <span class="n">sides</span>
+        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="s1">'k is only allowed with method="smooth".'</span>
+        <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"float"</span><span class="p">,</span> <span class="n">curv_val</span><span class="p">))]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curv_val</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
-        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="s1">&#39;k is only allowed with method=&quot;smooth&quot;.&#39;</span>
+        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="s1">'k is only allowed with method="smooth".'</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">curv_val</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">curv_val</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">curv_val</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parm</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2"> must be nonnegative.&quot;</span>
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">),</span> <span class="s2">&quot;k must be in [0, 1].&quot;</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parm</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2"> must be nonnegative."</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">),</span> <span class="s2">"k must be in [0, 1]."</span>
 
     <span class="c1"># dk[i] = [joint distance, shape param] per corner (chamfer has just [distance])</span>
     <span class="n">dk</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2028,14 +2028,14 @@
             <span class="n">dk</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mf">0.0</span><span class="p">])</span>
             <span class="k">continue</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Repeated point in path at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> with nonzero rounding.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Repeated point in path at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> with nonzero rounding."</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Repeated point in path at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> with nonzero rounding.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Repeated point in path at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> with nonzero rounding."</span>
         <span class="p">)</span>
         <span class="n">angle</span> <span class="o">=</span> <span class="n">_vector_angle3</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="k">assert</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">rel_tol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">abs_tol</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Path2D turns back on itself at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> with nonzero rounding.&quot;</span>
+            <span class="sa">f</span><span class="s2">"Path2D turns back on itself at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> with nonzero rounding."</span>
         <span class="p">)</span>
         <span class="n">ar</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">CHAMFER</span><span class="p">:</span>
@@ -2076,7 +2076,7 @@
                 <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
             <span class="p">)</span>
             <span class="n">scale</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">scale</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;Roundovers are too big for the path (they overlap); reduce the sizes.&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">scale</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">"Roundovers are too big for the path (they overlap); reduce the sizes."</span>
 
     <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">):</span>
@@ -2115,10 +2115,10 @@
     <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fit a smooth continuous-curvature curve through *path* (internal implementation).</span>
+<span class="w">    </span><span class="sd">"""Fit a smooth continuous-curvature curve through *path* (internal implementation).</span>
 
 <span class="sd">    Public API: use :meth:`Path.smooth_path` instead of calling this directly.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.beziers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_bezier</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
@@ -2146,10 +2146,10 @@
 <div class="viewcode-block" id="Roundable">
 <a class="viewcode-back" href="../../paths/rounding.html#pybosl2.rounding.Roundable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Roundable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and.</span>
+<span class="w">    </span><span class="sd">"""Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and.</span>
 
 <span class="sd">    :class:`~pybosl2.paths.Path3D`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Roundable.round_corners">
 <a class="viewcode-back" href="../../paths/rounding.html#pybosl2.rounding.Roundable.round_corners">[docs]</a>
@@ -2167,10 +2167,10 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Round every corner of this path.</span>
+<span class="w">        </span><span class="sd">"""Round every corner of this path.</span>
 
-<span class="sd">        *method* is ``&quot;circle&quot;`` (a constant-radius arc), ``&quot;smooth&quot;`` (a continuous-curvature bezier),</span>
-<span class="sd">        or ``&quot;chamfer&quot;`` (a straight bevel). Size the roundover with exactly one of *radius* (circle</span>
+<span class="sd">        *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),</span>
+<span class="sd">        or ``"chamfer"`` (a straight bevel). Size the roundover with exactly one of *radius* (circle</span>
 <span class="sd">        only), *cut* (depth toward the corner), *joint* (distance back from the corner along each edge),</span>
 <span class="sd">        or *width* (chamfer only) -- each a scalar or a per-corner list. *curvature* (smooth only, 0..1)</span>
 <span class="sd">        tunes how tight the curvature match is. Works on 2-D and 3-D paths.</span>
@@ -2201,10 +2201,10 @@
 <span class="sd">                path = Path2D([[0, 0], [20, 0], [20, 10], [10, 15], [0, 10]])</span>
 <span class="sd">                path.round_corners(method=RoundingMethod.CIRCLE, radius=3).polygon().linear_extrude(height=5).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">_round_corners</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
             <span class="n">cut</span><span class="o">=</span><span class="n">cut</span><span class="p">,</span>
@@ -2217,7 +2217,7 @@
             <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
             <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_color&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_color"</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -2233,12 +2233,12 @@
         <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit a smooth continuous-curvature curve through this path.</span>
+<span class="w">        </span><span class="sd">"""Fit a smooth continuous-curvature curve through this path.</span>
 
-<span class="sd">        Runs a cubic bezier through every point, matching the path&#39;s tangents, and samples it</span>
+<span class="sd">        Runs a cubic bezier through every point, matching the path's tangents, and samples it</span>
 <span class="sd">        with *splinesteps* points per segment. *size* / *relsize* bound how far the curve may bow away</span>
 <span class="sd">        from the straight path (relsize is a fraction of each segment, default 0.1). The BOSL2</span>
-<span class="sd">        ``method=&quot;corners&quot;`` variant is not ported.</span>
+<span class="sd">        ``method="corners"`` variant is not ported.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.paths.Path2D` (2-D) or :class:`~pybosl2.paths.Path3D` (3-D).</span>
@@ -2262,10 +2262,10 @@
 <span class="sd">                path = Path2D([[0, 0], [10, 5], [20, 0], [30, 10]])</span>
 <span class="sd">                path.smooth_path(relsize=0.1).stroke(width=1).linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_smooth_path</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">tangents</span><span class="o">=</span><span class="n">tangents</span><span class="p">,</span>
             <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
             <span class="n">relsize</span><span class="o">=</span><span class="n">relsize</span><span class="p">,</span>
@@ -2284,10 +2284,10 @@
         <span class="n">endcap</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
         <span class="n">joint</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Offset this 2-D path to create a thickened outline Region.&quot;&quot;&quot;</span>
-        <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Path&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Offset this 2-D path to create a thickened outline Region."""</span>
+        <span class="n">path_self</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">_offset_stroke</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span>
             <span class="n">closed</span><span class="o">=</span><span class="n">path_self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span>
             <span class="n">endcap</span><span class="o">=</span><span class="n">endcap</span><span class="p">,</span>
@@ -2306,11 +2306,11 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Offset sweep/extrusion of this 2-D shape.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Offset sweep/extrusion of this 2-D shape."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_offset_sweep</span> <span class="k">as</span> <span class="n">_os</span>
 
         <span class="k">return</span> <span class="n">_os</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
             <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
@@ -2331,11 +2331,11 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Offset sweep/extrusion of this 2-D shape.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Offset sweep/extrusion of this 2-D shape."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_convex_offset_extrude</span> <span class="k">as</span> <span class="n">_coe</span>
 
         <span class="k">return</span> <span class="n">_coe</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
             <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
@@ -2361,15 +2361,15 @@
         <span class="n">joint_bot</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">k_sides</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the rounded prism between this path and a top path.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the rounded prism between this path and a top path."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_rounded_prism</span> <span class="k">as</span> <span class="n">_rp</span>
 
-        <span class="c1"># joint_bot / k_sides are BOSL2&#39;s names for joint_bottom / curvature_sides</span>
+        <span class="c1"># joint_bot / k_sides are BOSL2's names for joint_bottom / curvature_sides</span>
         <span class="n">j_bot</span> <span class="o">=</span> <span class="n">joint_bottom</span> <span class="k">if</span> <span class="n">joint_bottom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">joint_bot</span>
         <span class="n">k_sides</span> <span class="o">=</span> <span class="n">curvature_sides</span> <span class="k">if</span> <span class="n">curvature_sides</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k_sides</span>
 
         <span class="k">return</span> <span class="n">_rp</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">joint_top</span><span class="o">=</span><span class="n">joint_top</span><span class="p">,</span>
@@ -2392,11 +2392,11 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Join this prism to a base plane with a filleted transition.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Join this prism to a base plane with a filleted transition."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_join_prism</span> <span class="k">as</span> <span class="n">_jp</span>
 
         <span class="k">return</span> <span class="n">_jp</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">fillet</span><span class="o">=</span><span class="n">fillet</span><span class="p">,</span>
             <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span>
@@ -2417,11 +2417,11 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Construct a filleted prism connecting two objects.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Construct a filleted prism connecting two objects."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_prism_connector</span> <span class="k">as</span> <span class="n">_pc</span>
 
         <span class="k">return</span> <span class="n">_pc</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
             <span class="n">fillet</span><span class="o">=</span><span class="n">fillet</span><span class="p">,</span>
             <span class="n">fillet1</span><span class="o">=</span><span class="n">fillet1</span><span class="p">,</span>
@@ -2443,11 +2443,11 @@
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach a filleted prism with optional rounded end.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Attach a filleted prism with optional rounded end."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_attach_prism</span> <span class="k">as</span> <span class="n">_ap</span>
 
         <span class="k">return</span> <span class="n">_ap</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span>
             <span class="n">fillet</span><span class="o">=</span><span class="n">fillet</span><span class="p">,</span>
             <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
@@ -2465,13 +2465,13 @@
         <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a mask to generate a round-edged cutout in a cylindrical shell.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Create a mask to generate a round-edged cutout in a cylindrical shell."""</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_bent_cutout_mask</span> <span class="k">as</span> <span class="n">_bcm</span>
 
         <span class="k">return</span> <span class="n">_bcm</span><span class="p">(</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
             <span class="n">thickness</span><span class="o">=</span><span class="n">thickness</span><span class="p">,</span>
-            <span class="n">path</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Sequence[Sequence[float]]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]]"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -2489,7 +2489,7 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Join multiple paths to this path end-to-end (see :func:`path_join`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Join multiple paths to this path end-to-end (see :func:`path_join`)."""</span>
         <span class="k">return</span> <span class="n">_path_join</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">self</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">other_paths</span><span class="p">),</span>  <span class="c1"># type: ignore[arg-type]</span>
             <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
@@ -2514,7 +2514,7 @@
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Join multiple paths end-to-end with optional rounding at the joint connections (BOSL2 path_join()).</span>
+<span class="w">    </span><span class="sd">"""Join multiple paths end-to-end with optional rounding at the joint connections (BOSL2 path_join()).</span>
 
 <span class="sd">    Consecutive endpoints are merged if they are within a tolerance (and *relocate* is True).</span>
 <span class="sd">    The joints between adjacent paths are rounded using the same options as</span>
@@ -2534,11 +2534,11 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A :class:`~pybosl2.paths.Path2D` or :class:`~pybosl2.paths.Path3D` depending on the input dimensions.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span> <span class="k">as</span> <span class="n">_Path3D</span>
 
-    <span class="n">curv_val</span> <span class="o">=</span> <span class="n">curvature</span> <span class="k">if</span> <span class="n">curvature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span>  <span class="c1"># `k` is BOSL2&#39;s name for curvature</span>
+    <span class="n">curv_val</span> <span class="o">=</span> <span class="n">curvature</span> <span class="k">if</span> <span class="n">curvature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span>  <span class="c1"># `k` is BOSL2's name for curvature</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_Path</span><span class="p">([])</span>
@@ -2571,9 +2571,9 @@
     <span class="n">given</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="p">(</span><span class="s2">&quot;radius&quot;</span><span class="p">,</span> <span class="n">radius</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;cut&quot;</span><span class="p">,</span> <span class="n">cut</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;joint&quot;</span><span class="p">,</span> <span class="n">joint</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"radius"</span><span class="p">,</span> <span class="n">radius</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"cut"</span><span class="p">,</span> <span class="n">cut</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"joint"</span><span class="p">,</span> <span class="n">joint</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="p">]</span>
@@ -2597,7 +2597,7 @@
 
     <span class="c1"># Do the same for k if given</span>
     <span class="n">k_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">curv_val</span> <span class="o">=</span> <span class="n">curvature</span> <span class="k">if</span> <span class="n">curvature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span>  <span class="c1"># `k` is BOSL2&#39;s name for curvature</span>
+    <span class="n">curv_val</span> <span class="o">=</span> <span class="n">curvature</span> <span class="k">if</span> <span class="n">curvature</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">k</span>  <span class="c1"># `k` is BOSL2's name for curvature</span>
     <span class="k">if</span> <span class="n">curv_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">k_list</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span> <span class="o">*</span> <span class="n">sides</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curv_val</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
@@ -2609,21 +2609,21 @@
                 <span class="n">k_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">curv_val</span><span class="p">)</span>
 
     <span class="c1"># Call round_corners with the per-corner sizes, on whichever measure was given</span>
-    <span class="n">sizes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;radius&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;cut&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;joint&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">sizes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"radius"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"cut"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"joint"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"width"</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
     <span class="n">sizes</span><span class="p">[</span><span class="n">measure</span><span class="p">]</span> <span class="o">=</span> <span class="n">size_list</span>
     <span class="k">return</span> <span class="n">_round_corners</span><span class="p">(</span>
         <span class="n">pts</span><span class="p">,</span>
-        <span class="n">radius</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;radius&quot;</span><span class="p">],</span>
-        <span class="n">cut</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">],</span>
-        <span class="n">joint</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;joint&quot;</span><span class="p">],</span>
-        <span class="n">width</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span>
+        <span class="n">radius</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"radius"</span><span class="p">],</span>
+        <span class="n">cut</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"cut"</span><span class="p">],</span>
+        <span class="n">joint</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"joint"</span><span class="p">],</span>
+        <span class="n">width</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"width"</span><span class="p">],</span>
         <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
         <span class="n">k</span><span class="o">=</span><span class="n">k_list</span><span class="p">,</span>
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_from_shapely</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract paths (exterior + holes) from a shapely geometry.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_shapely</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="s2">"MultiPolygon"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Extract paths (exterior + holes) from a shapely geometry.</span>
 
 <span class="sd">    Handles ``Polygon`` and ``MultiPolygon`` by taking the largest polygon.</span>
 
@@ -2633,7 +2633,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A list of :class:`~pybosl2.paths.Path2D` objects: outer ring, then holes.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path</span>
@@ -2660,12 +2660,12 @@
     <span class="n">endcap</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
     <span class="n">joint</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Offset a 2-D path by *width* to create a thickened outline Region (BOSL2 offset_stroke()).</span>
+<span class="w">    </span><span class="sd">"""Offset a 2-D path by *width* to create a thickened outline Region (BOSL2 offset_stroke()).</span>
 
 <span class="sd">    If *closed* is True, the path is treated as a closed loop.</span>
 <span class="sd">    When :mod:`shapely` is installed, returns a :class:`Region` containing the coordinates</span>
 <span class="sd">    of the outline. Without shapely, falls back to PythonSCAD geometry (CSG shape).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path</span>
@@ -2685,7 +2685,7 @@
     <span class="n">c_style</span> <span class="o">=</span> <span class="n">cap_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">endcap</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">j_style</span> <span class="o">=</span> <span class="n">join_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">joint</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="c1"># For a closed loop, append first point to ensure it&#39;s closed</span>
+    <span class="c1"># For a closed loop, append first point to ensure it's closed</span>
     <span class="n">line</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">(</span><span class="n">pts</span> <span class="o">+</span> <span class="p">[</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">pts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">LineString</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
 
     <span class="n">geom</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">cap_style</span><span class="o">=</span><span class="n">c_style</span><span class="p">,</span> <span class="n">join_style</span><span class="o">=</span><span class="n">j_style</span><span class="p">)</span>

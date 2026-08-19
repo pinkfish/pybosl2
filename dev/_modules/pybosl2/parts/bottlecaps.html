@@ -1814,17 +1814,17 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/parts/bottlecaps.py</span>
-<span class="c1">#    Pure-Python port of the standard soda-bottle threadings from BOSL2&#39;s bottlecaps.scad: the</span>
+<span class="c1">#    Pure-Python port of the standard soda-bottle threadings from BOSL2's bottlecaps.scad: the</span>
 <span class="c1">#    PCO-1810 and PCO-1881 necks and caps. The :class:`BottleCaps` class exposes them as static</span>
 <span class="c1">#    methods returning :class:`~pybosl2.shapes3d.Bosl2Solid` geometry -- a neck to graft onto a bottle</span>
 <span class="c1">#    body, and a matching cap.</span>
 <span class="c1">#</span>
 <span class="c1">#    The neck profile (inner bore, support ring, tamper-ring channel and sealing lip) is built the</span>
 <span class="c1">#    same way BOSL2 does: a :func:`~pybosl2.drawing.turtle` outline revolved with rotate_extrude. The</span>
-<span class="c1">#    threads use this package&#39;s :class:`~pybosl2.parts.threading.ThreadHelix`, with the two thread</span>
+<span class="c1">#    threads use this package's :class:`~pybosl2.parts.threading.ThreadHelix`, with the two thread</span>
 <span class="c1">#    breaks cut by the same zrot_copies-placed prismoids as BOSL2.</span>
 <span class="c1">#</span>
-<span class="c1">#    Approximations (this port&#39;s threading/cyl lack a few BOSL2 features): the thread lead-in</span>
+<span class="c1">#    Approximations (this port's threading/cyl lack a few BOSL2 features): the thread lead-in</span>
 <span class="c1">#    ``taper`` is not applied, cap threads are built without the ``internal=`` flank flip, and the</span>
 <span class="c1">#    ``knurled``/``ribbed`` cap surface textures fall back to a plain wall (VNF texturing is not in</span>
 <span class="c1">#    this port). The named-anchor system is not reproduced; geometry is anchored bottom-on-origin.</span>
@@ -1834,7 +1834,7 @@
 <span class="c1"># DocCategory: Parts library</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;PCO-1810 / PCO-1881 bottle necks and caps.&quot;&quot;&quot;</span>
+<span class="sd">"""PCO-1810 / PCO-1881 bottle necks and caps."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1856,15 +1856,15 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">polygon</span> <span class="k">as</span> <span class="n">_opolygon</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">rotate_extrude</span> <span class="k">as</span> <span class="n">_orotate_extrude</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
-    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;rotate_extrude&quot;</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
+    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"rotate_extrude"</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BottleCaps&quot;</span><span class="p">,</span> <span class="s2">&quot;BottleThreadSpec&quot;</span><span class="p">,</span> <span class="s2">&quot;BottleCapTexture&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"BottleCaps"</span><span class="p">,</span> <span class="s2">"BottleThreadSpec"</span><span class="p">,</span> <span class="s2">"BottleCapTexture"</span><span class="p">]</span>
 
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BottleThreadSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;All dimensions (mm) of one bottle threading&#39;s neck and cap, from bottlecaps.scad.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""All dimensions (mm) of one bottle threading's neck and cap, from bottlecaps.scad."""</span>
 
     <span class="c1"># -- neck profile --</span>
     <span class="n">inner_d</span><span class="p">:</span> <span class="nb">float</span>
@@ -1975,7 +1975,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_turtle_start</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Turtle2DState</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Turtle state starting at (x, y) heading +X.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Turtle state starting at (x, y) heading +X."""</span>
     <span class="k">return</span> <span class="n">Turtle2DState</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]])</span>
 
 
@@ -2059,10 +2059,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_neck_thread</span><span class="p">(</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="n">BottleThreadSpec</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the neck&#39;s external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).</span>
+<span class="w">    </span><span class="sd">"""Return the neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).</span>
 
-<span class="sd">    The lead-in ``taper`` BOSL2 applies is not reproduced (this port&#39;s thread_helix has no taper).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    The lead-in ``taper`` BOSL2 applies is not reproduced (this port's thread_helix has no taper).</span>
+<span class="sd">    """</span>
     <span class="n">thread_h</span> <span class="o">=</span> <span class="p">(</span><span class="n">diameter</span><span class="o">.</span><span class="n">thread_od</span> <span class="o">-</span> <span class="n">diameter</span><span class="o">.</span><span class="n">threadbase_d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">turns</span> <span class="o">=</span> <span class="n">diameter</span><span class="o">.</span><span class="n">neck_turns</span> <span class="o">/</span> <span class="mi">360</span>
     <span class="n">thread_hx</span> <span class="o">=</span> <span class="n">ThreadHelix</span><span class="p">(</span>
@@ -2112,11 +2112,11 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">BottleCapTexture</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bottle cap texture style.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Bottle cap texture style."""</span>
 
-    <span class="n">NONE</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
-    <span class="n">RIBS</span> <span class="o">=</span> <span class="s2">&quot;ribs&quot;</span>
-    <span class="n">CHECKERS</span> <span class="o">=</span> <span class="s2">&quot;checkers&quot;</span>
+    <span class="n">NONE</span> <span class="o">=</span> <span class="s2">"none"</span>
+    <span class="n">RIBS</span> <span class="o">=</span> <span class="s2">"ribs"</span>
+    <span class="n">CHECKERS</span> <span class="o">=</span> <span class="s2">"checkers"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_cap</span><span class="p">(</span>
@@ -2135,7 +2135,7 @@
     <span class="n">shell</span> <span class="o">=</span> <span class="n">outer</span> <span class="o">-</span> <span class="n">bore</span>
     <span class="n">turns</span> <span class="o">=</span> <span class="n">diameter</span><span class="o">.</span><span class="n">cap_turns</span> <span class="o">/</span> <span class="mi">360</span>
     <span class="n">thread_height</span> <span class="o">=</span> <span class="n">turns</span> <span class="o">*</span> <span class="n">diameter</span><span class="o">.</span><span class="n">cap_thread_pitch</span>
-    <span class="c1"># internal thread (this port&#39;s thread_helix has no internal= flank flip -- approximate).</span>
+    <span class="c1"># internal thread (this port's thread_helix has no internal= flank flip -- approximate).</span>
     <span class="n">cap_thread</span> <span class="o">=</span> <span class="n">ThreadHelix</span><span class="p">(</span>
         <span class="n">d</span><span class="o">=</span><span class="n">diameter</span><span class="o">.</span><span class="n">cap_thread_od</span> <span class="o">-</span> <span class="n">diameter</span><span class="o">.</span><span class="n">cap_thread_depth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">pitch</span><span class="o">=</span><span class="n">diameter</span><span class="o">.</span><span class="n">cap_thread_pitch</span><span class="p">,</span>
@@ -2151,7 +2151,7 @@
 <div class="viewcode-block" id="BottleCaps">
 <a class="viewcode-back" href="../../../parts/bottlecaps.html#pybosl2.parts.bottlecaps.BottleCaps">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BottleCaps</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard soda-bottle necks and caps (BOSL2 bottlecaps.scad, PCO-1810 &amp; PCO-1881).</span>
+<span class="w">    </span><span class="sd">"""Standard soda-bottle necks and caps (BOSL2 bottlecaps.scad, PCO-1810 &amp; PCO-1881).</span>
 
 <span class="sd">    Each ``*_neck`` / ``*_cap`` returns a :class:`~pybosl2.shapes3d.Bosl2Solid` anchored with its</span>
 <span class="sd">    bottom on the XY plane. See the module docstring for the geometry approximations relative to</span>
@@ -2160,13 +2160,13 @@
 <span class="sd">    .. seealso::</span>
 
 <span class="sd">       `Visual spec sheet &lt;specs/bottlecaps.html&gt;`_ — measurements and STL previews</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BottleCaps.pco1810_neck">
 <a class="viewcode-back" href="../../../parts/bottlecaps.html#pybosl2.parts.bottlecaps.BottleCaps.pco1810_neck">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pco1810_neck</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a PCO-1810 threaded beverage-bottle neck.</span>
+<span class="w">        </span><span class="sd">"""Return a PCO-1810 threaded beverage-bottle neck.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
@@ -2184,7 +2184,7 @@
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1810_neck(fa=6).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_build_neck</span><span class="p">(</span><span class="n">_PCO1810</span><span class="p">,</span> <span class="n">_pco1810_profile</span><span class="p">(</span><span class="n">_PCO1810</span><span class="p">),</span> <span class="n">bottom_half</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
 
@@ -2198,7 +2198,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a cap for a PCO-1810 bottle. ``texture`` other than ``&quot;none&quot;`` falls.</span>
+<span class="w">        </span><span class="sd">"""Return a cap for a PCO-1810 bottle. ``texture`` other than ``"none"`` falls.</span>
 
 <span class="sd">        back to a plain wall (surface texturing is not in this port).</span>
 
@@ -2220,7 +2220,7 @@
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1810_cap(fa=6).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_build_cap</span><span class="p">(</span><span class="n">_PCO1810</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">texture</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
 
@@ -2228,7 +2228,7 @@
 <a class="viewcode-back" href="../../../parts/bottlecaps.html#pybosl2.parts.bottlecaps.BottleCaps.pco1881_neck">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">pco1881_neck</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a PCO-1881 threaded beverage-bottle neck.</span>
+<span class="w">        </span><span class="sd">"""Return a PCO-1881 threaded beverage-bottle neck.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
@@ -2246,7 +2246,7 @@
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1881_neck(fa=6).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_build_neck</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">,</span> <span class="n">_pco1881_profile</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">),</span> <span class="n">bottom_half</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 
 
@@ -2260,7 +2260,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a cap for a PCO-1881 bottle. ``texture`` other than ``&quot;none&quot;`` falls.</span>
+<span class="w">        </span><span class="sd">"""Return a cap for a PCO-1881 bottle. ``texture`` other than ``"none"`` falls.</span>
 
 <span class="sd">        back to a plain wall (surface texturing is not in this port).</span>
 
@@ -2282,7 +2282,7 @@
 <span class="sd">                from pybosl2.parts.bottlecaps import BottleCaps</span>
 <span class="sd">                BottleCaps.pco1881_cap(fa=6).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_build_cap</span><span class="p">(</span><span class="n">_PCO1881</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">texture</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span></div>
 </div>
 

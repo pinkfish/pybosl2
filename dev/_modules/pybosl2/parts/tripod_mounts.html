@@ -1818,7 +1818,7 @@
 <span class="c1"># FileSummary: Manfrotto RC2 tripod quick release mount plate.</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Tripod mount plates: RC2.&quot;&quot;&quot;</span>
+<span class="sd">"""Tripod mount plates: RC2."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1834,16 +1834,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">turtle2d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommandType</span> <span class="k">as</span> <span class="n">TCT</span>  <span class="c1"># noqa: N817</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ManfrottoRC2Plate&quot;</span><span class="p">,</span> <span class="s2">&quot;manfrotto_rc2_plate&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"ManfrottoRC2Plate"</span><span class="p">,</span> <span class="s2">"manfrotto_rc2_plate"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ManfrottoRC2Plate">
 <a class="viewcode-back" href="../../../parts/tripod_mounts.html#pybosl2.parts.tripod_mounts.ManfrottoRC2Plate">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ManfrottoRC2Plate</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Manfrotto RC2 tripod quick release mount plate.</span>
+<span class="w">    </span><span class="sd">"""A Manfrotto RC2 tripod quick release mount plate.</span>
 
-<span class="sd">    The *chamfer* argument controls edge chamfering: ``&quot;all&quot;`` (default),</span>
-<span class="sd">    ``&quot;bot&quot;`` or ``&quot;bottom&quot;`` for bottom-only, or ``&quot;none&quot;``.</span>
+<span class="sd">    The *chamfer* argument controls edge chamfering: ``"all"`` (default),</span>
+<span class="sd">    ``"bot"`` or ``"bottom"`` for bottom-only, or ``"none"``.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        A standard Manfrotto RC2 plate:</span>
@@ -1853,11 +1853,11 @@
 <span class="sd">            from pybosl2.parts.tripod_mounts import ManfrottoRC2Plate</span>
 <span class="sd">            ManfrottoRC2Plate().show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">chamfer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+        <span class="n">chamfer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"all"</span><span class="p">,</span>
         <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">CENTER</span><span class="p">,</span>
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
@@ -1865,15 +1865,15 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Manfrotto RC2 tripod quick release mount plate.</span>
+<span class="w">        </span><span class="sd">"""Create a Manfrotto RC2 tripod quick release mount plate.</span>
 
 <span class="sd">        The *chamfer* argument lets you control whether the model edges are chamfered.</span>
-<span class="sd">        By default all edges are chamfered (&quot;all&quot;), but you can set it to &quot;bot&quot; or &quot;bottom&quot;</span>
-<span class="sd">        to chamfer only the bottom, or &quot;none&quot; for no chamfering.</span>
+<span class="sd">        By default all edges are chamfered ("all"), but you can set it to "bot" or "bottom"</span>
+<span class="sd">        to chamfer only the bottom, or "none" for no chamfering.</span>
 <span class="sd">        The plate is 10.5 mm thick.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            chamfer: &quot;none&quot; for no chamfer, &quot;all&quot; for full chamfering, and &quot;bot&quot; or &quot;bottom&quot; for bottom chamfering.</span>
+<span class="sd">            chamfer: "none" for no chamfer, "all" for full chamfering, and "bot" or "bottom" for bottom chamfering.</span>
 <span class="sd">            anchor: anchor point</span>
 <span class="sd">            spin: Z-axis rotation in degrees</span>
 <span class="sd">            orient: direction to rotate the top towards</span>
@@ -1885,17 +1885,17 @@
 <span class="sd">            None.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            ValueError: If *chamfer* is not one of ``&quot;all&quot;``, ``&quot;bottom&quot;``, ``&quot;bot&quot;``, or ``&quot;none&quot;``.</span>
+<span class="sd">            ValueError: If *chamfer* is not one of ``"all"``, ``"bottom"``, ``"bot"``, or ``"none"``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_chamfer</span> <span class="o">=</span> <span class="n">chamfer</span>
 
-        <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bot&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="s2">&quot;none&quot;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;chamfer must be &quot;all&quot;, &quot;bottom&quot;, &quot;bot&quot;, or &quot;none&quot;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bot"</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'chamfer must be "all", "bottom", "bot", or "none"'</span><span class="p">)</span>
 
         <span class="n">chsize</span> <span class="o">=</span> <span class="mf">0.5</span>
-        <span class="n">chamf_top</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span>
-        <span class="n">chamf_bot</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;bot&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="n">chamf_top</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="o">==</span> <span class="s2">"all"</span>
+        <span class="n">chamf_bot</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"bot"</span><span class="p">,</span> <span class="s2">"bottom"</span><span class="p">,</span> <span class="s2">"all"</span><span class="p">)</span>
 
         <span class="n">length</span> <span class="o">=</span> <span class="mf">52.5</span>
         <span class="n">innerlen</span> <span class="o">=</span> <span class="mf">43.0</span>
@@ -1948,14 +1948,14 @@
         <span class="n">shift</span> <span class="o">=</span> <span class="mf">0.64115</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">body</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">linear_sweep</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span><span class="o">.</span><span class="n">orient</span><span class="p">(</span><span class="n">Anchor</span><span class="o">.</span><span class="n">FRONT</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="n">body</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">left</span><span class="p">(</span><span class="n">shift</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="c1"># where the profile&#39;s own origin (its bottom-left corner) lands, so the cutouts below can</span>
+        <span class="c1"># where the profile's own origin (its bottom-left corner) lands, so the cutouts below can</span>
         <span class="c1"># be placed in the same coordinates the profile was drawn in</span>
         <span class="n">profile_x</span> <span class="o">=</span> <span class="o">-</span><span class="n">botwid</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">shift</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">profile_z</span> <span class="o">=</span> <span class="o">-</span><span class="n">thickness</span> <span class="o">/</span> <span class="mi">2</span>
 
         <span class="c1"># 2. Subtract the end relief notches: corner_space wide from the left face, cut in from</span>
         <span class="c1"># each end, through the full thickness. The 0.01 slop keeps the cutter faces clear of the</span>
-        <span class="c1"># body&#39;s, which would otherwise leave coincident faces behind.</span>
+        <span class="c1"># body's, which would otherwise leave coincident faces behind.</span>
         <span class="n">c_space_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="n">innerlen</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">notch</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">(</span>
             <span class="p">[</span><span class="n">corner_space</span><span class="p">,</span> <span class="n">c_space_y</span><span class="p">,</span> <span class="n">thickness</span> <span class="o">+</span> <span class="mf">0.02</span><span class="p">],</span>
@@ -1973,7 +1973,7 @@
         <span class="p">)</span>
         <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="p">(</span><span class="n">notch</span> <span class="o">|</span> <span class="n">notch</span><span class="o">.</span><span class="n">scale</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>
 
-        <span class="c1"># 3. Subtract the facet down the left edge: the facet polygon is drawn in the profile&#39;s</span>
+        <span class="c1"># 3. Subtract the facet down the left edge: the facet polygon is drawn in the profile's</span>
         <span class="c1"># own coordinates, so it is placed back onto them.</span>
         <span class="n">cutout_len</span> <span class="o">=</span> <span class="mf">26.0</span>
         <span class="n">facet_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">facet</span><span class="p">]</span>
@@ -1988,7 +1988,7 @@
         <span class="p">)</span>
         <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="n">cut2</span>
 
-        <span class="c1"># 4. Chamfer the edges. The masks run along the body&#39;s own edges, so they are placed on</span>
+        <span class="c1"># 4. Chamfer the edges. The masks run along the body's own edges, so they are placed on</span>
         <span class="c1"># the same shifted box the body occupies. (BOSL2 also masks the notch rims here, but</span>
         <span class="c1"># those masks slide along their own axis and cut nothing, so they are left out.)</span>
         <span class="n">mask_box</span> <span class="o">=</span> <span class="p">(</span><span class="n">botwid</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
@@ -2040,20 +2040,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">chamfer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Chamfer mode: &quot;all&quot;, &quot;bottom&quot;/&quot;bot&quot;, or &quot;none&quot;.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Chamfer mode: "all", "bottom"/"bot", or "none"."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chamfer</span>
 
 <div class="viewcode-block" id="ManfrottoRC2Plate.shape">
 <a class="viewcode-back" href="../../../parts/tripod_mounts.html#pybosl2.parts.tripod_mounts.ManfrottoRC2Plate.shape">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the RC2 plate geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the RC2 plate geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 <div class="viewcode-block" id="ManfrottoRC2Plate.show">
 <a class="viewcode-back" href="../../../parts/tripod_mounts.html#pybosl2.parts.tripod_mounts.ManfrottoRC2Plate.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display the RC2 plate in the viewer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Display the RC2 plate in the viewer."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 

@@ -1814,9 +1814,9 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 <span class="c1"># DocCategory: Paths, regions &amp; surfaces</span>
 
-<span class="sd">&quot;&quot;&quot;Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad).</span>
+<span class="sd">"""Evaluate, analyze and build Bezier curves, paths, and surface patches (BOSL2 beziers.scad).</span>
 
-<span class="sd">Pure-Python port of the Bezier CURVE and PATH API from BOSL2&#39;s beziers.scad.</span>
+<span class="sd">Pure-Python port of the Bezier CURVE and PATH API from BOSL2's beziers.scad.</span>
 <span class="sd">Every operation lives on the :class:`Bezier` class -- there are no module-level</span>
 <span class="sd">bezier functions, mirroring how pybosl2/paths.py hangs every path operation off</span>
 <span class="sd">Path2D. No osuse()/BOSL2 runtime dependency.</span>
@@ -1846,11 +1846,11 @@
 <span class="sd">  via the ``_bezcorner`` helper in pybosl2/rounding.py.</span>
 
 <span class="sd">``points()`` -- the hot path -- uses numpy: it builds the bezier-to-power-basis</span>
-<span class="sd">matrix (the same &quot;matrix representation&quot; BOSL2 uses, generalized to any degree</span>
-<span class="sd">N via M[i][j] = C(N,j)*C(N-j,i-j)*(-1)^(i-j) rather than BOSL2&#39;s hardcoded</span>
+<span class="sd">matrix (the same "matrix representation" BOSL2 uses, generalized to any degree</span>
+<span class="sd">N via M[i][j] = C(N,j)*C(N-j,i-j)*(-1)^(i-j) rather than BOSL2's hardcoded</span>
 <span class="sd">per-degree table) and evaluates every sample with one matrix multiply. The</span>
 <span class="sd">point-valued methods return numpy ndarrays.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1881,7 +1881,7 @@
 <div class="viewcode-block" id="Bezier">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Bezier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Bezier curve or path: a list of control points, with every bezier operation as a method.</span>
+<span class="w">    </span><span class="sd">"""A Bezier curve or path: a list of control points, with every bezier operation as a method.</span>
 
 <span class="sd">    Subclasses ``list`` (the same trick as :class:`pybosl2.paths.Path2D`), so it is a drop-in for the</span>
 <span class="sd">    raw control-point lists the toolkit passes around, while giving the chained object form::</span>
@@ -1911,12 +1911,12 @@
 <span class="sd">            tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)</span>
 <span class="sd">            tube.polyhedron().show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a Bezier with a sequence of 2-D or 3-D control points.</span>
+<span class="w">        </span><span class="sd">"""Initialize a Bezier with a sequence of 2-D or 3-D control points.</span>
 
 <span class="sd">        Accepts any array-like: Python lists, numpy arrays, or nested sequences.</span>
 <span class="sd">        Stored internally as a float64 numpy ndarray for efficient math operations.</span>
@@ -1924,56 +1924,56 @@
 <span class="sd">        Args:</span>
 <span class="sd">            control_points: A sequence of 2-D or 3-D control points, as nested lists or numpy arrays.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">control_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;control points must be a 2-D array (N points x D dims), got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-D shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"control points must be a 2-D array (N points x D dims), got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-D shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;control points must have at least 1 point, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point&quot;</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"control points must have at least 1 point, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point"</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">pts</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of items.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of items."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the item at index.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the item at index."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an iterator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Bezier(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span>
+<span class="w">        </span><span class="sd">"""Return a string representation."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Bezier(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">)"</span>
 
 <div class="viewcode-block" id="Bezier.from_list">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.from_list">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a Bezier from a plain list of control points.</span>
+<span class="w">        </span><span class="sd">"""Create a Bezier from a plain list of control points.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            points: A sequence of 2-D or 3-D control points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The underlying control-point list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The underlying control-point list."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The control points as an (N, dim) numpy array.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The control points as an (N, dim) numpy array."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
 
     <span class="c1"># -- curve evaluation ------------------------------------------------------------------</span>
@@ -1981,7 +1981,7 @@
 <div class="viewcode-block" id="Bezier.points">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate this curve at parameter(s) *u* (each in [0, 1]).</span>
+<span class="w">        </span><span class="sd">"""Evaluate this curve at parameter(s) *u* (each in [0, 1]).</span>
 
 <span class="sd">        Returns an ndarray of points (or a length-dim ndarray for a scalar</span>
 <span class="sd">        *u*). Uses the bezier-to-power-basis matrix to evaluate all samples</span>
@@ -1995,7 +1995,7 @@
 <span class="sd">            1-D vector; for a list of *u* values the result is a 2-D array of</span>
 <span class="sd">            row vectors.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">scalar</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
         <span class="n">us</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="k">if</span> <span class="n">scalar</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
@@ -2009,7 +2009,7 @@
 <div class="viewcode-block" id="Bezier.curve">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.curve">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample *splinesteps* segments uniformly along the curve.</span>
+<span class="w">        </span><span class="sd">"""Sample *splinesteps* segments uniformly along the curve.</span>
 
 <span class="sd">        Returns an ndarray of *splinesteps*+1 points (or *splinesteps* if</span>
 <span class="sd">        *endpoint* is False) by evaluating the curve at evenly spaced</span>
@@ -2031,14 +2031,14 @@
 <span class="sd">            pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)</span>
 <span class="sd">            pts.stroke(width=2).linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Bezier.derivative">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.derivative">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">derivative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the *order*-th derivative of the curve at parameter(s) *u*.</span>
+<span class="w">        </span><span class="sd">"""Compute the *order*-th derivative of the curve at parameter(s) *u*.</span>
 
 <span class="sd">        Returns an ndarray of derivative vectors. For order 0 this is</span>
 <span class="sd">        equivalent to calling :meth:`points`. Higher orders are computed</span>
@@ -2055,7 +2055,7 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            AssertionError: If *order* is not a non-negative integer.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">order</span> <span class="o">&gt;=</span> <span class="mi">0</span>
         <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2070,7 +2070,7 @@
 <div class="viewcode-block" id="Bezier.tangent">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.tangent">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">tangent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return unit tangent vector(s) at parameter(s) *u*.</span>
+<span class="w">        </span><span class="sd">"""Return unit tangent vector(s) at parameter(s) *u*.</span>
 
 <span class="sd">        Returns an ndarray of normalized derivative vectors. For a scalar *u*</span>
 <span class="sd">        the result is a 1-D vector; for a list of *u* values the result is</span>
@@ -2083,7 +2083,7 @@
 <span class="sd">            An ndarray of unit tangent vectors. For a scalar *u* the result is</span>
 <span class="sd">            a 1-D vector; for a list of *u* values the result is a 2-D array.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_unit</span><span class="p">(</span><span class="n">res</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -2093,9 +2093,9 @@
 <div class="viewcode-block" id="Bezier.curvature">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.curvature">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">curvature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Curvature value(s) at parameter(s) *u* (inverse tangent-circle radius).</span>
+<span class="w">        </span><span class="sd">"""Curvature value(s) at parameter(s) *u* (inverse tangent-circle radius).</span>
 
-<span class="sd">        Computes the scalar curvature κ = ``|r&#39; × r&#39;&#39;|`` / ``|r&#39;|³`` at each</span>
+<span class="sd">        Computes the scalar curvature κ = ``|r' × r''|`` / ``|r'|³`` at each</span>
 <span class="sd">        parameter value. For a scalar *u* returns a single float; for a list</span>
 <span class="sd">        of *u* values returns a numpy array of floats.</span>
 
@@ -2104,10 +2104,10 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A float (for scalar *u*) or numpy array of curvature values. The</span>
-<span class="sd">            curvature κ = ``|r&#39; × r&#39;&#39;|`` / ``|r&#39;|³`` is the inverse radius of the</span>
+<span class="sd">            curvature κ = ``|r' × r''|`` / ``|r'|³`` is the inverse radius of the</span>
 <span class="sd">            tangent circle.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">scalar</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
         <span class="n">us</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="k">if</span> <span class="n">scalar</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">diameter1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="n">us</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">))</span>  <span class="c1"># type: ignore[arg-type, type-var]</span>
@@ -2124,7 +2124,7 @@
 <div class="viewcode-block" id="Bezier.closest_point">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.closest_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">closest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">max_err</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">end_u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the parameter *u* of the point on this curve closest to *pt*.</span>
+<span class="w">        </span><span class="sd">"""Return the parameter *u* of the point on this curve closest to *pt*.</span>
 
 <span class="sd">        Uses recursive bisection to find the curve parameter that minimizes</span>
 <span class="sd">        distance to the target point within *max_err* tolerance. The search</span>
@@ -2141,7 +2141,7 @@
 <span class="sd">            The parameter *u* in ``[0, 1]`` of the point on this curve closest</span>
 <span class="sd">            to the target *pt*.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span>
         <span class="n">uvals</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span><span class="p">]</span> <span class="o">+</span> <span class="p">[(</span><span class="n">end_u</span> <span class="o">-</span> <span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">/</span> <span class="n">steps</span><span class="p">)</span> <span class="o">+</span> <span class="n">u</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="p">[</span><span class="n">end_u</span><span class="p">]</span>
@@ -2171,7 +2171,7 @@
 <div class="viewcode-block" id="Bezier.arc_length">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.arc_length">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">arc_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">end_u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">max_deflect</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Approximate arc length of the curve between *start_u* and *end_u*.</span>
+<span class="w">        </span><span class="sd">"""Approximate arc length of the curve between *start_u* and *end_u*.</span>
 
 <span class="sd">        Uses adaptive subdivision to compute the length: samples the curve,</span>
 <span class="sd">        measures the maximum deviation from linear segments, and subdivides</span>
@@ -2185,7 +2185,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The approximate arc length of the curve segment as a float.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>  <span class="c1"># local: avoid importing the heavy path module at load time</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
@@ -2216,7 +2216,7 @@
 <div class="viewcode-block" id="Bezier.line_intersection">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.line_intersection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">line_intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the *u* values where this 2-D curve crosses *line* (two points).</span>
+<span class="w">        </span><span class="sd">"""Return the *u* values where this 2-D curve crosses *line* (two points).</span>
 
 <span class="sd">        Computes the intersection parameters in [0, 1] by finding the real</span>
 <span class="sd">        roots of the algebraic equation that expresses the signed distance</span>
@@ -2229,7 +2229,7 @@
 <span class="sd">            A list of parameter values *u* in ``[0, 1]`` where the curve</span>
 <span class="sd">            crosses the infinite line defined by the two input points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">a</span> <span class="o">=</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_matrix</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>  <span class="c1"># bezier algebraic coefficients</span>
         <span class="n">line</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]])</span>  <span class="c1"># line normal</span>
@@ -2243,7 +2243,7 @@
 <div class="viewcode-block" id="Bezier.path_points">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.path_points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">curveind</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate curve number *curveind* of this bezier PATH at parameter(s) *u*.</span>
+<span class="w">        </span><span class="sd">"""Evaluate curve number *curveind* of this bezier PATH at parameter(s) *u*.</span>
 
 <span class="sd">        Extracts the control points for the given segment of a degree-*N*</span>
 <span class="sd">        bezier path and evaluates that sub-curve at the requested parameter</span>
@@ -2257,7 +2257,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            An ndarray of evaluated points for the given curve segment.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">sub</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">[</span><span class="n">curveind</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="p">:</span> <span class="p">(</span><span class="n">curveind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">u</span><span class="p">)</span></div>
 
@@ -2265,7 +2265,7 @@
 <div class="viewcode-block" id="Bezier.path_curve">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.path_curve">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample this bezier PATH into a Path2D of points.</span>
+<span class="w">        </span><span class="sd">"""Sample this bezier PATH into a Path2D of points.</span>
 
 <span class="sd">        Evaluates a degree-*N* bezier path (``len % N == 1``) by sampling</span>
 <span class="sd">        each segment uniformly and concatenating the results. Returns a</span>
@@ -2290,9 +2290,9 @@
 <span class="sd">            bz = Bezier([[0, 0], [25, 30], [50, 0], [75, -30], [100, 0]])</span>
 <span class="sd">            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1.&quot;</span>
+            <span class="sa">f</span><span class="s2">"A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1."</span>
         <span class="p">)</span>
         <span class="n">bezpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="n">segs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bezpath</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
@@ -2316,7 +2316,7 @@
 <div class="viewcode-block" id="Bezier.path_closest_point">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.path_closest_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_closest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">max_err</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the closest position on this bezier PATH to *pt*.</span>
+<span class="w">        </span><span class="sd">"""Find the closest position on this bezier PATH to *pt*.</span>
 
 <span class="sd">        Returns a tuple ``[segnum, u]`` where *segnum* is the 0-based curve</span>
 <span class="sd">        segment index and *u* is the local parameter along that segment.</span>
@@ -2336,10 +2336,10 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If no closest point could be found.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">new_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1.&quot;</span>
+            <span class="sa">f</span><span class="s2">"A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1."</span>
         <span class="p">)</span>
         <span class="n">nsegs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
         <span class="n">best</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2350,7 +2350,7 @@
             <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">best</span> <span class="o">=</span> <span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find closest point.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Could not find closest point."</span><span class="p">)</span>
         <span class="n">seg</span> <span class="o">=</span> <span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">curve</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">[</span><span class="n">seg</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="p">:</span> <span class="p">(</span><span class="n">seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">closest_point</span><span class="p">(</span><span class="n">new_pt</span><span class="p">,</span> <span class="n">max_err</span><span class="o">=</span><span class="n">max_err</span><span class="p">))</span></div>
@@ -2359,11 +2359,11 @@
 <div class="viewcode-block" id="Bezier.path_arc_length">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.path_arc_length">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_arc_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">max_deflect</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Approximate arc length of this bezier PATH.</span>
+<span class="w">        </span><span class="sd">"""Approximate arc length of this bezier PATH.</span>
 
 <span class="sd">        Sums the adaptive arc length of each individual degree-*N* curve</span>
 <span class="sd">        segment. The *max_deflect* parameter controls subdivision accuracy</span>
-<span class="sd">        within each segment&#39;s :meth:`length` call.</span>
+<span class="sd">        within each segment's :meth:`length` call.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            n_degree: Degree of each curve segment in the bezier path.</span>
@@ -2372,9 +2372,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The approximate total arc length of the bezier path as a float.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1.&quot;</span>
+            <span class="sa">f</span><span class="s2">"A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1."</span>
         <span class="p">)</span>
         <span class="n">nsegs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span>
@@ -2387,36 +2387,36 @@
 
 <div class="viewcode-block" id="Bezier.close_to_axis">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.close_to_axis">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">close_to_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close this 2-D bezier PATH down to the given axis.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close_to_axis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"X"</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Close this 2-D bezier PATH down to the given axis.</span>
 
-<span class="sd">        Returns a new Bezier that connects the path&#39;s start and end to the</span>
-<span class="sd">        specified axis (&quot;X&quot; or &quot;Y&quot;) and closes back to form a loop, using</span>
+<span class="sd">        Returns a new Bezier that connects the path's start and end to the</span>
+<span class="sd">        specified axis ("X" or "Y") and closes back to form a loop, using</span>
 <span class="sd">        linear blending segments of degree *n_degree*.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            axis: Which axis to close down to, either ``&quot;X&quot;`` or ``&quot;Y&quot;``.</span>
+<span class="sd">            axis: Which axis to close down to, either ``"X"`` or ``"Y"``.</span>
 <span class="sd">            n_degree: Degree of the linear blending segments used to close.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Bezier` forming a closed loop that connects the</span>
-<span class="sd">            path&#39;s start and end to the specified axis.</span>
+<span class="sd">            path's start and end to the specified axis.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If *axis* is not ``&quot;X&quot;`` or ``&quot;Y&quot;``, or if the</span>
+<span class="sd">            AssertionError: If *axis* is not ``"X"`` or ``"Y"``, or if the</span>
 <span class="sd">                patch is not 2-D.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
-        <span class="k">assert</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;close_to_axis() works only on 2-D bezier paths.&quot;</span>
+        <span class="k">assert</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"close_to_axis() works only on 2-D bezier paths."</span>
         <span class="n">sp</span><span class="p">,</span> <span class="n">ep</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">head</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;X&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">"X"</span><span class="p">:</span>
             <span class="n">foot_s</span><span class="p">,</span> <span class="n">foot_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">sp</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ep</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">&quot;Y&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">"Y"</span><span class="p">:</span>
             <span class="n">foot_s</span><span class="p">,</span> <span class="n">foot_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">ep</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">&#39;axis must be &quot;X&quot; or &quot;Y&quot;&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">'axis must be "X" or "Y"'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -2432,7 +2432,7 @@
 <div class="viewcode-block" id="Bezier.path_offset">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.path_offset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Close this 2-D bezier PATH with a reversed copy offset by *offset*.</span>
+<span class="w">        </span><span class="sd">"""Close this 2-D bezier PATH with a reversed copy offset by *offset*.</span>
 
 <span class="sd">        Returns a new Bezier that pairs the original path with an offset</span>
 <span class="sd">        duplicate connected by linear blend segments, forming a closed loop</span>
@@ -2449,9 +2449,9 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            AssertionError: If the bezier is not 2-D.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
-        <span class="k">assert</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;path_offset() works only on 2-D bezier paths.&quot;</span>
+        <span class="k">assert</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"path_offset() works only on 2-D bezier paths."</span>
         <span class="n">off</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">backbez</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span> <span class="o">+</span> <span class="n">off</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span>
@@ -2478,7 +2478,7 @@
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">relsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).</span>
+<span class="w">        </span><span class="sd">"""Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).</span>
 
 <span class="sd">        Deprecated, use the top-level :func:`create_bezier` instead.</span>
 
@@ -2494,7 +2494,7 @@
 <span class="sd">            A cubic :class:`Bezier` path interpolating every point of the</span>
 <span class="sd">            input path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">create_bezier</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">tangents</span><span class="o">=</span><span class="n">tangents</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">relsize</span><span class="o">=</span><span class="n">relsize</span><span class="p">)</span></div>
 
 
@@ -2521,7 +2521,7 @@
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">transforms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sweep the 2-D *shape* along this bezier curve or path into a VNF.</span>
+<span class="w">        </span><span class="sd">"""Sweep the 2-D *shape* along this bezier curve or path into a VNF.</span>
 
 <span class="sd">        If *n_degree* is given and ``len(self) % n_degree == 1`` this</span>
 <span class="sd">        treats the bezier as a degree-*N* path, sampling each segment</span>
@@ -2575,7 +2575,7 @@
 <span class="sd">                path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])</span>
 <span class="sd">                path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">path3d</span>
 
@@ -2620,7 +2620,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">begin</span><span class="p">(</span>
         <span class="n">pt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the starting endpoint and control point of a cubic bezier path.</span>
+<span class="w">        </span><span class="sd">"""Return the starting endpoint and control point of a cubic bezier path.</span>
 
 <span class="sd">        Returns a (2, dim) ndarray of [endpoint, control_point]. For 2-D</span>
 <span class="sd">        points *angle* is a scalar angle; for 3-D points *angle* is a scalar angle</span>
@@ -2635,9 +2635,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``(2, dim)`` ndarray of ``[endpoint, control_point]``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;phi= requires a 3-D point&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"phi= requires a 3-D point"</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">pt</span><span class="p">,</span> <span class="n">pt</span> <span class="o">+</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_ctrloffset</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">phi</span><span class="p">)])</span></div>
 
 
@@ -2651,7 +2651,7 @@
         <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Smooth joint in a cubic bezier path with collinear control points.</span>
+<span class="w">        </span><span class="sd">"""Smooth joint in a cubic bezier path with collinear control points.</span>
 
 <span class="sd">        Returns a (3, dim) ndarray of [approaching_cp, fixed_point,</span>
 <span class="sd">        departing_cp]. The two control points are collinear with the fixed</span>
@@ -2670,9 +2670,9 @@
 <span class="sd">            A ``(3, dim)`` ndarray of</span>
 <span class="sd">            ``[approaching_cp, fixed_point, departing_cp]``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;phi= requires a 3-D point&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"phi= requires a 3-D point"</span>
         <span class="n">unit_dir</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_dir_and_dist</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
         <span class="n">dist1</span> <span class="o">=</span> <span class="n">dist</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius1</span>
         <span class="n">dist2</span> <span class="o">=</span> <span class="n">dist1</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius2</span>
@@ -2691,7 +2691,7 @@
         <span class="n">phi1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">phi2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Disjoint corner joint in a cubic bezier path.</span>
+<span class="w">        </span><span class="sd">"""Disjoint corner joint in a cubic bezier path.</span>
 
 <span class="sd">        Returns a (3, dim) ndarray of [approaching_cp, fixed_point,</span>
 <span class="sd">        departing_cp] with the two control points in independent directions.</span>
@@ -2712,9 +2712,9 @@
 <span class="sd">            ``[approaching_cp, fixed_point, departing_cp]``, with independent</span>
 <span class="sd">            approach and departure directions.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="p">(</span><span class="n">phi1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">phi2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;phi1=/phi2= require a 3-D point&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="p">(</span><span class="n">phi1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">phi2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">"phi1=/phi2= require a 3-D point"</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">pt</span> <span class="o">+</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_ctrloffset</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle1</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">phi1</span><span class="p">),</span>
@@ -2730,7 +2730,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">end</span><span class="p">(</span>
         <span class="n">pt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Approaching control point and endpoint of a cubic bezier path.</span>
+<span class="w">        </span><span class="sd">"""Approaching control point and endpoint of a cubic bezier path.</span>
 
 <span class="sd">        Returns a (2, dim) ndarray of [control_point, endpoint], the mirror</span>
 <span class="sd">        of :meth:`begin`. The control point approaches the endpoint from the</span>
@@ -2745,16 +2745,16 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``(2, dim)`` ndarray of ``[control_point, endpoint]``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;phi= requires a 3-D point&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"phi= requires a 3-D point"</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">pt</span> <span class="o">+</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_ctrloffset</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">phi</span><span class="p">),</span> <span class="n">pt</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Bezier.debug">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.debug">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Visualize this bezier PATH as native geometry (BOSL2 debug_bezier).</span>
+<span class="w">        </span><span class="sd">"""Visualize this bezier PATH as native geometry (BOSL2 debug_bezier).</span>
 
 <span class="sd">        Renders the swept curve (cyan), control net (green), and control</span>
 <span class="sd">        points (blue for endpoints, red for interior) as solid geometry using</span>
@@ -2780,14 +2780,14 @@
 <span class="sd">            ])</span>
 <span class="sd">            path.debug(width=0.5)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_curve</span><span class="p">(</span><span class="n">n_degree</span><span class="o">=</span><span class="n">n_degree</span><span class="p">)),</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;cyan&quot;</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">|</span> <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]),</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_curve</span><span class="p">(</span><span class="n">n_degree</span><span class="o">=</span><span class="n">n_degree</span><span class="p">)),</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"cyan"</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">|</span> <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]),</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"green"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">marker</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">2.25</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+                <span class="n">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">2.25</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">0</span>
-                <span class="k">else</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">width</span> <span class="o">*</span> <span class="mf">0.75</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"red"</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">|</span> <span class="n">marker</span>
         <span class="k">return</span> <span class="n">result</span></div>
@@ -2796,8 +2796,8 @@
 <div class="viewcode-block" id="Bezier.flatten">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.flatten">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">groups</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bezier&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Concatenate control-point groups into one Bezier.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="n">groups</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"Bezier"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Concatenate control-point groups into one Bezier.</span>
 
 <span class="sd">        Flattens a list of ndarray groups (from :meth:`begin`, :meth:`tang`,</span>
 <span class="sd">        :meth:`joint`, :meth:`end`) by concatenating them along axis 0 into</span>
@@ -2810,7 +2810,7 @@
 <span class="sd">            A new :class:`Bezier` with all control-point groups concatenated</span>
 <span class="sd">            into a single flat control-point list.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">groups</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
         <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2841,7 +2841,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
             <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">direction</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_unit</span><span class="p">(</span><span class="n">direction</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;radius must be given when angle is a scalar, not a direction vector&quot;</span>
+        <span class="k">assert</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"radius must be given when angle is a scalar, not a direction vector"</span>
         <span class="k">if</span> <span class="n">point_dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_spherical_to_xyz</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="mf">90.0</span> <span class="k">if</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">phi</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -2850,12 +2850,12 @@
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_dir_and_dist</span><span class="p">(</span>
         <span class="n">point_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">phi</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;tuple[np.ndarray, float]&quot;</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[np.ndarray, float]"</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
             <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="n">dist</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">direction</span><span class="p">))</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_unit</span><span class="p">(</span><span class="n">direction</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">dist</span>
-        <span class="k">assert</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;radius must be given when angle is a scalar, not a direction vector&quot;</span>
+        <span class="k">assert</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"radius must be given when angle is a scalar, not a direction vector"</span>
         <span class="k">if</span> <span class="n">point_dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_spherical_to_xyz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="mf">90.0</span> <span class="k">if</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">phi</span><span class="p">),</span> <span class="n">radius</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -2882,10 +2882,10 @@
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">relsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).</span>
+<span class="w">    </span><span class="sd">"""Cubic bezier PATH through every point of *path* (BOSL2 path_to_bezpath).</span>
 
 <span class="sd">    Constructs a piecewise-cubic bezier that interpolates the given</span>
-<span class="sd">    points, matching the path&#39;s tangents. *size* or *relsize* control the</span>
+<span class="sd">    points, matching the path's tangents. *size* or *relsize* control the</span>
 <span class="sd">    tension; omit both to use the default (relsize=0.1).</span>
 
 <span class="sd">    Args:</span>
@@ -2894,7 +2894,7 @@
 <span class="sd">        tangents: Optional user-supplied tangent vectors for each point.</span>
 <span class="sd">        uniform: If True, compute tangents assuming uniform spacing along the path.</span>
 <span class="sd">        size: Fixed control-point magnitude for all curve segments.</span>
-<span class="sd">        relsize: Relative control-point magnitude proportional to each segment&#39;s length.</span>
+<span class="sd">        relsize: Relative control-point magnitude proportional to each segment's length.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A cubic :class:`Bezier` path whose curve passes through every point</span>
@@ -2904,11 +2904,11 @@
 <span class="sd">        AssertionError: If both *size* and *relsize* are specified, or if any</span>
 <span class="sd">            path segment has zero length.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
-    <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">relsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Can&#39;t define both size and relsize.&quot;</span>
+    <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">relsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Can't define both size and relsize."</span>
     <span class="n">patharr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span>
     <span class="n">lastpt</span> <span class="o">=</span> <span class="n">npts</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
@@ -2918,7 +2918,7 @@
         <span class="n">sizevect</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">curvesize</span><span class="p">)]</span> <span class="o">*</span> <span class="n">lastpt</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sizevect</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">curvesize</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizevect</span><span class="p">)</span> <span class="o">==</span> <span class="n">lastpt</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Size or relsize must have length </span><span class="si">{</span><span class="n">lastpt</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sizevect</span><span class="p">)</span> <span class="o">==</span> <span class="n">lastpt</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Size or relsize must have length </span><span class="si">{</span><span class="n">lastpt</span><span class="si">}</span><span class="s2">."</span>
     <span class="k">if</span> <span class="n">tangents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tangents</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">tang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tang</span><span class="p">])</span>
@@ -2928,14 +2928,14 @@
             <span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">patharr</span><span class="p">))</span><span class="o">.</span><span class="n">tangents</span><span class="p">(</span><span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">),</span>
             <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">sizevect</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Size and relsize must be greater than zero.&quot;</span>
+    <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">sizevect</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"Size and relsize must be greater than zero."</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">basis_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lastpt</span><span class="p">):</span>
         <span class="n">first</span> <span class="o">=</span> <span class="n">patharr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">second</span> <span class="o">=</span> <span class="n">patharr</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span>
         <span class="n">seglength</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="n">seglength</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Path2D segment has zero length from index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">assert</span> <span class="n">seglength</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Path2D segment has zero length from index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">."</span>
         <span class="n">segdir</span> <span class="o">=</span> <span class="p">(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglength</span>
         <span class="n">tangent1</span> <span class="o">=</span> <span class="n">tang</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">tangent2</span> <span class="o">=</span> <span class="o">-</span><span class="n">tang</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span>
@@ -2963,7 +2963,7 @@
 <div class="viewcode-block" id="BezierPatch">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BezierPatch</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A rectangular Bezier surface patch: a 2-D array (rows x cols) of 3-D control points.</span>
+<span class="w">    </span><span class="sd">"""A rectangular Bezier surface patch: a 2-D array (rows x cols) of 3-D control points.</span>
 
 <span class="sd">    Evaluate it with :meth:`points`, get surface normals with :meth:`normals`, and mesh it into a</span>
 <span class="sd">    :class:`~pybosl2.vnf.VNF` with :meth:`vnf` (which renders via ``polyhedron()``). Build several</span>
@@ -2972,10 +2972,10 @@
 
 <span class="sd">        BezierPatch.flat([100, 100]).vnf(splinesteps=8).polyhedron()</span>
 
-<span class="sd">    Ported from beziers.scad&#39;s Bezier SURFACE section: bezier_patch_points/_normals/_reverse/</span>
+<span class="sd">    Ported from beziers.scad's Bezier SURFACE section: bezier_patch_points/_normals/_reverse/</span>
 <span class="sd">    _flat, is_bezier_patch, and bezier_vnf. NOT ported: bezier_vnf_degenerate_patch (handles</span>
 <span class="sd">    collapsed-edge patches), bezier_sheet (offset-shell), and bezier_sweep/sweep (need</span>
-<span class="sd">    BOSL2&#39;s un-ported path_sweep), plus the debug_* visualization modules.</span>
+<span class="sd">    BOSL2's un-ported path_sweep), plus the debug_* visualization modules.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        rows: a list of rows, each a list of [x, y, z] control points</span>
@@ -2995,12 +2995,12 @@
 <span class="sd">            ]</span>
 <span class="sd">            BezierPatch(patch).sheet([0, -6], splinesteps=16).polyhedron().show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">_rows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore[assignment]</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize with a 2-D grid of 3-D control points.</span>
+<span class="w">        </span><span class="sd">"""Initialize with a 2-D grid of 3-D control points.</span>
 
 <span class="sd">        Accepts a list of rows where each row is a list of [x, y, z] control</span>
 <span class="sd">        points forming a rectangular bezier surface patch. Stored internally as</span>
@@ -3009,60 +3009,60 @@
 <span class="sd">        Args:</span>
 <span class="sd">            rows: A list of rows, each a list of ``[x, y, z]`` control points forming a rectangular patch.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;patch rows must be a 3-D array (R rows x C cols x 3 dim), got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-D shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"patch rows must be a 3-D array (R rows x C cols x 3 dim), got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-D shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;patch must have at least 1 row, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;patch must have at least 1 column, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components&quot;</span>
-            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"patch must have at least 1 row, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"patch must have at least 1 column, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components"</span>
+            <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span> <span class="o">=</span> <span class="n">pts</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of items.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of items."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the item at index.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the item at index."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return an iterator.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BezierPatch.from_list">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.from_list">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BezierPatch</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a BezierPatch from a plain list of control-point rows.</span>
+<span class="w">        </span><span class="sd">"""Create a BezierPatch from a plain list of control-point rows.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            rows: A list of rows of 3-D control points.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The underlying control-point row list.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The underlying control-point row list."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>  <span class="c1"># type: ignore[no-any-return]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The control points as an (rows, cols, 3) numpy array.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The control points as an (rows, cols, 3) numpy array."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span>
 
 <div class="viewcode-block" id="BezierPatch.is_patch">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.is_patch">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_patch</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if *x* looks like a bezier patch.</span>
+<span class="w">        </span><span class="sd">"""Check if *x* looks like a bezier patch.</span>
 
 <span class="sd">        Returns True if *x* is a rectangular 2-D array of point vectors</span>
 <span class="sd">        where the first element is a numeric vector (not a nested list of</span>
@@ -3075,7 +3075,7 @@
 <span class="sd">            True if *x* is a rectangular 2-D array of numeric point vectors</span>
 <span class="sd">            with equal-length rows.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">r0</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -3095,7 +3095,7 @@
 <div class="viewcode-block" id="BezierPatch.points">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sample the patch at parameter(s) *u* and *v*.</span>
+<span class="w">        </span><span class="sd">"""Sample the patch at parameter(s) *u* and *v*.</span>
 
 <span class="sd">        *u* is the inner/column axis and *v* is the outer/row axis. Scalar</span>
 <span class="sd">        *u* and *v* return a single point; lists/ranges return a rectangular</span>
@@ -3119,7 +3119,7 @@
 <span class="sd">            pts = patch.points(0, [i / 16 for i in range(17)])</span>
 <span class="sd">            pts.stroke(width=2).linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">patch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">patch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">patch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">su</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
@@ -3141,7 +3141,7 @@
 <div class="viewcode-block" id="BezierPatch.normals">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.normals">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">normals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return unit surface normal(s) at parameter(s) *u*, *v*.</span>
+<span class="w">        </span><span class="sd">"""Return unit surface normal(s) at parameter(s) *u*, *v*.</span>
 
 <span class="sd">        Same shape rules as :meth:`points`: scalar inputs return a single</span>
 <span class="sd">        normal vector, while list inputs return a grid of normals computed</span>
@@ -3156,7 +3156,7 @@
 <span class="sd">            the *u* and *v* tangents. Scalar inputs return a single vector;</span>
 <span class="sd">            list inputs return a grid of normals.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">patch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">patch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">patch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">su</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
@@ -3185,8 +3185,8 @@
 
 <div class="viewcode-block" id="BezierPatch.reverse">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.reverse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BezierPatch&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reverse each row of the patch, flipping the surface orientation.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BezierPatch"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Reverse each row of the patch, flipping the surface orientation.</span>
 
 <span class="sd">        Returns a new BezierPatch with the same control points but each row</span>
 <span class="sd">        in reversed order, which flips the face normals for VNF meshing.</span>
@@ -3195,7 +3195,7 @@
 <span class="sd">            A new :class:`BezierPatch` with reversed row order, suitable for</span>
 <span class="sd">            flipping the mesh orientation.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">BezierPatch</span><span class="p">([</span><span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">row</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]</span></div>
 
 
@@ -3204,7 +3204,7 @@
 <div class="viewcode-block" id="BezierPatch.vnf">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.vnf">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">vnf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh this patch into a :class:`~pybosl2.vnf.VNF`.</span>
+<span class="w">        </span><span class="sd">"""Mesh this patch into a :class:`~pybosl2.vnf.VNF`.</span>
 
 <span class="sd">        Samples the patch at *splinesteps* intervals in both *u* and *v*</span>
 <span class="sd">        directions (or per-axis if given as ``[usteps, vsteps]``) and builds</span>
@@ -3226,7 +3226,7 @@
 <span class="sd">            vnf = patch.vnf(splinesteps=16)</span>
 <span class="sd">            vnf.polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ss</span> <span class="o">=</span> <span class="n">splinesteps</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">)</span>
         <span class="n">uvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">vvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
@@ -3241,7 +3241,7 @@
         <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert one or more patches into a single VNF (BOSL2 bezier_vnf).</span>
+<span class="w">        </span><span class="sd">"""Convert one or more patches into a single VNF (BOSL2 bezier_vnf).</span>
 
 <span class="sd">        Accepts either a single patch (2-D control-point array) or a list</span>
 <span class="sd">        of patches and returns their combined :class:`~pybosl2.vnf.VNF`</span>
@@ -3264,7 +3264,7 @@
 <span class="sd">            p2 = BezierPatch.flat([50, 50], n_degree=2, trans=(60, 0, 0))</span>
 <span class="sd">            BezierPatch.to_vnf([p1, p2], splinesteps=16).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">patches</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">BezierPatch</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">union</span><span class="p">([</span><span class="n">BezierPatch</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">patches</span><span class="p">])</span></div>
@@ -3279,8 +3279,8 @@
         <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">UP</span><span class="p">,</span>
         <span class="n">trans</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BezierPatch&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a flat rectangular degree-*n_degree* patch.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"BezierPatch"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create a flat rectangular degree-*n_degree* patch.</span>
 
 <span class="sd">        Generates a patch of the given *size* centered on the XY plane,</span>
 <span class="sd">        then reorients it using *spin* and *orient*. Supports translation</span>
@@ -3305,7 +3305,7 @@
 <span class="sd">            patch = BezierPatch.flat([100, 100], n_degree=3, spin=45)</span>
 <span class="sd">            patch.vnf(splinesteps=16).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="n">n_degree</span> <span class="o">&gt;</span> <span class="mi">0</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
         <span class="n">patch</span> <span class="o">=</span> <span class="p">[</span>
@@ -3322,7 +3322,7 @@
 <div class="viewcode-block" id="BezierPatch.sheet">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.sheet">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).</span>
+<span class="w">        </span><span class="sd">"""Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).</span>
 
 <span class="sd">        Creates a solid by meshing two copies of the patch offset in opposite</span>
 <span class="sd">        normal directions and connecting the boundary edges. *delta* is a</span>
@@ -3351,14 +3351,14 @@
 <span class="sd">            patch = BezierPatch.flat([100, 100], n_degree=3)</span>
 <span class="sd">            patch.sheet([0, -6], splinesteps=16).polyhedron().show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">diameter</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="nb">float</span><span class="p">(</span><span class="n">delta</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">delta</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
         <span class="n">ss</span> <span class="o">=</span> <span class="n">splinesteps</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">)</span>
         <span class="n">uvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">vvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">ss</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">uvals</span><span class="p">,</span> <span class="n">vvals</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">normals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normals</span><span class="p">(</span><span class="n">uvals</span><span class="p">,</span> <span class="n">vvals</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">normals</span><span class="p">)),</span> <span class="s2">&quot;Bezier patch has degenerate normals.&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">normals</span><span class="p">)),</span> <span class="s2">"Bezier patch has degenerate normals."</span>
         <span class="n">offset0</span> <span class="o">=</span> <span class="n">pts</span> <span class="o">-</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">normals</span>
         <span class="n">offset1</span> <span class="o">=</span> <span class="n">pts</span> <span class="o">-</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">normals</span>
         <span class="n">allpoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">offset0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">offset1</span><span class="p">[</span><span class="n">i</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">offset0</span><span class="p">))]</span>
@@ -3371,7 +3371,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">vnf_degenerate</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">return_edges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">VNF</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Mesh a degenerate patch (BOSL2 bezier_vnf_degenerate_patch).</span>
+<span class="w">        </span><span class="sd">"""Mesh a degenerate patch (BOSL2 bezier_vnf_degenerate_patch).</span>
 
 <span class="sd">        Handles patches where some corners or edges are collapsed, avoiding</span>
 <span class="sd">        excess triangles by using adaptive triangulation. When *return_edges*</span>
@@ -3388,7 +3388,7 @@
 <span class="sd">            *return_edges* is True, where *edges* is ``[left, right, top,</span>
 <span class="sd">            bottom]`` point lists.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">_vnf_degenerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">,</span> <span class="n">reverse</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="n">return_edges</span> <span class="k">else</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
@@ -3496,7 +3496,7 @@
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Visualize this patch as native geometry (BOSL2 debug_bezier_patches).</span>
+<span class="w">        </span><span class="sd">"""Visualize this patch as native geometry (BOSL2 debug_bezier_patches).</span>
 
 <span class="sd">        Renders the surface, control-point net lines, and control points as</span>
 <span class="sd">        solid geometry. *showpatch* enables the surface mesh, *showcps*</span>
@@ -3522,7 +3522,7 @@
 <span class="sd">            patch = BezierPatch.flat([100, 100], n_degree=3)</span>
 <span class="sd">            patch.debug(splinesteps=8, showcps=True, showpatch=True)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">debug_bezier_patches</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">self</span><span class="p">],</span>  <span class="c1"># type: ignore[list-item]</span>
             <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
@@ -3571,7 +3571,7 @@
     <span class="n">showpatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Native geometry showing bezier patches: surfaces, control points and control-net lines.</span>
+<span class="w">    </span><span class="sd">"""Native geometry showing bezier patches: surfaces, control points and control-net lines.</span>
 
 <span class="sd">    Returns a :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patches.</span>
 <span class="sd">    Requires the real PythonSCAD app; builds on VNF.polyhedron() and the</span>
@@ -3590,7 +3590,7 @@
 <span class="sd">        A :class:`~pybosl2.shapes3d.Bosl2Solid` wrapping the rendered patch</span>
 <span class="sd">        surfaces, control nets, and control-point markers.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
 
     <span class="n">plist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">patches</span><span class="p">]</span> <span class="k">if</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span> <span class="k">else</span> <span class="n">patches</span>  <span class="c1"># type: ignore[assignment]</span>
@@ -3611,19 +3611,19 @@
         <span class="k">if</span> <span class="n">showcps</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">bp</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
-                    <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">sz</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">))</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">sz</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"red"</span><span class="p">))</span>
             <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nrows</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>
                     <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nrows</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span>
                             <span class="n">result</span><span class="p">,</span>
-                            <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]]),</span> <span class="n">sz</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;cyan&quot;</span><span class="p">),</span>
+                            <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">]]),</span> <span class="n">sz</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"cyan"</span><span class="p">),</span>
                         <span class="p">)</span>
                     <span class="k">if</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">ncols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span>
                             <span class="n">result</span><span class="p">,</span>
-                            <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">sz</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;cyan&quot;</span><span class="p">),</span>
+                            <span class="n">_debug_tube</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">sz</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"cyan"</span><span class="p">),</span>
                         <span class="p">)</span>
         <span class="k">if</span> <span class="n">showpatch</span> <span class="ow">or</span> <span class="n">showdots</span><span class="p">:</span>
             <span class="n">vnf</span> <span class="o">=</span> <span class="n">bp</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="o">=</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
@@ -3631,7 +3631,7 @@
                 <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">showdots</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
-                    <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">sz</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">&quot;blue&quot;</span><span class="p">))</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">sz</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
 </code></pre></div>

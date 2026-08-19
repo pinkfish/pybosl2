@@ -1814,13 +1814,13 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 <span class="c1"># DocCategory: Paths, regions &amp; surfaces</span>
 
-<span class="sd">&quot;&quot;&quot;Object API for 2-D paths and regions.</span>
+<span class="sd">"""Object API for 2-D paths and regions.</span>
 
 <span class="sd">Path2D and Region: object wrappers over the 2-D point maths in paths.py/rounding.py/</span>
 <span class="sd">transforms.py, so a polygon can be built once and then chained</span>
 <span class="sd">(`Path2D(pts).offset(radius=-2).round_corners(radius=1).polygon()`) instead of threading raw</span>
 <span class="sd">point lists through free functions.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1842,28 +1842,28 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Region&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Region"</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_polygon_parts</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Every non-empty ``Polygon`` in *geom*, whatever shapely handed back.</span>
+<span class="w">    </span><span class="sd">"""Every non-empty ``Polygon`` in *geom*, whatever shapely handed back.</span>
 
 <span class="sd">    Repairing a ring with ``buffer(0)`` can return a ``Polygon``, a ``MultiPolygon`` (a</span>
 <span class="sd">    figure-eight outline is genuinely two polygons) or an empty ``GeometryCollection`` --</span>
 <span class="sd">    callers that then reach for ``.exterior`` break on the last two.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">geom</span><span class="p">]</span> <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">area</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
     <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="s2">&quot;geoms&quot;</span><span class="p">,</span> <span class="p">()):</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="s2">"geoms"</span><span class="p">,</span> <span class="p">()):</span>
         <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_polygon_parts</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">parts</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flatten_shapely_to_paths</span><span class="p">(</span><span class="n">geom</span><span class="p">:</span> <span class="n">MultiPolygon</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract all paths from a ``Polygon`` or ``MultiPolygon``.</span>
+<span class="w">    </span><span class="sd">"""Extract all paths from a ``Polygon`` or ``MultiPolygon``.</span>
 
 <span class="sd">    Every polygon (exterior and any holes) in the geometry is flattened into</span>
 <span class="sd">    the result list.  For a ``MultiPolygon``, all component polygons are</span>
@@ -1872,7 +1872,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        A flat list of :class:`Path2D` objects.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">geom</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[]</span>
     <span class="n">polys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geom</span><span class="o">.</span><span class="n">geoms</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">geom</span><span class="p">]</span>
@@ -1880,7 +1880,7 @@
     <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="c1"># A region&#39;s outlines are rings, so they come back closed whatever built them.</span>
+        <span class="c1"># A region's outlines are rings, so they come back closed whatever built them.</span>
         <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">interior</span> <span class="ow">in</span> <span class="n">poly</span><span class="o">.</span><span class="n">interiors</span><span class="p">:</span>
             <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -1890,7 +1890,7 @@
 <div class="viewcode-block" id="Region">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Region</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A 2-D region backed by :mod:`shapely` (not OpenSCAD/PythonSCAD).</span>
+<span class="w">    </span><span class="sd">"""A 2-D region backed by :mod:`shapely` (not OpenSCAD/PythonSCAD).</span>
 
 <span class="sd">    Stores :class:`~shapely.geometry.MultiPolygon` internally and derives</span>
 <span class="sd">    :class:`Path2D` outlines only when requested. All Boolean operations</span>
@@ -1932,10 +1932,10 @@
 <span class="sd">                ])</span>
 <span class="sd">                region.geometry().linear_extrude(height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a region from path outlines or a shapely geometry.</span>
+<span class="w">        </span><span class="sd">"""Create a region from path outlines or a shapely geometry.</span>
 
 <span class="sd">        When *paths* is a list of :class:`~pybosl2.path2d.Path2D` objects that</span>
 <span class="sd">        each carry a colour (via :meth:`~pybosl2.path2d.Path2D.color`), the</span>
@@ -1947,9 +1947,9 @@
 <span class="sd">                ``shapely.Polygon`` or ``shapely.MultiPolygon`` is also</span>
 <span class="sd">                accepted.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="s2">&quot;Color | None&quot;</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Color | None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="s2">"Color | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="p">(</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">paths</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span> <span class="o">=</span> <span class="n">MultiPolygon</span><span class="p">()</span>
@@ -1961,7 +1961,7 @@
 
         <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">items</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Region needs paths, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Region needs paths, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">items</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">items</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
@@ -1974,26 +1974,26 @@
 
 <div class="viewcode-block" id="Region.simplify">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.simplify">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy with each polygon simplified, keeping its colour.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simplify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy with each polygon simplified, keeping its colour.</span>
 
 <span class="sd">        Douglas-Peucker, topology-preserving, applied per polygon so the per-piece colours</span>
-<span class="sd">        survive -- ``shapely``&#39;s own ``simplify`` on the whole geometry would return bare</span>
+<span class="sd">        survive -- ``shapely``'s own ``simplify`` on the whole geometry would return bare</span>
 <span class="sd">        polygons and drop them.</span>
 
 <span class="sd">        Worth doing on traced or imported artwork, where the point count reflects the</span>
-<span class="sd">        drawing tool rather than anything the output can show: Wikipedia&#39;s Flag of Portugal</span>
+<span class="sd">        drawing tool rather than anything the output can show: Wikipedia's Flag of Portugal</span>
 <span class="sd">        carries 33150 points, and a tolerance of 0.25 (0.02mm once that flag is 60mm wide)</span>
 <span class="sd">        takes it to 11315 with the area unchanged to five figures.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tolerance: maximum deviation, in the region&#39;s own units.</span>
+<span class="sd">            tolerance: maximum deviation, in the region's own units.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region`; *self* is unchanged.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">tolerance</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;tolerance must be &gt; 0, got </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="n">tolerance</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"tolerance must be &gt; 0, got </span><span class="si">{</span><span class="n">tolerance</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">polys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="o">.</span><span class="n">geoms</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="p">]</span>
         <span class="n">colours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_colors</span> <span class="ow">or</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span>
         <span class="n">pieces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2009,8 +2009,8 @@
 
 <div class="viewcode-block" id="Region.color">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.color">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">&quot;Color&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a copy of this region with the given :class:`Color`.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Color"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a copy of this region with the given :class:`Color`."""</span>
         <span class="n">copy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="n">c</span>
         <span class="k">return</span> <span class="n">copy</span></div>
@@ -2018,8 +2018,8 @@
 
 <div class="viewcode-block" id="Region.color_all">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.color_all">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">color_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">&quot;Color&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a simplified copy with every polygon set to the same colour.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">color_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Color"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a simplified copy with every polygon set to the same colour.</span>
 
 <span class="sd">        All polygons are unioned together (same-colour overlaps merge into one</span>
 <span class="sd">        shape) and the per-polygon colour list is collapsed to a single entry.</span>
@@ -2033,7 +2033,7 @@
 <span class="sd">            A new :class:`Region` where every polygon has colour *c* and</span>
 <span class="sd">            overlapping polygons are merged into non-overlapping pieces.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
 
         <span class="n">new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -2048,8 +2048,8 @@
 
 <div class="viewcode-block" id="Region.copy">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a shallow copy of this region.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a shallow copy of this region."""</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">Region</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="n">Region</span><span class="p">)</span>
         <span class="n">c</span><span class="o">.</span><span class="n">_polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span>
         <span class="n">c</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
@@ -2058,20 +2058,20 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of paths in the region.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the number of paths in the region."""</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">slice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access a path by index or slice.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Access a path by index or slice."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iterate over the paths.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Iterate over the paths."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The list of :class:`Path2D` objects derived from the geometry.</span>
+<span class="w">        </span><span class="sd">"""The list of :class:`Path2D` objects derived from the geometry.</span>
 
 <span class="sd">        Extracted on-demand from the underlying shapely</span>
 <span class="sd">        :class:`~shapely.geometry.Polygon` or :class:`~shapely.geometry.MultiPolygon`.</span>
@@ -2079,25 +2079,25 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`Path2D` objects.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">_flatten_shapely_to_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">geom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiPolygon</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The underlying shapely geometry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The underlying shapely geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_from_colored_pieces</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pieces</span><span class="p">:</span> <span class="s2">&quot;list[tuple[Any, Any]]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a Region from already-resolved ``(colour, shapely geometry)`` pairs.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_from_colored_pieces</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pieces</span><span class="p">:</span> <span class="s2">"list[tuple[Any, Any]]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build a Region from already-resolved ``(colour, shapely geometry)`` pairs.</span>
 
 <span class="sd">        For callers that have done their own compositing and just need the pieces carried</span>
 <span class="sd">        into a Region with their colours -- :func:`~pybosl2.svg.region_from_svg` resolves</span>
 <span class="sd">        SVG paint order itself, because that is per-element and :meth:`even_odd` is not.</span>
 <span class="sd">        The pieces are expected to be disjoint; nothing here re-clips them.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">all_polys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Color | None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">color</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">pieces</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">_polygon_parts</span><span class="p">(</span><span class="n">geom</span><span class="p">):</span>
                 <span class="n">all_polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
@@ -2112,14 +2112,14 @@
 <div class="viewcode-block" id="Region.to_shapely">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.to_shapely">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_shapely</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiPolygon</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the shapely geometry for this region.</span>
+<span class="w">        </span><span class="sd">"""Return the shapely geometry for this region.</span>
 
 <span class="sd">        Equivalent to the :attr:`geom` property; provided for explicit usage.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``shapely.Polygon`` or ``shapely.MultiPolygon``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span></div>
 
 
@@ -2134,11 +2134,11 @@
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
         <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;polygon&quot;</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).</span>
+        <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"polygon"</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).</span>
 
-<span class="sd">        Real path data rather than the renderer&#39;s opaque imported handle, so the drawing can be</span>
+<span class="sd">        Real path data rather than the renderer's opaque imported handle, so the drawing can be</span>
 <span class="sd">        measured, offset, rounded or tessellated like anything else -- and needs no renderer.</span>
 
 <span class="sd">        Args:</span>
@@ -2146,16 +2146,16 @@
 <span class="sd">            fn: Minimum fragment count per curved segment (``&gt;= 3`` → absolute point count).</span>
 <span class="sd">            fa: Minimum angle in degrees (accepted for API parity).</span>
 <span class="sd">            fs: Minimum fragment size in SVG user units (default ``2.0``).</span>
-<span class="sd">            flip_y: Negate Y so the drawing is not mirrored (SVG&#39;s Y axis points down).</span>
-<span class="sd">            color: When set, overrides every shape&#39;s fill colour with this hex string.</span>
-<span class="sd">                Pass ``None`` (the default) to use the SVG&#39;s own colours.</span>
-<span class="sd">            strokes: ``&quot;polygon&quot;`` (default) converts stroked paths to filled polygons.</span>
-<span class="sd">                ``&quot;ignore&quot;`` skips shapes that have only a stroke and no fill.</span>
+<span class="sd">            flip_y: Negate Y so the drawing is not mirrored (SVG's Y axis points down).</span>
+<span class="sd">            color: When set, overrides every shape's fill colour with this hex string.</span>
+<span class="sd">                Pass ``None`` (the default) to use the SVG's own colours.</span>
+<span class="sd">            strokes: ``"polygon"`` (default) converts stroked paths to filled polygons.</span>
+<span class="sd">                ``"ignore"`` skips shapes that have only a stroke and no fill.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` of the drawing, nested by the even-odd rule.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.svg</span><span class="w"> </span><span class="kn">import</span> <span class="n">region_from_svg</span>
 
         <span class="k">return</span> <span class="n">region_from_svg</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">)</span></div>
@@ -2164,8 +2164,8 @@
 <div class="viewcode-block" id="Region.even_odd">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.even_odd">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">even_odd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="s2">&quot;Sequence[Path2D | Sequence[Sequence[float]]]&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a region from outlines nested by the EVEN-ODD rule.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">even_odd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="s2">"Sequence[Path2D | Sequence[Sequence[float]]]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Create a region from outlines nested by the EVEN-ODD rule.</span>
 
 <span class="sd">        Colours are read from each :class:`~pybosl2.path2d.Path2D` object (via</span>
 <span class="sd">        :meth:`~pybosl2.path2d.Path2D.color`).  Same-colour solids are unioned</span>
@@ -2178,7 +2178,7 @@
 <span class="sd">        The default constructor is outer-plus-holes: outline 0 bounds the region</span>
 <span class="sd">        and every other outline is a hole in it.  Even-odd instead decides each</span>
 <span class="sd">        outline by how many others CONTAIN it, which is the rule SVG and</span>
-<span class="sd">        OpenSCAD&#39;s multi-path ``polygon()`` use.</span>
+<span class="sd">        OpenSCAD's multi-path ``polygon()`` use.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            paths: The outlines, each a :class:`~pybosl2.path2d.Path2D` or</span>
@@ -2200,11 +2200,11 @@
 <span class="sd">                from pybosl2 import Path2D, Region</span>
 <span class="sd">                from pybosl2.color import Color</span>
 
-<span class="sd">                red = Path2D([[0,0],[30,0],[30,20],[0,20]]).color(Color(&quot;#ff0000&quot;))</span>
-<span class="sd">                blue = Path2D([[20,0],[50,0],[50,20],[20,20]]).color(Color(&quot;#0000ff&quot;))</span>
+<span class="sd">                red = Path2D([[0,0],[30,0],[30,20],[0,20]]).color(Color("#ff0000"))</span>
+<span class="sd">                blue = Path2D([[20,0],[50,0],[50,20],[20,20]]).color(Color("#0000ff"))</span>
 <span class="sd">                Region.even_odd([red, blue]).geometry().linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span> <span class="k">as</span> <span class="n">_Point</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">_Polygon</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
@@ -2212,15 +2212,15 @@
         <span class="n">rings</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">)</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
 
         <span class="c1"># Repair each ring BEFORE it is used for nesting or unioning. Real drawings are full</span>
-        <span class="c1"># of self-intersecting outlines -- 20 of the 148 rings in Wikipedia&#39;s Flag_of_Portugal</span>
+        <span class="c1"># of self-intersecting outlines -- 20 of the 148 rings in Wikipedia's Flag_of_Portugal</span>
         <span class="c1"># are -- and an invalid ring poisons everything downstream: its holes cannot be matched</span>
         <span class="c1"># to a shell and shapely aborts the whole union with</span>
-        <span class="c1"># &quot;TopologyException: unable to assign free hole to a shell&quot;.</span>
+        <span class="c1"># "TopologyException: unable to assign free hole to a shell".</span>
         <span class="c1"># Repairing afterwards (which is all `piece.buffer(0)` below used to do) is too late.</span>
         <span class="c1"># buffer(0) legitimately splits a figure-eight into two polygons, so a repaired ring</span>
         <span class="c1"># can yield several -- each becomes a ring in its own right, keeping its colour.</span>
         <span class="n">polys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">ring_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Color | None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ring_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -2237,16 +2237,16 @@
         <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">:</span>
             <span class="n">coords</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span>
             <span class="c1"># Midpoint of the first edge, shifted slightly inward so the probe is</span>
-            <span class="c1"># strictly inside the polygon and on no other polygon&#39;s boundary.</span>
+            <span class="c1"># strictly inside the polygon and on no other polygon's boundary.</span>
             <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">x1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
             <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span>
             <span class="c1"># WHICH side is inward depends on the winding, so try both. Assuming one</span>
             <span class="c1"># (this used to take `-dy, +dx` and nothing else) puts the probe OUTSIDE every</span>
-            <span class="c1"># clockwise ring -- 97 of the 153 rings in Wikipedia&#39;s Flag_of_Portugal -- and a</span>
+            <span class="c1"># clockwise ring -- 97 of the 153 rings in Wikipedia's Flag_of_Portugal -- and a</span>
             <span class="c1"># probe outside its own polygon fails every containment test, so the nesting</span>
-            <span class="c1"># depth below is wrong for each of them: the flag&#39;s green field came out a</span>
+            <span class="c1"># depth below is wrong for each of them: the flag's green field came out a</span>
             <span class="c1"># top-level sibling of the red one instead of sitting on it.</span>
             <span class="k">for</span> <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="ow">in</span> <span class="p">((</span><span class="o">-</span><span class="n">dy</span><span class="p">,</span> <span class="n">dx</span><span class="p">),</span> <span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="o">-</span><span class="n">dx</span><span class="p">)):</span>
                 <span class="n">probe</span> <span class="o">=</span> <span class="n">_Point</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="n">sx</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">my</span> <span class="o">+</span> <span class="n">sy</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span>
@@ -2262,8 +2262,8 @@
             <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">))</span>
         <span class="p">]</span>
 
-        <span class="n">color_groups</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;Color | None&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">_Polygon</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">group_order</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Color | None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">color_groups</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">_Polygon</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">group_order</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">polys</span><span class="p">):</span>
             <span class="n">c</span> <span class="o">=</span> <span class="n">ring_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">holes</span> <span class="o">=</span> <span class="p">[</span>
@@ -2284,7 +2284,7 @@
             <span class="c1"># colour group like any other piece, keeping its own holes so the rings nested</span>
             <span class="c1"># inside IT are not covered over. It used to be held back and appended at the</span>
             <span class="c1"># end, skipping the subtraction below and built from its bare exterior: that is</span>
-            <span class="c1"># why a colour could overlap ITSELF (8077mm^2 of the Portuguese flag&#39;s yellow)</span>
+            <span class="c1"># why a colour could overlap ITSELF (8077mm^2 of the Portuguese flag's yellow)</span>
             <span class="c1"># and why the arms overlapped the fields they sit on.</span>
             <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">color_groups</span><span class="p">:</span>
                 <span class="n">group_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
@@ -2294,7 +2294,7 @@
             <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span>
 
         <span class="n">all_polys</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Polygon</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">polygon_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">&quot;Color | None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">polygon_colors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">previous_union</span><span class="p">:</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">group_order</span><span class="p">:</span>
@@ -2328,8 +2328,8 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">outline</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
         <span class="o">*</span><span class="n">holes</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create a region from an outline plus hole outlines.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">"""Create a region from an outline plus hole outlines.</span>
 
 <span class="sd">        Convenience constructor. Equivalent to ``Region([outline, \\*holes])``.</span>
 <span class="sd">        See :meth:`__init__` for the full constructor.</span>
@@ -2341,28 +2341,28 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` with the outline as the first path and holes as subsequent paths.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">([</span><span class="n">outline</span><span class="p">,</span> <span class="o">*</span><span class="n">holes</span><span class="p">])</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">outline</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The outer path.</span>
+<span class="w">        </span><span class="sd">"""The outer path.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The first :class:`Path2D` in the region, which is the outer outline.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">([],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">holes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path2D</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The hole paths.</span>
+<span class="w">        </span><span class="sd">"""The hole paths.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            All :class:`Path2D` objects after the first, which are the interior holes.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
 
 <div class="viewcode-block" id="Region.offset">
@@ -2372,8 +2372,8 @@
         <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chamfer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Offset every path in the region.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Offset every path in the region.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            radius: The corner-rounding radius for the offset.</span>
@@ -2383,7 +2383,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with every path offset by the given parameters.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
@@ -2401,13 +2401,13 @@
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">curvature</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Round the corners of every path in the region.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Round the corners of every path in the region.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            radius: The rounding radius. A single float applies to all corners;</span>
 <span class="sd">                a list applies per-corner radii.</span>
-<span class="sd">            method: The rounding method (``&quot;circle&quot;``, ``&quot;smooth&quot;``, etc.).</span>
+<span class="sd">            method: The rounding method (``"circle"``, ``"smooth"``, etc.).</span>
 <span class="sd">            cut: Cut depth for chamfers.</span>
 <span class="sd">            joint: Joint distance for rounding.</span>
 <span class="sd">            width: Width for rounding.</span>
@@ -2417,7 +2417,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with rounded corners on every path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">Region</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">p</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span>
@@ -2439,8 +2439,8 @@
 
 <div class="viewcode-block" id="Region.translate">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.translate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Translate every path in the region by the given vector.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Translate every path in the region by the given vector.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            v: A 2-D or 3-D translation vector.</span>
@@ -2448,38 +2448,38 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A new :class:`Region` with every path translated.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">Region</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Region.bounds">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.bounds">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the bounding box over every path in the region.</span>
+<span class="w">        </span><span class="sd">"""Return the bounding box over every path in the region.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A numpy array ``[[min_x, min_y], [max_x, max_y]]``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="s2">&quot;empty Region has no bounds&quot;</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span> <span class="s2">"empty Region has no bounds"</span>
         <span class="n">all_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">array</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">all_pts</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">all_pts</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span></div>
 
 
 <div class="viewcode-block" id="Region.geometry">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.geometry">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;2-D geometry: every polygon in the region, each with its holes subtracted.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Shape2D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""2-D geometry: every polygon in the region, each with its holes subtracted.</span>
 
 <span class="sd">        When :attr:`_polygon_colors` is populated each polygon is coloured individually</span>
-<span class="sd">        before being unioned into the final shape.  Otherwise the region&#39;s single</span>
+<span class="sd">        before being unioned into the final shape.  Otherwise the region's single</span>
 <span class="sd">        :attr:`_color` is applied to every piece.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`, so the result chains straight into the 2-D</span>
 <span class="sd">            operators and the extruders.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">polys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="o">.</span><span class="n">geoms</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon</span><span class="p">]</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">poly</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">polys</span><span class="p">):</span>
@@ -2493,7 +2493,7 @@
                 <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_polygon_colors</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                 <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">poly_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">poly_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">piece</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">):</span>
                 <span class="n">piece</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">poly_color</span><span class="p">)</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">shape</span> <span class="o">|</span> <span class="n">piece</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2507,23 +2507,23 @@
 
 <div class="viewcode-block" id="Region.fill">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.fill">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Shape2D&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return this region as 2-D geometry with its holes filled in.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Shape2D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return this region as 2-D geometry with its holes filled in.</span>
 
 <span class="sd">        Equivalent to just the outline (OpenSCAD ``fill()``).</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">fill</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_split_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;list[Region]&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return sub-Regions, one per distinct colour group, with overlaps resolved.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_split_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[Region]"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return sub-Regions, one per distinct colour group, with overlaps resolved.</span>
 
 <span class="sd">        Same-colour polygons are unioned together; different-colour polygons are kept</span>
 <span class="sd">        as separate Regions.  The first colour wins any overlap so that no two</span>
@@ -2533,9 +2533,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of :class:`Region` objects, one per colour group found in</span>
 <span class="sd">            :attr:`_polygon_colors`.  When :attr:`_polygon_colors` is empty the</span>
-<span class="sd">            region&#39;s single :attr:`_color` is used for every piece.</span>
+<span class="sd">            region's single :attr:`_color` is used for every piece.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span> <span class="k">as</span> <span class="n">_Color</span>  <span class="c1"># noqa: TC001</span>
@@ -2572,8 +2572,8 @@
 <div class="viewcode-block" id="Region.hull">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.hull">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D convex hull of all the given regions and paths.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D convex hull of all the given regions and paths.</span>
 
 <span class="sd">        Uses shapely :func:`~shapely.convex_hull` on the union of all input</span>
 <span class="sd">        geometries. Accepts a flat list or multiple arguments::</span>
@@ -2587,7 +2587,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` representing the convex hull.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path</span>
@@ -2600,7 +2600,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">_Path</span><span class="p">):</span>
                 <span class="n">item</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">item</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Region</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;convex_hull() expects Region or Path2D, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"convex_hull() expects Region or Path2D, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">geoms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">geoms</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">geoms</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Region</span><span class="p">()</span>
@@ -2622,9 +2622,9 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">color_heights</span><span class="p">:</span> <span class="s2">&quot;dict[str | Color, float] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Solid&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude this region along +Z into a 3-D solid with holes included.</span>
+        <span class="n">color_heights</span><span class="p">:</span> <span class="s2">"dict[str | Color, float] | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Extrude this region along +Z into a 3-D solid with holes included.</span>
 
 <span class="sd">        When the region contains multiple colour groups (via</span>
 <span class="sd">        :attr:`_polygon_colors`), each group is extruded separately and the</span>
@@ -2633,10 +2633,10 @@
 
 <span class="sd">        The result depends on the active backend: a :class:`~pybosl2.shapes3d.Bosl2Solid` under</span>
 <span class="sd">        the default CSG backend, or a :class:`~pybosl2.sdf.shapes3d.PyShape` under</span>
-<span class="sd">        ``use_backend(&quot;sdf&quot;)``. See :meth:`pybosl2.paths.Path2D.linear_extrude` for per-backend</span>
+<span class="sd">        ``use_backend("sdf")``. See :meth:`pybosl2.paths.Path2D.linear_extrude` for per-backend</span>
 <span class="sd">        options.</span>
 
-<span class="sd">        The SDF backend&#39;s prism is the union of the outlines&#39; fields, so it can only express a</span>
+<span class="sd">        The SDF backend's prism is the union of the outlines' fields, so it can only express a</span>
 <span class="sd">        region of DISJOINT islands; a region with holes raises</span>
 <span class="sd">        :class:`~pybosl2.exceptions.UnsupportedByBackendError` there.</span>
 
@@ -2649,7 +2649,7 @@
 <span class="sd">            fn: Smoothness override for the angular resolution.</span>
 <span class="sd">            fa: Smoothness override for the minimum angle.</span>
 <span class="sd">            fs: Smoothness override for the minimum segment length.</span>
-<span class="sd">            color_heights: Optional dict mapping colour names (``&quot;#ff0000&quot;``, ``&quot;red&quot;``, or</span>
+<span class="sd">            color_heights: Optional dict mapping colour names (``"#ff0000"``, ``"red"``, or</span>
 <span class="sd">                :class:`~pybosl2.color.Color` objects) to a specific extrusion height.  Coloured</span>
 <span class="sd">                pieces that match a key are extruded by that height; pieces whose colour is not</span>
 <span class="sd">                in the mapping use the default *height*.</span>
@@ -2662,17 +2662,17 @@
 
 <span class="sd">        .. code-block:: python</span>
 
-<span class="sd">            red = Path2D.square(20).color(&quot;red&quot;)</span>
-<span class="sd">            blue = Path2D.square(20).color(&quot;blue&quot;)</span>
+<span class="sd">            red = Path2D.square(20).color("red")</span>
+<span class="sd">            blue = Path2D.square(20).color("blue")</span>
 <span class="sd">            region = Region.even_odd([red, blue.move(25)])</span>
 <span class="sd">            solid = region.linear_extrude(</span>
 <span class="sd">                height=5,</span>
-<span class="sd">                color_heights={&quot;red&quot;: 10, &quot;blue&quot;: 3},</span>
+<span class="sd">                color_heights={"red": 10, "blue": 3},</span>
 <span class="sd">            )</span>
 <span class="sd">            solid.show()</span>
 <span class="sd">            # The red square is 10 mm tall, the blue square is 3 mm tall.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_backend</span><span class="p">,</span> <span class="n">get_backend</span>
@@ -2696,14 +2696,14 @@
             <span class="k">return</span> <span class="n">height</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># Single polygon: use the backend&#39;s native outline+holes path</span>
-            <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;csg&quot;</span> <span class="ow">and</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">holes</span><span class="p">:</span>
+            <span class="c1"># Single polygon: use the backend's native outline+holes path</span>
+            <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"csg"</span> <span class="ow">and</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">holes</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
-                    <span class="s2">&quot;linear_extrude (region with holes)&quot;</span><span class="p">,</span>
+                    <span class="s2">"linear_extrude (region with holes)"</span><span class="p">,</span>
                     <span class="n">current_backend</span><span class="p">(),</span>
-                    <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;the sdf prism unions its outlines&#39; fields, so it cannot cut holes. &quot;</span>
-                    <span class="s2">&quot;Extrude the outline and subtract the holes&#39; own extrusions, or build &quot;</span>
-                    <span class="s2">&quot;it on the csg backend.&quot;</span><span class="p">,</span>
+                    <span class="n">hint</span><span class="o">=</span><span class="s2">"the sdf prism unions its outlines' fields, so it cannot cut holes. "</span>
+                    <span class="s2">"Extrude the outline and subtract the holes' own extrusions, or build "</span>
+                    <span class="s2">"it on the csg backend."</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">given_arguments</span>
 
@@ -2713,17 +2713,17 @@
                 <span class="n">piece_height</span><span class="p">,</span>
                 <span class="n">given_arguments</span><span class="p">(</span>
                     <span class="p">{</span>
-                        <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
-                        <span class="s2">&quot;twist&quot;</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
-                        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
-                        <span class="s2">&quot;slices&quot;</span><span class="p">:</span> <span class="n">slices</span><span class="p">,</span>
-                        <span class="s2">&quot;fn&quot;</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
-                        <span class="s2">&quot;fa&quot;</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
-                        <span class="s2">&quot;fs&quot;</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
+                        <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
+                        <span class="s2">"twist"</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
+                        <span class="s2">"scale"</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+                        <span class="s2">"slices"</span><span class="p">:</span> <span class="n">slices</span><span class="p">,</span>
+                        <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                        <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                        <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">),</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">):</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_color</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">result</span>
 
@@ -2751,8 +2751,8 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Bosl2Solid&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Revolve this region about the Y axis into a 3-D solid.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Revolve this region about the Y axis into a 3-D solid.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            angle: The rotation angle in degrees.</span>
@@ -2764,9 +2764,9 @@
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid` (csg backend only -- the SDF backend has no</span>
 <span class="sd">            revolve).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>
 
@@ -2781,11 +2781,11 @@
         <span class="n">endcap2</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
         <span class="n">joints</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Region</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stroke every path in the region (closed) and return the union as a Region.</span>
+<span class="w">        </span><span class="sd">"""Stroke every path in the region (closed) and return the union as a Region.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            width: Stroke width.</span>
-<span class="sd">            closed: Accepted for signature parity; a region&#39;s paths are always stroked closed.</span>
+<span class="sd">            closed: Accepted for signature parity; a region's paths are always stroked closed.</span>
 <span class="sd">            endcap1: Cap style for the start of each path.</span>
 <span class="sd">            endcap2: Cap style for the end of each path.</span>
 <span class="sd">            joints: Cap style where segments meet.</span>
@@ -2793,7 +2793,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` of the stroked outlines.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">stroke_2d</span>
 
         <span class="n">polygons</span> <span class="o">=</span> <span class="p">[</span>
@@ -2814,10 +2814,10 @@
         <span class="n">fit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mindash</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Region</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Break every path in the region into dashed polygon outlines.</span>
+<span class="w">        </span><span class="sd">"""Break every path in the region into dashed polygon outlines.</span>
 
 <span class="sd">        Returns a :class:`Region` of all dash polygons.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">dashed_stroke_2d</span>
 
         <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Region</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -2834,9 +2834,9 @@
 <div class="viewcode-block" id="Region.debug_region">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.debug_region">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">debug_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Visualize this region with vertex labels for debugging.</span>
+<span class="w">        </span><span class="sd">"""Visualize this region with vertex labels for debugging.</span>
 
-<span class="sd">        Produces the filled region as a thin flat solid with every path&#39;s vertices labelled in</span>
+<span class="sd">        Produces the filled region as a thin flat solid with every path's vertices labelled in</span>
 <span class="sd">        red -- path ``a`` gets labels ``a0, a1, ...``, path ``b`` ``b0, b1, ...`` (BOSL2</span>
 <span class="sd">        ``debug_region()``). A single-path region defers to</span>
 <span class="sd">        :meth:`~pybosl2.paths.Path2D.debug_polygon`.</span>
@@ -2848,7 +2848,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
 
@@ -2863,14 +2863,14 @@
             <span class="k">return</span> <span class="n">solid</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">text3d</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">chr</span><span class="p">(</span><span class="mi">97</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">chr</span><span class="p">(</span><span class="mi">97</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="si">}{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
                 <span class="n">height</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
-                <span class="n">halign</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-                <span class="n">valign</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">halign</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+                <span class="n">valign</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="mf">0.01</span><span class="p">])</span>
-            <span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">Color</span><span class="p">(</span><span class="s2">&quot;red&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">Color</span><span class="p">(</span><span class="s2">"red"</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="p">]</span>
@@ -2883,10 +2883,10 @@
 
 <div class="viewcode-block" id="Region.intersection">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.intersection">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D intersection of this region with other (the area they share).</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D intersection of this region with other (the area they share).</span>
 
-<span class="sd">        Uses shapely for exact polygon coordinates.  The result inherits *self*&#39;s colour.</span>
+<span class="sd">        Uses shapely for exact polygon coordinates.  The result inherits *self*'s colour.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other: the region to intersect with.</span>
@@ -2905,7 +2905,7 @@
 <span class="sd">                b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])</span>
 <span class="sd">                a.intersection(b).geometry().linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
@@ -2919,11 +2919,11 @@
 
 <div class="viewcode-block" id="Region.union">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.union">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D union of this region and other (all area covered by either).</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D union of this region and other (all area covered by either).</span>
 
 <span class="sd">        Uses shapely for exact polygon coordinates.  When *self* and *other* carry different</span>
-<span class="sd">        colours, the union inherits *self*&#39;s colour -- the first path in the set wins the</span>
+<span class="sd">        colours, the union inherits *self*'s colour -- the first path in the set wins the</span>
 <span class="sd">        overlap.</span>
 
 <span class="sd">        Args:</span>
@@ -2943,7 +2943,7 @@
 <span class="sd">                b = Region([[20, 0], [50, 0], [50, 30], [20, 30]])</span>
 <span class="sd">                a.union(b).geometry().linear_extrude(height=3).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
@@ -2957,10 +2957,10 @@
 
 <div class="viewcode-block" id="Region.difference">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.difference">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D difference: self with the area of other subtracted.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D difference: self with the area of other subtracted.</span>
 
-<span class="sd">        Uses shapely for exact polygon coordinates.  The result inherits *self*&#39;s colour.</span>
+<span class="sd">        Uses shapely for exact polygon coordinates.  The result inherits *self*'s colour.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other: the region to subtract.</span>
@@ -2979,7 +2979,7 @@
 <span class="sd">                notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])</span>
 <span class="sd">                plate.difference(notch).geometry().linear_extrude(height=4).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
@@ -2993,10 +2993,10 @@
 
 <div class="viewcode-block" id="Region.symmetric_difference">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region.symmetric_difference">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">symmetric_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the 2-D symmetric difference (XOR): area in either region but not both.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">symmetric_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D symmetric difference (XOR): area in either region but not both.</span>
 
-<span class="sd">        Uses shapely for exact polygon coordinates.  The result inherits *self*&#39;s colour.</span>
+<span class="sd">        Uses shapely for exact polygon coordinates.  The result inherits *self*'s colour.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            other: the region to xor with.</span>
@@ -3004,7 +3004,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` with the symmetric difference area.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">):</span>
             <span class="n">other</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">other</span><span class="p">])</span>
         <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">geom</span><span class="p">)</span>
@@ -3016,26 +3016,26 @@
         <span class="k">return</span> <span class="n">r</span></div>
 
 
-    <span class="c1"># Operator overloads for convenience (mirror Bosl2Shape2D&#39;s &amp;/|/- operators).</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``self &amp; other``, equivalent to ``self.intersection(other)``.&quot;&quot;&quot;</span>
+    <span class="c1"># Operator overloads for convenience (mirror Bosl2Shape2D's &amp;/|/- operators).</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return ``self &amp; other``, equivalent to ``self.intersection(other)``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``self | other``, equivalent to ``self.union(other)``.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return ``self | other``, equivalent to ``self.union(other)``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``self - other``, equivalent to ``self.difference(other)``.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return ``self - other``, equivalent to ``self.difference(other)``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Region&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return ``self ^ other``, equivalent to ``self.symmetric_difference(other)``.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__xor__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Region</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return ``self ^ other``, equivalent to ``self.symmetric_difference(other)``."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">symmetric_difference</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the region.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Region(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span><span class="si">}</span><span class="s2"> paths: </span><span class="si">{</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Return a string representation of the region."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Region(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">)</span><span class="si">}</span><span class="s2"> paths: </span><span class="si">{</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span></div>
 
 </code></pre></div>
 

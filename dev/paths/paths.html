@@ -11924,12 +11924,12 @@ non-collinear point is found.</p>
 <p>Method for subdividing a path.</p>
 <dl class="py attribute objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.paths.SubdivideMethod.LENGTH">
-<span class="sig-name descname"><span class="pre">LENGTH</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;length&#39;</span></code><a class="headerlink" href="#pybosl2.paths.SubdivideMethod.LENGTH" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">LENGTH</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">'length'</span></code><a class="headerlink" href="#pybosl2.paths.SubdivideMethod.LENGTH" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.paths.SubdivideMethod.SEGMENT">
-<span class="sig-name descname"><span class="pre">SEGMENT</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">&#39;segment&#39;</span></code><a class="headerlink" href="#pybosl2.paths.SubdivideMethod.SEGMENT" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">SEGMENT</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">'segment'</span></code><a class="headerlink" href="#pybosl2.paths.SubdivideMethod.SEGMENT" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -12542,7 +12542,7 @@ always returns False rather than testing.</p>
 
 <span class="n">rect</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">]])</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">rect</span><span class="o">.</span><span class="n">contains</span><span class="p">([</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;inside:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"inside:"</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 <span class="n">rect</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
@@ -13423,7 +13423,7 @@ to be closed.</p>
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> under the default CSG backend, a
 <code class="xref py py-class docutils literal notranslate"><span class="pre">PyShape</span></code> under <code class="docutils literal notranslate"><span class="pre">use_backend(&quot;sdf&quot;)</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">plate</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>          <span class="c1"># -&gt; Bosl2Solid</span>
-<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">"sdf"</span><span class="p">):</span>
     <span class="n">field</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>      <span class="c1"># -&gt; PyShape</span>
 </code></pre></div>
 </div>

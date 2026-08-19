@@ -2022,7 +2022,7 @@ a <code class="docutils literal notranslate"><span class="pre">PyShape</span></c
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>          <span class="c1"># CSG (default)  -&gt; Bosl2Solid</span>
-<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">"sdf"</span><span class="p">):</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>      <span class="c1"># libfive SDF     -&gt; PyShape</span>
 </code></pre></div>
 </div>
@@ -2088,7 +2088,7 @@ nonsense:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">use_backend</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">cube</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>                       <span class="c1"># csg</span>
-<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">"sdf"</span><span class="p">):</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>           <span class="c1"># sdf</span>
 <span class="n">c</span> <span class="o">|</span> <span class="n">s</span>                              <span class="c1"># raises CrossBackendError</span>
 </code></pre></div>
@@ -2159,10 +2159,10 @@ shadow to project and no outline to fill. See below.</p></td>
 <p>Query support directly with <code class="docutils literal notranslate"><span class="pre">supports(backend,</span> <span class="pre">feature)</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">supports</span>
 
-<span class="n">supports</span><span class="p">(</span><span class="s2">&quot;csg&quot;</span><span class="p">,</span> <span class="s2">&quot;attach&quot;</span><span class="p">)</span>   <span class="c1"># True</span>
-<span class="n">supports</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">,</span> <span class="s2">&quot;attach&quot;</span><span class="p">)</span>   <span class="c1"># False</span>
-<span class="n">supports</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">,</span> <span class="s2">&quot;round&quot;</span><span class="p">)</span>    <span class="c1"># True</span>
-<span class="n">supports</span><span class="p">(</span><span class="s2">&quot;csg&quot;</span><span class="p">,</span> <span class="s2">&quot;sphere&quot;</span><span class="p">)</span>   <span class="c1"># True  -- shared surface</span>
+<span class="n">supports</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="s2">"attach"</span><span class="p">)</span>   <span class="c1"># True</span>
+<span class="n">supports</span><span class="p">(</span><span class="s2">"sdf"</span><span class="p">,</span> <span class="s2">"attach"</span><span class="p">)</span>   <span class="c1"># False</span>
+<span class="n">supports</span><span class="p">(</span><span class="s2">"sdf"</span><span class="p">,</span> <span class="s2">"round"</span><span class="p">)</span>    <span class="c1"># True</span>
+<span class="n">supports</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="s2">"sphere"</span><span class="p">)</span>   <span class="c1"># True  -- shared surface</span>
 </code></pre></div>
 </div>
 <h2 id="d-on-the-two-backends">2-D on the two backends<a class="headerlink" href="#d-on-the-two-backends" title="Link to this heading">¶</a></h2>
@@ -2219,7 +2219,7 @@ dispatch on the active backend:</p>
 <p>So the same source builds on either backend as long as it goes path → solid:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="n">outline</span> <span class="o">=</span> <span class="n">Path</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">25</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">25</span><span class="p">]])</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">plate</span> <span class="o">=</span> <span class="n">outline</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>              <span class="c1"># -&gt; Bosl2Solid</span>
-<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">&quot;sdf&quot;</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s2">"sdf"</span><span class="p">):</span>
     <span class="n">field</span> <span class="o">=</span> <span class="n">outline</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>          <span class="c1"># -&gt; PyShape</span>
 </code></pre></div>
 </div>
@@ -2263,24 +2263,24 @@ per-user site‑packages that the AppImage Python already has on <code class="do
 </div>
 <p><strong>Linux</strong> (AppImage extracted):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span class="c1"># Extract the AppImage first, then find its Python:</span>
-<span class="nv">PYBASE</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span>/opt/pythonscad<span class="w"> </span>-path<span class="w"> </span><span class="s1">&#39;*/bin/python3*&#39;</span><span class="w"> </span>-not<span class="w"> </span>-path<span class="w"> </span><span class="s1">&#39;*/__pycache__/*&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+<span class="nv">PYBASE</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span>/opt/pythonscad<span class="w"> </span>-path<span class="w"> </span><span class="s1">'*/bin/python3*'</span><span class="w"> </span>-not<span class="w"> </span>-path<span class="w"> </span><span class="s1">'*/__pycache__/*'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
 <span class="nv">$PYBASE</span><span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>numpy<span class="w"> </span>shapely
 </code></pre></div>
 </div>
 <p><strong>Check</strong>: Run a minimal script through the binary to confirm both libraries import:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span class="nv">BIN</span><span class="o">=</span>/path/to/PythonSCAD
-cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/check.py<span class="w"> </span><span class="s">&lt;&lt; &#39;PYEOF&#39;</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/check.py<span class="w"> </span><span class="s">&lt;&lt; 'PYEOF'</span>
 <span class="s">import sys, site, os</span>
 <span class="s">usp = site.getusersitepackages()</span>
 <span class="s">if os.path.isdir(usp) and usp not in sys.path:</span>
 <span class="s">    sys.path.insert(0, usp)</span>
 <span class="s">import numpy as np</span>
 <span class="s">import shapely</span>
-<span class="s">print(f&quot;numpy {np.__version__}  shapely {shapely.__version__}&quot;, file=sys.stderr, flush=True)</span>
+<span class="s">print(f"numpy {np.__version__}  shapely {shapely.__version__}", file=sys.stderr, flush=True)</span>
 <span class="s">from pythonscad import cube</span>
 <span class="s">cube([1,1,1]).show()</span>
 <span class="s">PYEOF</span>
-<span class="s2">&quot;</span><span class="nv">$BIN</span><span class="s2">&quot;</span><span class="w"> </span>--trust-python<span class="w"> </span>--enable<span class="w"> </span>python-engine<span class="w"> </span>-o<span class="w"> </span>/tmp/test.stl<span class="w"> </span>--backend<span class="w"> </span>Manifold<span class="w"> </span>/tmp/check.py
+<span class="s2">"</span><span class="nv">$BIN</span><span class="s2">"</span><span class="w"> </span>--trust-python<span class="w"> </span>--enable<span class="w"> </span>python-engine<span class="w"> </span>-o<span class="w"> </span>/tmp/test.stl<span class="w"> </span>--backend<span class="w"> </span>Manifold<span class="w"> </span>/tmp/check.py
 ls<span class="w"> </span>-la<span class="w"> </span>/tmp/test.stl<span class="w">   </span><span class="c1"># should be a non-zero STL file</span>
 </code></pre></div>
 </div>

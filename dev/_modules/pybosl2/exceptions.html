@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 <span class="c1"># DocCategory: internal</span>
 
-<span class="sd">&quot;&quot;&quot;Exceptions for the dual-backend (CSG / SDF) solid system.&quot;&quot;&quot;</span>
+<span class="sd">"""Exceptions for the dual-backend (CSG / SDF) solid system."""</span>
 
 <span class="c1"># Exceptions for the dual-backend (CSG / SDF) solid system. pybosl2 realizes solids through either</span>
 <span class="c1"># the exact-CSG backend (PythonSCAD, the default) or the F-Rep/signed-distance backend (libfive).</span>
@@ -1825,37 +1825,37 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Bosl2Error&quot;</span><span class="p">,</span> <span class="s2">&quot;UnsupportedByBackendError&quot;</span><span class="p">,</span> <span class="s2">&quot;CrossBackendError&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Bosl2Error"</span><span class="p">,</span> <span class="s2">"UnsupportedByBackendError"</span><span class="p">,</span> <span class="s2">"CrossBackendError"</span><span class="p">]</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Bosl2Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for pybosl2&#39;s own errors.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base class for pybosl2's own errors."""</span>
 
 
 <div class="viewcode-block" id="UnsupportedByBackendError">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.UnsupportedByBackendError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">UnsupportedByBackendError</span><span class="p">(</span><span class="n">Bosl2Error</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A feature the active backend cannot express.</span>
+<span class="w">    </span><span class="sd">"""A feature the active backend cannot express.</span>
 
 <span class="sd">    Raised, rather than silently producing different geometry, when a call needs something the chosen</span>
-<span class="sd">    backend has no faithful equivalent for -- e.g. the BOSL2 attachment/anchor system on the ``&quot;sdf&quot;``</span>
-<span class="sd">    backend, or a smooth-blend union on the ``&quot;csg&quot;`` backend.</span>
+<span class="sd">    backend has no faithful equivalent for -- e.g. the BOSL2 attachment/anchor system on the ``"sdf"``</span>
+<span class="sd">    backend, or a smooth-blend union on the ``"csg"`` backend.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        feature: short name of the unsupported operation (e.g. ``&quot;attach&quot;``, ``&quot;smooth_union&quot;``).</span>
-<span class="sd">        backend: the active backend that cannot do it (``&quot;csg&quot;`` / ``&quot;sdf&quot;``).</span>
+<span class="sd">        feature: short name of the unsupported operation (e.g. ``"attach"``, ``"smooth_union"``).</span>
+<span class="sd">        backend: the active backend that cannot do it (``"csg"`` / ``"sdf"``).</span>
 <span class="sd">        hint:    optional guidance (an alternative call, or which backend does support it).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the instance."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature</span> <span class="o">=</span> <span class="n">feature</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hint</span> <span class="o">=</span> <span class="n">hint</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2"> is not supported by the </span><span class="si">{</span><span class="n">backend</span><span class="si">!r}</span><span class="s2"> backend&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">feature</span><span class="si">!r}</span><span class="s2"> is not supported by the </span><span class="si">{</span><span class="n">backend</span><span class="si">!r}</span><span class="s2"> backend"</span>
         <span class="k">if</span> <span class="n">hint</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;. </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">". </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">"</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
@@ -1863,7 +1863,7 @@
 <div class="viewcode-block" id="CrossBackendError">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.CrossBackendError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CrossBackendError</span><span class="p">(</span><span class="n">Bosl2Error</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A boolean/transform combined solids from two different backends.</span>
+<span class="w">    </span><span class="sd">"""A boolean/transform combined solids from two different backends.</span>
 
 <span class="sd">    Solids must share a backend to be combined. Convert one first: meshing an SDF solid into a CSG</span>
 <span class="sd">    polyhedron is exact (``sdf_solid.to_csg()``); voxel-sampling a CSG solid into an SDF is lossy and</span>
@@ -1873,16 +1873,16 @@
 <span class="sd">        left:  backend of the left operand.</span>
 <span class="sd">        right: backend of the right operand.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the instance."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;cannot combine a </span><span class="si">{</span><span class="n">left</span><span class="si">!r}</span><span class="s2">-backend solid with a </span><span class="si">{</span><span class="n">right</span><span class="si">!r}</span><span class="s2">-backend solid -- operands &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;must share a backend. Bring the SDF solid into the CSG world with `.to_csg()` (an &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;exact mesh-&gt;polyhedron) and combine there. (Direct CSG-&gt;SDF conversion is not supported.)&quot;</span>
+            <span class="sa">f</span><span class="s2">"cannot combine a </span><span class="si">{</span><span class="n">left</span><span class="si">!r}</span><span class="s2">-backend solid with a </span><span class="si">{</span><span class="n">right</span><span class="si">!r}</span><span class="s2">-backend solid -- operands "</span>
+            <span class="sa">f</span><span class="s2">"must share a backend. Bring the SDF solid into the CSG world with `.to_csg()` (an "</span>
+            <span class="sa">f</span><span class="s2">"exact mesh-&gt;polyhedron) and combine there. (Direct CSG-&gt;SDF conversion is not supported.)"</span>
         <span class="p">)</span></div>
 
 </code></pre></div>

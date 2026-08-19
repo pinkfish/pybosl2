@@ -1814,17 +1814,17 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/distributors.py</span>
-<span class="c1">#    Pure-Python port of BOSL2&#39;s distributors.scad: the &quot;copiers&quot; that duplicate a shape into a</span>
+<span class="c1">#    Pure-Python port of BOSL2's distributors.scad: the "copiers" that duplicate a shape into a</span>
 <span class="c1">#    line/grid/ring/arc/sphere/path pattern, plus the reflected-copy helpers. Each copier is a</span>
-<span class="c1">#    module-level function that returns a list of 4x4 transformation matrices (BOSL2&#39;s function</span>
+<span class="c1">#    module-level function that returns a list of 4x4 transformation matrices (BOSL2's function</span>
 <span class="c1">#    form without a ``p=`` argument), and a matching method on the :class:`Distributable` mixin</span>
 <span class="c1">#    that applies those matrices to the object.</span>
 <span class="c1">#</span>
 <span class="c1">#    The mixin is inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`,</span>
 <span class="c1">#    and :class:`~pybosl2.paths.Path3D`, each of which implements ``_distribute(mats)`` to say what</span>
-<span class="c1">#    &quot;a list of copies&quot; means for it:</span>
+<span class="c1">#    "a list of copies" means for it:</span>
 <span class="c1">#      * Bosl2Solid  -&gt; the UNION of the transformed geometry copies (a new Bosl2Solid).</span>
-<span class="c1">#      * Path2D / Path3D -&gt; a plain ``list`` of transformed path copies (BOSL2&#39;s function form).</span>
+<span class="c1">#      * Path2D / Path3D -&gt; a plain ``list`` of transformed path copies (BOSL2's function form).</span>
 <span class="c1">#        A 2-D Path2D only supports the in-plane copiers; one that would lift it out of the XY plane</span>
 <span class="c1">#        raises, directing you to Path3D.</span>
 <span class="c1">#</span>
@@ -1836,7 +1836,7 @@
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies.&quot;&quot;&quot;</span>
+<span class="sd">"""Return Distributors: line/grid/ring/arc/sphere/path copiers and reflected copies."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1859,15 +1859,15 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._shape</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseShape</span> <span class="k">as</span> <span class="n">BaseShape</span>
 
-<span class="n">_CopyType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_CopyType&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Distributable&quot;</span><span class="p">)</span>
+<span class="n">_CopyType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_CopyType"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Distributable"</span><span class="p">)</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;xdistribute&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ydistribute&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;zdistribute&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Distributable&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;DistributableMatrix&quot;</span><span class="p">,</span>
+    <span class="s2">"xdistribute"</span><span class="p">,</span>
+    <span class="s2">"ydistribute"</span><span class="p">,</span>
+    <span class="s2">"zdistribute"</span><span class="p">,</span>
+    <span class="s2">"Distributable"</span><span class="p">,</span>
+    <span class="s2">"DistributableMatrix"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -1904,7 +1904,7 @@
     <span class="n">p2</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return translation matrices evenly spread along a line.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return translation matrices evenly spread along a line."""</span>
     <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ll</span> <span class="o">=</span> <span class="n">_vec3</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1961,7 +1961,7 @@
     <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies spread along the X axis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along the X axis."""</span>
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span>
         <span class="n">RIGHT</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span>
         <span class="n">spacing</span><span class="p">,</span>
@@ -1977,7 +1977,7 @@
     <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies spread along the Y axis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along the Y axis."""</span>
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span><span class="n">BACK</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">)</span>
 
 
@@ -1987,7 +1987,7 @@
     <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies spread along the Z axis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along the Z axis."""</span>
     <span class="k">return</span> <span class="n">_axis_copies</span><span class="p">(</span><span class="n">UP</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="n">start_pos</span><span class="p">)</span>
 
 
@@ -1997,20 +1997,20 @@
     <span class="n">stagger</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">StaggerMode</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">inside</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">nonzero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">axes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">axes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"xy"</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies laid out in a square or staggered (hex) grid.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies laid out in a square or staggered (hex) grid."""</span>
     <span class="k">assert</span> <span class="n">stagger</span> <span class="ow">in</span> <span class="p">(</span>
         <span class="kc">False</span><span class="p">,</span>
         <span class="kc">True</span><span class="p">,</span>
         <span class="n">StaggerMode</span><span class="o">.</span><span class="n">ALT</span><span class="p">,</span>
-    <span class="p">),</span> <span class="s2">&quot;grid_copies(): stagger must be False, True or &#39;alt&#39;.&quot;</span>
-    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;grid_copies(): invalid axes.&quot;</span>
-    <span class="k">assert</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;grid_copies(): invalid axes.&quot;</span>
-    <span class="k">assert</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;grid_copies(): invalid axes.&quot;</span>
-    <span class="k">assert</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;grid_copies(): invalid axes.&quot;</span>
-    <span class="n">ai</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+    <span class="p">),</span> <span class="s2">"grid_copies(): stagger must be False, True or 'alt'."</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"grid_copies(): invalid axes."</span>
+    <span class="k">assert</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">"xyz"</span><span class="p">,</span> <span class="s2">"grid_copies(): invalid axes."</span>
+    <span class="k">assert</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">"xyz"</span><span class="p">,</span> <span class="s2">"grid_copies(): invalid axes."</span>
+    <span class="k">assert</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"grid_copies(): invalid axes."</span>
+    <span class="n">ai</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">permax</span><span class="p">(</span><span class="n">pt</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
@@ -2104,9 +2104,9 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return rotated copies about an axis, optionally offset into a ring.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies about an axis, optionally offset into a ring."""</span>
     <span class="k">assert</span> <span class="n">subrot</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_vec3</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">&quot;rot_copies(): subrot can only be False when delta is nonzero.&quot;</span>
+        <span class="s2">"rot_copies(): subrot can only be False when delta is nonzero."</span>
     <span class="p">)</span>
     <span class="n">sang</span> <span class="o">=</span> <span class="n">sa</span> <span class="o">+</span> <span class="n">offset</span>
     <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2138,7 +2138,7 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return rotated copies around the X axis, optionally into a ring of radius *radius*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies around the X axis, optionally into a ring of radius *radius*."""</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rot_copies</span><span class="p">(</span>
         <span class="n">rots</span><span class="o">=</span><span class="n">rots</span><span class="p">,</span>
@@ -2160,7 +2160,7 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return rotated copies around the Y axis, optionally into a ring of radius *radius*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies around the Y axis, optionally into a ring of radius *radius*."""</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rot_copies</span><span class="p">(</span>
         <span class="n">rots</span><span class="o">=</span><span class="n">rots</span><span class="p">,</span>
@@ -2182,7 +2182,7 @@
     <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return rotated copies around the Z axis, optionally into a ring of radius *radius*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return rotated copies around the Z axis, optionally into a ring of radius *radius*."""</span>
     <span class="n">rr</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">rot_copies</span><span class="p">(</span>
         <span class="n">rots</span><span class="o">=</span><span class="n">rots</span><span class="p">,</span>
@@ -2207,7 +2207,7 @@
     <span class="n">rot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies spread along an (elliptical) arc in the XY plane.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies spread along an (elliptical) arc in the XY plane."""</span>
     <span class="n">rxv</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">radius_x</span>
         <span class="k">if</span> <span class="n">radius_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2261,7 +2261,7 @@
     <span class="n">scale</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">perp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies spread over a sphere/ellipsoid by the golden-spiral method.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies spread over a sphere/ellipsoid by the golden-spiral method."""</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">50</span><span class="p">)</span>
     <span class="n">cnt</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">num_copies</span> <span class="o">/</span> <span class="p">(</span><span class="n">cone_ang</span> <span class="o">/</span> <span class="mi">180</span><span class="p">))</span>
     <span class="n">scalev</span> <span class="o">=</span> <span class="n">_vec3</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
@@ -2292,12 +2292,12 @@
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return copies placed along *path*, oriented to it.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return copies placed along *path*, oriented to it."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
-    <span class="n">closed</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;closed&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span>
+    <span class="n">closed</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"closed"</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="n">pts</span> <span class="k">else</span> <span class="mi">2</span>
     <span class="n">length</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">))</span><span class="o">.</span><span class="n">perimeter</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2320,8 +2320,8 @@
             <span class="n">distances</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">e</span> <span class="o">-</span> <span class="n">center</span><span class="p">)</span> <span class="o">%</span> <span class="n">length</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ptlist</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">+</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">center</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ptlist</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;path_copies(): copies don&#39;t fit on the path.&quot;</span>
-    <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">length</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">&quot;path_copies(): copies don&#39;t fit on the path.&quot;</span>
+    <span class="k">assert</span> <span class="nb">min</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">1e-9</span><span class="p">,</span> <span class="s2">"path_copies(): copies don't fit on the path."</span>
+    <span class="k">assert</span> <span class="nb">max</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">length</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">"path_copies(): copies don't fit on the path."</span>
     <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">length</span><span class="p">)</span> <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">]</span>
     <span class="n">cutlist</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">))</span><span class="o">.</span><span class="n">cut_points</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">planar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
@@ -2353,7 +2353,7 @@
     <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the original plus a mirrored copy across the plane with normal *v*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a mirrored copy across the plane with normal *v*."""</span>
     <span class="n">nv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">nv_norm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">nv</span><span class="p">))</span>
     <span class="n">nv</span> <span class="o">=</span> <span class="n">nv</span> <span class="o">/</span> <span class="n">nv_norm</span> <span class="k">if</span> <span class="n">nv_norm</span> <span class="k">else</span> <span class="n">nv</span>
@@ -2372,17 +2372,17 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">xflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the original plus a copy mirrored across the X=*x* plane.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the X=*x* plane."""</span>
     <span class="k">return</span> <span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">yflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the original plus a copy mirrored across the Y=*y* plane.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the Y=*y* plane."""</span>
     <span class="k">return</span> <span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">zflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the original plus a copy mirrored across the Z=*z* plane.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the original plus a copy mirrored across the Z=*z* plane."""</span>
     <span class="k">return</span> <span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
 
 
@@ -2394,7 +2394,7 @@
 <div class="viewcode-block" id="DistributableMatrix">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.DistributableMatrix">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DistributableMatrix</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return Matrix-generating copiers -- each returns ``list[np.ndarray]`` (4x4 matrices)."""</span>
 
     <span class="n">line_copies</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">line_copies</span><span class="p">)</span>  <span class="c1"># -&gt; list[np.ndarray]</span>
     <span class="n">xcopies</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">xcopies</span><span class="p">)</span>  <span class="c1"># -&gt; list[np.ndarray]</span>
@@ -2418,23 +2418,23 @@
 <div class="viewcode-block" id="Distributable">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Distributable</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return Mixin adding the distributors.scad copiers as methods.</span>
+<span class="w">    </span><span class="sd">"""Return Mixin adding the distributors.scad copiers as methods.</span>
 
 <span class="sd">    Inherited by :class:`~pybosl2.shapes3d.Bosl2Solid`, :class:`~pybosl2.paths.Path2D`, and</span>
 <span class="sd">    :class:`~pybosl2.paths.Path3D`. Each copier returns a ``list`` of positioned copies;</span>
 <span class="sd">    callers union, hull, or combine them as needed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_distribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mats</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>  <span class="c1"># pragma: no cover</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Distributable subclasses must implement _distribute().&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Distributable subclasses must implement _distribute()."</span><span class="p">)</span>
 
     <span class="c1"># -- instance methods ------------------------------------------------------</span>
 
 <div class="viewcode-block" id="Distributable.move_and_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.move_and_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">move_and_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Point</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy to each offset in *vectors* (BOSL2 move_copies).</span>
+<span class="w">        </span><span class="sd">"""Copy to each offset in *vectors* (BOSL2 move_copies).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            vectors: A list of :class:`~pybosl2.points.Point` offsets, or ``None``</span>
@@ -2443,7 +2443,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The union (or list for paths) of copies at each offset.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">offsets</span> <span class="o">=</span> <span class="n">vectors</span> <span class="k">if</span> <span class="n">vectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">([</span><span class="n">translate4</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">offsets</span><span class="p">])</span></div>
 
@@ -2458,7 +2458,7 @@
         <span class="n">p2</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies spread along a line.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along a line."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">line_copies</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2471,7 +2471,7 @@
         <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies spread along the X axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along the X axis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">_axis_copies</span><span class="p">(</span><span class="n">RIGHT</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2484,7 +2484,7 @@
         <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies spread along the Y axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along the Y axis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">_axis_copies</span><span class="p">(</span><span class="n">BACK</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2497,7 +2497,7 @@
         <span class="n">start_pos</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies spread along the Z axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along the Z axis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">_axis_copies</span><span class="p">(</span><span class="n">UP</span><span class="o">.</span><span class="n">vector</span><span class="p">,</span> <span class="n">spacing</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2510,10 +2510,10 @@
         <span class="n">stagger</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">StaggerMode</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">inside</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">nonzero</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">axes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+        <span class="n">axes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"xy"</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies in a square or staggered (hex) grid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies in a square or staggered (hex) grid."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">grid_copies</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">stagger</span><span class="p">,</span> <span class="n">inside</span><span class="p">,</span> <span class="n">nonzero</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2530,7 +2530,7 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotated copies about an axis (optionally into a ring via *delta*).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Rotated copies about an axis (optionally into a ring via *delta*)."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">rot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2546,7 +2546,7 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotated copies around the X axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Rotated copies around the X axis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">xrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2562,7 +2562,7 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotated copies around the Y axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Rotated copies around the Y axis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">yrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2578,7 +2578,7 @@
         <span class="n">subrot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Rotated copies around the Z axis.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Rotated copies around the Z axis."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">zrot_copies</span><span class="p">(</span><span class="n">rots</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">sa</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">subrot</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="n">num_copies</span><span class="p">))</span></div>
 
 
@@ -2597,7 +2597,7 @@
         <span class="n">rot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies spread along an (elliptical) arc in the XY plane.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies spread along an (elliptical) arc in the XY plane."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span>
             <span class="n">arc_copies</span><span class="p">(</span>
                 <span class="n">radius</span><span class="p">,</span>
@@ -2625,7 +2625,7 @@
         <span class="n">scale</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
         <span class="n">perp</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies spread over a sphere/ellipsoid surface.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies spread over a sphere/ellipsoid surface."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">sphere_copies</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">cone_ang</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">perp</span><span class="p">))</span></div>
 
 
@@ -2641,7 +2641,7 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">num_copies</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return copies placed along *path*, oriented to it.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return copies placed along *path*, oriented to it."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span>
             <span class="n">path_copies</span><span class="p">(</span>
                 <span class="n">path</span><span class="p">,</span>
@@ -2663,28 +2663,28 @@
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return this object plus a copy mirrored across the plane with normal *v*.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return this object plus a copy mirrored across the plane with normal *v*."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">mirror_copy</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">center</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Distributable.xflip_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.xflip_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">xflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return This object plus a copy mirrored across the X=*x* plane.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the X=*x* plane."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">xflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Distributable.yflip_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.yflip_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">yflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return This object plus a copy mirrored across the Y=*y* plane.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the Y=*y* plane."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">yflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Distributable.zflip_copy">
 <a class="viewcode-back" href="../../foundational/distributors.html#pybosl2.distributors.Distributable.zflip_copy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">zflip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_CopyType</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return This object plus a copy mirrored across the Z=*z* plane.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return This object plus a copy mirrored across the Z=*z* plane."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_distribute</span><span class="p">(</span><span class="n">zflip_copy</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">z</span><span class="p">))</span></div>
 
 
@@ -2702,10 +2702,10 @@
         <span class="nb">dir</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">RIGHT</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Space a list of distinct objects along *dir* so they don&#39;t overlap.</span>
+<span class="w">        </span><span class="sd">"""Space a list of distinct objects along *dir* so they don't overlap.</span>
 
 <span class="sd">        Unlike the copiers, this lays out several different children.</span>
-<span class="sd">        *sizes* gives each child&#39;s extent along *dir*; auto-computed from bounding boxes if omitted.</span>
+<span class="sd">        *sizes* gives each child's extent along *dir*; auto-computed from bounding boxes if omitted.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            children: Objects with ``translate()``, ``bounds()``, and CSG operators.</span>
@@ -2717,13 +2717,13 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The union of all positioned children.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">children</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
         <span class="n">dir_arr</span> <span class="o">=</span> <span class="n">_vec3</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">dir_norm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">dir_arr</span><span class="p">))</span>
         <span class="n">dirv</span> <span class="o">=</span> <span class="n">dir_arr</span> <span class="o">/</span> <span class="n">dir_norm</span> <span class="k">if</span> <span class="n">dir_norm</span> <span class="k">else</span> <span class="n">dir_arr</span>
         <span class="n">cnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">cnt</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;distribute(): needs at least one child.&quot;</span>
+        <span class="k">assert</span> <span class="n">cnt</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"distribute(): needs at least one child."</span>
         <span class="k">if</span> <span class="n">sizes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">extents</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">bounds</span><span class="p">()[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dirv</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">bounds</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dirv</span><span class="p">)))</span>
@@ -2761,7 +2761,7 @@
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribute distinct children along the X axis.</span>
+<span class="w">    </span><span class="sd">"""Distribute distinct children along the X axis.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2771,7 +2771,7 @@
 
 <span class="sd">            xdistribute(spacing=15, children=[cuboid([5, 5, 20]) for _ in range(5)]).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 
 
@@ -2784,7 +2784,7 @@
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribute distinct children along the Y axis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Distribute distinct children along the Y axis."""</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">BACK</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 
 
@@ -2797,7 +2797,7 @@
     <span class="n">sizes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseShape</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribute distinct children along the Z axis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Distribute distinct children along the Z axis."""</span>
     <span class="k">return</span> <span class="n">Distributable</span><span class="o">.</span><span class="n">distribute</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="n">spacing</span><span class="p">,</span> <span class="n">sizes</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">UP</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="n">length</span><span class="p">)</span></div>
 
 </code></pre></div>

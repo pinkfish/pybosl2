@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/parts/ball_bearings.py</span>
-<span class="c1">#    Pure-Python port of BOSL2&#39;s ball_bearings.scad: models of standard ball-bearing cartridges.</span>
+<span class="c1">#    Pure-Python port of BOSL2's ball_bearings.scad: models of standard ball-bearing cartridges.</span>
 <span class="c1">#    :meth:`BallBearings.ball_bearing` builds a bearing -- either a sealed/shielded cartridge (nested</span>
 <span class="c1">#    rings plus a shield face) or an open one (inner and outer races, a ball-race groove, and the</span>
 <span class="c1">#    balls) -- from a :class:`BearingType` trade size or explicit</span>
@@ -1827,7 +1827,7 @@
 <span class="c1"># DocCategory: Parts library</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Standard ball-bearing cartridge models.&quot;&quot;&quot;</span>
+<span class="sd">"""Standard ball-bearing cartridge models."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1841,21 +1841,21 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">INCH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">tube</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BallBearings&quot;</span><span class="p">,</span> <span class="s2">&quot;BearingSpec&quot;</span><span class="p">,</span> <span class="s2">&quot;BearingType&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"BallBearings"</span><span class="p">,</span> <span class="s2">"BearingSpec"</span><span class="p">,</span> <span class="s2">"BearingType"</span><span class="p">]</span>
 
 <span class="c1"># string trade-name -&gt; BearingType lookup, built from the enum names.</span>
 <span class="n">_BY_TRADE_NAME</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BearingType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">BearingType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Trade-size identifier for standard ball-bearing cartridges.</span>
+<span class="w">    </span><span class="sd">"""Trade-size identifier for standard ball-bearing cartridges.</span>
 
 <span class="sd">    Each member names a standard trade size (e.g. ``BEARING_608``, ``R8``, ``R8_ZZ``)</span>
 <span class="sd">    that :meth:`BallBearings.ball_bearing_info` and :meth:`BallBearings.ball_bearing`</span>
 <span class="sd">    accept. Use the enum to avoid typos and get IDE autocompletion for the available</span>
-<span class="sd">    sizes. String names (``&quot;608&quot;``, ``&quot;R8ZZ&quot;``) are also accepted via the</span>
+<span class="sd">    sizes. String names (``"608"``, ``"R8ZZ"``) are also accepted via the</span>
 <span class="sd">    :func:`BearingType.of` helper.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># R-series (inch)</span>
     <span class="n">R2</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
@@ -2000,152 +2000,152 @@
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">of</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">trade_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BearingType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up a :class:`BearingType` from its trade-name string (``&quot;608&quot;``, ``&quot;R8ZZ&quot;``).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Look up a :class:`BearingType` from its trade-name string (``"608"``, ``"R8ZZ"``)."""</span>
         <span class="n">bt</span> <span class="o">=</span> <span class="n">_BY_TRADE_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trade_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bt</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_name</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <span class="c1"># Map trade-name strings to BearingType enum members.</span>
-<span class="c1"># Derived from the enum member names: R8 -&gt; &quot;R8&quot;, BEARING_608 -&gt; &quot;608&quot;, BEARING_608_ZZ -&gt; &quot;608ZZ&quot;</span>
+<span class="c1"># Derived from the enum member names: R8 -&gt; "R8", BEARING_608 -&gt; "608", BEARING_608_ZZ -&gt; "608ZZ"</span>
 <span class="n">_BY_TRADE_NAME</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;R2&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R2</span><span class="p">,</span>
-    <span class="s2">&quot;R3&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R3</span><span class="p">,</span>
-    <span class="s2">&quot;R4&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R4</span><span class="p">,</span>
-    <span class="s2">&quot;R6&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R6</span><span class="p">,</span>
-    <span class="s2">&quot;R8&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R8</span><span class="p">,</span>
-    <span class="s2">&quot;R10&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R10</span><span class="p">,</span>
-    <span class="s2">&quot;R12&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R12</span><span class="p">,</span>
-    <span class="s2">&quot;R14&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R14</span><span class="p">,</span>
-    <span class="s2">&quot;R16&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R16</span><span class="p">,</span>
-    <span class="s2">&quot;R18&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R18</span><span class="p">,</span>
-    <span class="s2">&quot;R20&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R20</span><span class="p">,</span>
-    <span class="s2">&quot;R22&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R22</span><span class="p">,</span>
-    <span class="s2">&quot;R24&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R24</span><span class="p">,</span>
-    <span class="s2">&quot;R2ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R2_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R3ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R3_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R4ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R4_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R6ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R6_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R8ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R8_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R10ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R10_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R12ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R12_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R14ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R14_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R16ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R16_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R18ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R18_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R20ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R20_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R22ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R22_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;R24ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R24_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;608&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_608</span><span class="p">,</span>
-    <span class="s2">&quot;629&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_629</span><span class="p">,</span>
-    <span class="s2">&quot;635&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_635</span><span class="p">,</span>
-    <span class="s2">&quot;6000&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6000</span><span class="p">,</span>
-    <span class="s2">&quot;6001&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6001</span><span class="p">,</span>
-    <span class="s2">&quot;6002&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6002</span><span class="p">,</span>
-    <span class="s2">&quot;6003&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6003</span><span class="p">,</span>
-    <span class="s2">&quot;6007&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6007</span><span class="p">,</span>
-    <span class="s2">&quot;6200&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6200</span><span class="p">,</span>
-    <span class="s2">&quot;6201&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6201</span><span class="p">,</span>
-    <span class="s2">&quot;6202&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6202</span><span class="p">,</span>
-    <span class="s2">&quot;6203&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6203</span><span class="p">,</span>
-    <span class="s2">&quot;6204&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6204</span><span class="p">,</span>
-    <span class="s2">&quot;6205&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6205</span><span class="p">,</span>
-    <span class="s2">&quot;6206&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6206</span><span class="p">,</span>
-    <span class="s2">&quot;6207&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6207</span><span class="p">,</span>
-    <span class="s2">&quot;6208&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6208</span><span class="p">,</span>
-    <span class="s2">&quot;6209&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6209</span><span class="p">,</span>
-    <span class="s2">&quot;6210&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6210</span><span class="p">,</span>
-    <span class="s2">&quot;6211&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6211</span><span class="p">,</span>
-    <span class="s2">&quot;6212&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6212</span><span class="p">,</span>
-    <span class="s2">&quot;6301&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6301</span><span class="p">,</span>
-    <span class="s2">&quot;6302&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6302</span><span class="p">,</span>
-    <span class="s2">&quot;6303&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6303</span><span class="p">,</span>
-    <span class="s2">&quot;6304&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6304</span><span class="p">,</span>
-    <span class="s2">&quot;6305&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6305</span><span class="p">,</span>
-    <span class="s2">&quot;6306&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6306</span><span class="p">,</span>
-    <span class="s2">&quot;6307&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6307</span><span class="p">,</span>
-    <span class="s2">&quot;6308&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6308</span><span class="p">,</span>
-    <span class="s2">&quot;6309&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6309</span><span class="p">,</span>
-    <span class="s2">&quot;6310&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6310</span><span class="p">,</span>
-    <span class="s2">&quot;6311&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6311</span><span class="p">,</span>
-    <span class="s2">&quot;6312&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6312</span><span class="p">,</span>
-    <span class="s2">&quot;6403&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6403</span><span class="p">,</span>
-    <span class="s2">&quot;6800&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6800</span><span class="p">,</span>
-    <span class="s2">&quot;6801&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6801</span><span class="p">,</span>
-    <span class="s2">&quot;6802&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6802</span><span class="p">,</span>
-    <span class="s2">&quot;6803&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6803</span><span class="p">,</span>
-    <span class="s2">&quot;6804&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6804</span><span class="p">,</span>
-    <span class="s2">&quot;6805&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6805</span><span class="p">,</span>
-    <span class="s2">&quot;6806&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6806</span><span class="p">,</span>
-    <span class="s2">&quot;6900&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6900</span><span class="p">,</span>
-    <span class="s2">&quot;6901&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6901</span><span class="p">,</span>
-    <span class="s2">&quot;6902&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6902</span><span class="p">,</span>
-    <span class="s2">&quot;6903&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6903</span><span class="p">,</span>
-    <span class="s2">&quot;6904&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6904</span><span class="p">,</span>
-    <span class="s2">&quot;6905&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6905</span><span class="p">,</span>
-    <span class="s2">&quot;6906&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6906</span><span class="p">,</span>
-    <span class="s2">&quot;6907&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6907</span><span class="p">,</span>
-    <span class="s2">&quot;6908&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6908</span><span class="p">,</span>
-    <span class="s2">&quot;16002&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16002</span><span class="p">,</span>
-    <span class="s2">&quot;16004&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16004</span><span class="p">,</span>
-    <span class="s2">&quot;16005&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16005</span><span class="p">,</span>
-    <span class="s2">&quot;16100&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16100</span><span class="p">,</span>
-    <span class="s2">&quot;16101&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16101</span><span class="p">,</span>
-    <span class="s2">&quot;608ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_608_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;629ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_629_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;635ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_635_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6000ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6000_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6001ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6001_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6002ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6002_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6003ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6003_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6007ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6007_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6200ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6200_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6201ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6201_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6202ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6202_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6203ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6203_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6204ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6204_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6205ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6205_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6206ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6206_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6207ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6207_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6208ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6208_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6209ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6209_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6210ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6210_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6211ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6211_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6212ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6212_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6301ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6301_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6302ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6302_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6303ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6303_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6304ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6304_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6305ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6305_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6306ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6306_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6307ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6307_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6308ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6308_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6309ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6309_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6310ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6310_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6311ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6311_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6312ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6312_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6403ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6403_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6800ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6800_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6801ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6801_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6802ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6802_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6803ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6803_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6804ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6804_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6805ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6805_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6806ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6806_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6900ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6900_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6901ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6901_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6902ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6902_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6903ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6903_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6904ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6904_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6905ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6905_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6906ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6906_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6907ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6907_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;6908ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6908_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;16002ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16002_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;16004ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16004_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;16005ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16005_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;16100ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16100_ZZ</span><span class="p">,</span>
-    <span class="s2">&quot;16101ZZ&quot;</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16101_ZZ</span><span class="p">,</span>
+    <span class="s2">"R2"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R2</span><span class="p">,</span>
+    <span class="s2">"R3"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R3</span><span class="p">,</span>
+    <span class="s2">"R4"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R4</span><span class="p">,</span>
+    <span class="s2">"R6"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R6</span><span class="p">,</span>
+    <span class="s2">"R8"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R8</span><span class="p">,</span>
+    <span class="s2">"R10"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R10</span><span class="p">,</span>
+    <span class="s2">"R12"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R12</span><span class="p">,</span>
+    <span class="s2">"R14"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R14</span><span class="p">,</span>
+    <span class="s2">"R16"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R16</span><span class="p">,</span>
+    <span class="s2">"R18"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R18</span><span class="p">,</span>
+    <span class="s2">"R20"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R20</span><span class="p">,</span>
+    <span class="s2">"R22"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R22</span><span class="p">,</span>
+    <span class="s2">"R24"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R24</span><span class="p">,</span>
+    <span class="s2">"R2ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R2_ZZ</span><span class="p">,</span>
+    <span class="s2">"R3ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R3_ZZ</span><span class="p">,</span>
+    <span class="s2">"R4ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R4_ZZ</span><span class="p">,</span>
+    <span class="s2">"R6ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R6_ZZ</span><span class="p">,</span>
+    <span class="s2">"R8ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R8_ZZ</span><span class="p">,</span>
+    <span class="s2">"R10ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R10_ZZ</span><span class="p">,</span>
+    <span class="s2">"R12ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R12_ZZ</span><span class="p">,</span>
+    <span class="s2">"R14ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R14_ZZ</span><span class="p">,</span>
+    <span class="s2">"R16ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R16_ZZ</span><span class="p">,</span>
+    <span class="s2">"R18ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R18_ZZ</span><span class="p">,</span>
+    <span class="s2">"R20ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R20_ZZ</span><span class="p">,</span>
+    <span class="s2">"R22ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R22_ZZ</span><span class="p">,</span>
+    <span class="s2">"R24ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">R24_ZZ</span><span class="p">,</span>
+    <span class="s2">"608"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_608</span><span class="p">,</span>
+    <span class="s2">"629"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_629</span><span class="p">,</span>
+    <span class="s2">"635"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_635</span><span class="p">,</span>
+    <span class="s2">"6000"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6000</span><span class="p">,</span>
+    <span class="s2">"6001"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6001</span><span class="p">,</span>
+    <span class="s2">"6002"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6002</span><span class="p">,</span>
+    <span class="s2">"6003"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6003</span><span class="p">,</span>
+    <span class="s2">"6007"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6007</span><span class="p">,</span>
+    <span class="s2">"6200"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6200</span><span class="p">,</span>
+    <span class="s2">"6201"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6201</span><span class="p">,</span>
+    <span class="s2">"6202"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6202</span><span class="p">,</span>
+    <span class="s2">"6203"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6203</span><span class="p">,</span>
+    <span class="s2">"6204"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6204</span><span class="p">,</span>
+    <span class="s2">"6205"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6205</span><span class="p">,</span>
+    <span class="s2">"6206"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6206</span><span class="p">,</span>
+    <span class="s2">"6207"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6207</span><span class="p">,</span>
+    <span class="s2">"6208"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6208</span><span class="p">,</span>
+    <span class="s2">"6209"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6209</span><span class="p">,</span>
+    <span class="s2">"6210"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6210</span><span class="p">,</span>
+    <span class="s2">"6211"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6211</span><span class="p">,</span>
+    <span class="s2">"6212"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6212</span><span class="p">,</span>
+    <span class="s2">"6301"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6301</span><span class="p">,</span>
+    <span class="s2">"6302"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6302</span><span class="p">,</span>
+    <span class="s2">"6303"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6303</span><span class="p">,</span>
+    <span class="s2">"6304"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6304</span><span class="p">,</span>
+    <span class="s2">"6305"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6305</span><span class="p">,</span>
+    <span class="s2">"6306"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6306</span><span class="p">,</span>
+    <span class="s2">"6307"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6307</span><span class="p">,</span>
+    <span class="s2">"6308"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6308</span><span class="p">,</span>
+    <span class="s2">"6309"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6309</span><span class="p">,</span>
+    <span class="s2">"6310"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6310</span><span class="p">,</span>
+    <span class="s2">"6311"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6311</span><span class="p">,</span>
+    <span class="s2">"6312"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6312</span><span class="p">,</span>
+    <span class="s2">"6403"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6403</span><span class="p">,</span>
+    <span class="s2">"6800"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6800</span><span class="p">,</span>
+    <span class="s2">"6801"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6801</span><span class="p">,</span>
+    <span class="s2">"6802"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6802</span><span class="p">,</span>
+    <span class="s2">"6803"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6803</span><span class="p">,</span>
+    <span class="s2">"6804"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6804</span><span class="p">,</span>
+    <span class="s2">"6805"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6805</span><span class="p">,</span>
+    <span class="s2">"6806"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6806</span><span class="p">,</span>
+    <span class="s2">"6900"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6900</span><span class="p">,</span>
+    <span class="s2">"6901"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6901</span><span class="p">,</span>
+    <span class="s2">"6902"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6902</span><span class="p">,</span>
+    <span class="s2">"6903"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6903</span><span class="p">,</span>
+    <span class="s2">"6904"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6904</span><span class="p">,</span>
+    <span class="s2">"6905"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6905</span><span class="p">,</span>
+    <span class="s2">"6906"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6906</span><span class="p">,</span>
+    <span class="s2">"6907"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6907</span><span class="p">,</span>
+    <span class="s2">"6908"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6908</span><span class="p">,</span>
+    <span class="s2">"16002"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16002</span><span class="p">,</span>
+    <span class="s2">"16004"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16004</span><span class="p">,</span>
+    <span class="s2">"16005"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16005</span><span class="p">,</span>
+    <span class="s2">"16100"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16100</span><span class="p">,</span>
+    <span class="s2">"16101"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16101</span><span class="p">,</span>
+    <span class="s2">"608ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_608_ZZ</span><span class="p">,</span>
+    <span class="s2">"629ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_629_ZZ</span><span class="p">,</span>
+    <span class="s2">"635ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_635_ZZ</span><span class="p">,</span>
+    <span class="s2">"6000ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6000_ZZ</span><span class="p">,</span>
+    <span class="s2">"6001ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6001_ZZ</span><span class="p">,</span>
+    <span class="s2">"6002ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6002_ZZ</span><span class="p">,</span>
+    <span class="s2">"6003ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6003_ZZ</span><span class="p">,</span>
+    <span class="s2">"6007ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6007_ZZ</span><span class="p">,</span>
+    <span class="s2">"6200ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6200_ZZ</span><span class="p">,</span>
+    <span class="s2">"6201ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6201_ZZ</span><span class="p">,</span>
+    <span class="s2">"6202ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6202_ZZ</span><span class="p">,</span>
+    <span class="s2">"6203ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6203_ZZ</span><span class="p">,</span>
+    <span class="s2">"6204ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6204_ZZ</span><span class="p">,</span>
+    <span class="s2">"6205ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6205_ZZ</span><span class="p">,</span>
+    <span class="s2">"6206ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6206_ZZ</span><span class="p">,</span>
+    <span class="s2">"6207ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6207_ZZ</span><span class="p">,</span>
+    <span class="s2">"6208ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6208_ZZ</span><span class="p">,</span>
+    <span class="s2">"6209ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6209_ZZ</span><span class="p">,</span>
+    <span class="s2">"6210ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6210_ZZ</span><span class="p">,</span>
+    <span class="s2">"6211ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6211_ZZ</span><span class="p">,</span>
+    <span class="s2">"6212ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6212_ZZ</span><span class="p">,</span>
+    <span class="s2">"6301ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6301_ZZ</span><span class="p">,</span>
+    <span class="s2">"6302ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6302_ZZ</span><span class="p">,</span>
+    <span class="s2">"6303ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6303_ZZ</span><span class="p">,</span>
+    <span class="s2">"6304ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6304_ZZ</span><span class="p">,</span>
+    <span class="s2">"6305ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6305_ZZ</span><span class="p">,</span>
+    <span class="s2">"6306ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6306_ZZ</span><span class="p">,</span>
+    <span class="s2">"6307ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6307_ZZ</span><span class="p">,</span>
+    <span class="s2">"6308ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6308_ZZ</span><span class="p">,</span>
+    <span class="s2">"6309ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6309_ZZ</span><span class="p">,</span>
+    <span class="s2">"6310ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6310_ZZ</span><span class="p">,</span>
+    <span class="s2">"6311ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6311_ZZ</span><span class="p">,</span>
+    <span class="s2">"6312ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6312_ZZ</span><span class="p">,</span>
+    <span class="s2">"6403ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6403_ZZ</span><span class="p">,</span>
+    <span class="s2">"6800ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6800_ZZ</span><span class="p">,</span>
+    <span class="s2">"6801ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6801_ZZ</span><span class="p">,</span>
+    <span class="s2">"6802ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6802_ZZ</span><span class="p">,</span>
+    <span class="s2">"6803ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6803_ZZ</span><span class="p">,</span>
+    <span class="s2">"6804ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6804_ZZ</span><span class="p">,</span>
+    <span class="s2">"6805ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6805_ZZ</span><span class="p">,</span>
+    <span class="s2">"6806ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6806_ZZ</span><span class="p">,</span>
+    <span class="s2">"6900ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6900_ZZ</span><span class="p">,</span>
+    <span class="s2">"6901ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6901_ZZ</span><span class="p">,</span>
+    <span class="s2">"6902ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6902_ZZ</span><span class="p">,</span>
+    <span class="s2">"6903ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6903_ZZ</span><span class="p">,</span>
+    <span class="s2">"6904ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6904_ZZ</span><span class="p">,</span>
+    <span class="s2">"6905ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6905_ZZ</span><span class="p">,</span>
+    <span class="s2">"6906ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6906_ZZ</span><span class="p">,</span>
+    <span class="s2">"6907ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6907_ZZ</span><span class="p">,</span>
+    <span class="s2">"6908ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_6908_ZZ</span><span class="p">,</span>
+    <span class="s2">"16002ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16002_ZZ</span><span class="p">,</span>
+    <span class="s2">"16004ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16004_ZZ</span><span class="p">,</span>
+    <span class="s2">"16005ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16005_ZZ</span><span class="p">,</span>
+    <span class="s2">"16100ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16100_ZZ</span><span class="p">,</span>
+    <span class="s2">"16101ZZ"</span><span class="p">:</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16101_ZZ</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -2153,11 +2153,11 @@
 <a class="viewcode-back" href="../../../parts/ball_bearings.html#pybosl2.parts.ball_bearings.BearingSpec">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BearingSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tabulated dimensions of a standard ball-bearing cartridge.</span>
+<span class="w">    </span><span class="sd">"""Tabulated dimensions of a standard ball-bearing cartridge.</span>
 
 <span class="sd">    Returned by :meth:`BallBearings.ball_bearing_info` when looking up a</span>
 <span class="sd">    :class:`BearingType` trade size.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># inner (shaft) diameter</span>
     <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># outer diameter</span>
@@ -2238,7 +2238,7 @@
     <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16100</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
     <span class="n">BearingType</span><span class="o">.</span><span class="n">BEARING_16101</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
 <span class="p">}</span>
-<span class="c1"># Add the &quot;...ZZ&quot; shielded variants, sharing the open variant&#39;s dimensions.</span>
+<span class="c1"># Add the "...ZZ" shielded variants, sharing the open variant's dimensions.</span>
 <span class="n">_ZZ_BEARINGS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">BearingType</span><span class="o">.</span><span class="n">R2_ZZ</span><span class="p">:</span> <span class="n">BearingSpec</span><span class="p">(</span>
         <span class="n">_BEARINGS</span><span class="p">[</span><span class="n">BearingType</span><span class="o">.</span><span class="n">R2</span><span class="p">]</span><span class="o">.</span><span class="n">inner_diameter</span><span class="p">,</span>
@@ -2655,27 +2655,27 @@
 <div class="viewcode-block" id="BallBearings">
 <a class="viewcode-back" href="../../../parts/ball_bearings.html#pybosl2.parts.ball_bearings.BallBearings">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BallBearings</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Models of standard ball-bearing cartridges.</span>
+<span class="w">    </span><span class="sd">"""Models of standard ball-bearing cartridges.</span>
 
-<span class="sd">    Port of BOSL2&#39;s ``ball_bearings.scad``. Builds sealed/shielded or open bearings</span>
+<span class="sd">    Port of BOSL2's ``ball_bearings.scad``. Builds sealed/shielded or open bearings</span>
 <span class="sd">    from a trade size or explicit dimensions.</span>
 
 <span class="sd">    .. seealso::</span>
 
 <span class="sd">       `Visual spec sheet &lt;specs/ball_bearings.html&gt;`_ — measurements and STL previews</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BallBearings.ball_bearing_info">
 <a class="viewcode-back" href="../../../parts/ball_bearings.html#pybosl2.parts.ball_bearings.BallBearings.ball_bearing_info">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">ball_bearing_info</span><span class="p">(</span><span class="n">trade_size</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">BearingType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BearingSpec</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Look up the tabulated dimensions for a trade-size bearing.</span>
+<span class="w">        </span><span class="sd">"""Look up the tabulated dimensions for a trade-size bearing.</span>
 
-<span class="sd">        Accepts a string name (``&quot;608&quot;``, ``&quot;6902ZZ&quot;``) or a :class:`BearingType` enum value,</span>
+<span class="sd">        Accepts a string name (``"608"``, ``"6902ZZ"``) or a :class:`BearingType` enum value,</span>
 <span class="sd">        and returns the corresponding :class:`BearingSpec`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            trade_size: The bearing trade size as a string (e.g. ``&quot;608&quot;`` or ``&quot;R8ZZ&quot;``)</span>
+<span class="sd">            trade_size: The bearing trade size as a string (e.g. ``"608"`` or ``"R8ZZ"``)</span>
 <span class="sd">                or a :class:`BearingType` enum value.</span>
 
 <span class="sd">        Returns:</span>
@@ -2684,13 +2684,13 @@
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If the trade size is not found in the bearing table.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trade_size</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">trade_size</span> <span class="o">=</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">trade_size</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_BEARINGS</span><span class="p">[</span><span class="n">trade_size</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_size</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="BallBearings.ball_bearing">
@@ -2707,7 +2707,7 @@
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build a standard ball-bearing cartridge model.</span>
+<span class="w">        </span><span class="sd">"""Build a standard ball-bearing cartridge model.</span>
 
 <span class="sd">        Give a *trade_size* name (or :class:`BearingType`), or explicit</span>
 <span class="sd">        *inner_diameter*/*outer_diameter*/*width* (with *shield*). Returns a</span>
@@ -2720,7 +2720,7 @@
 <span class="sd">            outer_diameter: Outer diameter in mm. Required if trade_size is not given.</span>
 <span class="sd">            width: Axial width in mm. Required if trade_size is not given.</span>
 <span class="sd">            shield: Model sealed/shielded cartridge (True) or open bearing with balls (False). Defaults to True.</span>
-<span class="sd">            color: Color name to apply to the bearing model. Defaults to &quot;silver&quot;.</span>
+<span class="sd">            color: Color name to apply to the bearing model. Defaults to "silver".</span>
 <span class="sd">            fn: Number of fragments for cylinder resolution. Passed to the geometry primitives.</span>
 <span class="sd">            fa: Minimum fragment angle. Passed to the geometry primitives.</span>
 <span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
@@ -2739,7 +2739,7 @@
 <span class="sd">                from pybosl2.parts.ball_bearings import BearingType, BallBearings</span>
 <span class="sd">                BallBearings.ball_bearing(BearingType.BEARING_608).show()</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">trade_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trade_size</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">trade_size</span> <span class="o">=</span> <span class="n">BearingType</span><span class="o">.</span><span class="n">of</span><span class="p">(</span><span class="n">trade_size</span><span class="p">)</span>
@@ -2751,11 +2751,11 @@
                 <span class="n">spec</span><span class="o">.</span><span class="n">shielded</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">inner_diameter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ball_bearing(): must give inner_diameter.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give inner_diameter."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">outer_diameter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ball_bearing(): must give outer_diameter.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give outer_diameter."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ball_bearing(): must give width.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give width."</span><span class="p">)</span>
 
         <span class="n">mid_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">inner_diameter</span> <span class="o">+</span> <span class="n">outer_diameter</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">wall</span> <span class="o">=</span> <span class="p">(</span><span class="n">outer_diameter</span> <span class="o">-</span> <span class="n">inner_diameter</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span>
@@ -2813,7 +2813,7 @@
             <span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">races</span> <span class="o">|</span> <span class="n">balls</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">width</span><span class="p">])</span>
-        <span class="n">color</span> <span class="o">=</span> <span class="n">color</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Color</span><span class="p">(</span><span class="s2">&quot;silver&quot;</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">color</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Color</span><span class="p">(</span><span class="s2">"silver"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
 </div>
 

@@ -1818,7 +1818,7 @@
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Cubes, prismoids, wedges and general polygonal prism shapes.&quot;&quot;&quot;</span>
+<span class="sd">"""Cubes, prismoids, wedges and general polygonal prism shapes."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1861,14 +1861,14 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span> <span class="k">as</span> <span class="n">_osphere_native</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">textmetrics</span> <span class="k">as</span> <span class="n">_otextmetrics</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">_ocube</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;cube&quot;</span><span class="p">)</span>
-    <span class="n">_ocylinder_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;cylinder&quot;</span><span class="p">)</span>
-    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
-    <span class="n">_ominkowski</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;minkowski&quot;</span><span class="p">)</span>
-    <span class="n">_opolyhedron</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polyhedron&quot;</span><span class="p">)</span>
-    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;rotate_extrude&quot;</span><span class="p">)</span>
-    <span class="n">_osphere_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
-    <span class="n">_otextmetrics</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;textmetrics&quot;</span><span class="p">)</span>
+    <span class="n">_ocube</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"cube"</span><span class="p">)</span>
+    <span class="n">_ocylinder_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"cylinder"</span><span class="p">)</span>
+    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"hull"</span><span class="p">)</span>
+    <span class="n">_ominkowski</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"minkowski"</span><span class="p">)</span>
+    <span class="n">_opolyhedron</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polyhedron"</span><span class="p">)</span>
+    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"rotate_extrude"</span><span class="p">)</span>
+    <span class="n">_osphere_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"sphere"</span><span class="p">)</span>
+    <span class="n">_otextmetrics</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"textmetrics"</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDGE_OFFSETS</span><span class="p">,</span> <span class="n">EDGES_ALL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">edges</span> <span class="k">as</span> <span class="n">resolve_edges</span>
@@ -1893,10 +1893,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_trunc_cube</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a small cube with the corner facing away from *corner* trimmed off diagonally (7 vertices).</span>
+<span class="w">    </span><span class="sd">"""Return a small cube with the corner facing away from *corner* trimmed off diagonally (7 vertices).</span>
 
 <span class="sd">    Used to trim corner_shape() geometry down to just the correct octant of a cuboid corner.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
     <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
@@ -1948,16 +1948,16 @@
     <span class="n">fn</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">is_chamfer</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">quantup</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">),</span> <span class="mi">4</span><span class="p">)))</span>
     <span class="n">base_t</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">xtcyl</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xtcyl</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PyOpenSCAD"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_rotate_to_axis</span><span class="p">(</span><span class="n">_ocylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">ytcyl</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ytcyl</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PyOpenSCAD"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_rotate_to_axis</span><span class="p">(</span><span class="n">_ocylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">ztcyl</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ztcyl</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PyOpenSCAD"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_ocylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">tsphere</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PyOpenSCAD&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tsphere</span><span class="p">(</span><span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"PyOpenSCAD"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_osphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">radius</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -1999,7 +1999,7 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyOpenSCAD</span><span class="p">:</span>
     <span class="k">assert</span> <span class="n">edge_set</span> <span class="o">==</span> <span class="n">EDGES_ALL</span> <span class="ow">or</span> <span class="n">edge_set</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
-        <span class="s2">&quot;Cannot use negative rounding/chamfer with Z aligned edges.&quot;</span>
+        <span class="s2">"Cannot use negative rounding/chamfer with Z aligned edges."</span>
     <span class="p">)</span>
     <span class="n">pieces</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">cutters</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2014,7 +2014,7 @@
                 <span class="n">vec</span> <span class="o">=</span> <span class="n">EDGE_OFFSETS</span><span class="p">[</span><span class="n">axis</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
                 <span class="n">t</span> <span class="o">=</span> <span class="p">[</span><span class="n">vec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+</span> <span class="n">adj</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
                 <span class="c1"># built with its long side already on *axis* rather than rotated onto it: a</span>
-                <span class="c1"># rotation leaves the bar&#39;s faces a rounding error off the body&#39;s, and faces that</span>
+                <span class="c1"># rotation leaves the bar's faces a rounding error off the body's, and faces that</span>
                 <span class="c1"># are nearly-but-not-quite coincident cannot merge, leaving the union non-manifold</span>
                 <span class="n">bar</span> <span class="o">=</span> <span class="p">[</span><span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">,</span> <span class="n">ard</span><span class="p">]</span>
                 <span class="n">bar</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span> <span class="o">=</span> <span class="n">sz</span><span class="p">[</span><span class="n">axis</span><span class="p">]</span>
@@ -2055,8 +2055,8 @@
 
 <div class="viewcode-block" id="roof">
 <a class="viewcode-back" href="../../../foundational/shapes3d/cuboid.html#pybosl2.shapes3d.roof">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">roof</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;straight&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raise a hip roof over a 2-D *shape* via its straight skeleton (native ``roof()``).</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">roof</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"straight"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise a hip roof over a 2-D *shape* via its straight skeleton (native ``roof()``).</span>
 
 <span class="sd">    Like :func:`~pybosl2.skin.linear_sweep`, this turns a 2-D outline into a 3-D solid, but the top is</span>
 <span class="sd">    a peaked roof (each edge slopes inward at 45 degrees to the skeleton) rather than a flat</span>
@@ -2071,7 +2071,7 @@
 
 <span class="sd">            roof(s2.square([20, 10]).shape).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">Bosl2Solid</span><span class="o">.</span><span class="n">_unwrap</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">roof</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">))</span></div>
 
 
@@ -2099,7 +2099,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cube with optional chamfering or rounding of edges and corners.</span>
+<span class="w">    </span><span class="sd">"""Return a cube with optional chamfering or rounding of edges and corners.</span>
 
 <span class="sd">    Delegates to :func:`cuboid` with the full set of edge/corner chamfer and rounding options.</span>
 
@@ -2108,7 +2108,7 @@
 <span class="sd">        center:        if given, overrides anchor (True -&gt; CENTER, False -&gt; FRONT+LEFT+BOTTOM)</span>
 <span class="sd">        chamfer:       chamfer size along all edges (default none)</span>
 <span class="sd">        rounding:      rounding radius along all edges (default none)</span>
-<span class="sd">        edges:         edge specifier — &quot;ALL&quot;, &quot;NONE&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;, or list of direction vectors</span>
+<span class="sd">        edges:         edge specifier — "ALL", "NONE", "X", "Y", "Z", or list of direction vectors</span>
 <span class="sd">        except_edges:  edges to exclude from chamfer/rounding</span>
 <span class="sd">        trimcorners:   trim corners where 3+ edges meet (default True)</span>
 <span class="sd">        teardrop:      limit the overhang angle for FDM printing (default False)</span>
@@ -2144,7 +2144,7 @@
 
 <span class="sd">            cube(size=20, rounding=3).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="n">use_anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">anchor</span>
     <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2186,9 +2186,9 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a cube/cuboid with optional chamfering or rounding of edges and corners.</span>
+<span class="w">    </span><span class="sd">"""Return a cube/cuboid with optional chamfering or rounding of edges and corners.</span>
 
-<span class="sd">    Built directly from cube()/cylinder()/sphere()/hull()/minkowski(), mirroring BOSL2&#39;s own</span>
+<span class="sd">    Built directly from cube()/cylinder()/sphere()/hull()/minkowski(), mirroring BOSL2's own</span>
 <span class="sd">    cuboid() algorithm (which is itself CSG composition of primitive shapes at each corner,</span>
 <span class="sd">    not raw polyhedron mesh math).</span>
 
@@ -2199,12 +2199,12 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        size:         size of the cuboid, a number or length-3 vector</span>
-<span class="sd">        p1:           align the cuboid&#39;s corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT)</span>
-<span class="sd">        p2:           if given with p1, defines the cuboid&#39;s opposing cornerpoint</span>
+<span class="sd">        p1:           align the cuboid's corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT)</span>
+<span class="sd">        p2:           if given with p1, defines the cuboid's opposing cornerpoint</span>
 <span class="sd">        chamfer:      chamfer size, inset from sides (default: no chamfer)</span>
 <span class="sd">        rounding:     edge rounding radius (default: no rounding)</span>
-<span class="sd">        edges:        edges to mask (default ``&quot;ALL&quot;``)</span>
-<span class="sd">        except_edges: edges to explicitly not mask (BOSL2&#39;s `except=` synonym; `except` is a Python keyword)</span>
+<span class="sd">        edges:        edges to mask (default ``"ALL"``)</span>
+<span class="sd">        except_edges: edges to explicitly not mask (BOSL2's `except=` synonym; `except` is a Python keyword)</span>
 <span class="sd">        trimcorners:  round/chamfer corners where three treated edges meet (default True)</span>
 <span class="sd">        teardrop:     enable teardrop rounding (not supported by this pure-Python port)</span>
 <span class="sd">        anchor:       anchor point (default Anchor.CENTER)</span>
@@ -2229,9 +2229,9 @@
 <span class="sd">            shape = cuboid([40, 30, 20], rounding=5)</span>
 <span class="sd">            shape.show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">teardrop</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;cuboid(): teardrop= is not supported by this pure-Python port.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"cuboid(): teardrop= is not supported by this pure-Python port."</span><span class="p">)</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">p1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">p2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2267,7 +2267,7 @@
     <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">chamfer_v</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="n">rounding_v</span> <span class="o">=</span> <span class="n">rounding</span> <span class="k">if</span> <span class="n">rounding</span> <span class="k">else</span> <span class="mi">0</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">chamfer_v</span> <span class="ow">and</span> <span class="n">rounding_v</span><span class="p">),</span> <span class="s2">&quot;Cannot specify nonzero value for both chamfer and rounding&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">chamfer_v</span> <span class="ow">and</span> <span class="n">rounding_v</span><span class="p">),</span> <span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span>
 
     <span class="n">corners8</span> <span class="o">=</span> <span class="p">[[</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">]</span> <span class="k">for</span> <span class="n">za</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">ya</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">xa</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
 
@@ -2331,7 +2331,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a rectangular prismoid, built as the convex hull() of two (optionally rounded/chamfered) rects.</span>
+<span class="w">    </span><span class="sd">"""Return a rectangular prismoid, built as the convex hull() of two (optionally rounded/chamfered) rects.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        size1:     [width, length] of the bottom end</span>
@@ -2361,7 +2361,7 @@
 <span class="sd">            shape = prismoid([40, 40], [20, 25], height=30)</span>
 <span class="sd">            shape.show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect_path</span> <span class="k">as</span> <span class="n">_rect_path</span>
 
     <span class="n">s1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size1</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size1</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size1</span><span class="p">]</span>
@@ -2393,7 +2393,7 @@
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return an octahedron with axis-aligned points, built directly with polyhedron().</span>
+<span class="w">    </span><span class="sd">"""Return an octahedron with axis-aligned points, built directly with polyhedron().</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        size:   width of the octahedron, tip to tip</span>
@@ -2408,7 +2408,7 @@
 
 <span class="sd">            octahedron(size=20).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">]]</span>
     <span class="n">faces</span> <span class="o">=</span> <span class="p">[</span>
@@ -2436,7 +2436,7 @@
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, built directly with polyhedron().</span>
+<span class="w">    </span><span class="sd">"""Return a 3-D triangular wedge with the hypotenuse in the X+Z+ quadrant, built directly with polyhedron().</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        size:   [width, thickness, height]</span>
@@ -2452,7 +2452,7 @@
 
 <span class="sd">            wedge([30, 20, 15]).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">pts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
@@ -2520,7 +2520,7 @@
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a rectangular tube (a rectangle with a rectangular hole through it).</span>
+<span class="w">    </span><span class="sd">"""Return a rectangular tube (a rectangle with a rectangular hole through it).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        height:        height of the tube (default 1)</span>
@@ -2557,7 +2557,7 @@
 
 <span class="sd">            rect_tube(size=30, wall=3, height=20).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">rect_path</span> <span class="k">as</span> <span class="n">_rect_path</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">as2</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -2576,8 +2576,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">override_or_none</span><span class="p">(</span>
         <span class="n">specific</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">general</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># `general` (inner_rounding/inner_chamfer) defaults to 0 rather than None in this port&#39;s</span>
-        <span class="c1"># signature, so a bare 0 is treated as &quot;not specified&quot; (inherit from rounding/chamfer);</span>
+        <span class="c1"># `general` (inner_rounding/inner_chamfer) defaults to 0 rather than None in this port's</span>
+        <span class="c1"># signature, so a bare 0 is treated as "not specified" (inherit from rounding/chamfer);</span>
         <span class="c1"># pass inner_rounding1=/inner_rounding2=/inner_chamfer1=/inner_chamfer2= (which do default to None) to force</span>
         <span class="c1"># an explicit zero.</span>
         <span class="k">if</span> <span class="n">specific</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2609,14 +2609,14 @@
         <span class="k">if</span> <span class="n">i2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">else</span> <span class="p">([</span><span class="n">s2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">wall</span><span class="p">,</span> <span class="n">s2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">wall</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">wall</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">s2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="k">assert</span> <span class="n">size1_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;rect_tube(): bad size/size1/size2 argument.&quot;</span>
-    <span class="k">assert</span> <span class="n">size2_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;rect_tube(): bad size/size1/size2 argument.&quot;</span>
-    <span class="k">assert</span> <span class="n">isize1_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;rect_tube(): bad isize/isize1/isize2 argument.&quot;</span>
-    <span class="k">assert</span> <span class="n">isize2_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;rect_tube(): bad isize/isize1/isize2 argument.&quot;</span>
-    <span class="k">assert</span> <span class="n">isize1_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size1_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rect_tube(): inner size is larger than outer size at the bottom.&quot;</span>
-    <span class="k">assert</span> <span class="n">isize1_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size1_v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;rect_tube(): inner size is larger than outer size at the bottom.&quot;</span>
-    <span class="k">assert</span> <span class="n">isize2_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size2_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;rect_tube(): inner size is larger than outer size at the top.&quot;</span>
-    <span class="k">assert</span> <span class="n">isize2_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size2_v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;rect_tube(): inner size is larger than outer size at the top.&quot;</span>
+    <span class="k">assert</span> <span class="n">size1_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"rect_tube(): bad size/size1/size2 argument."</span>
+    <span class="k">assert</span> <span class="n">size2_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"rect_tube(): bad size/size1/size2 argument."</span>
+    <span class="k">assert</span> <span class="n">isize1_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"rect_tube(): bad isize/isize1/isize2 argument."</span>
+    <span class="k">assert</span> <span class="n">isize2_v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"rect_tube(): bad isize/isize1/isize2 argument."</span>
+    <span class="k">assert</span> <span class="n">isize1_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size1_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"rect_tube(): inner size is larger than outer size at the bottom."</span>
+    <span class="k">assert</span> <span class="n">isize1_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size1_v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"rect_tube(): inner size is larger than outer size at the bottom."</span>
+    <span class="k">assert</span> <span class="n">isize2_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size2_v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"rect_tube(): inner size is larger than outer size at the top."</span>
+    <span class="k">assert</span> <span class="n">isize2_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">size2_v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"rect_tube(): inner size is larger than outer size at the top."</span>
 
     <span class="n">rounding1_v</span> <span class="o">=</span> <span class="n">force4f</span><span class="p">(</span><span class="n">rounding1</span> <span class="k">if</span> <span class="n">rounding1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rounding</span><span class="p">)</span>
     <span class="n">rounding2_v</span> <span class="o">=</span> <span class="n">force4f</span><span class="p">(</span><span class="n">rounding2</span> <span class="k">if</span> <span class="n">rounding2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rounding</span><span class="p">)</span>
@@ -2700,19 +2700,19 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon.</span>
+<span class="w">    </span><span class="sd">"""Return a regular sides-sided prism (or frustum) -- the sides-gon analogue of cyl(): a regular polygon.</span>
 
 <span class="sd">    cross-section extruded along Z, with optional per-end chamfer or rounding. Built the same</span>
 <span class="sd">    way cyl() is (native cylinder with fn=sides for the plain case; a revolved half-profile with</span>
-<span class="sd">    fn=sides for chamfered/rounded ends), so it shares cyl()&#39;s exact rim geometry.</span>
+<span class="sd">    fn=sides for chamfered/rounded ends), so it shares cyl()'s exact rim geometry.</span>
 
 <span class="sd">    Sizing gives the CIRCUMradius (vertex distance) unless noted -- exactly one of ``radius``/``diameter``</span>
 <span class="sd">    (radius/diameter to the vertices), ``inner_radius``/``inner_diameter`` (inradius/apothem to the face centers,</span>
 <span class="sd">    converted via ``/cos(180/sides)``), or ``side`` (edge length, converted via ``/(2 sin(180/sides))``).</span>
 <span class="sd">    ``radius1``/``radius2`` (or the corresponding taper) set the bottom/top radius independently for a frustum.</span>
 
-<span class="sd">    Note: BOSL2 regular_prism()&#39;s texture=/teardrop= options are not ported (they need the VNF</span>
-<span class="sd">    texturing machinery this pure-Python port doesn&#39;t implement).</span>
+<span class="sd">    Note: BOSL2 regular_prism()'s texture=/teardrop= options are not ported (they need the VNF</span>
+<span class="sd">    texturing machinery this pure-Python port doesn't implement).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        sides:        number of sides (integer &gt;= 3)</span>
@@ -2757,9 +2757,9 @@
 <span class="sd">            shape = regular_prism(5, height=20, inner_radius=12, rounding=2)</span>
 <span class="sd">            shape.show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">cos_half</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">circumradius</span><span class="p">(</span><span class="n">spec_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2789,7 +2789,7 @@
     <span class="n">r2v</span> <span class="o">=</span> <span class="n">rounding2</span> <span class="k">if</span> <span class="n">rounding2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">rounding</span> <span class="k">if</span> <span class="n">rounding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">c1v</span> <span class="o">=</span> <span class="n">chamfer1</span> <span class="k">if</span> <span class="n">chamfer1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">c2v</span> <span class="o">=</span> <span class="n">chamfer2</span> <span class="k">if</span> <span class="n">chamfer2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="p">((</span><span class="n">r1v</span> <span class="ow">or</span> <span class="n">r2v</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c1v</span> <span class="ow">or</span> <span class="n">c2v</span><span class="p">)),</span> <span class="s2">&quot;Cannot specify nonzero value for both chamfer and rounding&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">((</span><span class="n">r1v</span> <span class="ow">or</span> <span class="n">r2v</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c1v</span> <span class="ow">or</span> <span class="n">c2v</span><span class="p">)),</span> <span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span>
 
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
     <span class="k">if</span> <span class="n">use_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2801,12 +2801,12 @@
         <span class="n">profile</span> <span class="o">=</span> <span class="n">cyl_profile</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">,</span> <span class="n">prism_len</span><span class="p">,</span> <span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">,</span> <span class="n">c1v</span><span class="p">,</span> <span class="n">c2v</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 
-        <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
+        <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
 
         <span class="n">shape</span> <span class="o">=</span> <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">profile</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">sides</span><span class="p">)</span>
 
-    <span class="c1"># OpenSCAD&#39;s cylinder(fn=n) puts a vertex on +X; realign rotates half a facet so a face</span>
-    <span class="c1"># centre faces +X instead (BOSL2&#39;s realign convention).</span>
+    <span class="c1"># OpenSCAD's cylinder(fn=n) puts a vertex on +X; realign rotates half a facet so a face</span>
+    <span class="c1"># centre faces +X instead (BOSL2's realign convention).</span>
     <span class="k">if</span> <span class="n">realign</span><span class="p">:</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">180</span> <span class="o">/</span> <span class="n">sides</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">shift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">shift</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>

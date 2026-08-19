@@ -1814,7 +1814,7 @@
 <span class="c1"># SPDX-License-Identifier: BSD-2-Clause</span>
 
 <span class="c1"># LibFile: pybosl2/miscellaneous.py</span>
-<span class="c1">#    Pure-Python port of BOSL2&#39;s miscellaneous.scad: extrusions (extrude_from_to, path_extrude2d,</span>
+<span class="c1">#    Pure-Python port of BOSL2's miscellaneous.scad: extrusions (extrude_from_to, path_extrude2d,</span>
 <span class="c1">#    path_extrude, cylindrical_extrude), the bounding box, chain_hull, and the minkowski-based</span>
 <span class="c1">#    transforms (minkowski_difference, offset3d, round3d).</span>
 <span class="c1">#</span>
@@ -1822,7 +1822,7 @@
 <span class="c1">#    via the :class:`Extrudable` mixin, and -- unlike BOSL2, which extrudes its *children* -- they</span>
 <span class="c1">#    take the 2-D cross-section as a *profile* argument: a native 2-D shape, a Path2D/Region, a</span>
 <span class="c1">#    Bosl2Solid wrapping 2-D geometry, or a zero-argument factory that returns fresh geometry (the</span>
-<span class="c1">#    &quot;children&quot; form; use a factory to avoid the frep handle-reuse segfault). The bbox/offset/round</span>
+<span class="c1">#    "children" form; use a factory to avoid the frep handle-reuse segfault). The bbox/offset/round</span>
 <span class="c1">#    operators are methods on :class:`~pybosl2.shapes3d.Bosl2Solid` via :class:`Miscellaneous`.</span>
 <span class="c1">#</span>
 <span class="c1">#    Only matrix/vector math and pybosl2.transforms/constants are imported at load time; native</span>
@@ -1833,7 +1833,7 @@
 <span class="c1"># DocCategory: Extras</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Extrusions, bounding box, chain hull, and minkowski-based transforms.&quot;&quot;&quot;</span>
+<span class="sd">"""Extrusions, bounding box, chain hull, and minkowski-based transforms."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1858,12 +1858,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;extrude_from_to&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;cylindrical_extrude&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;chain_hull&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;minkowski_difference&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Extrudable&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Miscellaneous&quot;</span><span class="p">,</span>
+    <span class="s2">"extrude_from_to"</span><span class="p">,</span>
+    <span class="s2">"cylindrical_extrude"</span><span class="p">,</span>
+    <span class="s2">"chain_hull"</span><span class="p">,</span>
+    <span class="s2">"minkowski_difference"</span><span class="p">,</span>
+    <span class="s2">"Extrudable"</span><span class="p">,</span>
+    <span class="s2">"Miscellaneous"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -1873,20 +1873,20 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.</span>
+<span class="w">    </span><span class="sd">"""Return a raw native 2-D shape from *profile* (a Bosl2Shape2D/Bosl2Solid wrapper, a native shape,.</span>
 
 <span class="sd">    a Path2D, or a Region) -- see :func:`pybosl2.shapes2d._as_native_2d`, which this defers to.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_native_2d</span> <span class="k">as</span> <span class="n">_coerce</span>
 
     <span class="k">return</span> <span class="n">_coerce</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_profile_factory</span><span class="p">(</span><span class="n">profile</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.</span>
+<span class="w">    </span><span class="sd">"""Return a zero-arg callable yielding native 2-D geometry -- a factory is called fresh each time.</span>
 
-<span class="sd">    (the &quot;children&quot; form, safe for frep handles); anything else is meshed once and reused.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    (the "children" form, safe for frep handles); anything else is meshed once and reused.</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -1901,7 +1901,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_planar_half</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">keep_positive_x</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keep the x&gt;=0 (or x&lt;=0) half of a native 2-D *shape* (BOSL2 right_half/left_half planar).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Keep the x&gt;=0 (or x&lt;=0) half of a native 2-D *shape* (BOSL2 right_half/left_half planar)."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_square</span>
 
     <span class="n">strip</span> <span class="o">=</span> <span class="n">_square</span><span class="p">([</span><span class="n">s</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">s</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1925,9 +1925,9 @@
     <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linearly extrude a 2-D *profile* between two 3-D points.</span>
+<span class="w">    </span><span class="sd">"""Linearly extrude a 2-D *profile* between two 3-D points.</span>
 
-<span class="sd">    The profile&#39;s origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between</span>
+<span class="sd">    The profile's origin is placed on *pt1* and *pt2*, oriented perpendicular to the line between</span>
 <span class="sd">    them. *profile* is a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory.</span>
 
 <span class="sd">    Examples:</span>
@@ -1939,26 +1939,26 @@
 
 <span class="sd">            extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30], twist=180, scale=2).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
     <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">vec3</span><span class="p">(</span><span class="n">pt1</span><span class="p">),</span> <span class="n">vec3</span><span class="p">(</span><span class="n">pt2</span><span class="p">)</span>
     <span class="n">diameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">p2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
     <span class="n">height</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">height</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;extrude_from_to(): the two points must differ.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"extrude_from_to(): the two points must differ."</span><span class="p">)</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
     <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
     <span class="n">kw</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
-        <span class="s2">&quot;center&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="s2">&quot;twist&quot;</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
-        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
-        <span class="s2">&quot;convexity&quot;</span><span class="p">:</span> <span class="n">convexity</span><span class="p">,</span>
+        <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
+        <span class="s2">"center"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">"twist"</span><span class="p">:</span> <span class="n">twist</span><span class="p">,</span>
+        <span class="s2">"scale"</span><span class="p">:</span> <span class="n">scale</span><span class="p">,</span>
+        <span class="s2">"convexity"</span><span class="p">:</span> <span class="n">convexity</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">slices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">kw</span><span class="p">[</span><span class="s2">&quot;slices&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slices</span>
+        <span class="n">kw</span><span class="p">[</span><span class="s2">"slices"</span><span class="p">]</span> <span class="o">=</span> <span class="n">slices</span>
     <span class="n">solid</span> <span class="o">=</span> <span class="n">native</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">theta</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">p1</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">solid</span><span class="p">)</span></div>
 
@@ -1980,12 +1980,12 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2.</span>
+<span class="w">    </span><span class="sd">"""Wrap a 2-D *profile* around a cylinder, from radius *inner_radius* out to *outer_radius* (BOSL2.</span>
 
 <span class="sd">    cylindrical_extrude()).</span>
 
 <span class="sd">    Chops the profile into vertical facets and extrudes each radially. Handy for embossing text</span>
-<span class="sd">    onto a curved wall. The profile&#39;s X spans one revolution by default (override with *size*).</span>
+<span class="sd">    onto a curved wall. The profile's X spans one revolution by default (override with *size*).</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -1994,7 +1994,7 @@
 
 <span class="sd">            cylindrical_extrude(s2.circle(radius=8), inner_radius=25, outer_radius=30).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">square</span> <span class="k">as</span> <span class="n">_square</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
@@ -2002,10 +2002,10 @@
 
     <span class="n">irv</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">inner_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">inner_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">orv</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">outer_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">outer_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">irv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;cylindrical_extrude(): give positive inner and outer radius/diameter.&quot;</span>
-    <span class="k">assert</span> <span class="n">orv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;cylindrical_extrude(): give positive inner and outer radius/diameter.&quot;</span>
-    <span class="k">assert</span> <span class="n">irv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;cylindrical_extrude(): give positive inner and outer radius/diameter.&quot;</span>
-    <span class="k">assert</span> <span class="n">orv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;cylindrical_extrude(): give positive inner and outer radius/diameter.&quot;</span>
+    <span class="k">assert</span> <span class="n">irv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
+    <span class="k">assert</span> <span class="n">orv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
+    <span class="k">assert</span> <span class="n">irv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
+    <span class="k">assert</span> <span class="n">orv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
     <span class="n">circumf</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">orv</span>
     <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">circumf</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">]</span>
@@ -2046,7 +2046,7 @@
 <div class="viewcode-block" id="chain_hull">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.chain_hull">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">chain_hull</span><span class="p">(</span><span class="o">*</span><span class="n">objects</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Union the hulls of each consecutive pair of *objects*.</span>
+<span class="w">    </span><span class="sd">"""Union the hulls of each consecutive pair of *objects*.</span>
 
 <span class="sd">    Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2056,13 +2056,13 @@
 
 <span class="sd">            chain_hull([sphere(radius=5).translate([x * 20, 0, 0]) for x in range(4)]).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">hull</span> <span class="k">as</span> <span class="n">_hull</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
     <span class="n">objs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">objs</span><span class="p">,</span> <span class="s2">&quot;chain_hull(): needs at least one object.&quot;</span>
+    <span class="k">assert</span> <span class="n">objs</span><span class="p">,</span> <span class="s2">"chain_hull(): needs at least one object."</span>
     <span class="n">natives</span> <span class="o">=</span> <span class="p">[</span><span class="n">unwrap</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">natives</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">natives</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -2074,7 +2074,7 @@
 <div class="viewcode-block" id="minkowski_difference">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.minkowski_difference">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_difference</span><span class="p">(</span><span class="n">base</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">*</span><span class="n">diffs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Carve *diffs* out of the surface of *base*.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Carve *diffs* out of the surface of *base*."""</span>
     <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">convexity</span><span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_mink</span>
@@ -2085,7 +2085,7 @@
     <span class="n">raw</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">diffs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diffs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">diffs</span><span class="p">)</span>
     <span class="c1"># Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">unwrap</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;minkowski_difference(): needs at least one diff shape.&quot;</span>
+    <span class="k">assert</span> <span class="n">ds</span><span class="p">,</span> <span class="s2">"minkowski_difference(): needs at least one diff shape."</span>
     <span class="n">center</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_native_bounds</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="n">box0</span> <span class="o">=</span> <span class="n">_cube</span><span class="p">([</span><span class="n">sz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">center</span><span class="p">])</span>
     <span class="n">box1</span> <span class="o">=</span> <span class="n">_cube</span><span class="p">([</span><span class="n">sz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">center</span><span class="p">])</span>
@@ -2109,11 +2109,11 @@
 <div class="viewcode-block" id="Extrudable">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Extrudable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and.</span>
+<span class="w">    </span><span class="sd">"""Mixin adding path_extrude / path_extrude2d as methods on :class:`~pybosl2.paths.Path2D` and.</span>
 
 <span class="sd">    :class:`~pybosl2.paths.Path3D`. Both take the 2-D cross-section as a *profile* argument instead</span>
 <span class="sd">    of OpenSCAD children (a native 2-D shape, a Path2D/Region, a Bosl2Solid, or a factory).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Extrudable.path_extrude2d">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Extrudable.path_extrude2d">[docs]</a>
@@ -2125,21 +2125,21 @@
         <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude a 2-D *profile* along this 2-D path, standing it vertically.</span>
+<span class="w">        </span><span class="sd">"""Extrude a 2-D *profile* along this 2-D path, standing it vertically.</span>
 
 <span class="sd">        Builds a straight run for each segment and a revolved fillet at each corner, unioned into a</span>
-<span class="sd">        3-D &quot;moulding&quot; that follows the path. *caps* rounds the two open ends (the profile must be</span>
+<span class="sd">        3-D "moulding" that follows the path. *caps* rounds the two open ends (the profile must be</span>
 <span class="sd">        symmetric across the Y axis); *closed* joins the ends into a loop; *s* is the internal mask</span>
-<span class="sd">        size (defaults to the path&#39;s bounding-box diagonal).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        size (defaults to the path's bounding-box diagonal).</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;path_extrude2d(): the path must be 2-D (use path_extrude for 3-D).&quot;</span>  <span class="c1"># type: ignore[index]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."</span>  <span class="c1"># type: ignore[index]</span>
         <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span>  <span class="c1"># type: ignore[attr-defined]</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">caps</span> <span class="ow">and</span> <span class="n">is_closed</span><span class="p">),</span> <span class="s2">&quot;path_extrude2d(): cannot cap a closed extrusion.&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">caps</span> <span class="ow">and</span> <span class="n">is_closed</span><span class="p">),</span> <span class="s2">"path_extrude2d(): cannot cap a closed extrusion."</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicated</span><span class="p">()]</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;path_extrude2d(): need at least two points.&quot;</span>
+        <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"path_extrude2d(): need at least two points."</span>
         <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">min_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">)</span>
             <span class="n">min_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">)</span>
@@ -2183,7 +2183,7 @@
                 <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">rot_from_to4</span><span class="p">(</span><span class="n">BACK</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
                 <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">])</span>
                 <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cap</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">parts</span><span class="p">,</span> <span class="s2">&quot;path_extrude2d(): nothing to extrude.&quot;</span>
+        <span class="k">assert</span> <span class="n">parts</span><span class="p">,</span> <span class="s2">"path_extrude2d(): nothing to extrude."</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span></div>
 
 
@@ -2195,13 +2195,13 @@
         <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">clipsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extrude a 2-D *profile* along this path in 3-D.</span>
+<span class="w">        </span><span class="sd">"""Extrude a 2-D *profile* along this path in 3-D.</span>
 
 <span class="sd">        Places an oriented linear extrusion for each segment and clips it at the mitre planes</span>
 <span class="sd">        between segments. A 2-D Path2D is lifted to the ``z=0`` plane first. For most sweeps</span>
 <span class="sd">        :func:`~pybosl2.skin.path_sweep` is faster and cleaner; this exists for extruding an arbitrary</span>
 <span class="sd">        native 2-D object (text, multi-part shapes) that is not a single polygon.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
 
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
@@ -2210,7 +2210,7 @@
         <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># type: ignore[index]</span>
         <span class="n">path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;path_extrude(): need at least two points.&quot;</span>
+        <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"path_extrude(): need at least two points."</span>
         <span class="n">parr</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
         <span class="n">rotmats</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -2253,7 +2253,7 @@
                 <span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt2</span><span class="p">])</span>
             <span class="p">)</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ext</span> <span class="o">-</span> <span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">c2</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">parts</span><span class="p">,</span> <span class="s2">&quot;path_extrude(): nothing to extrude.&quot;</span>
+        <span class="k">assert</span> <span class="n">parts</span><span class="p">,</span> <span class="s2">"path_extrude(): nothing to extrude."</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span></div>
 </div>
 
@@ -2267,20 +2267,20 @@
 <div class="viewcode-block" id="Miscellaneous">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Miscellaneous">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Miscellaneous</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods.</span>
+<span class="w">    </span><span class="sd">"""Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods.</span>
 
 <span class="sd">    on :class:`~pybosl2.shapes3d.Bosl2Solid`.  Requires ``_wrap`` (provided by</span>
 <span class="sd">    :class:`~pybosl2._shape.BaseShape`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="Miscellaneous.bounding_box">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.bounding_box">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the smallest axis-aligned cuboid containing this solid, grown by *excess*.</span>
+<span class="w">        </span><span class="sd">"""Return the smallest axis-aligned cuboid containing this solid, grown by *excess*.</span>
 
-<span class="sd">        Uses the native bounding box, so it is exact and fast (BOSL2&#39;s projection/minkowski trick is</span>
+<span class="sd">        Uses the native bounding box, so it is exact and fast (BOSL2's projection/minkowski trick is</span>
 <span class="sd">        not needed here).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
 
         <span class="n">center</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
@@ -2290,10 +2290,10 @@
 <div class="viewcode-block" id="Miscellaneous.offset3d">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.offset3d">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">offset3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expand (or, for negative *radius*, contract) the surface of this solid by *radius*.</span>
+<span class="w">        </span><span class="sd">"""Expand (or, for negative *radius*, contract) the surface of this solid by *radius*.</span>
 
 <span class="sd">        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">minkowski</span> <span class="k">as</span> <span class="n">_mink</span>
@@ -2321,10 +2321,10 @@
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Round the corners of this solid: *radius* rounds all, *outer_radius* only convex,.</span>
+<span class="w">        </span><span class="sd">"""Round the corners of this solid: *radius* rounds all, *outer_radius* only convex,.</span>
 
 <span class="sd">        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">orr</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">irr</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="o">-</span><span class="n">irr</span> <span class="o">-</span> <span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">irr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
@@ -2333,14 +2333,14 @@
 <div class="viewcode-block" id="Miscellaneous.chain_hull">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.chain_hull">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">chain_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return this solid chain-hulled with *others*, in order (see :func:`chain_hull`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return this solid chain-hulled with *others*, in order (see :func:`chain_hull`)."""</span>
         <span class="k">return</span> <span class="n">chain_hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Miscellaneous.minkowski_difference">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.minkowski_difference">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">minkowski_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">diffs</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Carve *diffs* out of this solid&#39;s surface (see :func:`minkowski_difference`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Carve *diffs* out of this solid's surface (see :func:`minkowski_difference`)."""</span>
         <span class="k">return</span> <span class="n">minkowski_difference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">diffs</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
 </div>
 

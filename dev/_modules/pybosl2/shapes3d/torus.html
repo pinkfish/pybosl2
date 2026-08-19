@@ -1818,7 +1818,7 @@
 <span class="c1"># DocCategory: Foundational</span>
 <span class="c1"># FileGroup: BOSL2</span>
 
-<span class="sd">&quot;&quot;&quot;Toruses and pie slice shapes.&quot;&quot;&quot;</span>
+<span class="sd">"""Toruses and pie slice shapes."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1855,14 +1855,14 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span> <span class="k">as</span> <span class="n">_osphere_native</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">textmetrics</span> <span class="k">as</span> <span class="n">_otextmetrics</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">_ocube</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;cube&quot;</span><span class="p">)</span>
-    <span class="n">_ocylinder_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;cylinder&quot;</span><span class="p">)</span>
-    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;hull&quot;</span><span class="p">)</span>
-    <span class="n">_ominkowski</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;minkowski&quot;</span><span class="p">)</span>
-    <span class="n">_opolyhedron</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polyhedron&quot;</span><span class="p">)</span>
-    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;rotate_extrude&quot;</span><span class="p">)</span>
-    <span class="n">_osphere_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;sphere&quot;</span><span class="p">)</span>
-    <span class="n">_otextmetrics</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;textmetrics&quot;</span><span class="p">)</span>
+    <span class="n">_ocube</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"cube"</span><span class="p">)</span>
+    <span class="n">_ocylinder_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"cylinder"</span><span class="p">)</span>
+    <span class="n">_ohull</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"hull"</span><span class="p">)</span>
+    <span class="n">_ominkowski</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"minkowski"</span><span class="p">)</span>
+    <span class="n">_opolyhedron</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polyhedron"</span><span class="p">)</span>
+    <span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"rotate_extrude"</span><span class="p">)</span>
+    <span class="n">_osphere_native</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"sphere"</span><span class="p">)</span>
+    <span class="n">_otextmetrics</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"textmetrics"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="pie_slice">
@@ -1885,7 +1885,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a pie slice, wedge of a cylinder/cone.</span>
+<span class="w">    </span><span class="sd">"""Return a pie slice, wedge of a cylinder/cone.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        height:    height of the pie slice</span>
@@ -1912,11 +1912,11 @@
 
 <span class="sd">            pie_slice(radius=20, angle=120, height=5).show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 
-    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
 
     <span class="n">length</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">length</span> <span class="k">if</span> <span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">rad1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -1970,9 +1970,9 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a torus (donut) shape.</span>
+<span class="w">    </span><span class="sd">"""Return a torus (donut) shape.</span>
 
-<span class="sd">    Note: BOSL2&#39;s outer-radius parameter is named `or`, which collides with the Python</span>
+<span class="sd">    Note: BOSL2's outer-radius parameter is named `or`, which collides with the Python</span>
 <span class="sd">    keyword `or`; it is exposed here as `outer_radius` instead.</span>
 
 <span class="sd">    Args:</span>
@@ -2000,11 +2000,11 @@
 <span class="sd">            shape = torus(major_radius=25, minor_radius=8)</span>
 <span class="sd">            shape.show()</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc_points</span> <span class="k">as</span> <span class="n">_arc_points</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 
-    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">&quot;polygon&quot;</span><span class="p">)</span>
+    <span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
 
     <span class="n">_or</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">_ir</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -2020,7 +2020,7 @@
     <span class="k">elif</span> <span class="n">_or</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_r_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">maj_rad</span> <span class="o">=</span> <span class="n">_or</span> <span class="o">-</span> <span class="n">_r_min</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;torus(): bad parameters.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"torus(): bad parameters."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">_r_min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">min_rad</span> <span class="o">=</span> <span class="n">_r_min</span>
@@ -2029,7 +2029,7 @@
     <span class="k">elif</span> <span class="n">_or</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">min_rad</span> <span class="o">=</span> <span class="n">_or</span> <span class="o">-</span> <span class="n">maj_rad</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;torus(): bad parameters.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"torus(): bad parameters."</span><span class="p">)</span>
 
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">DOWN</span><span class="p">)</span>
 
