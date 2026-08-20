@@ -388,6 +388,8 @@ def _curve_points(
         return [np.asarray(pt[:-1], dtype=float) / pt[-1] for pt in rational]
 
     if not (nurbs_type == NurbsType.CLOSED or len(control) >= degree + 1):
+        # pragma: no cover - defensive: NurbsCurve.__init__ makes the same check before any
+        # curve can reach this helper, and a CLOSED curve is exempt from it
         raise ValueError(f"Not enough control points for a degree {degree} {nurbs_type.value} curve.")
     ctrl = [np.asarray(p, dtype=float) for p in control]
     if nurbs_type == NurbsType.CLOSED:

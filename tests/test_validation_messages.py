@@ -424,3 +424,42 @@ def test_offsetting_an_open_path_is_rejected_internally() -> None:
     """
     with pytest.raises(ValueError, match="Open paths are not supported"):
         Path2D(OPEN_SQUARE)._offset(delta=2, closed=False)
+
+
+def _unit_height(_x: float, _y: float) -> float:
+    """A flat height function for the cylindrical heightfield."""
+    return 1.0
+
+
+SHAPE_INPUT_CASES: list[tuple[Callable[[], object], str]] = [
+    # array shape and dtype: the message says what shape was expected and what arrived
+    (lambda: beziers.Bezier([0.0, 1.0, 2.0]), "must be a 2-D array"),
+    (lambda: beziers.BezierPatch([[0.0, 1.0], [2.0, 3.0]]), "must be a 3-D array"),
+    (lambda: nurbs.NurbsCurve([[0.0, 0.0], [5.0, 5.0]], 3), "needs at least 4 control points"),
+    # rounding needs a path with no repeats and no reversals at the corners it is rounding
+    (
+        lambda: Path2D([[0.0, 0.0], [0.0, 0.0], [10.0, 0.0], [10.0, 10.0]], closed=True).round_corners(radius=1),
+        "Repeated point in path",
+    ),
+    (
+        lambda: Path2D([[0.0, 0.0], [10.0, 0.0], [0.0, 0.0], [5.0, 8.0]], closed=True).round_corners(radius=1),
+        "turns back on itself",
+    ),
+    (
+        # the previous point repeats: reachable only when the earlier corner is not being
+        # rounded, so the loop does not stop there first
+        lambda: Path2D([[0.0, 0.0], [10.0, 0.0], [10.0, 0.0], [5.0, 8.0]], closed=True).round_corners(
+            radius=[1, 0, 1, 1]
+        ),
+        "Repeated point in path",
+    ),
+    (lambda: s2.arc(corner=[[0.0, 0.0], [5.0, 0.0], [10.0, 0.0]], radius=2), "Collinear corner"),
+    # a cylindrical heightfield has to fit around its own circumference
+    (lambda: surfaces.cylindrical_heightfield(_unit_height, length=20, radius=0.5), "needs a radius of at least"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SHAPE_INPUT_CASES)
+def test_shape_input_rejections_say_what_arrived(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
