@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Ambient resolution defaults, and the API-ergonomics rules they serve (SPEC.md D-1..D-10)."""
+"""Ambient resolution defaults, and the API-ergonomics rules they serve (SPEC.md D-1..D-8, R-1..R-7)."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def test_ambient_res_reaches_the_sdf_backend() -> None:
             assert cuboid([10, 10, 10], res=4).res == 4
 
 
-# --- what a caller gets when they say nothing (SPEC.md P-2, item 5) ------------------------
+# --- what a caller gets when they say nothing (SPEC.md P-2, B-8) ------------------------
 
 
 def test_effective_defaults_reports_the_real_signature() -> None:
