@@ -430,6 +430,9 @@ def _ptn_sect(
     elif isinstance(cptype, (list, tuple, np.ndarray)):
         path = [list(p) for p in cptype]
     else:
+        # pragma: no cover - defensive: every caller passes a number, a str/PartitionCutType, or a
+        # point sequence. partition_path() rejects anything else in its own loop, and the mask
+        # entry points iterate cutpath before they get here, so a stray type never reaches this.
         raise ValueError(
             f"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got {cptype!r}."
         )
