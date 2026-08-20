@@ -307,7 +307,11 @@ def path_text(
 
     if not (len(text) > 0):
         raise ValueError("path_text(): text must be non-empty.")
-    if not (size > 0):
+    if isinstance(size, (list, tuple)):
+        raise ValueError(
+            "path_text(): size= is one number for the whole string; per-character widths go in lettersize=."
+        )
+    if not size > 0:
         raise ValueError("path_text(): must give positive text size.")
     if not (normal is None or top is None):
         raise ValueError('path_text(): cannot define both "normal" and "top".')
@@ -334,7 +338,10 @@ def path_text(
     elif textmetrics:
         lsize = [_otextmetrics(ch, font=font, size=size)["advance"][0] for ch in text]
     else:
-        raise AssertionError("path_text(): textmetrics disabled -- must specify lettersize.")
+        raise ValueError(
+            "path_text(): this build has no textmetrics, so the letter widths cannot be "
+            "measured -- pass size= as a list of per-character widths."
+        )
 
     kern_list = [float(kern)] * (sides - 1) if isinstance(kern, (int, float)) else [float(v) for v in kern]
     if not (len(kern_list) == sides - 1):

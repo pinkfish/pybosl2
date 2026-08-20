@@ -301,9 +301,8 @@ def arc(
             )
         if not (len(pts) == 3):
             raise ValueError(f"arc(points=) needs 2 or 3 points, got {len(pts)}")
-        assert not is_collinear(
-            Point(pts[0][0], pts[0][1]), Point(pts[1][0], pts[1][1]), Point(pts[2][0], pts[2][1])
-        ), "Collinear inputs do not define an arc"
+        if is_collinear(Point(pts[0][0], pts[0][1]), Point(pts[1][0], pts[1][1]), Point(pts[2][0], pts[2][1])):
+            raise ValueError("arc(points=): the three points are collinear, so they define no arc.")
         centre, arc_radius = _circle_from_3pts(pts)
         a0 = math.degrees(math.atan2(pts[0][1] - centre[1], pts[0][0] - centre[0]))
         am = math.degrees(math.atan2(pts[1][1] - centre[1], pts[1][0] - centre[0]))
