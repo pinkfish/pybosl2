@@ -65,18 +65,16 @@ class Resolution:
 
     Mirrors OpenSCAD's ``$fn``/``$fa``/``$fs`` special variables plus the SDF backend's ``res``.
     A field left at ``None`` means "not set" -- the renderer's own default applies.
-
-    Attributes:
-        fn: Fixed number of fragments per full circle; overrides fa/fs when 3 or more.
-        fa: Minimum fragment angle in degrees.
-        fs: Minimum fragment size in millimetres.
-        res: Sampling resolution for the SDF backend.
-
     """
 
+    #: Fixed number of fragments per full circle; overrides fa/fs when 3 or more, and ``0`` means
+    #: "ignore any ambient fn, use fa/fs" (SPEC R-5).
     fn: int | None = None
+    #: Minimum fragment angle in degrees.
     fa: float | None = None
+    #: Minimum fragment size in millimetres.
     fs: float | None = None
+    #: Sampling resolution for the SDF backend.
     res: int | None = None
 
 

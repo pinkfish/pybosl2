@@ -26,8 +26,6 @@ import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
-import webcolors
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Self
@@ -159,13 +157,24 @@ class Color:
                 if len(hex_val) not in (6, 8):
                     raise ValueError(f"invalid hex colour: {spec!r}")
                 try:
-                    c = webcolors.hex_to_rgb(f"#{hex_val[:6]}")
-                    self._r, self._g, self._b = c.red / 255, c.green / 255, c.blue / 255
+                    r, g, b = (int(hex_val[i : i + 2], 16) for i in (0, 2, 4))
+                    self._r, self._g, self._b = r / 255, g / 255, b / 255
                     if len(hex_val) == 8:
                         self._a = int(hex_val[6:8], 16) / 255
                 except ValueError:
                     raise ValueError(f"invalid hex colour: {spec!r}") from None
                 return
+            # only a CSS colour NAME needs the lookup table, so the dependency is imported
+            # here rather than at module scope (SPEC A-4: importing pybosl2 stays cheap, and
+            # works in runtimes that do not ship webcolors)
+            try:
+                import webcolors
+            except ImportError:  # pragma: no cover - depends on the runtime
+                raise ValueError(
+                    f"cannot resolve the colour name {spec!r}: the webcolors package is not "
+                    f"available in this runtime. Use a hex string ('#ff0000') or an [r, g, b] "
+                    f"sequence instead."
+                ) from None
             try:
                 c = webcolors.name_to_rgb(s)
                 self._r, self._g, self._b = c.red / 255, c.green / 255, c.blue / 255

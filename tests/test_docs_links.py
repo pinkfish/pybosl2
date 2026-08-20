@@ -298,3 +298,36 @@ class TestSpecSheetCoverage:
             if not found:
                 failures.append(name)
         assert not failures, "Spec sheets without API pages:\n" + "\n".join(f"  - {f}" for f in failures)
+
+
+def test_no_module_is_documented_by_two_pages() -> None:
+    """Two automodule blocks for one module make Sphinx report every member as a duplicate.
+
+    A curated page (docs/paths/paths.rst covers paths + path2d + path3d together) is the canonical
+    one; _rstgen skips stub generation for anything it already documents. This catches a stub that
+    slipped in anyway.
+    """
+    import collections
+    import re
+
+    pattern = re.compile(r"^\.\. automodule:: ([\w.]+)", re.M)
+    owners: dict[str, list[str]] = collections.defaultdict(list)
+    for rst in DOCS_DIR.rglob("*.rst"):
+        if "_build" in rst.parts:
+            continue
+        text = rst.read_text()
+        for module in pattern.findall(text):
+            owners[module].append(str(rst.relative_to(DOCS_DIR)))
+
+    doubled = {module: pages for module, pages in owners.items() if len(pages) > 1}
+    assert not doubled, f"modules documented by more than one page: {doubled}"
+
+
+def test_import_pybosl2_needs_no_optional_dependency() -> None:
+    """The PythonSCAD app's Python has no webcolors; importing pybosl2 must not need it (SPEC A-4)."""
+    import subprocess
+    import sys
+
+    probe = "import sys;sys.modules['webcolors'] = None;import pybosl2;assert pybosl2.cuboid is not None;print('ok')"
+    result = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr

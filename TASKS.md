@@ -451,14 +451,26 @@ B2-1 claims feature parity with BOSL2, and nothing measures it.
 
 - [ ] `README.md` — point contributors at `SPEC.md` / `PLAN.md` / `TASKS.md` in the development
       section (the reference links are already there).
-- [ ] `pybosl2/__init__.py` — `from pybosl2.color import Color` is eager and pulls `webcolors` at
-      import time; make it lazy like everything else (SPEC A-4).
+- [x] `pybosl2/__init__.py` — `Color` was eager and pulled `webcolors` at import time. Now lazy,
+      and `color.py` imports `webcolors` only to resolve a CSS colour *name* (hex is parsed
+      locally). This was breaking **89 docs examples**: the PythonSCAD app's bundled Python has no
+      webcolors, so `import pybosl2` raised inside the app and every example reported "Current top
+      level object is empty". Guarded by
+      `test_import_pybosl2_needs_no_optional_dependency` (SPEC A-4).
 - [ ] `effective_defaults()` returns `dict[str, Any]`; narrow it once the façade owns its defaults
       (T2), when the value types become knowable (PLAN T-2).
 - [ ] Audit `Sequence` parameters that are documented as paths for SPEC C-7 — they should take a
       `Path` (PLAN T-4).
 - [ ] Add a ruff rule (or a test) banning new `assert` statements with a message naming a
       parameter, so T0b cannot regress (PLAN E-P2).
+- [x] `docs/_rstgen.py` — stub generation now skips a module a committed page already documents
+      with an `automodule` block. Promoting `path2d`/`path3d` to public categories had generated a
+      second page for each, and `docs/paths/paths.rst` already covered them with curated prose and
+      `exclude-members` lists — **266 duplicate-object warnings**. Guarded by
+      `test_no_module_is_documented_by_two_pages`.
+- [x] `Resolution`'s fields use `#:` comments instead of a docstring `Attributes:` block, which
+      napoleon and autodoc were both rendering; `rect_tube` no longer documents `length` twice.
+      The docs build is at **0 warnings**.
 - [ ] Check `docs/design/` for other documents that have drifted the way
       `sdf-csg-compatibility.md` did — a stale design note is worse than none (T4).
 

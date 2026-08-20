@@ -731,7 +731,6 @@ def rect_tube(
         anchor:     anchor point (default BOTTOM)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         orient:     direction to rotate the top towards, after spin (default UP)
-        length:     synonym for height
         fn:         arc smoothness override for the rounded corners, passed to both prismoids
         fa:         arc smoothness override for the rounded corners, passed to both prismoids
         fs:         arc smoothness override for the rounded corners, passed to both prismoids
