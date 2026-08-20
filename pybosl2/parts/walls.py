@@ -28,6 +28,7 @@ from typing import Any
 
 import numpy as np
 
+from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
 from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid, cuboid
@@ -176,6 +177,7 @@ class NarrowingStrut:
         return self._angle
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the strut geometry."""
         return self._solid
@@ -254,6 +256,7 @@ class SparseWall:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
@@ -322,6 +325,7 @@ class SparseCuboid:
         return self._size
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the cuboid geometry."""
         return self._solid
@@ -405,6 +409,7 @@ class CorrugatedWall:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
@@ -585,6 +590,7 @@ class ThinningWall:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
@@ -685,6 +691,7 @@ class ThinningTriangle:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the triangle geometry."""
         return self._solid

@@ -20,6 +20,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, LEFT
@@ -143,6 +144,7 @@ class Slider:
         return self._height
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the slider geometry."""
         return self._solid
@@ -320,6 +322,7 @@ class Rail:
         return self._height
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the rail geometry."""
         return self._solid

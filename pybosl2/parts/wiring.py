@@ -21,6 +21,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
 from pybosl2.color import Color
 from pybosl2.path3d import Path3D
@@ -178,6 +179,7 @@ class WireBundle:
         return self._wirediam
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the wire bundle geometry."""
         return self._solid

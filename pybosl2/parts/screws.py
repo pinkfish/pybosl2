@@ -34,6 +34,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+from pybosl2._backend import csg_part
 from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 
@@ -557,6 +558,7 @@ class Screw:
         return self._length
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the screw geometry (result is cached)."""
         if self._solid is not None:
@@ -674,6 +676,7 @@ class Nut:
         return self._shape
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the nut geometry (result is cached)."""
         if self._solid is not None:
@@ -779,6 +782,7 @@ class ScrewHole:
         return self._length
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the hole cutter geometry (result is cached)."""
         if self._solid is not None:

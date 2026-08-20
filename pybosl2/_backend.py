@@ -55,6 +55,7 @@ __all__ = [
     "for_backend",
     "backend_only",
     "builds_with",
+    "csg_part",
     "current_backend",
     "set_default_backend",
     "use_backend",
@@ -215,6 +216,38 @@ def for_backend(constructor: "Callable[..., Any]", arguments: "Mapping[str, Any]
     if "**" in accepted:
         return dict(arguments)
     return {name: value for name, value in arguments.items() if name in accepted}
+
+
+def csg_part(getter: "_F") -> "_F":
+    """Guard a part's ``shape`` property: the parts library builds exact CSG geometry.
+
+    Every part is composed from CSG primitives, meshes and native operations, so none of them has
+    an SDF form yet. Rather than letting whichever internal path happens to be unguarded hand back
+    a CSG solid inside a ``use_backend("sdf")`` block -- which cannot combine with the surrounding
+    SDF geometry, and only fails much later -- the part says so at the point of use (SPEC S-46a).
+
+    Args:
+        getter: The property getter to guard.
+
+    Returns:
+        The getter, wrapped so it refuses on any backend but ``"csg"``.
+
+    """
+
+    @functools.wraps(getter)
+    def guarded(self: Any) -> Any:
+        active = current_backend()
+        if active != "csg":
+            raise UnsupportedByBackendError(
+                f"{type(self).__name__}.shape",
+                active,
+                hint="the parts library builds exact CSG geometry, so build the part inside "
+                '`with use_backend("csg")` and bring the surrounding SDF work over with '
+                ".to_csg() to combine them.",
+            )
+        return getter(self)
+
+    return cast("_F", guarded)
 
 
 def supports(backend: str, feature: str) -> bool:

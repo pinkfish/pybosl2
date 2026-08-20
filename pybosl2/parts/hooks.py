@@ -24,6 +24,7 @@ from typing import Any
 
 import numpy as np
 
+from pybosl2._backend import csg_part
 from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid
 
@@ -220,6 +221,7 @@ class RingHook:
         return self._inner_radius
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the ring hook geometry."""
         return self._solid

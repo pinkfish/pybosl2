@@ -147,7 +147,9 @@ from pybosl2.solid import cube as cube
 from pybosl2.solid import cuboid as cuboid
 from pybosl2.solid import cyl as cyl
 from pybosl2.solid import cylinder as cylinder
+from pybosl2.solid import difference as difference
 from pybosl2.solid import effective_defaults as effective_defaults
+from pybosl2.solid import intersection as intersection
 from pybosl2.solid import octahedron as octahedron
 from pybosl2.solid import onion as onion
 from pybosl2.solid import pie_slice as pie_slice
@@ -160,7 +162,11 @@ from pybosl2.solid import spheroid as spheroid
 from pybosl2.solid import teardrop as teardrop
 from pybosl2.solid import torus as torus
 from pybosl2.solid import tube as tube
+from pybosl2.solid import union as union
 from pybosl2.solid import wedge as wedge
+from pybosl2.solid import xcyl as xcyl
+from pybosl2.solid import ycyl as ycyl
+from pybosl2.solid import zcyl as zcyl
 from pybosl2.surfaces3d import cylindrical_heightfield as cylindrical_heightfield
 from pybosl2.surfaces3d import heightfield as heightfield
 from pybosl2.turtle import turtle2d as turtle2d
@@ -240,6 +246,7 @@ __all__: list[str] = [
     "cylinder",
     "cylindrical_extrude",
     "cylindrical_heightfield",
+    "difference",
     "diff",
     "effective_defaults",
     "egg",
@@ -250,6 +257,7 @@ __all__: list[str] = [
     "heightfield",
     "hexagon",
     "intersect",
+    "intersection",
     "jittered_poly",
     "keyhole",
     "known_backends",
@@ -329,6 +337,9 @@ __all__: list[str] = [
     "use_defaults",
     "version",
     "wedge",
+    "xcyl",
+    "ycyl",
+    "zcyl",
     "xdistribute",
     "ydistribute",
     "zdistribute",

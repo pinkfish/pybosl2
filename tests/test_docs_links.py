@@ -331,3 +331,60 @@ def test_import_pybosl2_needs_no_optional_dependency() -> None:
     probe = "import sys;sys.modules['webcolors'] = None;import pybosl2;assert pybosl2.cuboid is not None;print('ok')"
     result = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+def test_every_facade_callable_documents_its_arguments_and_shows_an_example() -> None:
+    """The layer the spec recommends must document itself (SPEC DOC-2, PLAN D-P4a, D-P5)."""
+    import inspect
+
+    import pybosl2.flat as flat
+    import pybosl2.solid as solid
+
+    undocumented: list[str] = []
+    unillustrated: list[str] = []
+    for module in (solid, flat):
+        for name in module.__all__:
+            function = getattr(module, name, None)
+            if not inspect.isfunction(function) or function.__module__ != module.__name__:
+                continue
+            doc = inspect.getdoc(function) or ""
+            signature = inspect.signature(function)
+            if signature.parameters and "Args:" not in doc:
+                undocumented.append(f"{module.__name__}.{name}")
+            # D-P5 asks for a rendering example from anything that produces geometry; an
+            # introspection helper like effective_defaults has nothing to render.
+            builds_geometry = str(signature.return_annotation) in {"Solid", "Flat"}
+            if builds_geometry and ".. pythonscad-example::" not in doc:
+                unillustrated.append(f"{module.__name__}.{name}")
+    assert not undocumented, f"façade callables with no Args: section: {undocumented}"
+    assert not unillustrated, f"façade callables with no rendering example: {unillustrated}"
+
+
+def test_every_facade_example_runs() -> None:
+    """A docstring example that does not run is worse than none (SPEC DOC-2)."""
+    import inspect
+    import re
+    import textwrap
+
+    import pybosl2.flat as flat
+    import pybosl2.solid as solid
+
+    ran = 0
+    for module in (solid, flat):
+        for name in module.__all__:
+            function = getattr(module, name, None)
+            if not inspect.isfunction(function) or function.__module__ != module.__name__:
+                continue
+            doc = inspect.getdoc(function) or ""
+            for block in re.split(r"\.\. pythonscad-example::\n", doc)[1:]:
+                code_lines: list[str] = []
+                for line in block.splitlines():
+                    if line.strip() and not line.startswith("        "):
+                        break
+                    code_lines.append(line)
+                code = textwrap.dedent("\n".join(code_lines))
+                if not code.strip():
+                    continue
+                ran += 1
+                exec(compile(code, f"<{module.__name__}.{name}>", "exec"), {})
+    assert ran > 30, f"only {ran} façade examples were exercised"

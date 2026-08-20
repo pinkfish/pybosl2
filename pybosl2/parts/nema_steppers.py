@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
 
+from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl
@@ -177,6 +178,7 @@ class NemaMotor:
         return self._shaft_len
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the motor geometry (cached)."""
         if self._solid is not None:
@@ -311,6 +313,7 @@ class NemaMountMask:
         return self._atype
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the mount mask geometry (cached)."""
         if self._solid is not None:

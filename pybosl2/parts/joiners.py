@@ -24,6 +24,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
+from pybosl2._backend import csg_part
 from pybosl2._native import native
 from pybosl2.parts.enums import Gender
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
@@ -135,6 +136,7 @@ class Dovetail:
         return self._slide
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the dovetail geometry."""
         return self._solid
@@ -226,6 +228,7 @@ class SnapPin:
         return self._length
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the snap pin geometry."""
         return self._solid
@@ -308,6 +311,7 @@ class SnapPinSocket:
         return self._length
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the socket geometry."""
         return self._solid

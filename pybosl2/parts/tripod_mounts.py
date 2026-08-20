@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 from typing import Any, Sequence
 
+from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2.masking import chamfer_edge_mask, edge_mask
 from pybosl2.path2d import Path2D
@@ -233,6 +234,7 @@ class ManfrottoRC2Plate:
         return self._chamfer
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the RC2 plate geometry."""
         return self._solid
