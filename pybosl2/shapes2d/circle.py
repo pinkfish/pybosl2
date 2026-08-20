@@ -67,6 +67,7 @@ if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
     from pybosl2._edges_lang import Anchor
+    from pybosl2.paths import PathLike
 
 
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
@@ -91,7 +92,7 @@ else:
 def circle(
     radius: float | None = None,
     diameter: float | None = None,
-    points: Sequence[Sequence[float]] | None = None,
+    points: PathLike | None = None,
     corner: Sequence[Sequence[float]] | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -147,7 +148,7 @@ def arc(
     angle: float | Sequence[float] | None = None,
     diameter: float | None = None,
     center: Sequence[float] | None = None,
-    points: Sequence[Sequence[float]] | None = None,
+    points: PathLike | None = None,
     corner: Sequence[Sequence[float]] | None = None,
     width: float | None = None,
     thickness: float | None = None,
@@ -669,8 +670,8 @@ def reuleaux_polygon(
             s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()
 
     """
-    assert sides >= 3
-    assert sides % 2 == 1
+    if sides < 3 or sides % 2 == 0:
+        raise ValueError(f"reuleaux_polygon(): sides must be an odd number of 3 or more, got {sides}.")
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     ssegs = max(3, math.ceil(_frag_count(rad, fn, fa, fs) / sides))
     slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / sides))

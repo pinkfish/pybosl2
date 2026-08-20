@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from pybosl2.beziers import Bezier
     from pybosl2.color import Color
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
@@ -257,7 +258,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     """
 
-    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
+    def __init__(self, points: PathLike = (), closed: bool = False) -> None:
         """Initialize the instance."""
         self._color: "Color | None" = None
         # A copy, not asarray: the array is frozen below and handed to every _points reader, so
@@ -424,12 +425,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __iter__(self) -> Iterator[np.ndarray]:
         """Return an iterator."""
         return iter(self._points)
-
-    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
-        """Return a numpy array representation."""
-        if copy:
-            return self._points.copy()
-        return self._points
 
     @property
     def array(self) -> np.ndarray:

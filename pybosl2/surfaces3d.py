@@ -49,6 +49,7 @@ if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
     from pybosl2._edges_lang import Anchor
+    from pybosl2.paths import PathLike
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import cube as _ocube
@@ -639,7 +640,7 @@ def plot_revolution(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    path: Sequence[Sequence[float]] | None = None,
+    path: PathLike | None = None,
     rclip: Sequence[float] | None = None,
     rspan: Sequence[float] | None = None,
     horiz: bool = False,

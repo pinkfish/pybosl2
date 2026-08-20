@@ -39,6 +39,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "effective_defaults": ("pybosl2.solid", "effective_defaults"),
     # core types
     "Path": ("pybosl2.paths", "Path"),
+    "PathLike": ("pybosl2.paths", "PathLike"),
     "CutPoint": ("pybosl2.paths", "CutPoint"),
     "Path2D": ("pybosl2.path2d", "Path2D"),
     "Path3D": ("pybosl2.path3d", "Path3D"),

@@ -200,7 +200,9 @@ with two dimensional specialisations**, not as two parallel contracts that happe
 ### 5.2 Geometry objects
 
 * **C-7** `Path` is abstract; `Path2D`/`Path3D` are selected by point dimension. Any API taking a
-  polyline MUST accept a `Path`.
+  polyline MUST accept a `Path` — and MUST say so in its signature, not merely tolerate one at
+  runtime: a caller feeding one function's result to the next is the normal way to use the
+  library, and it must type-check ([PLAN T-4](PLAN.md#2-typing)).
 * **C-8** `Region` is outlines-with-holes; `VNF` is the vertex/face mesh interchange type. Anything
   that can produce a mesh SHOULD be able to produce a `VNF`, so it can be inspected and measured
   with no CAD runtime present.

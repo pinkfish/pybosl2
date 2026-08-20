@@ -44,6 +44,21 @@ part = cuboid([20, 20, 10]).up(5)
 
 ## Development & tests
 
+**Start with [SPEC.md](SPEC.md), then [PLAN.md](PLAN.md).** Both are normative: the spec says what
+the system does and which contracts it honours, the plan says how that is written in Python
+(typing, class design, docstrings, errors, tests). Requirements are numbered (`P-1`, `D-3`, `T-2`,
+…) — cite them in reviews and commit bodies. [TASKS.md](TASKS.md) is the ordered queue of open
+conformance work, and [AGENTS.md](AGENTS.md) is the one-page index of all three.
+
+Before a change is done, all of these must pass:
+
+```bash
+export TMPDIR=/path/with/room       # test scratch; a full run can fill a small system disk
+pytest                              # STL-render tests skip without the app
+mypy --strict pybosl2
+ruff check . --fix && ruff format .
+```
+
 The test-suite runs against a real, pip-installed `pythonscad` in a virtualenv:
 
 ```bash

@@ -1,7 +1,7 @@
 # SDF ↔ CSG Backend Compatibility
 
-**Status:** current as of the T4 reconciliation. This document describes *where the two backends
-still differ*. It is not the authority on what is exclusive — [`CSG_ONLY_FEATURES` and
+**Status:** current as of the T11 sweep (checked against the code, not from memory). This document
+describes *where the two backends still differ*. It is not the authority on what is exclusive — [`CSG_ONLY_FEATURES` and
 `SDF_ONLY_FEATURES` in `pybosl2/_backend.py`](../../pybosl2/_backend.py) are (SPEC PAR-3), and
 `tests/test_backend_parity.py` fails if either list drifts from the implementations.
 
@@ -28,16 +28,27 @@ transforms, exact `bounds()` with no meshing, `bounding_box`, `inside`, `hull`, 
 
 ## Real remaining gaps
 
-1. **The attribute fallback still meshes.** `SdfSolid.__getattr__` ends in
-   `getattr(self.mesh(), name)`, so any unimplemented method silently converts the field and
-   returns a raw native handle. Nineteen names reach it — the directional moves (`up`, `down`,
-   `left`, `right`, `back`, `forward`, `fwd`, `move`, `rot`), the colour and display operations
-   (`color`, `recolor`, `color_this`, `hsl`, `hsv`, `highlight`, `ghost`), and three attachment
-   properties that belong on the CSG-only list. See [TASKS.md](../../TASKS.md) T3.
-2. **Colour.** SDF shapes carry none, so `Shape` cannot yet declare it (SPEC C-19).
-3. **Distribution on 2-D SDF shapes.** `SdfSolid` has `_distribute`; `PyShape2D` does not.
-4. **Parts.** Every part builds CSG directly, so `use_backend("sdf")` does not reach them
-   (SPEC S-46a, TASKS T0f).
+1. **Distribution on 2-D SDF shapes.** `SdfSolid` has `_distribute` and the whole copier surface
+   (`xcopies`, `ycopies`, `distribute_on_path`, …); `PyShape2D` has none of it, so a 2-D field
+   cannot be laid out the way a 2-D CSG shape can.
+2. **Parts have no SDF form.** All 53 build CSG directly. Under `use_backend("sdf")` they refuse
+   with `UnsupportedByBackendError` — a tracked refusal rather than a silent CSG shape, which is
+   what SPEC S-46a asks for today — but closing the gap means expressing the ones that can be
+   (simple prisms, bearings, hoses) through the façade (SPEC §12.2 item 4).
+3. **`pie_slice` bounds.** The SDF wedge stores the full disc's bounding box, so `bounds()`
+   over-reports on the backend whose selling point is exact bounds.
+   `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it (SPEC PAR-5).
+
+### Closed since this note was written
+
+* **The attribute fallback no longer meshes silently.** `SdfSolid.__getattr__` now falls through
+  only for names in `_MESH_OPERATIONS` — operations that genuinely consume or produce mesh
+  topology (`linear_extrude`, `rotate_extrude`, `offset`, `roof`, `size`, `background`,
+  `textmetrics`). Everything else raises `UnsupportedByBackendError` naming `.to_csg()` (T3).
+* **Colour rides the field.** SDF shapes carry colour as metadata, so `Shape` declares it for both
+  backends (SPEC C-19).
+* **The directional moves are native**, not meshed: `up`/`down`/`left`/`right`/`back`/`fwd`/`move`
+  are implemented on the field.
 
 ## Adding a feature to one backend
 

@@ -46,7 +46,7 @@ from typing import TYPE_CHECKING, Any, Sequence, cast
 if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path, PathLike
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -566,7 +566,7 @@ def _path_sweep(
             for i in range(nprofiles)
         ]
     else:
-        raise AssertionError(f"Unknown method {method!r} (use incremental/manual/natural).")
+        raise ValueError(f"path_sweep(): unknown method {method!r}; use incremental, manual or natural.")
 
     transform_list = [unscaled[i] @ scale_list[i] for i in range(len(unscaled))]
     if transforms:
@@ -598,9 +598,7 @@ def _reindex_polygon(reference: Sequence[Sequence[float]], poly: Sequence[Sequen
     return result
 
 
-def slice_profiles(
-    profiles: Sequence[Sequence[Sequence[float]]], slices: int, closed: bool = False
-) -> list[list[list[float]]]:
+def slice_profiles(profiles: Sequence[PathLike], slices: int, closed: bool = False) -> list[list[list[float]]]:
     """Interpolate *slices* extra profiles between each consecutive pair.
 
     *slices* is a count (or a per-segment list). The profiles must all be equal-length point
@@ -622,7 +620,7 @@ def slice_profiles(
 
 
 def _skin(
-    profiles: Sequence[Sequence[Sequence[float]]],
+    profiles: Sequence[PathLike],
     slices: int,
     refine: float = 1.0,
     method: SkinMethod = SkinMethod.DIRECT,
@@ -636,7 +634,7 @@ def _skin(
 
     Public API: use :meth:`VNF.from_skin` instead of calling this directly.
     """
-    profiles = [list(p) for p in profiles]
+    profiles = [np.asarray(p, dtype=float).tolist() for p in profiles]
     sides = len(profiles)
     if not (sides > 1):
         raise ValueError("skin() needs at least two profiles.")
@@ -667,7 +665,7 @@ def _skin(
             fixedprof.append(resampled[i])
         else:
             fixedprof.append(_reindex_polygon(fixedprof[i - 1], resampled[i]))  # type: ignore[arg-type]
-    sliced = slice_profiles(fixedprof, slices, closed)  # type: ignore[arg-type]
+    sliced = slice_profiles(fixedprof, slices, closed)
     grid = sliced if not closed else sliced + [sliced[0]]
 
     if has_decorative_caps(cap_specs):
@@ -850,7 +848,7 @@ def _spiral_sweep(
 
 
 def subdivide_and_slice(
-    profiles: Sequence[Sequence[Sequence[float]]],
+    profiles: Sequence[PathLike],
     slices: int,
     numpoints: int | str | None = None,
     method: ResampleMethod = ResampleMethod.LENGTH,  # noqa: ARG001
@@ -864,8 +862,9 @@ def subdivide_and_slice(
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
 
-    def _wrap(prof: Sequence[Sequence[float]]) -> Path2D | Path3D:
-        return Path3D(prof) if prof and len(prof[0]) == 3 else Path2D(prof)
+    def _wrap(prof: PathLike) -> Path2D | Path3D:
+        pts = np.asarray(prof, dtype=float)
+        return Path3D(pts) if len(pts) and pts.shape[1] == 3 else Path2D(pts)
 
     maxsize = max(len(p) for p in profiles)
     if numpoints is None:
@@ -880,7 +879,7 @@ def subdivide_and_slice(
     if not (numpoints >= maxsize):
         raise ValueError("subdivide_and_slice(): numpoints is smaller than the largest profile.")
     fixed = [_wrap(p).subdivide_path(points=numpoints, closed=True) for p in profiles]
-    return slice_profiles(fixed, slices, closed)  # type: ignore[arg-type]
+    return slice_profiles(fixed, slices, closed)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1093,7 +1092,7 @@ def os_flat() -> OSProfile:
     return OSProfile(type=OSType.FLAT, radius=0.0, height=0.0)
 
 
-def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProfile:
+def os_profile(profile: PathLike, extra: float = 0.0) -> OSProfile:
     """Return a custom offset sweep profile descriptor (BOSL2 ``os_profile()``).
 
     Accepts a list of 2D points `[[x, y], ...]` defining the profile:
@@ -1880,7 +1879,8 @@ def rot_resample(
         raise ValueError("rot_resample(): smoothlen must be a positive odd integer.")
     if not (smoothlen % 2 == 1):
         raise ValueError("rot_resample(): smoothlen must be a positive odd integer.")
-    assert isinstance(method, ResampleMethod)
+    if not isinstance(method, ResampleMethod):
+        raise ValueError(f"rot_resample(): method must be a ResampleMethod member, got {method!r}.")
     m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)
     if method == ResampleMethod.LENGTH:

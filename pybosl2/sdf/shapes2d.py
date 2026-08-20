@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any, Callable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from numpy.typing import NDArray
+    from pybosl2.paths import PathLike
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._helpers import pick_radius as _pick_radius
@@ -574,7 +574,7 @@ def supershape2d(
     )
 
 
-def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
+def polygon2d(paths: PathLike, res: int = 10) -> PyShape2D:
     """Return an arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency.
 
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
@@ -597,7 +597,7 @@ def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PySh
     return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
 
 
-def region2d(paths: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
+def region2d(paths: Sequence[PathLike], res: int = 10) -> PyShape2D:
     """BOSL2-style REGION data as a PyShape2D: a list of simple outlines with even-odd nesting.
 
     semantics -- an outline inside another outline is a hole, an outline inside a hole is an
@@ -650,7 +650,7 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
 
 
 def stroke2d(
-    path: Sequence[Sequence[float]] | NDArray,  # type: ignore[type-arg]
+    path: PathLike,
     width: float = 1,
     closed: bool = False,
     res: int = 10,

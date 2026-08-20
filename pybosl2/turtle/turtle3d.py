@@ -761,7 +761,8 @@ class Turtle3D:
             TurtleCommandType.ARCUP,
             TurtleCommandType.ARCDOWN,
         ):
-            assert cmd.radius is not None
+            if not isinstance(cmd.radius, (int, float)):
+                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             radius = step * cmd.radius
             myangle = ang if isinstance(ang, (int, float)) else angle
             center = [
@@ -775,7 +776,8 @@ class Turtle3D:
             ]
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCXROT, TurtleCommandType.ARCYROT, TurtleCommandType.ARCZROT):
-            assert cmd.radius is not None
+            if not isinstance(cmd.radius, (int, float)):
+                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             radius = step * cmd.radius
             myangle = ang if isinstance(ang, (int, float)) else angle
             length = 2 * math.pi * radius * abs(myangle) / 360
@@ -798,7 +800,8 @@ class Turtle3D:
             ]
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCTODIR, TurtleCommandType.ARCROT):
-            assert cmd.radius is not None
+            if not isinstance(cmd.radius, (int, float)):
+                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
             rd = rot_decode(rot_from_to4(v_dir, ang) if ct == TurtleCommandType.ARCTODIR else np.asarray(ang, float))

@@ -111,6 +111,7 @@ from pybosl2.path2d import Path2D as Path2D
 from pybosl2.path3d import Path3D as Path3D
 from pybosl2.paths import CutPoint as CutPoint
 from pybosl2.paths import Path as Path
+from pybosl2.paths import PathLike as PathLike
 from pybosl2.points import Point as Point
 from pybosl2.points import Vector as Vector
 from pybosl2.quaternions import quaternion as quaternion
@@ -214,6 +215,7 @@ __all__: list[str] = [
     "NurbsPatch",
     "NurbsType",
     "Path",
+    "PathLike",
     "Path2D",
     "Path3D",
     "Point",

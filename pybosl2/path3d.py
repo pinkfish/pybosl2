@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pybosl2.color import Color
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -86,7 +87,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     """
 
-    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
+    def __init__(self, points: PathLike = (), closed: bool = False) -> None:
         """Initialize the instance."""
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
@@ -208,12 +209,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __iter__(self) -> Iterator[np.ndarray]:
         """Return an iterator."""
         return iter(self._points)
-
-    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
-        """Return a numpy array representation."""
-        if copy:
-            return self._points.copy()
-        return self._points
 
     @property
     def array(self) -> np.ndarray:
@@ -1512,13 +1507,12 @@ def _path_cut_points(
         A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
 
     """
-    long_enough = len(points) >= (3 if closed else 2)
-    assert long_enough, (
-        "Two points needed to define a path" if len(points) < 2 else "Closed path must include three points"
-    )
+    if len(points) < (3 if closed else 2):
+        raise ValueError(f"cut_points(): a closed path needs three points, an open one two; got {len(points)}.")
     if isinstance(cutdist, (int, float, np.floating, np.integer)):
         return _path_cut_points(points, closed, [cutdist], direction)
-    assert isinstance(cutdist, (list, tuple, np.ndarray))
+    if not isinstance(cutdist, (list, tuple, np.ndarray)):
+        raise ValueError(f"cut_points(): give a distance or a list of increasing distances, got {cutdist!r}.")
     if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
         raise ValueError("Cut distances must be an increasing list")
     cuts: list[CutPoint] = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])

@@ -364,7 +364,8 @@ def _corner_cutter(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Bosl2Solid":
-    assert radius > 0
+    if radius <= 0:
+        raise ValueError(f"corner_profile(): radius/diameter must be positive, got {radius}.")
     # Standard cutter: box-shaped negative roundover. Built by placing a negative sphere
     # (or rather, the positive chunk to subtract) in the corner of a size-sized box.
     # We do this by taking a box at the corner, and subtracting a sphere.

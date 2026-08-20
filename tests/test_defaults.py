@@ -372,6 +372,7 @@ def test_no_assert_validates_user_input() -> None:
     parameter names — it is validation.
     """
     import ast
+    import re
 
     offenders: list[str] = []
     for path in sorted(PACKAGE.rglob("*.py")):
@@ -390,7 +391,97 @@ def test_no_assert_validates_user_input() -> None:
                     message = "".join(p.value for p in sub.msg.values if isinstance(p, ast.Constant))
                 else:
                     continue
-                spoken = {n for n in names if n in message or n.replace("_", " ") in message}
+                # whole words only: a one-character parameter like `h` otherwise matches inside
+                # any word of any message ("chamfered", "this", ...)
+                spoken = {
+                    n
+                    for n in names
+                    if re.search(rf"\b{re.escape(n)}\b", message)
+                    or re.search(rf"\b{re.escape(n.replace('_', ' '))}\b", message)
+                }
                 if "()" in message or "=" in message or spoken:
                     offenders.append(f"{path.relative_to(PACKAGE.parent)}:{sub.lineno}: {message[:58]}")
     assert not offenders, "asserts that validate user input:\n  " + "\n  ".join(offenders)
+
+
+def _raise_messages(node: ast.AST) -> str:
+    """Every raise message inside *node*, concatenated -- what this function has told callers."""
+    import ast as _ast
+
+    out: list[str] = []
+    for sub in _ast.walk(node):
+        if not isinstance(sub, _ast.Raise) or not isinstance(sub.exc, _ast.Call):
+            continue
+        for arg in sub.exc.args:
+            if isinstance(arg, _ast.Constant):
+                out.append(str(arg.value))
+            elif isinstance(arg, _ast.JoinedStr):
+                out.extend(str(v.value) for v in arg.values if isinstance(v, _ast.Constant))
+    return " ".join(out)
+
+
+def test_no_bare_assert_stands_in_for_validation() -> None:
+    """A message-less `assert` on a caller's argument is validation too (SPEC E-4, PLAN E-P2).
+
+    The message-based rule above cannot see `assert sides >= 3`, and that is exactly the form that
+    kept slipping through: seven of them were still rejecting user input at `-O`-erasable asserts.
+    A bare assert on a parameter is allowed only where it *narrows* a value the function has
+    already validated -- which shows up as an earlier `raise` whose message names that parameter,
+    so the caller was told about it properly before the assert ever runs.
+    """
+    import ast
+    import re
+
+    offenders: list[str] = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        tree = ast.parse(path.read_text())
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            args = node.args
+            names = {a.arg for a in args.args + args.kwonlyargs + args.posonlyargs} - {"self", "cls"}
+            if not names:
+                continue
+            said = _raise_messages(node)
+            for sub in ast.walk(node):
+                if not isinstance(sub, ast.Assert) or sub.msg is not None:
+                    continue
+                touched = {n.id for n in ast.walk(sub.test) if isinstance(n, ast.Name)} & names
+                touched |= {
+                    n.attr
+                    for n in ast.walk(sub.test)
+                    if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id in names
+                }
+                unexplained = {
+                    n
+                    for n in touched
+                    if not re.search(rf"\b{re.escape(n)}\b", said)
+                    and not re.search(rf"\b{re.escape(n.replace('_', ' '))}\b", said)
+                }
+                if unexplained:
+                    offenders.append(
+                        f"{path.relative_to(PACKAGE.parent)}:{sub.lineno}: "
+                        f"assert {ast.unparse(sub.test)[:48]} (nothing tells the caller about "
+                        f"{', '.join(sorted(unexplained))})"
+                    )
+    assert not offenders, "message-less asserts validating user input:\n  " + "\n  ".join(offenders)
+
+
+def test_no_assertion_error_is_raised_directly() -> None:
+    """`raise AssertionError(...)` is an assert that the ratchets cannot see (SPEC E-4).
+
+    It survives `python -O` -- so it is not even an assert's equivalent -- while telling the caller
+    their input was an internal bug. Bad input raises ValueError; a broken invariant uses `assert`.
+    """
+    import ast
+
+    offenders: list[str] = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        tree = ast.parse(path.read_text())
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Raise) or node.exc is None:
+                continue
+            called = node.exc.func if isinstance(node.exc, ast.Call) else node.exc
+            if isinstance(called, ast.Name) and called.id == "AssertionError":
+                offenders.append(f"{path.relative_to(PACKAGE.parent)}:{node.lineno}")
+    assert not offenders, "raise AssertionError instead of ValueError:\n  " + "\n  ".join(offenders)

@@ -129,7 +129,7 @@ def test_twist_and_scale_run() -> None:
 
 
 def test_unknown_method_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="unknown method"):
         Path3D([[0, 0, 0], [0, 0, 5]]).path_sweep(SQUARE, method="bogus")  # type: ignore[arg-type]
 
 

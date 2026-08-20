@@ -130,7 +130,7 @@ def test_vertex_array_too_small_is_empty() -> None:
 
 
 def test_vertex_array_caps_need_col_wrap() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="caps need col_wrap=True"):
         VNF.vertex_array(_grid(3, 3, warp=True), caps=CapType.BUTT, col_wrap=False)
 
 

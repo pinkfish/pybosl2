@@ -240,7 +240,7 @@ def _nut_solid(
     elif shape == NutShape.SQUARE:
         body = cuboid([nutwidth, nutwidth, h], fn=fn, fa=fa, fs=fs)
     else:
-        raise AssertionError('nut shape must be "hex" or "square".')
+        raise ValueError(f"nut(): shape must be NutShape.HEX or NutShape.SQUARE, got {shape!r}.")
     if pitch == 0:
         return body - cyl(height=h + 2, radius=idia / 2 + slop, fn=fn, fa=fa, fs=fs)
     depth_abs = _profile_depth_abs(profile, pitch)

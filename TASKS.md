@@ -33,7 +33,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) | M |
 | 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families) | M |
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
-| — | housekeeping | [T10](#t10--housekeeping) | S |
+| — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 
 ## Order and why
@@ -468,24 +468,43 @@ B2-1 claims feature parity with BOSL2, and nothing measures it.
 
 ---
 
-## T10 — Housekeeping
+## T10 — Housekeeping ✅
 
 **Size:** S each
 
-- [ ] `README.md` — point contributors at `SPEC.md` / `PLAN.md` / `TASKS.md` in the development
-      section (the reference links are already there).
+- [x] `README.md` — the development section now opens with SPEC/PLAN as the normative pair, points
+      at TASKS.md for open work and AGENTS.md as the index, and lists the four commands a change
+      must pass (including `TMPDIR`).
 - [x] `pybosl2/__init__.py` — `Color` was eager and pulled `webcolors` at import time. Now lazy,
       and `color.py` imports `webcolors` only to resolve a CSS colour *name* (hex is parsed
       locally). This was breaking **89 docs examples**: the PythonSCAD app's bundled Python has no
       webcolors, so `import pybosl2` raised inside the app and every example reported "Current top
       level object is empty". Guarded by
       `test_import_pybosl2_needs_no_optional_dependency` (SPEC A-4).
-- [ ] `effective_defaults()` returns `dict[str, Any]`; narrow it once the façade owns its defaults
-      (T2), when the value types become knowable (PLAN T-2).
-- [ ] Audit `Sequence` parameters that are documented as paths for SPEC C-7 — they should take a
-      `Path` (PLAN T-4).
-- [ ] Add a ruff rule (or a test) banning new `assert` statements with a message naming a
-      parameter, so T0b cannot regress (PLAN E-P2).
+- [x] `effective_defaults()` now returns `dict[str, DefaultValue]` — a published alias
+      (`bool | int | float | str | tuple[float, ...] | Anchor | Point | None`) checked against
+      every default across the whole shape surface, so callers no longer get `Any` back (PLAN
+      T-2). `None` in that union means "decide for me", per T-9b.
+- [x] C-7 was true at runtime and false in the type system: `Path2D` is iterable and array-like,
+      so every polyline API *accepted* one, but the ~20 typed `Sequence[Sequence[float]]` made
+      `mypy --strict` reject the library's own return values. Added the `PathLike` alias
+      (`pybosl2.paths`, re-exported at top level), applied it through the polyline surface and the
+      constructors underneath it (`Path2D`, `Path3D`, `Bezier`, `as_path_list`, `_skin`,
+      `path_copies`, …), and lifted `__array__` onto `Path` so the `ArrayLike`-typed SDF entry
+      points accept a `Path` too. Guarded by
+      `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path`, which pairs the
+      parameter *name* with the raw-nesting annotation — a matrix or a bbox is nested floats too,
+      so shape alone is not enough to tell a polyline from a transform.
+- [x] Two more ratchets in `tests/test_defaults.py`, because the message-based one had two blind
+      spots that were still letting validation through:
+      `test_no_bare_assert_stands_in_for_validation` (a message-less `assert` on a parameter — the
+      form that erases completely under `python -O`; allowed only where an earlier `raise` in the
+      same function already named that parameter to the caller) and
+      `test_no_assertion_error_is_raised_directly` (`raise AssertionError(...)`, which is worse
+      than an assert: it survives `-O` *and* tells the caller their input is an internal bug).
+      Between them they found **19 more validating asserts**, all now `ValueError`. The
+      message-based rule also matches parameter names on word boundaries now — a one-character
+      parameter like `h` was matching inside any word of any message.
 - [x] `docs/_rstgen.py` — stub generation now skips a module a committed page already documents
       with an `automodule` block. Promoting `path2d`/`path3d` to public categories had generated a
       second page for each, and `docs/paths/paths.rst` already covered them with curated prose and
@@ -494,8 +513,11 @@ B2-1 claims feature parity with BOSL2, and nothing measures it.
 - [x] `Resolution`'s fields use `#:` comments instead of a docstring `Attributes:` block, which
       napoleon and autodoc were both rendering; `rect_tube` no longer documents `length` twice.
       The docs build is at **0 warnings**.
-- [ ] Check `docs/design/` for other documents that have drifted the way
-      `sdf-csg-compatibility.md` did — a stale design note is worse than none (T4).
+- [x] `docs/design/` holds exactly one note (`sdf-csg-compatibility.md`), re-checked against the
+      code: its "remaining gaps" list had drifted again — the meshing fallback (T3) and SDF colour
+      (C-19) were both closed, and the directional moves are native now. What is actually left is
+      2-D SDF distribution, parts having no SDF form, and `pie_slice` bounds; the closed items are
+      kept in a short section so the next reader can see the file is maintained.
 
 ---
 
@@ -544,9 +566,14 @@ Later rounds found more, all fixed as they surfaced:
   symptom rather than the cause. Both mask builders now say the corner selection was empty.
 * **`path_tangents(uniform=False)` divided by zero before its own guard**, emitting two numpy
   RuntimeWarnings on the way to the error. It checks the segment lengths first now.
-* **Four more bare validating `assert`s** (`regular_ngon` sides, `knuckle_hinge` segs, `egg`
-  length, and the four bezier path-degree asserts) — the ratchet only flags an `assert` **with a
-  message**, so a bare `assert x >= 3` slips past it whatever it validates.
+* **Nineteen more validating `assert`s**, in the two forms the original ratchet could not see: a
+  bare `assert` (`regular_ngon` sides, `reuleaux_polygon` sides, `knuckle_hinge` segs, `egg`
+  length, `egg_path` length, `Bezier.derivative` order, `BezierPatch.flat` n_degree,
+  `cut_points` distances, `corner_profile` radius, `path_copies` spacing, `rot_resample` method,
+  three `turtle3d` arc radii, the four bezier path-degree asserts) and `raise AssertionError`
+  (`vertex_array`/`tri_array` cap combinations, `close_to_axis` axis, `extrude_from_to` coincident
+  points, `partition_path` cut type, `nut` shape, `path_sweep` method). Both forms now have their
+  own ratchet.
 * **`Path2D._round_corners` and `Path2D._vector_angle3` were dead code** — `rounding.py` has its
   own `_round_corners`, and nothing called the `Path2D` copies. Deleted rather than tested.
 * **Every `# pragma: no cover` in the repo was inert.** They were written as a standalone comment

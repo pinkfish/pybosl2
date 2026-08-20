@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.isosurface import _MetaballSpec
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d import Bosl2Solid
 
 _EPS = 1e-9
@@ -998,9 +999,11 @@ class VNF:
         make_cap1, cap1_round = _resolve_cap(cap1)
         make_cap2, cap2_round = _resolve_cap(cap2)
         if (make_cap1 or make_cap2) and not col_wrap:
-            raise AssertionError("col_wrap must be true if caps are requested")
+            raise ValueError("vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column.")
         if (make_cap1 or make_cap2) and row_wrap:
-            raise AssertionError("cannot combine caps with row_wrap")
+            raise ValueError(
+                "vertex_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
+            )
 
         parr = np.asarray(grid, dtype=float).reshape(rows * cols, -1)  # flattened, row-major
         pcnt = rows * cols
@@ -1179,7 +1182,9 @@ class VNF:
         meshes triangular / irregular point arrays (what the degenerate bezier patches produce).
         """
         if (caps or cap1 or cap2) and row_wrap:
-            raise AssertionError("cannot combine caps with row_wrap")
+            raise ValueError(
+                "tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
+            )
         plen = len(points)
         st = []
         for row in points:
@@ -1493,7 +1498,7 @@ class VNF:
     @classmethod
     def from_skin(
         cls,
-        profiles: Sequence[Sequence[Sequence[float]]],
+        profiles: Sequence[PathLike],
         slices: int,
         refine: float = 1.0,
         method: SkinMethod = SkinMethod.DIRECT,
