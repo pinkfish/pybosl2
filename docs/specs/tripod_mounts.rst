@@ -13,7 +13,7 @@ tripod mounts
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">ManfrottoRC2Plate().shape()</span></div>
+        <div class="spec-caption"><span id="vpart">ManfrottoRC2Plate().shape</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Top-down view of a Manfrotto RC2 quick-release tripod plate." xmlns="http://www.w3.org/2000/svg"><rect x="174.9" y="31.2" width="110.2" height="157.5" rx="2" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/><path d="M 181.4,34.25 L 278.6,34.25 L 278.6,185.75 L 181.4,185.75 Z" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.8"/><rect x="174.9" y="31.2" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><rect x="220.1" y="31.2" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><rect x="174.9" y="174.5" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><rect x="220.1" y="174.5" width="65.0" height="14.2" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.4"/><path d="M 200.0,182.8 L 200.0,170.8 L 212.0,162.8 L 212.0,182.8 Z" fill="color-mix(in srgb,var(--accent) 16%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.2"/><circle cx="230.0" cy="110.0" r="5" fill="var(--ground)" stroke="var(--pass)" stroke-width="1.6"/><circle cx="230.0" cy="110.0" r="1.5" fill="var(--pass)"/><line x1="164.9" y1="31.2" x2="164.9" y2="188.8" stroke="var(--ink-faint)" stroke-width="1"/><text x="158.9" y="108.0" text-anchor="end" fill="var(--ink-dim)" font-family="var(--mono)" font-size="9">52.5</text><line x1="174.9" y1="21.2" x2="285.1" y2="21.2" stroke="var(--ink-faint)" stroke-width="1"/><text x="230.0" y="15.2" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="9">42.4 / 37.4</text><text x="230.0" y="208.8" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">trapezoidal body · chamfered edges · corner cutouts</text></svg></div>
         </div>
@@ -33,7 +33,7 @@ tripod mounts
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; ManfrottoRC2Plate().shape()</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; ManfrottoRC2Plate().shape</div>
         </div>
 
         <div class="spec-tests">1 tests</div>
@@ -42,7 +42,7 @@ tripod mounts
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "rc2-all", "label": "all chamfer", "uri": "_stl/tripod_mounts-rc2-all.stl", "code": "ManfrottoRC2Plate().shape()", "part": "ManfrottoRC2Plate().shape()", "tris": 112, "vol": "19,569.5", "bbox": "42\u00d752\u00d710", "wt": true}, {"id": "rc2-bot", "label": "bottom chamfer", "uri": "_stl/tripod_mounts-rc2-bot.stl", "code": "ManfrottoRC2Plate(chamfer=\"bot\").shape()", "part": "ManfrottoRC2Plate(chamfer=\"bot\").shape()", "tris": 88, "vol": "19,581.0", "bbox": "42\u00d752\u00d710", "wt": true}, {"id": "rc2-none", "label": "no chamfer", "uri": "_stl/tripod_mounts-rc2-none.stl", "code": "ManfrottoRC2Plate(chamfer=\"none\").shape()", "part": "ManfrottoRC2Plate(chamfer=\"none\").shape()", "tris": 72, "vol": "19,591.9", "bbox": "42\u00d752\u00d710", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "rc2-all", "label": "all chamfer", "uri": "_stl/tripod_mounts-rc2-all.stl", "code": "ManfrottoRC2Plate().shape", "part": "ManfrottoRC2Plate().shape", "tris": 112, "vol": "19,569.5", "bbox": "42\u00d752\u00d710", "wt": true}, {"id": "rc2-bot", "label": "bottom chamfer", "uri": "_stl/tripod_mounts-rc2-bot.stl", "code": "ManfrottoRC2Plate(chamfer=\"bot\").shape", "part": "ManfrottoRC2Plate(chamfer=\"bot\").shape", "tris": 88, "vol": "19,581.0", "bbox": "42\u00d752\u00d710", "wt": true}, {"id": "rc2-none", "label": "no chamfer", "uri": "_stl/tripod_mounts-rc2-none.stl", "code": "ManfrottoRC2Plate(chamfer=\"none\").shape", "part": "ManfrottoRC2Plate(chamfer=\"none\").shape", "tris": 72, "vol": "19,591.9", "bbox": "42\u00d752\u00d710", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
     import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";

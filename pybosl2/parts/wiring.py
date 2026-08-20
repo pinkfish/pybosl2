@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 from pybosl2._helpers import frag_count as _segs
 from pybosl2.color import Color
@@ -176,10 +177,16 @@ class WireBundle:
         """Wire diameter in mm."""
         return self._wirediam
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the wire bundle geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the wire bundle in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the wire bundle in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

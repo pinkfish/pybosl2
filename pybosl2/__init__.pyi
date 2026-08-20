@@ -15,6 +15,7 @@ from typing import Final
 
 from pybosl2 import shapes2d as shapes2d
 from pybosl2 import shapes3d as shapes3d
+from pybosl2._backend import Shape as Shape
 from pybosl2._backend import current_backend as current_backend
 from pybosl2._backend import known_backends as known_backends
 from pybosl2._backend import set_default_backend as set_default_backend
@@ -215,6 +216,7 @@ __all__: list[str] = [
     "Region",
     "Resolution",
     "SEGMENT",
+    "Shape",
     "Solid",
     "TOP",
     "UP",

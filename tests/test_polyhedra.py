@@ -46,19 +46,19 @@ def test_euler_characteristic(name: PlatonicSolid) -> None:
 
 @pytest.mark.parametrize("name", list(_COUNTS))
 def test_builds(name: PlatonicSolid) -> None:
-    assert isinstance(RegularPolyhedron(name).shape(), Bosl2Solid)
+    assert isinstance(RegularPolyhedron(name).shape, Bosl2Solid)
 
 
 def test_named_methods() -> None:
-    assert isinstance(RegularPolyhedron.dodecahedron(side=10).shape(), Bosl2Solid)
+    assert isinstance(RegularPolyhedron.dodecahedron(side=10).shape, Bosl2Solid)
 
 
 def test_cube_circumradius_gives_expected_side() -> None:
-    assert _size(RegularPolyhedron.cube(radius=10).shape())[0] == pytest.approx(2 * 10 / math.sqrt(3), abs=0.1)
+    assert _size(RegularPolyhedron.cube(radius=10).shape)[0] == pytest.approx(2 * 10 / math.sqrt(3), abs=0.1)
 
 
 def test_octahedron_inradius() -> None:
-    w = _size(RegularPolyhedron.octahedron(inner_radius=8).shape())[0]
+    w = _size(RegularPolyhedron.octahedron(inner_radius=8).shape)[0]
     assert w == pytest.approx(2 * 8 * math.sqrt(3), abs=0.2)
 
 

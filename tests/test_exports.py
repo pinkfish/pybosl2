@@ -35,3 +35,35 @@ def test_every_all_entry_resolves(module_name: str) -> None:
 def test_top_level_all_resolves() -> None:
     missing = sorted(name for name in pybosl2.__all__ if not hasattr(pybosl2, name))
     assert not missing, f"pybosl2.__all__ advertises names that do not exist: {missing}"
+
+
+def test_every_part_exposes_shape_as_a_property() -> None:
+    """A part's geometry is a value, not an action (SPEC C-14, PLAN O-2)."""
+    import inspect
+
+    import pybosl2.parts as parts
+
+    offenders: list[str] = []
+    for name in parts.__all__:
+        cls = getattr(parts, name)
+        if not inspect.isclass(cls) or not hasattr(cls, "shape"):
+            continue
+        if not isinstance(inspect.getattr_static(cls, "shape"), property):
+            offenders.append(name)
+    assert not offenders, f"parts whose `shape` is not a property: {offenders}"
+
+
+def test_part_show_returns_the_shape() -> None:
+    """show() closes a chain rather than swallowing the value (SPEC S-49, S-51)."""
+    import inspect
+
+    import pybosl2.parts as parts
+
+    offenders: list[str] = []
+    for name in parts.__all__:
+        cls = getattr(parts, name)
+        if not inspect.isclass(cls) or not hasattr(cls, "show"):
+            continue
+        if inspect.signature(cls.show).return_annotation in (None, "None"):
+            offenders.append(name)
+    assert not offenders, f"parts whose show() returns None: {offenders}"

@@ -312,7 +312,11 @@ def arc(
 
     # -- radius + angle (with optional [start, end] range) -----------------------------------
     arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
-    assert arc_r is not None, "arc() needs radius=/diameter=, points=, corner=, or width=/thickness="
+    if arc_r is None:
+        raise ValueError(
+            "arc(): needs a size -- give radius= or diameter=, three points= to pass through, "
+            "a corner= to fit, or width=/thickness=."
+        )
     if isinstance(angle, (list, tuple)):
         assert start is None, "start= is not allowed with angle=[start, end]"
         calc_start = float(angle[0])
@@ -528,11 +532,13 @@ def ring(
     if r1v is not None and r2v is not None:
         inner, outer = min(r1v, r2v), max(r1v, r2v)
     else:
-        assert rv is not None, "ring(): give (radius1 and radius2) or (radius and ring_width)."
-        assert ring_width is not None, "ring(): give (radius1 and radius2) or (radius and ring_width)."
+        if rv is None or ring_width is None:
+            raise ValueError("ring(): needs two sizes -- give radius1= and radius2=, or radius= with ring_width=.")
         inner, outer = min(rv, rv + ring_width), max(rv, rv + ring_width)
-    assert inner != outer, "ring(): zero (or invalid) width."
-    assert outer > 0, "ring(): zero (or invalid) width."
+    if not (inner != outer):
+        raise ValueError(f"ring(): needs a positive wall between the radii; got inner={inner}, outer={outer}.")
+    if outer <= 0:
+        raise ValueError(f"ring(): needs a positive outer radius; got {outer}.")
     fnv = sides if sides is not None else fn
     shape = circle(radius=outer, fn=fnv, fa=fa, fs=fs) - circle(radius=inner, fn=fnv, fa=fa, fs=fs)
     offset = _anchor_offset_box([2 * outer, 2 * outer], anchor)

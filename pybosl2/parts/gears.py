@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -991,7 +991,7 @@ class SpurGear2d:
         .. pythonscad-example::
 
             from pybosl2.parts.gears import SpurGear2d
-            SpurGear2d(mod=5, teeth=30).shape().linear_extrude(height=3).show()
+            SpurGear2d(mod=5, teeth=30).shape.linear_extrude(height=3).show()
 
     """
 
@@ -1060,13 +1060,19 @@ class SpurGear2d:
         """Number of teeth."""
         return self._teeth
 
+    @property
     def shape(self) -> Bosl2Shape2D:
         """Return the 2-D gear outline."""
         return self._shape
 
-    def show(self) -> None:
-        """Display the gear in the viewer."""
-        self._shape.show()
+    def show(self) -> Any:
+        """Display the gear in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._shape.show()
 
 
 class SpurGear:
@@ -1171,7 +1177,7 @@ class SpurGear:
             shaft_diam=shaft_diam,
             shorten=spec.shorten,
             gear_spin=gear_spin,
-        ).shape()
+        ).shape
         if herringbone:
             top = shape2d.linear_extrude(
                 height=thickness / 2,
@@ -1214,13 +1220,19 @@ class SpurGear:
         """Number of teeth."""
         return self._teeth
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the spur gear geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the spur gear in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the spur gear in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class HerringboneGear(SpurGear):
@@ -1374,7 +1386,7 @@ class RingGear:
             helical=helical,
             internal=True,
             profile_shift=profile_shift,
-        ).shape()
+        ).shape
         body = cylinder(height=thickness, diameter=2 * _or, center=True, fn=fn, fa=fa, fs=fs)
         self._solid: Bosl2Solid = Bosl2Solid((body - cavity).shape, size=[2 * _or, 2 * _or, thickness])
         self._teeth: int = teeth
@@ -1384,13 +1396,19 @@ class RingGear:
         """Number of teeth."""
         return self._teeth
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the ring gear geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the ring gear in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the ring gear in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class Rack2d:
@@ -1402,7 +1420,7 @@ class Rack2d:
         .. pythonscad-example::
 
             from pybosl2.parts.gears import Rack2d
-            Rack2d(mod=2, teeth=20, height=10).shape().linear_extrude(height=5).show()
+            Rack2d(mod=2, teeth=20, height=10).shape.linear_extrude(height=5).show()
 
     """
 
@@ -1440,13 +1458,19 @@ class Rack2d:
         path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
         self._shape: Bosl2Shape2D = Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
 
+    @property
     def shape(self) -> Bosl2Shape2D:
         """Return the 2-D rack outline."""
         return self._shape
 
-    def show(self) -> None:
-        """Display the rack in the viewer."""
-        self._shape.show()
+    def show(self) -> Any:
+        """Display the rack in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._shape.show()
 
 
 class Rack:
@@ -1515,13 +1539,19 @@ class Rack:
         """Number of teeth."""
         return self._teeth
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the rack geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the rack in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the rack in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class BevelGear:
@@ -1662,13 +1692,19 @@ class BevelGear:
         """Number of teeth."""
         return self._teeth
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the bevel gear geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the bevel gear in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the bevel gear in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class Worm:
@@ -1741,13 +1777,19 @@ class Worm:
             vnf = _vnf_xflip(vnf)
         self._solid: Bosl2Solid = Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the worm geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the worm in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the worm in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class WormGear:
@@ -1866,10 +1908,16 @@ class WormGear:
         """Number of teeth."""
         return self._teeth
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the worm gear geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the worm gear in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the worm gear in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

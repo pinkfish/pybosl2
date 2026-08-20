@@ -34,7 +34,7 @@ def test_tangent_requires_external_point() -> None:
 
 
 def test_basic_ring_hook_envelope() -> None:
-    lo, sz = _bounds(RingHook([50, 10], 25, outer_radius=25, inner_radius=20).shape())
+    lo, sz = _bounds(RingHook([50, 10], 25, outer_radius=25, inner_radius=20).shape)
     assert tuple(round(v) for v in sz) == (
         50,
         10,
@@ -44,13 +44,13 @@ def test_basic_ring_hook_envelope() -> None:
 
 
 def test_ring_height_is_hole_z_plus_or() -> None:
-    _, sz = _bounds(RingHook([50, 10], 40, outer_radius=25, inner_radius=20).shape())
+    _, sz = _bounds(RingHook([50, 10], 40, outer_radius=25, inner_radius=20).shape)
     assert sz[2] == pytest.approx(65.0, abs=0.5)  # faceted ring top sits just under hole_z + outer_radius
 
 
 def test_wall_and_od_id_forms_equivalent() -> None:
-    a = _bounds(RingHook([50, 10], 40, outer_radius=25, wall=5).shape())[1]
-    b = _bounds(RingHook([50, 10], 40, outer_diameter=50, inner_diameter=40).shape())[1]
+    a = _bounds(RingHook([50, 10], 40, outer_radius=25, wall=5).shape)[1]
+    b = _bounds(RingHook([50, 10], 40, outer_diameter=50, inner_diameter=40).shape)[1]
     assert [round(v, 1) for v in a] == [round(v, 1) for v in b]
 
 
@@ -63,7 +63,7 @@ def test_wall_and_od_id_forms_equivalent() -> None:
     ],
 )
 def test_variants_build(kw: dict[str, object]) -> None:
-    assert isinstance(RingHook(**kw).shape(), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(RingHook(**kw).shape, Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_custom_hole_path_builds() -> None:
@@ -74,7 +74,7 @@ def test_custom_hole_path_builds() -> None:
         ]
         for k in range(8)
     ]
-    assert isinstance(RingHook([50, 20], 30, outer_radius=25, hole=oct8).shape(), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(RingHook([50, 20], 30, outer_radius=25, hole=oct8).shape, Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_must_define_exactly_two_of_or_ir_wall() -> None:

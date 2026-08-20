@@ -910,7 +910,8 @@ def trapezoid2d(
 
     _ = anchor
     defined = sum(x is not None for x in (height, width1, width2, angle))
-    assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
+    if defined != 3:
+        raise ValueError(f"trapezoid2d(): give exactly three of height=, width1=, width2= and angle= (got {defined}).")
 
     if height is None:
         height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))  # type: ignore[operator,arg-type]

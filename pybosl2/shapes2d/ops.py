@@ -137,7 +137,8 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
     items = list(children)
     if len(items) == 1 and not _is_child_2d(items[0]):
         items = list(items[0])  # type: ignore[arg-type]  # a single list *of* shapes
-    assert items, "hull(): needs at least one child."
+    if not items:
+        raise ValueError("hull(): needs at least one shape to hull.")
     return Bosl2Shape2D(_ohull(*[_as_native_2d(c) for c in items]))
 
 
@@ -176,7 +177,8 @@ def round2d(
     """
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
-    assert children is not None, "round2d(): must give children"
+    if children is None:
+        raise ValueError("round2d(): needs the shape(s) to round -- pass children=.")
     shape = Bosl2Shape2D(_as_native_2d(children))
     shape = shape.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
@@ -210,8 +212,10 @@ def shell2d(
         fs: arc smoothness overrides
 
     """
-    assert thickness is not None, "shell2d(): must give thickness"
-    assert children is not None, "shell2d(): must give children"
+    if thickness is None:
+        raise ValueError("shell2d(): needs a wall thickness -- pass thickness=.")
+    if children is None:
+        raise ValueError("shell2d(): needs the shape(s) to shell -- pass children=.")
     if isinstance(thickness, (int, float)):
         th = [float(thickness), 0.0] if thickness < 0 else [0.0, float(thickness)]
     else:

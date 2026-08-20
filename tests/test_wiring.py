@@ -49,12 +49,12 @@ def test_public_hex_offsets_matches_private() -> None:
 
 @pytest.mark.parametrize("wires", [1, 7, 13, 30])
 def test_wire_bundle_builds(wires: int) -> None:
-    assert isinstance(WireBundle(_PATH, wires=wires, rounding=10).shape(), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(WireBundle(_PATH, wires=wires, rounding=10).shape, Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_wire_bundle_grows_with_wire_count() -> None:
     def w(n: int) -> float:
-        return WireBundle(_PATH, wires=n, rounding=10).shape()._native_bounds()[1][0]  # type: ignore[arg-type, index]
+        return WireBundle(_PATH, wires=n, rounding=10).shape._native_bounds()[1][0]  # type: ignore[arg-type, index]
 
     assert w(1) < w(7) < w(13)  # bundle cross-section widens
 
@@ -142,7 +142,7 @@ def test_wire_bundle_properties() -> None:
     wb = WireBundle(_PATH, wires=7, wirediam=2.5)  # type: ignore[arg-type]
     assert wb.wires == 7
     assert wb.wirediam == 2.5
-    assert isinstance(wb.shape(), Bosl2Solid)
+    assert isinstance(wb.shape, Bosl2Solid)
 
 
 def test_wire_bundle_show_does_not_raise() -> None:

@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -346,6 +346,7 @@ class ThreadedRod:
         """True for left-handed threads."""
         return self._left_handed
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the threaded rod geometry (cached)."""
         if self._solid is not None:
@@ -363,9 +364,14 @@ class ThreadedRod:
         )
         return self._solid
 
-    def show(self) -> None:
-        """Display the threaded rod in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the threaded rod in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
 
 class ThreadedNut:
@@ -465,6 +471,7 @@ class ThreadedNut:
         """True for left-handed threads."""
         return self._left_handed
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the nut geometry (cached)."""
         if self._solid is not None:
@@ -485,9 +492,14 @@ class ThreadedNut:
         )
         return self._solid
 
-    def show(self) -> None:
-        """Display the nut in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the nut in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
 
 class ThreadHelix:
@@ -504,7 +516,7 @@ class ThreadHelix:
 
             from pybosl2.shapes3d import cylinder as cyl
             from pybosl2.parts.threading import ThreadHelix
-            (cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape()).show()
+            (cyl(diameter=20, height=30) | ThreadHelix(d=20, pitch=5, turns=6).shape).show()
 
     """
 
@@ -601,13 +613,19 @@ class ThreadHelix:
         """True for left-handed threads."""
         return self._left_handed
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the helix geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the helix in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the helix in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 # -- convenience constructors for standard thread profiles --------------------

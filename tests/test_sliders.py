@@ -25,11 +25,11 @@ def _size(solid: Bosl2Solid) -> list[float]:
     ],
 )
 def test_slider_builds(kw: dict[str, object]) -> None:
-    assert isinstance(Slider(**kw, fn=None, fa=None, fs=None).shape(), Bosl2Solid)  # type: ignore[arg-type]
+    assert isinstance(Slider(**kw, fn=None, fa=None, fs=None).shape, Bosl2Solid)  # type: ignore[arg-type]
 
 
 def test_rail_envelope() -> None:
-    radius = Rail(l=100, w=10, h=10).shape()
+    radius = Rail(l=100, w=10, h=10).shape
     assert isinstance(radius, Bosl2Solid)
     w, length, height = _size(radius)
     assert w == pytest.approx(10, abs=0.1)
@@ -38,13 +38,13 @@ def test_rail_envelope() -> None:
 
 
 def test_rail_length_scales() -> None:
-    assert _size(Rail(l=100, w=10, h=10).shape())[1] > _size(Rail(l=40, w=10, h=10).shape())[1]
+    assert _size(Rail(l=100, w=10, h=10).shape)[1] > _size(Rail(l=40, w=10, h=10).shape)[1]
 
 
 def test_slider_slop_widens_fit() -> None:
     # more slop -> a slightly larger slider footprint
-    tight = _size(Slider(l=30, slop=0.0, fn=None, fa=None, fs=None).shape())
-    loose = _size(Slider(l=30, slop=0.4, fn=None, fa=None, fs=None).shape())
+    tight = _size(Slider(l=30, slop=0.0, fn=None, fa=None, fs=None).shape)
+    loose = _size(Slider(l=30, slop=0.4, fn=None, fa=None, fs=None).shape)
     assert loose[1] >= tight[1]
 
 

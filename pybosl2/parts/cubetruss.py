@@ -207,13 +207,19 @@ class TrussSegment:
         """Strut thickness in mm."""
         return self._strut
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the segment geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the segment in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the segment in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class Truss:
@@ -279,7 +285,7 @@ class Truss:
         for zrow in range(hh):
             for xcol in range(w):
                 for ycol in range(length):
-                    seg = TrussSegment(size=sz, strut=st, bracing=bracing, fn=fn, fa=fa, fs=fs).shape()
+                    seg = TrussSegment(size=sz, strut=st, bracing=bracing, fn=fn, fa=fa, fs=fs).shape
                     seg = (
                         seg.up((zrow - (hh - 1) / 2) * step)
                         .right((xcol - (w - 1) / 2) * step)
@@ -302,7 +308,7 @@ class Truss:
                         fn=fn,
                         fa=fa,
                         fs=fs,
-                    ).shape()
+                    ).shape
                     segs.append(
                         clip.forward((exy * step + st) / 2).up((zrow - (exz - 1) / 2) * step).rotate([0, 0, zang])
                     )
@@ -321,13 +327,19 @@ class Truss:
         """Grid dimensions."""
         return self._extents
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the truss geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the truss in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the truss in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TrussSupport:
@@ -412,13 +424,19 @@ class TrussSupport:
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
         self._solid: Bosl2Solid = Bosl2Solid(_union(pieces).shape, size=[w, length, height])
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the support truss geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the support truss in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the support truss in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TrussCorner:
@@ -474,7 +492,7 @@ class TrussCorner:
         step = sz - st
 
         def seg() -> Bosl2Solid:
-            return TrussSegment(size=sz, strut=st, bracing=bracing, fn=fn, fa=fa, fs=fs).shape()
+            return TrussSegment(size=sz, strut=st, bracing=bracing, fn=fn, fa=fa, fs=fs).shape
 
         segs = [seg().up(step * zcol) for zcol in range(h)]
         for d in range(4):
@@ -498,13 +516,19 @@ class TrussCorner:
         """Central column height in cubes."""
         return self._height
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the corner geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the corner in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the corner in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TrussClip:
@@ -601,13 +625,19 @@ class TrussClip:
         ]
         self._solid: Bosl2Solid = Bosl2Solid(pair.shape, size=s_arr)
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the clip geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the clip in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the clip in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TrussFoot:
@@ -724,13 +754,19 @@ class TrussFoot:
         s_arr = [span + 2 * ct, sz - 2 * st, st + ct]
         self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the foot geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the foot in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the foot in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TrussUClip:
@@ -806,13 +842,19 @@ class TrussUClip:
         ).back((st + slop) / 2)
         self._solid: Bosl2Solid = Bosl2Solid((body | clips).shape, size=s_arr)
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the U-clip geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the U-clip in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the U-clip in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TrussJoiner:
@@ -870,8 +912,7 @@ class TrussJoiner:
         for my in DistributableMatrix.ycopies(sz, num_copies=2):
             parts.append(
                 TrussFoot(w=w, size=sz, strut=st, clipthick=ct, slop=slop, fn=fn, fa=fa, fs=fs)
-                .shape()
-                .up((st + ct) / 2)
+                .shape.up((st + ct) / 2)
                 .multmatrix(my.tolist())
             )
         if vert:
@@ -909,10 +950,16 @@ class TrussJoiner:
         s_arr = [span + 2 * ct, 2 * (sz - st) + st, st + ct]
         self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the joiner geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the joiner in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the joiner in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

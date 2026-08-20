@@ -32,20 +32,20 @@ def test_unknown_size_raises() -> None:
 
 @pytest.mark.parametrize(("size", "width"), [(8, 20.3), (17, 42.3), (23, 57.0), (42, 110.0)])
 def test_motor_body_width(size: int, width: float) -> None:
-    m = NemaMotor(size).shape()
+    m = NemaMotor(size).shape
     w, length, _h = _size(m)
     assert w == pytest.approx(width, abs=0.1)
     assert length == pytest.approx(width, abs=0.1)
 
 
 def test_motor_height_is_body_plus_shaft() -> None:
-    m = NemaMotor(17, height=24, shaft_len=20).shape()
+    m = NemaMotor(17, height=24, shaft_len=20).shape
     assert _size(m)[2] == pytest.approx(44, abs=0.2)
 
 
 @pytest.mark.parametrize("kw", [{}, {"atype": "screws"}, {"length": 8}, {"slop": 0.2}])
 def test_mount_mask_builds(kw: dict[str, object]) -> None:
-    assert isinstance(NemaMountMask(17, **kw).shape(), Bosl2Solid)
+    assert isinstance(NemaMountMask(17, **kw).shape, Bosl2Solid)
 
 
 def test_mask_bad_atype_raises() -> None:
@@ -54,5 +54,5 @@ def test_mask_bad_atype_raises() -> None:
 
 
 def test_mount_mask_cuts_a_plate() -> None:
-    plate = cuboid([60, 60, 5]) - NemaMountMask(17, depth=6).shape()
+    plate = cuboid([60, 60, 5]) - NemaMountMask(17, depth=6).shape
     assert isinstance(plate, Bosl2Solid)

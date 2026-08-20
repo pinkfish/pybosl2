@@ -175,13 +175,19 @@ class NarrowingStrut:
         """Narrowing angle in degrees."""
         return self._angle
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the strut geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the strut in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the strut in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class SparseWall:
@@ -247,13 +253,19 @@ class SparseWall:
         """Wall thickness in mm (X axis)."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the wall in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the wall in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class SparseCuboid:
@@ -295,11 +307,11 @@ class SparseCuboid:
 
         sx, sy, sz = (float(v) for v in self._size)
         if dir == SparseAxis.X:
-            braced = SparseWall(sz, sy, sx, maxang, strut, max_bridge).shape()
+            braced = SparseWall(sz, sy, sx, maxang, strut, max_bridge).shape
         elif dir == SparseAxis.Y:
-            braced = SparseWall(sz, sx, sy, maxang, strut, max_bridge).shape().rotate([0, 0, 90])
+            braced = SparseWall(sz, sx, sy, maxang, strut, max_bridge).shape.rotate([0, 0, 90])
         elif dir == SparseAxis.Z:
-            braced = SparseWall(sx, sy, sz, maxang, strut, max_bridge).shape().rotate([0, 90, 0])
+            braced = SparseWall(sx, sy, sz, maxang, strut, max_bridge).shape.rotate([0, 90, 0])
         else:
             raise ValueError("sparse_cuboid(): dir must be a SparseAxis value.")
         self._solid: Bosl2Solid = Bosl2Solid((braced & cuboid([sx, sy, sz])).shape, size=[sx, sy, sz])
@@ -309,13 +321,19 @@ class SparseCuboid:
         """Outer dimensions ``[X, Y, Z]`` in mm."""
         return self._size
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the cuboid geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the cuboid in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the cuboid in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class CorrugatedWall:
@@ -386,13 +404,19 @@ class CorrugatedWall:
         """Wall thickness in mm (X axis)."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the wall in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the wall in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class ThinningWall:
@@ -560,13 +584,19 @@ class ThinningWall:
         """Wall thickness in mm (X axis)."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the wall in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the wall in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class ThinningTriangle:
@@ -619,14 +649,13 @@ class ThinningTriangle:
         dlen = height / math.sin(math.radians(dang))
         parts = []
         if not diagonly:
-            ns1 = NarrowingStrut(w=thick, length=length, wall=strut, angle=angle).shape()
+            ns1 = NarrowingStrut(w=thick, length=length, wall=strut, angle=angle).shape
             parts.append(ns1.down(height / 2))
-            ns2 = NarrowingStrut(w=thick, length=height - 0.1, wall=strut, angle=angle).shape()
+            ns2 = NarrowingStrut(w=thick, length=height - 0.1, wall=strut, angle=angle).shape
             parts.append(ns2.rotate([-90, 0, 0]).forward(length / 2))
         hyp = (
             NarrowingStrut(w=thick, length=dlen * 1.2, wall=strut, angle=angle)
-            .shape()
-            .rotate([0, 180, 0])
+            .shape.rotate([0, 180, 0])
             .rotate([-dang, 0, 0])
         )
         parts.append(cuboid([thick, length, height]) & hyp)
@@ -655,10 +684,16 @@ class ThinningTriangle:
         """Wall thickness in mm (X axis)."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the triangle geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the triangle in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the triangle in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

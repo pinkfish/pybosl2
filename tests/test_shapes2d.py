@@ -167,9 +167,9 @@ def test_ring_forms() -> None:
 def test_ring_requires_valid_params() -> None:
     import pytest
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="two sizes"):
         ring(radius=10)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="positive wall"):
         ring(radius=10, ring_width=0)
 
 

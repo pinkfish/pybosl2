@@ -71,12 +71,12 @@ def test_open_path_leaves_endpoints() -> None:
 
 
 def test_radius_requires_circle_method() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="radius="):
         Path2D(SQ).round_corners(method=RoundingMethod.SMOOTH, radius=5)
 
 
 def test_width_requires_chamfer_method() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="width="):
         Path2D(SQ).round_corners(method=RoundingMethod.CIRCLE, width=5)
 
 
@@ -88,14 +88,14 @@ def test_k_requires_smooth_method() -> None:
 
 
 def test_exactly_one_size_measure() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="exactly one"):
         Path2D(SQ).round_corners(radius=5, cut=3)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="exactly one"):
         Path2D(SQ).round_corners()
 
 
 def test_too_short_path_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="3 or more"):
         Path2D([[0, 0], [10, 0]]).round_corners(radius=1)
 
 

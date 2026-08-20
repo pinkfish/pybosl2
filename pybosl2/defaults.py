@@ -21,8 +21,16 @@
 #    async-safe and nests, exactly like ``use_backend()``. Values are read at CONSTRUCTION time
 #    (SPEC.md R-6) -- a shape's smoothness is fixed by where it was built, never re-resolved later.
 #
-#    Anything the caller passes explicitly always wins (SPEC.md P-6). With nothing set anywhere,
-#    behaviour is unchanged from before this module existed: OpenSCAD's own $fa=12 / $fs=2.
+#    Anything the caller passes explicitly always wins (SPEC.md P-6), and `fn=0` is how a single
+#    call opts OUT of an ambient `fn` and back to fa/fs -- the meaning OpenSCAD's own $fn=0 has
+#    (SPEC.md R-5):
+#
+#        with use_defaults(fn=64):
+#            smooth = cyl(height=10, radius=4)            # 64 sides
+#            adaptive = cyl(height=10, radius=4, fn=0)    # back to fa/fs
+#
+#    With nothing set anywhere, behaviour is unchanged from before this module existed:
+#    OpenSCAD's own $fa=12 / $fs=2.
 #
 # FileSummary: Ambient curve-resolution defaults (fn/fa/fs/res) for a block or a session.
 # DocCategory: Foundational
@@ -146,6 +154,10 @@ def use_defaults(
     Yields:
         The :class:`Resolution` in effect inside the block.
 
+    Note:
+        A single call opts out of an ambient ``fn`` by passing ``fn=0``, which means "use fa/fs"
+        exactly as OpenSCAD's ``$fn=0`` does.
+
     Examples:
         .. pythonscad-example::
 
@@ -177,7 +189,9 @@ def resolve_facets(
 
     Returns:
         The three values with any ``None`` replaced by the ambient setting (still ``None`` when
-        nothing is set anywhere).
+        nothing is set anywhere). ``fn=0`` passes through unchanged: it is the caller opting out
+        of an ambient ``fn``, and :func:`~pybosl2._helpers.frag_count` reads any ``fn`` below 3 as
+        "use fa/fs" (SPEC R-5).
 
     """
     active = current_defaults()

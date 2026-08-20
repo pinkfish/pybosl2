@@ -535,6 +535,9 @@ class Region:
         radius: float | None = None,
         delta: float | None = None,
         chamfer: bool = False,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Region":
         """Offset every path in the region.
 
@@ -542,12 +545,17 @@ class Region:
             radius: The corner-rounding radius for the offset.
             delta: The absolute offset distance.
             chamfer: Whether to chamfer corners instead of rounding them.
+            fn: Fixed number of fragments for the rounded corners; ambient default when omitted.
+            fa: Minimum fragment angle for the rounded corners.
+            fs: Minimum fragment size for the rounded corners.
 
         Returns:
             A new :class:`Region` with every path offset by the given parameters.
 
         """
-        result = Region([p.offset(radius=radius, delta=delta, chamfer=chamfer) for p in self.paths])
+        result = Region(
+            [p.offset(radius=radius, delta=delta, chamfer=chamfer, fn=fn, fa=fa, fs=fs) for p in self.paths]
+        )
         if self._color is not None:
             result._color = self._color
         return result
@@ -561,6 +569,9 @@ class Region:
         width: float | None = None,
         curvature: float | None = None,
         closed: bool | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Region":
         """Round the corners of every path in the region.
 
@@ -573,6 +584,9 @@ class Region:
             width: Width for rounding.
             curvature: Curvature value for rounding.
             closed: Override whether paths are treated as closed.
+            fn: Fixed number of fragments per full circle; ambient default when omitted.
+            fa: Minimum fragment angle in degrees.
+            fs: Minimum fragment size in millimetres.
 
         Returns:
             A new :class:`Region` with rounded corners on every path.
@@ -588,6 +602,9 @@ class Region:
                     width=width,
                     curvature=curvature,
                     closed=closed,
+                    fn=fn,
+                    fa=fa,
+                    fs=fs,
                 )
                 for p in self.paths
             ]

@@ -556,6 +556,7 @@ class Screw:
         """Shaft length below the head in mm."""
         return self._length
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the screw geometry (result is cached)."""
         if self._solid is not None:
@@ -568,7 +569,7 @@ class Screw:
             tp = ScrewSpec(self._spec.diameter, thread=self._thread, pitch=self._spec.pitch).pitch
             tl = self._length if (self._thread_len is None or self._thread_len >= self._length) else self._thread_len
             shank_len = self._length - tl
-            shaft = iso_threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).shape().down(shank_len + tl / 2)
+            shaft = iso_threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).shape.down(shank_len + tl / 2)
             if shank_len > 1e-9:
                 shank = cyl(diameter=d, height=shank_len, fn=self._fn, fa=self._fa, fs=self._fs).down(shank_len / 2)
                 shaft = shaft | shank
@@ -588,9 +589,14 @@ class Screw:
         self._solid = result
         return result
 
-    def show(self) -> None:
-        """Display the screw in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the screw in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
 
 class Nut:
@@ -667,6 +673,7 @@ class Nut:
         """Nut outer shape."""
         return self._shape
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the nut geometry (result is cached)."""
         if self._solid is not None:
@@ -685,12 +692,17 @@ class Nut:
             fn=self._fn,
             fa=self._fa,
             fs=self._fs,
-        ).shape()
+        ).shape
         return self._solid
 
-    def show(self) -> None:
-        """Display the nut in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the nut in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
 
 class ScrewHole:
@@ -709,7 +721,7 @@ class ScrewHole:
             from pybosl2.parts.screws import ScrewHole
             from pybosl2.solid import cuboid
             (cuboid([20, 20, 10])
-             - ScrewHole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal").shape()).show()
+             - ScrewHole("M6", length=10, head=ScrewHeadType.SOCKET, fit="normal").shape).show()
 
     """
 
@@ -766,6 +778,7 @@ class ScrewHole:
         """Hole depth in mm."""
         return self._length
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the hole cutter geometry (result is cached)."""
         if self._solid is not None:
@@ -781,10 +794,8 @@ class ScrewHole:
         if use_thread:
             from pybosl2.parts.threading import iso_threaded_rod
 
-            cutter = (
-                iso_threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs)
-                .shape()
-                .down(self._length / 2)
+            cutter = iso_threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs).shape.down(
+                self._length / 2
             )
         else:
             gap = _CLEARANCE.get(str(self._fit).lower(), 0.5)
@@ -829,9 +840,14 @@ class ScrewHole:
         self._solid = cutter
         return cutter
 
-    def show(self) -> None:
-        """Display the hole cutter in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the hole cutter in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
 
 # ---------------------------------------------------------------------------

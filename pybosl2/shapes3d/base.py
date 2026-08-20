@@ -1109,10 +1109,30 @@ class CsgSolid(BaseShape):
         center, size = self.bounds()
         return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
 
-    def offset3d(self, radius: float, size: float = 1000, convexity: int = 10) -> "Bosl2Solid":
+    def offset3d(
+        self,
+        radius: float,
+        size: float = 1000,
+        convexity: int = 10,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Bosl2Solid":
         """Expand (or, for negative *radius*, contract) the surface of this solid by *radius*.
 
         Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.
+
+        Args:
+            radius: Distance to expand by; negative contracts.
+            size: Size of the enclosing cube used for the negative case.
+            convexity: Accepted for signature compatibility; unused.
+            fn: Facet count for the minkowski sphere; ambient default when omitted.
+            fa: Minimum fragment angle for that sphere.
+            fs: Minimum fragment size for that sphere.
+
+        Returns:
+            The offset solid.
+
         """
         _ = convexity
         from pythonscad import cube as _cube
@@ -1121,7 +1141,7 @@ class CsgSolid(BaseShape):
 
         if radius == 0:
             return self
-        sides = max(8, _frag_count(abs(radius)))
+        sides = max(8, _frag_count(abs(radius), fn, fa, fs))
         sides = int(math.ceil(sides / 4) * 4)
         if radius > 0:
             return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))
@@ -1135,15 +1155,35 @@ class CsgSolid(BaseShape):
         outer_radius: float | None = None,
         inner_radius: float | None = None,
         size: float = 1000,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Bosl2Solid":
         """Round the corners of this solid: *radius* rounds all,.
 
         *outer_radius* only convex, *inner_radius* only concave. Uses
         ``offset3d`` three times and is extremely slow.
+
+        Args:
+            radius: Rounding radius for every corner.
+            outer_radius: Rounding radius for convex corners only.
+            inner_radius: Rounding radius for concave corners only.
+            size: Size of the enclosing cube used by :meth:`offset3d`.
+            fn: Facet count for the rounding spheres; ambient default when omitted.
+            fa: Minimum fragment angle for those spheres.
+            fs: Minimum fragment size for those spheres.
+
+        Returns:
+            The rounded solid.
+
         """
         orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
         irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
-        return self.offset3d(orr, size=size).offset3d(-irr - orr, size=size).offset3d(irr, size=size)
+        return (
+            self.offset3d(orr, size=size, fn=fn, fa=fa, fs=fs)
+            .offset3d(-irr - orr, size=size, fn=fn, fa=fa, fs=fs)
+            .offset3d(irr, size=size, fn=fn, fa=fa, fs=fs)
+        )
 
     def chain_hull(self, *others: object) -> "Bosl2Solid":
         """Return this solid chain-hulled with *others*, in order."""

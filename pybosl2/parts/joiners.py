@@ -22,7 +22,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._native import native
 from pybosl2.parts.enums import Gender
@@ -51,8 +51,8 @@ class Dovetail:
 
             from pybosl2.parts.enums import Gender
             from pybosl2.parts.joiners import Dovetail
-            (Dovetail(Gender.MALE, width=15, height=8, slide=30).shape()
-             | Dovetail(Gender.FEMALE, width=15, height=8, slide=30).shape().right(24)).show()
+            (Dovetail(Gender.MALE, width=15, height=8, slide=30).shape
+             | Dovetail(Gender.FEMALE, width=15, height=8, slide=30).shape.right(24)).show()
 
     """
 
@@ -134,13 +134,19 @@ class Dovetail:
         """Slide length in mm."""
         return self._slide
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the dovetail geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the dovetail in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the dovetail in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class SnapPin:
@@ -219,13 +225,19 @@ class SnapPin:
         """Shaft length in mm."""
         return self._length
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the snap pin geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the snap pin in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the snap pin in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class SnapPinSocket:
@@ -295,10 +307,16 @@ class SnapPinSocket:
         """Shaft length in mm."""
         return self._length
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the socket geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the socket in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the socket in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

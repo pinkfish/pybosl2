@@ -227,12 +227,14 @@ def test_solid_hull_dispatches_on_active_backend(backend) -> None:  # type: igno
 
 
 def test_projection_is_csg_only() -> None:
+    # It builds on csg and refuses on sdf, naming the explicit conversion: a 2-D shadow is not
+    # derivable from a distance field, and meshing to answer it would cross backends silently.
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.shapes2d import Bosl2Shape2D
 
     assert isinstance(solid.cuboid([30, 20, 10]).projection(), Bosl2Shape2D)  # type: ignore[attr-defined]
-    with use_backend("sdf"):
-        result = solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
-    assert result is not None
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match=r"\.to_csg\(\)"):
+        solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
 
 
 def test_fill_is_csg_only_on_a_solid() -> None:
@@ -373,3 +375,25 @@ def test_sdf_stroke_3d_diagonal() -> None:
     with use_backend("sdf"):
         tube = spine.stroke(width=1)
     assert tube.backend == "sdf"
+
+
+def test_one_shape_contract_with_two_specialisations() -> None:
+    """Flat and Solid extend one Shape contract rather than duplicating it (SPEC C-15, C-18)."""
+    from pybosl2._backend import Shape, Solid
+    from pybosl2.flat import Flat, circle
+    from pybosl2.solid import cuboid
+
+    assert Shape in Flat.__mro__
+    assert Shape in Solid.__mro__
+
+    flat_shape = circle(radius=5)
+    solid_shape = cuboid([10, 10, 10])
+    for shape in (flat_shape, solid_shape):
+        assert isinstance(shape, Shape)
+    assert isinstance(flat_shape, Flat)
+    assert isinstance(solid_shape, Solid)
+
+    # the shared surface is declared once: Flat adds only the way up into 3-D (SPEC C-17)
+    own = set(vars(Flat)) - set(vars(Shape))
+    assert {"linear_extrude"} <= own
+    assert not {"translate", "scale", "mirror", "bounds", "show", "__or__"} & own

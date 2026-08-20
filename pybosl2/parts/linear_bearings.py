@@ -225,7 +225,7 @@ class LinearBearings:
         from pybosl2.parts.screws import ScrewHole
 
         screw = (
-            ScrewHole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).shape().rotate([90, 0, 0]).up(tabh)
+            ScrewHole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).shape.rotate([90, 0, 0]).up(tabh)
         )
         body = body - screw
         return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])

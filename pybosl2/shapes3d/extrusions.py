@@ -450,7 +450,8 @@ def cross(
 
     """
     h = height if height is not None else length
-    assert h, "cross(): need a positive height or length."
+    if not h:
+        raise ValueError("cross(): needs a positive height= (or its synonym length=).")
     assert h > 0, "cross(): need a positive height or length."
     use_center = center if center is not None else True
     use_anchor = anchor

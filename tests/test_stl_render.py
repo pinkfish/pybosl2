@@ -1000,7 +1000,7 @@ def test_round_corners_3d_path(tmp_path):
 
 def test_threaded_rod_iso(tmp_path):
     # an ISO M12x1.75 rod: major diameter 12, length 24, minor = 12 - 2*(cos30*5/8)*1.75
-    m = _render(tmp_path, "iso_threaded_rod(12, 24, 1.75, fa=6, fs=1).shape()", name="isorod")
+    m = _render(tmp_path, "iso_threaded_rod(12, 24, 1.75, fa=6, fs=1).shape", name="isorod")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [12, 12], atol=0.1)  # major diameter
     assert math.isclose(m.size[2], 24.0, abs_tol=0.05)  # length
@@ -1013,10 +1013,10 @@ def test_threaded_rod_iso(tmp_path):
 @pytest.mark.parametrize(
     ("expr", "name", "dia"),
     [
-        ("trapezoidal_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "traprod", 20),
-        ("acme_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "acmerod", 20),
-        ("square_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "sqrod", 20),
-        ("buttress_threaded_rod(20, 30, 4, fa=6, fs=1).shape()", "buttrod", 20),
+        ("trapezoidal_threaded_rod(20, 30, 4, fa=6, fs=1).shape", "traprod", 20),
+        ("acme_threaded_rod(20, 30, 4, fa=6, fs=1).shape", "acmerod", 20),
+        ("square_threaded_rod(20, 30, 4, fa=6, fs=1).shape", "sqrod", 20),
+        ("buttress_threaded_rod(20, 30, 4, fa=6, fs=1).shape", "buttrod", 20),
     ],
 )
 def test_threaded_rod_variants_watertight(tmp_path, expr, name, dia):
@@ -1029,14 +1029,14 @@ def test_threaded_rod_variants_watertight(tmp_path, expr, name, dia):
 def test_multistart_and_left_handed(tmp_path):
     a = _render(
         tmp_path,
-        "iso_threaded_rod(16, 24, 2, starts=2, fa=6, fs=1).shape()",
+        "iso_threaded_rod(16, 24, 2, starts=2, fa=6, fs=1).shape",
         name="ms2",
     )
     assert a.watertight
     assert math.isclose(a.size[2], 24.0, abs_tol=0.05)
     b = _render(
         tmp_path,
-        "iso_threaded_rod(12, 24, 1.75, left_handed=True, fa=6, fs=1).shape()",
+        "iso_threaded_rod(12, 24, 1.75, left_handed=True, fa=6, fs=1).shape",
         name="lh",
     )
     assert b.watertight
@@ -1047,7 +1047,7 @@ def test_threaded_hex_nut(tmp_path):
     # a hex nut for an M12 rod: flat-to-flat 18, corner-to-corner ~20.8, height 10, threaded hole
     m = _render(
         tmp_path,
-        "iso_threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).shape()",
+        "iso_threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).shape",
         name="hexnut",
     )
     assert m.watertight
@@ -1059,7 +1059,7 @@ def test_threaded_hex_nut(tmp_path):
 def test_threaded_square_nut(tmp_path):
     m = _render(
         tmp_path,
-        "trapezoidal_threaded_nut(24, 16, 12, 3, shape='square', slop=0.1, fa=6, fs=1).shape()",
+        "trapezoidal_threaded_nut(24, 16, 12, 3, shape='square', slop=0.1, fa=6, fs=1).shape",
         name="sqnut",
     )
     assert m.watertight
@@ -1070,7 +1070,7 @@ def test_threaded_square_nut(tmp_path):
 def test_thread_helix_ridge(tmp_path):
     m = _render(
         tmp_path,
-        "ThreadHelix(20, 4, turns=3).shape()",
+        "ThreadHelix(20, 4, turns=3).shape",
         name="threadhelix",
     )
     assert m.volume > 0
@@ -1085,7 +1085,7 @@ def test_screw_socket_head(tmp_path):
     # whole solid is 26 tall and 10 wide at the head.
     m = _render(
         tmp_path,
-        "Screw('M6', 20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).shape()",
+        "Screw('M6', 20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).shape",
         name="scrsocket",
     )
     assert m.watertight
@@ -1095,7 +1095,7 @@ def test_screw_socket_head(tmp_path):
 
 def test_screw_hex_head(tmp_path):
     # M8 hex head: across-flats 13 (corner-to-corner ~15), head height 5.3 above a 16 mm shaft.
-    m = _render(tmp_path, "Screw('M8', 16, head=ScrewHeadType.HEX, fa=6, fs=1).shape()", name="scrhex")
+    m = _render(tmp_path, "Screw('M8', 16, head=ScrewHeadType.HEX, fa=6, fs=1).shape", name="scrhex")
     assert m.watertight
     assert math.isclose(min(m.size[:2]), 13.0, abs_tol=0.4)  # flat-to-flat of the hex head
     assert math.isclose(m.size[2], 21.3, abs_tol=0.3)  # 16 shaft + 5.3 head
@@ -1103,7 +1103,7 @@ def test_screw_hex_head(tmp_path):
 
 def test_screw_flat_head_countersunk(tmp_path):
     # M6 countersunk: the head is a 90-degree cone, so it adds only (11.085-6)/2 ~ 2.54 above the shaft.
-    m = _render(tmp_path, "Screw('M6', 16, head=ScrewHeadType.FLAT, fa=6, fs=1).shape()", name="scrflat")
+    m = _render(tmp_path, "Screw('M6', 16, head=ScrewHeadType.FLAT, fa=6, fs=1).shape", name="scrflat")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [11.085, 11.085], atol=0.4)  # head diameter at the surface
     assert math.isclose(m.size[2], 16 + (11.085 - 6) / 2, abs_tol=0.3)
@@ -1117,7 +1117,7 @@ def test_screw_heads_watertight(tmp_path, head, name):
     drive = ScrewDriveType.HEX if head in (ScrewHeadType.BUTTON, ScrewHeadType.NONE) else ScrewDriveType.NONE
     m = _render(
         tmp_path,
-        f"Screw('M6', 16, head=ScrewHeadType.{head.name}, drive=ScrewDriveType.{drive.name}, fa=6, fs=1).shape()",
+        f"Screw('M6', 16, head=ScrewHeadType.{head.name}, drive=ScrewDriveType.{drive.name}, fa=6, fs=1).shape",
         name=name,
     )
     assert m.watertight
@@ -1128,12 +1128,12 @@ def test_screw_recess_removes_volume(tmp_path):
     # the hex drive recess must actually cut material out of the head.
     solid = _render(
         tmp_path,
-        "Screw('M8', 16, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.NONE, fa=6, fs=1).shape()",
+        "Screw('M8', 16, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.NONE, fa=6, fs=1).shape",
         name="norec",
     )
     drilled = _render(
         tmp_path,
-        "Screw('M8', 16, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).shape()",
+        "Screw('M8', 16, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX, fa=6, fs=1).shape",
         name="rec",
     )
     assert drilled.watertight
@@ -1142,7 +1142,7 @@ def test_screw_recess_removes_volume(tmp_path):
 
 def test_nut_matches_thread(tmp_path):
     # an M6 hex nut: flat-to-flat 10, normal thickness 5.2, threaded hole.
-    m = _render(tmp_path, "Nut('M6', slop=0.1, fa=6, fs=1).shape()", name="scrnut")
+    m = _render(tmp_path, "Nut('M6', slop=0.1, fa=6, fs=1).shape", name="scrnut")
     assert m.watertight
     assert math.isclose(min(m.size[:2]), 10.0, abs_tol=0.3)  # flat-to-flat
     assert math.isclose(m.size[2], 5.2, abs_tol=0.1)  # normal thickness
@@ -1152,7 +1152,7 @@ def test_nut_matches_thread(tmp_path):
 def test_square_nut(tmp_path):
     m = _render(
         tmp_path,
-        "Nut('M6', shape=NutShape.SQUARE, slop=0.1, fa=6, fs=1).shape()",
+        "Nut('M6', shape=NutShape.SQUARE, slop=0.1, fa=6, fs=1).shape",
         name="sqscrnut",
     )
     assert m.watertight
@@ -1161,7 +1161,7 @@ def test_square_nut(tmp_path):
 
 def test_screw_hole_clearance(tmp_path):
     # a normal-fit clearance hole for M6 is a plain cylinder of diameter 6 + 2*0.5 = 7.
-    m = _render(tmp_path, "ScrewHole('M6', 20, fa=6, fs=1).shape()", name="clrhole")
+    m = _render(tmp_path, "ScrewHole('M6', 20, fa=6, fs=1).shape", name="clrhole")
     assert m.watertight
     np.testing.assert_allclose(m.size[:2], [7, 7], atol=0.2)
     assert math.isclose(m.size[2], 20.0, abs_tol=0.05)
@@ -1171,7 +1171,7 @@ def test_screw_hole_countersink(tmp_path):
     # a flat-head clearance hole flares out to the countersink diameter at the top.
     m = _render(
         tmp_path,
-        "ScrewHole('M6', 20, head=ScrewHeadType.FLAT, fa=6, fs=1).shape()",
+        "ScrewHole('M6', 20, head=ScrewHeadType.FLAT, fa=6, fs=1).shape",
         name="cskhole",
     )
     assert m.watertight
@@ -1684,7 +1684,7 @@ def test_pie_slice_builds(tmp_path):
 
 def test_spur_gear_builds(tmp_path):
     m = _render_golden(
-        tmp_path, "SpurGear(mod=2, teeth=15, thickness=6, fn=None, fa=None, fs=None).shape()", name="spurgear"
+        tmp_path, "SpurGear(mod=2, teeth=15, thickness=6, fn=None, fa=None, fs=None).shape", name="spurgear"
     )
     assert m.watertight
     assert m.volume > 0
@@ -1693,7 +1693,7 @@ def test_spur_gear_builds(tmp_path):
 def test_hinge_knuckle_builds(tmp_path):
     m = _render_golden(
         tmp_path,
-        "KnuckleHinge(length=30, knuckle_diam=6, pin_diam=2, arm=18, thick=3, fn=32).shape()",
+        "KnuckleHinge(length=30, knuckle_diam=6, pin_diam=2, arm=18, thick=3, fn=32).shape",
         name="knuckle_hinge",
     )
     assert m.watertight
@@ -1714,8 +1714,8 @@ def test_knuckle_hinge_leaves_never_share_volume(tmp_path, fold):
     result that merely fails to export.
     """
     leaves = (
-        "_o = KnuckleHinge(length=40, segs=5, inner=False).shape()\n"
-        f"_i = KnuckleHinge(length=40, segs=5, inner=True).shape().rotate([{fold}, 0, 0])\n"
+        "_o = KnuckleHinge(length=40, segs=5, inner=False).shape\n"
+        f"_i = KnuckleHinge(length=40, segs=5, inner=True).shape.rotate([{fold}, 0, 0])\n"
     )
     outer = _render(tmp_path, "_o", setup=leaves, name=f"leaf_outer_{fold}")
     inner = _render(tmp_path, "_i", setup=leaves, name=f"leaf_inner_{fold}")
@@ -1739,8 +1739,8 @@ def test_knuckle_hinge_leaves_bottom_out_when_closed(tmp_path):
     than an over-generous cut that would leave a floppy hinge.
     """
     leaves = (
-        "_o = KnuckleHinge(length=40, segs=5, inner=False).shape()\n"
-        "_i = KnuckleHinge(length=40, segs=5, inner=True).shape().rotate([180, 0, 0])\n"
+        "_o = KnuckleHinge(length=40, segs=5, inner=False).shape\n"
+        "_i = KnuckleHinge(length=40, segs=5, inner=True).shape.rotate([180, 0, 0])\n"
     )
     outer = _render(tmp_path, "_o", setup=leaves, name="closed_outer")
     inner = _render(tmp_path, "_i", setup=leaves, name="closed_inner")
@@ -1750,7 +1750,7 @@ def test_knuckle_hinge_leaves_bottom_out_when_closed(tmp_path):
 
 
 def test_worm_gear_builds(tmp_path):
-    m = _render(tmp_path, "Worm(diameter=20, length=40).shape()", name="worm")
+    m = _render(tmp_path, "Worm(diameter=20, length=40).shape", name="worm")
     assert m.watertight
     assert m.volume > 0
 
@@ -1758,7 +1758,7 @@ def test_worm_gear_builds(tmp_path):
 def test_walls_thinning_wall_builds(tmp_path):
     m = _render(
         tmp_path,
-        "ThinningWall(height=40, length=80, thick=6, angle=15).shape()",
+        "ThinningWall(height=40, length=80, thick=6, angle=15).shape",
         name="thinwall",
     )
     assert m.watertight
@@ -1766,19 +1766,19 @@ def test_walls_thinning_wall_builds(tmp_path):
 
 
 def test_polyhedra_tetrahedron(tmp_path):
-    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.TETRAHEDRON, radius=12).shape()", name="tetra")
+    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.TETRAHEDRON, radius=12).shape", name="tetra")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_polyhedra_icosahedron(tmp_path):
-    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.ICOSAHEDRON, radius=10).shape()", name="icosa")
+    m = _render(tmp_path, "RegularPolyhedron(PlatonicSolid.ICOSAHEDRON, radius=10).shape", name="icosa")
     assert m.watertight
     assert m.volume > 0
 
 
 def test_screw_drive_phillips_mask(tmp_path):
-    m = _render(tmp_path, "PhillipsMask('#2', fn=24).shape()", name="phillips")
+    m = _render(tmp_path, "PhillipsMask('#2', fn=24).shape", name="phillips")
     assert m.volume > 0
     assert m.watertight
 
@@ -1786,7 +1786,7 @@ def test_screw_drive_phillips_mask(tmp_path):
 def test_nema_stepper_motor(tmp_path):
     m = _render(
         tmp_path,
-        "NemaMountMask(size=17, depth=5, fn=24).shape()",
+        "NemaMountMask(size=17, depth=5, fn=24).shape",
         name="nema_mask",
     )
     assert m.volume > 0
@@ -1794,7 +1794,7 @@ def test_nema_stepper_motor(tmp_path):
 
 
 def test_sliders_rail_builds(tmp_path):
-    m = _render(tmp_path, "Rail(l=40, w=10, h=10).shape()", name="slider_rail")
+    m = _render(tmp_path, "Rail(l=40, w=10, h=10).shape", name="slider_rail")
     assert m.watertight
     assert m.volume > 0
 
@@ -1802,7 +1802,7 @@ def test_sliders_rail_builds(tmp_path):
 def test_tripod_rc2_plate_builds(tmp_path):
     m = _render_golden(
         tmp_path,
-        "ManfrottoRC2Plate(fn=None, fa=None, fs=None).shape()",
+        "ManfrottoRC2Plate(fn=None, fa=None, fs=None).shape",
         name="rc2_plate",
     )
     assert m.watertight

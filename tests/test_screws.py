@@ -174,22 +174,22 @@ def test_screw_builds(head: ScrewHeadType) -> None:
         if head in (ScrewHeadType.SOCKET, ScrewHeadType.BUTTON, ScrewHeadType.NONE)
         else ScrewDriveType.NONE
     )
-    assert isinstance(Screw("M6", 20, head=head, drive=drive, fn=8).shape(), Bosl2Solid)
+    assert isinstance(Screw("M6", 20, head=head, drive=drive, fn=8).shape, Bosl2Solid)
 
 
 def test_screw_unthreaded_and_partly_threaded() -> None:
-    assert isinstance(Screw("M6", 20, thread=ThreadPitchClass.NONE, fn=8).shape(), Bosl2Solid)
-    assert isinstance(Screw("M6", 20, thread_len=8, fn=8).shape(), Bosl2Solid)
+    assert isinstance(Screw("M6", 20, thread=ThreadPitchClass.NONE, fn=8).shape, Bosl2Solid)
+    assert isinstance(Screw("M6", 20, thread_len=8, fn=8).shape, Bosl2Solid)
 
 
 @pytest.mark.parametrize("shape", [NutShape.HEX, NutShape.SQUARE])
 def test_nut_builds(shape: NutShape) -> None:
-    assert isinstance(Nut("M6", shape=shape, fn=8).shape(), Bosl2Solid)
+    assert isinstance(Nut("M6", shape=shape, fn=8).shape, Bosl2Solid)
 
 
 def test_nut_thickness_classes_build() -> None:
     for t in ("normal", "thin", "thick", 4.0):
-        assert isinstance(Nut("M6", thickness=t, fn=8).shape(), Bosl2Solid)
+        assert isinstance(Nut("M6", thickness=t, fn=8).shape, Bosl2Solid)
 
 
 @pytest.mark.parametrize(
@@ -203,15 +203,15 @@ def test_nut_thickness_classes_build() -> None:
 )
 def test_screw_hole_builds(head: ScrewHeadType, counterbore: int) -> None:
     assert isinstance(
-        ScrewHole("M6", 20, head=head, counterbore=counterbore, fn=8).shape(),
+        ScrewHole("M6", 20, head=head, counterbore=counterbore, fn=8).shape,
         Bosl2Solid,
     )
 
 
 def test_tapped_hole_builds() -> None:
-    assert isinstance(ScrewHole("M6", 20, thread=ThreadPitchClass.COARSE, fn=8).shape(), Bosl2Solid)
+    assert isinstance(ScrewHole("M6", 20, thread=ThreadPitchClass.COARSE, fn=8).shape, Bosl2Solid)
 
 
 @pytest.mark.parametrize("fit", ["close", "normal", "loose"])
 def test_clearance_fits_build(fit: str) -> None:
-    assert isinstance(ScrewHole("M6", 20, fit=fit, fn=8).shape(), Bosl2Solid)
+    assert isinstance(ScrewHole("M6", 20, fit=fit, fn=8).shape, Bosl2Solid)

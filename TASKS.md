@@ -12,6 +12,8 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 
 ## Spec item → task
 
+✅ done · 🔶 in progress · (blank) not started
+
 | §12.2 | Requirement | Task | Size |
 |---|---|---|---|
 | 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) ✅ | S |
@@ -114,9 +116,16 @@ signature, not asserted (`star(tips=None)` is the same defect as the old `prismo
 **Done when:** no `assert` in the package carries a message naming a caller-supplied parameter; add
 a test that greps for the pattern so it cannot come back.
 
+
+**In progress — 13 of 290 converted.** Done: the shapes2d entry points reachable with no arguments
+(`arc`, `ring` ×3, `round2d`, `shell2d` ×2, `hull`, `trapezoid`), `shapes3d.cross`,
+`sdf.shapes2d.trapezoid2d`, and `rounding.round_corners` ×4. Each now names the accepted spellings,
+and the six tests that asserted `AssertionError` were updated to assert `ValueError` **and its
+message**. Remaining batches are unchanged below; 277 asserts with user-facing messages are left.
+
 ---
 
-## T0c — Make `part.shape` a property
+## T0c — Make `part.shape` a property ✅
 
 **Closes:** §12.2 item 4 (C-14) · **Implements:** PLAN O-2, O-5a · **Size:** M
 **Risk:** low, but API-visible
@@ -129,15 +138,26 @@ All 37 part classes define `shape` as a method; the spec, the docs and every exa
 4. Keep the C-14a distinction visible in docstrings: a part's `shape` is the finished solid, a
    wrapper's is the native handle.
 
+
+**Landed.** 50 part classes gained `@property` on `shape`; 551 call sites across the package,
+tests and docs were rewritten from `.shape()` to `.shape`. All 50 `show()` methods now return the
+shape instead of `None` (S-49/S-51, §12.2 item 7 closed with this one). Tests:
+`test_every_part_exposes_shape_as_a_property`, `test_part_show_returns_the_shape`.
+
 ---
 
-## T0d — Fix the broken export
+## T0d — Fix the broken export ✅
 
 **Closes:** §12.2 item 6 (A-7) · **Implements:** PLAN M-2 · **Size:** XS · **Risk:** none
 
 `pybosl2.parts.__all__` lists `Threading`, which does not exist, so `from pybosl2.parts import *`
 raises. Remove it (or export the intended name), then add a test asserting every name in every
 public module's `__all__` resolves.
+
+
+**Landed.** `Threading` removed from `pybosl2.parts.__all__` (the module exports `ThreadedRod`,
+`ThreadedNut` and `ThreadHelix`). `tests/test_exports.py` now walks every public module and
+asserts each `__all__` entry resolves — 77 modules covered.
 
 ---
 
@@ -177,7 +197,7 @@ needs the shapes parts use).
 
 ---
 
-## T1 — Merge `Solid` and `Flat` into one `Shape` contract
+## T1 — Merge `Solid` and `Flat` into one `Shape` contract ✅
 
 **Closes:** §12.2 item 10 (C-15 … C-18) · **Implements:** PLAN T-6a, T-6b · **Size:** M
 **Risk:** low — a contract change, not a geometry change
@@ -200,6 +220,15 @@ long after `Solid` was not, and why it lacked `bounds()` until recently.
 **Done when:** `mypy --strict` is clean; a test asserts `flat | solid` is rejected statically
 (`assert_type` / a `# type: ignore[operator]` that mypy reports as unused if the error disappears);
 `tests/test_init_stub.py` passes with `Shape` exported.
+
+
+**Landed.** `Shape` is declared in `_backend.py` with `Self`-returning members (`backend`, the
+three boolean operators, `translate`/`scale`/`mirror`, `bounds()`, `show()`); `Solid(Shape)` adds
+`rotate`'s 3-D signature and `Flat(Shape)` adds only `rotate` and `linear_extrude`. `Shape` is
+exported at the top level and in the stub. C-19 (colour and distribution on the shared contract)
+stays open until T3 gives the SDF shapes colour. Test:
+`test_one_shape_contract_with_two_specialisations`, which also asserts no shared member is
+re-declared on `Flat`.
 
 ---
 
@@ -240,7 +269,7 @@ top level but only build on CSG.
 4. Add a test: for every top-level shape name, building it inside `use_backend("sdf")` either
    returns an SDF-backed shape or raises `UnsupportedByBackendError` — never a CSG shape.
 
-## T3 — Stop the SDF fallback silently meshing
+## T3 — Stop the SDF fallback silently meshing ✅
 
 **Closes:** §12.2 item 12 (PAR-1, C-1, B-5) · **Implements:** PLAN E-P6, O-6a · **Size:** M
 **Risk:** medium — changes SDF behaviour
@@ -263,9 +292,19 @@ with no `backend` tag — the implicit conversion B-5 forbids.
 `use_backend("sdf")` + `.up(5)` returns an SDF-backed shape with `backend == "sdf"`; the 19-name
 gap list in §12.2 item 4 is empty.
 
+
+**Landed.** The nine directional moves are real methods on `SdfSolid` (exact wrappers over its own
+`translate`/`rotate`); colour is metadata carried on the field and applied when it is realized, so
+`SdfSolid` now satisfies `Colorable` and `.color()/.ghost()/.hsl()` keep the shape in SDF-land;
+the three attachment properties joined `CSG_ONLY_FEATURES`. The fallback is now a documented
+`_MESH_OPERATIONS` allowlist — operations that genuinely consume mesh topology — and everything
+else refuses, naming `.to_csg()`. No public CSG shape method reaches the mesher any more. Tests:
+`test_sdf_shapes_keep_their_backend_through_moves_and_colour`,
+`test_an_unknown_operation_refuses_instead_of_meshing`.
+
 ---
 
-## T4 — Reconcile the parity records with the code
+## T4 — Reconcile the parity records with the code ✅
 
 **Closes:** §12.2 item 13 (PAR-3) · **Implements:** PLAN B-P1, B-P4 · **Size:** S · **Risk:** none
 
@@ -283,6 +322,15 @@ implemented. `projection` is simultaneously implemented on `SdfSolid` and listed
    the lists can never drift from the implementations again.
 
 **Done when:** that test passes and the design doc either matches reality or is gone.
+
+
+**Landed.** `SdfSolid.projection()` was meshing and returning a CSG 2-D shape while `projection`
+sat in `CSG_ONLY_FEATURES` — an implicit cross-backend conversion whose refusal never fired. The
+method is gone, so the refusal fires and names `.to_csg().projection()`. Each exclusive entry now
+carries its reason inline, and `tests/test_backend_parity.py` fails if a listed name is
+implemented on the other backend. `docs/design/sdf-csg-compatibility.md` was rewritten from
+scratch: it had listed nine features as missing that had all shipped, and that stale list misled a
+design review — it now leads with that warning and states the four real gaps.
 
 ---
 
@@ -318,9 +366,17 @@ sub-construction (PLAN R-P2), document the three in `Args:`, and remove the entr
 
 **Done when:** `KNOWN_WITHOUT_FACETS` is empty and `tests/test_facets.py` still passes.
 
+
+**In progress — triage done, 6 of 36 fixed.** The R-1a triage moved 14 entries to a documented
+`PLACEMENT_ONLY` set in `tests/test_facets.py` (copy distributors, `polar_to_xy`,
+`circle_circle_tangents`, `hex_offsets`, `PhillipsSpec.depth`) — they take a radius to place or
+measure, and nothing they return has a facet count. Of the 36 real debt entries, these are fixed:
+`Region.offset`, `Region.round_corners`, `CsgSolid.offset3d`, `CsgSolid.round3d`,
+`Miscellaneous.offset3d`, `Miscellaneous.round3d`. 30 remain, batched by module below.
+
 ---
 
-## T6 — Document and test the `fn=0` opt-out
+## T6 — Document and test the `fn=0` opt-out ✅
 
 **Closes:** §12.2 item 14 (R-5) · **Implements:** PLAN R-P6 · **Size:** S · **Risk:** none
 
@@ -332,9 +388,14 @@ unset — true but undocumented and untested.
 3. Mention it in the `fn` line of the `Args:` block of the most-used constructors (`cyl`, `sphere`,
    `circle`, `cuboid`).
 
+
+**Landed.** Documented in `defaults.py`'s module header (with a worked example), in
+`use_defaults`' `Note:`, in `resolve_facets`' `Returns:` and in `frag_count`. Test:
+`test_fn_zero_opts_out_of_an_ambient_fn`.
+
 ---
 
-## T7 — Generalise the minimum-argument check
+## T7 — Generalise the minimum-argument check ✅
 
 **Closes:** §12.2 item 15 (Q-4) · **Implements:** PLAN X-3, T-9a · **Size:** M · **Risk:** none
 
@@ -344,6 +405,14 @@ unset — true but undocumented and untested.
    name only), then `shapes2d`/`shapes3d`.
 2. Keep the contract: build, or raise `ValueError` — never `AssertionError`/`TypeError`.
 3. Expect finds: fix each as a P-1/E-4 defect rather than adding it to an exemption list.
+
+
+**Landed.** The check is parametrised over `pybosl2.solid`, `pybosl2.flat`, `pybosl2.shapes2d` and
+`pybosl2.shapes3d`, plus a parts probe that builds each from its catalogue name alone. It found
+eight more E-4 violations on its first run (`arc`, `trapezoid`, `ring`, `round2d`, `shell2d`,
+`hull`, `cross`, `round_corners`) — all converted — and one M-2 violation: `pybosl2.flat` had no
+`__all__`. Tests: `test_argument_free_constructors_either_build_or_explain[4 modules]`,
+`test_parts_build_from_their_catalogue_name_alone`.
 
 ---
 

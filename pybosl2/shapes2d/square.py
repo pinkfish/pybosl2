@@ -692,7 +692,8 @@ def trapezoid(
 
     """
     defined = sum(x is not None for x in (height, width1, width2, angle))
-    assert defined == 3, "Must give exactly 3 of the arguments height, width1, width2, and angle."
+    if defined != 3:
+        raise ValueError(f"trapezoid(): give exactly three of height=, width1=, width2= and angle= (got {defined}).")
     if height is None:
         assert width1 is not None
         assert width2 is not None

@@ -13,7 +13,7 @@ sliders
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">Slider(l=30, base=10, wall=4, slop=0.2).shape()</span></div>
+        <div class="spec-caption"><span id="vpart">Slider(l=30, base=10, wall=4, slop=0.2).shape</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="V-groove slider and rail schematic" xmlns="http://www.w3.org/2000/svg"><rect width="460" height="240" fill="var(--ground)"/><path d="M60,140 L160,70 M60,160 L160,90 M60,100 L160,30 M130,60 L280,60 L280,140 Z" fill="none" stroke="var(--ink-dim)" stroke-width="2" stroke-linecap="round"/></svg></div>
         </div>
@@ -33,7 +33,7 @@ sliders
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; Slider(l=30, base=10, wall=4, slop=0.2).shape()</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; Slider(l=30, base=10, wall=4, slop=0.2).shape</div>
         </div>
 
         <div class="spec-tests">5 tests</div>
@@ -42,7 +42,7 @@ sliders
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "slider", "label": "slider", "uri": "_stl/sliders-slider.stl", "code": "Slider(l=30, base=10, wall=4, slop=0.2).shape()", "part": "Slider(l=30, base=10, wall=4, slop=0.2).shape()", "tris": 100, "vol": "8,307.2", "bbox": "30\u00d718\u00d720", "wt": true}, {"id": "rail", "label": "rail", "uri": "_stl/sliders-rail.stl", "code": "Rail(l=100, w=10, h=10).shape()", "part": "Rail(l=100, w=10, h=10).shape()", "tris": 52, "vol": "6,861.2", "bbox": "10\u00d7100\u00d710", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "slider", "label": "slider", "uri": "_stl/sliders-slider.stl", "code": "Slider(l=30, base=10, wall=4, slop=0.2).shape", "part": "Slider(l=30, base=10, wall=4, slop=0.2).shape", "tris": 100, "vol": "8,307.2", "bbox": "30\u00d718\u00d720", "wt": true}, {"id": "rail", "label": "rail", "uri": "_stl/sliders-rail.stl", "code": "Rail(l=100, w=10, h=10).shape", "part": "Rail(l=100, w=10, h=10).shape", "tris": 52, "vol": "6,861.2", "bbox": "10\u00d7100\u00d710", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
     import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";

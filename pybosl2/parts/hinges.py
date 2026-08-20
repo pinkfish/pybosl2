@@ -23,6 +23,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM
@@ -50,7 +51,7 @@ class LivingHingeMask:
 
             from pybosl2.parts.hinges import LivingHingeMask
             from pybosl2.solid import cuboid
-            (cuboid([100, 40, 3]) - LivingHingeMask(length=100, thick=3, foldangle=60).shape().down(1.5)).show()
+            (cuboid([100, 40, 3]) - LivingHingeMask(length=100, thick=3, foldangle=60).shape.down(1.5)).show()
 
     """
 
@@ -93,13 +94,19 @@ class LivingHingeMask:
         """Plate thickness in mm."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the hinge mask geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the hinge mask in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the hinge mask in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class KnuckleHinge:
@@ -215,13 +222,19 @@ class KnuckleHinge:
         """True for the inner leaf, False for outer."""
         return self._inner
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the knuckle hinge leaf geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the knuckle hinge leaf in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the knuckle hinge leaf in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class KnuckleHingePair:
@@ -287,7 +300,7 @@ class KnuckleHingePair:
             fn=fn,
             fa=fa,
             fs=fs,
-        ).shape()
+        ).shape
         inner = KnuckleHinge(
             length,
             segs,
@@ -300,7 +313,7 @@ class KnuckleHingePair:
             fn=fn,
             fa=fa,
             fs=fs,
-        ).shape()
+        ).shape
         if fold:
             inner = inner.rotate([fold, 0, 0])
         hinge = outer | inner
@@ -323,13 +336,19 @@ class KnuckleHingePair:
         """Fold angle in degrees."""
         return self._fold
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the hinge pair geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the hinge pair in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the hinge pair in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class SnapLock:
@@ -388,13 +407,19 @@ class SnapLock:
         """Plate thickness in mm."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the snap-lock tab geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the snap-lock tab in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the snap-lock tab in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class SnapSocket:
@@ -462,10 +487,16 @@ class SnapSocket:
         """Plate thickness in mm."""
         return self._thick
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the snap socket geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the snap socket in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the snap socket in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

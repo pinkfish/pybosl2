@@ -24,6 +24,7 @@ from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
+from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
 from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT
@@ -158,7 +159,30 @@ def _cuboid_edge_sdf(
     return lv.max(lv.max(axis_sdf(0), axis_sdf(1)), axis_sdf(2))
 
 
-class SdfSolid(Distributable):
+#: Native operations that genuinely need a mesh: they consume or produce mesh topology, so
+#: answering them by meshing the field is inherent rather than a silent conversion (SPEC B-5).
+#: Everything a caller can do to a *field* is a real method on SdfSolid; anything not in either
+#: place is refused with the explicit .to_csg() route.
+_MESH_OPERATIONS = frozenset(
+    {
+        "render",  # force a mesh render
+        "repair",  # mesh repair
+        "wrap",  # mesh wrapping
+        "pull",  # mesh vertex pull
+        "oversample",  # mesh subdivision
+        "resize",  # resize the meshed bounds
+        "size",  # native size query
+        "linear_extrude",  # 2-D -> 3-D on the meshed profile
+        "rotate_extrude",
+        "offset",  # native mesh offset
+        "roof",
+        "background",  # the % modifier applied to the meshed solid
+        "textmetrics",
+    }
+)
+
+
+class SdfSolid(Colorable, Distributable):
     """Wrap a libfive SDF kept as a *symbolic* function of (x, y, z).
 
     Rather than an already-evaluated tree or an already-meshed solid, plus the bounding box
@@ -219,6 +243,9 @@ class SdfSolid(Distributable):
         self.cuboid_edge_modes = [row[:] for row in cuboid_edge_modes] if cuboid_edge_modes is not None else None
         self._mesh_cache = None
         self._baked_cache = None
+        # appearance travels with the field and is applied when it is realized (SPEC C-19)
+        self._colour: tuple[Any, float | None] | None = None
+        self._modifier: str | None = None
 
     def _wrap(
         self,
@@ -230,7 +257,7 @@ class SdfSolid(Distributable):
         cuboid_edge_amounts: list[list[float]] | None = None,
         cuboid_edge_modes: list[list[EdgeMode]] | None = None,
     ) -> PyShape:
-        return PyShape(
+        out = PyShape(
             sdf_fn,
             mn,
             mx,
@@ -240,6 +267,50 @@ class SdfSolid(Distributable):
             cuboid_edge_amounts,
             cuboid_edge_modes,
         )
+        # colour is metadata, so it survives every exact transform rather than forcing a mesh
+        out._colour = self._colour
+        out._modifier = self._modifier
+        return out
+
+    # ---- colour: recorded on the field, applied when it is realized (SPEC C-19) -------------
+
+    def _recoloured(self, colour: Any, modifier: str | None) -> PyShape:
+        """Return a copy of this shape carrying *colour* and *modifier*."""
+        out = self._wrap(
+            self._sdf_fn,
+            self.mn,
+            self.mx,
+            self.cuboid_size,
+            self.cuboid_center,
+            self.cuboid_edge_amounts,
+            self.cuboid_edge_modes,
+        )
+        out._colour = colour
+        out._modifier = modifier
+        return out
+
+    def _color_native(self, c: Any = None, alpha: float | None = None) -> PyShape:
+        """Record the colour; it is applied to the mesh when the shape is realized."""
+        return self._recoloured((c, alpha), self._modifier)
+
+    def _highlight_native(self) -> PyShape:
+        """Record the highlight (``#``) modifier."""
+        return self._recoloured(self._colour, "highlight")
+
+    def _ghost_native(self) -> PyShape:
+        """Record the ghost (``%``) modifier."""
+        return self._recoloured(self._colour, "ghost")
+
+    def _apply_appearance(self, meshed: Any) -> Any:
+        """Apply any recorded colour/modifier to *meshed* and return it."""
+        if self._colour is not None:
+            colour, alpha = self._colour
+            meshed = meshed.color(colour, alpha) if alpha is not None else meshed.color(colour)
+        if self._modifier == "highlight":
+            meshed = meshed.highlight()
+        elif self._modifier == "ghost":
+            meshed = meshed.background()
+        return meshed
 
     def sdf(self) -> LVTree:
         """Return the fully-evaluated libfive expression tree at the real coordinate trees."""
@@ -265,7 +336,7 @@ class SdfSolid(Distributable):
         Returns:
             This shape, so the call can be chained or assigned.
         """
-        self.mesh().show()
+        self._apply_appearance(self.mesh()).show()
         return self
 
     def mesh(self) -> Any:
@@ -324,9 +395,20 @@ class SdfSolid(Distributable):
             _unsupported = _unsupported_feature("sdf", name)
             if _unsupported is not None:
                 raise _unsupported
-        # Anything else (color/show/... or any other real PyOpenSCAD method) falls through to the
-        # meshed solid.
-        return getattr(self.mesh(), name)
+        # Everything a caller can do to a *field* is implemented on this class, so anything left
+        # is either an operation that genuinely needs a mesh (it consumes or produces mesh
+        # topology) or a mistake. Meshing for the first is honest; meshing for the second is the
+        # silent, lossy conversion SPEC B-5 forbids -- so say so instead (PLAN E-P6).
+        if name in _MESH_OPERATIONS:
+            return getattr(self.mesh(), name)
+        from pybosl2.exceptions import UnsupportedByBackendError
+
+        raise UnsupportedByBackendError(
+            name,
+            "sdf",
+            hint=f"the sdf backend has no {name!r}. If you want it on the meshed solid, convert "
+            f"explicitly with .to_csg().{name}(...) -- that is a one-way trip out of the field.",
+        )
 
     # ---- SDF-level composition ----
 
@@ -383,6 +465,44 @@ class SdfSolid(Distributable):
         new_mn = [min(c[i] for c in rotated) for i in range(3)]
         new_mx = [max(c[i] for c in rotated) for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
+
+    # ---- directional moves: exact, and they keep the field (SPEC C-1, PLAN E-P6) ------------
+
+    def right(self, x: float) -> PyShape:
+        """Move this shape *x* along +X."""
+        return self.translate([x, 0.0, 0.0])
+
+    def left(self, x: float) -> PyShape:
+        """Move this shape *x* along -X."""
+        return self.translate([-x, 0.0, 0.0])
+
+    def back(self, y: float) -> PyShape:
+        """Move this shape *y* along +Y."""
+        return self.translate([0.0, y, 0.0])
+
+    def forward(self, y: float) -> PyShape:
+        """Move this shape *y* along -Y."""
+        return self.translate([0.0, -y, 0.0])
+
+    def fwd(self, y: float) -> PyShape:
+        """Move this shape *y* along -Y (BOSL2's spelling of :meth:`forward`)."""
+        return self.forward(y)
+
+    def up(self, z: float) -> PyShape:
+        """Move this shape *z* along +Z."""
+        return self.translate([0.0, 0.0, z])
+
+    def down(self, z: float) -> PyShape:
+        """Move this shape *z* along -Z."""
+        return self.translate([0.0, 0.0, -z])
+
+    def move(self, v: Sequence[float]) -> PyShape:
+        """Move this shape by vector *v* (BOSL2's spelling of :meth:`translate`)."""
+        return self.translate(v)
+
+    def rot(self, a: float | Sequence[float], v: list[float] | None = None) -> PyShape:
+        """Rotate this shape (BOSL2's spelling of :meth:`rotate`)."""
+        return self.rotate(a, v)
 
     def scale(self, v: float | Sequence[float]) -> PyShape:
         """Scale the SDF (`f(p) -> s_min * f(p / s)`), exact zero set, no meshing involved.
@@ -893,19 +1013,6 @@ class SdfSolid(Distributable):
             mx,
             res if res is not None else (max(child_res) if child_res else 10),
         )
-
-    def projection(self, cut: bool = False) -> Any:
-        """Return the 2-D shadow of this solid, projected onto the XY plane.
-
-        Converts to CSG on first call (cached mesh), then uses the native projection.
-
-        Args:
-            cut: If True, slice at z=0 and project the cross-section.
-
-        Returns:
-            A :class:`~pybosl2.shapes2d.Bosl2Shape2D`.
-        """
-        return self.to_csg().projection(cut=cut)
 
     def half_of(
         self,

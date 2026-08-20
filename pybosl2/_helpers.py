@@ -226,6 +226,8 @@ def frag_count(
 
     OpenSCAD's $fn/$fa/$fs rules.  Anything the caller left as None falls back to the ambient
     defaults (:func:`pybosl2.defaults.use_defaults`) before OpenSCAD's own $fa=12 / $fs=2.
+    An *fn* below 3 means "use fa/fs", so ``fn=0`` is how one call opts out of an ambient
+    ``fn`` (SPEC R-5).
     """
     fn, fa, fs = resolve_facets(fn, fa, fs)
     if fn is not None and fn >= 3:

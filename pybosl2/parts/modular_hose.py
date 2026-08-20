@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
+from typing import Any
 
 from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid
@@ -281,13 +282,19 @@ class HoseSegment:
         """Segment type."""
         return self._type
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the hose segment geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the hose segment in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the hose segment in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 def modular_hose_radius(size: float, outer: bool = False) -> float:

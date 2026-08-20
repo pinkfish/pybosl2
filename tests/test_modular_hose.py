@@ -39,14 +39,14 @@ def test_bad_type_raises() -> None:
 @pytest.mark.parametrize("size", [0.25, 0.5, 0.75])
 @pytest.mark.parametrize("hosetype", [HoseType.SEGMENT, HoseType.BALL, HoseType.SOCKET])
 def test_builds(size: float, hosetype: HoseType) -> None:
-    assert isinstance(HoseSegment(size, hosetype).shape(), Bosl2Solid)
+    assert isinstance(HoseSegment(size, hosetype).shape, Bosl2Solid)
 
 
 def test_bigger_size_bigger_hose() -> None:
-    assert _size(HoseSegment(0.75, HoseType.SEGMENT).shape())[0] > _size(HoseSegment(0.25, HoseType.SEGMENT).shape())[0]
+    assert _size(HoseSegment(0.75, HoseType.SEGMENT).shape)[0] > _size(HoseSegment(0.25, HoseType.SEGMENT).shape)[0]
 
 
 def test_clearance_widens_socket() -> None:
-    tight = _size(HoseSegment(0.5, HoseType.SEGMENT, clearance=0).shape())[0]
-    loose = _size(HoseSegment(0.5, HoseType.SEGMENT, clearance=0.3).shape())[0]
+    tight = _size(HoseSegment(0.5, HoseType.SEGMENT, clearance=0).shape)[0]
+    loose = _size(HoseSegment(0.5, HoseType.SEGMENT, clearance=0.3).shape)[0]
     assert loose > tight
