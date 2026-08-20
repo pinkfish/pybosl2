@@ -3,7 +3,10 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
-# DocCategory: internal
+# LibFile: pybosl2/path3d.py
+# FileSummary: 3-D path operations: measurement, resampling, helices and sweeping.
+# DocCategory: Paths, regions & surfaces
+# FileGroup: BOSL2
 
 """3-D path operations: tangents, normals, curvature, torsion, resampling, cutting, and 3-D transforms.
 
@@ -149,7 +152,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-        r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+        r2v = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
         length = length if length is not None else height
         assert sum(v is not None for v in (length, turns, angle)) == 2, (
             "helix() needs exactly two of length/height, turns, and angle."

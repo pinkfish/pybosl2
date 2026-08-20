@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.math import EPSILON
 from pybosl2.points import Point
 from pybosl2.vectors import unit
@@ -220,8 +221,8 @@ def circle_circle_tangents(
         only external tangents exist, or an empty list when no tangent can be drawn.
 
     """
-    r1v: float = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 1.0)
-    r2v: float = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 1.0)
+    r1v: float = _pick_radius(radius=radius1, diameter=diameter1, dflt=1.0)
+    r2v: float = _pick_radius(radius=radius2, diameter=diameter2, dflt=1.0)
     c1_arr: NDArray[np.float64] = np.asarray(center1, dtype=float)
     c2_arr: NDArray[np.float64] = np.asarray(center2, dtype=float)
     dist: float = float(np.linalg.norm(c2_arr - c1_arr))

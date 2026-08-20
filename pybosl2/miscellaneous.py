@@ -42,6 +42,7 @@ import numpy as np
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BACK, UP
 from pybosl2.enums import ResampleMethod
 from pybosl2.geometry import vector_angle3 as _vector_angle3
@@ -186,8 +187,8 @@ def cylindrical_extrude(
     from pybosl2._helpers import frag_count as _frag_count
     from pybosl2.shapes3d import Bosl2Solid
 
-    irv = inner_radius if inner_radius is not None else (inner_diameter / 2 if inner_diameter is not None else None)
-    orv = outer_radius if outer_radius is not None else (outer_diameter / 2 if outer_diameter is not None else None)
+    irv = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
+    orv = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
     assert irv is not None, "cylindrical_extrude(): give positive inner and outer radius/diameter."
     assert orv is not None, "cylindrical_extrude(): give positive inner and outer radius/diameter."
     assert irv > 0, "cylindrical_extrude(): give positive inner and outer radius/diameter."

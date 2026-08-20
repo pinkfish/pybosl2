@@ -4,7 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
-"""Ambient resolution defaults, and the API-ergonomics rules they serve (SPEC.md D-1..D-10)."""
+"""Ambient resolution defaults, and the API-ergonomics rules they serve (SPEC.md D-1..D-8, R-1..R-7)."""
 
 from __future__ import annotations
 
@@ -108,7 +108,7 @@ def test_ambient_res_reaches_the_sdf_backend() -> None:
             assert cuboid([10, 10, 10], res=4).res == 4
 
 
-# --- what a caller gets when they say nothing (SPEC.md P-2, item 5) ------------------------
+# --- what a caller gets when they say nothing (SPEC.md P-2, B-8) ------------------------
 
 
 def test_effective_defaults_reports_the_real_signature() -> None:
@@ -221,6 +221,27 @@ def test_size_only_rect_tube_gets_a_wall() -> None:
     from pybosl2.solid import rect_tube
 
     assert rect_tube(size=[20, 20], height=10).bounds() == ([0.0, 0.0, 5.0], [20.0, 20.0, 10.0])
+
+
+def test_a_radius_and_its_own_diameter_together_are_rejected() -> None:
+    """Two spellings of one dimension is a mistake, not a preference (SPEC.md D-5, E-5)."""
+    from pybosl2.shapes2d import circle as flat_circle
+    from pybosl2.solid import cyl, sphere
+
+    for call in (
+        lambda: flat_circle(radius=5, diameter=20),
+        lambda: sphere(radius=3, diameter=8),
+        lambda: cyl(height=5, radius=2, diameter=9),
+    ):
+        with pytest.raises(ValueError, match="not both"):
+            call()
+
+
+def test_different_levels_of_specificity_are_not_a_conflict() -> None:
+    """radius1 legitimately overrides radius; only same-dimension pairs are rejected (SPEC.md D-5)."""
+    from pybosl2.solid import cyl
+
+    assert cyl(height=10, radius1=4, radius=2).bounds() == cyl(height=10, radius1=4, radius2=2).bounds()
 
 
 @pytest.mark.parametrize("operation", ["union", "difference", "intersection"])

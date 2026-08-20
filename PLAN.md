@@ -68,6 +68,10 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
 The library is object-oriented by preference (SPEC P-8): a caller holds a *thing* and asks it for
 what they need, rather than passing a bag of numbers through free functions.
 
+* **O-0 Every subsystem is on the map.** SPEC §6 catalogues the subsystems this library owns —
+  paths and curves, regions, meshes and surfaces, sweeps, strokes and caps, masks, partitions,
+  distribution, textures, colour, import/interchange, parts. New work belongs to one of them; if it
+  does not, the spec gains a subsection before the code lands.
 * **O-1 Parts are classes.** Every entry in `pybosl2/parts/` is a class — `Screw`, `SpurGear`,
   `KnuckleHinge`, `RegularPolyhedron`, `NemaMotor` — not a family of functions. A stateless family
   of catalogue lookups MAY instead be a class holding classmethod factories
@@ -188,7 +192,7 @@ Python that means:
 * **S-2** Functions stay short and cohesive — under 50 lines. A longer one is split, not commented
   into sections.
 * **S-3** No `TODO` comments and no stubbed bodies in committed code. Unfinished work lives in
-  SPEC §11 (conformance), not in the source.
+  SPEC §12 (conformance), not in the source.
 * **S-4** Comments explain *why*, and are kept truthful when the code changes; a comment that
   describes behaviour the code no longer has is a defect.
 * **S-5** BOSL2 parameter names are kept unless Python forbids them (`except` → `except_edges`) or
@@ -214,7 +218,7 @@ Python that means:
   | `tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share` | SPEC P-2 |
   | `tests/test_init_stub.py` | T-8 |
   | `tests/test_facets.py` | R-P2 / R-P5 |
-  | `tests/test_backend_matrix.py` | SPEC B-7 |
+  | `tests/test_backend_matrix.py` | SPEC B-7, PAR-2 (a new shared feature lands on both backends or is an explicit, tracked refusal) |
 * **X-5** Changing geometry, backends, or paths means running the full suite — including
   `pytest tests/test_stl_render.py` when a PythonSCAD binary is available — before the work is
   called done.
@@ -267,7 +271,7 @@ Before calling a change done:
 
 ## 12. Known debt
 
-Tracked in [SPEC.md §11](SPEC.md#11-conformance-status). The active language-level item is the
+Tracked in [SPEC.md §12](SPEC.md#12-conformance-status). The active language-level item is the
 facet audit: **50 of 119** public curved-geometry callables do not yet accept `fn`/`fa`/`fs`
 (R-P2). Re-run the audit with:
 

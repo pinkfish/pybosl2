@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from pybosl2.shapes3d.base import Bosl2Solid
 
 from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import polar_to_xy as _polar_to_xy
 from pybosl2._helpers import quantup
 
@@ -125,23 +126,19 @@ def rounding_edge_mask(
 
     """
     length = length if length is not None else (height if height is not None else 1.0)
-    rad1 = (
-        radius1
-        if radius1 is not None
-        else (
-            radius
-            if radius is not None
-            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1.0))
-        )
+    rad1 = _pick_radius(
+        radius1=radius1,
+        diameter1=diameter1,
+        radius=radius,
+        diameter=diameter,
+        dflt=1.0,
     )
-    rad2 = (
-        radius2
-        if radius2 is not None
-        else (
-            radius
-            if radius is not None
-            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1.0))
-        )
+    rad2 = _pick_radius(
+        radius2=radius2,
+        diameter2=diameter2,
+        radius=radius,
+        diameter=diameter,
+        dflt=1.0,
     )
     if rad1 < rad2:
         cross = mask2d_roundover(rad2, excess=excess, fn=fn, fa=fa, fs=fs)

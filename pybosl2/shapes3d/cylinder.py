@@ -357,7 +357,7 @@ def cyl(
 
     length_val = next((v for v in (length, height) if v is not None), 1.0)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
 
     if circumscribe:
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
@@ -586,7 +586,7 @@ def xcyl(
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
 
     if circumscribe:
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
@@ -692,7 +692,7 @@ def ycyl(
     """
     length_val = next((v for v in (length, height) if v is not None), 1.0)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
 
     if circumscribe:
         sides = _frag_count(max(rad1, rad2), fn, fa, fs)
@@ -1082,7 +1082,7 @@ def cone(
 
     """
     r1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    r2 = _pick_radius(radius1=radius2, diameter1=diameter2, dflt=0)
+    r2 = _pick_radius(radius2=radius2, diameter2=diameter2, dflt=0)
     return cyl(
         height=height,
         radius1=r1,

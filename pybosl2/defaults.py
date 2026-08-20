@@ -7,7 +7,7 @@
 # LibFile: pybosl2/defaults.py
 #    Ambient resolution defaults -- the smoothness a shape gets when the caller says nothing.
 #
-#    Curve resolution is never a required argument in pybosl2 (SPEC.md D-8): every constructor
+#    Curve resolution is never a required argument in pybosl2 (SPEC.md R-2): every constructor
 #    takes ``fn``/``fa``/``fs`` (CSG) or ``res`` (SDF) as ``None``, meaning "decide for me". This
 #    module is what decides. Set it once for a block instead of threading the same numbers through
 #    every call:
@@ -19,7 +19,7 @@
 #
 #    The active values live in a ``contextvars.ContextVar``, so a ``with`` block is thread- and
 #    async-safe and nests, exactly like ``use_backend()``. Values are read at CONSTRUCTION time
-#    (SPEC.md D-10) -- a shape's smoothness is fixed by where it was built, never re-resolved later.
+#    (SPEC.md R-6) -- a shape's smoothness is fixed by where it was built, never re-resolved later.
 #
 #    Anything the caller passes explicitly always wins (SPEC.md P-6). With nothing set anywhere,
 #    behaviour is unchanged from before this module existed: OpenSCAD's own $fa=12 / $fs=2.

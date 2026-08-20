@@ -26,6 +26,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pybosl2._helpers import pick_radius as _pick_radius
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -141,7 +143,7 @@ def mb_sphere(
             ).polyhedron().show()
 
     """
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     assert rr, "mb_sphere(): need a positive radius or diameter."
     assert rr > 0, "mb_sphere(): need a positive radius or diameter."
     neg = -1 if negative else 1
@@ -242,8 +244,8 @@ def mb_torus(
 
     """
     rmaj, rmin = (
-        (major_radius if major_radius is not None else (major_diameter / 2 if major_diameter is not None else None)),
-        (minor_radius if minor_radius is not None else (minor_diameter / 2 if minor_diameter is not None else None)),
+        (_pick_radius(radius=major_radius, diameter=major_diameter, dflt=None)),
+        (_pick_radius(radius=minor_radius, diameter=minor_diameter, dflt=None)),
     )
     assert rmaj, "mb_torus(): need positive major_radius and minor_radius."
     assert rmin, "mb_torus(): need positive major_radius and minor_radius."
@@ -284,7 +286,7 @@ def mb_capsule(
         AssertionError: If *height* or *radius* is missing, non-positive, or shaft too short.
 
     """
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     assert height, "mb_capsule(): need positive height and radius."
     assert rr, "mb_capsule(): need positive height and radius."
     assert height > 0, "mb_capsule(): need positive height and radius."
@@ -329,7 +331,7 @@ def mb_disk(
         AssertionError: If *height* or *radius* is missing, non-positive, or too thin.
 
     """
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     assert height, "mb_disk(): need positive height and radius."
     assert rr, "mb_disk(): need positive height and radius."
     assert height > 0, "mb_disk(): need positive height and radius."
@@ -428,7 +430,7 @@ def mb_connector(
     """
     from pybosl2.transforms import axis_angle_matrix, rot_from_to
 
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
     assert rr, "mb_connector(): need distinct points and positive radius."
     assert rr > 0, "mb_connector(): need distinct points and positive radius."

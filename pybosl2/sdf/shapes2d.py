@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.enums import EdgeMode
 from pybosl2.sdf._constants import CENTER
 from pybosl2.sdf._libfive import lv
@@ -976,8 +977,8 @@ def keyhole_outline(
         The outline points, counter-clockwise, without a repeated closing point.
 
     """
-    r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5)
-    r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10)
+    r1v = _pick_radius(radius=radius1, diameter=diameter1, dflt=5)
+    r2v = _pick_radius(radius=radius2, diameter=diameter2, dflt=10)
     sh = float(shoulder_radius or 0.0)
     assert length > 0, "keyhole_outline(): length must be positive."
     assert min(r1v, r2v) > 0, "keyhole_outline(): both radii must be positive."

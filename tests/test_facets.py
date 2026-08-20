@@ -23,7 +23,7 @@ PACKAGE = Path(__file__).resolve().parent.parent / "pybosl2"
 CURVED = {"rounding", "radius", "radius1", "diameter", "inner_rounding"}
 FACETS = {"fn", "fa", "fs"}
 
-#: The known backlog (SPEC.md 11.2 item 1). Entries are either real debt -- Region.offset,
+#: The known backlog (SPEC.md 12.2 item 1). Entries are either real debt -- Region.offset,
 #: Path2D.minkowski_sum_circle, shapes2d.star, the RegularPolyhedron factories -- or cases where
 #: the radius places geometry rather than tessellating it (the distributors, polar_to_xy). Both
 #: kinds must be reviewed before removal; nothing may be ADDED.

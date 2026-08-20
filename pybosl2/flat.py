@@ -71,6 +71,10 @@ class Flat(Protocol):
         """Extrude this 2-D shape into a 3-D solid."""
         ...
 
+    def bounds(self) -> tuple[list[float], list[float]]:
+        """Axis-aligned bounding box as ``(center, size)``, without rendering."""
+        ...
+
 
 # Backward compatibility alias
 Shape2D = Flat

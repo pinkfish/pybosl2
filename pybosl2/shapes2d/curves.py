@@ -189,7 +189,7 @@ def teardrop2d(
             s2.teardrop2d(radius=15, angle=45).linear_extrude(height=5).show()
 
     """
-    rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
+    rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     if circumscribe:
         n = _frag_count(rad, fn, fa, fs)
         rad /= math.cos(math.pi / n)
@@ -258,13 +258,13 @@ def egg(
             s2.egg(length=30, radius1=10, radius2=8, arc_radius=20).linear_extrude(height=5).show()
 
     """
-    radius1 = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else None)
+    radius1 = _pick_radius(radius=radius1, diameter=diameter1, dflt=None)
     if radius1 is None:
         raise ValueError("egg(): must give radius1 or diameter1")
-    radius2 = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else None)
+    radius2 = _pick_radius(radius=radius2, diameter=diameter2, dflt=None)
     if radius2 is None:
         raise ValueError("egg(): must give radius2 or diameter2")
-    arc_r = arc_radius if arc_radius is not None else (arc_diameter / 2 if arc_diameter is not None else None)
+    arc_r = _pick_radius(radius=arc_radius, diameter=arc_diameter, dflt=None)
     if arc_r is None:
         raise ValueError("egg(): must give arc_radius or arc_diameter")
     assert length is not None, "egg(): must give length"
@@ -389,7 +389,7 @@ def supershape(
     bv = b if b is not None else a
     angles = [360.0 - i * 360.0 / n_pts for i in range(n_pts)]
     rvals = [_superformula(t, m1, m2v, n1v, n2v, n3v, a, bv) for t in angles]
-    target_radius = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    target_radius = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     scale = (target_radius / max(rvals)) if target_radius is not None else 1.0
     path = [
         [

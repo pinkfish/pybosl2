@@ -52,6 +52,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import frag_count as _segs
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import scale4 as _scale4
 from pybosl2._helpers import translate4, zrot4
 from pybosl2._helpers import xrot4 as _xrot4
@@ -774,23 +775,19 @@ def _spiral_sweep(
     """
     assert height > 0, "spiral_sweep(): need positive height and nonzero turns."
     assert turns != 0, "spiral_sweep(): need positive height and nonzero turns."
-    rr1 = (
-        radius1
-        if radius1 is not None
-        else (
-            radius
-            if radius is not None
-            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else 1))
-        )
+    rr1 = _pick_radius(
+        radius1=radius1,
+        diameter1=diameter1,
+        radius=radius,
+        diameter=diameter,
+        dflt=1,
     )
-    rr2 = (
-        radius2
-        if radius2 is not None
-        else (
-            radius
-            if radius is not None
-            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else 1))
-        )
+    rr2 = _pick_radius(
+        radius2=radius2,
+        diameter2=diameter2,
+        radius=radius,
+        diameter=diameter,
+        dflt=1,
     )
     poly = [[p[0], p[1]] for p in poly]
     nturns = abs(turns)

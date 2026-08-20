@@ -109,7 +109,7 @@ def pie_slice(
 
     length = height if height is not None else (length if length is not None else 1)
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
-    rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=10)
+    rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=10)
     use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     base = _ocylinder(

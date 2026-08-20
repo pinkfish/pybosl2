@@ -3,7 +3,10 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
-# DocCategory: internal
+# LibFile: pybosl2/points.py
+# FileSummary: The Point and Vector types every geometry API is expressed in.
+# DocCategory: Math & geometry
+# FileGroup: BOSL2
 
 """Lightweight 2‑D / 3‑D point and vector type shared across the pybosl2 geometry layer.
 

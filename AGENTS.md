@@ -20,13 +20,13 @@ have been merged into two documents, so there is one place for each kind of deci
 3. **Objects over argument bags.** Parts, paths, regions and meshes are classes that own their
    operations and expose derived dimensions as properties. (SPEC P-8, PLAN §3)
 4. **Curve resolution is universal.** Anything drawing an arc, circle, rounding or chamfer takes
-   `fn`/`fa`/`fs` (or `res`) and passes them to everything it builds. (SPEC §7.2, PLAN §4)
+   `fn`/`fa`/`fs` (or `res`) and passes them to everything it builds. (SPEC §8.2, PLAN §4)
 5. **Type everything, `Any` almost never.** `mypy --strict` clean; full element types on every
    collection; stubs for anything bound dynamically. (PLAN §2)
 6. **Google docstrings on every public callable**, with `Args:`/`Returns:`/`Raises:` and a
    rendering example for anything that produces geometry. (PLAN §5)
 7. **Bad input raises `ValueError` naming the fix** — never `assert`, never silent coercion.
-   (SPEC §8, PLAN §7)
+   (SPEC §9, PLAN §7)
 
 ## Before you finish
 
@@ -38,4 +38,4 @@ ruff check . --fix && ruff format .
 ```
 
 The full checklist is [PLAN.md §11](PLAN.md#11-review-checklist); open debt is tracked in
-[SPEC.md §11](SPEC.md#11-conformance-status).
+[SPEC.md §12](SPEC.md#12-conformance-status).
