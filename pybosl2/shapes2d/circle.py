@@ -19,6 +19,8 @@ from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
+from pybosl2._backend import backend_only
+
 # Import base class and helper functions from shapes2d.base
 from pybosl2._helpers import (
     anchor_offset_box as _anchor_offset_box,
@@ -85,6 +87,7 @@ else:
     _otext = native("text")
 
 
+@backend_only("csg", neutral="pybosl2.flat.circle")
 def circle(
     radius: float | None = None,
     diameter: float | None = None,
@@ -137,6 +140,7 @@ def circle(
     return _finish(shape, offset, spin, size=[2 * rad, 2 * rad], anchor=anchor)
 
 
+@backend_only("csg")
 def arc(
     count: int | None = None,
     radius: float | None = None,
@@ -329,6 +333,7 @@ def arc(
     return Path2D(out, closed=wedge)
 
 
+@backend_only("csg")
 def ellipse(
     radius: float | Sequence[float] | None = None,
     diameter: float | Sequence[float] | None = None,
@@ -389,6 +394,7 @@ def ellipse(
     return _finish(shape, offset, spin)
 
 
+@backend_only("csg")
 def keyhole(
     length: float | None = None,
     radius1: float | None = None,
@@ -468,6 +474,7 @@ def keyhole(
     return _finish(shape, offset, spin)
 
 
+@backend_only("csg")
 def ring(
     sides: int | None = None,
     ring_width: float | None = None,
@@ -532,6 +539,7 @@ def ring(
     return _finish(shape, offset, spin, size=[2 * outer, 2 * outer], anchor=anchor)
 
 
+@backend_only("csg")
 def glued_circles(
     radius: float | None = None,
     spread: float = 10,
@@ -611,6 +619,7 @@ def glued_circles(
     return _finish(shape, offset, spin)
 
 
+@backend_only("csg")
 def reuleaux_polygon(
     sides: int = 3,
     radius: float | None = None,

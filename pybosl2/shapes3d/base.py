@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor, EdgeAtom, resolve_anchor
 from pybosl2._native import native
 
@@ -120,6 +121,7 @@ def _osphere(
     return _osphere_native(**kw)
 
 
+@backend_only("csg")
 def osimport(
     file: str,
     convexity: int | None = None,
@@ -216,9 +218,12 @@ class CsgSolid(BaseShape):
        `Visual spec sheet <specs/shapes3d.html>`_ — measurements and STL previews
     """
 
-    #: which realize backend produced this solid -- see pybosl2/_backend.py. Bosl2Solid is the
-    #: exact-CSG (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper.
-    backend: str
+    #: Which backend produced this solid -- always "csg", because this class IS the exact-CSG
+    #: (PythonSCAD) backend's Solid; the libfive/SDF backend uses its own wrapper. It is a class
+    #: constant on purpose: reading current_backend() here would make a CSG solid built inside a
+    #: use_backend("sdf") block claim to be an SDF solid, and check_operand_backend() would then
+    #: wave it into an SDF boolean instead of raising CrossBackendError (SPEC C-1, PLAN O-6a).
+    backend = "csg"
 
     def __init__(
         self,
@@ -239,9 +244,6 @@ class CsgSolid(BaseShape):
         else:
             a_val = resolve_anchor(list(anchor))
         self.anchor = a_val
-        from pybosl2._backend import current_backend
-
-        self.backend = current_backend()
 
     # ---- 3-D directional overrides (use 3-vectors) -------------------------
 

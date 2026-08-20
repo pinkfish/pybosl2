@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
 
@@ -56,6 +57,7 @@ else:
     _otextmetrics = native("textmetrics")
 
 
+@backend_only("csg", neutral="pybosl2.solid.pie_slice")
 def pie_slice(
     height: float | None = None,
     radius: float | None = None,
@@ -139,6 +141,7 @@ def pie_slice(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.torus")
 def torus(
     major_radius: float | None = None,
     minor_radius: float | None = None,

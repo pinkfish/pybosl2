@@ -14,7 +14,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 
 | §12.2 | Requirement | Task | Size |
 |---|---|---|---|
-| 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) | S |
+| 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) ✅ | S |
 | 2 | A-6 | [T2b](#t2b--make-the-top-level-backend-neutral) | M |
 | 3 | E-4 | [T0b](#t0b--convert-user-input-asserts-to-valueerror) | L |
 | 4 | C-14 | [T0c](#t0c--make-partshape-a-property) | M |
@@ -59,7 +59,7 @@ defaults there.
 
 ---
 
-## T0 — Make the backend tag tell the truth
+## T0 — Make the backend tag tell the truth ✅
 
 **Closes:** §12.2 item 1 (C-1, E-3) · **Implements:** PLAN O-6a, B-P3 · **Size:** S
 **Risk:** low in itself, but it exposes latent mixing bugs that were passing silently
@@ -79,6 +79,16 @@ the SDF backend instead of `CrossBackendError` with the conversion hint.
 
 **Done when:** a test asserts that a CSG shape built inside `use_backend("sdf")` reports
 `backend == "csg"`, and that combining it with an SDF shape raises `CrossBackendError`.
+
+---
+
+**Landed.** `CsgSolid.backend` is the class constant `"csg"`; `backend_only("csg", neutral=…)`
+guards 64 constructors in `shapes2d`/`shapes3d`/`surfaces3d` so they refuse on another backend and
+name the neutral twin; `builds_with("csg")` is its counterpart for CSG internals (the strokes) that
+legitimately build CSG whatever is selected. `stroke_3d` now reads the caller's backend before
+entering that context, so the decorative-cap fallback warning still fires. Tests:
+`test_a_csg_shape_built_inside_an_sdf_block_still_says_csg`,
+`test_2d_shape_constructors_refuse_on_another_backend`.
 
 ---
 

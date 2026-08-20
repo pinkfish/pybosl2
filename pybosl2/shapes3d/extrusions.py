@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
 
@@ -188,6 +189,7 @@ def _path_text_bcast_dir(
     )
 
 
+@backend_only("csg")
 def text3d(
     text: str,
     height: float = 1,
@@ -258,6 +260,7 @@ def text3d(
     return _finish3(shape, offset, spin, orient, size=None, anchor=av)
 
 
+@backend_only("csg")
 def path_text(
     path: Path2D | Path3D,
     text: str,
@@ -408,6 +411,7 @@ def _s2cross(
     return _cross2d(size=size, arm_width=arm_width)
 
 
+@backend_only("csg")
 def cross(
     size: float | Sequence[float] = (10, 10),
     height: float | None = None,

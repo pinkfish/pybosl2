@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
 
@@ -67,6 +68,7 @@ def _anchor_offset_sphere(radius: float, anchor: Anchor | Sequence[float]) -> li
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg", neutral="pybosl2.solid.sphere")
 def sphere(
     radius: float | None = None,
     diameter: float | None = None,
@@ -112,6 +114,7 @@ def sphere(
     return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.spheroid")
 def spheroid(
     radius: float | None = None,
     diameter: float | None = None,
@@ -196,6 +199,7 @@ def _teardrop2d_path(
     return [[cap_x, cap_height]] + arc + [[-cap_x, cap_height]]
 
 
+@backend_only("csg", neutral="pybosl2.solid.teardrop")
 def teardrop(
     height: float | None = None,
     radius: float | None = None,
@@ -291,6 +295,7 @@ def teardrop(
     return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.onion")
 def onion(
     radius: float | None = None,
     angle: float = 45,

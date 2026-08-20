@@ -137,7 +137,6 @@ __all__ = [
     "Nut",
     "Slider",
     "Rail",
-    "Threading",
     "ThreadedNut",
     "ThreadedRod",
     "ThreadHelix",

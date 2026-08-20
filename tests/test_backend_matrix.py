@@ -178,16 +178,38 @@ def test_path_2d_geometry_is_csg_only(call) -> None:  # type: ignore[no-untyped-
         getattr(Path2D(SQUARE), call)()
 
 
-def test_2d_shape_constructors_stay_on_csg() -> None:
-    # shapes2d builds exact 2-D geometry, which has no SDF counterpart -- it does NOT silently
-    # change meaning inside a use_backend("sdf") block.
+def test_2d_shape_constructors_refuse_on_another_backend() -> None:
+    # A backend's own constructor no longer hands back a shape the surrounding block cannot use:
+    # inside use_backend("sdf") it says so (SPEC C-1, B-4). The neutral facade is the way to build
+    # on whichever backend is active, and use_backend("csg") is the explicit escape hatch.
     import pybosl2.shapes2d as s2
+    from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.shapes2d import Bosl2Shape2D
 
     with use_backend("sdf"):
-        shape = s2.square(10)
-    assert isinstance(shape, Bosl2Shape2D)
-    assert shape.backend == "csg"
+        with pytest.raises(UnsupportedByBackendError, match="csg"):
+            s2.square(10)
+        with use_backend("csg"):
+            deliberate = s2.square(10)
+    assert isinstance(deliberate, Bosl2Shape2D)
+    assert deliberate.backend == "csg"
+
+
+def test_a_csg_shape_built_inside_an_sdf_block_still_says_csg() -> None:
+    # The tag records the producer, not the ambient selection, so the cross-backend guard fires
+    # with a useful message instead of an AssertionError from inside the SDF backend (SPEC C-1).
+    from pybosl2.exceptions import CrossBackendError
+    from pybosl2.shapes3d import cuboid as csg_cuboid
+    from pybosl2.solid import cuboid as neutral_cuboid
+
+    with use_backend("sdf"):
+        field = neutral_cuboid([10, 10, 10])
+        with use_backend("csg"):
+            csg = csg_cuboid([10, 10, 10])
+        assert csg.backend == "csg"
+        assert field.backend == "sdf"
+        with pytest.raises(CrossBackendError):
+            field - csg
 
 
 # ---------------------------------------------------------------------------

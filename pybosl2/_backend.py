@@ -24,9 +24,12 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, runtime_checkable
+import functools
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, TypeVar, cast, runtime_checkable
 
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
+
+_F = TypeVar("_F", bound=Callable[..., Any])
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -48,6 +51,8 @@ def given_arguments(arguments: dict[str, Any]) -> dict[str, Any]:
 __all__ = [
     "BackendName",
     "given_arguments",
+    "backend_only",
+    "builds_with",
     "current_backend",
     "set_default_backend",
     "use_backend",
@@ -96,6 +101,72 @@ SDF_ONLY_FEATURES = frozenset(
         "chamfer",
     }
 )
+
+
+def backend_only(backend: str, neutral: str | None = None) -> "Callable[[_F], _F]":
+    """Decorate a backend's own constructor so it refuses when another backend is active.
+
+    A constructor in ``pybosl2.shapes3d`` builds CSG geometry whatever is selected. Called inside
+    a ``use_backend("sdf")`` block it used to hand back a shape that could not combine with the
+    surrounding SDF geometry; now it says so (SPEC C-1, B-4, PLAN B-P1).
+
+    Args:
+        backend: The backend this constructor belongs to.
+        neutral: Dotted path of the backend-neutral equivalent, named in the error's hint.
+
+    Returns:
+        A decorator that wraps the constructor with the guard.
+
+    """
+
+    def decorate(fn: "_F") -> "_F":
+        @functools.wraps(fn)
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            active = current_backend()
+            if active != backend:
+                hint = (
+                    f"{neutral} builds this on whichever backend is active."
+                    if neutral
+                    else f"it is the {backend!r} backend's own constructor."
+                )
+                raise UnsupportedByBackendError(
+                    f"{fn.__module__}.{fn.__name__}",
+                    active,
+                    hint=f"{hint} To build it as {backend!r} geometry anyway, "
+                    f'wrap the call in `with use_backend("{backend}")`.',
+                )
+            return fn(*args, **kwargs)
+
+        return cast("_F", guarded)
+
+    return decorate
+
+
+def builds_with(backend: str) -> "Callable[[_F], _F]":
+    """Decorate a backend's own implementation so it runs with that backend selected.
+
+    The counterpart to :func:`backend_only`: where that one refuses, this one *establishes* the
+    context. A CSG implementation detail (the CSG stroke, a CSG mask) legitimately builds CSG
+    geometry no matter what the caller selected, so it declares that rather than tripping the
+    guards on the constructors it calls.
+
+    Args:
+        backend: The backend to select for the duration of the call.
+
+    Returns:
+        A decorator that runs the function inside ``use_backend(backend)``.
+
+    """
+
+    def decorate(fn: "_F") -> "_F":
+        @functools.wraps(fn)
+        def scoped(*args: Any, **kwargs: Any) -> Any:
+            with use_backend(backend):
+                return fn(*args, **kwargs)
+
+        return cast("_F", scoped)
+
+    return decorate
 
 
 def supports(backend: str, feature: str) -> bool:
