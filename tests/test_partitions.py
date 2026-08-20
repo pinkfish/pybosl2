@@ -81,7 +81,7 @@ def test_ptn_sect_skew_shifts_top() -> None:
 
 
 def test_ptn_sect_bad_option_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="unknown section option"):
         _ptn_sect("sawtooth bogus")
 
 
