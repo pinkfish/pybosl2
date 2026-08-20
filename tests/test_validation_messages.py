@@ -22,8 +22,12 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 import pybosl2.beziers as beziers
+import pybosl2.distributors as dist
+import pybosl2.masking as masking
 import pybosl2.miscellaneous as misc
 import pybosl2.nurbs as nurbs
+import pybosl2.partitions as partitions
+import pybosl2.quaternions as quaternions
 import pybosl2.sdf.paths as sdfp
 import pybosl2.sdf.shapes2d as sdf2
 import pybosl2.sdf.shapes3d as sdf3
@@ -43,8 +47,12 @@ from pybosl2.isosurface import (
 )
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
+from pybosl2.points import Point
 from pybosl2.shapes2d import circle, square
+from pybosl2.shapes3d import cuboid
 from pybosl2.texture import texture
+from pybosl2.turtle import turtle2d
+from pybosl2.turtle.turtle3d import TurtleCommand, TurtleCommandType
 
 #: (what the caller did wrong, the phrase the message must carry).
 METABALL_CASES: list[tuple[Callable[[], object], str]] = [
@@ -461,5 +469,196 @@ SHAPE_INPUT_CASES: list[tuple[Callable[[], object], str]] = [
 
 @pytest.mark.parametrize(("call", "expected"), SHAPE_INPUT_CASES)
 def test_shape_input_rejections_say_what_arrived(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+TURTLE_CASES: list[tuple[Callable[[], object], str]] = [
+    # a 2-D turtle rejects anything that would leave the plane
+    (lambda: turtle2d([TurtleCommand(TurtleCommandType.SETDIR, size=Point(1.0, 0.0, 1.0))]), "z-component must be 0"),
+    (
+        lambda: turtle2d(
+            [
+                TurtleCommand(
+                    TurtleCommandType.MOVE,
+                    size=5.0,
+                    is_compound=True,
+                    rotation_type=TurtleCommand.RotationType.UP,
+                    angle=30,
+                )
+            ]
+        ),
+        'z-axis sub-command "up"',
+    ),
+    (
+        lambda: turtle2d([TurtleCommand(TurtleCommandType.MOVE, size=5.0, is_compound=True, grow=2.0)]),
+        "z-axis sub-commands",
+    ),
+    # arcs need both a radius and an angle, and they must be numbers
+    (lambda: turtle2d([TurtleCommand(TurtleCommandType.ARCLEFT, angle=90)]), "needs a numeric radius"),
+    (lambda: turtle2d([TurtleCommand(TurtleCommandType.ARCZROT, angle=45)]), "needs a numeric radius"),
+    (
+        lambda: turtle2d(
+            [
+                TurtleCommand(
+                    TurtleCommandType.ARC,
+                    size=5.0,
+                    is_compound=True,
+                    rotation_type=TurtleCommand.RotationType.LEFT,
+                    angle=90,
+                    radius=0,
+                )
+            ]
+        ),
+        "non-zero radius",
+    ),
+    (
+        lambda: turtle2d(
+            [
+                TurtleCommand(
+                    TurtleCommandType.ARC,
+                    size=5.0,
+                    is_compound=True,
+                    rotation_type=TurtleCommand.RotationType.LEFT,
+                    angle=0,
+                    radius=5,
+                )
+            ]
+        ),
+        "non-zero rotation angle",
+    ),
+    # "until" only terminates if the heading actually crosses the goal line
+    (
+        lambda: turtle2d(
+            [TurtleCommand(TurtleCommandType.LEFT, angle=90), TurtleCommand(TurtleCommandType.UNTILX, size=50.0)]
+        ),
+        "never reaches the goal",
+    ),
+    (lambda: turtle2d([TurtleCommand(TurtleCommandType.UNTILY, size=50.0)]), "never reaches the goal"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), TURTLE_CASES)
+def test_turtle_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+def _box() -> object:
+    """A plain 20 mm box to hang edge and corner masks on."""
+    return cuboid([20, 20, 20]).shape
+
+
+MASK_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: masking.edge_mask(_box(), children=Path2D(OPEN_SQUARE)), "size="),
+    (lambda: masking.edge_mask(_box(), size=(20, 20, 20)), "children="),
+    (lambda: masking.edge_profile(_box(), children=Path2D(OPEN_SQUARE)), "size="),
+    (lambda: masking.edge_profile(_box(), size=(20, 20, 20)), "children="),
+    (lambda: masking.corner_profile(_box(), corners="ALL", radius=2, size=(20, 20, 20)), "Legacy string"),
+    (
+        lambda: masking.corner_profile(_box(), except_corners="TOP", radius=2, size=(20, 20, 20)),
+        "Legacy string",
+    ),
+    (lambda: masking.corner_profile(_box(), size=(20, 20, 20)), "radius or diameter"),
+    (lambda: masking.face_profile(_box(), size=(20, 20, 20)), "radius or diameter"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), MASK_CASES)
+def test_mask_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+DISTRIBUTOR_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: dist.grid_copies(spacing=5, size=[20, 20], stagger="sometimes"), "stagger must be"),
+    (lambda: dist.grid_copies(spacing=5, size=[20, 20], axes="xyz"), "invalid axes"),
+    (lambda: dist.grid_copies(spacing=5, size=[20, 20], axes="xx"), "invalid axes"),
+    (lambda: dist.grid_copies(spacing=5, size=[20, 20], axes="qy"), "invalid axes"),
+    (lambda: dist.rot_copies(rots=3, v=[0, 0, 1], subrot=False, delta=0), "subrot can only be False"),
+    (lambda: dist.path_copies(Path2D(OPEN_SQUARE), spacing=5, start_pos=-100), "don't fit on the path"),
+    (lambda: dist.path_copies(Path2D(OPEN_SQUARE), spacing=5, num_copies=200), "don't fit on the path"),
+    (lambda: dist.xdistribute([], spacing=5), "at least one child"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), DISTRIBUTOR_CASES)
+def test_distributor_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+CURVE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: s2.star(radius=10, inner_radius=5), "must specify tips"),
+    (lambda: s2.teardrop2d(radius=10, cap_height=1), "cap_height cannot be less"),
+    (lambda: s2.egg(length=30, radius1=5), "must give radius2"),
+    (lambda: s2.egg(length=30, radius1=5, radius2=8), "must give arc_radius"),
+    (lambda: s2.egg(radius1=5, radius2=8, arc_radius=40), "must give length"),
+    (lambda: s2.egg(length=30, radius1=5, radius2=8, arc_radius=10), "larger than length/2"),
+    (lambda: s2.egg(length=10, radius1=6, radius2=8, arc_radius=40), "longer than radius1"),
+    (lambda: s2.squircle(size=20, style="quadratic"), 'only the default "fg" style'),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), CURVE_CASES)
+def test_curve_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+QUATERNION_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: quaternions.quaternion(rpy=[10.0, 20.0]), "must be a sequence of 3"),
+    (lambda: quaternions.Quaternion.from_array([1.0, 0.0, 0.0]), "4-element sequence"),
+    (lambda: quaternions.Quaternion.from_scalar_vector(1.0, [0.0, 1.0]), "3-element"),
+    (lambda: quaternions.Quaternion.from_real_imaginary(1.0, [0.0, 1.0]), "3-element"),
+    (lambda: quaternions.Quaternion.from_matrix(np.array([[1.0, 2.0, 3.0]] * 3)), "orthogonal"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), QUATERNION_CASES)
+def test_quaternion_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+def test_quaternion_division_by_zero_is_an_arithmetic_error() -> None:
+    """A zero divisor is ZeroDivisionError, not ValueError -- the type Python users expect."""
+    unit = quaternions.Quaternion.from_array([1.0, 0.0, 0.0, 0.0])
+    with pytest.raises(ZeroDivisionError, match="must be non-zero"):
+        _ = unit / quaternions.Quaternion(0.0, 0.0, 0.0, 0.0)
+    with pytest.raises(ZeroDivisionError, match="no length"):
+        quaternions.Quaternion.from_axis_angle([0.0, 0.0, 0.0], 45)
+
+
+CUBOID_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: s3.cuboid([20, 20, 20], chamfer=2, rounding=2), "both chamfer"),
+    (lambda: s3.rect_tube(height=10, size=[20, 20], isize=[30, 30]), "not smaller than"),
+    (lambda: s3.regular_prism(sides=2.5, height=10, radius=8), "must be an integer"),
+    (lambda: s3.regular_prism(sides=2, height=10, radius=8), "must be an integer"),
+    (lambda: s3.regular_prism(sides=6, height=10, radius=8, rounding=1, chamfer=1), "both chamfer"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), CUBOID_CASES)
+def test_cuboid_family_rejections(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+PARTITION_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: partitions.partition_path([object()]), "each pathdesc item"),
+    (lambda: partitions.partition_path([-5.0]), "length must be positive"),
+    (lambda: partitions.partition_path(["comb 10"]), "unknown section option"),
+    (lambda: partitions.partition_path(["comb 30x20x10"]), "LENGTHxWIDTH"),
+    (lambda: partitions.partition_path(["comb skew:60"]), "between -45 and 45"),
+    (lambda: partitions.partition_path(["comb 1x20"]), "too large for comb"),
+    (lambda: partitions.partition_path(["finger 1x10"]), "too large for finger"),
+    (lambda: partitions.partition_path(["dovetail 1x10"]), "too large for dovetail"),
+    (lambda: partitions.partition_path([10.0], y=0.0), "self-cross"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), PARTITION_CASES)
+def test_partition_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
     with pytest.raises(ValueError, match=expected):
         call()

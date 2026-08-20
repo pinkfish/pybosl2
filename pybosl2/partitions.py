@@ -326,7 +326,10 @@ def _ptn_sect(
             return Path2D([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
         if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
             return Path2D([[0, 0], [float(opt), 0]])
-        raise AssertionError(f"Bad section option: {opt!r}")
+        raise ValueError(
+            f"partition_path(): unknown section option {opt!r}; expected a repeat count, "
+            f"'WIDTHxLENGTH', 'skew:ANGLE' or 'pinch:VALUE'."
+        )
 
     if cptype == PartitionCutType.SINEWAVE:
         return _ptn_sect("halfsine addflip", length, width, fn=fn, fa=fa, fs=fs)
@@ -427,7 +430,9 @@ def _ptn_sect(
     elif isinstance(cptype, (list, tuple, np.ndarray)):
         path = [list(p) for p in cptype]
     else:
-        raise AssertionError(f"Unsupported partition section type: {cptype!r}")
+        raise ValueError(
+            f"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got {cptype!r}."
+        )
     return _scale2(length, width, path)
 
 
@@ -488,7 +493,9 @@ def partition_path(
             elif isinstance(pd, str):
                 paths.append(_ptn_sect(pd, seglen, segwidth, fn=fn, fa=fa, fs=fs))
             else:
-                raise AssertionError(f"Path2D descriptor {pd!r} is invalid.")
+                raise ValueError(
+                    f"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got {pd!r}."
+                )
     min_xs = [min(p[0] for p in path) for path in paths]
     max_xs = [max(p[0] for p in path) for path in paths]
     min_y = min(p[1] for path in paths for p in path)

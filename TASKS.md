@@ -509,18 +509,28 @@ conversion left **329 uncovered rejection paths**. `tests/test_validation_messag
 module by module, asserting the *message* as well as the type, because E-4 is about the message
 naming the fix.
 
-**Progress: 329 → 201.** Done: `isosurface`, `miscellaneous`, `surfaces3d`, `shapes3d/extrusions`,
+**Progress: 329 → 146.** Done: `isosurface`, `miscellaneous`, `surfaces3d`, `shapes3d/extrusions`,
 `shapes2d/circle`, `beziers`, `texture`, `skin`, `sdf/shapes3d`, `sdf/shapes2d`, `sdf/paths`,
-`nurbs`, `path2d`, `path3d`. Remaining by size: `turtle2d` (13), `masking` (12), `sdf/shapes3d`
-(12 left), `distributors` (9), `shapes2d/curves` (9), `beziers` (8), `partitions` (8), `path2d` (8).
+`nurbs`, `path2d`, `path3d`, `turtle2d`, `masking`, `distributors`, `shapes2d/curves`,
+`quaternions`, `shapes3d/cuboid`, `partitions`. Remaining, all in single digits per module:
+`sdf/shapes3d` (12), `path2d` (8), `skin` (8), `nurbs` (7), `beziers` (6), `sdf/paths` (6),
+`shapes2d/square` (6), `turtle3d` (6), `sdf/joiners` (5), `shapes2d/base` (5), then a tail of 1–4.
 
-**What the tests keep finding.** Six defects so far, each invisible until something exercised the
+**What the tests keep finding.** Nine defects so far, each invisible until something exercised the
 path: a `raise AssertionError` the ratchet missed because it is not an `assert` statement;
 `path_text(size=[...])` producing a `TypeError` from a numeric comparison; a multi-line collinear
 `assert` both conversion passes had skipped; a duplicated identical check in `regular_ngon`;
 `Path2D.offset()` not propagating its own `closed` flag, so the open-path rejection is unreachable
 from the public API; and several guards that cannot fire at all, now marked `# pragma: no cover`
-with the reason rather than left as permanent holes.
+with the reason rather than left as permanent holes. Three more `raise AssertionError` statements
+in `partitions` (an unknown section type, an invalid path descriptor, an unknown section option) —
+the ratchet only inspects `assert` statements, so a bare `raise AssertionError(...)` slips past it
+whatever the message says.
+
+Two rejections turned out to be correctly typed as something other than `ValueError`:
+`polygon_prism` raises `TypeError` for a non-sequence, and the quaternion divide-by-zero paths
+raise `ZeroDivisionError`. Both are what a Python caller expects, so the tests assert those types
+rather than forcing everything into `ValueError`.
 
 The ratchet in `tests/test_defaults.py` was also sharpened: it now flags an `assert` whose message
 names any parameter of its enclosing function, not just one containing `()` or `=`. That found 13
