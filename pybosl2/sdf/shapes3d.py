@@ -82,13 +82,16 @@ def _axis_angle_matrix(deg: float, axis: list[float]) -> list[list[float]]:
 def _rotation_matrix(a: float | Sequence[float], v: list[float] | None = None) -> list[list[float]]:
     """Return a 3x3 rotation matrix matching the real rotate(obj, a, v)'s two calling conventions.
 
-    `a` a lone angle (degrees) with an explicit axis `v`, or (v is None) `a` a 3-vector of Euler
-    angles [x, y, z] applied X-then-Y-then-Z -- the same composition order OpenSCAD's own
-    rotate([x, y, z]) uses.
+    `a` a lone angle (degrees) with an explicit axis `v`; `a` a 3-vector of Euler angles [x, y, z]
+    applied X-then-Y-then-Z (the composition order OpenSCAD's own rotate([x, y, z]) uses); or `a` a
+    lone angle with no axis, which turns about Z exactly as OpenSCAD's rotate(a) does -- the CSG
+    backend accepts that form, so this one must too (SPEC PAR-4).
     """
     if v is not None:
         return _axis_angle_matrix(cast("float", a), v)
-    ax, ay, az = a  # type: ignore[misc]
+    if isinstance(a, (int, float)):
+        return _axis_angle_matrix(float(a), [0, 0, 1])
+    ax, ay, az = a
     rx = _axis_angle_matrix(ax, [1, 0, 0])
     ry = _axis_angle_matrix(ay, [0, 1, 0])
     rz = _axis_angle_matrix(az, [0, 0, 1])

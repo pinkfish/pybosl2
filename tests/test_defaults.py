@@ -294,3 +294,23 @@ def test_fn_zero_opts_out_of_an_ambient_fn() -> None:
     with use_defaults(fn=64):
         assert len(s2.arc(radius=10, angle=90)) == 17
         assert len(s2.arc(radius=10, angle=90, fn=0)) == plain
+
+
+def test_validation_messages_name_the_accepted_spellings() -> None:
+    """Each converted assert became a ValueError that says what to pass (SPEC E-4)."""
+    import pybosl2.shapes2d as shapes2d
+    import pybosl2.shapes3d as shapes3d
+    from pybosl2.sdf.shapes2d import trapezoid2d
+
+    cases = [
+        (lambda: shapes2d.ring(radius=-10, ring_width=5), "positive outer radius"),
+        (lambda: shapes2d.shell2d(thickness=2), "children="),
+        (lambda: shapes2d.round2d(radius=2), "children="),
+        (lambda: shapes2d.arc(), "radius="),
+        (lambda: shapes2d.trapezoid(height=5), "exactly three"),
+        (lambda: trapezoid2d(height=5), "exactly three"),
+        (lambda: shapes3d.cross(height=0), "positive height="),
+    ]
+    for call, expected in cases:
+        with pytest.raises(ValueError, match=expected):
+            call()

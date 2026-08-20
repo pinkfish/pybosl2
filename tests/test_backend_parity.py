@@ -80,3 +80,79 @@ def test_an_unknown_operation_refuses_instead_of_meshing() -> None:
         shape = cuboid([10, 10, 10])
         with pytest.raises(UnsupportedByBackendError, match=r"\.to_csg\(\)"):
             shape.no_such_operation()
+
+
+def test_every_directional_move_stays_in_the_field() -> None:
+    """All nine moves are exact wrappers over the SDF's own translate/rotate (SPEC C-1)."""
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid
+
+    with use_backend("sdf"):
+        shape = cuboid([10, 10, 10])
+        moves = {
+            "right": ([2.0], [2.0, 0.0, 0.0]),
+            "left": ([2.0], [-2.0, 0.0, 0.0]),
+            "back": ([2.0], [0.0, 2.0, 0.0]),
+            "forward": ([2.0], [0.0, -2.0, 0.0]),
+            "fwd": ([2.0], [0.0, -2.0, 0.0]),
+            "up": ([2.0], [0.0, 0.0, 2.0]),
+            "down": ([2.0], [0.0, 0.0, -2.0]),
+        }
+        for name, (args, expected_centre) in moves.items():
+            moved = getattr(shape, name)(*args)
+            assert isinstance(moved, SdfSolid), name
+            assert moved.backend == "sdf", name
+            assert moved.bounds()[0] == expected_centre, name
+
+        assert shape.move([1.0, 2.0, 3.0]).bounds()[0] == [1.0, 2.0, 3.0]
+        assert isinstance(shape.rot(90), SdfSolid)
+
+
+def test_colour_and_modifiers_are_recorded_on_the_field() -> None:
+    """Colour rides along as metadata and is applied when the shape is realized (SPEC C-19)."""
+    from pybosl2._backend import use_backend
+    from pybosl2.color import Color
+    from pybosl2.solid import cuboid
+
+    class _FakeMesh:
+        """Stands in for the meshed native solid, recording what was applied to it."""
+
+        def __init__(self) -> None:
+            self.applied: list[str] = []
+
+        def color(self, colour: object, alpha: object = None) -> "_FakeMesh":
+            self.applied.append(f"color={colour}:{alpha}")
+            return self
+
+        def highlight(self) -> "_FakeMesh":
+            self.applied.append("highlight")
+            return self
+
+        def background(self) -> "_FakeMesh":
+            self.applied.append("ghost")
+            return self
+
+    with use_backend("sdf"):
+        plain = cuboid([10, 10, 10])
+        assert plain._apply_appearance(_FakeMesh()).applied == []
+
+        red = plain.color(Color("red"))
+        assert red._colour is not None
+        assert red._apply_appearance(_FakeMesh()).applied == ["color=[1.0, 0.0, 0.0]:None"]
+
+        assert plain.highlight()._apply_appearance(_FakeMesh()).applied == ["highlight"]
+        assert plain.ghost()._apply_appearance(_FakeMesh()).applied == ["ghost"]
+
+        # and it survives an exact transform rather than forcing an early mesh
+        assert red.up(5)._colour == red._colour
+
+
+def test_two_dimensional_fields_refuse_to_render() -> None:
+    """A 2-D distance field has no rendering of its own; show() names the extrusion (SPEC S-50)."""
+    import pytest
+
+    from pybosl2.exceptions import UnsupportedByBackendError
+    from pybosl2.sdf.shapes2d import circle2d
+
+    with pytest.raises(UnsupportedByBackendError, match="linear_extrude"):
+        circle2d(radius=5).show()
