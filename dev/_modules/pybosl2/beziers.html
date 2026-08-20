@@ -2059,7 +2059,9 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must have at least 1 point, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point"</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                <span class="c1"># defensive: np.array(..., dtype=float) either produces a float64 array or raises</span>
+                <span class="c1"># on its own, so a surviving array never has another dtype.</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">pts</span>
 
@@ -2417,9 +2419,11 @@
 <span class="sd">            bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(height=3).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1."</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"path_curve(): a degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path needs a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"points plus 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
         <span class="n">bezpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="n">segs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bezpath</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
         <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">splinesteps</span>
@@ -2464,9 +2468,11 @@
 
 <span class="sd">        """</span>
         <span class="n">new_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1."</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"path_closest_point(): a degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path needs a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"points plus 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
         <span class="n">nsegs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
         <span class="n">best</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsegs</span><span class="p">):</span>
@@ -2499,9 +2505,11 @@
 <span class="sd">            The approximate total arc length of the bezier path as a float.</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"A degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path should have a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> points in it, plus 1."</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"path_arc_length(): a degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path needs a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"points plus 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
         <span class="n">nsegs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span>
             <span class="nb">sum</span><span class="p">(</span>
@@ -3166,7 +3174,9 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch must have at least 1 column, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components"</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+                <span class="c1"># defensive: np.array(..., dtype=float) either produces a float64 array or raises</span>
+                <span class="c1"># on its own, so a surviving array never has another dtype.</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span> <span class="o">=</span> <span class="n">pts</span>
 

@@ -2260,7 +2260,9 @@
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Anchor</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">to_corner_set</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="c1"># defensive: _corners(), the only caller, rejects the string form for both its arguments</span>
+        <span class="c1"># before it gets here.</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Legacy string corner selection is not allowed: </span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">CORNER_OFFSETS</span><span class="p">]</span>
@@ -2697,7 +2699,10 @@
         <span class="n">return_cutter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">cutter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mask3d_roundover(): failed to generate cutter"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"mask3d_roundover(): corners= selected no corners, so there is nothing to round; "</span>
+            <span class="s2">"pass an Anchor naming at least one corner."</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">cutter</span></div>
 
 
@@ -2730,7 +2735,10 @@
         <span class="n">return_cutter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">cutter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mask3d_chamfer(): failed to generate cutter"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">"mask3d_chamfer(): corners= selected no corners, so there is nothing to chamfer; "</span>
+            <span class="s2">"pass an Anchor naming at least one corner."</span>
+        <span class="p">)</span>
     <span class="k">return</span> <span class="n">cutter</span></div>
 
 

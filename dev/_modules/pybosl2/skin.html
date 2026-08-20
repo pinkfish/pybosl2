@@ -3756,7 +3756,9 @@
     <span class="n">per_point</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">:</span>
         <span class="n">off</span> <span class="o">=</span> <span class="n">pth</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="n">flip</span> <span class="o">*</span> <span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">same_length</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">off</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pth</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">off</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pth</span><span class="p">)):</span>  <span class="c1"># pragma: no cover</span>
+            <span class="c1"># defensive: offset(same_length=True) returns the raw per-corner</span>
+            <span class="c1"># construction, one point per input point, so the lengths cannot disagree here.</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">"path_sweep2d(): the offset dropped points (the shape is too wide for the path "</span>
                 <span class="s2">"here); reduce the shape's X extent."</span>

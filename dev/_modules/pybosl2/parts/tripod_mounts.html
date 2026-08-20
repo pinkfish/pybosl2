@@ -1947,6 +1947,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">csg_part</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">anchor_vector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.masking</span><span class="w"> </span><span class="kn">import</span> <span class="n">chamfer_edge_mask</span><span class="p">,</span> <span class="n">edge_mask</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
@@ -2147,7 +2148,7 @@
             <span class="k">assert</span> <span class="n">body</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="c1"># Resolve anchor offset and finish using _finish3</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="n">anchor</span><span class="o">.</span><span class="n">vector</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">anchor</span><span class="p">,</span> <span class="n">Anchor</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">anchor_vector</span><span class="p">(</span><span class="n">anchor</span><span class="p">)</span>
         <span class="n">offset</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">botwid</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">thickness</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="n">_finish3</span><span class="p">(</span>
