@@ -45,8 +45,8 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   `float | list[float]` to cover both callers; pick the collection form and convert at the entry
   point. The one sanctioned union is a *spec argument* at a public constructor (SPEC D-7), which
   MUST collapse to a single typed object on the first line.
-* **T-6 Structure with `Protocol`.** Cross-backend contracts (`Solid`, `Flat`, `SolidBackend`) are
-  `Protocol`s with fully typed members — never `Any -> Any` placeholders. Use `@runtime_checkable`
+* **T-6 Structure with `Protocol`.** Cross-backend contracts (`Shape`, `Flat`, `Solid`,
+  `SolidBackend`) are `Protocol`s with fully typed members — never `Any -> Any` placeholders. Use `@runtime_checkable`
   only when an `isinstance` check actually exists.
 * **T-6a The shape protocols are one hierarchy.** SPEC C-15 requires `Shape` with `Flat` and
   `Solid` derived from it. In Python that is three `Protocol`s in the L1 contract module, with the
@@ -114,7 +114,9 @@ what they need, rather than passing a bag of numbers through free functions.
   `slerp()`, `frag_count()` stay functions; anything with state, derived values, or a catalogue
   behind it becomes a class.
 * **O-5 Immutability.** Spec objects are frozen dataclasses. Shapes and paths return new objects
-  from every operation (SPEC C-3); no public method mutates `self`.
+  from every operation (SPEC C-3); no public method mutates `self`. The pattern is copy-then-set —
+  `out = self._wrap(self.shape); out.tag_name = …; return out` — so the `attachments`/`tag_name`
+  setters exist for the copy to use and are never part of the public call surface.
 * **O-6 Enums for closed vocabularies.** `StrEnum` in `pybosl2/enums.py` and
   `pybosl2/parts/enums.py`, so the legacy string spelling still compares equal. A new bare-string
   parameter with a fixed set of accepted values is a defect.
@@ -124,7 +126,25 @@ what they need, rather than passing a bag of numbers through free functions.
 
 ---
 
-## 4. Resolution plumbing (`fn` / `fa` / `fs` / `res`)
+## 4. Façade constructors, dispatch and resolution plumbing
+
+### 4.1 Façade constructors
+
+SPEC B-3 makes the façade the owner of every default both backends understand.
+
+* **F-P1** A façade constructor declares the **real default** for each shared argument in its own
+  signature — `size: float | Sequence[float] = (1, 1, 1)`, `anchor: Anchor = Anchor.CENTER` — and
+  always forwards it. It does not default shared arguments to `None` and hope the backend agrees.
+* **F-P2** Forwarding is filtered by **what the target backend declares**, not by what the caller
+  passed: inspect the backend constructor's signature (cached per callable, as `_takes_res` does)
+  and drop names it does not accept. `given_arguments()` remains the filter for backend-exclusive
+  options only.
+* **F-P3** A backend-exclusive option keeps its default on the backend, and the façade documents
+  which backend it applies to (`res` for SDF; `spin`/`orient`/`fn`/`fa`/`fs` for CSG).
+* **F-P4** `effective_defaults()` MUST keep reporting the truth after any change here — it reads
+  live off the constructor, so the test for it is that it needs no maintenance.
+
+### 4.2 Resolution plumbing (`fn` / `fa` / `fs` / `res`)
 
 SPEC R-1 requires every curved construction to accept the facet controls and pass them down. In
 Python that means:
@@ -135,7 +155,10 @@ Python that means:
 * **R-P2** A function that builds an arc, circle, rounding, chamfer arc, sphere, or cylinder MUST
   declare them, and MUST forward them to every sub-construction it calls — including path
   helpers (`round_corners`, `arc_points`), masks, and part sub-assemblies. Dropping them silently
-  half-way down is the defect this rule exists to prevent.
+  half-way down is the defect this rule exists to prevent. Per SPEC R-1a the trigger is
+  *generating points that approximate a curve*: a function that only places or measures from a
+  radius (`arc_copies`, `polar_to_xy`, `circle_circle_tangents`) is out of scope, because nothing
+  it returns has a facet count.
 * **R-P3** Resolve them exactly once, at the point of use, through
   `pybosl2.defaults.resolve_facets()` / `resolve_res()`, which fill in the ambient block values
   (`use_defaults(fn=64)`). The central resolvers are `_helpers.frag_count()`,
@@ -146,6 +169,9 @@ Python that means:
   signature (as `SdfBackend.construct` does) rather than passing blindly.
 * **R-P5** New public curved geometry MUST NOT be added to the known-gap list in
   `tests/test_facets.py`; the list only shrinks.
+* **R-P6** `fn=0` is the opt-out from an ambient `fn` (SPEC R-5): `frag_count()` treats `fn < 3` as
+  unset and falls through to `fa`/`fs`. Constructors that document `fn` SHOULD say so, and code
+  MUST NOT treat `0` as a facet count.
 
 ---
 
@@ -172,7 +198,11 @@ Python that means:
   ```
 
   `DocCategory` is one of `Foundational`, `Paths, regions & surfaces`, `Math & geometry`,
-  `Parts library`, `Extras`, or `internal` (excluded from the public docs).
+  `Parts library`, `Extras`, `Solid backends`, or `internal` (excluded from the public docs).
+* **D-P6a** A module that holds **any** publicly exported name MUST NOT be `internal` — that tag
+  means "support code", and using it on a module users import silently drops a whole subsystem
+  from the reference (SPEC S-47). The test: if the name appears in `pybosl2/__init__.pyi`, its
+  module needs a public category, a `LibFile` and a `FileSummary`.
 * **D-P7** Docs are generated from these headers and docstrings by `docs/_rstgen.py`, and the
   visual catalogue by `docs/_specgen.py`. Never hand-maintain a list of APIs in `.rst`.
 
@@ -205,6 +235,14 @@ Python that means:
   `UnsupportedByBackendError(feature, backend, hint=…)` and cross-backend mixing uses
   `CrossBackendError`. Both MUST carry an actionable hint.
 * **E-P4** Never swallow an exception to return a degenerate shape.
+* **E-P5** Resolve radius/diameter spellings through `_helpers.pick_radius()`, never with a
+  hand-rolled `radius if radius is not None else diameter / 2` ternary. The helper is what enforces
+  SPEC D-5 — same-dimension conflicts raise, specificity levels resolve most-specific-first — and a
+  local ternary silently opts out of it.
+* **E-P6** An attribute fallback (`__getattr__`) MUST NOT convert a shape to another
+  representation to satisfy a missing method. Implement the method or raise
+  `UnsupportedByBackendError`; meshing a distance field to answer `.up(5)` is a silent, lossy
+  backend conversion (SPEC B-5, C-1).
 
 ---
 
@@ -240,6 +278,8 @@ Python that means:
   | `tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share` | SPEC P-2 |
   | `tests/test_init_stub.py` | T-8 |
   | `tests/test_facets.py` | R-P2 / R-P5 |
+  | `tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected` | E-P5 / SPEC D-5 |
+  | `tests/test_docs_links.py` | D-P6 / D-P6a |
   | `tests/test_backend_matrix.py` | SPEC B-7, PAR-2 (a new shared feature lands on both backends or is an explicit, tracked refusal) |
 * **X-5** Changing geometry, backends, or paths means running the full suite — including
   `pytest tests/test_stl_render.py` when a PythonSCAD binary is available — before the work is
@@ -285,18 +325,26 @@ Before calling a change done:
 4. Is there a class where a family of functions was tempting? (O-1, O-4)
 5. `mypy --strict` clean, with no new `Any`? (T-1, T-2)
 6. Google docstring with `Args:`/`Returns:`/`Raises:` and a rendering example? (D-P1, D-P5)
-7. Bad input → `ValueError` naming the fix, not `assert`? (E-P1, E-P2)
+7. Bad input → `ValueError` naming the fix, not `assert`, and radius/diameter through
+   `pick_radius`? (E-P1, E-P2, E-P5)
 8. Minimum-argument test added? (X-3)
 9. `ruff check` / `ruff format` clean, functions under 50 lines? (S-1, S-2)
+10. If it is a façade constructor, does the façade own the shared default? (F-P1)
+11. If it is a shared shape operation, is it declared once on `Shape`? (T-6a)
+12. If the module holds a public name, does it have a public `DocCategory`? (D-P6a)
 
 ---
 
-## 12. Known debt
+## 12. Known debt and the work queue
 
-Tracked in [SPEC.md §12](SPEC.md#12-conformance-status). The active language-level item is the
-facet audit: **50 of 119** public curved-geometry callables do not yet accept `fn`/`fa`/`fs`
-(R-P2). Re-run the audit with:
+The authoritative list of what is not yet conformant is [SPEC.md §12.2](SPEC.md#122-open).
+[TASKS.md](TASKS.md) breaks those items into ordered, checkable work — read it before starting
+anything on that list, since several items are sequenced (the `Shape` merge lands before the
+façade-default refactor, which lands before the parity sweep).
+
+Two quick audits you can run at any time:
 
 ```bash
-pytest tests/test_facets.py -q      # fails only if the list grows
+pytest tests/test_facets.py -q     # facet coverage: fails only if the R-1 backlog grows
+pytest tests/test_defaults.py -q   # defaults, façade honesty, argument-free construction
 ```

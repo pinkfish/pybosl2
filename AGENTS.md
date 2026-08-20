@@ -38,4 +38,5 @@ ruff check . --fix && ruff format .
 ```
 
 The full checklist is [PLAN.md §11](PLAN.md#11-review-checklist); open debt is tracked in
-[SPEC.md §12](SPEC.md#12-conformance-status).
+[SPEC.md §12](SPEC.md#12-conformance-status), and [TASKS.md](TASKS.md) is the ordered queue for
+closing it.
