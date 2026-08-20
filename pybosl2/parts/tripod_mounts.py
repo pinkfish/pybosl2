@@ -18,6 +18,7 @@ from typing import Any, Sequence
 
 from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
+from pybosl2._helpers import anchor_vector
 from pybosl2.masking import chamfer_edge_mask, edge_mask
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
@@ -216,7 +217,7 @@ class ManfrottoRC2Plate:
             assert body is not None
 
         # Resolve anchor offset and finish using _finish3
-        a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+        a = anchor_vector(anchor)
         offset = [-a[0] * botwid / 2, -a[1] * length / 2, -a[2] * thickness / 2]
 
         self._solid = _finish3(

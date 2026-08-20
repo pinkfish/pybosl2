@@ -516,9 +516,12 @@ class Turtle3D:
         elif rtype == TurtleCommand.RotationType.DOWN:
             down = angle_val
 
-        if not (not is_arc or (right == 0 or left == 0)):
+        if not (not is_arc or (right == 0 or left == 0)):  # pragma: no cover
+            # defensive: a command carries a single rotation_type, so at most one of the four
+            # relative rotations is ever non-zero.
             raise ValueError(f'Cannot give both "left" and "right" at index {index}')
-        if not (not is_arc or (up == 0 or down == 0)):
+        if not (not is_arc or (up == 0 or down == 0)):  # pragma: no cover
+            # defensive: see above -- rotation_type picks exactly one of up/down.
             raise ValueError(f'Cannot give both "up" and "down" at index {index}')
 
         newdir = Turtle3D._apply(Turtle3D._zrot4(left - right) @ Turtle3D._yrot4(down - up), RIGHT.vector)

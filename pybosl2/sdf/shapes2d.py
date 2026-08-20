@@ -827,7 +827,9 @@ def regular_ngon2d(
         diameter=diameter,
         dflt=side_s if side_s is not None else 1,
     )
-    if rad is None:
+    if rad is None:  # pragma: no cover
+        # defensive: _radius() falls back to dflt (the side-derived radius, or 1), so it returns
+        # None only when dflt is None too -- which cannot happen here.
         raise ValueError(
             "regular_ngon2d(): need one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."  # noqa: E501
         )

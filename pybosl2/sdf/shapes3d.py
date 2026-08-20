@@ -917,11 +917,17 @@ class SdfSolid(Colorable, Distributable):
     def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: EdgeMode) -> PyShape:
         if not (self.cuboid_size is not None):
             raise ValueError(f"{mode}() requires a cuboid-shaped PyShape (from pybosl2.sdf.cuboid())")
-        if not (self.cuboid_edge_amounts is not None):
+        if not (self.cuboid_edge_amounts is not None):  # pragma: no cover
+            # defensive: cuboid() is the only place cuboid_size is set and it
+            # always sets the amount/mode matrices with it, and every wrap carries the three
+            # together, so a shape with a size but no edge state cannot exist.
             raise ValueError(
                 f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
             )
-        if not (self.cuboid_edge_modes is not None):
+        if not (self.cuboid_edge_modes is not None):  # pragma: no cover
+            # defensive: cuboid() is the only place cuboid_size is set and it
+            # always sets the amount/mode matrices with it, and every wrap carries the three
+            # together, so a shape with a size but no edge state cannot exist.
             raise ValueError(
                 f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
             )
@@ -2528,7 +2534,9 @@ def polygon_prism(
         for p in path_list:
             d = _polygon_sdf_xy(x, y, p)
             d2d = d if d2d is None else lv.min(d2d, d)
-        if not (d2d is not None):
+        if not (d2d is not None):  # pragma: no cover
+            # defensive: polygon_prism() rejects an empty path list before it
+            # ever builds this callback, so the loop above always sets d2d.
             raise ValueError("polygon_prism(): no paths")
 
         # Sharp prism, then max() in each roundover rim (each reduces to the sharp distance

@@ -309,8 +309,26 @@ def circle_pts(radius: float, count: int, start: float = 0.0) -> list[list[float
     return [polar_to_xy(radius, start + 360.0 * i / count) for i in range(count)]
 
 
+def anchor_vector(anchor: Anchor | Sequence[float]) -> list[float]:
+    """Return an anchor's direction vector, rejecting the legacy string form.
+
+    Args:
+        anchor: An :class:`~pybosl2.enums.Anchor` member or a direction vector such as ``[1, 0, 0]``.
+
+    Returns:
+        The anchor's components as a list of floats.
+
+    Raises:
+        ValueError: If *anchor* is a string; pass an :class:`~pybosl2.enums.Anchor` member instead.
+
+    """
+    if isinstance(anchor, str):
+        raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}; pass an Anchor member.")
+    return [float(v) for v in anchor.vector] if isinstance(anchor, Anchor) else [float(v) for v in anchor]
+
+
 def dir2(anchor: Anchor | Sequence[float]) -> list[float]:
-    a = (anchor.vector if isinstance(anchor, Anchor) else list(anchor)) + [0, 0, 0]
+    a = anchor_vector(anchor) + [0, 0, 0]
     return [a[0], a[1] + a[2]]
 
 
@@ -371,13 +389,13 @@ def anchor_offset_generic(
 
 def anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) -> list[float]:
     """3-D box anchor offset: returns the translation vector for a box of *size* at *anchor*."""
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    a = anchor_vector(anchor)
     return [-a[i] * size[i] / 2 for i in range(3)]
 
 
 def anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
     """3-D convex hull anchor offset with centroid tie-breaking."""
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    a = anchor_vector(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
         return [0.0, 0.0, 0.0]
     projs = [p[0] * a[0] + p[1] * a[1] + p[2] * a[2] for p in points]
@@ -396,7 +414,7 @@ def anchor_offset_cyl(
     axis: int = 2,
 ) -> list[float]:
     """3-D cylinder anchor offset along *axis* (0=X, 1=Y, 2=Z)."""
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    a = anchor_vector(anchor)
     az = a[axis]
     r_at = radius1 if az < 0 else (radius2 if az > 0 else (radius1 + radius2) / 2)
     radial_axes = [i for i in range(3) if i != axis]
@@ -413,7 +431,7 @@ def anchor_offset_cyl(
 
 def anchor_offset_sphere(r: float, anchor: Anchor | Sequence[float]) -> list[float]:
     """3-D sphere anchor offset: project *anchor* direction onto the sphere surface."""
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    a = anchor_vector(anchor)
     n = math.hypot(*a)
     if n == 0:
         return [0.0, 0.0, 0.0]

@@ -128,7 +128,9 @@ class Bezier:
                 raise ValueError(f"control points must have at least 1 point, got shape {pts.shape}")
             if pts.shape[1] not in (2, 3):
                 raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
-            if not (pts.dtype == np.float64):
+            if not (pts.dtype == np.float64):  # pragma: no cover
+                # defensive: np.array(..., dtype=float) either produces a float64 array or raises
+                # on its own, so a surviving array never has another dtype.
                 raise ValueError(f"control points must be float64, got {pts.dtype}")
             self._points = pts
 
@@ -454,9 +456,11 @@ class Bezier:
             bz.path_curve(32, n_degree=2).stroke(width=2).linear_extrude(height=3).show()
 
         """
-        assert len(self) % n_degree == 1, (
-            f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
-        )
+        if len(self) % n_degree != 1:
+            raise ValueError(
+                f"path_curve(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
+                f"points plus 1, got {len(self)}."
+            )
         bezpath = self.array
         segs = (len(bezpath) - 1) // n_degree
         step = 1 / splinesteps
@@ -498,9 +502,11 @@ class Bezier:
 
         """
         new_pt = np.asarray(pt, dtype=float)
-        assert len(self) % n_degree == 1, (
-            f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
-        )
+        if len(self) % n_degree != 1:
+            raise ValueError(
+                f"path_closest_point(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
+                f"points plus 1, got {len(self)}."
+            )
         nsegs = (len(self) - 1) // n_degree
         best = None
         for seg in range(nsegs):
@@ -530,9 +536,11 @@ class Bezier:
             The approximate total arc length of the bezier path as a float.
 
         """
-        assert len(self) % n_degree == 1, (
-            f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
-        )
+        if len(self) % n_degree != 1:
+            raise ValueError(
+                f"path_arc_length(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
+                f"points plus 1, got {len(self)}."
+            )
         nsegs = (len(self) - 1) // n_degree
         return float(
             sum(
@@ -1160,7 +1168,9 @@ class BezierPatch:
                 raise ValueError(f"patch must have at least 1 column, got shape {pts.shape}")
             if not (pts.shape[2] == 3):
                 raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
-            if not (pts.dtype == np.float64):
+            if not (pts.dtype == np.float64):  # pragma: no cover
+                # defensive: np.array(..., dtype=float) either produces a float64 array or raises
+                # on its own, so a surviving array never has another dtype.
                 raise ValueError(f"control points must be float64, got {pts.dtype}")
             self._rows = pts
 

@@ -1770,7 +1770,9 @@ def _path_sweep2d(
     per_point = []
     for pt in profile:
         off = pth.offset(delta=-flip * pt[0], same_length=True)
-        if not (len(off) == len(pth)):
+        if not (len(off) == len(pth)):  # pragma: no cover
+            # defensive: offset(same_length=True) returns the raw per-corner
+            # construction, one point per input point, so the lengths cannot disagree here.
             raise ValueError(
                 "path_sweep2d(): the offset dropped points (the shape is too wide for the path "
                 "here); reduce the shape's X extent."

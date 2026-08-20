@@ -316,7 +316,9 @@ def _corner_set(v: list[int] | Anchor | Point) -> list[int]:
     """
     if isinstance(v, Anchor):
         return v.to_corner_set()
-    if isinstance(v, str):
+    if isinstance(v, str):  # pragma: no cover
+        # defensive: _corners(), the only caller, rejects the string form for both its arguments
+        # before it gets here.
         raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
     arr = np.asarray(v, dtype=int)
     return [1 if all(arr[i] == 0 or arr[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
@@ -730,7 +732,10 @@ def mask3d_roundover(
         return_cutter=True,
     )
     if cutter is None:
-        raise ValueError("mask3d_roundover(): failed to generate cutter")
+        raise ValueError(
+            "mask3d_roundover(): corners= selected no corners, so there is nothing to round; "
+            "pass an Anchor naming at least one corner."
+        )
     return cutter
 
 
@@ -760,7 +765,10 @@ def mask3d_chamfer(
         return_cutter=True,
     )
     if cutter is None:
-        raise ValueError("mask3d_chamfer(): failed to generate cutter")
+        raise ValueError(
+            "mask3d_chamfer(): corners= selected no corners, so there is nothing to chamfer; "
+            "pass an Anchor naming at least one corner."
+        )
     return cutter
 
 

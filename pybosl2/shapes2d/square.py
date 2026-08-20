@@ -264,7 +264,9 @@ def _regular_ngon_path(
     if not rounding and not chamfer:
         path = _circle_pts(radius, sides)
     else:
-        if rounding and chamfer:
+        if rounding and chamfer:  # pragma: no cover
+            # defensive: regular_ngon(), the only caller, rejects the combination before it builds
+            # the path.
             raise ValueError("Cannot set both rounding and chamfer at the same time on an n-gon.")
         half_angle = math.radians((180 - 360.0 / sides) / 2)
         inset: float = chamfer / math.sin(half_angle) if chamfer else rounding / math.sin(half_angle)
@@ -363,7 +365,8 @@ def regular_ngon(
     """
     if rounding and chamfer:
         raise ValueError("Cannot set both rounding and chamfer at the same time.")
-    assert sides >= 3
+    if sides < 3:
+        raise ValueError(f"regular_ngon(): sides must be 3 or more, got {sides}.")
     sc = 1 / math.cos(math.radians(180.0 / sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
@@ -378,7 +381,9 @@ def regular_ngon(
         diameter=diameter,
         dflt=dflt_val,
     )
-    if rad is None:
+    if rad is None:  # pragma: no cover
+        # defensive: _pick_radius() falls back to dflt (the side-derived radius, or 0.0), so it
+        # never returns None here.
         raise ValueError(
             "regular_ngon(): need to specify one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, side."  # noqa: E501
         )

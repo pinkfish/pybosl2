@@ -159,7 +159,7 @@ class RingHook:
             ro = or_t if or_t is not None else float(ri) + float(wall)  # type: ignore[arg-type]
             if ri > ro:
                 raise ValueError("ring_hook(): hole doesn't fit, or wall is negative.")
-            if isinstance(hole, HoleType) and hole not in (HoleType.CIRCLE, HoleType.D):
+            if hole not in (HoleType.CIRCLE, HoleType.D):
                 raise ValueError(f"ring_hook(): hole must be CIRCLE, D or a 2-D path, got {hole!r}")
             if hole == HoleType.CIRCLE and ri > 0 and ri + hole_rounding >= hole_z:
                 raise ValueError(f"ring_hook(): inner_radius + hole_rounding must be less than hole_z ({hole_z}).")

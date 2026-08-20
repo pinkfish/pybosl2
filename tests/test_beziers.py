@@ -105,7 +105,7 @@ def test_line_intersection_finds_endpoints_on_axis() -> None:
 
 
 def test_path_curve_requires_valid_length() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="multiple of 3 points"):
         Bezier([[0, 0], [1, 0], [2, 0]]).path_curve(n_degree=3)  # 3 % 3 != 1
 
 

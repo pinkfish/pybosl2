@@ -421,7 +421,9 @@ def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | No
         return None
     hh = info.head_height
     hs = info.head_size
-    if not (hs is not None):
+    if not (hs is not None):  # pragma: no cover
+        # defensive: ScrewSpec fills head_size from the standard tables for every head type it
+        # accepts, so a spec that names a head always carries its size.
         raise ValueError(f"head_size not set for head type {head}")
     if head == ScrewHeadType.HEX:
         return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)

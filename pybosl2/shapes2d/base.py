@@ -233,7 +233,9 @@ class CsgShape2D(BaseShape):
             a_val = Anchor.CENTER
         elif isinstance(anchor, Anchor):
             a_val = anchor
-        elif isinstance(anchor, str):
+        elif isinstance(anchor, str):  # pragma: no cover
+            # defensive: anchor_vector() rejects the string form at every entry point that builds
+            # a shape, so one never reaches the constructor.
             raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
         else:
             a_val = resolve_anchor(list(anchor))
