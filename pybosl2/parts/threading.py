@@ -33,6 +33,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+from pybosl2._backend import csg_part
 from pybosl2.enums import VNFStyle
 from pybosl2.parts.enums import NutShape
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
@@ -347,6 +348,7 @@ class ThreadedRod:
         return self._left_handed
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the threaded rod geometry (cached)."""
         if self._solid is not None:
@@ -472,6 +474,7 @@ class ThreadedNut:
         return self._left_handed
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the nut geometry (cached)."""
         if self._solid is not None:
@@ -614,6 +617,7 @@ class ThreadHelix:
         return self._left_handed
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the helix geometry."""
         return self._solid

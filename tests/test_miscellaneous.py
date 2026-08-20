@@ -51,12 +51,12 @@ def test_path_extrude2d_closed_and_caps() -> None:
 
 def test_path_extrude2d_caps_on_closed_raises() -> None:
     loop = Path2D([[0, 0], [40, 0], [40, 40]], closed=True)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="cannot cap a closed"):
         loop.path_extrude2d(s2.square([4, 8]), caps=CapType.BUTT, closed=True)  # type: ignore[arg-type]
 
 
 def test_path_extrude2d_requires_2d_path() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="must be 2-D"):
         PATH3.path_extrude2d(s2.circle(radius=3))
 
 
@@ -103,7 +103,7 @@ def test_cylindrical_extrude() -> None:
 
 
 def test_cylindrical_extrude_needs_radii() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="positive inner and outer"):
         m.cylindrical_extrude(s2.square([20, 8]), inner_radius=25)
 
 

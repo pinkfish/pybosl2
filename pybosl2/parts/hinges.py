@@ -25,6 +25,7 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from pybosl2._backend import csg_part
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
@@ -95,6 +96,7 @@ class LivingHingeMask:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the hinge mask geometry."""
         return self._solid
@@ -223,6 +225,7 @@ class KnuckleHinge:
         return self._inner
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the knuckle hinge leaf geometry."""
         return self._solid
@@ -337,6 +340,7 @@ class KnuckleHingePair:
         return self._fold
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the hinge pair geometry."""
         return self._solid
@@ -408,6 +412,7 @@ class SnapLock:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the snap-lock tab geometry."""
         return self._solid
@@ -488,6 +493,7 @@ class SnapSocket:
         return self._thick
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the snap socket geometry."""
         return self._solid

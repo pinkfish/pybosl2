@@ -42,6 +42,10 @@ PLACEMENT_ONLY: frozenset[str] = frozenset(
         "parts/screw_drive.py::PhillipsSpec.depth",
         "parts/wiring.py::hex_offsets",
         "transforms.py::polar_to_xy",
+        # a star's vertex count is `tips` and an ngon's is `sides`: the caller states the
+        # tessellation outright, so there is no facet count for fn/fa/fs to choose
+        "shapes2d/curves.py::star",
+        "flat.py::star",
     }
 )
 
@@ -68,7 +72,6 @@ KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
         "rounding.py::Roundable.bent_cutout_mask",
         "rounding.py::Roundable.path_join",
         "shapes2d/curves.py::squircle_radius_fg",
-        "shapes2d/curves.py::star",
         "shapes2d/curves.py::supershape",
         "shapes3d/base.py::CsgSolid.edge_profile",
         "shapes3d/base.py::CsgSolid.edge_profile_asym",

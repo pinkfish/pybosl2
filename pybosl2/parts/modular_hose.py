@@ -23,6 +23,7 @@ import math
 from enum import StrEnum
 from typing import Any
 
+from pybosl2._backend import csg_part
 from pybosl2._native import native
 from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
@@ -283,6 +284,7 @@ class HoseSegment:
         return self._type
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the hose segment geometry."""
         return self._solid

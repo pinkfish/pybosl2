@@ -51,15 +51,12 @@ ARGUMENTS: dict[str, tuple[Any, ...]] = {
     "WireBundle": ([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]], 3),
 }
 
-#: Parts whose geometry is slow enough that building it twice is not worth the coverage.
-SLOW = frozenset({"BevelGear", "WormGear", "Worm", "HerringboneGear"})
-
 
 def _part_classes() -> list[str]:
     names = []
     for name in parts.__all__:
         obj = getattr(parts, name)
-        if not inspect.isclass(obj) or not hasattr(obj, "show") or name in SLOW:
+        if not inspect.isclass(obj) or not hasattr(obj, "show"):
             continue
         names.append(name)
     return sorted(names)
@@ -78,3 +75,32 @@ def test_show_is_the_shape_itself() -> None:
     """The value show() hands back is the shape, so a chain can continue from it."""
     screw = parts.Screw("M6", 20, head=ScrewHeadType.SOCKET, drive=ScrewDriveType.HEX)
     assert screw.show().bounds() == screw.shape.bounds()
+
+
+def test_every_part_refuses_on_another_backend() -> None:
+    """A part never hands back CSG geometry inside an sdf block (SPEC S-46a).
+
+    Parts are composed from CSG primitives, meshes and native operations, so none has an SDF form
+    yet. Refusing beats returning a shape that cannot combine with the surrounding SDF work and
+    only fails much later. The refusal can come from the constructor (parts that build eagerly) or
+    from the `shape` property; either is fine as long as it names the way forward.
+    """
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    leaked: list[str] = []
+    unhelpful: list[str] = []
+    with use_backend("sdf"):
+        for name in _part_classes():
+            cls = getattr(parts, name)
+            try:
+                shape = cls(*ARGUMENTS.get(name, ()), **KEYWORDS.get(name, {})).shape
+            except UnsupportedByBackendError as exc:
+                if "use_backend" not in str(exc):
+                    unhelpful.append(name)
+                continue
+            if getattr(shape, "backend", None) == "csg":
+                leaked.append(name)
+    assert not leaked, f"parts that built CSG geometry inside an sdf block: {leaked}"
+    assert not unhelpful, f"parts whose refusal does not name the way forward: {unhelpful}"

@@ -27,6 +27,7 @@ from typing import Any
 
 import numpy as np
 
+from pybosl2._backend import csg_part
 from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.vnf import VNF
 
@@ -279,6 +280,7 @@ class RegularPolyhedron:
         return PolyhedronInfo(self._name)
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Build and return the polyhedron geometry (cached)."""
         if self._solid is not None:

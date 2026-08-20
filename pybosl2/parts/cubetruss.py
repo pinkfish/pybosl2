@@ -29,6 +29,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
+from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
@@ -208,6 +209,7 @@ class TrussSegment:
         return self._strut
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the segment geometry."""
         return self._solid
@@ -328,6 +330,7 @@ class Truss:
         return self._extents
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the truss geometry."""
         return self._solid
@@ -425,6 +428,7 @@ class TrussSupport:
         self._solid: Bosl2Solid = Bosl2Solid(_union(pieces).shape, size=[w, length, height])
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the support truss geometry."""
         return self._solid
@@ -517,6 +521,7 @@ class TrussCorner:
         return self._height
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the corner geometry."""
         return self._solid
@@ -626,6 +631,7 @@ class TrussClip:
         self._solid: Bosl2Solid = Bosl2Solid(pair.shape, size=s_arr)
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the clip geometry."""
         return self._solid
@@ -755,6 +761,7 @@ class TrussFoot:
         self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the foot geometry."""
         return self._solid
@@ -843,6 +850,7 @@ class TrussUClip:
         self._solid: Bosl2Solid = Bosl2Solid((body | clips).shape, size=s_arr)
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the U-clip geometry."""
         return self._solid
@@ -951,6 +959,7 @@ class TrussJoiner:
         self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
 
     @property
+    @csg_part
     def shape(self) -> Bosl2Solid:
         """Return the joiner geometry."""
         return self._solid

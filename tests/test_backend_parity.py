@@ -16,6 +16,7 @@ import inspect
 
 import pybosl2.sdf  # noqa: F401  -- registers the "sdf" backend
 from pybosl2._backend import CSG_ONLY_FEATURES, SDF_ONLY_FEATURES
+from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.sdf.shapes3d import SdfSolid
 from pybosl2.shapes3d.base import CsgSolid
 
@@ -156,3 +157,100 @@ def test_two_dimensional_fields_refuse_to_render() -> None:
 
     with pytest.raises(UnsupportedByBackendError, match="linear_extrude"):
         circle2d(radius=5).show()
+
+
+def test_realizing_an_sdf_shape_applies_its_appearance() -> None:
+    """show() meshes (rendering IS meshing) and paints what the caller recorded (SPEC S-50)."""
+    from pybosl2._backend import use_backend
+    from pybosl2.color import Color
+    from pybosl2.solid import cuboid
+
+    with use_backend("sdf"):
+        shape = cuboid([10, 10, 10]).color(Color("#00ff00")).ghost()
+        returned = shape.show()
+        assert returned is shape  # the chain stays in SDF-land
+        meshed = shape.mesh()
+        assert getattr(meshed, "shown", False)
+        assert getattr(meshed, "colour", None) == ([0.0, 1.0, 0.0], None)
+        assert getattr(meshed, "modifier", None) == "ghost"
+
+
+def test_a_mesh_operation_is_forwarded_to_the_meshed_solid() -> None:
+    """Operations that genuinely need mesh topology mesh the field; that is not a silent conversion."""
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid
+
+    with use_backend("sdf"):
+        shape = cuboid([10, 10, 10])
+        assert shape.background() is not None  # forwarded to the meshed solid, not refused
+
+
+def test_the_mesh_operation_list_only_holds_names_that_reach_the_fallback() -> None:
+    """An entry that is also a real method is a stale record, like `projection` was (PLAN B-P4)."""
+    from pybosl2.sdf.shapes3d import _MESH_OPERATIONS
+
+    shadowed = sorted(n for n in _MESH_OPERATIONS if inspect.getattr_static(SdfSolid, n, None) is not None)
+    assert not shadowed, f"listed as forwarded-to-the-mesh but implemented on SdfSolid: {shadowed}"
+
+
+def test_a_private_name_is_answered_without_meshing() -> None:
+    """copy/pickle/hasattr probe underscore names; answering them must not realize the field."""
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid
+
+    with use_backend("sdf"):
+        shape = cuboid([10, 10, 10])
+        assert not hasattr(shape, "_not_a_real_attribute")
+        assert shape._mesh_cache is None  # nothing was meshed to answer that
+
+
+#: Shapes whose SDF bounds are not yet the shape's own: pie_slice stores the full disc's box
+#: rather than the wedge's, so an exact bounds() query over-reports (SPEC §12.2, PAR-5).
+BOUNDS_NOT_YET_EXACT = frozenset({"pie_slice"})
+
+
+def test_the_same_call_builds_the_same_geometry_on_both_backends() -> None:
+    """PAR-5: an identical call differs only in tessellation, so both converge at high resolution."""
+    import inspect
+
+    import pybosl2.solid as facade
+    from pybosl2._backend import use_backend
+    from pybosl2.defaults import use_defaults
+
+    checked = 0
+    with use_defaults(fn=256):
+        for name in sorted(facade.__all__):
+            function = getattr(facade, name)
+            if not inspect.isfunction(function) or name in BOUNDS_NOT_YET_EXACT:
+                continue
+            if name in {"current_backend", "known_backends", "effective_defaults", "given_arguments"}:
+                continue  # not shape constructors
+            parameters = inspect.signature(function).parameters.values()
+            if any(p.default is inspect.Parameter.empty and p.kind is not p.VAR_POSITIONAL for p in parameters):
+                continue
+            built = {}
+            for backend in ("csg", "sdf"):
+                with use_backend(backend):
+                    try:
+                        built[backend] = function().bounds()
+                    except (ValueError, UnsupportedByBackendError):
+                        built = {}
+                        break
+            if not built:
+                continue
+            checked += 1
+            csg_centre, csg_size = built["csg"]
+            sdf_centre, sdf_size = built["sdf"]
+            # Placement must match outright -- that is what a shared default decides. Size is
+            # compared proportionally: a facetted CSG solid inscribes its analytic SDF twin, and
+            # at these unit-sized defaults that gap is a few percent even at fn=256.
+            for csg_value, sdf_value in zip(csg_centre, sdf_centre, strict=True):
+                assert abs(csg_value - sdf_value) < 0.12, (
+                    f"{name}() sits in a different place per backend: csg={csg_centre} sdf={sdf_centre}"
+                )
+            for csg_value, sdf_value in zip(csg_size, sdf_size, strict=True):
+                span = max(abs(csg_value), abs(sdf_value), 1e-9)
+                assert abs(csg_value - sdf_value) / span < 0.12, (
+                    f"{name}() is a different size per backend: csg={csg_size} sdf={sdf_size}"
+                )
+    assert checked >= 8, f"only {checked} shapes compared across backends"

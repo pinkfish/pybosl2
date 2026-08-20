@@ -166,15 +166,13 @@ def _cuboid_edge_sdf(
 #: answering them by meshing the field is inherent rather than a silent conversion (SPEC B-5).
 #: Everything a caller can do to a *field* is a real method on SdfSolid; anything not in either
 #: place is refused with the explicit .to_csg() route.
+#:
+#: Only names SdfSolid does NOT implement belong here -- an entry that is also a real method never
+#: reaches the fallback and is exactly the kind of stale record that let `projection` claim to be
+#: CSG-only while working (SPEC PAR-3). tests/test_backend_parity.py checks this.
 _MESH_OPERATIONS = frozenset(
     {
-        "render",  # force a mesh render
-        "repair",  # mesh repair
-        "wrap",  # mesh wrapping
-        "pull",  # mesh vertex pull
-        "oversample",  # mesh subdivision
-        "resize",  # resize the meshed bounds
-        "size",  # native size query
+        "size",  # native size query on the meshed solid
         "linear_extrude",  # 2-D -> 3-D on the meshed profile
         "rotate_extrude",
         "offset",  # native mesh offset
@@ -2123,10 +2121,11 @@ def tube(
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
     irad1 = irr1 if irr1 is not None else (orr1 - wall_v if orr1 is not None else None)
     irad2 = irr2 if irr2 is not None else (orr2 - wall_v if orr2 is not None else None)
-    assert rad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    assert rad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    assert irad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    assert irad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    if rad1 is None or rad2 is None or irad1 is None or irad2 is None:
+        raise ValueError(
+            "tube(): needs two of the three sizes -- an inner radius/diameter, an outer "
+            "radius/diameter, and a wall thickness."
+        )
 
     r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0.0)
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0.0)
@@ -2292,7 +2291,8 @@ def rect_tube(
 
     """
     length = height if height is not None else (length if length is not None else 1)
-    assert size is not None, "rect_tube(): must give size."
+    if size is None:
+        raise ValueError("rect_tube(): needs an outer size -- give size=, or an inner size with a wall.")
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 2
     if isize is not None:
         isz: list[float] = [float(v) for v in isize] if isinstance(isize, (list, tuple)) else [float(isize)] * 2

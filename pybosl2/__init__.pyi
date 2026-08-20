@@ -63,10 +63,14 @@ from pybosl2.exceptions import CrossBackendError as CrossBackendError
 from pybosl2.exceptions import UnsupportedByBackendError as UnsupportedByBackendError
 from pybosl2.flat import Flat as Flat
 from pybosl2.flat import circle as circle
+from pybosl2.flat import ellipse as ellipse
 from pybosl2.flat import polygon as polygon
 from pybosl2.flat import rect as rect
+from pybosl2.flat import regular_ngon as regular_ngon
 from pybosl2.flat import square as square
+from pybosl2.flat import star as star
 from pybosl2.flat import text as text
+from pybosl2.flat import trapezoid as trapezoid
 from pybosl2.isosurface import Metaball as Metaball
 from pybosl2.isosurface import MetaballSpec as MetaballSpec
 from pybosl2.isosurface import mb_capsule as mb_capsule
@@ -118,7 +122,6 @@ from pybosl2.quaternions import quaternion_to_matrix as quaternion_to_matrix
 from pybosl2.regions import Region as Region
 from pybosl2.shapes2d import arc as arc
 from pybosl2.shapes2d import egg as egg
-from pybosl2.shapes2d import ellipse as ellipse
 from pybosl2.shapes2d import fill as fill
 from pybosl2.shapes2d import glued_circles as glued_circles
 from pybosl2.shapes2d import hexagon as hexagon
@@ -126,17 +129,14 @@ from pybosl2.shapes2d import jittered_poly as jittered_poly
 from pybosl2.shapes2d import keyhole as keyhole
 from pybosl2.shapes2d import octagon as octagon
 from pybosl2.shapes2d import pentagon as pentagon
-from pybosl2.shapes2d import regular_ngon as regular_ngon
 from pybosl2.shapes2d import reuleaux_polygon as reuleaux_polygon
 from pybosl2.shapes2d import right_triangle as right_triangle
 from pybosl2.shapes2d import ring as ring
 from pybosl2.shapes2d import round2d as round2d
 from pybosl2.shapes2d import shell2d as shell2d
 from pybosl2.shapes2d import squircle as squircle
-from pybosl2.shapes2d import star as star
 from pybosl2.shapes2d import supershape as supershape
 from pybosl2.shapes2d import teardrop2d as teardrop2d
-from pybosl2.shapes2d import trapezoid as trapezoid
 from pybosl2.shapes3d import cone as cone
 from pybosl2.shapes3d import cross as cross
 from pybosl2.shapes3d import path_text as path_text
@@ -147,7 +147,9 @@ from pybosl2.solid import cube as cube
 from pybosl2.solid import cuboid as cuboid
 from pybosl2.solid import cyl as cyl
 from pybosl2.solid import cylinder as cylinder
+from pybosl2.solid import difference as difference
 from pybosl2.solid import effective_defaults as effective_defaults
+from pybosl2.solid import intersection as intersection
 from pybosl2.solid import octahedron as octahedron
 from pybosl2.solid import onion as onion
 from pybosl2.solid import pie_slice as pie_slice
@@ -160,7 +162,11 @@ from pybosl2.solid import spheroid as spheroid
 from pybosl2.solid import teardrop as teardrop
 from pybosl2.solid import torus as torus
 from pybosl2.solid import tube as tube
+from pybosl2.solid import union as union
 from pybosl2.solid import wedge as wedge
+from pybosl2.solid import xcyl as xcyl
+from pybosl2.solid import ycyl as ycyl
+from pybosl2.solid import zcyl as zcyl
 from pybosl2.surfaces3d import cylindrical_heightfield as cylindrical_heightfield
 from pybosl2.surfaces3d import heightfield as heightfield
 from pybosl2.turtle import turtle2d as turtle2d
@@ -240,6 +246,7 @@ __all__: list[str] = [
     "cylinder",
     "cylindrical_extrude",
     "cylindrical_heightfield",
+    "difference",
     "diff",
     "effective_defaults",
     "egg",
@@ -250,6 +257,7 @@ __all__: list[str] = [
     "heightfield",
     "hexagon",
     "intersect",
+    "intersection",
     "jittered_poly",
     "keyhole",
     "known_backends",
@@ -329,6 +337,9 @@ __all__: list[str] = [
     "use_defaults",
     "version",
     "wedge",
+    "xcyl",
+    "ycyl",
+    "zcyl",
     "xdistribute",
     "ydistribute",
     "zdistribute",

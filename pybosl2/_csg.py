@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
 
-from pybosl2._backend import register_backend
+from pybosl2._backend import for_backend, register_backend
 from pybosl2._native import native
 
 _polygon = native("polygon")
@@ -54,8 +54,13 @@ class CsgBackend:
         return cast("Callable[..., Any]", fn)
 
     def construct(self, shape: str, arguments: Mapping[str, Any]) -> Any:
-        """Build the named shape via pybosl2.shapes3d (the CSG constructors)."""
-        return self.constructor(shape)(**arguments)
+        """Build the named shape via pybosl2.shapes3d (the CSG constructors).
+
+        Takes only the arguments this constructor declares, so the façade can forward every
+        default it owns without a constructor choking on an option it has no notion of (B-3).
+        """
+        constructor = self.constructor(shape)
+        return constructor(**for_backend(constructor, arguments))
 
     def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Any:
         from pybosl2._native import native
