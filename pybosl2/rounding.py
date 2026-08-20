@@ -209,13 +209,17 @@ def _round_corners(
     if curv_val is None:
         kv = [0.5] * sides
     elif curv_val is not None and is_num(curv_val):
-        assert method == RoundingMethod.SMOOTH, 'k is only allowed with method="smooth".'
+        if not (method == RoundingMethod.SMOOTH):
+            raise ValueError('k is only allowed with method="smooth".')
         kv = [float(cast("float", curv_val))] * sides
     elif isinstance(curv_val, (list, tuple, np.ndarray)):
-        assert method == RoundingMethod.SMOOTH, 'k is only allowed with method="smooth".'
+        if not (method == RoundingMethod.SMOOTH):
+            raise ValueError('k is only allowed with method="smooth".')
         kv = ([0.0] + [float(v) for v in curv_val] + [0.0]) if len(curv_val) < sides else [float(v) for v in curv_val]
-    assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
-    assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
+    if not (all((v >= 0 for v in parm))):
+        raise ValueError(f"{measure} must be nonnegative.")
+    if not (all((0 <= v <= 1 for v in kv))):
+        raise ValueError("k must be in [0, 1].")
 
     # dk[i] = [joint distance, shape param] per corner (chamfer has just [distance])
     dk = []
@@ -273,7 +277,8 @@ def _round_corners(
                 else math.inf
             )
             scale.append(min(a, b))
-    assert not scale or min(scale) >= 1 - 1e-9, "Roundovers are too big for the path (they overlap); reduce the sizes."
+    if not (not scale or min(scale) >= 1 - 1e-09):
+        raise ValueError("Roundovers are too big for the path (they overlap); reduce the sizes.")
 
     out = []
     for i in range(sides):
@@ -486,11 +491,31 @@ class Roundable:
         height: float,
         bottom: object = None,
         top: object = None,
-        steps: int = 16,
+        steps: int | None = None,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> object:
-        """Offset sweep/extrusion of this 2-D shape."""
+        """Offset sweep/extrusion of this 2-D shape.
+
+        Args:
+            height: Extrusion height.
+            bottom: Rim treatment for the bottom edge (an ``os_*`` profile).
+            top: Rim treatment for the top edge.
+            steps: Slices per rim treatment; resolved from the rim radius and the ambient facet
+                controls when omitted.
+            caps: End caps for the extrusion.
+            style: Quad-subdivision style for the mesh.
+            fn: Fixed fragment count for the rim arcs; ambient default when omitted.
+            fa: Minimum fragment angle for the rim arcs.
+            fs: Minimum fragment size for the rim arcs.
+
+        Returns:
+            The extruded solid.
+
+        """
         from pybosl2.skin import _offset_sweep as _os
 
         return _os(
@@ -498,6 +523,9 @@ class Roundable:
             height=height,
             bottom=bottom,
             top=top,
+            fn=fn,
+            fa=fa,
+            fs=fs,
             steps=steps,
             caps=caps,
             style=style,
@@ -608,11 +636,31 @@ class Roundable:
         length: float,
         fillet: float = 0.0,
         rounding: float = 0.0,
-        steps: int = 16,
+        steps: int | None = None,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> object:
-        """Attach a filleted prism with optional rounded end."""
+        """Attach a filleted prism with optional rounded end.
+
+        Args:
+            length: Length of the prism.
+            fillet: Fillet radius where the prism meets the surface.
+            rounding: Rounding radius on the free end.
+            steps: Slices per fillet/rounding arc; resolved from the radius and the ambient facet
+                controls when omitted.
+            caps: End caps for the prism.
+            style: Quad-subdivision style for the mesh.
+            fn: Fixed fragment count for the arcs; ambient default when omitted.
+            fa: Minimum fragment angle for the arcs.
+            fs: Minimum fragment size for the arcs.
+
+        Returns:
+            The prism solid.
+
+        """
         from pybosl2.skin import _attach_prism as _ap
 
         return _ap(
@@ -621,6 +669,9 @@ class Roundable:
             fillet=fillet,
             rounding=rounding,
             steps=steps,
+            fn=fn,
+            fa=fa,
+            fs=fs,
             caps=caps,
             style=style,
         )
@@ -651,6 +702,9 @@ class Roundable:
         relocate: bool = True,
         closed: bool | None = None,
         k: float | list[float] | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> object:
         """Join multiple paths to this path end-to-end (see :func:`path_join`)."""
         return _path_join(
@@ -662,6 +716,9 @@ class Roundable:
             relocate=relocate,
             closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
             k=k,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
 
@@ -674,6 +731,9 @@ def _path_join(
     relocate: bool = True,
     closed: bool = False,
     k: float | list[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Any:
     """Join multiple paths end-to-end with optional rounding at the joint connections (BOSL2 path_join()).
 
@@ -690,6 +750,9 @@ def _path_join(
         relocate:  Merge consecutive endpoints if they are close (default True).
         closed:    Close the resulting joined path (default False).
         k:         Acronym alias for *curvature*.
+        fn:        Fixed fragment count for the joint rounding; ambient default when omitted.
+        fa:        Minimum fragment angle for the joint rounding.
+        fs:        Minimum fragment size for the joint rounding.
         **kwargs: Additional keyword arguments (e.g. ``k`` for curvature).
 
     Returns:
@@ -780,6 +843,9 @@ def _path_join(
         width=sizes["width"],
         closed=closed,
         k=k_list,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 

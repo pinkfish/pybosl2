@@ -286,9 +286,9 @@ def test_offset_returns_the_2d_wrapper() -> None:
 
 
 def test_offset_needs_exactly_one_of_radius_or_delta() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="give\ exactly\ one\ of"):
         s2.square(10).offset()
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="give\ exactly\ one\ of"):
         s2.square(10).offset(radius=2, delta=2)
 
 
@@ -566,7 +566,7 @@ def test_square_chamfer_returns_shape2d() -> None:
 
 
 def test_square_rounding_and_chamfer_mutually_exclusive() -> None:
-    with pytest.raises(AssertionError, match="Cannot set both"):
+    with pytest.raises(ValueError, match="Cannot set both"):
         s2.square(20, rounding=3, chamfer=2)
 
 
@@ -576,7 +576,7 @@ def test_regular_ngon_chamfer_returns_shape2d() -> None:
 
 
 def test_regular_ngon_rounding_and_chamfer_mutually_exclusive() -> None:
-    with pytest.raises(AssertionError, match="Cannot set both"):
+    with pytest.raises(ValueError, match="Cannot set both"):
         s2.regular_ngon(sides=6, radius=15, rounding=2, chamfer=2)
 
 
@@ -606,7 +606,7 @@ def test_right_triangle_chamfer_returns_shape2d() -> None:
 
 
 def test_right_triangle_rounding_and_chamfer_mutually_exclusive() -> None:
-    with pytest.raises(AssertionError, match="Cannot set both"):
+    with pytest.raises(ValueError, match="Cannot set both"):
         s2.right_triangle([15, 10], rounding=2, chamfer=1.5)
 
 
@@ -663,7 +663,7 @@ def test_regular_ngon_negative_chamfer_allowed() -> None:
 
 
 def test_regular_ngon_both_rounding_and_chamfer_raises() -> None:
-    with pytest.raises(AssertionError, match="Cannot set both"):
+    with pytest.raises(ValueError, match="Cannot set both"):
         s2.regular_ngon(sides=6, radius=10, rounding=2, chamfer=2)
 
 
@@ -673,12 +673,12 @@ def test_regular_ngon_oversized_chamfer_raises() -> None:
 
 
 def test_rect_oversized_rounding_raises() -> None:
-    with pytest.raises(AssertionError, match="exceed the rect"):
+    with pytest.raises(ValueError, match="exceed the rect"):
         s2.rect(size=[10, 10], rounding=6)
 
 
 def test_rect_oversized_chamfer_raises() -> None:
-    with pytest.raises(AssertionError, match="exceed the rect"):
+    with pytest.raises(ValueError, match="exceed the rect"):
         s2.rect(size=[10, 10], chamfer=6)
 
 

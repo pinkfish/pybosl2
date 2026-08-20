@@ -129,7 +129,8 @@ def _stroke_3d_csg(
     from pybosl2.shapes3d import Bosl2Solid
 
     pts = [list(map(float, p)) for p in path]
-    assert len(pts) >= 2, "stroke(): need at least 2 points."
+    if not (len(pts) >= 2):
+        raise ValueError("stroke(): need at least 2 points.")
     is_closed = closed if closed is not None else getattr(path, "closed", False)
     ec1 = endcap1 if endcap1 is not None else CapSpec(cap_type=CapType.ROUND)
     ec2 = endcap2 if endcap2 is not None else CapSpec(cap_type=CapType.ROUND)
@@ -158,7 +159,8 @@ def _stroke_3d_csg(
             blob = endcap_geometry_3d(cap, end, outdir, width, requested=requested)
             if blob is not None:
                 shapes.append(blob)
-    assert shapes, "stroke(): path has no drawable segments."
+    if not (shapes):
+        raise ValueError("stroke(): path has no drawable segments.")
     return Bosl2Solid(reduce(operator.or_, shapes))
 
 
@@ -183,7 +185,8 @@ def dashed_stroke_3d(
         dpat = dpat + [0]
 
     pts = [list(map(float, p)) for p in path]
-    assert len(pts) >= 2, "dashed_stroke(): need at least 2 points."
+    if not (len(pts) >= 2):
+        raise ValueError("dashed_stroke(): need at least 2 points.")
     is_closed = closed if closed is not None else getattr(path, "closed", False)
     raw = pts + [pts[0]] if is_closed else pts
 

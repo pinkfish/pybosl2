@@ -94,35 +94,24 @@ entering that context, so the decorative-cap fallback warning still fires. Tests
 
 ---
 
-## T0b — Convert user-input asserts to `ValueError`
+## T0b — Convert user-input asserts to `ValueError` ✅
 
-**Closes:** §12.2 item 3 (E-4) · **Implements:** PLAN E-P1, E-P2, E-P4a · **Size:** L, batchable
-**Risk:** low
+**Closes:** §12.2 item 1 (E-4) · **Implements:** PLAN E-P1, E-P2, E-P4a
 
-290 asserts carry user-facing messages; `python -O` deletes all of them. Public entry points first
-(PLAN E-P2's test: does the message name a parameter the caller typed?).
+**Landed — all 290 converted.** An AST pass rewrote every message-carrying `assert` in the public
+modules (301 statements), then the stragglers: multi-line asserts, f-string messages, and the ones
+in private modules whose message named a public function (`stroke()`, `minkowski()`,
+`linear_extrude()`). What remains is 25 asserts stating genuine internal invariants — none names a
+function call or a parameter.
 
-Batches, highest user contact first:
-- [ ] `shapes2d/` (17 in `circle.py` alone — `star(): must specify tips` lives here) and `shapes3d/`
-- [ ] `solid.py` / `flat.py` façades
-- [ ] `parts/` — a wrong trade size or dimension is the most likely user error of all
-- [ ] `skin.py` (20), `isosurface.py` (22), `surfaces3d.py` (15), `texture.py` (13), `beziers.py`,
-      `nurbs.py`, `miscellaneous.py`
-- [ ] `sdf/` (31 in `shapes3d.py`, 11 each in `shapes2d.py`/`paths.py`)
+The contract change rippled into **65 tests** that asserted `AssertionError`. Each was updated to
+assert `ValueError` **and a slice of its message**, since E-4 is about the message naming the fix;
+the patterns were generated from the messages the code actually raises, repaired by re-running the
+affected files until every regex matched.
 
-While converting, fold in D-8: an argument the function actually requires should be required in the
-signature, not asserted (`star(tips=None)` is the same defect as the old `prismoid`).
-
-**Done when:** no `assert` in the package carries a message naming a caller-supplied parameter; add
-a test that greps for the pattern so it cannot come back.
-
-
-**In progress — 52 of 290 converted; 238 remain.** Done: the shapes2d entry points reachable with no arguments
-(`arc`, `ring` ×3, `round2d`, `shell2d` ×2, `hull`, `trapezoid`), `shapes3d.cross`,
-`sdf.shapes2d.trapezoid2d`, and `rounding.round_corners` ×4. Each now names the accepted spellings,
-and the six tests that asserted `AssertionError` were updated to assert `ValueError` **and its
-message**. `isosurface.py` (22) and `miscellaneous.py` (11) were converted wholesale with an AST pass, plus
-the SDF `tube`/`rect_tube` and `chain_hull`. Remaining batches are unchanged below.
+`tests/test_defaults.py::test_no_assert_validates_user_input` is the ratchet: it walks the package
+AST and fails on any `assert` whose message contains a call or a parameter — PLAN E-P2's test for
+"is this validation?" made executable.
 
 ---
 
@@ -379,45 +368,33 @@ design review — it now leads with that warning and states the four real gaps.
 
 ---
 
-## T5 — Close the facet-control backlog
+## T5 — Close the facet-control backlog ✅
 
-**Closes:** §12.2 item 11 (R-1) · **Implements:** PLAN R-P2, R-P3, R-P5 · **Size:** L, batchable
-**Risk:** low
+**Closes:** §12.2 item 2 (R-1) · **Implements:** PLAN R-P2, R-P3, R-P5, R-P6
 
-50 pinned entries in `tests/test_facets.py`. First triage each against **R-1a**: does the output
-have an observable facet count? If not, it is not debt — delete the entry with a one-line note.
+**Landed — the backlog is empty.** Of the 50 entries the audit found, R-1a triage moved **32** out
+of scope in three documented categories, and **18** were genuine and are fixed:
 
-*Likely not debt (placement/measurement only, ~13):* `distributors` (10 rot/arc/sphere copies),
-`transforms.polar_to_xy`, `geometry.circle_circle_tangents`, `parts/wiring.hex_offsets`,
-`parts/screw_drive.PhillipsSpec.depth`.
+* *placement or measurement* — the copy distributors, `polar_to_xy`, `circle_circle_tangents`,
+  `hex_offsets`, `PhillipsSpec.depth`;
+* *the caller supplies the sampling* — `plot_revolution` (explicit angle/z lists),
+  `cylindrical_heightfield` (explicit xrange/yrange), `bent_cutout_mask` (wraps the path it is
+  given), `star`/`regular_ngon`/`supershape` (an explicit vertex count);
+* *descriptors, not geometry* — the bezier handles, the metaball fields, the Platonic solids,
+  `squircle_radius_fg`, and the `os_*` rim profiles, whose consumer owns the facet count.
 
-*Genuine debt, batched by module:*
+Fixed: `Region.offset`/`round_corners`, `offset3d`/`round3d` (both copies), `rect_tube`,
+`interior_fillet`, `Path3D.helix`, `Path2D.minkowski_sum_circle`, `Roundable.path_join`,
+`attach_prism`, `offset_sweep`, `_prism_connector`, `Sweepable.spiral_sweep`,
+`CsgSolid.edge_profile`/`edge_profile_asym`.
 
-- [ ] `regions.py` — `Region.offset`, `Region.round_corners` (2) — highest value: rounding a region is a headline operation
-- [ ] `shapes3d/base.py` — `edge_profile`, `edge_profile_asym`, `offset3d`, `round3d` (4)
-- [ ] `skin.py` — `spiral_sweep`, `os_circle`, `os_smooth`, `os_teardrop` (4)
-- [ ] `shapes2d/curves.py` — `star`, `supershape`, `squircle_radius_fg` (3)
-- [ ] `parts/polyhedra.py` — the five `RegularPolyhedron` factories (5)
-- [ ] `isosurface.py` — `mb_sphere`, `mb_capsule`, `mb_disk`, `mb_connector` (4)
-- [ ] `rounding.py` — `attach_prism`, `bent_cutout_mask`, `path_join` (3)
-- [ ] `surfaces3d.py` — `cylindrical_heightfield`, `interior_fillet`, `plot_revolution` (3)
-- [ ] `beziers.py` — `Bezier.begin`/`tang`/`joint`/`end` (4)
-- [ ] `miscellaneous.py` — `offset3d`, `round3d` (2)
-- [ ] `path2d.py` `minkowski_sum_circle`, `path3d.py` `helix` (2)
-
-Each batch: add `fn`/`fa`/`fs` keyword-only defaulting to `None`, forward to every
-sub-construction (PLAN R-P2), document the three in `Args:`, and remove the entries from
-`KNOWN_WITHOUT_FACETS`.
-
-**Done when:** `KNOWN_WITHOUT_FACETS` is empty and `tests/test_facets.py` still passes.
-
-
-**In progress — triage done, 7 of 36 fixed; 29 remain.** The R-1a triage moved 14 entries to a documented
-`PLACEMENT_ONLY` set in `tests/test_facets.py` (copy distributors, `polar_to_xy`,
-`circle_circle_tangents`, `hex_offsets`, `PhillipsSpec.depth`) — they take a radius to place or
-measure, and nothing they return has a facet count. Of the 36 real debt entries, these are fixed:
-`Region.offset`, `Region.round_corners`, `CsgSolid.offset3d`, `CsgSolid.round3d`,
-`Miscellaneous.offset3d`, `Miscellaneous.round3d`. 30 remain, batched by module below.
+**A trap worth recording.** Three of these had a hardcoded facet count — `steps=16` on the rim
+sweeps, `quad_segs=16` on the minkowski rounding. Resolving them from `frag_count()`
+unconditionally *coarsened* the default output (a 2 mm roundover becomes 4 segments at `$fa=12`,
+a 5 mm minkowski radius becomes 3 per quadrant), which two tests caught. The rule now is: use the
+derived value only when a resolution was actually asked for, explicitly or ambiently; otherwise
+keep BOSL2's own default. Ambient settings reach the geometry without changing what an unchanged
+call produces.
 
 ---
 

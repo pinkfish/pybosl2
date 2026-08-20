@@ -421,7 +421,8 @@ def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | No
         return None
     hh = info.head_height
     hs = info.head_size
-    assert hs is not None, f"head_size not set for head type {head}"
+    if not (hs is not None):
+        raise ValueError(f"head_size not set for head type {head}")
     if head == ScrewHeadType.HEX:
         return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
     if head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):

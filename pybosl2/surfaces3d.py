@@ -288,6 +288,9 @@ def interior_fillet(
     anchor: Sequence[float] = FRONT + LEFT,
     spin: float = 0,
     orient: Anchor | Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """Return a shape to fillet an interior corner between two faces.
 
@@ -300,6 +303,9 @@ def interior_fillet(
         anchor:  anchor point (default FRONT+LEFT)
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
+        fn:      Fixed fragment count for the fillet arc; ambient default when omitted.
+        fa:      Minimum fragment angle for the fillet arc.
+        fs:      Minimum fragment size for the fillet arc.
 
     """
     from pybosl2._native import native
@@ -307,7 +313,7 @@ def interior_fillet(
     _opolygon = native("polygon")
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
-    sides = _frag_count(rad)
+    sides = _frag_count(rad, fn, fa, fs)
     path = _interior_fillet_path(rad, angle, overlap, sides)
     shape = _opolygon(path).linear_extrude(height=length, center=True)
     pts3d = [[p[0], p[1], z] for z in (-length / 2, length / 2) for p in path]
@@ -478,19 +484,22 @@ def cylindrical_heightfield(
     """
     _ = convexity
     l_val = length if length is not None else (height if height is not None else height)
-    assert l_val is not None, "Must supply one of length= or height= as a finite positive number."
-    assert l_val > 0, "Must supply one of length= or height= as a finite positive number."
+    if not (l_val is not None):
+        raise ValueError("Must supply one of length= or height= as a finite positive number.")
+    if not (l_val > 0):
+        raise ValueError("Must supply one of length= or height= as a finite positive number.")
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter)
     r2v = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter)
-    assert r1v is not None, (
-        "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
-    )
-    assert r1v > 0, "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
-    assert r2v is not None, (
-        "Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number."
-    )
-    assert r2v > 0, "Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number."
-    assert base > 0, "base= must be a finite positive number."
+    if not (r1v is not None):
+        raise ValueError("Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number.")
+    if not (r1v > 0):
+        raise ValueError("Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number.")
+    if not (r2v is not None):
+        raise ValueError("Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number.")
+    if not (r2v > 0):
+        raise ValueError("Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number.")
+    if not (base > 0):
+        raise ValueError("base= must be a finite positive number.")
 
     style_key = style if style in ("alt", "quincunx") else "default"
 
@@ -598,8 +607,10 @@ def plot3d(
     xs, ys = list(x), list(y)
     zlo, zhi = zclip if zclip is not None else [-math.inf, math.inf]
     data = [[[float(xi), float(yi), min(max(float(f(xi, yi)), zlo), zhi)] for yi in ys] for xi in xs]
-    assert len(data) > 1, "plot3d(): x and y must each give at least 2 points."
-    assert len(data[0]) > 1, "plot3d(): x and y must each give at least 2 points."
+    if not (len(data) > 1):
+        raise ValueError("plot3d(): x and y must each give at least 2 points.")
+    if not (len(data[0]) > 1):
+        raise ValueError("plot3d(): x and y must each give at least 2 points.")
     if zspan is not None:
         allz = [p[2] for row in data for p in row]
         minv, maxv = min(allz), max(allz)
@@ -688,14 +699,18 @@ def plot_revolution(
         dflt=None,
     )
     theta = [float(a) for a in angle]  # type: ignore[attr-defined]
-    assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."
+    if not (len(theta) > 1):
+        raise ValueError("plot_revolution(): angle must have at least 2 values.")
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]
     else:
         zs = list(z)  # type: ignore[arg-type]
-        assert r1v is not None, "plot_revolution(): give z with radius1 and radius2 (or a path)."
-        assert r2v is not None, "plot_revolution(): give z with radius1 and radius2 (or a path)."
-        assert len(zs) > 1, "plot_revolution(): give z with radius1 and radius2 (or a path)."
+        if not (r1v is not None):
+            raise ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
+        if not (r2v is not None):
+            raise ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
+        if not (len(zs) > 1):
+            raise ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
         z0, z1 = zs[0], zs[-1]
         prof = [[r1v + (r2v - r1v) * (zz - z0) / (z1 - z0), zz] for zz in zs]
     normals = (
@@ -760,7 +775,8 @@ def fillet(
     """
     from . import masking
 
-    assert angle == 90, "fillet(): only 90-degree edges (angle=90) are supported in this port."
+    if not (angle == 90):
+        raise ValueError("fillet(): only 90-degree edges (angle=90) are supported in this port.")
     lv = (
         length
         if length is not None
@@ -865,7 +881,8 @@ def textured_tile(
             return (
                 [int(tex_reps[0]), int(tex_reps[1])] if hasattr(tex_reps, "__len__") else [int(tex_reps), int(tex_reps)]
             )
-        assert tex_size is not None, "textured_tile(): give tex_reps or tex_size."
+        if not (tex_size is not None):
+            raise ValueError("textured_tile(): give tex_reps or tex_size.")
         ts = (
             [float(tex_size), float(tex_size)]
             if isinstance(tex_size, (int, float))
@@ -941,8 +958,10 @@ def ruler(
 
     if colors is None:
         colors = ["black", "white"]
-    assert depth <= 5, "Cannot render scales smaller than depth=5"
-    assert len(colors) == 2, "'colors' must contain a list of exactly two colors."
+    if not (depth <= 5):
+        raise ValueError("Cannot render scales smaller than depth=5")
+    if not (len(colors) == 2):
+        raise ValueError("'colors' must contain a list of exactly two colors.")
 
     length_v = INCH * length if inch else length
     unit_v = INCH * unit if inch else unit

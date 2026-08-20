@@ -57,6 +57,7 @@ from pybosl2._helpers import scale4 as _scale4
 from pybosl2._helpers import translate4, zrot4
 from pybosl2._helpers import xrot4 as _xrot4
 from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_with_decorative_caps
+from pybosl2.defaults import resolve_facets
 from pybosl2.enums import ResampleMethod, RoundingMethod, SamplingType, SkinMethod, SweepMethod, VNFStyle
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
@@ -242,12 +243,33 @@ class Sweepable:
         diameter2: float | None = None,
         center: bool = True,
         style: VNFStyle = VNFStyle.MIN_EDGE,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> VNF | Bosl2Solid:
         """Sweep this 2-D profile along a helix.
 
         The profile follows a helical path of *height* and *radius* (or separate start/end radii)
         over *turns* revolutions. Unlike rotate_sweep, the profile also gains height, producing
         a coil.
+
+        Args:
+            height: Overall height of the coil.
+            radius: Helix radius; use radius1/radius2 for a taper.
+            turns: Number of revolutions.
+            radius1: Radius at the start.
+            radius2: Radius at the end.
+            diameter: Helix diameter, instead of radius.
+            diameter1: Diameter at the start.
+            diameter2: Diameter at the end.
+            center: Centre the coil on the origin.
+            style: Quad-subdivision style for the mesh.
+            fn: Fixed fragment count per turn; ambient default when omitted.
+            fa: Minimum fragment angle per turn.
+            fs: Minimum fragment size per turn.
+
+        Returns:
+            The swept coil.
 
         Examples:
             A rectangular-section coil spring:
@@ -272,6 +294,9 @@ class Sweepable:
             diameter2=diameter2,
             center=center,
             style=style,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     def sweep(
@@ -377,10 +402,12 @@ def _sweep(
 
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
-    assert len(shape3) >= 3, "shape must be a path of at least 3 points."
+    if not (len(shape3) >= 3):
+        raise ValueError("shape must be a path of at least 3 points.")
     cap_specs = norm_caps(caps, closed=closed)
     ntrans = len(transforms)
-    assert ntrans >= 2, "transforms must be length 2 or more."
+    if not (ntrans >= 2):
+        raise ValueError("transforms must be length 2 or more.")
     hi = ntrans - (0 if closed else 1)
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
 
@@ -430,7 +457,8 @@ def _path_sweep(
 
     patharr = np.asarray(path3d(path), dtype=float)
     npts = len(patharr)
-    assert npts >= 2, "path must have at least 2 points."
+    if not (npts >= 2):
+        raise ValueError("path must have at least 2 points.")
 
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
@@ -610,19 +638,23 @@ def _skin(
     """
     profiles = [list(p) for p in profiles]
     sides = len(profiles)
-    assert sides > 1, "skin() needs at least two profiles."
+    if not (sides > 1):
+        raise ValueError("skin() needs at least two profiles.")
     profcount = sides - (0 if closed else 1)
     cap_specs = norm_caps(caps, closed=closed)
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
-        assert isinstance(m, SkinMethod), f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r})."
+        if not (isinstance(m, SkinMethod)):
+            raise ValueError(f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r}).")
     sampling = sampling if sampling is not None else SamplingType.LENGTH
 
     dim = len(profiles[0][0])
     if dim == 2:
-        assert z is not None, "skin(): 2-D profiles need a matching-length z list."
-        assert len(z) == sides, "skin(): 2-D profiles need a matching-length z list."
+        if not (z is not None):
+            raise ValueError("skin(): 2-D profiles need a matching-length z list.")
+        if not (len(z) == sides):
+            raise ValueError("skin(): 2-D profiles need a matching-length z list.")
         profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
     from pybosl2.path3d import Path3D
@@ -729,7 +761,8 @@ def _rotate_sweep(
 
     Public API: use :meth:`Sweepable.rotate_sweep` instead of calling this directly.
     """
-    assert 0 < angle <= 360, "rotate_sweep(): angle must be in (0, 360]."
+    if not (0 < angle <= 360):
+        raise ValueError("rotate_sweep(): angle must be in (0, 360].")
     cap_specs = norm_caps(caps)
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
@@ -768,13 +801,18 @@ def _spiral_sweep(
     diameter2: float | None = None,
     center: bool = True,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Sweep a 2-D cross-section *poly* along a helix (internal implementation).
 
     Public API: use :meth:`Sweepable.spiral_sweep` instead of calling this directly.
     """
-    assert height > 0, "spiral_sweep(): need positive height and nonzero turns."
-    assert turns != 0, "spiral_sweep(): need positive height and nonzero turns."
+    if not (height > 0):
+        raise ValueError("spiral_sweep(): need positive height and nonzero turns.")
+    if not (turns != 0):
+        raise ValueError("spiral_sweep(): need positive height and nonzero turns.")
     rr1 = _pick_radius(
         radius1=radius1,
         diameter1=diameter1,
@@ -791,7 +829,7 @@ def _spiral_sweep(
     )
     poly = [[p[0], p[1]] for p in poly]
     nturns = abs(turns)
-    sides = _segs(max(rr1, rr2))
+    sides = _segs(max(rr1, rr2), fn, fa, fs)
     ang_step = 360.0 / sides
     total = 360.0 * nturns
     steps = math.ceil(total / ang_step)
@@ -836,9 +874,11 @@ def subdivide_and_slice(
         from functools import reduce
 
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
-    assert isinstance(numpoints, int), "numpoints must be int after resolution"
+    if not (isinstance(numpoints, int)):
+        raise ValueError("numpoints must be int after resolution")
     numpoints = round(numpoints)
-    assert numpoints >= maxsize, "subdivide_and_slice(): numpoints is smaller than the largest profile."
+    if not (numpoints >= maxsize):
+        raise ValueError("subdivide_and_slice(): numpoints is smaller than the largest profile.")
     fixed = [_wrap(p).subdivide_path(points=numpoints, closed=True) for p in profiles]
     return slice_profiles(fixed, slices, closed)  # type: ignore[arg-type]
 
@@ -951,7 +991,8 @@ def os_circle(
     """
     r_val = radius
     h_val = height
-    assert r_val is not None, "os_circle(): radius is required."
+    if not (r_val is not None):
+        raise ValueError("os_circle(): radius is required.")
     h_res = float(h_val) if h_val is not None else abs(float(r_val))
     return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
 
@@ -1068,8 +1109,10 @@ def os_profile(profile: Sequence[Sequence[float]], extra: float = 0.0) -> OSProf
 
     """
     pts = [[float(p[0]), float(p[1])] for p in profile]
-    assert pts, "os_profile(): First point of the profile must be [0, 0]."
-    assert pts[0] == [0.0, 0.0], "os_profile(): First point of the profile must be [0, 0]."
+    if not (pts):
+        raise ValueError("os_profile(): First point of the profile must be [0, 0].")
+    if not (pts[0] == [0.0, 0.0]):
+        raise ValueError("os_profile(): First point of the profile must be [0, 0].")
     return OSProfile(type=OSType.PROFILE, points=pts, extra=float(extra))
 
 
@@ -1078,9 +1121,12 @@ def _offset_sweep(
     height: float,
     bottom: object = None,
     top: object = None,
-    steps: int = 16,
+    steps: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
 
@@ -1101,7 +1147,11 @@ def _offset_sweep(
         height: Total extrusion height (Z from 0 to height).
         bottom: Bottom-rim treatment descriptor (or ``None`` for square).
         top:    Top-rim treatment descriptor (or ``None`` for square).
-        steps:  Number of slices/steps per rim treatment (default 16).
+        steps:  Number of slices per rim treatment; resolved from the rim radius and the
+                ambient facet controls when omitted (SPEC R-1).
+        fn:     Fixed fragment count for the rim arcs; ambient default when omitted.
+        fa:     Minimum fragment angle for the rim arcs.
+        fs:     Minimum fragment size for the rim arcs.
         caps:   Cap the flat top and bottom (default True); bool or [bool, bool].
         style:  ``vnf_vertex_array`` quad-subdivision style.
 
@@ -1111,7 +1161,8 @@ def _offset_sweep(
     """
     from pybosl2.path2d import Path2D as _Path
 
-    assert height > 0, "offset_sweep(): height must be positive."
+    if not (height > 0):
+        raise ValueError("offset_sweep(): height must be positive.")
     cap_specs = norm_caps(caps)
 
     base = [[float(p[0]), float(p[1])] for p in path]
@@ -1214,14 +1265,31 @@ def _offset_sweep(
 
         return ([0.0], [0.0])
 
-    bot_deltas, bot_zs = _arc_column(bottom_desc, steps)
-    top_deltas, top_zs = _arc_column(top_desc, steps)
+    def _rim_steps(desc: Any) -> int:
+        """Slices for one rim treatment.
+
+        What the caller asked for, else the facet count implied by the rim's radius when any
+        resolution was set (explicitly or ambiently), else BOSL2's own default of 16. Deriving
+        unconditionally would COARSEN a small rim -- a 2 mm roundover is 4 segments at $fa=12 --
+        so the derived value is used only when someone actually asked for a resolution (R-5).
+        """
+        if steps is not None:
+            return int(steps)
+        resolved_fn, resolved_fa, resolved_fs = resolve_facets(fn, fa, fs)
+        if resolved_fn is None and resolved_fa is None and resolved_fs is None:
+            return 16
+        radius = abs(float(desc.get("r", 0.0) or desc.get("h", 0.0) or 0.0)) if desc else 0.0
+        if not radius:
+            return 16
+        return max(4, _segs(radius, resolved_fn, resolved_fa, resolved_fs) // 4)
+
+    bot_deltas, bot_zs = _arc_column(bottom_desc, _rim_steps(bottom_desc))
+    top_deltas, top_zs = _arc_column(top_desc, _rim_steps(top_desc))
 
     h_bot = bot_zs[-1]
     h_top = top_zs[-1]
-    assert h_bot + h_top <= height, (
-        "offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height."
-    )
+    if not (h_bot + h_top <= height):
+        raise ValueError("offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height.")
 
     # Assemble (delta, z) pairs for the complete column, bottom → top.
     column: list[tuple[float, float]] = []
@@ -1469,9 +1537,8 @@ def _rounded_prism(
 
     h_bot = bot_zs[-1]
     h_top = top_zs[-1]
-    assert h_bot + h_top <= h_val, (
-        "rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height."
-    )
+    if not (h_bot + h_top <= h_val):
+        raise ValueError("rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height.")
 
     column: list[tuple[float, float]] = []
 
@@ -1500,7 +1567,8 @@ def _rounded_prism(
     profiles_3d = []
     b_arr = np.asarray(b_rounded, dtype=float)
     t_arr = np.asarray(t_rounded, dtype=float)
-    assert len(b_arr) == len(t_arr), "rounded_prism(): bottom and top polygons must have the same number of vertices."
+    if not (len(b_arr) == len(t_arr)):
+        raise ValueError("rounded_prism(): bottom and top polygons must have the same number of vertices.")
 
     for delta, z in deduped:
         frac = z / h_val
@@ -1566,9 +1634,12 @@ def _prism_connector(
     fillet: float = 0.0,
     fillet1: float | None = None,
     fillet2: float | None = None,
-    steps: int = 16,
+    steps: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
 
@@ -1579,7 +1650,18 @@ def _prism_connector(
     f2 = fillet2 if fillet2 is not None else fillet
     bot_desc = os_circle(radius=-f1) if f1 > 0 else None
     top_desc = os_circle(radius=-f2) if f2 > 0 else None
-    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+    return _offset_sweep(
+        profile,
+        height=length,
+        bottom=bot_desc,
+        top=top_desc,
+        steps=steps,
+        caps=caps,
+        style=style,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
 
 
 def _attach_prism(
@@ -1587,9 +1669,12 @@ def _attach_prism(
     length: float,
     fillet: float = 0.0,
     rounding: float = 0.0,
-    steps: int = 16,
+    steps: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
 
@@ -1598,7 +1683,18 @@ def _attach_prism(
     """
     bot_desc = os_circle(radius=-fillet) if fillet > 0 else None
     top_desc = os_circle(radius=rounding) if rounding > 0 else None
-    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+    return _offset_sweep(
+        profile,
+        height=length,
+        bottom=bot_desc,
+        top=top_desc,
+        steps=steps,
+        caps=caps,
+        style=style,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
 
 
 def _bent_cutout_mask(
@@ -1674,10 +1770,11 @@ def _path_sweep2d(
     per_point = []
     for pt in profile:
         off = pth.offset(delta=-flip * pt[0], same_length=True)
-        assert len(off) == len(pth), (
-            "path_sweep2d(): the offset dropped points (the shape is too wide for the path here); "
-            "reduce the shape's X extent."
-        )
+        if not (len(off) == len(pth)):
+            raise ValueError(
+                "path_sweep2d(): the offset dropped points (the shape is too wide for the path "
+                "here); reduce the shape's X extent."
+            )
         per_point.append([[float(p[0]), float(p[1]), float(pt[1])] for p in off])
     # transpose: one grid row per path position, each a full cross-section
     grid = [[per_point[j][i] for j in range(len(profile))] for i in range(len(pth))]
@@ -1777,13 +1874,16 @@ def rot_resample(
 
     """
     rotlist_extra = [np.asarray(t, dtype=float) for t in rotlist]
-    assert smoothlen > 0, "rot_resample(): smoothlen must be a positive odd integer."
-    assert smoothlen % 2 == 1, "rot_resample(): smoothlen must be a positive odd integer."
+    if not (smoothlen > 0):
+        raise ValueError("rot_resample(): smoothlen must be a positive odd integer.")
+    if not (smoothlen % 2 == 1):
+        raise ValueError("rot_resample(): smoothlen must be a positive odd integer.")
     assert isinstance(method, ResampleMethod)
     m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)
     if method == ResampleMethod.LENGTH:
-        assert isinstance(num_copies, int), "rot_resample(): num_copies must be an integer for method='length'."
+        if not (isinstance(num_copies, int)):
+            raise ValueError("rot_resample(): num_copies must be an integer for method='length'.")
         count = (num_copies + 1) if closed else num_copies
     else:
         count = int(tcount * num_copies + 1) if isinstance(num_copies, (int, float)) else int(sum(num_copies) + 1)
@@ -1810,8 +1910,8 @@ def rot_resample(
         )
         for i in range(tcount)
     ]
-    if method == ResampleMethod.LENGTH:
-        assert all(x > 0 for x in length), "rot_resample(): a repeated/origin rotation makes method='length' undefined."
+    if method == ResampleMethod.LENGTH and not all(x > 0 for x in length):
+        raise ValueError("rot_resample(): a repeated/origin rotation makes method='length' undefined.")
 
     cumlen = [0.0]
     for x in length:

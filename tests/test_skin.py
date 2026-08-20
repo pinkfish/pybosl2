@@ -188,12 +188,12 @@ def test_skin_closed_stack() -> None:
 
 
 def test_skin_rejects_unsupported_method() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="only\ the\ 'direct'\ and"):
         skin([_circle(4), _circle(6)], slices=2, method="distance", z=[0, 10])
 
 
 def test_skin_needs_two_profiles() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="skin\(\)\ needs\ at\ least\ two"):
         skin([_circle(4)], slices=2, z=[0])
 
 
@@ -244,7 +244,7 @@ def test_rotate_sweep_partial_has_caps() -> None:
 
 
 def test_rotate_sweep_rejects_bad_angle() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="angle\ must\ be\ in"):
         Path2D(PROFILE).rotate_sweep(angle=400)
 
 
@@ -315,7 +315,7 @@ def test_rot_resample_count_method() -> None:
 
 def test_rot_resample_rejects_even_smoothlen() -> None:
     tl = Path3D([[0, 0, 0], [0, 0, 10]]).path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], transforms=True)  # type: ignore[arg-type]
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="smoothlen\ must\ be\ a"):
         rot_resample(tl, num_copies=6, smoothlen=2)
 
 
@@ -386,13 +386,13 @@ def test_offset_sweep_flare_larger_volume() -> None:
 
 
 def test_offset_sweep_rejects_nonpositive_height() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="height\ must\ be\ positive"):
         Path2D(_SQ20).offset_sweep(height=-5)
 
 
 def test_offset_sweep_rejects_oversized_rim() -> None:
     """Rim heights summing to more than the extrusion height must fail."""
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="rim heights"):
         Path2D(_SQ20).offset_sweep(height=10, top=os_circle(radius=6), bottom=os_circle(radius=6))
 
 
@@ -451,7 +451,7 @@ def test_os_profile_fields() -> None:
     assert d["type"] == "profile"
     assert d["points"] == [[0.0, 0.0], [1.0, 2.0], [3.0, 4.0]]
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="First\ point\ of\ the"):
         # Must start at [0,0]
         os_profile([[1, 1]])
 

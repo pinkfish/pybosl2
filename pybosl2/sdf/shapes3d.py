@@ -515,7 +515,8 @@ class SdfSolid(Colorable, Distributable):
         rationale as rotate(): edge selectors are pre-transform concepts.
         """
         s = [float(v)] * 3 if isinstance(v, (int, float)) else [float(a) for a in v]
-        assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
+        if not (all((a > 0 for a in s))):
+            raise ValueError(f"scale() factors must be positive, got {s}")
         fn = self._sdf_fn
         smin = min(s)
         new_fn = lambda x, y, z: smin * fn(x / s[0], y / s[1], z / s[2])  # noqa: E731
@@ -532,7 +533,8 @@ class SdfSolid(Colorable, Distributable):
         """
         nx, ny, nz = (float(a) for a in v)
         nlen = math.sqrt(nx * nx + ny * ny + nz * nz)
-        assert nlen > 0, "mirror() normal must be nonzero"
+        if not (nlen > 0):
+            raise ValueError("mirror() normal must be nonzero")
         nx, ny, nz = nx / nlen, ny / nlen, nz / nlen
         m = [
             [1 - 2 * nx * nx, -2 * nx * ny, -2 * nx * nz],
@@ -564,7 +566,8 @@ class SdfSolid(Colorable, Distributable):
         import numpy as np
 
         m = np.asarray(matrix, dtype=float)
-        assert m.shape == (4, 4), "multmatrix requires a 4x4 matrix"
+        if not (m.shape == (4, 4)):
+            raise ValueError("multmatrix requires a 4x4 matrix")
         try:
             mt = np.linalg.inv(m)
         except np.linalg.LinAlgError:
@@ -644,7 +647,8 @@ class SdfSolid(Colorable, Distributable):
         elif num_copies is not None and spacing is None:
             distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
         else:
-            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            if not (spacing is not None):
+                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)
@@ -888,15 +892,15 @@ class SdfSolid(Colorable, Distributable):
 
         mn = [max(s.mn[i] for s in shs) for i in range(3)]
         mx = [min(s.mx[i] for s in shs) for i in range(3)]
-        assert all(mn[i] < mx[i] for i in range(3)), (
-            f"intersection(): the shapes' bounding boxes don't overlap (got mn={mn}, mx={mx})"
-        )
+        if not (all((mn[i] < mx[i] for i in range(3)))):
+            raise ValueError(f"intersection(): the shapes' bounding boxes don't overlap (got mn={mn}, mx={mx})")
         return PyShape(sdf_fn, mn, mx, max(s.res for s in shs))
 
     @staticmethod
     def difference(shape: PyShape, *tools: PyShape) -> PyShape:
         """`shape` minus the union of every `tool` (max(f, -min(tools))), as one PyShape."""
-        assert isinstance(shape, PyShape), f"difference() base must be a PyShape, got {type(shape).__name__}"
+        if not (isinstance(shape, PyShape)):
+            raise ValueError(f"difference() base must be a PyShape, got {type(shape).__name__}")
         if not tools:
             return shape
         tls = _as_shape_list(tools)
@@ -911,13 +915,16 @@ class SdfSolid(Colorable, Distributable):
     # ---- cuboid-only edge treatments ----
 
     def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: EdgeMode) -> PyShape:
-        assert self.cuboid_size is not None, f"{mode}() requires a cuboid-shaped PyShape (from pybosl2.sdf.cuboid())"
-        assert self.cuboid_edge_amounts is not None, (
-            f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
-        )
-        assert self.cuboid_edge_modes is not None, (
-            f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
-        )
+        if not (self.cuboid_size is not None):
+            raise ValueError(f"{mode}() requires a cuboid-shaped PyShape (from pybosl2.sdf.cuboid())")
+        if not (self.cuboid_edge_amounts is not None):
+            raise ValueError(
+                f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
+            )
+        if not (self.cuboid_edge_modes is not None):
+            raise ValueError(
+                f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
+            )
         edge_set = resolve_edges(edges, except_edges or [])
         amounts = [row[:] for row in self.cuboid_edge_amounts]
         modes = [row[:] for row in self.cuboid_edge_modes]
@@ -964,7 +971,8 @@ class SdfSolid(Colorable, Distributable):
 
         if len(args) == 1 and isinstance(args[0], (list, tuple)) and args[0] and isinstance(args[0][0], PyShape):
             args = list(args[0])
-        assert args, "hull() needs at least one shape or point set"
+        if not (args):
+            raise ValueError("hull() needs at least one shape or point set")
 
         entries: list[tuple[str, Any]] = []
         mn = [math.inf] * 3
@@ -981,8 +989,10 @@ class SdfSolid(Colorable, Distributable):
                 pts = np.asarray(a, dtype=float)
                 if pts.ndim == 1:
                     pts = pts.reshape(1, -1)
-                assert pts.ndim == 2, f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
-                assert pts.shape[1] == 3, f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}"
+                if not (pts.ndim == 2):
+                    raise ValueError(f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}")
+                if not (pts.shape[1] == 3):
+                    raise ValueError(f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}")
                 entries.append(("points", pts))
                 for i in range(3):
                     mn[i] = min(mn[i], float(pts[:, i].min()))
@@ -998,7 +1008,8 @@ class SdfSolid(Colorable, Distributable):
                         pools.append(v)
                     else:
                         verts, _faces = v.mesh().mesh()
-                        assert verts, "hull(): a child shape meshed to nothing (empty geometry)"
+                        if not (verts):
+                            raise ValueError("hull(): a child shape meshed to nothing (empty geometry)")
                         pools.append(np.asarray(verts, dtype=float))
                 sup = _support_points(np.concatenate(pools), directions)
                 state["planes"] = _hull_planes([[float(c) for c in p] for p in sup])
@@ -1307,10 +1318,10 @@ def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
     if len(shapes) == 1 and isinstance(shapes[0], (list, tuple)):
         shapes = tuple(shapes[0])
     out = list(shapes)
-    assert out, "need at least one shape"
-    assert all(isinstance(s, PyShape) for s in out), (
-        f"every argument must be a PyShape, got {[type(s).__name__ for s in out]}"
-    )
+    if not (out):
+        raise ValueError("need at least one shape")
+    if not all(isinstance(s, PyShape) for s in out):
+        raise ValueError(f"every argument must be a PyShape, got {[type(s).__name__ for s in out]}")
     return out
 
 
@@ -1379,9 +1390,8 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
                 nx, ny, nz = nx / nlen, ny / nlen, nz / nlen
                 d = nx * ax + ny * ay + nz * az
                 side = [nx * p[0] + ny * p[1] + nz * p[2] - d for p in pts]
-                assert not all(abs(s) <= eps for s in side), (
-                    "hull planes: points are coplanar -- that's a 2-D outline, not a solid"
-                )
+                if all(abs(s) <= eps for s in side):
+                    raise ValueError("hull planes: points are coplanar -- that's a 2-D outline, not a solid")
                 if all(s <= eps for s in side):
                     pass  # already outward
                 elif all(s >= -eps for s in side):
@@ -1393,7 +1403,8 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
                     continue
                 seen.add(key)
                 planes.append((nx, ny, nz, d))
-    assert planes, "hull planes: no supporting planes found -- are the points coplanar?"
+    if not (planes):
+        raise ValueError("hull planes: no supporting planes found -- are the points coplanar?")
     return planes
 
 
@@ -1494,14 +1505,16 @@ def cuboid(
     """
     if size is None:
         size = [1, 1, 1]
-    assert not (rounding and chamfer), "Cannot specify nonzero value for both rounding and chamfer"
+    if rounding and chamfer:
+        raise ValueError("Cannot specify nonzero value for both rounding and chamfer")
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 3
     edge_set = resolve_edges(edges, except_edges or [])
     half = [s / 2 for s in sz]
     if rounding < 0:
         # BOSL2's negative rounding: an external cove flare on the selected edges (see
         # _cuboid_flare_sdf). Same restriction as BOSL2: no Z-aligned edges.
-        assert edge_set[2] == [0, 0, 0, 0], "Cannot use negative rounding with Z aligned edges"
+        if not (edge_set[2] == [0, 0, 0, 0]):
+            raise ValueError("Cannot use negative rounding with Z aligned edges")
         r = -rounding
         sdf_fn = lambda x, y, z: _cuboid_flare_sdf(x, y, z, sz, r, edge_set)  # noqa: E731
         # The flares stick out horizontally by r on whichever sides have a flared edge --
@@ -1579,7 +1592,8 @@ def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
     points = np.asarray(points, dtype=float)
     pts = [[float(v) for v in p] for p in points]
     n = len(pts)
-    assert n >= 4, f"convex_polyhedron() needs at least 4 points, got {n}"
+    if not (n >= 4):
+        raise ValueError(f"convex_polyhedron() needs at least 4 points, got {n}")
     planes = _hull_planes(pts)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -1891,12 +1905,15 @@ def cyl(
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
-    assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
+    if (r1v or r2v) and (c1v or c2v):
+        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     if shift is not None and (shift[0] or shift[1]):
-        assert not amt1, "shift= cannot be combined with rounding/chamfer"
-        assert not amt2, "shift= cannot be combined with rounding/chamfer"
+        if amt1:
+            raise ValueError("shift= cannot be combined with rounding/chamfer")
+        if amt2:
+            raise ValueError("shift= cannot be combined with rounding/chamfer")
         sdf_fn = lambda x, y, z: _cylinder_sdf(x, y, z, length, rad1, rad2, shift)  # noqa: E731
     else:
         sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode)  # noqa: E731
@@ -1941,7 +1958,8 @@ def _cyl_axis(
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
-    assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
+    if (r1v or r2v) and (c1v or c2v):
+        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -2131,7 +2149,8 @@ def tube(
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0.0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0.0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0.0)
-    assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
+    if (r1v or r2v) and (c1v or c2v):
+        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     def outer_sdf(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -2297,7 +2316,8 @@ def rect_tube(
     if isize is not None:
         isz: list[float] = [float(v) for v in isize] if isinstance(isize, (list, tuple)) else [float(isize)] * 2
     else:
-        assert wall is not None, "rect_tube(): must give isize or wall."
+        if not (wall is not None):
+            raise ValueError("rect_tube(): must give isize or wall.")
         isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
     irounding_v = inner_rounding if inner_rounding is not None else rounding
     edge_set_z = resolve_edges(Anchor.Z, [])
@@ -2485,22 +2505,30 @@ def polygon_prism(
     """
     if not isinstance(paths, (list, np.ndarray)):
         raise TypeError(f"polygon_prism(): paths must be a list of points or numpy array, got {type(paths).__name__}")
-    assert len(paths) >= 1, "polygon_prism(): paths must not be empty"
+    if not (len(paths) >= 1):
+        raise ValueError("polygon_prism(): paths must not be empty")
     path_list = as_path_list(paths)
     for p in path_list:
-        assert len(p) >= 3, f"polygon_prism(): every path needs >= 3 points, got {len(p)}"
-    assert height > 0, f"polygon_prism(): height must be > 0, height={height}"
-    assert abs(rounding_top) < height, "polygon_prism(): rim treatments must be smaller than height"
-    assert abs(rounding_bottom) < height, "polygon_prism(): rim treatments must be smaller than height"
-    assert chamfer_top < height, "polygon_prism(): rim treatments must be smaller than height"
-    assert chamfer_bottom < height, "polygon_prism(): rim treatments must be smaller than height"
+        if not (len(p) >= 3):
+            raise ValueError(f"polygon_prism(): every path needs >= 3 points, got {len(p)}")
+    if not (height > 0):
+        raise ValueError(f"polygon_prism(): height must be > 0, height={height}")
+    if not (abs(rounding_top) < height):
+        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+    if not (abs(rounding_bottom) < height):
+        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+    if not (chamfer_top < height):
+        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+    if not (chamfer_bottom < height):
+        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d2d = None
         for p in path_list:
             d = _polygon_sdf_xy(x, y, p)
             d2d = d if d2d is None else lv.min(d2d, d)
-        assert d2d is not None, "polygon_prism(): no paths"
+        if not (d2d is not None):
+            raise ValueError("polygon_prism(): no paths")
 
         # Sharp prism, then max() in each roundover rim (each reduces to the sharp distance
         # away from its own rim -- see docstring).
@@ -2707,9 +2735,10 @@ def heightfield(
     """
     if size is None:
         size = [100, 100]
-    assert callable(data), (
-        "pybosl2.sdf.shapes3d.heightfield() only supports callable data -- see the CAVEAT in its docstring."
-    )
+    if not (callable(data)):
+        raise ValueError(
+            "pybosl2.sdf.shapes3d.heightfield() only supports callable data -- see the CAVEAT in its docstring."
+        )
     bx, by = size[0] / 2, size[1] / 2
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -2844,7 +2873,8 @@ def _rmf_frames(points: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.floa
     t[0] = p[1] - p[0]
     t[-1] = p[-1] - p[-2]
     tl = np.linalg.norm(t, axis=1, keepdims=True)
-    assert np.all(tl > 1e-12), "path has a repeated point (zero-length tangent)"
+    if not (np.all(tl > 1e-12)):
+        raise ValueError("path has a repeated point (zero-length tangent)")
     t /= tl
     nrm = np.zeros((n, 3))
     ref = np.array([0.0, 0.0, 1.0]) if abs(t[0][2]) < 0.9 else np.array([1.0, 0.0, 0.0])
@@ -2885,9 +2915,11 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
     (in degrees) applied evenly along the path.
     """
     prof = as_points(profile)
-    assert len(prof) >= 3, "sweep profile needs at least 3 points"
+    if not (len(prof) >= 3):
+        raise ValueError("sweep profile needs at least 3 points")
     pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(path, dtype=float).tolist()]
-    assert len(pts3) >= 2, "sweep path needs at least 2 points"
+    if not (len(pts3) >= 2):
+        raise ValueError("sweep path needs at least 2 points")
     p = np.asarray(pts3, dtype=float)
     tang, norm, binorm = _rmf_frames(p)
     n = len(p)
@@ -3015,7 +3047,8 @@ def stroke_3d(
     from pybosl2.caps import CapSpec, CapType
 
     pts = [list(map(float, p)) for p in path]
-    assert len(pts) >= 2, "stroke_3d: need at least 2 points."
+    if not (len(pts) >= 2):
+        raise ValueError("stroke_3d: need at least 2 points.")
     is_closed = closed if closed is not None else getattr(path, "closed", False)
     ec1 = endcap1 if endcap1 is not None else CapSpec(cap_type=CapType.ROUND)
     ec2 = endcap2 if endcap2 is not None else CapSpec(cap_type=CapType.ROUND)
@@ -3059,7 +3092,8 @@ def stroke_3d(
             )
             shapes.append(sphere(radius=radius).translate(end))
 
-    assert shapes, "stroke_3d: path has no drawable segments."
+    if not (shapes):
+        raise ValueError("stroke_3d: path has no drawable segments.")
     return SdfSolid.union(*shapes)
 
 

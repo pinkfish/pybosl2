@@ -81,7 +81,8 @@ class CsgBackend:
 
         # plain floats: the native polygon()/FFI boundary rejects numpy scalars
         outlines = [[[float(p[0]), float(p[1])] for p in path] for path in paths]
-        assert outlines, "linear_extrude(): needs at least one outline."
+        if not (outlines):
+            raise ValueError("linear_extrude(): needs at least one outline.")
         shape = Bosl2Shape2D(_polygon(outlines[0]))
         for hole in outlines[1:]:
             shape = shape - Bosl2Shape2D(_polygon(hole))

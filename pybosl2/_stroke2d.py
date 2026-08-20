@@ -133,7 +133,8 @@ def stroke_2d(
     from pybosl2.path2d import Path2D
 
     pts = [list(map(float, p)) for p in path]
-    assert len(pts) >= 2, "stroke(): need at least 2 points."
+    if not (len(pts) >= 2):
+        raise ValueError("stroke(): need at least 2 points.")
     is_closed = _ensure_closed(pts, closed, getattr(path, "closed", False))
     ec1 = endcap1 if isinstance(endcap1, CapSpec) else normalize_one(endcap1)
     ec2 = endcap2 if isinstance(endcap2, CapSpec) else normalize_one(endcap2)
@@ -193,7 +194,8 @@ def dashed_stroke_2d(
         dpat = dpat + [0.0]
 
     pts = [list(map(float, p)) for p in path]
-    assert len(pts) >= 2, "dashed_stroke(): need at least 2 points."
+    if not (len(pts) >= 2):
+        raise ValueError("dashed_stroke(): need at least 2 points.")
     is_closed = _ensure_closed(pts, closed, getattr(path, "closed", False))
     raw = pts + [pts[0]] if is_closed else pts
     cuts = _dash_cuts(raw, dpat, is_closed, fit, mindash)

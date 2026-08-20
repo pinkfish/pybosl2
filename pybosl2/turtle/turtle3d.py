@@ -516,8 +516,10 @@ class Turtle3D:
         elif rtype == TurtleCommand.RotationType.DOWN:
             down = angle_val
 
-        assert not is_arc or (right == 0 or left == 0), f'Cannot give both "left" and "right" at index {index}'
-        assert not is_arc or (up == 0 or down == 0), f'Cannot give both "up" and "down" at index {index}'
+        if not (not is_arc or (right == 0 or left == 0)):
+            raise ValueError(f'Cannot give both "left" and "right" at index {index}')
+        if not (not is_arc or (up == 0 or down == 0)):
+            raise ValueError(f'Cannot give both "up" and "down" at index {index}')
 
         newdir = Turtle3D._apply(Turtle3D._zrot4(left - right) @ Turtle3D._yrot4(down - up), RIGHT.vector)
         if left - right == 0:
@@ -560,10 +562,12 @@ class Turtle3D:
             abscenter = vshift = None
         else:
             projv = v - np.dot(absaxis, v) * absaxis
-            assert np.linalg.norm(projv) > 1e-9, f"Rotation acts as twist -- not a valid arc at index {index}"
+            if not (np.linalg.norm(projv) > 1e-09):
+                raise ValueError(f"Rotation acts as twist -- not a valid arc at index {index}")
             abscenter = np.sign(absangle) * radius * np.cross(absaxis, projv)
             vshift = absaxis * (np.dot(absaxis, v) / np.linalg.norm(projv)) * 2 * math.pi * radius * absangle / 360
-        assert not is_arc or (absangle or rel_angle), '"arc" needs a rotation type and angle'
+        if not (not is_arc or (absangle or rel_angle)):
+            raise ValueError('"arc" needs a rotation type and angle')
 
         # roll
         def _final_xform() -> np.ndarray:

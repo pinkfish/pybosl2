@@ -134,7 +134,7 @@ def test_rack_helical_shears_length() -> None:
 
 
 def test_rack_height_too_small_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="height\ must\ exceed\ adendum"):
         _ = Rack(pitch=5, teeth=10, thickness=5, height=1).shape  # < adendum + dedendum
 
 
@@ -235,7 +235,7 @@ def test_worm_gear_thickness_matches_helper() -> None:
 
 
 def test_worm_arc_out_of_range_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="worm_arc\ must\ be\ between"):
         _ = WormGear(pitch=5, teeth=30, worm_diam=25, worm_arc=90, fn=None, fa=None, fs=None).shape
 
 

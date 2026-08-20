@@ -94,11 +94,14 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     same declared bounding box the original uses.
     """
     _ = fill
-    assert arm_angle == 90, "only the arm_angle=90/arm_height=0 variant is ported"
-    assert arm_height == 0, "only the arm_angle=90/arm_height=0 variant is ported"
+    if not (arm_angle == 90):
+        raise ValueError("only the arm_angle=90/arm_height=0 variant is ported")
+    if not (arm_height == 0):
+        raise ValueError("only the arm_angle=90/arm_height=0 variant is ported")
     assert isinstance(segs, int)
     assert segs >= 2
-    assert offset >= knuckle_diam / 2, "offset must be at least the knuckle radius"
+    if not (offset >= knuckle_diam / 2):
+        raise ValueError("offset must be at least the knuckle radius")
 
     segs1 = math.ceil(segs / 2)
     segs2 = math.floor(segs / 2)
@@ -161,7 +164,8 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     joiners.scad's rabbit_clip (same path construction, bezier smoothing, and attachable
     anchoring; the "double" type isn't ported since nothing here uses it).
     """
-    assert type in ("pin", Gender.MALE, "socket", Gender.FEMALE), f"unsupported rabbit_clip type {type!r}"
+    if type not in ("pin", Gender.MALE, "socket", Gender.FEMALE):
+        raise ValueError(f"unsupported rabbit_clip type {type!r}")
     is_pin = type in ("pin", "male")
     extra = 0.02
     clearance = 0 if is_pin else clearance
@@ -187,7 +191,8 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
         ]
     )
     fullpath = np.vstack([sidepath, [bottom_pt], sidepath[::-1] * [-1.0, 1.0]])
-    assert fullpath[4][1] < fullpath[3][1], "Pin is too wide for its length"
+    if not (fullpath[4][1] < fullpath[3][1]):
+        raise ValueError("Pin is too wide for its length")
 
     fulltangent = path_tangents(fullpath, closed=False, uniform=False)
     # Force vertical tangents at the outer edges of the clip to avoid overshoot.

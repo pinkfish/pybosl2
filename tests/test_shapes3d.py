@@ -211,9 +211,9 @@ def test_resolve_bounds_rejects_bad_bbox() -> None:
     import pytest
 
     c = cuboid([10, 10, 10])
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="bbox\ must\ be"):
         c.anchor_point(TOP, bbox=[[0, 0, 0]])  # wrong shape
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="bbox\ must\ be"):
         c.anchor_point(TOP, bbox=[[10, 0, 0], [0, 5, 5]])  # max < min on x
 
 
@@ -236,7 +236,7 @@ def test_fillet_builds() -> None:
 def test_fillet_rejects_non_right_angle() -> None:
     import pytest
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="only\ 90\-degree\ edges\ \(angle=90\)"):
         fillet(length=20, radius=6, angle=120)  # type: ignore[operator]
 
 

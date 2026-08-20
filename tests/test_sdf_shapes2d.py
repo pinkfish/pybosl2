@@ -458,12 +458,12 @@ class TestKeyholeOutline:
 
     def test_no_room_for_a_neck_is_rejected(self) -> None:
         # circles so close that the shoulder would land above the small circle's centre
-        with pytest.raises(AssertionError, match="no room for a neck"):
+        with pytest.raises(ValueError, match="no room for a neck"):
             sdf_s2d.keyhole_outline(length=4, radius1=5, radius2=10)
 
     def test_a_fillet_too_big_for_the_gap_is_rejected(self) -> None:
         # the shoulder climbs with shoulder_radius, so a large enough one runs out of neck
-        with pytest.raises(AssertionError, match="no room for a neck"):
+        with pytest.raises(ValueError, match="no room for a neck"):
             sdf_s2d.keyhole_outline(length=11, radius1=5, radius2=10, shoulder_radius=8)
 
     @pytest.mark.parametrize(
@@ -478,7 +478,7 @@ class TestKeyholeOutline:
     )
     def test_degenerate_arguments_are_rejected(self, kwargs: dict[str, float], match: str) -> None:
         args: dict[str, float] = {"length": 20, "radius1": 5, "radius2": 10, **kwargs}
-        with pytest.raises(AssertionError, match=match):
+        with pytest.raises(ValueError, match=match):
             sdf_s2d.keyhole_outline(**args)
 
 
@@ -500,7 +500,7 @@ class TestKeyhole2D:
         assert shape.sample(0, -20, 2) < 0, "inside the large circle"
 
     def test_keyhole_short_length_rejected(self) -> None:
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError, match="no room for a neck"):
             sdf_s2d.keyhole2d(length=3)
 
 

@@ -62,7 +62,8 @@ def as_points(pts: ArrayLike) -> NDArray[np.float64]:
     raw ndarrays there raise SystemError/TypeError and poison the interpreter.
     """
     arr = np.asarray(pts, dtype=float)
-    assert arr.ndim == 2, f"expected a point path, got shape {arr.shape}"
+    if not (arr.ndim == 2):
+        raise ValueError(f"expected a point path, got shape {arr.shape}")
     return arr
 
 
@@ -184,13 +185,15 @@ def _halfplane_max_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64]) -> LV
             continue
         e = (ey / elen) * (x - x0) + (-ex / elen) * (y - y0)
         d = e if d is None else lv.max(d, e)
-    assert d is not None, "polygon has no non-degenerate edges"
+    if not (d is not None):
+        raise ValueError("polygon has no non-degenerate edges")
     return d
 
 
 def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _depth: int = 0) -> LVTree:
     """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets)."""
-    assert _depth < 16, "polygon decomposition recursed implausibly deep -- is the outline self-intersecting?"
+    if not (_depth < 16):
+        raise ValueError("polygon decomposition recursed implausibly deep -- is the outline self-intersecting?")
     if _is_convex(ccw_pts):
         return _halfplane_max_sdf(x, y, ccw_pts)
 
@@ -408,12 +411,15 @@ def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
     """
     assert length > 0
-    assert length / 2 < arc_radius, "Side radius arc_radius must be larger than length/2"
-    assert length > radius1 + radius2, "Length must be longer than radius1+radius2"
+    if not (length / 2 < arc_radius):
+        raise ValueError("Side radius arc_radius must be larger than length/2")
+    if not (length > radius1 + radius2):
+        raise ValueError("Length must be longer than radius1+radius2")
     c1 = [-length / 2 + radius1, 0.0]
     c2 = [length / 2 - radius2, 0.0]
     m_pts = list(reversed(_circle_circle_intersection(arc_radius - radius1, c1, arc_radius - radius2, c2)))
-    assert len(m_pts) == 2, "egg_path(): circles do not intersect for the given length/radius1/radius2/arc_radius."
+    if not (len(m_pts) == 2):
+        raise ValueError("egg_path(): circles do not intersect for the given length/radius1/radius2/arc_radius.")
     arcparms = []
     for m in m_pts:
         u1 = _unit2([c1[0] - m[0], c1[1] - m[1]])
@@ -516,7 +522,8 @@ def _v_norm(a: _VecLike) -> float:
 def _v_unit(a: _VecLike) -> NDArray[np.float64]:
     arr = np.asarray(a, dtype=float)
     n = float(np.linalg.norm(arr))
-    assert n > 1e-12, "cannot normalize a zero vector"
+    if not (n > 1e-12):
+        raise ValueError("cannot normalize a zero vector")
     return arr / n
 
 
@@ -608,7 +615,8 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
         segs = np.linalg.norm(seg_ends - seg_starts, axis=1)
         d = deriv(pts, h=segs, closed=closed)
     norms = np.linalg.norm(d, axis=1, keepdims=True)
-    assert np.all(norms > 1e-12), "cannot normalize a zero tangent"
+    if not (np.all(norms > 1e-12)):
+        raise ValueError("cannot normalize a zero tangent")
     unit_tangents: NDArray[np.float64] = d / norms
     return unit_tangents
 
@@ -666,7 +674,8 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
     curve deviates from each segment by *size* (absolute) or *relsize* (fraction of
     segment length).
     """
-    assert size is None or relsize is None, "Can't define both size and relsize"
+    if not (size is None or relsize is None):
+        raise ValueError("Can't define both size and relsize")
     path = as_points(path)
     curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
     relative = size is None
@@ -684,7 +693,8 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
         first = path[i]
         second = path[(i + 1) % len(path)]
         seglength = math.dist(first, second)
-        assert seglength > 0, f"zero-length path segment at index {i}"
+        if not (seglength > 0):
+            raise ValueError(f"zero-length path segment at index {i}")
         segdir = (second - first) / seglength
         tangent1 = tang[i]
         tangent2 = -tang[(i + 1) % len(path)]  # points backward, along the curve
@@ -799,7 +809,8 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     path = as_points(path)
     if isinstance(cutdist, (int, float)):
         return path_cut_points(path, [cutdist], closed)
-    assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
+    if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
+        raise ValueError("Cut distances must be an increasing list")
 
     def select(p: NDArray[np.float64] | Sequence[float], i: int) -> NDArray[np.float64]:
         return p[i % len(p)]  # type: ignore[return-value]
@@ -807,7 +818,8 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     def cut_single(dist: float, ind: int, eps: float = 1e-7) -> list:  # type: ignore[type-arg]
         while True:
             if ind == len(path) - (0 if closed else 1):
-                assert dist < eps, "Path2D is too short for specified cut distance"
+                if not (dist < eps):
+                    raise ValueError("Path2D is too short for specified cut distance")
                 return [np.array(select(path, ind)), ind + 1]
             d = float(np.linalg.norm(select(path, ind + 1) - path[ind]))
             if d > dist:
@@ -889,9 +901,11 @@ def round_corners(  # type: ignore[no-untyped-def]
     """
     path = as_points(path)
     n = len(path)
-    assert n > 2, f"Path2D has length {n}. Length must be 3 or more."
+    if not (n > 2):
+        raise ValueError(f"Path2D has length {n}. Length must be 3 or more.")
     size = radius if radius is not None else r
-    assert size is not None, "Must specify radius"
+    if not (size is not None):
+        raise ValueError("Must specify radius")
     parm = list(size) if isinstance(size, (list, tuple)) else [size] * n
 
     dk = []
@@ -901,7 +915,8 @@ def round_corners(  # type: ignore[no-untyped-def]
             continue
         p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert angle > 1e-9, f"Path2D turns back on itself at index {i} with nonzero rounding"
+        if not (angle > 1e-09):
+            raise ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding")
         dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
     out: list[Any] = []

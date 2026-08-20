@@ -60,7 +60,7 @@ def test_quarter_circle_bite_radius() -> None:
 
 
 def test_requires_r_or_d() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="must\ give\ radius\ or"):
         mask2d_roundover()
 
 

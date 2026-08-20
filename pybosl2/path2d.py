@@ -269,9 +269,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self._geom = LineString()
             self.closed = closed
             return
-        assert pts.ndim == 2, f"Path2D needs a list of [x, y] points, got {pts.ndim}D array"
-        assert pts.shape[1] == 2, f"Path2D needs [x, y] points, got shape {pts.shape}"
-        assert pts.dtype == np.float64, f"Path2D needs float64 points, got {pts.dtype}"
+        if not (pts.ndim == 2):
+            raise ValueError(f"Path2D needs a list of [x, y] points, got {pts.ndim}D array")
+        if not (pts.shape[1] == 2):
+            raise ValueError(f"Path2D needs [x, y] points, got shape {pts.shape}")
+        if not (pts.dtype == np.float64):
+            raise ValueError(f"Path2D needs float64 points, got {pts.dtype}")
         self.closed = closed
         pts.flags.writeable = False  # shared by every _points reader; see the property
         self._array = pts
@@ -320,16 +323,21 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 Path2D.catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()
 
         """
-        assert (droop is None) != (angle is None), "catenary() needs exactly one of droop= or angle="
-        assert width > 0, "catenary() needs width > 0."
-        assert isinstance(sides, int), "catenary() needs a positive integer sides."
-        assert sides > 0, "catenary() needs a positive integer sides."
+        if not ((droop is None) != (angle is None)):
+            raise ValueError("catenary() needs exactly one of droop= or angle=")
+        if not (width > 0):
+            raise ValueError("catenary() needs width > 0.")
+        if not (isinstance(sides, int)):
+            raise ValueError("catenary() needs a positive integer sides.")
+        if not (sides > 0):
+            raise ValueError("catenary() needs a positive integer sides.")
         given = droop if droop is not None else angle
         assert given is not None
         sgn = int(math.copysign(1, given))
         droop_a = None if droop is None else abs(droop)
         angle_a = None if angle is None else abs(angle)
-        assert angle_a is None or (0 < angle_a < 90), "catenary() angle must satisfy 0 < |angle| < 90."
+        if not (angle_a is None or 0 < angle_a < 90):
+            raise ValueError("catenary() angle must satisfy 0 < |angle| < 90.")
 
         if droop_a is None:  # solve for the scale that gives the requested endpoint slope
             assert angle_a is not None
@@ -842,9 +850,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Subdivide the path into more points."""
         if closed is None:
             closed = self.closed
-        assert points_per_segment is None or method == SubdivideMethod.SEGMENT, (
-            "points_per_segment requires method=SubdivideMethod.SEGMENT"
-        )
+        if not (points_per_segment is None or method == SubdivideMethod.SEGMENT):
+            raise ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
         ls = self._shapely
         total = ls.length
         if total < 1e-12:
@@ -1561,7 +1568,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         join: MinkowskiJoin = MinkowskiJoin.ROUND,
         mitre_limit: float = 5.0,
         single_sided: bool = False,
-        quad_segs: int = 16,
+        quad_segs: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Path2D":
         r"""Return the Minkowski sum of this closed path with a circle of *radius*.
 
@@ -1582,7 +1592,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             join: Corner join style (default :attr:`MinkowskiJoin.ROUND`).
             mitre_limit: Maximum mitre extension ratio (:attr:`MinkowskiJoin.MITRE` only).
             single_sided: If ``True``, dilate on one side of the outline only.
-            quad_segs: Segments per quadrant for round joins (default 16).
+            quad_segs: Segments per quadrant for round joins; resolved from the radius and the
+                ambient facet controls when omitted.
+            fn: Fixed fragment count for the round joins; ambient default when omitted.
+            fa: Minimum fragment angle for the round joins.
+            fs: Minimum fragment size for the round joins.
 
         Returns:
             A new closed :class:`Path2D`.
@@ -1623,13 +1637,34 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         from shapely.geometry import Polygon as _Polygon
 
         pts = [(float(p[0]), float(p[1])) for p in self._points]
+        from pybosl2._helpers import frag_count as _facet_count
+        from pybosl2.defaults import resolve_facets
+
+        def _quad_segs() -> int:
+            """Segments per quadrant: the caller's, else the resolution they asked for, else 16.
+
+            Deriving unconditionally would COARSEN the default (a 5 mm radius is 3 segments per
+            quadrant at $fa=12), so the derived value is used only when a resolution was actually
+            set -- explicitly or ambiently (SPEC R-5).
+            """
+            if quad_segs is not None:
+                return int(quad_segs)
+            resolved = resolve_facets(fn, fa, fs)
+            if all(value is None for value in resolved):
+                return 16
+            return max(1, _facet_count(abs(radius), *resolved) // 4)
+
         style_map = {
             MinkowskiJoin.ROUND: JOIN_STYLE.round,
             MinkowskiJoin.MITRE: JOIN_STYLE.mitre,
             MinkowskiJoin.BEVEL: JOIN_STYLE.bevel,
         }
         poly = _Polygon(pts).buffer(
-            radius, join_style=style_map[join], mitre_limit=mitre_limit, single_sided=single_sided, quad_segs=quad_segs
+            radius,
+            join_style=style_map[join],
+            mitre_limit=mitre_limit,
+            single_sided=single_sided,
+            quad_segs=_quad_segs(),
         )
         if poly.is_empty:
             return Path2D([], closed=True)
@@ -2254,14 +2289,15 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 the fold repair that would drop points (``delta``, no chamfer).
 
         """
-        assert (radius is None) != (delta is None), (
-            f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}"
-        )
-        assert closed is not False, "Open paths are not supported by offset()"
+        if not ((radius is None) != (delta is None)):
+            raise ValueError(f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}")
+        if not (closed is not False):
+            raise ValueError("Open paths are not supported by offset()")
         closed = True
-        assert not same_length or (radius is None and not chamfer), (
-            "offset(same_length=True) needs a plain delta offset: rounded and chamfered joins add points."
-        )
+        if not (not same_length or (radius is None and (not chamfer))):
+            raise ValueError(
+                "offset(same_length=True) needs a plain delta offset: rounded and chamfered joins add points."
+            )
         pts = self._points.copy()
         amount = float(radius if radius is not None else delta)  # type: ignore[arg-type]
         use_round = radius is not None
@@ -2388,7 +2424,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if keep.all():
             return pts
         pts = pts[keep]
-        assert len(pts) >= 3, "offset() needs at least 3 distinct points"
+        if not (len(pts) >= 3):
+            raise ValueError("offset() needs at least 3 distinct points")
         return pts
 
     @staticmethod
@@ -2533,11 +2570,15 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             mitre_limit=1e9,
         )
         parts = [part for part in getattr(grown, "geoms", [grown]) if not part.is_empty]
-        assert parts, f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
+        if not (parts):
+            raise ValueError(
+                f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
+            )
         ring = [[float(x), float(y)] for x, y in max(parts, key=lambda part: part.area).exterior.coords[:-1]]
-        assert len(ring) >= 3, (
-            f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
-        )
+        if not (len(ring) >= 3):
+            raise ValueError(
+                f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
+            )
         source_sign = Path2D.polygon_area(source, signed=True)
         return (
             ring
@@ -2560,7 +2601,8 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             if isinstance(start, (list, tuple)):
                 return [lst[i % sides] for i in start]
             return lst[start % sides]  # type: ignore[no-any-return]
-        assert isinstance(start, int), "_path_select(): slice form needs integer start"
+        if not (isinstance(start, int)):
+            raise ValueError("_path_select(): slice form needs integer start")
         s = start % sides
         e = end % sides
         if s <= e:
@@ -3007,9 +3049,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         sides = len(path)
-        assert sides > 2, f"Path2D has length {sides}. Length must be 3 or more."
+        if not (sides > 2):
+            raise ValueError(f"Path2D has length {sides}. Length must be 3 or more.")
         size = radius if radius is not None else radius
-        assert size is not None, "Must specify radius"
+        if not (size is not None):
+            raise ValueError("Must specify radius")
         if isinstance(size, (list, tuple)):
             parm = ([0] + list(size) + [0]) if len(size) < sides else list(size)
         else:

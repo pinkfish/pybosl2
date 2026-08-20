@@ -469,7 +469,8 @@ class CsgSolid(BaseShape):
         elif num_copies is not None and spacing is None:
             distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
         else:
-            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            if not (spacing is not None):
+                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)
@@ -567,9 +568,11 @@ class CsgSolid(BaseShape):
         if bbox is None:
             return self.bounds()
         arr = np.asarray(bbox, dtype=float)
-        assert arr.shape == (2, 3), "bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]]."
+        if not (arr.shape == (2, 3)):
+            raise ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].")
         lo, hi = arr[0], arr[1]
-        assert bool(np.all(hi >= lo - 1e-12)), "bbox must be [[min...],[max...]] with max >= min."
+        if not (bool(np.all(hi >= lo - 1e-12))):
+            raise ValueError("bbox must be [[min...],[max...]] with max >= min.")
         return [(lo[i] + hi[i]) / 2 for i in range(3)], [hi[i] - lo[i] for i in range(3)]
 
     def anchor_point(
@@ -877,6 +880,9 @@ class CsgSolid(BaseShape):
         r: float | None = None,
         d: float | None = None,
         tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Bosl2Solid":
         """Cut a 2-D mask profile along each selected edge of this box-shaped solid.
 
@@ -891,6 +897,9 @@ class CsgSolid(BaseShape):
             r:            rounding radius alias
             d:            rounding diameter alias
             tag:          override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
+            fn:           fixed fragment count for the default roundover mask; ambient default when omitted
+            fa:           minimum fragment angle for the default roundover mask
+            fs:           minimum fragment size for the default roundover mask
 
         """
         from pybosl2 import masking
@@ -905,7 +914,7 @@ class CsgSolid(BaseShape):
 
         resolved_children: Sequence[Sequence[float]] | Path2D | None = children
         if rad is not None and resolved_children is None:
-            resolved_children = masking.mask2d_roundover(abs(rad))
+            resolved_children = masking.mask2d_roundover(abs(rad), fn=fn, fa=fa, fs=fs)
         if resolved_children is not None and not isinstance(resolved_children, Path2D):
             resolved_children = Path2D(resolved_children, closed=False)
 
@@ -944,6 +953,9 @@ class CsgSolid(BaseShape):
         r: float | None = None,
         d: float | None = None,
         tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Bosl2Solid":
         """Cut an asymmetric edge profile into the solid's edges."""
         return self.edge_profile(
@@ -956,6 +968,9 @@ class CsgSolid(BaseShape):
             r=r,
             d=d,
             tag=tag,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     def corner_profile(

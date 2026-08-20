@@ -360,7 +360,8 @@ class Turtle2D:
     ) -> None:
         """Execute an arc command (arcleft / arcright / arcleftto / arcrightto) in 2-D."""
         radius_val = cmd.radius
-        assert isinstance(radius_val, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric radius at index {index}'
+        if not (isinstance(radius_val, (int, float))):
+            raise ValueError(f'"{cmd.cmd_type.value}" needs a numeric radius at index {index}')
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
@@ -375,7 +376,8 @@ class Turtle2D:
             turn = math.copysign(1, radius_val) * lrsign * myangle
             rot_step = _rot2(lrsign * myangle, step)
         else:
-            assert isinstance(cmd.angle, (int, float)), f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}'
+            if not (isinstance(cmd.angle, (int, float))):
+                raise ValueError(f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}')
             radius = radius_val
             ln2 = line_normal(Point(0.0, 0.0), Point(float(step[0]), float(step[1])))
             center = [lastpt[0] + lrsign * radius * ln2[0], lastpt[1] + lrsign * radius * ln2[1]]
@@ -413,7 +415,8 @@ class Turtle2D:
         *angle* from ``cmd.angle`` (defaulting to the stored angle).
         """
         radius_val = cmd.radius
-        assert isinstance(radius_val, (int, float)), f'"arczrot" needs a numeric radius at index {index}'
+        if not (isinstance(radius_val, (int, float))):
+            raise ValueError(f'"arczrot" needs a numeric radius at index {index}')
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
@@ -495,10 +498,12 @@ class Turtle2D:
 
         elif cmd.cmd_type == TurtleCommandType.ARC:
             radius = movescale * (cmd.radius if isinstance(cmd.radius, (int, float)) else 0)
-            assert radius != 0, f'"arc" compound needs a non-zero radius at index {index}'
+            if not (radius != 0):
+                raise ValueError(f'"arc" compound needs a non-zero radius at index {index}')
 
             angle = cmd.angle if isinstance(cmd.angle, (int, float)) else 0
-            assert angle != 0, f'"arc" compound needs a non-zero rotation angle at index {index}'
+            if not (angle != 0):
+                raise ValueError(f'"arc" compound needs a non-zero rotation angle at index {index}')
 
             lrsign = 1 if angle >= 0 else -1
             turn = lrsign * abs(angle)

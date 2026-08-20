@@ -121,9 +121,12 @@ class Bezier:
             assert pts.ndim == 2, (
                 f"control points must be a 2-D array (N points x D dims), got {pts.ndim}-D shape {pts.shape}"
             )
-            assert pts.shape[0] >= 1, f"control points must have at least 1 point, got shape {pts.shape}"
-            assert pts.shape[1] in (2, 3), f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point"
-            assert pts.dtype == np.float64, f"control points must be float64, got {pts.dtype}"
+            if not (pts.shape[0] >= 1):
+                raise ValueError(f"control points must have at least 1 point, got shape {pts.shape}")
+            if pts.shape[1] not in (2, 3):
+                raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
+            if not (pts.dtype == np.float64):
+                raise ValueError(f"control points must be float64, got {pts.dtype}")
             self._points = pts
 
     def __len__(self) -> int:
@@ -556,7 +559,8 @@ class Bezier:
 
         """
         arr = self.array
-        assert arr.shape[1] == 2, "close_to_axis() works only on 2-D bezier paths."
+        if not (arr.shape[1] == 2):
+            raise ValueError("close_to_axis() works only on 2-D bezier paths.")
         sp, ep = arr[0], arr[-1]
         head = arr[:-1]
         if axis == "X":
@@ -596,7 +600,8 @@ class Bezier:
 
         """
         arr = self.array
-        assert arr.shape[1] == 2, "path_offset() works only on 2-D bezier paths."
+        if not (arr.shape[1] == 2):
+            raise ValueError("path_offset() works only on 2-D bezier paths.")
         off = np.asarray(offset, dtype=float)
         backbez = (arr + off)[::-1]
         return Bezier(
@@ -773,7 +778,8 @@ class Bezier:
 
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
+        if not (len(pt) == 3 or phi is None):
+            raise ValueError("phi= requires a 3-D point")
         return np.stack([pt, pt + Bezier._ctrloffset(len(pt), angle, radius, phi)])
 
     @staticmethod
@@ -805,7 +811,8 @@ class Bezier:
 
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
+        if not (len(pt) == 3 or phi is None):
+            raise ValueError("phi= requires a 3-D point")
         unit_dir, dist = Bezier._dir_and_dist(len(pt), angle, radius1, phi)
         dist1 = dist if radius1 is None else radius1
         dist2 = dist1 if radius2 is None else radius2
@@ -844,7 +851,8 @@ class Bezier:
 
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or (phi1 is None and phi2 is None), "phi1=/phi2= require a 3-D point"
+        if not (len(pt) == 3 or (phi1 is None and phi2 is None)):
+            raise ValueError("phi1=/phi2= require a 3-D point")
         return np.stack(
             [
                 pt + Bezier._ctrloffset(len(pt), angle1, radius1, phi1),
@@ -874,7 +882,8 @@ class Bezier:
 
         """
         pt = np.asarray(pt, dtype=float)
-        assert len(pt) == 3 or phi is None, "phi= requires a 3-D point"
+        if not (len(pt) == 3 or phi is None):
+            raise ValueError("phi= requires a 3-D point")
         return np.stack([pt + Bezier._ctrloffset(len(pt), angle, radius, phi), pt])
 
     def debug(self, width: float = 1.0, n_degree: int = 3) -> Any:
@@ -961,7 +970,8 @@ class Bezier:
         if isinstance(angle, (list, tuple, np.ndarray)):
             direction = np.asarray(angle, dtype=float)
             return direction if radius is None else radius * np.asarray(_unit(direction), dtype=float)
-        assert radius is not None, "radius must be given when angle is a scalar, not a direction vector"
+        if not (radius is not None):
+            raise ValueError("radius must be given when angle is a scalar, not a direction vector")
         if point_dim == 3:
             return Bezier._spherical_to_xyz(radius, angle, 90.0 if phi is None else phi)  # type: ignore[arg-type]
         rad = math.radians(angle)  # type: ignore[arg-type]
@@ -975,7 +985,8 @@ class Bezier:
             direction = np.asarray(angle, dtype=float)
             dist = float(np.linalg.norm(direction)) if radius is None else radius
             return np.asarray(_unit(direction), dtype=float), dist
-        assert radius is not None, "radius must be given when angle is a scalar, not a direction vector"
+        if not (radius is not None):
+            raise ValueError("radius must be given when angle is a scalar, not a direction vector")
         if point_dim == 3:
             return Bezier._spherical_to_xyz(1.0, angle, 90.0 if phi is None else phi), radius  # type: ignore[arg-type]
         rad = math.radians(angle)  # type: ignore[arg-type]
@@ -1025,7 +1036,8 @@ def create_bezier(
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
 
-    assert size is None or relsize is None, "Can't define both size and relsize."
+    if not (size is None or relsize is None):
+        raise ValueError("Can't define both size and relsize.")
     patharr = np.asarray(path, dtype=float)
     npts = len(patharr)
     lastpt = npts - (0 if closed else 1)
@@ -1035,7 +1047,8 @@ def create_bezier(
         sizevect = [float(curvesize)] * lastpt
     else:
         sizevect = [float(v) for v in curvesize]
-        assert len(sizevect) == lastpt, f"Size or relsize must have length {lastpt}."
+        if not (len(sizevect) == lastpt):
+            raise ValueError(f"Size or relsize must have length {lastpt}.")
     if tangents is not None:
         tang = np.asarray(tangents, dtype=float)
         tang = np.array([t / np.linalg.norm(t) for t in tang])
@@ -1045,14 +1058,16 @@ def create_bezier(
             (Path3D(patharr) if dim == 3 else Path2D(patharr)).tangents(closed=closed, uniform=uniform),
             dtype=float,
         )
-    assert min(sizevect) > 0, "Size and relsize must be greater than zero."
+    if not (min(sizevect) > 0):
+        raise ValueError("Size and relsize must be greater than zero.")
     out: list[np.ndarray] = []
     basis_mat = np.array([[-3, 6, -3], [7, -9, 2], [-5, 3, 0], [1, 0, 0]], dtype=float)
     for i in range(lastpt):
         first = patharr[i]
         second = patharr[(i + 1) % npts]
         seglength = float(np.linalg.norm(second - first))
-        assert seglength > 0, f"Path2D segment has zero length from index {i} to {i + 1}."
+        if not (seglength > 0):
+            raise ValueError(f"Path2D segment has zero length from index {i} to {i + 1}.")
         segdir = (second - first) / seglength
         tangent1 = tang[i]
         tangent2 = -tang[(i + 1) % npts]
@@ -1131,10 +1146,14 @@ class BezierPatch:
             assert pts.ndim == 3, (
                 f"patch rows must be a 3-D array (R rows x C cols x 3 dim), got {pts.ndim}-D shape {pts.shape}"
             )
-            assert pts.shape[0] >= 1, f"patch must have at least 1 row, got shape {pts.shape}"
-            assert pts.shape[1] >= 1, f"patch must have at least 1 column, got shape {pts.shape}"
-            assert pts.shape[2] == 3, f"patch control points must be 3-D, got {pts.shape[2]} components"
-            assert pts.dtype == np.float64, f"control points must be float64, got {pts.dtype}"
+            if not (pts.shape[0] >= 1):
+                raise ValueError(f"patch must have at least 1 row, got shape {pts.shape}")
+            if not (pts.shape[1] >= 1):
+                raise ValueError(f"patch must have at least 1 column, got shape {pts.shape}")
+            if not (pts.shape[2] == 3):
+                raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
+            if not (pts.dtype == np.float64):
+                raise ValueError(f"control points must be float64, got {pts.dtype}")
             self._rows = pts
 
     def __len__(self) -> int:
@@ -1446,7 +1465,8 @@ class BezierPatch:
         vvals = list(lerpn(1, 0, int(ss[1]) + 1))
         pts = np.asarray(self.points(uvals, vvals), dtype=float)
         normals = np.asarray(self.normals(uvals, vvals), dtype=float)
-        assert not np.any(np.isnan(normals)), "Bezier patch has degenerate normals."
+        if np.any(np.isnan(normals)):
+            raise ValueError("Bezier patch has degenerate normals.")
         offset0 = pts - diameter[0] * normals
         offset1 = pts - diameter[1] * normals
         allpoints = [np.concatenate([offset0[i], offset1[i][::-1]]) for i in range(len(offset0))]

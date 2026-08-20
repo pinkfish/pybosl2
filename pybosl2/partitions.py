@@ -264,7 +264,8 @@ def _ptn_sect(
     from pybosl2.shapes2d import arc
 
     if is_num(cptype):
-        assert cptype > 0, "flat section length must be positive."  # type: ignore[operator]
+        if not (cptype > 0):  # type: ignore[operator]
+            raise ValueError("flat section length must be positive.")
         return Path2D([[0, 0], [float(cptype), 0]])
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
@@ -289,7 +290,8 @@ def _ptn_sect(
             return _merge_collinear(list(osect1) + list(osect2))  # type: ignore[arg-type]
         if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])
-            assert reps > 0, "repetition count must be positive."
+            if not (reps > 0):
+                raise ValueError("repetition count must be positive.")
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             w = sect[-1][0]
             out: list[Any] = []
@@ -298,11 +300,13 @@ def _ptn_sect(
             return _merge_collinear(out)
         if opt and opt[0].isdigit() and "x" in opt:  # "30x20": resize
             parts = opt.split("x")
-            assert len(parts) == 2, "size modifier must be LENGTHxWIDTH, e.g. '30x25'."
+            if not (len(parts) == 2):
+                raise ValueError("size modifier must be LENGTHxWIDTH, e.g. '30x25'.")
             return _ptn_sect(base, float(parts[0]), float(parts[1]), fn=fn, fa=fa, fs=fs)
         if opt.startswith("skew:"):
             angle = float(opt[5:])
-            assert -45 <= angle <= 45, "skew angle must be between -45 and 45."
+            if not (-45 <= angle <= 45):
+                raise ValueError("skew angle must be between -45 and 45.")
             return _skew(angle, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt.startswith("pinch:"):
             val_str = opt[6:]
@@ -348,15 +352,18 @@ def _ptn_sect(
         path = _yscale(2, list(raw_arc))  # type: ignore[arg-type]
     elif cptype == PartitionCutType.COMB:
         dx = math.tan(math.radians(2)) * width / length
-        assert dx <= 0.5, "width-to-length ratio too large for comb form."
+        if not (dx <= 0.5):
+            raise ValueError("width-to-length ratio too large for comb form.")
         path = [[0, 0], [dx, 1], [1 - dx, 1], [1, 0]]
     elif cptype == PartitionCutType.FINGER:
         dx = math.tan(math.radians(20)) * width / length
-        assert dx <= 0.5, "width-to-length ratio too large for finger form."
+        if not (dx <= 0.5):
+            raise ValueError("width-to-length ratio too large for finger form.")
         path = [[0, 0], [dx, 1], [1 - dx, 1], [1, 0]]
     elif cptype == PartitionCutType.DOVETAIL:
         dx = math.tan(math.radians(9)) * width / length / 2
-        assert dx < 0.25, "width-to-length ratio too large for dovetail form."
+        if not (dx < 0.25):
+            raise ValueError("width-to-length ratio too large for dovetail form.")
         path = [
             [0, 0],
             [0.25 + dx, 0],
@@ -496,7 +503,8 @@ def partition_path(
     redirpath = cleanpath if altpath is None else _ptn_path_redirect(altpath, cleanpath)
     if y is None:
         return Path2D(list(redirpath), closed=False)  # type: ignore[arg-type]
-    assert y < min_y or y > max_y, "partition_path(): closing y would make the path self-crossing."
+    if not (y < min_y or y > max_y):
+        raise ValueError("partition_path(): closing y would make the path self-crossing.")
     closedpath: list[Any] = [[redirpath[-1][0], y], [redirpath[0][0], y]] + list(redirpath)
     outpath = closedpath if y < 0 else closedpath[::-1]
     return Path2D(outpath, closed=True)

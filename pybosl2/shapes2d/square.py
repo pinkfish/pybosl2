@@ -124,7 +124,8 @@ def square(
             s2.square(20).linear_extrude(height=5).show()
 
     """
-    assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time."
+    if rounding and chamfer:
+        raise ValueError("Cannot set both rounding and chamfer at the same time.")
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = anchor
     if center is not None:
@@ -263,7 +264,8 @@ def _regular_ngon_path(
     if not rounding and not chamfer:
         path = _circle_pts(radius, sides)
     else:
-        assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time on an n-gon."
+        if rounding and chamfer:
+            raise ValueError("Cannot set both rounding and chamfer at the same time on an n-gon.")
         half_angle = math.radians((180 - 360.0 / sides) / 2)
         inset: float = chamfer / math.sin(half_angle) if chamfer else rounding / math.sin(half_angle)
         assert inset < radius, (
@@ -362,7 +364,8 @@ def regular_ngon(
             s2.regular_ngon(sides=6, radius=15).linear_extrude(height=5).show()
 
     """
-    assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time."
+    if rounding and chamfer:
+        raise ValueError("Cannot set both rounding and chamfer at the same time.")
     assert sides >= 3
     sc = 1 / math.cos(math.radians(180.0 / sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
@@ -561,7 +564,8 @@ def right_triangle(
             s2.right_triangle(size=[30, 20]).linear_extrude(height=5).show()
 
     """
-    assert not (rounding and chamfer), "Cannot set both rounding and chamfer at the same time."
+    if rounding and chamfer:
+        raise ValueError("Cannot set both rounding and chamfer at the same time.")
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     if anchor is not None:
         use_anchor = anchor
@@ -707,10 +711,14 @@ def trapezoid(
         assert width1 is not None
         assert angle is not None
         width2 = width1 - 2 * (_adjacent_angle_to_opposite(height, angle) + shift)
-    assert width1 >= 0, "Degenerate trapezoid geometry."
-    assert width2 >= 0, "Degenerate trapezoid geometry."
-    assert height > 0, "Degenerate trapezoid geometry."
-    assert width1 + width2 > 0, "Degenerate trapezoid geometry."
+    if not (width1 >= 0):
+        raise ValueError("Degenerate trapezoid geometry.")
+    if not (width2 >= 0):
+        raise ValueError("Degenerate trapezoid geometry.")
+    if not (height > 0):
+        raise ValueError("Degenerate trapezoid geometry.")
+    if not (width1 + width2 > 0):
+        raise ValueError("Degenerate trapezoid geometry.")
     path = _trapezoid_path(height, width1, width2, shift, chamfer, rounding, flip, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)

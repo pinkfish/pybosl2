@@ -105,7 +105,8 @@ def _iso_profile() -> ThreadProfile:
 def _trapezoidal_profile(pitch: float, thread_angle: float = 30, thread_depth: float | None = None) -> ThreadProfile:
     depth = thread_depth if thread_depth is not None else pitch / 2
     pa_delta = 0.5 * depth * math.tan(math.radians(thread_angle / 2)) / pitch
-    assert pa_delta <= 0.25, "trapezoidal thread geometry is impossible (angle/depth too large)."
+    if not (pa_delta <= 0.25):
+        raise ValueError("trapezoidal thread geometry is impossible (angle/depth too large).")
     rr1 = -depth / pitch
     z1, z2 = 0.25 - pa_delta, 0.25 + pa_delta
     return ThreadProfile(f"trapezoidal-{thread_angle:g}deg", ((-z2, rr1), (-z1, 0), (z1, 0), (z2, rr1)))
@@ -308,9 +309,12 @@ class ThreadedRod:
             None
 
         """
-        assert pitch > 0, "ThreadedRod: d, l and pitch must be positive."
-        assert l > 0, "ThreadedRod: d, l and pitch must be positive."
-        assert d > 0, "ThreadedRod: d, l and pitch must be positive."
+        if not (pitch > 0):
+            raise ValueError("ThreadedRod: d, l and pitch must be positive.")
+        if not (l > 0):
+            raise ValueError("ThreadedRod: d, l and pitch must be positive.")
+        if not (d > 0):
+            raise ValueError("ThreadedRod: d, l and pitch must be positive.")
         self._d: float = d
         self._l: float = l
         self._pitch: float = pitch
@@ -554,8 +558,10 @@ class ThreadHelix:
         """
         from pybosl2.path2d import Path2D
 
-        assert pitch > 0, "ThreadHelix: d and pitch must be positive."
-        assert d > 0, "ThreadHelix: d and pitch must be positive."
+        if not (pitch > 0):
+            raise ValueError("ThreadHelix: d and pitch must be positive.")
+        if not (d > 0):
+            raise ValueError("ThreadHelix: d and pitch must be positive.")
         self._d: float = d
         self._pitch: float = pitch
         self._turns: float = turns
