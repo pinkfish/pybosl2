@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1835,6 +1955,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
+
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 
@@ -1952,7 +2074,7 @@
 <span class="sd">            ).polyhedron().show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">rr</span><span class="p">,</span> <span class="s2">"mb_sphere(): need a positive radius or diameter."</span>
     <span class="k">assert</span> <span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"mb_sphere(): need a positive radius or diameter."</span>
     <span class="n">neg</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">negative</span> <span class="k">else</span> <span class="mi">1</span>
@@ -2059,8 +2181,8 @@
 
 <span class="sd">    """</span>
     <span class="n">rmaj</span><span class="p">,</span> <span class="n">rmin</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="p">(</span><span class="n">major_radius</span> <span class="k">if</span> <span class="n">major_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">major_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">major_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)),</span>
-        <span class="p">(</span><span class="n">minor_radius</span> <span class="k">if</span> <span class="n">minor_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">minor_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">minor_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)),</span>
+        <span class="p">(</span><span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">major_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">major_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)),</span>
+        <span class="p">(</span><span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">minor_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">minor_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)),</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">rmaj</span><span class="p">,</span> <span class="s2">"mb_torus(): need positive major_radius and minor_radius."</span>
     <span class="k">assert</span> <span class="n">rmin</span><span class="p">,</span> <span class="s2">"mb_torus(): need positive major_radius and minor_radius."</span>
@@ -2104,7 +2226,7 @@
 <span class="sd">        AssertionError: If *height* or *radius* is missing, non-positive, or shaft too short.</span>
 
 <span class="sd">    """</span>
-    <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">height</span><span class="p">,</span> <span class="s2">"mb_capsule(): need positive height and radius."</span>
     <span class="k">assert</span> <span class="n">rr</span><span class="p">,</span> <span class="s2">"mb_capsule(): need positive height and radius."</span>
     <span class="k">assert</span> <span class="n">height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"mb_capsule(): need positive height and radius."</span>
@@ -2152,7 +2274,7 @@
 <span class="sd">        AssertionError: If *height* or *radius* is missing, non-positive, or too thin.</span>
 
 <span class="sd">    """</span>
-    <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">height</span><span class="p">,</span> <span class="s2">"mb_disk(): need positive height and radius."</span>
     <span class="k">assert</span> <span class="n">rr</span><span class="p">,</span> <span class="s2">"mb_disk(): need positive height and radius."</span>
     <span class="k">assert</span> <span class="n">height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"mb_disk(): need positive height and radius."</span>
@@ -2257,7 +2379,7 @@
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span><span class="p">,</span> <span class="n">rot_from_to</span>
 
-    <span class="n">rr</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">rr</span><span class="p">,</span> <span class="s2">"mb_connector(): need distinct points and positive radius."</span>
     <span class="k">assert</span> <span class="n">rr</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"mb_connector(): need distinct points and positive radius."</span>

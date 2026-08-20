@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1827,6 +1947,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 
 <span class="c1"># Import base class and helper functions from shapes2d.base</span>
@@ -1872,6 +1993,7 @@
 
 <div class="viewcode-block" id="osimport">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.osimport">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">osimport</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1920,6 +2042,7 @@
 
 <div class="viewcode-block" id="fill">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.fill">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">fill</span><span class="p">(</span><span class="n">children</span><span class="p">:</span> <span class="s2">"Shape2DLike"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""*children* with every hole filled in -- only the outermost outline survives.</span>
 
@@ -1936,6 +2059,7 @@
 
 <div class="viewcode-block" id="hull">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.hull">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="o">*</span><span class="n">children</span><span class="p">:</span> <span class="s2">"Shape2DLike | Sequence[Shape2DLike]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return the 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of.</span>
 
@@ -1950,7 +2074,8 @@
     <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_child_2d</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
         <span class="n">items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># type: ignore[arg-type]  # a single list *of* shapes</span>
-    <span class="k">assert</span> <span class="n">items</span><span class="p">,</span> <span class="s2">"hull(): needs at least one child."</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"hull(): needs at least one shape to hull."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_ohull</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]))</span></div>
 
 
@@ -1962,6 +2087,7 @@
 
 <div class="viewcode-block" id="round2d">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.round2d">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">round2d</span><span class="p">(</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1991,7 +2117,8 @@
 <span class="sd">    """</span>
     <span class="n">orad</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">irad</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"round2d(): must give children"</span>
+    <span class="k">if</span> <span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"round2d(): needs the shape(s) to round -- pass children=."</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_as_native_2d</span><span class="p">(</span><span class="n">children</span><span class="p">))</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">irad</span><span class="p">,</span> <span class="n">chamfer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">offset</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="p">(</span><span class="n">irad</span> <span class="o">+</span> <span class="n">orad</span><span class="p">))</span>
@@ -2001,6 +2128,7 @@
 
 <div class="viewcode-block" id="shell2d">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.shell2d">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">shell2d</span><span class="p">(</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2027,8 +2155,10 @@
 <span class="sd">        fs: arc smoothness overrides</span>
 
 <span class="sd">    """</span>
-    <span class="k">assert</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"shell2d(): must give thickness"</span>
-    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"shell2d(): must give children"</span>
+    <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"shell2d(): needs a wall thickness -- pass thickness=."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">children</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"shell2d(): needs the shape(s) to shell -- pass children=."</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">thickness</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
         <span class="n">th</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">thickness</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">thickness</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">thickness</span><span class="p">)]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2070,8 +2200,9 @@
 
 <div class="viewcode-block" id="cross">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.cross">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">cross</span><span class="p">(</span>
-    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
     <span class="n">arm_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
@@ -2130,6 +2261,7 @@
 
 <div class="viewcode-block" id="text">
 <a class="viewcode-back" href="../../../foundational/shapes2d/ops.html#pybosl2.shapes2d.ops.text">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.flat.text"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">text</span><span class="p">(</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>

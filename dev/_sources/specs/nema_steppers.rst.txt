@@ -13,7 +13,7 @@ nema steppers
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">NemaMotor(17).shape()</span></div>
+        <div class="spec-caption"><span id="vpart">NemaMotor(17).shape</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Mounting-face view of a NEMA stepper motor: square body, four corner bolt holes, central shaft." xmlns="http://www.w3.org/2000/svg"><rect x="138" y="24" width="184" height="184" rx="14" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.8"/><rect x="168" y="54" width="124" height="124" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="5 5" opacity="0.7"/><line x1="168" y1="224" x2="292" y2="224" stroke="var(--ink-faint)" stroke-width="1"/><text x="230" y="238" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">bolt spacing 31 mm · NEMA 17</text><circle cx="230" cy="116" r="34" fill="var(--panel)" stroke="var(--ink-dim)" stroke-width="1.6"/><circle cx="230" cy="116" r="14" fill="color-mix(in srgb,var(--accent) 22%,var(--panel))" stroke="var(--ink-dim)" stroke-width="1.6"/><circle cx="168" cy="54" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="168" cy="178" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="292" cy="54" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/><circle cx="292" cy="178" r="7" fill="var(--ground)" stroke="var(--accent)" stroke-width="1.5"/></svg></div>
         </div>
@@ -33,7 +33,7 @@ nema steppers
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; NemaMotor(17).shape()</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; NemaMotor(17).shape</div>
         </div>
         
         <div class="spec-tests">13 tests</div>
@@ -42,7 +42,7 @@ nema steppers
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaMotor(17).shape()", "part": "NemaMotor(17).shape()", "tris": 290, "vol": "43,858.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaMotor(23).shape()", "part": "NemaMotor(23).shape()", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaMotor(8).shape()", "part": "NemaMotor(8).shape()", "tris": 262, "vol": "10,312.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaMountMask(17).shape()", "part": "NemaMountMask(17).shape()", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "17", "label": "NEMA 17", "uri": "_stl/nema_steppers-17.stl", "code": "NemaMotor(17).shape", "part": "NemaMotor(17).shape", "tris": 290, "vol": "43,858.4", "bbox": "42\u00d742\u00d744", "wt": true}, {"id": "23", "label": "NEMA 23", "uri": "_stl/nema_steppers-23.stl", "code": "NemaMotor(23).shape", "part": "NemaMotor(23).shape", "tris": 388, "vol": "79,815.8", "bbox": "57\u00d757\u00d744", "wt": true}, {"id": "8", "label": "NEMA 8", "uri": "_stl/nema_steppers-8.stl", "code": "NemaMotor(8).shape", "part": "NemaMotor(8).shape", "tris": 262, "vol": "10,312.0", "bbox": "20\u00d720\u00d744", "wt": true}, {"id": "mask", "label": "mount mask", "uri": "_stl/nema_steppers-mask.stl", "code": "NemaMountMask(17).shape", "part": "NemaMountMask(17).shape", "tris": 506, "vol": "2,843.8", "bbox": "34\u00d739\u00d75", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
     import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";

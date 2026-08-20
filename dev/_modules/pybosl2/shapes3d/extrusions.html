@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1827,6 +1947,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 
@@ -1999,6 +2120,7 @@
 
 <div class="viewcode-block" id="text3d">
 <a class="viewcode-back" href="../../../foundational/shapes3d/extrusions.html#pybosl2.shapes3d.extrusions.text3d">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">text3d</span><span class="p">(</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -2072,6 +2194,7 @@
 
 <div class="viewcode-block" id="path_text">
 <a class="viewcode-back" href="../../../foundational/shapes3d/extrusions.html#pybosl2.shapes3d.extrusions.path_text">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">path_text</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="n">Path3D</span><span class="p">,</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2214,7 +2337,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_s2cross</span><span class="p">(</span>
-    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
     <span class="n">arm_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Shape2D"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return the 2‑D cross polygon as a Bosl2Shape2D (internal helper for the 3‑D cross)."""</span>
@@ -2225,8 +2348,9 @@
 
 <div class="viewcode-block" id="cross">
 <a class="viewcode-back" href="../../../foundational/shapes3d/extrusions.html#pybosl2.shapes3d.extrusions.cross">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">cross</span><span class="p">(</span>
-    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">arm_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2263,7 +2387,8 @@
 
 <span class="sd">    """</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">length</span>
-    <span class="k">assert</span> <span class="n">h</span><span class="p">,</span> <span class="s2">"cross(): need a positive height or length."</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">h</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cross(): needs a positive height= (or its synonym length=)."</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"cross(): need a positive height or length."</span>
     <span class="n">use_center</span> <span class="o">=</span> <span class="n">center</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>

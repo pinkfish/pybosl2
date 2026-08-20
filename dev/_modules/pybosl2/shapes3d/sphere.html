@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1825,6 +1945,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">backend_only</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 
@@ -1878,6 +1999,7 @@
 
 <div class="viewcode-block" id="sphere">
 <a class="viewcode-back" href="../../../foundational/shapes3d/sphere.html#pybosl2.shapes3d.sphere.sphere">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.solid.sphere"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">sphere</span><span class="p">(</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1914,7 +2036,7 @@
 <span class="sd">            shape.show()</span>
 
 <span class="sd">    """</span>
-    <span class="n">rad</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">circumscribe</span><span class="p">:</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
         <span class="n">rad</span> <span class="o">/=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)</span>
@@ -1926,6 +2048,7 @@
 
 <div class="viewcode-block" id="spheroid">
 <a class="viewcode-back" href="../../../foundational/shapes3d/sphere.html#pybosl2.shapes3d.sphere.spheroid">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.solid.spheroid"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">spheroid</span><span class="p">(</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2013,6 +2136,7 @@
 
 <div class="viewcode-block" id="teardrop">
 <a class="viewcode-back" href="../../../foundational/shapes3d/sphere.html#pybosl2.shapes3d.sphere.teardrop">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.solid.teardrop"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">teardrop</span><span class="p">(</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2074,7 +2198,7 @@
 <span class="sd">    """</span>
     <span class="n">length</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span>
     <span class="n">rad1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">rad2</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">rad2</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius2</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter2</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">cap_h1v</span> <span class="o">=</span> <span class="n">cap_h1</span> <span class="k">if</span> <span class="n">cap_h1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">cap_height</span>
     <span class="n">cap_h2v</span> <span class="o">=</span> <span class="n">cap_h2</span> <span class="k">if</span> <span class="n">cap_h2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">cap_height</span>
     <span class="n">c1</span> <span class="o">=</span> <span class="n">chamfer1</span> <span class="k">if</span> <span class="n">chamfer1</span> <span class="k">else</span> <span class="n">chamfer</span>
@@ -2111,6 +2235,7 @@
 
 <div class="viewcode-block" id="onion">
 <a class="viewcode-back" href="../../../foundational/shapes3d/sphere.html#pybosl2.shapes3d.sphere.onion">[docs]</a>
+<span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">,</span> <span class="n">neutral</span><span class="o">=</span><span class="s2">"pybosl2.solid.onion"</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">onion</span><span class="p">(</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span>

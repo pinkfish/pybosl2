@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1836,6 +1956,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -1847,6 +1968,9 @@
     <span class="n">use_backend</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossBackendError</span><span class="p">,</span> <span class="n">UnsupportedByBackendError</span>
+
+<span class="c1">#: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).</span>
+<span class="n">_AMBIENT</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"fn"</span><span class="p">,</span> <span class="s2">"fa"</span><span class="p">,</span> <span class="s2">"fs"</span><span class="p">,</span> <span class="s2">"res"</span><span class="p">})</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -1876,6 +2000,7 @@
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"effective_defaults"</span><span class="p">,</span>
     <span class="s2">"cube"</span><span class="p">,</span>
     <span class="s2">"cuboid"</span><span class="p">,</span>
     <span class="s2">"cyl"</span><span class="p">,</span>
@@ -2267,8 +2392,8 @@
 <div class="viewcode-block" id="prismoid">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.prismoid">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">prismoid</span><span class="p">(</span>
-    <span class="n">size1</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">size2</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">size1</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">size2</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">shift</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2328,6 +2453,9 @@
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">orient</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a rect_tube on the active backend.</span>
@@ -2353,6 +2481,9 @@
                 <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
                 <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>
                 <span class="s2">"orient"</span><span class="p">:</span> <span class="n">orient</span><span class="p">,</span>
+                <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span>
+                <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span>
+                <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">,</span>
                 <span class="s2">"res"</span><span class="p">:</span> <span class="n">res</span><span class="p">,</span>
             <span class="p">}</span>
         <span class="p">),</span>
@@ -2363,7 +2494,7 @@
 <div class="viewcode-block" id="regular_prism">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.regular_prism">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">regular_prism</span><span class="p">(</span>
-    <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -2913,6 +3044,45 @@
 
 
 
+<div class="viewcode-block" id="effective_defaults">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.effective_defaults">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">effective_defaults</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Report the value each argument of *shape* takes when the caller leaves it out.</span>
+
+<span class="sd">    The facade constructors default every argument to ``None`` and forward only what was actually</span>
+<span class="sd">    given (:func:`~pybosl2._backend.given_arguments`), so the backend keeps its own defaults. That</span>
+<span class="sd">    keeps the two backends independent, but it would leave a caller unable to see what</span>
+<span class="sd">    ``cuboid()`` with no arguments actually builds -- this reports it, read live off the</span>
+<span class="sd">    constructor the backend would call, so it can never drift from the code.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        shape: BOSL2 shape name, e.g. ``"cuboid"``.</span>
+<span class="sd">        backend: Backend to report for; the active one by default.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Each parameter of that backend's constructor mapped to its default, omitting the ones with</span>
+<span class="sd">        no default (the caller must supply those) and the ambient resolution knobs, which come</span>
+<span class="sd">        from :func:`pybosl2.defaults.use_defaults`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the backend has no constructor by that name.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; from pybosl2.solid import effective_defaults</span>
+<span class="sd">        &gt;&gt;&gt; effective_defaults("cuboid")["size"]</span>
+<span class="sd">        (1, 1, 1)</span>
+
+<span class="sd">    """</span>
+    <span class="n">constructor</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_AMBIENT</span>
+    <span class="p">}</span></div>
+
+
+
 <div class="viewcode-block" id="polyhedron">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.polyhedron">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">polyhedron</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">faces</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
@@ -2926,10 +3096,31 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_require_operands</span><span class="p">(</span><span class="n">operation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">solids</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Solid</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Reject an n-ary boolean with nothing to combine.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        operation: Name of the calling boolean, used in the message.</span>
+<span class="sd">        solids: The operands as given.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If *solids* is empty.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">solids</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">(): needs at least one solid to combine."</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="union">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.union">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">union</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return the union of *solids* on the active backend (all operands must share the active backend)."""</span>
+<span class="w">    </span><span class="sd">"""Return the union of *solids* on the active backend (all operands must share the active backend).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If no solids are given.</span>
+
+<span class="sd">    """</span>
+    <span class="n">_require_operands</span><span class="p">(</span><span class="s2">"union"</span><span class="p">,</span> <span class="n">solids</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 
@@ -2937,7 +3128,13 @@
 <div class="viewcode-block" id="difference">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.difference">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">difference</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return the first solid minus the rest, on the active backend."""</span>
+<span class="w">    </span><span class="sd">"""Return the first solid minus the rest, on the active backend.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If no solids are given.</span>
+
+<span class="sd">    """</span>
+    <span class="n">_require_operands</span><span class="p">(</span><span class="s2">"difference"</span><span class="p">,</span> <span class="n">solids</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 
@@ -2945,7 +3142,13 @@
 <div class="viewcode-block" id="intersection">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.intersection">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">intersection</span><span class="p">(</span><span class="o">*</span><span class="n">solids</span><span class="p">:</span> <span class="n">Solid</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return the intersection of *solids* on the active backend."""</span>
+<span class="w">    </span><span class="sd">"""Return the intersection of *solids* on the active backend.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If no solids are given.</span>
+
+<span class="sd">    """</span>
+    <span class="n">_require_operands</span><span class="p">(</span><span class="s2">"intersection"</span><span class="p">,</span> <span class="n">solids</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">solids</span><span class="p">)</span></div>
 
 </code></pre></div>

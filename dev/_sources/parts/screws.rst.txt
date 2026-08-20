@@ -79,8 +79,8 @@ A screw threaded into its matching hex nut (shown side by side):
 
     from pybosl2.parts.enums import ScrewHeadType, ScrewDriveType
     from pybosl2.parts.screws import Screw, Nut
-    screw = Screw("M6", 18, head=ScrewHeadType.BUTTON, drive=ScrewDriveType.HEX, fa=6, fs=1).shape()
-    nut = Nut("M6", slop=0.1, fa=6, fs=1).shape().right(18)
+    screw = Screw("M6", 18, head=ScrewHeadType.BUTTON, drive=ScrewDriveType.HEX, fa=6, fs=1).shape
+    nut = Nut("M6", slop=0.1, fa=6, fs=1).shape.right(18)
     (screw | nut).show()
 
 API reference

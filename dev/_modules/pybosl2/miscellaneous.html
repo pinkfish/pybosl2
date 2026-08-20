@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1851,6 +1971,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frame_map4_yz</span><span class="p">,</span> <span class="n">rot_from_to4</span><span class="p">,</span> <span class="n">unwrap</span><span class="p">,</span> <span class="n">vec3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResampleMethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">vector_angle3</span> <span class="k">as</span> <span class="n">_vector_angle3</span>
@@ -2000,8 +2121,8 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-    <span class="n">irv</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">inner_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">inner_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">orv</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">outer_diameter</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">outer_diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">irv</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">orv</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">irv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
     <span class="k">assert</span> <span class="n">orv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
     <span class="k">assert</span> <span class="n">irv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span>
@@ -2289,10 +2410,30 @@
 
 <div class="viewcode-block" id="Miscellaneous.offset3d">
 <a class="viewcode-back" href="../../extras/miscellaneous.html#pybosl2.miscellaneous.Miscellaneous.offset3d">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">offset3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset3d</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">convexity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Expand (or, for negative *radius*, contract) the surface of this solid by *radius*.</span>
 
 <span class="sd">        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Distance to expand by; negative contracts.</span>
+<span class="sd">            size: Size of the enclosing cube used for the negative case.</span>
+<span class="sd">            convexity: Accepted for signature compatibility; unused.</span>
+<span class="sd">            fn: Facet count for the minkowski sphere; ambient default when omitted.</span>
+<span class="sd">            fa: Minimum fragment angle for that sphere.</span>
+<span class="sd">            fs: Minimum fragment size for that sphere.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The offset solid.</span>
+
 <span class="sd">        """</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">cube</span> <span class="k">as</span> <span class="n">_cube</span>
@@ -2303,7 +2444,7 @@
 
         <span class="k">if</span> <span class="n">radius</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>  <span class="c1"># type: ignore[return-value]</span>
-        <span class="n">sides</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">_frag_count</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">radius</span><span class="p">)))</span>
+        <span class="n">sides</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">_frag_count</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">radius</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">))</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">sides</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">radius</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="n">_mink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">_sphere</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">sides</span><span class="p">)))</span>  <span class="c1"># type: ignore[attr-defined, no-any-return]</span>
@@ -2320,14 +2461,34 @@
         <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Round the corners of this solid: *radius* rounds all, *outer_radius* only convex,.</span>
 
 <span class="sd">        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            radius: Rounding radius for every corner.</span>
+<span class="sd">            outer_radius: Rounding radius for convex corners only.</span>
+<span class="sd">            inner_radius: Rounding radius for concave corners only.</span>
+<span class="sd">            size: Size of the enclosing cube used by :meth:`offset3d`.</span>
+<span class="sd">            fn: Facet count for the rounding spheres; ambient default when omitted.</span>
+<span class="sd">            fa: Minimum fragment angle for those spheres.</span>
+<span class="sd">            fs: Minimum fragment size for those spheres.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The rounded solid.</span>
+
 <span class="sd">        """</span>
         <span class="n">orr</span> <span class="o">=</span> <span class="n">outer_radius</span> <span class="k">if</span> <span class="n">outer_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">irr</span> <span class="o">=</span> <span class="n">inner_radius</span> <span class="k">if</span> <span class="n">inner_radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="o">-</span><span class="n">irr</span> <span class="o">-</span> <span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">irr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="o">-</span><span class="n">irr</span> <span class="o">-</span> <span class="n">orr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">offset3d</span><span class="p">(</span><span class="n">irr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Miscellaneous.chain_hull">

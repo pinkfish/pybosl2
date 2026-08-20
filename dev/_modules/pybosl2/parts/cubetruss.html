@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -2021,18 +2141,21 @@
 <span class="w">        </span><span class="sd">"""Strut thickness in mm."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span>
 
-<div class="viewcode-block" id="TrussSegment.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussSegment.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the segment geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussSegment.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussSegment.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the segment in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the segment in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2102,7 +2225,7 @@
         <span class="k">for</span> <span class="n">zrow</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hh</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">xcol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">ycol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
-                    <span class="n">seg</span> <span class="o">=</span> <span class="n">TrussSegment</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">strut</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">bracing</span><span class="o">=</span><span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+                    <span class="n">seg</span> <span class="o">=</span> <span class="n">TrussSegment</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">strut</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">bracing</span><span class="o">=</span><span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
                     <span class="n">seg</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">seg</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">zrow</span> <span class="o">-</span> <span class="p">(</span><span class="n">hh</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
                         <span class="o">.</span><span class="n">right</span><span class="p">((</span><span class="n">xcol</span> <span class="o">-</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span>
@@ -2125,7 +2248,7 @@
                         <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
                         <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
                         <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-                    <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">shape</span>
                     <span class="n">segs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">clip</span><span class="o">.</span><span class="n">forward</span><span class="p">((</span><span class="n">exy</span> <span class="o">*</span> <span class="n">step</span> <span class="o">+</span> <span class="n">st</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">zrow</span> <span class="o">-</span> <span class="p">(</span><span class="n">exz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">step</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">zang</span><span class="p">])</span>
                     <span class="p">)</span>
@@ -2144,18 +2267,21 @@
 <span class="w">        </span><span class="sd">"""Grid dimensions."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span>
 
-<div class="viewcode-block" id="Truss.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.Truss.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the truss geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="Truss.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.Truss.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the truss in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the truss in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2244,18 +2370,21 @@
             <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">base</span> <span class="o">-</span> <span class="n">holes</span> <span class="o">-</span> <span class="n">ytun</span><span class="p">)</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">mx</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_union</span><span class="p">(</span><span class="n">pieces</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span>
 
-<div class="viewcode-block" id="TrussSupport.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussSupport.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the support truss geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussSupport.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussSupport.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the support truss in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the support truss in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2315,7 +2444,7 @@
         <span class="n">step</span> <span class="o">=</span> <span class="n">sz</span> <span class="o">-</span> <span class="n">st</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">seg</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">TrussSegment</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">strut</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">bracing</span><span class="o">=</span><span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">TrussSegment</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">strut</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">bracing</span><span class="o">=</span><span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
 
         <span class="n">segs</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span><span class="p">()</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">step</span> <span class="o">*</span> <span class="n">zcol</span><span class="p">)</span> <span class="k">for</span> <span class="n">zcol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h</span><span class="p">)]</span>
         <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
@@ -2339,18 +2468,21 @@
 <span class="w">        </span><span class="sd">"""Central column height in cubes."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span>
 
-<div class="viewcode-block" id="TrussCorner.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussCorner.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the corner geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussCorner.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussCorner.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the corner in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the corner in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2451,18 +2583,21 @@
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">s_arr</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TrussClip.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussClip.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the clip geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussClip.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussClip.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the clip in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the clip in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2583,18 +2718,21 @@
         <span class="n">s_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">span</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ct</span><span class="p">,</span> <span class="n">sz</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span><span class="p">,</span> <span class="n">st</span> <span class="o">+</span> <span class="n">ct</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">s_arr</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TrussFoot.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussFoot.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the foot geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussFoot.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussFoot.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the foot in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the foot in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2674,18 +2812,21 @@
         <span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">((</span><span class="n">st</span> <span class="o">+</span> <span class="n">slop</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">((</span><span class="n">body</span> <span class="o">|</span> <span class="n">clips</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">s_arr</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TrussUClip.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussUClip.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the U-clip geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussUClip.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussUClip.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the U-clip in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the U-clip in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2747,8 +2888,7 @@
         <span class="k">for</span> <span class="n">my</span> <span class="ow">in</span> <span class="n">DistributableMatrix</span><span class="o">.</span><span class="n">ycopies</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">num_copies</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="n">TrussFoot</span><span class="p">(</span><span class="n">w</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">strut</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">clipthick</span><span class="o">=</span><span class="n">ct</span><span class="p">,</span> <span class="n">slop</span><span class="o">=</span><span class="n">slop</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">shape</span><span class="p">()</span>
-                <span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">st</span> <span class="o">+</span> <span class="n">ct</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">up</span><span class="p">((</span><span class="n">st</span> <span class="o">+</span> <span class="n">ct</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">my</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">vert</span><span class="p">:</span>
@@ -2786,18 +2926,21 @@
         <span class="n">s_arr</span> <span class="o">=</span> <span class="p">[</span><span class="n">span</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">ct</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">sz</span> <span class="o">-</span> <span class="n">st</span><span class="p">)</span> <span class="o">+</span> <span class="n">st</span><span class="p">,</span> <span class="n">st</span> <span class="o">+</span> <span class="n">ct</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">s_arr</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TrussJoiner.shape">
-<a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussJoiner.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the joiner geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="TrussJoiner.show">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussJoiner.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the joiner in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the joiner in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 </code></pre></div>

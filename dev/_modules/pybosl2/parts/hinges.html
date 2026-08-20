@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1832,6 +1952,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span>
@@ -1861,7 +1982,7 @@
 
 <span class="sd">            from pybosl2.parts.hinges import LivingHingeMask</span>
 <span class="sd">            from pybosl2.solid import cuboid</span>
-<span class="sd">            (cuboid([100, 40, 3]) - LivingHingeMask(length=100, thick=3, foldangle=60).shape().down(1.5)).show()</span>
+<span class="sd">            (cuboid([100, 40, 3]) - LivingHingeMask(length=100, thick=3, foldangle=60).shape.down(1.5)).show()</span>
 
 <span class="sd">    """</span>
 
@@ -1904,18 +2025,21 @@
 <span class="w">        </span><span class="sd">"""Plate thickness in mm."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span>
 
-<div class="viewcode-block" id="LivingHingeMask.shape">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.LivingHingeMask.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hinge mask geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="LivingHingeMask.show">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.LivingHingeMask.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the hinge mask in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the hinge mask in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2035,18 +2159,21 @@
 <span class="w">        </span><span class="sd">"""True for the inner leaf, False for outer."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inner</span>
 
-<div class="viewcode-block" id="KnuckleHinge.shape">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHinge.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the knuckle hinge leaf geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="KnuckleHinge.show">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHinge.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the knuckle hinge leaf in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the knuckle hinge leaf in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2116,7 +2243,7 @@
             <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
             <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
             <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">inner</span> <span class="o">=</span> <span class="n">KnuckleHinge</span><span class="p">(</span>
             <span class="n">length</span><span class="p">,</span>
             <span class="n">segs</span><span class="p">,</span>
@@ -2129,7 +2256,7 @@
             <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
             <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
             <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">if</span> <span class="n">fold</span><span class="p">:</span>
             <span class="n">inner</span> <span class="o">=</span> <span class="n">inner</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="n">fold</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">hinge</span> <span class="o">=</span> <span class="n">outer</span> <span class="o">|</span> <span class="n">inner</span>
@@ -2152,18 +2279,21 @@
 <span class="w">        </span><span class="sd">"""Fold angle in degrees."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fold</span>
 
-<div class="viewcode-block" id="KnuckleHingePair.shape">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHingePair.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hinge pair geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="KnuckleHingePair.show">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHingePair.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the hinge pair in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the hinge pair in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2226,18 +2356,21 @@
 <span class="w">        </span><span class="sd">"""Plate thickness in mm."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span>
 
-<div class="viewcode-block" id="SnapLock.shape">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapLock.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the snap-lock tab geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="SnapLock.show">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapLock.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the snap-lock tab in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the snap-lock tab in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -2309,18 +2442,21 @@
 <span class="w">        </span><span class="sd">"""Plate thickness in mm."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span>
 
-<div class="viewcode-block" id="SnapSocket.shape">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapSocket.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the snap socket geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="SnapSocket.show">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapSocket.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the snap socket in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the snap socket in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 </code></pre></div>

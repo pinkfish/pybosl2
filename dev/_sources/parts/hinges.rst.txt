@@ -44,7 +44,7 @@ A 5-knuckle hinge leaf:
 .. pythonscad-example::
 
    from pybosl2.parts.hinges import KnuckleHinge
-   KnuckleHinge(length=35, segs=5).shape().show()
+   KnuckleHinge(length=35, segs=5).shape.show()
 
 .. rubric:: ``knuckle_hinge_pair``
 
@@ -53,7 +53,7 @@ A meshed hinge pair:
 .. pythonscad-example::
 
    from pybosl2.parts.hinges import KnuckleHingePair
-   KnuckleHingePair(length=40, segs=5).shape().show()
+   KnuckleHingePair(length=40, segs=5).shape.show()
 
 .. rubric:: ``living_hinge_mask``
 
@@ -62,7 +62,7 @@ A living-hinge groove mask:
 .. pythonscad-example::
 
    from pybosl2.parts.hinges import LivingHingeMask
-   LivingHingeMask(length=100, thick=3, foldangle=60).shape().show()
+   LivingHingeMask(length=100, thick=3, foldangle=60).shape.show()
 
 .. rubric:: ``snap_lock``
 
@@ -71,7 +71,7 @@ A snap lock:
 .. pythonscad-example::
 
    from pybosl2.parts.hinges import SnapLock
-   SnapLock(thick=3, foldangle=60).shape().show()
+   SnapLock(thick=3, foldangle=60).shape.show()
 
 .. rubric:: ``snap_socket``
 
@@ -80,4 +80,4 @@ A snap socket:
 .. pythonscad-example::
 
    from pybosl2.parts.hinges import SnapSocket
-   SnapSocket(thick=3, foldangle=60).shape().show()
+   SnapSocket(thick=3, foldangle=60).shape.show()

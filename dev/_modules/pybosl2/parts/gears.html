@@ -362,6 +362,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/caps.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Caps</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/color.html" class="md-nav__link">
         
   
@@ -392,6 +416,30 @@
   
   <span class="md-ellipsis">
     <span>Direction constants</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../foundational/defaults.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Defaults</span>
     
   </span>
   
@@ -895,6 +943,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/surfaces3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Surfaces3D</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/svg.html" class="md-nav__link">
         
   
@@ -1018,6 +1090,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../math/bounds.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Bounds</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../math/geometry.html" class="md-nav__link">
         
   
@@ -1048,6 +1144,30 @@
   
   <span class="md-ellipsis">
     <span>Maths</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../math/points.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Points</span>
     
   </span>
   
@@ -1843,7 +1963,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -2832,7 +2952,7 @@
 <span class="sd">        .. pythonscad-example::</span>
 
 <span class="sd">            from pybosl2.parts.gears import SpurGear2d</span>
-<span class="sd">            SpurGear2d(mod=5, teeth=30).shape().linear_extrude(height=3).show()</span>
+<span class="sd">            SpurGear2d(mod=5, teeth=30).shape.linear_extrude(height=3).show()</span>
 
 <span class="sd">    """</span>
 
@@ -2901,18 +3021,21 @@
 <span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
-<div class="viewcode-block" id="SpurGear2d.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear2d.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the 2-D gear outline."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
 
 <div class="viewcode-block" id="SpurGear2d.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear2d.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the gear in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the gear in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3021,7 +3144,7 @@
             <span class="n">shaft_diam</span><span class="o">=</span><span class="n">shaft_diam</span><span class="p">,</span>
             <span class="n">shorten</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">shorten</span><span class="p">,</span>
             <span class="n">gear_spin</span><span class="o">=</span><span class="n">gear_spin</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">if</span> <span class="n">herringbone</span><span class="p">:</span>
             <span class="n">top</span> <span class="o">=</span> <span class="n">shape2d</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span>
                 <span class="n">height</span><span class="o">=</span><span class="n">thickness</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
@@ -3064,18 +3187,21 @@
 <span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
-<div class="viewcode-block" id="SpurGear.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the spur gear geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="SpurGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.SpurGear.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the spur gear in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the spur gear in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3236,7 +3362,7 @@
             <span class="n">helical</span><span class="o">=</span><span class="n">helical</span><span class="p">,</span>
             <span class="n">internal</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">profile_shift</span><span class="o">=</span><span class="n">profile_shift</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">()</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">body</span> <span class="o">=</span> <span class="n">cylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">thickness</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">_or</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">((</span><span class="n">body</span> <span class="o">-</span> <span class="n">cavity</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">_or</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">_or</span><span class="p">,</span> <span class="n">thickness</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">teeth</span>
@@ -3246,18 +3372,21 @@
 <span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
-<div class="viewcode-block" id="RingGear.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.RingGear.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the ring gear geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="RingGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.RingGear.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the ring gear in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the ring gear in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3273,7 +3402,7 @@
 <span class="sd">        .. pythonscad-example::</span>
 
 <span class="sd">            from pybosl2.parts.gears import Rack2d</span>
-<span class="sd">            Rack2d(mod=2, teeth=20, height=10).shape().linear_extrude(height=5).show()</span>
+<span class="sd">            Rack2d(mod=2, teeth=20, height=10).shape.linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
 
@@ -3311,18 +3440,21 @@
         <span class="n">path</span> <span class="o">=</span> <span class="n">_rack2d_path</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">clearance</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="n">Bosl2Shape2D</span> <span class="o">=</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">teeth</span> <span class="o">*</span> <span class="n">center</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">height</span><span class="p">)])</span>
 
-<div class="viewcode-block" id="Rack2d.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack2d.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the 2-D rack outline."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
 
 <div class="viewcode-block" id="Rack2d.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack2d.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the rack in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the rack in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3395,18 +3527,21 @@
 <span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
-<div class="viewcode-block" id="Rack.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the rack geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="Rack.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Rack.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the rack in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the rack in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3551,18 +3686,21 @@
 <span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
-<div class="viewcode-block" id="BevelGear.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.BevelGear.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the bevel gear geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="BevelGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.BevelGear.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the bevel gear in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the bevel gear in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3639,18 +3777,21 @@
             <span class="n">vnf</span> <span class="o">=</span> <span class="n">_vnf_xflip</span><span class="p">(</span><span class="n">vnf</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">diameter</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
 
-<div class="viewcode-block" id="Worm.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Worm.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the worm geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="Worm.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.Worm.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the worm in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the worm in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 
@@ -3773,18 +3914,21 @@
 <span class="w">        </span><span class="sd">"""Number of teeth."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
-<div class="viewcode-block" id="WormGear.shape">
-<a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.WormGear.shape">[docs]</a>
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the worm gear geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
-
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="WormGear.show">
 <a class="viewcode-back" href="../../../parts/gears.html#pybosl2.parts.gears.WormGear.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the worm gear in the viewer."""</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Display the worm gear in the viewer, and return it.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The shape, so the call can be chained or assigned.</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 </div>
 
 </code></pre></div>
