@@ -498,6 +498,9 @@ def rect_tube(
     center: bool | None = None,
     spin: float | None = None,
     orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
     res: int | None = None,
 ) -> Solid:
     """Return a rect_tube on the active backend.
@@ -523,6 +526,9 @@ def rect_tube(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
                 "res": res,
             }
         ),

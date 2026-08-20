@@ -70,6 +70,11 @@ include = ["pybosl2", "pybosl2.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The render tests write meshes into tmp_path; keeping every passing test's scratch filled the
+# system volume (and, when TMPDIR was unwritable, dropped a pytest-of-* tree in the repo root).
+# Keep scratch only for failures, and only the last run's.
+tmp_path_retention_policy = "failed"
+tmp_path_retention_count = 1
 
 [tool.ruff]
 # Target Python version

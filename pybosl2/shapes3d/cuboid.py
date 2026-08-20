@@ -690,6 +690,9 @@ def rect_tube(
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
     length: float | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """Return a rectangular tube (a rectangle with a rectangular hole through it).
 
@@ -720,6 +723,14 @@ def rect_tube(
         anchor:     anchor point (default BOTTOM)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         orient:     direction to rotate the top towards, after spin (default UP)
+        length:     synonym for height
+        fn:         arc smoothness override for the rounded corners, passed to both prismoids
+        fa:         arc smoothness override for the rounded corners, passed to both prismoids
+        fs:         arc smoothness override for the rounded corners, passed to both prismoids
+
+    Raises:
+        ValueError: If neither an outer size nor an inner size with a wall is given, or the bore
+            is not smaller than the outer size.
 
     Examples:
         .. pythonscad-example::
@@ -824,6 +835,9 @@ def rect_tube(
         chamfer1=chamfer1_v,
         chamfer2=chamfer2_v,
         anchor=CENTER,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
     inner = prismoid(
         isize1_v,
@@ -835,6 +849,9 @@ def rect_tube(
         chamfer1=ichamfer1_v,
         chamfer2=ichamfer2_v,
         anchor=CENTER,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
     shape = outer.shape - inner.shape
 

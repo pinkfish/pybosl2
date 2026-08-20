@@ -196,6 +196,9 @@ def rect_tube(
     spin: float = 0,
     orient: Anchor | Sequence[float] = ...,
     length: float | None = None,
+    fn: int | None = ...,
+    fa: float | None = ...,
+    fs: float | None = ...,
 ) -> Solid: ...
 def regular_prism(
     sides: int,

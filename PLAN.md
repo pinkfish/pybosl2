@@ -228,12 +228,20 @@ python -m venv .venv                 # create from OUTSIDE the repo: pybosl2/mat
 source .venv/bin/activate
 pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad
 
+export TMPDIR=/Volumes/ExternalDocs/tmp/   # scratch on the big volume, not the system disk
 pytest                               # full suite
 pytest tests/test_stl_render.py      # real-binary render checks (skips without the app)
 mypy --strict pybosl2                # zero errors required
 ruff check . --fix && ruff format .  # lint + format
 make -C docs html                    # docs into wiki/
 ```
+
+**X-6 Scratch space.** The STL-render tests write meshes through `tmp_path` and `tempfile`, which
+follow `TMPDIR`. Point `TMPDIR` at a volume with room — on the system disk a full run can exhaust
+free space, and when `TMPDIR` is unwritable pytest falls back to the working directory and leaves a
+`pytest-of-*` tree in the repo (ignored by `.gitignore`, but still hundreds of megabytes). Retention
+is capped in `pyproject.toml` (`tmp_path_retention_policy = "failed"`), so passing tests clean up
+after themselves.
 
 Commits follow Conventional Commits (`.commitlintrc.yml`): `fix(docs): …`, `feat(solid): …`.
 A change that serves a numbered requirement SHOULD cite it in the body
@@ -260,7 +268,7 @@ Before calling a change done:
 ## 12. Known debt
 
 Tracked in [SPEC.md §11](SPEC.md#11-conformance-status). The active language-level item is the
-facet audit: **56 of 123** public curved-geometry functions do not yet accept `fn`/`fa`/`fs`
+facet audit: **50 of 119** public curved-geometry callables do not yet accept `fn`/`fa`/`fs`
 (R-P2). Re-run the audit with:
 
 ```bash
