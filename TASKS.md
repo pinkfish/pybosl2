@@ -1,14 +1,37 @@
 # pybosl2 — Conformance Work Queue
 
 Ordered, checkable work to bring the code up to [SPEC.md](SPEC.md), with the Python mechanics in
-[PLAN.md](PLAN.md). Every task names the requirements it closes, the files it touches, and how you
-know it is done. **[SPEC.md §12.2](SPEC.md#122-open) stays the authoritative list of what is open**
+[PLAN.md](PLAN.md). **[SPEC.md §12.2](SPEC.md#122-open) is the authoritative list of what is open**
 — this file is how to close it. When a task lands, move its row from §12.2 to §12.1 in the same
-commit.
+commit, and tick it here.
 
-Definition of done for **every** task: `pytest` green, `mypy --strict pybosl2` clean,
-`ruff check . && ruff format .` clean, and the spec's conformance table updated.
-Run with `TMPDIR` pointed at a volume with room (PLAN X-6).
+Definition of done for **every** task: the five gates in [PLAN.md §10](PLAN.md#10-gates-and-commands)
+pass (`pytest`, `mypy --strict pybosl2`, `ruff check . && ruff format .`, the minimum-argument and
+example checks, the contract tests), the new contract test named in the task exists, and the spec's
+conformance tables are updated. Run with `TMPDIR` pointed at a volume with room (PLAN X-6).
+
+## Spec item → task
+
+| §12.2 | Requirement | Task | Size |
+|---|---|---|---|
+| 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) | S |
+| 2 | A-6 | [T2b](#t2b--make-the-top-level-backend-neutral) | M |
+| 3 | E-4 | [T0b](#t0b--convert-user-input-asserts-to-valueerror) | L |
+| 4 | C-14 | [T0c](#t0c--make-partshape-a-property) | M |
+| 5 | DOC-2 / D-P5 | [T0e](#t0e--document-the-façade) | M |
+| 6 | A-7 | [T0d](#t0d--fix-the-broken-export) | XS |
+| 7 | S-46a | [T0f](#t0f--make-parts-honour-the-active-backend) | L |
+| 8 | S-51 | [T0f](#t0f--make-parts-honour-the-active-backend) step 3 | — |
+| 9 | B-3 / PAR-5 | [T2](#t2--give-the-façade-ownership-of-shared-defaults) | L |
+| 10 | C-15 … C-19 | [T1](#t1--merge-solid-and-flat-into-one-shape-contract) | M |
+| 11 | R-1 | [T5](#t5--close-the-facet-control-backlog) | L |
+| 12 | PAR-1 / C-1 / B-5 | [T3](#t3--stop-the-sdf-fallback-silently-meshing) | M |
+| 13 | PAR-3 | [T4](#t4--reconcile-the-parity-records-with-the-code) | S |
+| 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) | S |
+| 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) | M |
+| 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families) | M |
+| 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
+| — | housekeeping | [T10](#t10--housekeeping) | S |
 
 ## Order and why
 
@@ -38,7 +61,8 @@ defaults there.
 
 ## T0 — Make the backend tag tell the truth
 
-**Closes:** C-1, E-3 (§12.2 item 1) · **Size:** S · **Risk:** low, but it exposes latent mixing bugs
+**Closes:** §12.2 item 1 (C-1, E-3) · **Implements:** PLAN O-6a, B-P3 · **Size:** S
+**Risk:** low in itself, but it exposes latent mixing bugs that were passing silently
 
 `CsgSolid.__init__` does `self.backend = current_backend()`, so a CSG solid built inside a
 `use_backend("sdf")` block claims to be an SDF solid. `check_operand_backend` then waves it through
@@ -60,7 +84,8 @@ the SDF backend instead of `CrossBackendError` with the conversion hint.
 
 ## T0b — Convert user-input asserts to `ValueError`
 
-**Closes:** E-4 (§12.2 item 3) · **Size:** L, batchable · **Risk:** low
+**Closes:** §12.2 item 3 (E-4) · **Implements:** PLAN E-P1, E-P2, E-P4a · **Size:** L, batchable
+**Risk:** low
 
 290 asserts carry user-facing messages; `python -O` deletes all of them. Public entry points first
 (PLAN E-P2's test: does the message name a parameter the caller typed?).
@@ -83,7 +108,8 @@ a test that greps for the pattern so it cannot come back.
 
 ## T0c — Make `part.shape` a property
 
-**Closes:** C-14 (§12.2 item 4) · **Size:** M · **Risk:** low, but API-visible
+**Closes:** §12.2 item 4 (C-14) · **Implements:** PLAN O-2, O-5a · **Size:** M
+**Risk:** low, but API-visible
 
 All 37 part classes define `shape` as a method; the spec, the docs and every example say property.
 
@@ -97,7 +123,7 @@ All 37 part classes define `shape` as a method; the spec, the docs and every exa
 
 ## T0d — Fix the broken export
 
-**Closes:** A-7 (§12.2 item 6) · **Size:** XS · **Risk:** none
+**Closes:** §12.2 item 6 (A-7) · **Implements:** PLAN M-2 · **Size:** XS · **Risk:** none
 
 `pybosl2.parts.__all__` lists `Threading`, which does not exist, so `from pybosl2.parts import *`
 raises. Remove it (or export the intended name), then add a test asserting every name in every
@@ -107,7 +133,8 @@ public module's `__all__` resolves.
 
 ## T0e — Document the façade
 
-**Closes:** DOC-2, D-P4a (§12.2 item 5) · **Size:** M · **Risk:** none
+**Closes:** §12.2 item 5 (DOC-2) · **Implements:** PLAN D-P4a, D-P1, D-P5 · **Size:** M
+**Risk:** none
 
 27 façade callables have no `Args:` and no example, so `help(pybosl2.cuboid)` — the entry point the
 spec recommends — documents nothing. Give each an `Args:` covering the parameters it declares, a
@@ -121,7 +148,8 @@ be documenting.
 
 ## T0f — Make parts honour the active backend
 
-**Closes:** S-46a, PAR-1 (§12.2 item 7) · **Size:** L · **Risk:** medium
+**Closes:** §12.2 items 7 and 8 (S-46a, S-51) · **Implements:** PLAN O-0a, O-5a · **Size:** L
+**Risk:** medium
 
 Every part imports `pybosl2.shapes3d` directly, so `with use_backend("sdf"): Screw("M6", length=20)`
 returns a CSG part that cannot be combined with the SDF geometry around it.
@@ -141,7 +169,8 @@ needs the shapes parts use).
 
 ## T1 — Merge `Solid` and `Flat` into one `Shape` contract
 
-**Closes:** C-15, C-16, C-17, C-18 · **Size:** M · **Risk:** low (contract change, not geometry)
+**Closes:** §12.2 item 10 (C-15 … C-18) · **Implements:** PLAN T-6a, T-6b · **Size:** M
+**Risk:** low — a contract change, not a geometry change
 
 Today `Solid` lives in `_backend.py` and `Flat` in `flat.py`, duplicating the `backend` tag, three
 boolean operators, four transforms and `bounds()`. That duplication is why `Flat` was `Any`-typed
@@ -166,7 +195,8 @@ long after `Solid` was not, and why it lacked `bounds()` until recently.
 
 ## T2 — Give the façade ownership of shared defaults
 
-**Closes:** B-3, PAR-5 (§12.2 item 1) · **Size:** L · **Risk:** medium (behaviour-affecting)
+**Closes:** §12.2 item 9 (B-3, PAR-5) · **Implements:** PLAN F-P1 … F-P4 · **Size:** L
+**Risk:** medium — behaviour-affecting
 
 Façade constructors default every shared argument to `None` and forward only what the caller
 passed, so an identical call can resolve differently per backend.
@@ -187,7 +217,7 @@ needs no change (PLAN F-P4); no golden STL shifts.
 
 ## T2b — Make the top level backend-neutral
 
-**Closes:** A-6 (§12.2 item 2) · **Size:** M · **Risk:** low
+**Closes:** §12.2 item 2 (A-6) · **Implements:** PLAN M-2a, B-P1 · **Size:** M · **Risk:** low
 
 `star`, `cone`, `egg`, `roof`, `text3d`, `path_text` and most of `shapes2d` are exported from the
 top level but only build on CSG.
@@ -202,7 +232,8 @@ top level but only build on CSG.
 
 ## T3 — Stop the SDF fallback silently meshing
 
-**Closes:** PAR-1, C-1, B-5 (§12.2 item 4) · **Size:** M · **Risk:** medium (changes SDF behaviour)
+**Closes:** §12.2 item 12 (PAR-1, C-1, B-5) · **Implements:** PLAN E-P6, O-6a · **Size:** M
+**Risk:** medium — changes SDF behaviour
 
 `SdfSolid.__getattr__` forwards any unimplemented name to `self.mesh()`, so `shape.up(5)` and
 `shape.color("red")` quietly convert an exact field to a mesh and hand back a raw native handle
@@ -226,7 +257,7 @@ gap list in §12.2 item 4 is empty.
 
 ## T4 — Reconcile the parity records with the code
 
-**Closes:** PAR-3 (§12.2 item 5) · **Size:** S · **Risk:** none
+**Closes:** §12.2 item 13 (PAR-3) · **Implements:** PLAN B-P1, B-P4 · **Size:** S · **Risk:** none
 
 `docs/design/sdf-csg-compatibility.md` lists `projection`, `bounding_box`, `distribute_on_path`,
 `inside`, `chain_hull`, `half_of`, `partition`, `round3d` and `offset3d` as gaps — all nine are
@@ -247,7 +278,8 @@ implemented. `projection` is simultaneously implemented on `SdfSolid` and listed
 
 ## T5 — Close the facet-control backlog
 
-**Closes:** R-1 (§12.2 item 3) · **Size:** L, but fully batchable · **Risk:** low
+**Closes:** §12.2 item 11 (R-1) · **Implements:** PLAN R-P2, R-P3, R-P5 · **Size:** L, batchable
+**Risk:** low
 
 50 pinned entries in `tests/test_facets.py`. First triage each against **R-1a**: does the output
 have an observable facet count? If not, it is not debt — delete the entry with a one-line note.
@@ -280,7 +312,7 @@ sub-construction (PLAN R-P2), document the three in `Args:`, and remove the entr
 
 ## T6 — Document and test the `fn=0` opt-out
 
-**Closes:** R-5 (§12.2 item 6) · **Size:** S · **Risk:** none
+**Closes:** §12.2 item 14 (R-5) · **Implements:** PLAN R-P6 · **Size:** S · **Risk:** none
 
 `fn=0` means "ignore any ambient `fn`, use `fa`/`fs`" because `frag_count()` treats `fn < 3` as
 unset — true but undocumented and untested.
@@ -294,7 +326,7 @@ unset — true but undocumented and untested.
 
 ## T7 — Generalise the minimum-argument check
 
-**Closes:** Q-4 (§12.2 item 7) · **Size:** M · **Risk:** none
+**Closes:** §12.2 item 15 (Q-4) · **Implements:** PLAN X-3, T-9a · **Size:** M · **Risk:** none
 
 `test_argument_free_constructors_either_build_or_explain` covers only `pybosl2.solid`.
 
@@ -307,7 +339,8 @@ unset — true but undocumented and untested.
 
 ## T8 — Class-ify the remaining function families
 
-**Closes:** P-8 (§12.2 item 8) · **Size:** M · **Risk:** low, but API-visible
+**Closes:** §12.2 item 16 (P-8) · **Implements:** PLAN O-1, O-4, O-6 · **Size:** M
+**Risk:** low, but API-visible
 
 1. `masking.mask2d_*` / `mask3d_*` → a `Mask2D`/`Mask3D` class (or a `Profile` class with
    classmethod factories), keeping the free functions as thin aliases for one release.
@@ -321,7 +354,7 @@ Each needs a deprecation path (P-6, change-process rule 2) and docs updates.
 
 ## T9 — Track BOSL2 feature coverage
 
-**Closes:** B2-1 (§12.2 item 9) · **Size:** M · **Risk:** none
+**Closes:** §12.2 item 17 (B2-1) · **Implements:** PLAN D-P7 · **Size:** M · **Risk:** none
 
 B2-1 claims feature parity with BOSL2, and nothing measures it.
 
@@ -337,6 +370,30 @@ B2-1 claims feature parity with BOSL2, and nothing measures it.
 
 **Size:** S each
 
-- [ ] `README.md` — mention `SPEC.md`/`PLAN.md`/`TASKS.md` in the contributor section (the reference links are already there).
-- [ ] `pybosl2/__init__.py` — `from pybosl2.color import Color` is eager and pulls `webcolors` at import; make it lazy like everything else (A-4).
-- [ ] `effective_defaults()` returns `dict[str, Any]` — narrow it once the façade owns its defaults (T2), since the value types become knowable.
+- [ ] `README.md` — point contributors at `SPEC.md` / `PLAN.md` / `TASKS.md` in the development
+      section (the reference links are already there).
+- [ ] `pybosl2/__init__.py` — `from pybosl2.color import Color` is eager and pulls `webcolors` at
+      import time; make it lazy like everything else (SPEC A-4).
+- [ ] `effective_defaults()` returns `dict[str, Any]`; narrow it once the façade owns its defaults
+      (T2), when the value types become knowable (PLAN T-2).
+- [ ] Audit `Sequence` parameters that are documented as paths for SPEC C-7 — they should take a
+      `Path` (PLAN T-4).
+- [ ] Add a ruff rule (or a test) banning new `assert` statements with a message naming a
+      parameter, so T0b cannot regress (PLAN E-P2).
+- [ ] Check `docs/design/` for other documents that have drifted the way
+      `sdf-csg-compatibility.md` did — a stale design note is worse than none (T4).
+
+---
+
+## Keeping this file honest
+
+The mapping table at the top is the contract between this file and the spec. Two ways it goes
+stale, both cheap to prevent:
+
+* A task lands but §12.2 keeps its row — fix by moving the row to §12.1 **in the same commit** as
+  the code, per SPEC §13 rule 4.
+* A new defect is found and only lands here — always add the §12.2 row first; this file never
+  holds work the spec does not know about.
+
+When a review turns up something new, the order is: reproduce it as a user would, add the §12.2
+row citing the requirement it violates, then add the task here with its plan rules and its test.

@@ -5,7 +5,12 @@
 mechanics that satisfy it. Both are normative for new and modified code.
 
 Requirement keywords: **MUST**, **MUST NOT**, **SHOULD**, **MAY**. Requirements are numbered
-(`L-3`, `T-7`, …) so reviews and commit messages can cite them.
+(`L-3`, `T-7`, …) so reviews and commit messages can cite them, and — like the spec's — the numbers
+are permanent: a new rule appends to its series rather than renumbering the rest.
+
+Each section states the Python mechanics for a part of the spec: §2 typing, §3 objects, §4 façade
+and backend dispatch, §5 documentation, §6 modules, §7 errors, §8 style, §9 tests, §10 gates,
+§11 review. Where a rule exists to satisfy a spec requirement, it cites it (`SPEC D-4`).
 
 ---
 
@@ -86,6 +91,15 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
 * **T-9 No dynamic globals.** Never `globals()[name] = …` or `setattr(module, …)` to register an
   API. The one permitted `__getattr__` is the top-level lazy re-export table, which is backed by
   its stub (T-8).
+* **T-9a Keyword-only is a `*` in the signature.** Everything past the subject argument goes
+  after a bare `*` (SPEC D-1), so no caller can depend on positional order for shaping, placement,
+  resolution or escape-hatch parameters. A public callable carries at most one required parameter;
+  a second needs a `Note:` in the docstring saying why no default can invent it (SPEC D-2), and a
+  third is never acceptable.
+* **T-9b `None` means "decide for me", never "off".** "Off" is `0`, `False`, or an enum member
+  (`ScrewDriveType.NONE`) — SPEC D-4. A parameter whose `None` means "do not apply this" is a
+  defect: it makes "unset" and "disabled" indistinguishable, which is what breaks ambient defaults
+  (§4.3) and `effective_defaults()`.
 * **T-10 Immutable defaults.** Parameter defaults are `None`, numbers, strings, tuples, or enum
   members — never a list, dict, or set, in `.py` or `.pyi` (SPEC D-3). Guarded by
   `tests/test_defaults.py::test_no_mutable_defaults_anywhere_in_the_package`.
@@ -131,6 +145,10 @@ what they need, rather than passing a bag of numbers through free functions.
   from every operation (SPEC C-3); no public method mutates `self`. The pattern is copy-then-set —
   `out = self._wrap(self.shape); out.tag_name = …; return out` — so the `attachments`/`tag_name`
   setters exist for the copy to use and are never part of the public call surface.
+* **O-5b Derived values are computed, then exposed.** A value that follows from the others is
+  computed once — in the frozen spec object or on the first line of `__init__` — and surfaced as a
+  read-only property, never demanded from the caller (SPEC P-3, D-6). `ScrewSpec` deriving pitch
+  from `"M6"` and `GearSpec` deriving pitch radius from teeth+module are the patterns to copy.
 * **O-6 Enums for closed vocabularies.** `StrEnum` in `pybosl2/enums.py` and
   `pybosl2/parts/enums.py`, so the legacy string spelling still compares equal. A new bare-string
   parameter with a fixed set of accepted values is a defect.
@@ -141,6 +159,14 @@ what they need, rather than passing a bag of numbers through free functions.
   `"sdf"`) as a class attribute; it MUST NOT be assigned from `current_backend()` in `__init__`.
   The tag says *who built this object*, not *what was selected when it happened* (SPEC C-1), and
   reading the ambient value there silently disables the cross-backend guard.
+* **O-6b Anchors use the anchor language.** A parameter meaning "which face, edge or corner" is
+  typed `Anchor | Sequence[float]` and resolved through `resolve_anchor()` (SPEC C-10). Do not
+  accept a bare string like `"top"` or an integer index — that is a parallel vocabulary the reader
+  has to learn twice. `constants.TOP` is an alias of `Anchor.TOP`; new code and examples use the
+  enum spelling (SPEC C-11).
+* **O-6c Caps are one value.** A stroke or sweep end treatment is typed `CapType | CapSpec` and
+  normalised once through `caps.norm_caps()` (SPEC S-23, S-24), so `endcap1=`/`endcap2=`/`joints=`
+  each take a single argument rather than a spread of style, size and shape parameters.
 * **O-7 Composition at the FFI boundary.** `Bosl2Solid`/`Bosl2Shape2D` wrap the native handle by
   composition, never inheritance, and proxy operations through the explicit
   `_NATIVE_PASSTHROUGH` allowlist (SPEC C-6).
@@ -165,7 +191,23 @@ SPEC B-3 makes the façade the owner of every default both backends understand.
 * **F-P4** `effective_defaults()` MUST keep reporting the truth after any change here — it reads
   live off the constructor, so the test for it is that it needs no maintenance.
 
-### 4.2 Resolution plumbing (`fn` / `fa` / `fs` / `res`)
+### 4.2 Backend implementations
+
+* **B-P1 Both backends, or an explicit refusal.** A new shared feature is implemented on both
+  backends, or it raises `UnsupportedByBackendError` **and** is listed in `CSG_ONLY_FEATURES` /
+  `SDF_ONLY_FEATURES` with its reason (SPEC PAR-2, PAR-3). Silently omitting it from one backend is
+  the failure mode those lists exist to prevent.
+* **B-P2 Name differences live in one table.** Where a backend's own module spells a parameter
+  differently, the mapping goes in that backend's translation table (`SdfBackend._OWN_NAMES`),
+  never into the façade signature (SPEC PAR-4).
+* **B-P3 Guard operands, do not assume.** Boolean and transform implementations call
+  `check_operand_backend()` before touching an operand, so a mismatch raises `CrossBackendError`
+  with its conversion hint rather than an internal `AssertionError` from deeper in (SPEC C-1, E-3).
+* **B-P4 An exclusive-feature list is checked, not just written.** Every name in
+  `CSG_ONLY_FEATURES` must genuinely be absent from the SDF shape, and vice versa; a name that is
+  both listed and implemented (as `projection` is today) means the refusal never fires.
+
+### 4.3 Resolution plumbing (`fn` / `fa` / `fs` / `res`)
 
 SPEC R-1 requires every curved construction to accept the facet controls and pass them down. In
 Python that means:
@@ -238,7 +280,12 @@ Python that means:
 
 * **M-1** One module per ported `.scad` file, named after it, so the Python and OpenSCAD sources
   read side by side. Support modules are `_`-prefixed and marked `DocCategory: internal`.
-* **M-2** Every public module declares `__all__`.
+* **M-2** Every public module declares `__all__`, and **every name in it resolves** (SPEC A-7) —
+  a stale entry breaks `import *` and every tool that walks the list.
+* **M-2a** The top-level `_LAZY_EXPORTS` points at the **façade** (`pybosl2.solid`,
+  `pybosl2.flat`), never at a backend module, so no top-level name can build on a backend the
+  caller did not select (SPEC A-6). A shape only one backend can make is reached through that
+  backend's module, or gets a façade constructor that refuses on the other.
 * **M-3** No native runtime at import time. PythonSCAD primitives are reached through
   `pybosl2._native.native("cube")`, which defers `import pythonscad` to the first call; libfive is
   a lazy handle in `pybosl2/sdf/_libfive.py`. `import pybosl2` MUST work with neither installed.
@@ -264,6 +311,9 @@ Python that means:
   `UnsupportedByBackendError(feature, backend, hint=…)` and cross-backend mixing uses
   `CrossBackendError`. Both MUST carry an actionable hint.
 * **E-P4** Never swallow an exception to return a degenerate shape.
+* **E-P4a** Every library error derives from `Bosl2Error` (SPEC E-1), so a caller can catch the
+  family with one `except`. A bare `ValueError` from argument validation is the sanctioned
+  exception — it is what Python users expect for a bad argument.
 * **E-P5** Resolve radius/diameter spellings through `_helpers.pick_radius()`, never with a
   hand-rolled `radius if radius is not None else diameter / 2` ternary. The helper is what enforces
   SPEC D-5 — same-dimension conflicts raise, specificity levels resolve most-specific-first — and a
@@ -284,6 +334,10 @@ Python that means:
   SPEC §12 (conformance), not in the source.
 * **S-4** Comments explain *why*, and are kept truthful when the code changes; a comment that
   describes behaviour the code no longer has is a defect.
+* **S-4a Units are implicit and fixed.** Millimetres, degrees, right-handed Z-up (SPEC D-9). No
+  API takes a `units=` parameter; a caller working in inches multiplies by `constants.INCH` at the
+  call site. Do not introduce a second angular unit either — everything is degrees, and anything
+  ported from a radians-based source converts on entry.
 * **S-5** BOSL2 parameter names are kept unless Python forbids them (`except` → `except_edges`) or
   a better Python spelling exists (SPEC B-8) — but the *call shape* is Python's, not OpenSCAD's.
 
@@ -309,14 +363,37 @@ Python that means:
   | `tests/test_facets.py` | R-P2 / R-P5 |
   | `tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected` | E-P5 / SPEC D-5 |
   | `tests/test_docs_links.py` | D-P6 / D-P6a |
-  | `tests/test_backend_matrix.py` | SPEC B-7, PAR-2 (a new shared feature lands on both backends or is an explicit, tracked refusal) |
+
+  Tests the rules still need (they land with their tasks in [TASKS.md](TASKS.md)):
+
+  | Test to add | Guards | Task |
+  |---|---|---|
+  | a CSG shape built inside `use_backend("sdf")` reports `backend == "csg"` | O-6a / SPEC C-1 | T0 |
+  | no `assert` carries a message naming a caller-supplied parameter | E-P2 / SPEC E-4 | T0b |
+  | `shape` is a property on every class in `pybosl2.parts.__all__` | O-2 / SPEC C-14 | T0c |
+  | every name in every public `__all__` resolves | M-2 / SPEC A-7 | T0d |
+  | every top-level shape name yields the active backend or refuses | M-2a / SPEC A-6 | T2b |
+  | every part built under `use_backend("sdf")` is SDF-backed or refuses | O-0a / SPEC S-46a | T0f |
+  | every name in `CSG_ONLY_FEATURES` is genuinely absent from the SDF shape | B-P4 / SPEC PAR-3 | T4 |
+  | `tests/test_backend_matrix.py` | SPEC B-7, PAR-2, B-P1 (a new shared feature lands on both backends or is an explicit, tracked refusal) |
 * **X-5** Changing geometry, backends, or paths means running the full suite — including
   `pytest tests/test_stl_render.py` when a PythonSCAD binary is available — before the work is
   called done.
 
 ---
 
-## 10. Commands
+## 10. Gates and commands
+
+The spec's quality gates map to these commands — all five MUST pass before a change is done:
+
+| Gate | Command |
+|---|---|
+| **Q-1** suite green, pure geometry needs no CAD runtime | `pytest` |
+| **Q-2** strict typing | `mypy --strict pybosl2` |
+| **Q-3** lint and format | `ruff check . --fix && ruff format .` |
+| **Q-4** minimum-argument test + validated example | `pytest tests/test_defaults.py tests/validate_examples.py` |
+| **Q-5** contract tests still pass | `pytest tests/test_facets.py tests/test_init_stub.py tests/test_backend_matrix.py` |
+
 
 ```bash
 python -m venv .venv                 # create from OUTSIDE the repo: pybosl2/math.py can shadow stdlib
@@ -359,8 +436,15 @@ Before calling a change done:
 8. Minimum-argument test added? (X-3)
 9. `ruff check` / `ruff format` clean, functions under 50 lines? (S-1, S-2)
 10. If it is a façade constructor, does the façade own the shared default? (F-P1)
-11. If it is a shared shape operation, is it declared once on `Shape`? (T-6a)
-12. If the module holds a public name, does it have a public `DocCategory`? (D-P6a)
+11. If it is a shared shape operation, is it declared once on `Shape` — as a real method, not via a
+    passthrough? (T-6a, T-6b)
+12. If the module holds a public name, does it have a public `DocCategory`, and does every
+    `__all__` entry resolve? (D-P6a, M-2)
+13. If it is a new shared feature, does it work on **both** backends or refuse explicitly and
+    appear in the exclusive list? (B-P1)
+14. If it is a part, does it build through the façade and honour the active backend? (O-0a)
+15. Keyword-only past the subject argument, `None` meaning "decide for me" rather than "off"?
+    (T-9a, T-9b)
 
 ---
 
