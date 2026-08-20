@@ -302,7 +302,10 @@ def _ptn_sect(
             parts = opt.split("x")
             if not (len(parts) == 2):
                 raise ValueError("size modifier must be LENGTHxWIDTH, e.g. '30x25'.")
-            return _ptn_sect(base, float(parts[0]), float(parts[1]), fn=fn, fa=fa, fs=fs)
+            new_length, new_width = float(parts[0]), float(parts[1])
+            if new_length <= 0 or new_width <= 0:
+                raise ValueError(f"size modifier {opt!r} needs a positive LENGTH and WIDTH, e.g. '30x25'.")
+            return _ptn_sect(base, new_length, new_width, fn=fn, fa=fa, fs=fs)
         if opt.startswith("skew:"):
             angle = float(opt[5:])
             if not (-45 <= angle <= 45):
@@ -429,8 +432,8 @@ def _ptn_sect(
         )
     elif isinstance(cptype, (list, tuple, np.ndarray)):
         path = [list(p) for p in cptype]
-    else:
-        # pragma: no cover - defensive: every caller passes a number, a str/PartitionCutType, or a
+    else:  # pragma: no cover
+        # defensive: every caller passes a number, a str/PartitionCutType, or a
         # point sequence. partition_path() rejects anything else in its own loop, and the mask
         # entry points iterate cutpath before they get here, so a stray type never reaches this.
         raise ValueError(

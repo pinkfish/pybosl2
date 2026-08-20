@@ -96,7 +96,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 raise ValueError(f"Path3D needs a list of [x, y, z] points, got {pts.ndim}D array")
             if not (pts.shape[1] == 3):
                 raise ValueError(f"Path3D needs [x, y, z] points, got shape {pts.shape}")
-            if not (pts.dtype == np.float64):
+            if not (pts.dtype == np.float64):  # pragma: no cover
+                # defensive: np.array(..., dtype=np.float64) either produces a float64 array or
+                # raises on its own, so a surviving array never has another dtype.
                 raise ValueError(f"Path3D needs float64 points, got {pts.dtype}")
             self._points = pts
         self._color: "Color | None" = None

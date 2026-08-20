@@ -34,7 +34,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families) | M |
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
 | — | housekeeping | [T10](#t10--housekeeping) | S |
-| — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths-) 🔶 | L |
+| — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 
 ## Order and why
 
@@ -499,7 +499,7 @@ B2-1 claims feature parity with BOSL2, and nothing measures it.
 
 ---
 
-## T11 — Cover the rejection paths 🔶
+## T11 — Cover the rejection paths 🔶 (SDF-only remainder)
 
 **Serves:** E-4, DOC-2 · **Implements:** PLAN E-P1, E-P2 · **Size:** L, batchable
 
@@ -509,12 +509,15 @@ conversion left **329 uncovered rejection paths**. `tests/test_validation_messag
 module by module, asserting the *message* as well as the type, because E-4 is about the message
 naming the fix.
 
-**Progress: 329 → 146.** Done: `isosurface`, `miscellaneous`, `surfaces3d`, `shapes3d/extrusions`,
-`shapes2d/circle`, `beziers`, `texture`, `skin`, `sdf/shapes3d`, `sdf/shapes2d`, `sdf/paths`,
-`nurbs`, `path2d`, `path3d`, `turtle2d`, `masking`, `distributors`, `shapes2d/curves`,
-`quaternions`, `shapes3d/cuboid`, `partitions`. Remaining, all in single digits per module:
-`sdf/shapes3d` (12), `path2d` (8), `skin` (8), `nurbs` (7), `beziers` (6), `sdf/paths` (6),
-`shapes2d/square` (6), `turtle3d` (6), `sdf/joiners` (5), `shapes2d/base` (5), then a tail of 1–4.
+**Progress: 329 → 4, and every one of those four needs the SDF backend.** Each remaining line is a
+rejection that only the F-Rep path can reach — `flat.regular_ngon(rounding=)` and the two
+`sdf/__init__` backend refusals need `current_backend() == "sdf"`, and `hull()`'s empty-mesh guard
+needs a libfive mesh — so they stay uncovered wherever `libfive` is not installed. They are real
+guards, not dead ones, so they are *not* marked `# pragma: no cover`; cover them from a
+libfive-enabled run instead.
+
+Everything else is either exercised by `tests/test_validation_messages.py` (360 cases) or marked
+`# pragma: no cover` with the reason it cannot fire.
 
 **What the tests keep finding.** Nine defects so far, each invisible until something exercised the
 path: a `raise AssertionError` the ratchet missed because it is not an `assert` statement;
@@ -526,6 +529,31 @@ with the reason rather than left as permanent holes. Three more `raise Assertion
 in `partitions` (an unknown section type, an invalid path descriptor, an unknown section option) —
 the ratchet only inspects `assert` statements, so a bare `raise AssertionError(...)` slips past it
 whatever the message says.
+
+Later rounds found more, all fixed as they surfaced:
+
+* **A string anchor died as a `TypeError`.** `square(2, anchor="left")` reached the arithmetic in
+  `dir2()` and failed with `bad operand type for unary -`. The eight copies of the
+  `anchor.vector if isinstance(anchor, Anchor) else list(anchor)` idiom now go through one
+  `_helpers.anchor_vector()`, which rejects the string form naming what to pass (E-4).
+* **`ring_hook(hole="square")` was silently accepted** — the guard only fired for `HoleType`
+  members, and a `HoleType` can only ever be `CIRCLE` or `D`, so it could never fire at all.
+* **`partition_path(["comb 0x20"])` raised `ZeroDivisionError`** from `tan(2°) * width / length`;
+  the LENGTHxWIDTH modifier now requires both to be positive.
+* **`mask3d_roundover(corners=Anchor.NONE)` said "failed to generate cutter"** — an internal
+  symptom rather than the cause. Both mask builders now say the corner selection was empty.
+* **`path_tangents(uniform=False)` divided by zero before its own guard**, emitting two numpy
+  RuntimeWarnings on the way to the error. It checks the segment lengths first now.
+* **Four more bare validating `assert`s** (`regular_ngon` sides, `knuckle_hinge` segs, `egg`
+  length, and the four bezier path-degree asserts) — the ratchet only flags an `assert` **with a
+  message**, so a bare `assert x >= 3` slips past it whatever it validates.
+* **`Path2D._round_corners` and `Path2D._vector_angle3` were dead code** — `rounding.py` has its
+  own `_round_corners`, and nothing called the `Path2D` copies. Deleted rather than tested.
+* **Every `# pragma: no cover` in the repo was inert.** They were written as a standalone comment
+  line inside the guard's body; coverage matches the pragma against a *line*, and a comment line
+  is not executable, so nothing was excluded. All eight moved onto the `if`/`else` header with the
+  reasoning in a comment below, and `test_no_cover_pragmas_are_attached_to_a_statement` now fails
+  the build if a bare one comes back.
 
 Two rejections turned out to be correctly typed as something other than `ValueError`:
 `polygon_prism` raises `TypeError` for a non-sequence, and the quaternion divide-by-zero paths

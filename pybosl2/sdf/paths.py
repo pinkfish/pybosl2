@@ -390,9 +390,11 @@ def bezpath_points(
     array -- same shape as the bosl2 port's bezpath_curve().
     """
     bez = as_points(bezpath)
-    assert len(bez) % n_degree == 1, (
-        f"A degree {n_degree} bezier path should have a multiple of {n_degree} points in it, plus 1."
-    )
+    if len(bez) % n_degree != 1:
+        raise ValueError(
+            f"bezpath_points(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
+            f"points plus 1, got {len(bez)}."
+        )
     segs = (len(bez) - 1) // n_degree
     out = []
     for seg in range(segs):
@@ -418,7 +420,9 @@ def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n
     c1 = [-length / 2 + radius1, 0.0]
     c2 = [length / 2 - radius2, 0.0]
     m_pts = list(reversed(_circle_circle_intersection(arc_radius - radius1, c1, arc_radius - radius2, c2)))
-    if not (len(m_pts) == 2):
+    if not (len(m_pts) == 2):  # pragma: no cover
+        # defensive: the two guards above force arc_radius > length/2 > (radius1+radius2)/2, which
+        # is exactly the condition under which the two blending circles meet in two points.
         raise ValueError("egg_path(): circles do not intersect for the given length/radius1/radius2/arc_radius.")
     arcparms = []
     for m in m_pts:
@@ -613,6 +617,8 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
         seg_ends = np.roll(pts, -1, axis=0) if closed else pts[1:]
         seg_starts = pts if closed else pts[:-1]
         segs = np.linalg.norm(seg_ends - seg_starts, axis=1)
+        if not np.all(segs > 1e-12):
+            raise ValueError("path_tangents(): the path has a repeated point (zero-length segment).")
         d = deriv(pts, h=segs, closed=closed)
     norms = np.linalg.norm(d, axis=1, keepdims=True)
     if not (np.all(norms > 1e-12)):

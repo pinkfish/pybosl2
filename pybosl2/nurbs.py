@@ -270,7 +270,9 @@ def _deboor(knot: Sequence[float], ctrl: Sequence[np.ndarray], u: float, p: int,
 
 def _homogeneous(points: Sequence[PointLike], weights: Sequence[float]) -> list[list[float]]:
     """Lift *points* into homogeneous space by scaling each with its weight."""
-    if not (len(weights) == len(points)):
+    if not (len(weights) == len(points)):  # pragma: no cover
+        # defensive: NurbsCurve/NurbsPatch check the weight count against the control points
+        # before storing them, and the patch call sites zip(strict=True) first.
         raise ValueError("weights must match the number of control points.")
     return [list(np.asarray(p, dtype=float) * w) + [float(w)] for p, w in zip(points, weights, strict=True)]
 
@@ -332,7 +334,9 @@ def _sample_params(
             params.append(float(knot[count]))
         return params
 
-    if not (u is not None):
+    if not (u is not None):  # pragma: no cover
+        # defensive: _curve_points() defaults splinesteps to 16 when the caller gives neither, so
+        # this helper always arrives with one of the two set.
         raise ValueError("Must define exactly one of u and splinesteps.")
     values = [float(x) for x in u]
     if not (all((-1e-12 <= x <= 1 + 1e-12 for x in values))):
@@ -370,7 +374,9 @@ def _curve_points(
         The evaluated points, one numpy array per parameter value.
 
     """
-    if not (splinesteps is None or u is None):
+    if not (splinesteps is None or u is None):  # pragma: no cover
+        # defensive: the public curve()/point()/points()/surface() methods each pass exactly one
+        # of the two, and the patch grid picks one per direction.
         raise ValueError("Must define exactly one of u and splinesteps.")
     if splinesteps is None and u is None:
         splinesteps = 16
@@ -387,8 +393,8 @@ def _curve_points(
         )
         return [np.asarray(pt[:-1], dtype=float) / pt[-1] for pt in rational]
 
-    if not (nurbs_type == NurbsType.CLOSED or len(control) >= degree + 1):
-        # pragma: no cover - defensive: NurbsCurve.__init__ makes the same check before any
+    if not (nurbs_type == NurbsType.CLOSED or len(control) >= degree + 1):  # pragma: no cover
+        # defensive: NurbsCurve.__init__ makes the same check before any
         # curve can reach this helper, and a CLOSED curve is exempt from it
         raise ValueError(f"Not enough control points for a degree {degree} {nurbs_type.value} curve.")
     ctrl = [np.asarray(p, dtype=float) for p in control]
@@ -779,7 +785,9 @@ class NurbsCurve:
 
         """
         pts = np.array([[float(c) for c in p] for p in control], dtype=float)
-        if not (pts.ndim == 2):
+        if not (pts.ndim == 2):  # pragma: no cover
+            # defensive: the comprehension above builds a list of rows of floats, so numpy either
+            # produces a 2-D array or raises on a ragged/scalar input.
             raise ValueError(f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}")
         if pts.shape[1] not in (2, 3):
             raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
@@ -1017,7 +1025,9 @@ class NurbsPatch:
         if not (NurbsPatch.is_patch(control)):
             raise ValueError("control must be a rectangular grid of points.")
         pts = np.array(control, dtype=float)
-        if not (pts.ndim == 3):
+        if not (pts.ndim == 3):  # pragma: no cover
+            # defensive: is_patch() above already rejects anything that is not a rectangular grid
+            # of points, which is exactly what makes the array 3-D.
             raise ValueError(f"patch must be a 3-D array (rows x cols x dim), got shape {pts.shape}")
         if not (pts.shape[2] == 3):
             raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")

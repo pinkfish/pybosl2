@@ -342,7 +342,9 @@ class NemaMountMask:
                 parts += slotted(sz, sx * ss / 2, sy * ss / 2)
         if self._atype == NemaMaskType.FULL:
             parts += slotted(pd)
-        elif self._atype != NemaMaskType.SCREWS:
+        elif self._atype != NemaMaskType.SCREWS:  # pragma: no cover
+            # defensive: __init__ rejects anything that is not FULL or SCREWS, and _atype is never
+            # reassigned, so by here it is always one of the two.
             raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {self._atype!r}")
         w = ss + sz + (self._length if self._length > 0 else 0)
         self._solid = Bosl2Solid(_union(parts).shape, size=[ss + sz, w, self._depth])

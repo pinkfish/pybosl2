@@ -98,8 +98,8 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
         raise ValueError("only the arm_angle=90/arm_height=0 variant is ported")
     if not (arm_height == 0):
         raise ValueError("only the arm_angle=90/arm_height=0 variant is ported")
-    assert isinstance(segs, int)
-    assert segs >= 2
+    if not isinstance(segs, int) or segs < 2:
+        raise ValueError(f"knuckle_hinge(): segs must be an integer of 2 or more, got {segs!r}")
     if not (offset >= knuckle_diam / 2):
         raise ValueError("offset must be at least the knuckle radius")
 

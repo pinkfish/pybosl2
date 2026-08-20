@@ -273,7 +273,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             raise ValueError(f"Path2D needs a list of [x, y] points, got {pts.ndim}D array")
         if not (pts.shape[1] == 2):
             raise ValueError(f"Path2D needs [x, y] points, got shape {pts.shape}")
-        if not (pts.dtype == np.float64):
+        if not (pts.dtype == np.float64):  # pragma: no cover
+            # defensive: np.array(..., dtype=np.float64) either produces a
+            # float64 array or raises on its own, so a surviving array never has another dtype.
             raise ValueError(f"Path2D needs float64 points, got {pts.dtype}")
         self.closed = closed
         pts.flags.writeable = False  # shared by every _points reader; see the property
@@ -2575,7 +2577,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
             )
         ring = [[float(x), float(y)] for x, y in max(parts, key=lambda part: part.area).exterior.coords[:-1]]
-        if not (len(ring) >= 3):
+        if not (len(ring) >= 3):  # pragma: no cover
+            # defensive: shapely's buffer returns polygons whose exterior ring always has at least
+            # 3 distinct corners; the empty case is caught by the `parts` guard just above.
             raise ValueError(
                 f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
             )
@@ -2601,7 +2605,9 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             if isinstance(start, (list, tuple)):
                 return [lst[i % sides] for i in start]
             return lst[start % sides]  # type: ignore[no-any-return]
-        if not (isinstance(start, int)):
+        if not (isinstance(start, int)):  # pragma: no cover
+            # defensive: _select() is private and all three call sites pass a
+            # literal int, so the slice form never sees a list or float start.
             raise ValueError("_path_select(): slice form needs integer start")
         s = start % sides
         e = end % sides
@@ -2964,23 +2970,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     # -- Rounding --------------------------------------------------------------------------
 
     @staticmethod
-    def _vector_angle3(p0: list[float], p1: list[float], p2: list[float]) -> float:
-        """Interior angle at p1 of the triplet (p0, p1, p2) in degrees, any dimension.
-
-        Args:
-            p0: First point.
-            p1: Center point.
-            p2: Third point.
-
-        """
-        dim = len(p1)
-        v1 = [p0[i] - p1[i] for i in range(dim)]
-        v2 = [p2[i] - p1[i] for i in range(dim)]
-        n1, n2 = math.hypot(*v1), math.hypot(*v2)
-        cosang = max(-1.0, min(1.0, sum(a * b for a, b in zip(v1, v2, strict=False)) / (n1 * n2)))
-        return math.degrees(math.acos(cosang))
-
-    @staticmethod
     def _circlecorner(
         points: list[list[float]],
         diameter: float,
@@ -3025,60 +3014,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         a1 = math.degrees(math.atan2(end[1] - center[1], end[0] - center[0]))
         delta = (a1 - a0 + 180) % 360 - 180
         return _arc_points(sides, radius, a0, delta, center)
-
-    @staticmethod
-    def _round_corners(
-        path: list[list[float]],
-        radius: float | list[float] | None = None,
-        closed: bool = True,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> list[list[float]]:
-        """Round every corner of a 2-D path to the given radius, inserting an arc at each vertex.
-
-        radius can be a scalar or a per-vertex list.
-
-        Args:
-            path: A list of [x, y] points.
-            radius: Corner radius (scalar or per-vertex list).
-            closed: Whether the path is a closed polygon.
-            fn: Number of facets for rounds (overrides fa/fs).
-            fa: Minimum angle in degrees for circle fragments.
-            fs: Minimum size for circle fragments.
-
-        """
-        sides = len(path)
-        if not (sides > 2):
-            raise ValueError(f"Path2D has length {sides}. Length must be 3 or more.")
-        size = radius if radius is not None else radius
-        if not (size is not None):
-            raise ValueError("Must specify radius")
-        if isinstance(size, (list, tuple)):
-            parm = ([0] + list(size) + [0]) if len(size) < sides else list(size)
-        else:
-            parm = [size] * sides
-
-        dk = []
-        for i in range(sides):
-            if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
-                dk.append([0.0, 0.0])
-                continue
-            p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
-            angle = Path2D._vector_angle3(p0, p1, p2) / 2
-            assert not math.isclose(angle, 0, rel_tol=0, abs_tol=EPSILON), (
-                f"Path2D turns back on itself at index {i} with nonzero rounding"
-            )
-            dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
-
-        out = []
-        for i in range(sides):
-            if dk[i][0] == 0:
-                out.append(path[i])
-                continue
-            p0, p1, p2 = path[(i - 1) % sides], path[i], path[(i + 1) % sides]
-            out.extend(Path2D._circlecorner([p0, p1, p2], dk[i][0], dk[i][1], fn, fa, fs))
-        return Path2D._deduplicate(out, closed=closed)
 
     def to_bezcornerpath(
         self,

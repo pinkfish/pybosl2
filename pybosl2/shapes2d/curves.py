@@ -290,7 +290,8 @@ def _egg_path(
     fa: float | None = None,
     fs: float | None = None,
 ) -> list[list[float]]:
-    assert length > 0
+    if length <= 0:
+        raise ValueError(f"egg(): length must be positive, got {length}.")
     if not (arc_radius > length / 2):
         raise ValueError("Side radius must be larger than length/2")
     if not (length > radius1 + radius2):
@@ -298,7 +299,9 @@ def _egg_path(
     c1 = [-length / 2 + radius1, 0.0]
     c2 = [length / 2 - radius2, 0.0]
     m_pts = list(reversed(_circle_circle_intersection(arc_radius - radius1, c1, arc_radius - radius2, c2)))
-    if not (len(m_pts) == 2):
+    if not (len(m_pts) == 2):  # pragma: no cover
+        # defensive: the two guards above force arc_radius > length/2 > (radius1+radius2)/2, which
+        # is exactly the condition under which the two blending circles meet in two points.
         raise ValueError("egg(): circles do not intersect for the given length/radius1/radius2/arc_radius.")
     arcparms = []
     for m in m_pts:

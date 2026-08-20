@@ -24,6 +24,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 
+from pybosl2._helpers import anchor_vector
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 
@@ -56,7 +57,7 @@ else:
 
 
 def _anchor_offset_sphere(radius: float, anchor: Anchor | Sequence[float]) -> list[float]:
-    a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+    a = anchor_vector(anchor)
     sides = math.hypot(*a)
     if sides == 0:
         return [0.0, 0.0, 0.0]

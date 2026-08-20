@@ -13,6 +13,7 @@ asserts the wording the caller would act on.
 
 from __future__ import annotations
 
+import pathlib
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -27,14 +28,23 @@ import pybosl2.masking as masking
 import pybosl2.miscellaneous as misc
 import pybosl2.nurbs as nurbs
 import pybosl2.partitions as partitions
+import pybosl2.parts.nema_steppers as nema
+import pybosl2.parts.threading as threading
+import pybosl2.paths as paths
 import pybosl2.quaternions as quaternions
+import pybosl2.sdf.joiners as joiners
 import pybosl2.sdf.paths as sdfp
 import pybosl2.sdf.shapes2d as sdf2
 import pybosl2.sdf.shapes3d as sdf3
+import pybosl2.sdf.skin as sdfskin
 import pybosl2.shapes2d as s2
 import pybosl2.shapes3d as s3
 import pybosl2.skin as skin
 import pybosl2.surfaces3d as surfaces
+from pybosl2 import Anchor
+from pybosl2.caps import CapSpec, CapType
+from pybosl2.color import Color
+from pybosl2.enums import ResampleMethod, RoundingMethod
 from pybosl2.isosurface import (
     mb_capsule,
     mb_connector,
@@ -45,14 +55,21 @@ from pybosl2.isosurface import (
     mb_torus,
     metaballs2d,
 )
+from pybosl2.parts.ball_bearings import BallBearings
+from pybosl2.parts.hinges import KnuckleHinge
+from pybosl2.parts.hooks import RingHook
+from pybosl2.parts.modular_hose import HoseSegment
 from pybosl2.path2d import Path2D
 from pybosl2.path3d import Path3D
 from pybosl2.points import Point
+from pybosl2.regions import Region
+from pybosl2.rounding import _round_corners
 from pybosl2.shapes2d import circle, square
 from pybosl2.shapes3d import cuboid
 from pybosl2.texture import texture
-from pybosl2.turtle import turtle2d
+from pybosl2.turtle import turtle2d, turtle3d
 from pybosl2.turtle.turtle3d import TurtleCommand, TurtleCommandType
+from pybosl2.vnf import VNF
 
 #: (what the caller did wrong, the phrase the message must carry).
 METABALL_CASES: list[tuple[Callable[[], object], str]] = [
@@ -660,5 +677,455 @@ PARTITION_CASES: list[tuple[Callable[[], object], str]] = [
 
 @pytest.mark.parametrize(("call", "expected"), PARTITION_CASES)
 def test_partition_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_SQ2D = [[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+
+PATH2D_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: Path2D(_SQ2D).subdivide_path(points_per_segment=2), "points_per_segment requires"),
+    (lambda: Path2D([[0.0, 0.0], [0.0, 0.0], [1.0, 1.0], [1.0, 1.0]], closed=True).offset(1), "3 distinct points"),
+    (lambda: Path2D(_SQ2D, closed=True).offset(-50), "leaves nothing of this outline"),
+    (
+        lambda: Path2D(_SQ2D, closed=True).intersection(
+            Path2D([[10.0, 0.0], [20.0, 0.0], [20.0, 10.0], [10.0, 10.0]], closed=True)
+        ),
+        "invalid result: LineString",
+    ),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), PATH2D_CASES)
+def test_path2d_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_TRI2D = [[-4.0, -4.0], [4.0, -4.0], [0.0, 4.0]]
+_SQC2D = [[-5.0, -5.0], [5.0, -5.0], [5.0, 5.0], [-5.0, 5.0]]
+
+SKIN_MORE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: VNF.from_skin([_SQC2D, _SQC2D], slices=2), "matching-length z"),
+    (lambda: VNF.from_skin([_SQC2D, _SQC2D], slices=2, z=[0.0]), "matching-length z"),
+    (lambda: skin.subdivide_and_slice([_SQC2D, _SQC2D], slices=2, numpoints="nope"), "numpoints must be int"),
+    (lambda: skin.os_profile([[1.0, 1.0], [2.0, 2.0]]), r"First point of the profile must be \[0, 0\]"),
+    (
+        lambda: Path2D(_SQC2D, closed=True).rounded_prism(height=2, joint_top=3, joint_bottom=3),
+        "sum of the bottom and top rim heights",
+    ),
+    (
+        lambda: Path2D(_SQC2D, closed=True).rounded_prism(top=_TRI2D, height=10),
+        "same number of",
+    ),
+    (
+        lambda: skin.rot_resample([np.eye(4), np.eye(4)], num_copies=3, method=ResampleMethod.LENGTH),
+        "repeated/origin rotation",
+    ),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SKIN_MORE_CASES)
+def test_skin_family_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+NGON_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: s2.regular_ngon(sides=6, radius=10, rounding=1, chamfer=1), "both rounding and chamfer"),
+    (lambda: s2.trapezoid(height=10, width1=-1, width2=5), "Degenerate trapezoid"),
+    (lambda: s2.trapezoid(height=10, width1=5, width2=-1), "Degenerate trapezoid"),
+    (lambda: s2.trapezoid(height=-1, width1=5, width2=5), "Degenerate trapezoid"),
+    (lambda: s2.trapezoid(height=10, width1=0, width2=0), "Degenerate trapezoid"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), NGON_CASES)
+def test_ngon_and_trapezoid_rejections(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_BUTT = CapSpec(cap_type=CapType.BUTT)
+
+SDF_SHAPES3D_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: sdf3.cyl(height=10, radius=5, shift=[2, 0], rounding=1), "shift= cannot be combined"),
+    (lambda: sdf3.cyl(height=10, radius=5, shift=[2, 0], rounding2=1), "shift= cannot be combined"),
+    (lambda: sdf3.cyl(height=10, radius=5, rounding=1, chamfer=1), "both chamfer and rounding"),
+    (lambda: sdf3.cuboid(size=10, rounding=1, chamfer=1), "both rounding and chamfer"),
+    (lambda: (sdf3.cuboid(size=10) | sdf3.sphere(radius=3)).round(1), "requires a cuboid-shaped"),
+    (lambda: sdf3.cuboid(size=10).scale([2, 1, 1]).chamfer(1), "requires a cuboid-shaped"),
+    (lambda: sdf3.cuboid(size=10).hull([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]), "must be Nx3 array-likes"),
+    (
+        lambda: sdf3.convex_polyhedron([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]),
+        "points are coplanar",
+    ),
+    (
+        lambda: sdf3.convex_polyhedron([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]),
+        "no supporting planes found",
+    ),
+    (
+        lambda: sdf3.path_sweep([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]], path=[[0.0, 0.0, 0.0]] * 2 + [[0.0, 0.0, 5.0]]),
+        "repeated point",
+    ),
+    (
+        lambda: sdf3.stroke_3d([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]], width=1, endcap1=_BUTT, endcap2=_BUTT),
+        "no drawable segments",
+    ),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SDF_SHAPES3D_CASES)
+def test_sdf_shapes3d_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_BEZ_PATCH_NAN = [[[float(i), float(j), 0.0] for j in range(4)] for i in range(4)]
+_BEZ_PATCH_NAN[1][1][2] = float("nan")
+
+BEZIER_MORE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: beziers.create_bezier([[0.0, 0.0], [0.0, 0.0], [5.0, 5.0]], tangents=[[1.0, 0.0]] * 3), "zero length"),
+    (lambda: beziers.Bezier.tang([0.0, 0.0], angle=45), "radius must be given when angle is a scalar"),
+    (lambda: beziers.Bezier([[0.0, 0.0], [1.0, 1.0]]).path_curve(8), "path_curve.*multiple of 3 points"),
+    (lambda: beziers.Bezier([[0.0, 0.0], [1.0, 1.0]]).path_arc_length(), "path_arc_length.*multiple of 3 points"),
+    (
+        lambda: beziers.Bezier([[0.0, 0.0], [1.0, 1.0]]).path_closest_point(np.array([1.0, 1.0])),
+        "path_closest_point.*multiple of 3 points",
+    ),
+    (lambda: beziers.Bezier([[0.0, 0.0]]).path_closest_point(np.array([1.0, 1.0])), "Could not find closest point"),
+    (lambda: beziers.BezierPatch(_BEZ_PATCH_NAN).sheet(1, splinesteps=2), "degenerate normals"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), BEZIER_MORE_CASES)
+def test_more_bezier_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+NURBS_MORE_CASES: list[tuple[Callable[[], object], str]] = [
+    (
+        lambda: nurbs.NurbsCurve([[0.0, 0.0], [1.0, 2.0], [3.0, 2.0], [4.0, 0.0]], degree=3).curve(splinesteps=0),
+        "splinesteps must be a positive integer",
+    ),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), NURBS_MORE_CASES)
+def test_more_nurbs_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+SDF_PATHS_MORE_CASES: list[tuple[Callable[[], object], str]] = [
+    # the degenerate-outline guards run before any libfive tree is built, so they are reachable
+    # without the SDF backend installed.
+    (
+        lambda: sdfp._polygon_sdf_xy(None, None, np.zeros((3, 2))),
+        "no non-degenerate edges",
+    ),
+    (
+        lambda: sdfp._convex_deficiency_sdf(None, None, np.zeros((3, 2)), _depth=16),
+        "recursed implausibly deep",
+    ),
+    (lambda: sdfp.path_tangents([[0.0, 0.0], [0.0, 0.0], [1.0, 1.0]], uniform=False), "zero-length segment"),
+    (lambda: sdfp.path_tangents([[0.0, 0.0], [1.0, 1.0], [0.0, 0.0]]), "cannot normalize a zero tangent"),
+    (lambda: sdfp._v_unit([0.0, 0.0, 0.0]), "cannot normalize a zero vector"),
+    (lambda: sdfp.bezpath_points([[0.0, 0.0], [1.0, 1.0]]), "multiple of 3 points"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SDF_PATHS_MORE_CASES)
+def test_sdf_path_helper_rejections(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+JOINER_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: joiners.knuckle_hinge(length=20, segs=3, offset=5, arm_angle=45), "arm_angle=90/arm_height=0"),
+    (lambda: joiners.knuckle_hinge(length=20, segs=3, offset=5, arm_height=2), "arm_angle=90/arm_height=0"),
+    (lambda: joiners.knuckle_hinge(length=20, segs=3, offset=0.1), "at least the knuckle radius"),
+    (lambda: joiners.knuckle_hinge(length=20, segs=1, offset=5), "segs must be an integer of 2 or more"),
+    (
+        lambda: joiners.rabbit_clip(type="bogus", length=20, width=10, snap=1, thickness=2, depth=5),
+        "unsupported rabbit_clip type",
+    ),
+    (
+        lambda: joiners.rabbit_clip(type="pin", length=4, width=40, snap=3, thickness=3, depth=5),
+        "too wide for its length",
+    ),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), JOINER_CASES)
+def test_sdf_joiner_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_TURTLE3D_RT = TurtleCommand.RotationType
+
+TURTLE3D_CASES: list[tuple[Callable[[], object], str]] = [
+    (
+        lambda: turtle3d(
+            [
+                TurtleCommand(
+                    TurtleCommandType.ARC, is_compound=True, rotation_type=_TURTLE3D_RT.XROT, angle=90, radius=5
+                )
+            ]
+        ),
+        "Rotation acts as twist",
+    ),
+    (lambda: turtle3d([TurtleCommand(TurtleCommandType.ARC, is_compound=True, radius=5)]), "needs a rotation type"),
+    (lambda: turtle3d([TurtleCommand(TurtleCommandType.UNTILZ, size=50.0)]), "never reaches the goal"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), TURTLE3D_CASES)
+def test_turtle3d_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_PATH_FOR_DIST = Path2D([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0]])
+
+SHAPE_BASE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: square(2).distribute_on_path(_PATH_FOR_DIST), "provide num_copies, spacing, or dist"),
+    (lambda: square(2).distribute_on_path(_PATH_FOR_DIST, start_pos=1.0), "provide num_copies or spacing"),
+    (lambda: square(2).anchor_point(Anchor.LEFT, bbox=[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]]), r"bbox must be \[\[min_x"),
+    (lambda: square(2).anchor_point(Anchor.LEFT, bbox=[[5.0, 5.0], [0.0, 0.0]]), "max >= min"),
+    # a string anchor is rejected wherever it enters, not only in the base constructor
+    (lambda: square(2, anchor="left"), "Legacy string anchor"),
+    (lambda: circle(radius=5, anchor="left"), "Legacy string anchor"),
+    (lambda: cuboid([2, 2, 2], anchor="left"), "Legacy string anchor"),
+    (lambda: s2.regular_ngon(sides=2, radius=5), "sides must be 3 or more"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SHAPE_BASE_CASES)
+def test_shape_base_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+def test_no_cover_pragmas_are_attached_to_a_statement() -> None:
+    """A `# pragma: no cover` on its own line excludes nothing -- it must sit on the statement.
+
+    Coverage matches the pragma against a *line*; a bare comment line is not executable, so the
+    guard underneath it stays reported as missing. Keeping the marker on the `if`/`else` header
+    (with the reasoning in a comment below it) is what actually excludes the branch.
+    """
+    root = pathlib.Path(__file__).resolve().parent.parent / "pybosl2"
+    stray = [
+        f"{path.relative_to(root.parent)}:{lineno}"
+        for path in sorted(root.rglob("*.py"))
+        for lineno, line in enumerate(path.read_text().splitlines(), start=1)
+        if line.strip().startswith("# pragma: no cover")
+    ]
+    assert not stray, "pragma comment on its own line excludes nothing; move it onto the guard: " + ", ".join(stray)
+
+
+_P3 = [[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0]]
+_BUTT_CAP = CapSpec(cap_type=CapType.BUTT)
+
+PATH3D_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: Path3D(_P3).cut_points([5.0, 2.0]), "increasing list"),
+    (lambda: Path3D(_P3).cut_points([500.0]), "too short for specified cut distance"),
+    (lambda: Path3D(_P3).subdivide_path(points_per_segment=2), "points_per_segment requires"),
+    (lambda: Path3D([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [0.0, 0.0, 0.0]]).tangents(), "normalize a zero vector"),
+    (lambda: Path2D([[0.0, 0.0], [1.0, 1.0], [0.0, 0.0]]).tangents(), "normalize a zero vector"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), PATH3D_CASES)
+def test_path3d_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+STROKE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: Path3D([[0.0, 0.0, 0.0]]).stroke(width=1), "at least 2 points"),
+    (lambda: Path3D([[0.0, 0.0, 0.0]]).dashed_stroke(dashpat=[5, 2]), "at least 2 points"),
+    (
+        lambda: Path3D([[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]).stroke(width=1, endcap1=_BUTT_CAP, endcap2=_BUTT_CAP),
+        "no drawable segments",
+    ),
+    (lambda: Path2D([[0.0, 0.0]]).stroke(width=1), "at least 2 points"),
+    (lambda: Path2D([[0.0, 0.0]]).dashed_stroke(dashpat=[5, 2]), "at least 2 points"),
+    (lambda: Path2D(_SQ2D).stroke(width=1, endcap1=CapSpec(cap_type=CapType.CUSTOM)), "CUSTOM requires path="),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), STROKE_CASES)
+def test_stroke_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+MASKING_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=2, size=(10, 10, 10), corners="left"), "Legacy str"),
+    (lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=2), "size= .the box's size. must be given"),
+    (lambda: masking.mask3d_roundover(r=2, size=(10, 10, 10), corners=Anchor.NONE), "selected no corners"),
+    (lambda: masking.mask3d_chamfer(chamfer=2, size=(10, 10, 10), corners=Anchor.NONE), "selected no corners"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), MASKING_CASES)
+def test_masking_corner_rejections(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+VNF_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: VNF([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], [[0, 1, 2]]).halfspace([0, 0, 1]), r"\[A, B, C"),
+    (lambda: VNF.from_metaballs([], bounding_box=None), "spec is empty"),
+    (lambda: VNF.from_field(lambda _p: 1.0, 0), "needs a bounding_box"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), VNF_CASES)
+def test_vnf_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+ROUNDING_CASES: list[tuple[Callable[[], object], str]] = [
+    (
+        lambda: _round_corners(_TRI2D, method=RoundingMethod.CIRCLE, radius=1, k=0.5),
+        'k is only allowed with method="smooth"',
+    ),
+    (lambda: _round_corners(_TRI2D, method=RoundingMethod.CIRCLE, radius=-1), "radius must be nonnegative"),
+    (lambda: _round_corners(_TRI2D, method=RoundingMethod.SMOOTH, joint=1, k=5), r"k must be in \[0, 1\]"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), ROUNDING_CASES)
+def test_rounding_parameter_rejections(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+_THREAD_PROFILE = [[-0.5, 0.0], [0.0, 0.5], [0.5, 0.0]]
+
+PARTS_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: threading.ThreadedRod(d=10, l=0, pitch=2, profile=_THREAD_PROFILE), "must be positive"),
+    (lambda: threading.ThreadHelix(d=10, pitch=0), "must be positive"),
+    (lambda: threading.ThreadHelix(d=0, pitch=2), "must be positive"),
+    (lambda: RingHook(base_size=[30.0, 20.0, 5.0], hole_z=10, hole=_SQ2D), "custom hole needs or/outer_diameter"),
+    (lambda: RingHook(base_size=[30.0, 20.0, 5.0], hole_z=10, outer_radius=5, wall=-2), "hole doesn't fit"),
+    (
+        lambda: RingHook(base_size=[30.0, 20.0, 5.0], hole_z=10, outer_radius=8, wall=2, hole="square"),
+        "hole must be CIRCLE, D or a 2-D path",
+    ),
+    (lambda: BallBearings.ball_bearing(trade_size=None, inner_diameter=5), "must give outer_diameter"),
+    (lambda: BallBearings.ball_bearing(trade_size=None, inner_diameter=5, outer_diameter=10), "must give width"),
+    (lambda: KnuckleHinge(length=20, segs=1), "segs must be >= 2"),
+    (lambda: HoseSegment(size=0.5, waist_len=-5), "waist_len must be nonnegative"),
+    (lambda: nema.NemaMountMask(size=17, atype="bogus"), "atype must be FULL or SCREWS"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), PARTS_CASES)
+def test_part_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+SHAPE_SIZE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: s3.cyl(height=10, radius=5, rounding=1, chamfer=1), "both chamfer and rounding"),
+    (lambda: s3.tube(height=10, outer_diameter=5, inner_diameter=10), "inner radius is larger"),
+    (lambda: s3.cross(size=[10, 10], height=-5), "positive height"),
+    (lambda: s2.rect(size=[10, 10], rounding=8), "exceed the rect width"),
+    (lambda: s2.rect(size=[30, 4], rounding=3), "exceed the rect height"),
+    (lambda: s2.arc(points=[[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]), "collinear"),
+    (lambda: s2.teardrop2d(radius=5, cap_height=1), "cap_height cannot be less than"),
+    (
+        lambda: s3.rect_tube(height=10, size1=[20, 20], size2=[20, 20], isize2=[10, 10]),
+        "needs a bore",
+    ),
+    (
+        lambda: s3.rect_tube(height=10, size=[20, 20], isize1=[10, 10], isize2=[30, 30]),
+        "is not smaller than the outer size",
+    ),
+    (lambda: s3.cuboid([2, 2, 2]).distribute_on_path(_PATH_FOR_DIST), "provide num_copies, spacing, or dist"),
+    (lambda: s3.cuboid([2, 2, 2]).anchor_point("left"), "Legacy string anchor"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SHAPE_SIZE_CASES)
+def test_shape_size_rejections_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+MISC_MODULE_CASES: list[tuple[Callable[[], object], str]] = [
+    (lambda: dist.grid_copies(spacing=5, num_copies=2, axes="xq"), "invalid axes"),
+    (lambda: dist.path_copies([[0.0, 0.0], [1.0, 0.0]], num_copies=3, spacing=50), "don't fit on the path"),
+    (lambda: partitions.partition_path(["comb 0x"]), "repetition count must be positive"),
+    (lambda: partitions.partition_path(["comb 0x20"]), "positive LENGTH and WIDTH"),
+    (lambda: Color("#12345"), "invalid hex colour"),
+    (lambda: quaternions.Quaternion.from_matrix(np.diag([1.0, 1.0, -1.0])), "special orthogonal"),
+    (lambda: Region([Path2D(_SQ2D, closed=True)]).simplify(tolerance=0), "tolerance must be > 0"),
+    (lambda: paths.Path(None), "abstract Path class"),
+    (
+        lambda: surfaces.plot_revolution(lambda _a, _b: 1.0, angle=[0, 90], z=[0, 10], radius1=5),
+        "give z with radius1 and radius2",
+    ),
+    (lambda: sdfskin.skin_sdf([Path2D(_SQ2D, closed=True)], z=[0.0]), "at least 2 profiles"),
+    (
+        lambda: sdfskin.skin_sdf([Path2D(_SQ2D, closed=True), Path2D(_SQ2D, closed=True)], z=[0.0]),
+        "same length",
+    ),
+    (lambda: sdfp.round_corners([[0.0, 0.0], [10.0, 0.0], [10.0001, 0.0]], radius=1), "turns back on itself"),
+    (lambda: turtle2d([TurtleCommand(TurtleCommandType.XYZMOVE, size=Point(1.0, 1.0, 1.0))]), "z-component must be 0"),
+    (lambda: turtle2d([TurtleCommand(TurtleCommandType.ARCLEFTTO, radius=5)]), "needs a numeric angle"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), MISC_MODULE_CASES)
+def test_misc_module_rejections(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()
+
+
+def test_empty_region_extrude_says_what_is_missing() -> None:
+    with pytest.raises(ValueError, match="at least one outline"):
+        Region([]).linear_extrude(height=5)
+
+
+def test_non_passthrough_native_method_is_not_silently_forwarded() -> None:
+    """Native methods outside the passthrough set stay hidden, and the error says why."""
+    with pytest.raises(AttributeError, match="not in the native passthrough set"):
+        _ = cuboid([2, 2, 2]).explode
+
+
+SIBLING_GUARD_CASES: list[tuple[Callable[[], object], str]] = [
+    # each of these is the second of a pair of near-identical guards: the sibling is exercised
+    # above, and these hit the other half (top vs bottom, list vs scalar, empty vs malformed).
+    (lambda: skin.os_profile([]), r"First point of the profile must be \[0, 0\]"),
+    (lambda: s3.teardrop(height=10, radius=5, cap_height=1), "cap_height cannot be less than"),
+    (
+        lambda: s3.tube(height=10, outer_diameter1=20, outer_diameter2=5, inner_diameter=10),
+        "inner radius is larger",
+    ),
+    (
+        lambda: _round_corners(_TRI2D, method=RoundingMethod.CIRCLE, radius=1, k=[0.5, 0.5, 0.5]),
+        'k is only allowed with method="smooth"',
+    ),
+    (lambda: dist.path_copies([[0.0, 0.0], [1.0, 0.0]], dist=[50.0]), "don't fit on the path"),
+    (lambda: s2.arc(points=[[0.0, 0.0], [2.0, 0.0]], center=[1.0, 0.0]), "define a unique arc"),
+    (lambda: s2.egg(length=0, radius1=1, radius2=1, arc_radius=10), "length must be positive"),
+    (
+        lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=2, size=(10, 10, 10), except_corners="left"),
+        "Legacy string corner",
+    ),
+    (lambda: sdf3.xcyl(height=10, radius=5, rounding=1, chamfer=1), "both chamfer and rounding"),
+    (lambda: sdf3.cuboid(size=10).hull(np.zeros((2, 2, 3))), "must be Nx3 array-likes"),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), SIBLING_GUARD_CASES)
+def test_sibling_guards_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
     with pytest.raises(ValueError, match=expected):
         call()

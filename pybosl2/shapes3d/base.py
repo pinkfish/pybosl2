@@ -30,9 +30,9 @@ if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
+from pybosl2._helpers import anchor_vector, unwrap
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
-from pybosl2._helpers import unwrap
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.defaults import resolve_facets as _resolve_facets
@@ -239,7 +239,9 @@ class CsgSolid(BaseShape):
             a_val = Anchor.CENTER
         elif isinstance(anchor, Anchor):
             a_val = anchor
-        elif isinstance(anchor, str):
+        elif isinstance(anchor, str):  # pragma: no cover
+            # defensive: anchor_vector() rejects the string form at every entry point that builds
+            # a solid, so one never reaches the constructor.
             raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
         else:
             a_val = resolve_anchor(list(anchor))
@@ -592,7 +594,7 @@ class CsgSolid(BaseShape):
 
         """
         center, size = self._resolve_bounds(bbox)
-        a = anchor.vector if isinstance(anchor, Anchor) else list(anchor)
+        a = anchor_vector(anchor)
         return [center[i] + a[i] * size[i] / 2 for i in range(3)]
 
     def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":

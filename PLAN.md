@@ -363,6 +363,8 @@ Python that means:
   | `tests/test_facets.py` | R-P2 / R-P5 |
   | `tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected` | E-P5 / SPEC D-5 |
   | `tests/test_docs_links.py` | D-P6 / D-P6a |
+  | `tests/test_validation_messages.py` | E-P1 / E-P2 / SPEC E-4 (X-7) |
+  | `tests/test_validation_messages.py::test_no_cover_pragmas_are_attached_to_a_statement` | X-7 |
 
   Tests the rules still need (they land with their tasks in [TASKS.md](TASKS.md)):
 
@@ -376,6 +378,12 @@ Python that means:
   | every part built under `use_backend("sdf")` is SDF-backed or refuses | O-0a / SPEC S-46a | T0f |
   | every name in `CSG_ONLY_FEATURES` is genuinely absent from the SDF shape | B-P4 / SPEC PAR-3 | T4 |
   | `tests/test_backend_matrix.py` | SPEC B-7, PAR-2, B-P1 (a new shared feature lands on both backends or is an explicit, tracked refusal) |
+* **X-7** Every rejection path is exercised, asserting the **message** as well as the type
+  (`tests/test_validation_messages.py`) — E-4 is about the message naming the fix, and an
+  unexercised `raise` is an unverified one. A guard that genuinely cannot fire is marked
+  `# pragma: no cover` **on the `if`/`else` header**, with the reason in a comment below it:
+  coverage matches the pragma against a line, so a marker on its own comment line excludes
+  nothing. `test_no_cover_pragmas_are_attached_to_a_statement` enforces the placement.
 * **X-5** Changing geometry, backends, or paths means running the full suite — including
   `pytest tests/test_stl_render.py` when a PythonSCAD binary is available — before the work is
   called done.
