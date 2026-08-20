@@ -48,6 +48,30 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
 * **T-6 Structure with `Protocol`.** Cross-backend contracts (`Solid`, `Flat`, `SolidBackend`) are
   `Protocol`s with fully typed members — never `Any -> Any` placeholders. Use `@runtime_checkable`
   only when an `isinstance` check actually exists.
+* **T-6a The shape protocols are one hierarchy.** SPEC C-15 requires `Shape` with `Flat` and
+  `Solid` derived from it. In Python that is three `Protocol`s in the L1 contract module, with the
+  shared members typed to return `Self`:
+
+  ```python
+  class Shape(Protocol):
+      backend: str
+
+      def __or__(self, other: Self) -> Self: ...
+      def translate(self, v: Sequence[float]) -> Self: ...
+      def bounds(self) -> tuple[list[float], list[float]]: ...
+
+
+  class Flat(Shape, Protocol):
+      def linear_extrude(self, height: float, **kwargs: Any) -> "Solid": ...
+
+
+  class Solid(Shape, Protocol):
+      def projection(self, cut: bool = False) -> Flat: ...
+  ```
+
+  `Self` is what makes SPEC C-16 static: `flat | flat` checks, `flat | solid` does not, with no
+  runtime guard and no `TypeVar` machinery. A shared member MUST NOT be re-declared on `Flat` or
+  `Solid` — re-declaring is how the two drifted apart in the first place.
 * **T-7 Variance is explicit.** `TypeVar("T", covariant=True)` / `contravariant=True` where a
   generic is exposed publicly.
 * **T-8 Stubs for dynamic surfaces.** Any module whose public names are bound dynamically MUST ship
