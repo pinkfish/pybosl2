@@ -358,7 +358,7 @@ def supershape_path(
     bv = b if b is not None else a
     angs = [360.0 - i * 360.0 / n_pts for i in range(n_pts)]
     rvals = [superformula(t, m1, m2v, n1v, n2v, n3v, a, bv) for t in angs]
-    rad = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    rad = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     scale = (rad / max(rvals)) if rad is not None else 1.0
     ang_r = np.radians(np.asarray(angs))
     rv = scale * np.asarray(rvals)

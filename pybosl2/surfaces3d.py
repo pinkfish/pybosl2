@@ -13,7 +13,7 @@
 #    re-exported from shapes3d for backward-compatible `from pybosl2.shapes3d import heightfield`.
 #
 # FileSummary: Heightfields, function plots, fillets, textured tiles and the ruler annotation.
-# DocCategory: internal
+# DocCategory: Paths, regions & surfaces
 # FileGroup: BOSL2
 
 """Heightfields, function plots, fillets, textured tiles and the ruler annotation."""
@@ -477,7 +477,7 @@ def cylindrical_heightfield(
     assert l_val is not None, "Must supply one of length= or height= as a finite positive number."
     assert l_val > 0, "Must supply one of length= or height= as a finite positive number."
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter)
-    r2v = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter)
+    r2v = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter)
     assert r1v is not None, (
         "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
     )
@@ -667,23 +667,19 @@ def plot_revolution(
     """
     from pybosl2.vnf import VNF
 
-    r1v = (
-        radius1
-        if radius1 is not None
-        else (
-            radius
-            if radius is not None
-            else (diameter1 / 2 if diameter1 is not None else (diameter / 2 if diameter is not None else None))
-        )
+    r1v = _pick_radius(
+        radius1=radius1,
+        diameter1=diameter1,
+        radius=radius,
+        diameter=diameter,
+        dflt=None,
     )
-    r2v = (
-        radius2
-        if radius2 is not None
-        else (
-            radius
-            if radius is not None
-            else (diameter2 / 2 if diameter2 is not None else (diameter / 2 if diameter is not None else None))
-        )
+    r2v = _pick_radius(
+        radius2=radius2,
+        diameter2=diameter2,
+        radius=radius,
+        diameter=diameter,
+        dflt=None,
     )
     theta = [float(a) for a in angle]  # type: ignore[attr-defined]
     assert len(theta) > 1, "plot_revolution(): angle must have at least 2 values."

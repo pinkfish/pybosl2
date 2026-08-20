@@ -1709,7 +1709,7 @@ def cylinder(
     """Return a cylinder/cone (no rounding) as a libfive SDF -- see cyl() for rounding/chamfering."""
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
     use_anchor = anchor
     if center is not None:
         use_anchor = CENTER if center else BOTTOM
@@ -1761,7 +1761,7 @@ def cyl(
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
     use_anchor = anchor
     if use_anchor is None:
         use_anchor = CENTER if center is None or center else BOTTOM
@@ -1815,7 +1815,7 @@ def _cyl_axis(
 ) -> PyShape:
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
     r1v = rounding1 if rounding1 is not None else (rounding if rounding is not None else 0)
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
@@ -2051,7 +2051,7 @@ def pie_slice(
     """
     length = length if length is not None else (height if height is not None else 1)
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=10)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=10)
+    rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=10)
     ang_v = angle % 360 if (angle > 360 or angle < 0) else angle
     ang_rad = math.radians(ang_v)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
@@ -2477,7 +2477,7 @@ def teardrop(
     """
     length = height if height is not None else 1
     rad1 = _radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
     ang_rad = math.radians(angle)
     sin_a, cos_a = math.sin(ang_rad), math.cos(ang_rad)
     hb = length / 2

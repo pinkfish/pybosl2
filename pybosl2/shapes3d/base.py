@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2._helpers import frag_count as _frag_count
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import unwrap
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
@@ -1022,7 +1023,7 @@ class CsgSolid(BaseShape):
 
         t: AttachTag | str
         if tag is None:
-            resolved_rad = rad if rad is not None else (dia / 2 if dia is not None else None)
+            resolved_rad = _pick_radius(radius=rad, diameter=dia, dflt=None)
             t = AttachTag.KEEP if (resolved_rad is not None and resolved_rad < 0) else AttachTag.REMOVE
         else:
             t = tag
@@ -1082,7 +1083,7 @@ class CsgSolid(BaseShape):
 
         t: AttachTag | str
         if tag is None:
-            resolved_rad = rad if rad is not None else (dia / 2 if dia is not None else None)
+            resolved_rad = _pick_radius(radius=rad, diameter=dia, dflt=None)
             t = AttachTag.KEEP if (resolved_rad is not None and resolved_rad < 0) else AttachTag.REMOVE
         else:
             t = tag

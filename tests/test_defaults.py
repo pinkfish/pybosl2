@@ -223,6 +223,27 @@ def test_size_only_rect_tube_gets_a_wall() -> None:
     assert rect_tube(size=[20, 20], height=10).bounds() == ([0.0, 0.0, 5.0], [20.0, 20.0, 10.0])
 
 
+def test_a_radius_and_its_own_diameter_together_are_rejected() -> None:
+    """Two spellings of one dimension is a mistake, not a preference (SPEC.md D-5, E-5)."""
+    from pybosl2.shapes2d import circle as flat_circle
+    from pybosl2.solid import cyl, sphere
+
+    for call in (
+        lambda: flat_circle(radius=5, diameter=20),
+        lambda: sphere(radius=3, diameter=8),
+        lambda: cyl(height=5, radius=2, diameter=9),
+    ):
+        with pytest.raises(ValueError, match="not both"):
+            call()
+
+
+def test_different_levels_of_specificity_are_not_a_conflict() -> None:
+    """radius1 legitimately overrides radius; only same-dimension pairs are rejected (SPEC.md D-5)."""
+    from pybosl2.solid import cyl
+
+    assert cyl(height=10, radius1=4, radius=2).bounds() == cyl(height=10, radius1=4, radius2=2).bounds()
+
+
 @pytest.mark.parametrize("operation", ["union", "difference", "intersection"])
 def test_empty_boolean_explains_itself(operation: str) -> None:
     import pybosl2.solid as facade

@@ -3,7 +3,10 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
-# DocCategory: internal
+# LibFile: pybosl2/path2d.py
+# FileSummary: 2-D path operations: area, offset, containment, corner rounding and extrusion.
+# DocCategory: Paths, regions & surfaces
+# FileGroup: BOSL2
 
 """2-D path operations: area, offset, polygon containment, round_corners, linear_extrude, and more.
 

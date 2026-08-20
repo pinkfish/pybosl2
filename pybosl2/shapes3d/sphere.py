@@ -103,7 +103,7 @@ def sphere(
             shape.show()
 
     """
-    rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
+    rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     if circumscribe:
         sides = _frag_count(rad, fn, fa, fs)
         rad /= math.cos(math.pi / sides)
@@ -257,7 +257,7 @@ def teardrop(
     """
     length = height if height is not None else 1.0
     rad1 = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
-    rad2 = _pick_radius(radius1=radius2, diameter1=diameter2, radius=radius, diameter=diameter, dflt=1)
+    rad2 = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
     cap_h1v = cap_h1 if cap_h1 is not None else cap_height
     cap_h2v = cap_h2 if cap_h2 is not None else cap_height
     c1 = chamfer1 if chamfer1 else chamfer

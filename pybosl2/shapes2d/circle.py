@@ -127,10 +127,10 @@ def circle(
         center, rad = _circle_from_3pts(points)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     if corner is not None:
-        rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
+        rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
         center = _circle_from_corner(corner, rad)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
-    rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
+    rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     shape = _ocircle(r=rad, fn=fn, fa=fa, fs=fs)
     n = _frag_count(rad, fn, fa, fs)
     offset = _anchor_offset_hull(_circle_pts(rad, n), anchor)
@@ -427,8 +427,8 @@ def keyhole(
 
     """
     lv = float(length if length is not None else (_length if _length is not None else 15))
-    r1v = float(radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else 5))
-    r2v = float(radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else 10))
+    r1v = float(_pick_radius(radius=radius1, diameter=diameter1, dflt=5))
+    r2v = float(_pick_radius(radius=radius2, diameter=diameter2, dflt=10))
     assert lv > 0, "keyhole(): length must be positive and at least max(radius1, radius2)."
     assert lv >= max(r1v, r2v), "keyhole(): length must be positive and at least max(radius1, radius2)."
     shoulder_radius = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
@@ -515,9 +515,9 @@ def ring(
 
     """
     assert angle is None, "ring(): only the full-annulus form is ported (no angle=)."
-    r1v = radius1 if radius1 is not None else (diameter1 / 2 if diameter1 is not None else None)
-    r2v = radius2 if radius2 is not None else (diameter2 / 2 if diameter2 is not None else None)
-    rv = radius if radius is not None else (diameter / 2 if diameter is not None else None)
+    r1v = _pick_radius(radius=radius1, diameter=diameter1, dflt=None)
+    r2v = _pick_radius(radius=radius2, diameter=diameter2, dflt=None)
+    rv = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     if r1v is not None and r2v is not None:
         inner, outer = min(r1v, r2v), max(r1v, r2v)
     else:
@@ -564,7 +564,7 @@ def glued_circles(
             s2.glued_circles(radius=10, spread=25, tangent=30).linear_extrude(height=5).show()
 
     """
-    rad = radius if radius is not None else (diameter / 2 if diameter is not None else 10)
+    rad = _pick_radius(radius=radius, diameter=diameter, dflt=10)
     cp1 = [spread / 2, 0.0]
     sa1 = 90 - tangent
     ea1 = 270 + tangent
@@ -643,7 +643,7 @@ def reuleaux_polygon(
     """
     assert sides >= 3
     assert sides % 2 == 1
-    rad = radius if radius is not None else (diameter / 2 if diameter is not None else 1)
+    rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     ssegs = max(3, math.ceil(_frag_count(rad, fn, fa, fs) / sides))
     slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / sides))
     path = []

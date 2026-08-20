@@ -63,8 +63,9 @@ mesh kernel of its own, and does not aim for byte-identical output with the orig
 > **A caller who knows what they want to build, but nothing about the library, MUST be able to
 > build it. Every parameter a caller is forced to supply is a defect budgeted against the design.**
 
-* **P-1 — One required idea per call.** A constructor MUST be usable with at most **one** required
-  argument. Everything else has a default.
+* **P-1 — One required idea per call.** A constructor SHOULD be usable with one required
+  argument — the thing being made — and MUST NOT require more than two (D-2). Everything else has
+  a default.
 * **P-2 — Defaults are the common case, not the neutral case:** `anchor=CENTER`, `orient=TOP`,
   `trimcorners=True`, `head=SOCKET`, `thread=COARSE`.
 * **P-3 — Derive, do not demand.** Any value computable from the others MUST be optional and
@@ -139,6 +140,8 @@ show the basic case, the defaults are wrong, not the example.
   *same* backend; mixing raises `CrossBackendError` naming the conversion that fixes it.
 * **C-2** Operators are the primary spelling: `|` union, `&` intersection, `-` difference.
 * **C-3** Shapes are immutable by convention: every operation returns a new shape, so calls chain.
+  `attach()` and `tag()` copy rather than mutate; the `attachments` / `tag_name` setters exist for
+  those copies to use and are not part of the public contract.
 * **C-4** 2-D and 3-D never mix implicitly; a flat shape reaches 3-D only through an explicit
   extrude or sweep.
 * **C-5** Shared behaviour (transforms, directional moves, CSG, colour, tags, distribution) lives
@@ -190,7 +193,8 @@ resolution rules in §8, and the error contract in §9.
 * **S-1** Scalar and vector helpers (`slerp`, `modang`, `quant`, `constrain`, `mean`, `EPSILON`)
   mirror BOSL2's maths, implemented on Python/NumPy primitives rather than re-derived.
 * **S-2** `Point`/`Vector` are the point types; `Bounds2D`/`Bounds3D` are the axis-aligned box
-  types, and every shape and mesh MUST be able to report its bounds without rendering.
+  types. Every shape and mesh MUST report its bounds without rendering — this is part of both the
+  `Solid` and the `Flat` contract, not just the 3-D one.
 * **S-3** Line/plane/polygon predicates and intersections (`geometry`) operate on `Point`s and
   `Path`s, and honour the `SEGMENT`/`RAY`/`LINE` specifiers.
 
@@ -380,8 +384,11 @@ resolution rules in §8, and the error contract in §9.
   switches it for a block, `set_default_backend()` globally.
 * **B-2** A backend implements a small contract: hand back the constructor for a named shape, build
   it, do n-ary booleans, extrude paths, and stroke a path.
-* **B-3** Façade constructors MUST forward **only the arguments the caller actually supplied**, so
-  each backend keeps its own defaults and never sees an option it has no notion of.
+* **B-3** The **façade owns the default** for every argument both backends understand: it declares
+  that default in its own signature and always forwards it, so an identical call produces identical
+  geometry on either backend (PAR-5). A backend keeps its own defaults only for options exclusive
+  to it. Arguments a backend has no notion of MUST NOT be forwarded to it — that filtering is by
+  *what the backend declares*, not by *what the caller happened to pass*.
 * **B-4** A backend MUST NOT silently approximate a feature it cannot express; it raises
   `UnsupportedByBackendError` with a hint naming the alternative or the backend that does support it.
 * **B-5** Conversion is one-directional and honest: SDF → CSG is an exact mesh; CSG → SDF is lossy
@@ -405,20 +412,25 @@ as the mathematics allows.
   implemented on both backends, or MUST be accompanied by an explicit refusal (B-4) and an entry in
   the gap list. "CSG only for now" is a tracked decision, never a silent omission.
 * **PAR-3 The exclusive lists are minimal and justified.** `CSG_ONLY_FEATURES` and
-  `SDF_ONLY_FEATURES` are the single source of truth for what is exclusive, each entry carrying the
-  reason it cannot cross over — today: the attachment/anchor system and 2-D shape geometry
-  (CSG-only, because an SDF is a field over 3-space with no 2-D shadow or outline to fill), and
-  the implicit-surface `round`/`chamfer` methods that survive transforms (SDF-only, because CSG
+  `SDF_ONLY_FEATURES` are the single source of truth for what is exclusive, and each entry MUST
+  carry the reason it cannot cross over. Today that is the attachment/anchor system (CSG-only,
+  because anchoring needs a shape's face and edge structure, which a distance field does not
+  retain), `projection` and `fill` (CSG-only, because a 2-D shadow of a solid and a filled outline
+  are not derivable in closed form from a field — both backends *do* build 2-D shapes otherwise),
+  and the implicit-surface `round`/`chamfer` methods that survive transforms (SDF-only, because CSG
   expresses those as constructor parameters). An entry that becomes implementable MUST be removed
-  from the list, not left as a permanent excuse.
+  from the list, not left as a permanent excuse; the list is re-reviewed whenever either backend
+  gains a capability.
 * **PAR-4 Equivalent options, not just equivalent shapes.** Parity is measured per *option*: if the
   CSG cuboid takes `rounding`, `chamfer`, `edges` and `except_edges`, the SDF cuboid MUST take the
-  same ones with the same selector semantics. Where a genuinely backend-specific control is
-  needed, it MUST be the resolution knob (`fn`/`fa`/`fs` vs `res`) rather than a different shape
-  vocabulary.
+  same ones with the same selector semantics. The **façade** spelling is identical on both
+  backends; where a backend's own module spells a parameter differently, the difference MUST be
+  declared in one central translation table rather than leaking into the façade. The only
+  sanctioned backend-specific control is the resolution knob (`fn`/`fa`/`fs` vs `res`).
 * **PAR-5 Same code, same result.** For any construction both backends support, the two MUST agree
-  on placement, orientation, anchoring defaults, bounds, and units — differing only in tessellation
-  detail. The backend matrix tests are the record of what each supports, and the gap list in
+  on placement, orientation, anchoring, bounds, and units — differing only in tessellation detail.
+  This holds for calls that omit arguments as well as calls that pass them, which is why the façade
+  owns the shared defaults (B-3). The backend matrix tests record what each backend supports, and
   `docs/design/sdf-csg-compatibility.md` is the working plan for closing the remainder.
 * **PAR-6 Crossing is explicit.** Mixing operands from two backends raises `CrossBackendError`
   naming the conversion (B-5); the library MUST NOT convert silently to make a call succeed.
@@ -438,13 +450,20 @@ as the mathematics allows.
 | **T5 — Escape hatch** | `convexity`, `eps`, `method`, `style` | Keyword; defaults to what 95 % of callers want |
 
 * **D-1** T3–T5 MUST be keyword-only; T2 SHOULD be.
-* **D-2** A public callable MUST NOT have more than one required parameter without a written
-  justification in its docstring. Two is the absolute ceiling.
+* **D-2** One required parameter is the target; a second needs a written justification in the
+  docstring; three is never acceptable. The justified two-argument cases today are
+  `Screw(spec, length)`, `prismoid(size1, size2)` and `regular_prism(sides, …)` — each names two
+  independent dimensions that no default can invent.
 * **D-3** Defaults MUST be immutable.
 * **D-4** `None` means "not supplied, decide for me" — never "off". "Off" is `0`, `False`, or an
   explicit enum member.
 * **D-5** Where a dimension has two conventional spellings (`radius`/`diameter`), the API MUST
-  accept both, require neither, and reject a conflicting pair by name.
+  accept both and require neither. Giving both spellings of the **same** dimension is an error, not
+  a silent preference: it raises `ValueError` naming both parameters and their values. Spellings at
+  different levels of specificity are not a conflict — `radius1` legitimately overrides `radius` —
+  and resolve most-specific-first: `(radius1, diameter1) > (radius2, diameter2) > (radius, diameter)`.
+  This is a deliberate departure from BOSL2's `get_radius()`, which silently prefers the radius
+  (B2-2, E-5).
 * **D-6** A derivable parameter MUST default to "not given" and be derived.
 * **D-7** A spec argument SHOULD accept the convenient forms — trade name, plain number, or an
   explicit mapping — and collapse them immediately into one frozen spec object.
@@ -458,6 +477,11 @@ as the mathematics allows.
   and MUST **pass them through to every sub-construction it builds**. A part that rounds its
   corners hands its `fn` to the rounding; a gear hands it to its tooth arcs; a mask hands it to
   its profile; a sweep hands it to its cross-section. Dropping them part-way down is a defect.
+* **R-1a** The trigger is *generating points that approximate a curve*, not *taking a radius*. A
+  callable that places or measures geometry from a radius — arc/rot/sphere copy distributors,
+  `polar_to_xy`, circle-tangent geometry — is outside R-1, because nothing it returns is
+  tessellated. When it is genuinely ambiguous, the deciding question is whether a caller could
+  observe a facet count in the output.
 * **R-2** These controls MUST never be required: omitted, they inherit (§8.3).
 * **R-3** A backend that cannot honour a control MUST NOT be handed it.
 
@@ -465,7 +489,10 @@ as the mathematics allows.
 
 * **R-4** Resolution SHOULD be settable once for a block rather than threaded through every call:
   `use_defaults(fn=64)` (block-scoped, nesting, thread-safe) and `set_defaults(...)` (process-wide).
-* **R-5** An explicitly passed value always wins over the ambient one.
+* **R-5** An explicitly passed value always wins over the ambient one, and there MUST be a way to
+  opt out of an ambient value rather than only override it: passing `fn=0` means "ignore any
+  ambient `fn`, use `fa`/`fs`", matching OpenSCAD's own `$fn=0`. P-6 applies to ambient defaults
+  as much as to signature defaults.
 * **R-6** Ambient values are resolved at **construction** time, so a shape's smoothness is fixed by
   where it was built.
 * **R-7** With nothing set anywhere, the renderer's own defaults apply (`$fa=12`, `$fs=2`).
@@ -511,7 +538,9 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 * **Q-2** Strict static type checking passes with zero errors.
 * **Q-3** Lint and format are clean.
 * **Q-4** Every new public callable has a minimum-argument test — the mechanical enforcement of
-  P-1 — and a validated docstring example.
+  P-1 — and a validated docstring example. For façade shape constructors this is enforced
+  automatically by the contract tests; elsewhere it is a review obligation until the check is
+  generalised (§12.2).
 * **Q-5** The contract tests guarding these rules (mutable defaults, façade honesty, stub parity,
   facet coverage, backend matrix) still pass.
 
@@ -532,6 +561,10 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | **E-4 / P-1** | `rect_tube()`, `torus()`, `tube()` asserted on user input; empty booleans raised `reduce()` errors | All replaced with `ValueError`s naming the accepted spellings; `rect_tube` now derives a 1 mm wall from an outer size alone |
 | **C-1** | The 2-D shape protocol was typed `Any -> Any`, so 2-D chains lost static checking | `Flat` and `Solid` protocols fully typed |
 | **R-1** | `rect_tube` rounds corners but took no facet controls | `fn`/`fa`/`fs` accepted and passed to both prismoids |
+| **D-5** | A conflicting `radius=`/`diameter=` pair was resolved silently by priority, so a typo built the wrong size | `pick_radius()` raises `ValueError` naming both parameters; all 34 inline resolutions across the package now route through it |
+| **S-2 / C-1** | The `Flat` contract had no `bounds()`, so 2-D shapes could not be measured through the protocol | `bounds()` added to `Flat`; both 2-D implementations already provided it |
+| **S-47 / DOC-1** | `path2d`, `path3d`, `points`, `bounds`, `caps` and `surfaces3d` were tagged `internal` while holding top-level public API, so paths, strokes/caps, bounds and heightfields had no reference page | Retagged into public categories; seven reference stubs generated |
+| **PAR-3** | The CSG-only list claimed 2-D geometry as CSG-only, which stopped being true when the SDF backend gained `PyShape2D` | Rationale corrected in the spec and in the code comment: only `projection` and `fill` are CSG-only |
 | packaging | `requires-python = ">=3.10"` with a 3.10 classifier, but `StrEnum` (3.11+) is used in ~30 places | Floor raised to 3.11 |
 | hygiene | `distributors.py.bak` shipped inside the package; 854 MB of pytest scratch in the repo root | Removed; `pytest-of-*/` ignored and scratch retention capped |
 
@@ -539,13 +572,14 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **R-1** | **50 of 119** public curved-geometry callables do not accept `fn`/`fa`/`fs`, so ambient defaults are their only resolution control — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink. |
-| 2 | **PAR-1 / PAR-2** | The SDF backend covers 3-D primitives, 2-D fields, paths, sweeps and joiners, but not `projection`, `fill`, `bounding_box`, `distribute_on_path`, `inside`, `chain_hull`, `half_of`/`partition`, or `round3d`/`offset3d`. Several are implementable as sampling or from the exact `bounds()` the SDF already stores; the tiered plan is in `docs/design/sdf-csg-compatibility.md`, which MUST be kept current as items land. |
-| 3 | **PAR-3** | Attachment/anchoring (C-12) is CSG-only and likely to stay so, but the list has never been re-reviewed against what the SDF backend can now do — several entries may be closable. |
-| 4 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
-| 5 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
-
----
+| 1 | **B-3 / PAR-5** | The façade is now *specified* as the owner of shared defaults, but not yet implemented: its constructors still default shared arguments to `None` and forward only what the caller passed, leaving each backend's own default in play. Closing this means lifting each shared default into the façade signature (≈20 constructors) and filtering forwarded arguments by what the target backend declares. Until then `effective_defaults()` is the way to see what a call resolves to, and `tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share` guards the four shapes it covers. |
+| 2 | **R-1** | **50 of 119** public curved-geometry callables do not accept `fn`/`fa`/`fs` — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink; R-1a is the rule for deciding which of the pinned entries are genuine debt rather than placement radii. |
+| 3 | **PAR-1 / PAR-2** | The SDF backend covers 3-D primitives, 2-D shapes, paths, sweeps and joiners, but not `bounding_box`, `distribute_on_path`, `inside`, `chain_hull`, `half_of`/`partition`, or `round3d`/`offset3d`. Several are implementable from the exact `bounds()` the SDF already stores; the tiered plan is in `docs/design/sdf-csg-compatibility.md`, which MUST be kept current as items land. |
+| 4 | **PAR-3** | The CSG-only list has not been re-reviewed since the SDF backend gained 2-D shapes and sweeps; `projection` and `fill` now have a sampling-based path (same design doc) and may be closable. |
+| 5 | **R-5** | The `fn=0` opt-out works because `frag_count()` treats `fn < 3` as unset, but it is neither documented in the constructors' docstrings nor covered by a test. |
+| 6 | **Q-4** | The minimum-argument check runs only over `pybosl2.solid`'s façade constructors. Parts classes, path/region methods and the 2-D façade are not covered. |
+| 7 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
+| 8 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
 
 ## 13. Change process
 
@@ -556,3 +590,6 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 3. Adding a façade shape follows B-7 and the parity rules in §7.1.
 4. This document is updated in the same commit as any change to §4 (layering), §6 (subsystems),
    §7 (backends), or §8 (defaults). Language-level rules change in [PLAN.md](PLAN.md) instead.
+5. **Requirement IDs are permanent.** Numbers are never reused or renumbered: a new requirement
+   appends to its series, and a withdrawn one is struck through with the reason. Section numbers
+   may move; IDs are what commits, tests and reviews cite.

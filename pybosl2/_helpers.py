@@ -244,10 +244,39 @@ def pick_radius(
     diameter: float | None = None,
     dflt: float | None = None,
 ) -> Any:
-    """Mirror BOSL2's get_radius(): (radius1,diameter1) > (radius2,diameter2) > (radius,diameter) >.
+    """Resolve one radius from the radius/diameter spellings, most specific first.
 
-    dflt.
+    Priority is (radius1, diameter1) > (radius2, diameter2) > (radius, diameter) > *dflt*, matching
+    BOSL2's get_radius(). Unlike BOSL2, giving BOTH spellings of the same dimension is an error
+    rather than a silent win for the radius (SPEC.md D-5): a call that cannot mean what it says
+    fails loudly (SPEC.md E-5).
+
+    Args:
+        radius1: Radius of the first end.
+        diameter1: Diameter of the first end.
+        radius2: Radius of the second end.
+        diameter2: Diameter of the second end.
+        radius: Radius applying to both ends.
+        diameter: Diameter applying to both ends.
+        dflt: Value to use when nothing was given.
+
+    Returns:
+        The resolved radius, or *dflt* when no spelling was supplied.
+
+    Raises:
+        ValueError: If a radius and its own diameter are both given.
+
     """
+    for radius_value, diameter_value, radius_name, diameter_name in (
+        (radius1, diameter1, "radius1", "diameter1"),
+        (radius2, diameter2, "radius2", "diameter2"),
+        (radius, diameter, "radius", "diameter"),
+    ):
+        if radius_value is not None and diameter_value is not None:
+            raise ValueError(
+                f"give {radius_name} or {diameter_name}, not both "
+                f"({radius_name}={radius_value}, {diameter_name}={diameter_value})"
+            )
     if radius1 is not None:
         return radius1
     if diameter1 is not None:

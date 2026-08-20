@@ -3,7 +3,10 @@
 # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
-# DocCategory: internal
+# LibFile: pybosl2/caps.py
+# FileSummary: Stroke and sweep end caps: the CapType styles and the CapSpec value.
+# DocCategory: Foundational
+# FileGroup: BOSL2
 
 """End-cap specifications shared by sweep, skin, bezier, and stroke drawing.
 

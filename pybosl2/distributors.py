@@ -39,6 +39,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 import numpy as np
 
 from pybosl2._helpers import is_num, rot_from_to4, translate4
+from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BACK, RIGHT, UP
 from pybosl2.enums import StaggerMode
 from pybosl2.points import Point
@@ -330,7 +331,7 @@ def xrot_copies(
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies around the X axis, optionally into a ring of radius *radius*."""
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
         v=RIGHT.vector,
@@ -352,7 +353,7 @@ def yrot_copies(
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies around the Y axis, optionally into a ring of radius *radius*."""
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
         v=BACK.vector,
@@ -374,7 +375,7 @@ def zrot_copies(
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies around the Z axis, optionally into a ring of radius *radius*."""
-    rr: float = radius if radius is not None else (diameter / 2 if diameter is not None else 0)
+    rr: float = _pick_radius(radius=radius, diameter=diameter, dflt=0)
     return rot_copies(
         rots=rots,
         v=UP.vector,
@@ -402,20 +403,12 @@ def arc_copies(
     rxv = (
         radius_x
         if radius_x is not None
-        else (
-            diameter_x / 2
-            if diameter_x is not None
-            else (radius if radius is not None else (diameter / 2 if diameter is not None else 1))
-        )
+        else (diameter_x / 2 if diameter_x is not None else (_pick_radius(radius=radius, diameter=diameter, dflt=1)))
     )
     ryv = (
         radius_y
         if radius_y is not None
-        else (
-            diameter_y / 2
-            if diameter_y is not None
-            else (radius if radius is not None else (diameter / 2 if diameter is not None else 1))
-        )
+        else (diameter_y / 2 if diameter_y is not None else (_pick_radius(radius=radius, diameter=diameter, dflt=1)))
     )
     sa, ea = sa % 360, ea % 360
     extra_n = 1 if abs(ea - sa) < 0.01 else 0
@@ -453,7 +446,7 @@ def sphere_copies(
     perp: bool = True,
 ) -> list[np.ndarray]:
     """Return copies spread over a sphere/ellipsoid by the golden-spiral method."""
-    rr = radius if radius is not None else (diameter / 2 if diameter is not None else 50)
+    rr = _pick_radius(radius=radius, diameter=diameter, dflt=50)
     cnt = math.ceil(num_copies / (cone_ang / 180))
     scalev = _vec3(scale, 1.0)
     mats = []

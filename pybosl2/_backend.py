@@ -83,8 +83,9 @@ CSG_ONLY_FEATURES = frozenset(
         "diff",
         "intersect",
         "realize",
-        # 2-D geometry: only the CSG backend has a 2-D shape object (Bosl2Shape2D). An SDF is a
-        # field over 3-space, with no 2-D shadow and no outline to fill.
+        # Both backends build 2-D shapes (Bosl2Shape2D / PyShape2D), but these two need a 2-D
+        # shadow of a 3-D solid and an outline to fill -- neither is derivable in closed form
+        # from a distance field (see docs/design/sdf-csg-compatibility.md for the sampling plan).
         "projection",
         "fill",
     }
