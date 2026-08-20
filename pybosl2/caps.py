@@ -311,7 +311,8 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
         return []
 
     if spec.cap_type == CapType.CUSTOM:
-        assert spec.path is not None, "CapType.CUSTOM requires path= on the CapSpec"
+        if not (spec.path is not None):
+            raise ValueError("CapType.CUSTOM requires path= on the CapSpec")
         return [[[float(c) for c in pt] for pt in spec.path]]
 
     if spec.cap_type == CapType.CIRCLE:

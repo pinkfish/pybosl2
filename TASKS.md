@@ -94,35 +94,24 @@ entering that context, so the decorative-cap fallback warning still fires. Tests
 
 ---
 
-## T0b — Convert user-input asserts to `ValueError`
+## T0b — Convert user-input asserts to `ValueError` ✅
 
-**Closes:** §12.2 item 3 (E-4) · **Implements:** PLAN E-P1, E-P2, E-P4a · **Size:** L, batchable
-**Risk:** low
+**Closes:** §12.2 item 1 (E-4) · **Implements:** PLAN E-P1, E-P2, E-P4a
 
-290 asserts carry user-facing messages; `python -O` deletes all of them. Public entry points first
-(PLAN E-P2's test: does the message name a parameter the caller typed?).
+**Landed — all 290 converted.** An AST pass rewrote every message-carrying `assert` in the public
+modules (301 statements), then the stragglers: multi-line asserts, f-string messages, and the ones
+in private modules whose message named a public function (`stroke()`, `minkowski()`,
+`linear_extrude()`). What remains is 25 asserts stating genuine internal invariants — none names a
+function call or a parameter.
 
-Batches, highest user contact first:
-- [ ] `shapes2d/` (17 in `circle.py` alone — `star(): must specify tips` lives here) and `shapes3d/`
-- [ ] `solid.py` / `flat.py` façades
-- [ ] `parts/` — a wrong trade size or dimension is the most likely user error of all
-- [ ] `skin.py` (20), `isosurface.py` (22), `surfaces3d.py` (15), `texture.py` (13), `beziers.py`,
-      `nurbs.py`, `miscellaneous.py`
-- [ ] `sdf/` (31 in `shapes3d.py`, 11 each in `shapes2d.py`/`paths.py`)
+The contract change rippled into **65 tests** that asserted `AssertionError`. Each was updated to
+assert `ValueError` **and a slice of its message**, since E-4 is about the message naming the fix;
+the patterns were generated from the messages the code actually raises, repaired by re-running the
+affected files until every regex matched.
 
-While converting, fold in D-8: an argument the function actually requires should be required in the
-signature, not asserted (`star(tips=None)` is the same defect as the old `prismoid`).
-
-**Done when:** no `assert` in the package carries a message naming a caller-supplied parameter; add
-a test that greps for the pattern so it cannot come back.
-
-
-**In progress — 52 of 290 converted; 238 remain.** Done: the shapes2d entry points reachable with no arguments
-(`arc`, `ring` ×3, `round2d`, `shell2d` ×2, `hull`, `trapezoid`), `shapes3d.cross`,
-`sdf.shapes2d.trapezoid2d`, and `rounding.round_corners` ×4. Each now names the accepted spellings,
-and the six tests that asserted `AssertionError` were updated to assert `ValueError` **and its
-message**. `isosurface.py` (22) and `miscellaneous.py` (11) were converted wholesale with an AST pass, plus
-the SDF `tube`/`rect_tube` and `chain_hull`. Remaining batches are unchanged below.
+`tests/test_defaults.py::test_no_assert_validates_user_input` is the ratchet: it walks the package
+AST and fails on any `assert` whose message contains a call or a parameter — PLAN E-P2's test for
+"is this validation?" made executable.
 
 ---
 

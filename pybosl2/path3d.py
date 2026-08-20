@@ -92,9 +92,12 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if pts.size == 0:
             self._points: np.ndarray = np.empty((0, 3), dtype=np.float64)
         else:
-            assert pts.ndim == 2, f"Path3D needs a list of [x, y, z] points, got {pts.ndim}D array"
-            assert pts.shape[1] == 3, f"Path3D needs [x, y, z] points, got shape {pts.shape}"
-            assert pts.dtype == np.float64, f"Path3D needs float64 points, got {pts.dtype}"
+            if not (pts.ndim == 2):
+                raise ValueError(f"Path3D needs a list of [x, y, z] points, got {pts.ndim}D array")
+            if not (pts.shape[1] == 3):
+                raise ValueError(f"Path3D needs [x, y, z] points, got shape {pts.shape}")
+            if not (pts.dtype == np.float64):
+                raise ValueError(f"Path3D needs float64 points, got {pts.dtype}")
             self._points = pts
         self._color: "Color | None" = None
         self.closed = closed
@@ -154,10 +157,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter, dflt=1)
         r2v = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
         length = length if length is not None else height
-        assert sum(v is not None for v in (length, turns, angle)) == 2, (
-            "helix() needs exactly two of length/height, turns, and angle."
-        )
-        assert angle is None or length != 0, "helix() cannot take an angle with length 0."
+        if not (sum((v is not None for v in (length, turns, angle))) == 2):
+            raise ValueError("helix() needs exactly two of length/height, turns, and angle.")
+        if not (angle is None or length != 0):
+            raise ValueError("helix() cannot take an angle with length 0.")
         if angle is not None and length != 0:
             dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
         else:
@@ -391,7 +394,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             ta = np.asarray(tangents[i], dtype=float)
             v = np.cross(np.cross(p[1] - p[0], p[2] - p[0]), ta)
             norm = float(np.linalg.norm(v))
-            assert norm > EPSILON, "3D path contains collinear points"
+            if not (norm > EPSILON):
+                raise ValueError("3D path contains collinear points")
             out.append(Point([float(x) for x in (v / norm)]))
         return out
 
@@ -473,8 +477,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         cd = [float(cutdist)] if isinstance(cutdist, (int, float)) else [float(c) for c in cutdist]
         total = self.perimeter()
-        assert cd[-1] < total, "Cut distances must be smaller than the path length"
-        assert cd[0] > 0, "Cut distances must be strictly positive"
+        if not (cd[-1] < total):
+            raise ValueError("Cut distances must be smaller than the path length")
+        if not (cd[0] > 0):
+            raise ValueError("Cut distances must be strictly positive")
         cutlist: list[CutPoint] = _path_cut_points(self._points, closed, cd)
         sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]  # type: ignore[arg-type]
@@ -658,9 +664,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """
         if closed is None:
             closed = self.closed
-        assert points_per_segment is None or method == SubdivideMethod.SEGMENT, (
-            "points_per_segment requires method=SubdivideMethod.SEGMENT"
-        )
+        if not (points_per_segment is None or method == SubdivideMethod.SEGMENT):
+            raise ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
         method_val = method.value
         pts_arr = self._points
         assert sum(x is not None for x in (points, None, maxlen)) == 1, (
@@ -679,8 +684,10 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             if not closed:
                 out.append(pts_arr[-1])
             return self.__class__(out, closed=self.closed)
-        assert isinstance(points, (int, float)), "Parameter sides must be positive number"
-        assert points > 0, "Parameter sides must be positive number"
+        if not (isinstance(points, (int, float))):
+            raise ValueError("Parameter sides must be positive number")
+        if not (points > 0):
+            raise ValueError("Parameter sides must be positive number")
         count = len(pts_arr) - (0 if closed else 1)
         if method_val == "segment":
             add_guess: Any = [(points - len(pts_arr)) / count] * count
@@ -743,7 +750,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if closed is None:
             closed = self.closed
         points = self._points
-        assert (num_copies is None) != (spacing is None), "Must define exactly one of num_copies and spacing"
+        if not ((num_copies is None) != (spacing is None)):
+            raise ValueError("Must define exactly one of num_copies and spacing")
         length = self.perimeter()
         if num_copies is not None:
             n_use = num_copies - (0 if closed else 1)
@@ -1504,7 +1512,8 @@ def _path_cut_points(
     if isinstance(cutdist, (int, float, np.floating, np.integer)):
         return _path_cut_points(points, closed, [cutdist], direction)
     assert isinstance(cutdist, (list, tuple, np.ndarray))
-    assert all(cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)), "Cut distances must be an increasing list"
+    if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
+        raise ValueError("Cut distances must be an increasing list")
     cuts: list[CutPoint] = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])
     if not direction:
         return cuts
@@ -1584,7 +1593,8 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
     """
     while True:
         if ind == len(points) - (0 if closed else 1):
-            assert dist < eps, "Path2D is too short for specified cut distance"
+            if not (dist < eps):
+                raise ValueError("Path2D is too short for specified cut distance")
             pt_arr = np.asarray(points[(ind) % len(points)], dtype=float)
             return CutPoint(
                 point=Point(float(pt_arr[0]), float(pt_arr[1]), float(pt_arr[2])),

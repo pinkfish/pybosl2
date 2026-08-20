@@ -238,7 +238,8 @@ class Path(ABC):
         height: float | NDArray[np.float64] = 1.0 if uniform else self.segment_lengths(closed=closed)
         derivs = np.asarray(deriv(pts, height=height, closed=closed), dtype=float)
         norms = np.linalg.norm(derivs, axis=1, keepdims=True)
-        assert np.all(norms.ravel() > EPSILON), "Cannot normalize a zero vector"
+        if not (np.all(norms.ravel() > EPSILON)):
+            raise ValueError("Cannot normalize a zero vector")
         result: NDArray[np.float64] = derivs / norms
         return result
 

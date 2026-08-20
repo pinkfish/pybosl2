@@ -469,7 +469,8 @@ class CsgSolid(BaseShape):
         elif num_copies is not None and spacing is None:
             distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
         else:
-            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            if not (spacing is not None):
+                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)
@@ -567,9 +568,11 @@ class CsgSolid(BaseShape):
         if bbox is None:
             return self.bounds()
         arr = np.asarray(bbox, dtype=float)
-        assert arr.shape == (2, 3), "bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]]."
+        if not (arr.shape == (2, 3)):
+            raise ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].")
         lo, hi = arr[0], arr[1]
-        assert bool(np.all(hi >= lo - 1e-12)), "bbox must be [[min...],[max...]] with max >= min."
+        if not (bool(np.all(hi >= lo - 1e-12))):
+            raise ValueError("bbox must be [[min...],[max...]] with max >= min.")
         return [(lo[i] + hi[i]) / 2 for i in range(3)], [hi[i] - lo[i] for i in range(3)]
 
     def anchor_point(

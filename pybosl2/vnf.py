@@ -826,7 +826,8 @@ class VNF:
             cut.polyhedron().show()
 
         """
-        assert len(plane) == 4, "halfspace(): plane must be [A, B, C, D]."
+        if not (len(plane) == 4):
+            raise ValueError("halfspace(): plane must be [A, B, C, D].")
         a, b, c, d = plane[0], plane[1], plane[2], plane[3]
         verts_in = np.asarray(self.vertices, dtype=float)
         if len(verts_in) == 0:
@@ -1380,7 +1381,8 @@ class VNF:
                 vs_final = (bb.max_x - bb.min_x) / (field.shape[0] - 1)
             xs, ys, zs = _grid_axes(bb, vs_final)
         else:
-            assert bb is not None, "from_field(): a callable field needs a bounding_box."
+            if not (bb is not None):
+                raise ValueError("from_field(): a callable field needs a bounding_box.")
             bb, vs_final = _resolve_grid(bb, voxel_size, voxel_count, exact_bounds)
             xs, ys, zs = _grid_axes(bb, vs_final)
             field = _sample_field(f, xs, ys, zs)
@@ -1436,7 +1438,8 @@ class VNF:
             ).polyhedron().show()
 
         """
-        assert spec, "from_metaballs(): the spec is empty."
+        if not (spec):
+            raise ValueError("from_metaballs(): the spec is empty.")
 
         bb: Bounds3D
         if isinstance(bounding_box, Bounds3D):

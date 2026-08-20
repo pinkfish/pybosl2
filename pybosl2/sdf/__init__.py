@@ -115,7 +115,8 @@ class SdfBackend:
                     "the csg backend for a twisted/tapered extrusion, or sweep it with "
                     "pybosl2.sdf.shapes3d.path_sweep(twist=...).",
                 )
-        assert not options, f"linear_extrude(): the sdf backend has no {sorted(options)} option(s)."
+        if options:
+            raise ValueError(f"linear_extrude(): the sdf backend has no {sorted(options)} option(s).")
         shape = _s.polygon_prism(
             paths,
             height,

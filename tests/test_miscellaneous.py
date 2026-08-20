@@ -168,7 +168,7 @@ def test_minkowski_sum_accepts_several_shapes() -> None:
 
 
 def test_minkowski_sum_needs_a_shape() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="at least one shape"):
         cuboid([5, 5, 5]).minkowski()
 
 

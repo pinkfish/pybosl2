@@ -305,30 +305,40 @@ def path_text(
     # loadable inside the real PythonSCAD app (e.g. a hardened-runtime-signed build combined
     # with an ad-hoc-signed/unsigned numpy install fails library validation).
 
-    assert len(text) > 0, "path_text(): text must be non-empty."
-    assert size > 0, "path_text(): must give positive text size."
-    assert normal is None or top is None, 'path_text(): cannot define both "normal" and "top".'
+    if not (len(text) > 0):
+        raise ValueError("path_text(): text must be non-empty.")
+    if not (size > 0):
+        raise ValueError("path_text(): must give positive text size.")
+    if not (normal is None or top is None):
+        raise ValueError('path_text(): cannot define both "normal" and "top".')
     dim = len(path[0])
-    assert dim in (2, 3), "path_text(): must supply a 2d or 3d path."
+    if dim not in (2, 3):
+        raise ValueError("path_text(): must supply a 2d or 3d path.")
     if dim == 2:
-        assert thickness is None, "path_text(): cannot give a thickness with a 2d path."
-        assert not reverse, "path_text(): reverse not allowed with a 2d path."
-        assert offset == 0, "path_text(): cannot give offset with a 2d path."
-        assert normal is None, 'path_text(): cannot define "normal" for a 2d path, only "top".'
+        if thickness is not None:
+            raise ValueError("path_text(): cannot give a thickness with a 2d path.")
+        if reverse:
+            raise ValueError("path_text(): reverse not allowed with a 2d path.")
+        if not (offset == 0):
+            raise ValueError("path_text(): cannot give offset with a 2d path.")
+        if normal is not None:
+            raise ValueError('path_text(): cannot define "normal" for a 2d path, only "top".')
 
     th = 1.0 if thickness is None else thickness
     sides = len(text)
 
     if lettersize is not None:
         lsize = [float(lettersize)] * sides if isinstance(lettersize, (int, float)) else [float(v) for v in lettersize]
-        assert len(lsize) == sides, "path_text(): lettersize list must have one entry per character."
+        if not (len(lsize) == sides):
+            raise ValueError("path_text(): lettersize list must have one entry per character.")
     elif textmetrics:
         lsize = [_otextmetrics(ch, font=font, size=size)["advance"][0] for ch in text]
     else:
         raise AssertionError("path_text(): textmetrics disabled -- must specify lettersize.")
 
     kern_list = [float(kern)] * (sides - 1) if isinstance(kern, (int, float)) else [float(v) for v in kern]
-    assert len(kern_list) == sides - 1, "path_text(): kern must be a scalar or a list of length len(text)-1."
+    if not (len(kern_list) == sides - 1):
+        raise ValueError("path_text(): kern must be a scalar or a list of length len(text)-1.")
 
     centers = []
     prefix = 0.0
@@ -341,7 +351,8 @@ def path_text(
     textlength = prefix + kern_prefix
 
     plen = path.perimeter()
-    assert textlength <= plen, "path_text(): path is too short for the text."
+    if not (textlength <= plen):
+        raise ValueError("path_text(): path is too short for the text.")
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
 
@@ -452,7 +463,8 @@ def cross(
     h = height if height is not None else length
     if not h:
         raise ValueError("cross(): needs a positive height= (or its synonym length=).")
-    assert h > 0, "cross(): need a positive height or length."
+    if not (h > 0):
+        raise ValueError("cross(): need a positive height or length.")
     use_center = center if center is not None else True
     use_anchor = anchor
     if center is not None:

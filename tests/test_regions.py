@@ -416,7 +416,7 @@ def test_region_hull_type_error() -> None:
 
 def test_region_bounds_empty_raises() -> None:
     r = Region([])
-    with pytest.raises(AssertionError, match="empty Region"):
+    with pytest.raises(ValueError, match="empty Region"):
         r.bounds()
 
 

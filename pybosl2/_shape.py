@@ -269,7 +269,8 @@ class BaseShape(Colorable, Distributable):
         """
         from pythonscad import minkowski as _minkowski
 
-        assert others, "minkowski(): needs at least one shape to sweep over this one."
+        if not (others):
+            raise ValueError("minkowski(): needs at least one shape to sweep over this one.")
         backend = getattr(self, "backend", "csg")
         out = self.shape
         for other in others:

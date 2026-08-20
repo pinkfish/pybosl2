@@ -74,7 +74,8 @@ def mask2d_roundover(
     from pybosl2.path2d import Path2D
 
     if radius is None:
-        assert diameter is not None, "mask2d_roundover(): must give radius or diameter"
+        if not (diameter is not None):
+            raise ValueError("mask2d_roundover(): must give radius or diameter")
         radius = diameter / 2
     rad = float(radius)
     inset_x, inset_y = inset if isinstance(inset, tuple) else (float(inset), float(inset))
@@ -238,8 +239,10 @@ def edge_mask(
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
 
     """
-    assert size is not None, "size= (the box's size) must be given"
-    assert children is not None, "children= (the edge cutter) must be given"
+    if not (size is not None):
+        raise ValueError("size= (the box's size) must be given")
+    if not (children is not None):
+        raise ValueError("children= (the edge cutter) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Bosl2Solid | None" = None
     for axis in range(3):
@@ -281,8 +284,10 @@ def edge_profile(
 
     """
     _ = convexity
-    assert size is not None, "size= (the box's size) must be given"
-    assert children is not None, "children= (the 2-D mask path) must be given"
+    if not (size is not None):
+        raise ValueError("size= (the box's size) must be given")
+    if not (children is not None):
+        raise ValueError("children= (the 2-D mask path) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Bosl2Solid | None" = None
     for axis in range(3):
@@ -417,10 +422,12 @@ def corner_profile(
     """
     _ = (children, convexity)
     if radius is None:
-        assert diameter is not None, "corner_profile(): must give radius or diameter"
+        if not (diameter is not None):
+            raise ValueError("corner_profile(): must give radius or diameter")
         radius = diameter / 2
     rad = float(radius)
-    assert size is not None, "size= (the box's size) must be given"
+    if not (size is not None):
+        raise ValueError("size= (the box's size) must be given")
     corner_set = _corners(corners, except_corners or [])
     cutter: "Bosl2Solid | None" = None
     for idx, sel in enumerate(corner_set):
@@ -470,7 +477,8 @@ def face_profile(
 
     """
     if radius is None:
-        assert diameter is not None, "face_profile(): must give radius or diameter"
+        if not (diameter is not None):
+            raise ValueError("face_profile(): must give radius or diameter")
         radius = diameter / 2
     rad = float(radius)
     mask = children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)

@@ -319,9 +319,11 @@ class CsgShape2D(BaseShape):
         if bbox is None:
             return self.bounds()
         arr = np.asarray(bbox, dtype=float)
-        assert arr.shape == (2, 2), "bbox must be [[min_x,min_y],[max_x,max_y]]."
+        if not (arr.shape == (2, 2)):
+            raise ValueError("bbox must be [[min_x,min_y],[max_x,max_y]].")
         lo, hi = arr[0], arr[1]
-        assert bool(np.all(hi >= lo - 1e-12)), "bbox must be [[min...],[max...]] with max >= min."
+        if not (bool(np.all(hi >= lo - 1e-12))):
+            raise ValueError("bbox must be [[min...],[max...]] with max >= min.")
         return [(lo[i] + hi[i]) / 2 for i in range(2)], [hi[i] - lo[i] for i in range(2)]
 
     def anchor_point(
@@ -492,7 +494,8 @@ class CsgShape2D(BaseShape):
                 s2.star(tips=5, radius=30, inner_radius=15).offset(delta=4).linear_extrude(height=4).show()
 
         """
-        assert (radius is None) != (delta is None), "offset(): give exactly one of radius= or delta=."
+        if not ((radius is None) != (delta is None)):
+            raise ValueError("offset(): give exactly one of radius= or delta=.")
         kw: dict[str, Any] = {"r": radius} if radius is not None else {"delta": delta, "chamfer": chamfer}
         for name, value in (("fn", fn), ("fa", fa), ("fs", fs)):
             if value is not None:
@@ -720,7 +723,8 @@ class CsgShape2D(BaseShape):
                 step = (length - start_pos) / (num_copies - 1) if num_copies > 1 else 0.0
                 distances = [start_pos + i * step for i in range(num_copies)]
             else:
-                assert spacing is not None, "distribute_on_path(): provide num_copies or spacing."
+                if not (spacing is not None):
+                    raise ValueError("distribute_on_path(): provide num_copies or spacing.")
                 cnt = int((length - start_pos) / spacing) + 1
                 distances = [start_pos + i * spacing for i in range(cnt)]
         elif num_copies is not None and spacing is None:
@@ -731,7 +735,8 @@ class CsgShape2D(BaseShape):
                 step = length / num_copies if num_copies > 0 else 0.0
                 distances = [i * step for i in range(num_copies)]
         else:
-            assert spacing is not None, "distribute_on_path(): provide num_copies, spacing, or dist."
+            if not (spacing is not None):
+                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)

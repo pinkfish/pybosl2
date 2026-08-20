@@ -246,7 +246,8 @@ class HoseSegment:
         smallend = [[x - cl[0], y - smy] for x, y in small]
         bigend = [[x + cl[1], y - bmy] for x, y in big]
         mid = _WAIST[ind] if waist_len is None else waist_len
-        assert mid >= 0, "waist_len must be nonnegative."
+        if not (mid >= 0):
+            raise ValueError("waist_len must be nonnegative.")
 
         if type in (HoseType.SEGMENT,):
             shape = [[x, y + mid] for x, y in smallend] + [[x, -y] for x, y in bigend]

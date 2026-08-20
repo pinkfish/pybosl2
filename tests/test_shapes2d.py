@@ -142,7 +142,7 @@ def test_squircle_builds_solid() -> None:
 def test_squircle_rejects_bad_squareness() -> None:
     import pytest
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="squareness\ must\ be\ between"):
         squircle(40, squareness=1.5)
 
 
@@ -155,7 +155,7 @@ def test_keyhole_builds_both_orientations() -> None:
 def test_keyhole_rejects_short_length() -> None:
     import pytest
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="length\ must\ be\ positive"):
         keyhole(length=3, radius1=5, radius2=10)
 
 

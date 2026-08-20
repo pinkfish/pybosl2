@@ -74,7 +74,7 @@ def test_buttress_profile_is_asymmetric() -> None:
 
 
 def test_impossible_trapezoid_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="trapezoidal\ thread\ geometry\ is"):
         _trapezoidal_profile(1, 170)  # flanks would cross
 
 
@@ -145,9 +145,9 @@ def test_thread_helix_builds() -> None:
 
 
 def test_invalid_rod_dims_raise() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="ThreadedRod:\ d,\ l\ and\ pitch"):
         ThreadedRod(12, 24, 0, _iso_profile())  # pitch 0
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="ThreadedRod:\ d,\ l\ and\ pitch"):
         ThreadedRod(0, 24, 1.5, _iso_profile())  # d 0
 
 

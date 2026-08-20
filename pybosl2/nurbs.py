@@ -270,7 +270,8 @@ def _deboor(knot: Sequence[float], ctrl: Sequence[np.ndarray], u: float, p: int,
 
 def _homogeneous(points: Sequence[PointLike], weights: Sequence[float]) -> list[list[float]]:
     """Lift *points* into homogeneous space by scaling each with its weight."""
-    assert len(weights) == len(points), "weights must match the number of control points."
+    if not (len(weights) == len(points)):
+        raise ValueError("weights must match the number of control points.")
     return [list(np.asarray(p, dtype=float) * w) + [float(w)] for p, w in zip(points, weights, strict=True)]
 
 
@@ -321,7 +322,8 @@ def _sample_params(
 
     """
     if splinesteps is not None:
-        assert splinesteps > 0, "splinesteps must be a positive integer."
+        if not (splinesteps > 0):
+            raise ValueError("splinesteps must be a positive integer.")
         params: list[float] = []
         for i in range(degree, count):
             if not math.isclose(knot[i], knot[i + 1], rel_tol=0, abs_tol=EPSILON):
@@ -330,9 +332,11 @@ def _sample_params(
             params.append(float(knot[count]))
         return params
 
-    assert u is not None, "Must define exactly one of u and splinesteps."
+    if not (u is not None):
+        raise ValueError("Must define exactly one of u and splinesteps.")
     values = [float(x) for x in u]
-    assert all(-1e-12 <= x <= 1 + 1e-12 for x in values), "u must lie in [0, 1]."
+    if not (all((-1e-12 <= x <= 1 + 1e-12 for x in values))):
+        raise ValueError("u must lie in [0, 1].")
     if nurbs_type == NurbsType.CLAMPED:
         return values
     lo, hi = float(knot[degree]), float(knot[count])
@@ -366,7 +370,8 @@ def _curve_points(
         The evaluated points, one numpy array per parameter value.
 
     """
-    assert splinesteps is None or u is None, "Must define exactly one of u and splinesteps."
+    if not (splinesteps is None or u is None):
+        raise ValueError("Must define exactly one of u and splinesteps.")
     if splinesteps is None and u is None:
         splinesteps = 16
 
@@ -672,8 +677,10 @@ def _elevate_curve(
         A tuple of ``(control, degree, knots, weights)``.
 
     """
-    assert nurbs_type in (NurbsType.CLAMPED, NurbsType.OPEN), "degree elevation needs a CLAMPED or OPEN curve."
-    assert times >= 0, "times must be zero or a positive integer."
+    if nurbs_type not in (NurbsType.CLAMPED, NurbsType.OPEN):
+        raise ValueError("degree elevation needs a CLAMPED or OPEN curve.")
+    if not (times >= 0):
+        raise ValueError("times must be zero or a positive integer.")
     points = [[float(c) for c in p] for p in control]
     if times == 0:
         return (
@@ -771,15 +778,21 @@ class NurbsCurve:
 
         """
         pts = np.array([[float(c) for c in p] for p in control], dtype=float)
-        assert pts.ndim == 2, f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}"
-        assert pts.shape[1] in (2, 3), f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point"
-        assert isinstance(degree, int), f"degree must be a positive integer, got {degree!r}"
-        assert degree >= 1, f"degree must be a positive integer, got {degree!r}"
-        assert isinstance(nurbs_type, NurbsType), f"unknown NURBS type: {nurbs_type!r}"
+        if not (pts.ndim == 2):
+            raise ValueError(f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}")
+        if pts.shape[1] not in (2, 3):
+            raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
+        if not (isinstance(degree, int)):
+            raise ValueError(f"degree must be a positive integer, got {degree!r}")
+        if not (degree >= 1):
+            raise ValueError(f"degree must be a positive integer, got {degree!r}")
+        if not (isinstance(nurbs_type, NurbsType)):
+            raise ValueError(f"unknown NURBS type: {nurbs_type!r}")
         assert nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1, (
             f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points"
         )
-        assert weights is None or len(weights) == pts.shape[0], "weights must match the number of control points."
+        if not (weights is None or len(weights) == pts.shape[0]):
+            raise ValueError("weights must match the number of control points.")
         pts.flags.writeable = False  # the definition is fixed once built; make a new curve to change it
         self._control = pts
         self._degree = degree
@@ -1001,12 +1014,17 @@ class NurbsPatch:
             weights: A weight matrix the same size as *control*, or ``None``.
 
         """
-        assert NurbsPatch.is_patch(control), "control must be a rectangular grid of points."
+        if not (NurbsPatch.is_patch(control)):
+            raise ValueError("control must be a rectangular grid of points.")
         pts = np.array(control, dtype=float)
-        assert pts.ndim == 3, f"patch must be a 3-D array (rows x cols x dim), got shape {pts.shape}"
-        assert pts.shape[2] == 3, f"patch control points must be 3-D, got {pts.shape[2]} components"
-        assert all(isinstance(d, int) and d >= 1 for d in degree), f"degree must be positive integers, got {degree!r}"
-        assert all(isinstance(t, NurbsType) for t in nurbs_type), f"unknown NURBS type: {nurbs_type!r}"
+        if not (pts.ndim == 3):
+            raise ValueError(f"patch must be a 3-D array (rows x cols x dim), got shape {pts.shape}")
+        if not (pts.shape[2] == 3):
+            raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
+        if not (all((isinstance(d, int) and d >= 1 for d in degree))):
+            raise ValueError(f"degree must be positive integers, got {degree!r}")
+        if not (all((isinstance(t, NurbsType) for t in nurbs_type))):
+            raise ValueError(f"unknown NURBS type: {nurbs_type!r}")
         assert weights is None or np.asarray(weights, dtype=float).shape == pts.shape[:2], (
             "weights must be the same size as the control-point grid."
         )
@@ -1171,7 +1189,8 @@ class NurbsPatch:
         cap_specs: list["CapSpec"] = norm_caps(caps if caps is not None else CapType.NONE)
         havecaps = any(cs.cap_type != CapType.NONE for cs in cap_specs)
         cappable = ((NurbsType.CLAMPED, NurbsType.CLOSED), (NurbsType.CLOSED, NurbsType.CLAMPED))
-        assert not havecaps or self._nurbs_type in cappable, "caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED)."
+        if not (not havecaps or self._nurbs_type in cappable):
+            raise ValueError("caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED).")
 
         # caps close the column-wrapped ends, so a closed U direction is transposed into V
         flip = havecaps and self._nurbs_type[0] == NurbsType.CLOSED

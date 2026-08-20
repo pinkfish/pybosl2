@@ -182,9 +182,8 @@ def _teardrop2d_path(
     rad = radius / math.cos(math.pi / sides) if circum else radius
     maxheight = rad / math.sin(math.radians(angle))
     minheight = rad * math.sin(math.radians(angle))
-    assert cap_height is None or cap_height >= minheight - 1e-9, (
-        "teardrop2d(): cap_height cannot be less than radius*sin(angle)."
-    )
+    if not (cap_height is None or cap_height >= minheight - 1e-09):
+        raise ValueError("teardrop2d(): cap_height cannot be less than radius*sin(angle).")
     pointy = cap_height is None or cap_height >= maxheight
 
     sweep = 180 + 2 * angle

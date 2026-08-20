@@ -130,7 +130,8 @@ def star(
     rad = _pick_radius(radius1=outer_radius, diameter1=outer_diameter, radius=radius, diameter=diameter)
     if rad is None:
         raise ValueError("star(): must specify a radius (radius, diameter, outer_radius or outer_diameter).")
-    assert tips is not None, "star(): must specify tips"
+    if not (tips is not None):
+        raise ValueError("star(): must specify tips")
     if step is not None:
         stepr = rad * math.cos(math.radians(180 * step / tips)) / math.cos(math.radians(180 * (step - 1) / tips))
     else:
@@ -199,8 +200,8 @@ def teardrop2d(
         rad /= math.cos(math.pi / n)
     minheight = rad * math.sin(math.radians(angle))
     maxheight = rad / math.sin(math.radians(angle))
-    if cap_height is not None:
-        assert cap_height >= minheight, f"cap_height cannot be less than {minheight} but it is {cap_height}"
+    if cap_height is not None and cap_height < minheight:
+        raise ValueError(f"cap_height cannot be less than {minheight} but it is {cap_height}")
     pointy = cap_height is None or cap_height >= maxheight
     if cap_height is None or pointy:
         cap_top = [0.0, maxheight]
@@ -272,7 +273,8 @@ def egg(
     arc_r = _pick_radius(radius=arc_radius, diameter=arc_diameter, dflt=None)
     if arc_r is None:
         raise ValueError("egg(): must give arc_radius or arc_diameter")
-    assert length is not None, "egg(): must give length"
+    if not (length is not None):
+        raise ValueError("egg(): must give length")
     path = _egg_path(length, radius1, radius2, arc_r, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)
@@ -289,12 +291,15 @@ def _egg_path(
     fs: float | None = None,
 ) -> list[list[float]]:
     assert length > 0
-    assert arc_radius > length / 2, "Side radius must be larger than length/2"
-    assert length > radius1 + radius2, "Length must be longer than radius1+radius2"
+    if not (arc_radius > length / 2):
+        raise ValueError("Side radius must be larger than length/2")
+    if not (length > radius1 + radius2):
+        raise ValueError("Length must be longer than radius1+radius2")
     c1 = [-length / 2 + radius1, 0.0]
     c2 = [length / 2 - radius2, 0.0]
     m_pts = list(reversed(_circle_circle_intersection(arc_radius - radius1, c1, arc_radius - radius2, c2)))
-    assert len(m_pts) == 2, "egg(): circles do not intersect for the given length/radius1/radius2/arc_radius."
+    if not (len(m_pts) == 2):
+        raise ValueError("egg(): circles do not intersect for the given length/radius1/radius2/arc_radius.")
     arcparms = []
     for m in m_pts:
         u1 = unit([c1[0] - m[0], c1[1] - m[1]])
@@ -486,9 +491,11 @@ def squircle(
             s2.squircle(40, squareness=0.7).linear_extrude(height=5).show()
 
     """
-    assert 0 <= squareness <= 1, "squircle(): squareness must be between 0 and 1."
+    if not (0 <= squareness <= 1):
+        raise ValueError("squircle(): squareness must be between 0 and 1.")
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
-    assert style == "fg", 'squircle(): only the default "fg" style is ported.'
+    if not (style == "fg"):
+        raise ValueError('squircle(): only the default "fg" style is ported.')
     path = _squircle_fg_path(sz, squareness, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)

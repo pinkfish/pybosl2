@@ -111,9 +111,12 @@ class SdfShape2D:
         components must be 0), so migrated call sites keep working unchanged.
         """
         if isinstance(a, (list, tuple)):
-            assert len(a) == 3, f"2-D rotate only supports [0, 0, angle], got {a}"
-            assert not a[0], f"2-D rotate only supports [0, 0, angle], got {a}"
-            assert not a[1], f"2-D rotate only supports [0, 0, angle], got {a}"
+            if not (len(a) == 3):
+                raise ValueError(f"2-D rotate only supports [0, 0, angle], got {a}")
+            if a[0]:
+                raise ValueError(f"2-D rotate only supports [0, 0, angle], got {a}")
+            if a[1]:
+                raise ValueError(f"2-D rotate only supports [0, 0, angle], got {a}")
             a = a[2]
         angle = math.radians(a)
         c, s = math.cos(angle), math.sin(angle)
@@ -134,7 +137,8 @@ class SdfShape2D:
 
     def scale(self, v: float | Sequence[float]) -> PyShape2D:
         s = [float(v), float(v)] if isinstance(v, (int, float)) else [float(a) for a in v]
-        assert all(a > 0 for a in s), f"scale() factors must be positive, got {s}"
+        if not (all((a > 0 for a in s))):
+            raise ValueError(f"scale() factors must be positive, got {s}")
         fn = self._sdf_fn
         smin = min(s)
         new_fn = lambda x, y: smin * fn(x / s[0], y / s[1])  # noqa: E731
@@ -272,7 +276,8 @@ class SdfShape2D:
         the evaluation depth at log2(n) instead.
         """
         shapes = list(shapes)
-        assert shapes, "union() needs at least one shape"
+        if not (shapes):
+            raise ValueError("union() needs at least one shape")
         while len(shapes) > 1:
             shapes = [shapes[i] | shapes[i + 1] if i + 1 < len(shapes) else shapes[i] for i in range(0, len(shapes), 2)]
         return shapes[0]
@@ -409,7 +414,8 @@ class SdfShape2D:
         The optional rim treatments follow polygon_prism()'s convention (positive roundover,
         negative flare) and reuse the same construction, over this shape's own SDF.
         """
-        assert height > 0, f"extrude() needs height > 0, got {height}"
+        if not (height > 0):
+            raise ValueError(f"extrude() needs height > 0, got {height}")
         fn = self._sdf_fn
         h = float(height)
         z0 = -h / 2 if center else 0.0
@@ -522,12 +528,15 @@ def rect2d(  # type: ignore[no-untyped-def]
     hx, hy = sz[0] / 2, sz[1] / 2
     has_rounding = (rounding != 0) if isinstance(rounding, (int, float)) else any(rounding)
     has_chamfer = (chamfer != 0) if isinstance(chamfer, (int, float)) else any(chamfer)
-    assert not (has_rounding and has_chamfer), "Cannot specify nonzero rounding and chamfer together"
+    if has_rounding and has_chamfer:
+        raise ValueError("Cannot specify nonzero rounding and chamfer together")
     mode = EdgeMode.CHAMFER if has_chamfer else EdgeMode.ROUND
     amt = chamfer if has_chamfer else rounding
     per_corner = [float(amt)] * 4 if isinstance(amt, (int, float)) else [float(v) for v in amt]
-    assert len(per_corner) == 4, f"per-corner treatment needs 4 values, got {per_corner}"
-    assert max(per_corner) <= min(hx, hy) + 1e-9, f"corner treatment {per_corner} exceeds half the rectangle {sz}"
+    if not (len(per_corner) == 4):
+        raise ValueError(f"per-corner treatment needs 4 values, got {per_corner}")
+    if not (max(per_corner) <= min(hx, hy) + 1e-09):
+        raise ValueError(f"corner treatment {per_corner} exceeds half the rectangle {sz}")
     # BOSL2 corner order [(+,+), (-,+), (-,-), (+,-)] -> _rect2d's [(-,-), (+,-), (-,+), (+,+)].
     amount = [per_corner[2], per_corner[3], per_corner[1], per_corner[0]]
 
@@ -573,7 +582,8 @@ def polygon2d(paths: Sequence[Sequence[float]] | NDArray, res: int = 10) -> PySh
     """
     path_list = as_path_list(paths)
     for p in path_list:
-        assert len(p) >= 3, f"polygon2d(): every path needs >= 3 points, got {len(p)}"
+        if not (len(p) >= 3):
+            raise ValueError(f"polygon2d(): every path needs >= 3 points, got {len(p)}")
 
     def sdf_fn(x, y):  # type: ignore[no-untyped-def]
         d = None
@@ -600,7 +610,8 @@ def region2d(paths: list, res: int = 10) -> PyShape2D:  # type: ignore[type-arg]
     """
     cleaned = as_path_list(paths)
     for p in cleaned:
-        assert len(p) >= 3, f"region2d(): every outline needs >= 3 points, got {len(p)}"
+        if not (len(p) >= 3):
+            raise ValueError(f"region2d(): every outline needs >= 3 points, got {len(p)}")
 
     def contains(poly: list[list[float]], pt: Sequence[float]) -> bool:
         # Standard even-odd ray cast (+x direction).
@@ -649,7 +660,8 @@ def stroke2d(
     the min over the segments' capsule SDFs (distance-to-segment minus width/2).
     """
     pts = as_points(path)
-    assert len(pts) >= 2, "stroke2d() needs at least 2 points"
+    if not (len(pts) >= 2):
+        raise ValueError("stroke2d() needs at least 2 points")
     segs = pts if closed else pts[:-1]
 
     def sdf_fn(x, y):  # type: ignore[no-untyped-def]
@@ -686,7 +698,8 @@ def hull2d_discs(discs: list, res: int = 10) -> PyShape2D:  # type: ignore[type-
     silhouette whenever the smaller discs sit inside the hull of the larger ones.
     """
     ds = [(float(c[0]), float(c[1]), float(c[2])) for c in discs]
-    assert ds, "hull2d_discs() needs at least one disc"
+    if not (ds):
+        raise ValueError("hull2d_discs() needs at least one disc")
     if len(ds) == 1:
         cx, cy, r = ds[0]
         return circle2d(radius=r, res=res).translate([cx, cy])
@@ -919,9 +932,12 @@ def trapezoid2d(
         width1 = width2 + 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
     if width2 is None:
         width2 = width1 - 2 * (height * _m.tan(_m.radians(angle)) + shift)  # type: ignore[operator,arg-type]
-    assert width1 >= 0, "Degenerate trapezoid geometry."
-    assert width2 >= 0, "Degenerate trapezoid geometry."
-    assert height > 0, "Degenerate trapezoid geometry."
+    if not (width1 >= 0):
+        raise ValueError("Degenerate trapezoid geometry.")
+    if not (width2 >= 0):
+        raise ValueError("Degenerate trapezoid geometry.")
+    if not (height > 0):
+        raise ValueError("Degenerate trapezoid geometry.")
 
     pts = [
         [width2 / 2 + shift, height / 2],
@@ -999,9 +1015,12 @@ def keyhole_outline(
     r1v = _pick_radius(radius=radius1, diameter=diameter1, dflt=5)
     r2v = _pick_radius(radius=radius2, diameter=diameter2, dflt=10)
     sh = float(shoulder_radius or 0.0)
-    assert length > 0, "keyhole_outline(): length must be positive."
-    assert min(r1v, r2v) > 0, "keyhole_outline(): both radii must be positive."
-    assert sh >= 0, "keyhole_outline(): shoulder_radius cannot be negative."
+    if not (length > 0):
+        raise ValueError("keyhole_outline(): length must be positive.")
+    if not (min(r1v, r2v) > 0):
+        raise ValueError("keyhole_outline(): both radii must be positive.")
+    if not (sh >= 0):
+        raise ValueError("keyhole_outline(): shoulder_radius cannot be negative.")
 
     # Build with the smaller circle at the origin, then rotate a half turn if it was the other way
     # round: a half turn preserves the winding, so the result stays counter-clockwise either way.
@@ -1012,10 +1031,11 @@ def keyhole_outline(
     # How far down the neck the shoulder lands: the fillet centre is (small+sh) off the axis and
     # (big+sh) from the large circle's centre, so the axial offset closes the right triangle.
     dy = math.sqrt((big + sh) ** 2 - (small + sh) ** 2)
-    assert dy < length, (
-        f"keyhole_outline(): no room for a neck between the circles "
-        f"(length={length}, radii={r1v}/{r2v}, shoulder_radius={sh})."
-    )
+    if not (dy < length):
+        raise ValueError(
+            f"keyhole_outline(): no room for a neck between the circles "
+            f"(length={length}, radii={r1v}/{r2v}, shoulder_radius={sh})."
+        )
 
     stadium = (big - small) < _KEYHOLE_EPS  # equal radii: the walls meet the far circle tangentially
     fillet = sh > _KEYHOLE_EPS and not stadium

@@ -33,7 +33,7 @@ def test_is_a_list_of_plain_floats() -> None:
 
 
 def test_rejects_non_xy_points() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="Path2D\ needs\ \[x,\ y\]\ points,\ got"):
         Path2D([[0, 0, 0], [1, 1, 1]])
 
 
@@ -274,9 +274,9 @@ def test_offset_returns_path() -> None:
 
 
 def test_offset_needs_exactly_one_of_r_delta() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="exactly one of"):
         Path2D(UNIT).offset()
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="exactly one of"):
         Path2D(UNIT).offset(radius=1, delta=1)
 
 
@@ -344,18 +344,18 @@ def test_offset_keeps_winding_and_shrinks() -> None:
 
 def test_offset_past_half_width_raises_instead_of_inverting() -> None:
     """A 10-wide square shrunk by 8 has nothing left -- it used to come back inside out."""
-    with pytest.raises(AssertionError, match="collapsed"):
+    with pytest.raises(ValueError, match="collapsed"):
         Path2D(UNIT).offset(delta=-8)
-    with pytest.raises(AssertionError, match="collapsed"):
+    with pytest.raises(ValueError, match="collapsed"):
         Path2D(UNIT).offset(radius=-8)
 
 
 def test_offset_collapsing_a_thin_arm_raises() -> None:
     """An L with 10-wide arms cannot be inset by 6; it used to return a bigger, folded outline."""
     ell = Path2D([[0, 0], [40, 0], [40, 10], [10, 10], [10, 40], [0, 40]])
-    with pytest.raises(AssertionError, match="collapsed"):
+    with pytest.raises(ValueError, match="collapsed"):
         ell.offset(delta=-6)
-    with pytest.raises(AssertionError, match="collapsed"):
+    with pytest.raises(ValueError, match="collapsed"):
         ell.offset(radius=-6)
 
 
@@ -441,9 +441,9 @@ def test_offset_same_length_keeps_one_point_per_input_point() -> None:
 
 
 def test_offset_same_length_rejects_joins_that_add_points() -> None:
-    with pytest.raises(AssertionError, match="same_length"):
+    with pytest.raises(ValueError, match="same_length"):
         Path2D(UNIT).offset(radius=-1, same_length=True)
-    with pytest.raises(AssertionError, match="same_length"):
+    with pytest.raises(ValueError, match="same_length"):
         Path2D(UNIT).offset(delta=-1, chamfer=True, same_length=True)
 
 

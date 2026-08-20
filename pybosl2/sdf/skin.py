@@ -213,8 +213,10 @@ def skin_sdf(
         res:     meshing resolution (default 10)
 
     """
-    assert len(shapes) >= 2, "skin_sdf(): need at least 2 profiles"
-    assert len(shapes) == len(z), "skin_sdf(): shapes and z must have same length"
+    if not (len(shapes) >= 2):
+        raise ValueError("skin_sdf(): need at least 2 profiles")
+    if not (len(shapes) == len(z)):
+        raise ValueError("skin_sdf(): shapes and z must have same length")
 
     sfs = [s._sdf_fn for s in shapes]
     zs = [float(zi) for zi in z]

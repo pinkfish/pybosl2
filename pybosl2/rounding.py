@@ -209,13 +209,17 @@ def _round_corners(
     if curv_val is None:
         kv = [0.5] * sides
     elif curv_val is not None and is_num(curv_val):
-        assert method == RoundingMethod.SMOOTH, 'k is only allowed with method="smooth".'
+        if not (method == RoundingMethod.SMOOTH):
+            raise ValueError('k is only allowed with method="smooth".')
         kv = [float(cast("float", curv_val))] * sides
     elif isinstance(curv_val, (list, tuple, np.ndarray)):
-        assert method == RoundingMethod.SMOOTH, 'k is only allowed with method="smooth".'
+        if not (method == RoundingMethod.SMOOTH):
+            raise ValueError('k is only allowed with method="smooth".')
         kv = ([0.0] + [float(v) for v in curv_val] + [0.0]) if len(curv_val) < sides else [float(v) for v in curv_val]
-    assert all(v >= 0 for v in parm), f"{measure} must be nonnegative."
-    assert all(0 <= v <= 1 for v in kv), "k must be in [0, 1]."
+    if not (all((v >= 0 for v in parm))):
+        raise ValueError(f"{measure} must be nonnegative.")
+    if not (all((0 <= v <= 1 for v in kv))):
+        raise ValueError("k must be in [0, 1].")
 
     # dk[i] = [joint distance, shape param] per corner (chamfer has just [distance])
     dk = []
@@ -273,7 +277,8 @@ def _round_corners(
                 else math.inf
             )
             scale.append(min(a, b))
-    assert not scale or min(scale) >= 1 - 1e-9, "Roundovers are too big for the path (they overlap); reduce the sizes."
+    if not (not scale or min(scale) >= 1 - 1e-09):
+        raise ValueError("Roundovers are too big for the path (they overlap); reduce the sizes.")
 
     out = []
     for i in range(sides):

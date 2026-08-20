@@ -92,9 +92,9 @@ def test_catenary_sign_flips_with_negative_droop() -> None:
 
 
 def test_catenary_requires_exactly_one_of_droop_angle() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="catenary\(\)\ needs\ exactly\ one\ of"):
         Path2D.catenary(width=10)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="catenary\(\)\ needs\ exactly\ one\ of"):
         Path2D.catenary(width=10, droop=2, angle=30)
 
 
@@ -111,7 +111,7 @@ def test_helix_returns_path3d() -> None:
 
 
 def test_helix_needs_exactly_two_params() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="exactly two"):
         Path3D.helix(height=40, radius=10)  # only one of length/turns/angle
 
 

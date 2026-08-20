@@ -204,7 +204,8 @@ def arc(
     """
     # -- width + thickness: a circular segment through 3 points on/above the X axis ----------
     if width is not None and thickness is not None:
-        assert not any(v is not None for v in (radius, center, points, angle, start)), "conflicting arc() params"
+        if any((v is not None for v in (radius, center, points, angle, start))):
+            raise ValueError("conflicting arc() params")
         return arc(
             count=count,
             points=[[width / 2, 0], [0, thickness], [-width / 2, 0]],
@@ -217,13 +218,16 @@ def arc(
 
     # -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------
     if corner is not None:
-        assert len(corner) == 3, "corner= needs exactly 3 points"
+        if not (len(corner) == 3):
+            raise ValueError("corner= needs exactly 3 points")
         assert not is_collinear(
             Point(corner[0][0], corner[0][1]), Point(corner[1][0], corner[1][1]), Point(corner[2][0], corner[2][1])
         ), "Collinear corner does not define an arc"
         rad = _pick_radius(radius=radius, diameter=diameter)
-        assert rad is not None, "arc(corner=) needs radius= or diameter="
-        assert rad > 0, "arc(corner=) needs radius= or diameter="
+        if not (rad is not None):
+            raise ValueError("arc(corner=) needs radius= or diameter=")
+        if not (rad > 0):
+            raise ValueError("arc(corner=) needs radius= or diameter=")
         p0, p1, p2 = corner
         v1 = unit([float(p0[0]) - float(p1[0]), float(p0[1]) - float(p1[1])])
         v2 = unit([float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])])
@@ -259,10 +263,13 @@ def arc(
     # -- points forms ------------------------------------------------------------------------
     if points is not None:
         pts = [[float(p[0]), float(p[1])] for p in points]
-        assert all(len(p) == 2 for p in points), "arc() port handles 2-D points only"
+        if not (all((len(p) == 2 for p in points))):
+            raise ValueError("arc() port handles 2-D points only")
         if len(pts) == 2:
-            assert center is not None, "center= is required when points has length 2"
-            assert pts[0] != pts[1], "arc endpoints are equal"
+            if not (center is not None):
+                raise ValueError("center= is required when points has length 2")
+            if not (pts[0] != pts[1]):
+                raise ValueError("arc endpoints are equal")
             centre = [float(center[0]), float(center[1])]
             dv1 = [float(pts[0][0]) - centre[0], float(pts[0][1]) - centre[1]]
             dv2 = [float(pts[1][0]) - centre[0], float(pts[1][1]) - centre[1]]
@@ -271,7 +278,8 @@ def arc(
             if prelim != 0:
                 direction = prelim
             else:
-                assert clockwise or counterclockwise, "Collinear inputs don't define a unique arc"
+                if not (clockwise or counterclockwise):
+                    raise ValueError("Collinear inputs don't define a unique arc")
                 direction = 1
             rad = math.hypot(dv1[0], dv1[1])
             if long or (counterclockwise and direction < 0) or (clockwise and direction > 0):
@@ -291,7 +299,8 @@ def arc(
                 fa=fa,
                 fs=fs,
             )
-        assert len(pts) == 3, f"arc(points=) needs 2 or 3 points, got {len(pts)}"
+        if not (len(pts) == 3):
+            raise ValueError(f"arc(points=) needs 2 or 3 points, got {len(pts)}")
         assert not is_collinear(
             Point(pts[0][0], pts[0][1]), Point(pts[1][0], pts[1][1]), Point(pts[2][0], pts[2][1])
         ), "Collinear inputs do not define an arc"
@@ -318,7 +327,8 @@ def arc(
             "a corner= to fit, or width=/thickness=."
         )
     if isinstance(angle, (list, tuple)):
-        assert start is None, "start= is not allowed with angle=[start, end]"
+        if start is not None:
+            raise ValueError("start= is not allowed with angle=[start, end]")
         calc_start = float(angle[0])
         calc_angle = float(angle[1]) - float(angle[0])
     elif isinstance(angle, (int, float)):
@@ -439,8 +449,10 @@ def keyhole(
     lv = float(length if length is not None else (_length if _length is not None else 15))
     r1v = float(_pick_radius(radius=radius1, diameter=diameter1, dflt=5))
     r2v = float(_pick_radius(radius=radius2, diameter=diameter2, dflt=10))
-    assert lv > 0, "keyhole(): length must be positive and at least max(radius1, radius2)."
-    assert lv >= max(r1v, r2v), "keyhole(): length must be positive and at least max(radius1, radius2)."
+    if not (lv > 0):
+        raise ValueError("keyhole(): length must be positive and at least max(radius1, radius2).")
+    if not (lv >= max(r1v, r2v)):
+        raise ValueError("keyhole(): length must be positive and at least max(radius1, radius2).")
     shoulder_radius = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
     cp1, cp2 = [0.0, 0.0], [0.0, -lv]
     minr, maxr = min(r1v, r2v) + shoulder_radius, max(r1v, r2v) + shoulder_radius
@@ -525,7 +537,8 @@ def ring(
             s2.ring(radius=20, ring_width=4).linear_extrude(height=5).show()
 
     """
-    assert angle is None, "ring(): only the full-annulus form is ported (no angle=)."
+    if angle is not None:
+        raise ValueError("ring(): only the full-annulus form is ported (no angle=).")
     r1v = _pick_radius(radius=radius1, diameter=diameter1, dflt=None)
     r2v = _pick_radius(radius=radius2, diameter=diameter2, dflt=None)
     rv = _pick_radius(radius=radius, diameter=diameter, dflt=None)

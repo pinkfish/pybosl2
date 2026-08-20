@@ -454,7 +454,8 @@ def cuboid(
     edge_set = resolve_edges(edges, except_edges or [])
     chamfer_v = chamfer if chamfer else 0
     rounding_v = rounding if rounding else 0
-    assert not (chamfer_v and rounding_v), "Cannot specify nonzero value for both chamfer and rounding"
+    if chamfer_v and rounding_v:
+        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
 
     corners8 = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 
@@ -960,8 +961,10 @@ def regular_prism(
             shape.show()
 
     """
-    assert isinstance(sides, int), f"regular_prism(): sides must be an integer >= 3, got {sides}"
-    assert sides > 2, f"regular_prism(): sides must be an integer >= 3, got {sides}"
+    if not (isinstance(sides, int)):
+        raise ValueError(f"regular_prism(): sides must be an integer >= 3, got {sides}")
+    if not (sides > 2):
+        raise ValueError(f"regular_prism(): sides must be an integer >= 3, got {sides}")
     cos_half = math.cos(math.pi / sides)
 
     def circumradius(spec_r: float | None) -> float:
@@ -991,7 +994,8 @@ def regular_prism(
     r2v = rounding2 if rounding2 is not None else (rounding if rounding is not None else 0)
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
-    assert not ((r1v or r2v) and (c1v or c2v)), "Cannot specify nonzero value for both chamfer and rounding"
+    if (r1v or r2v) and (c1v or c2v):
+        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
 
     use_anchor = anchor
     if use_anchor is None:

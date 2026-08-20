@@ -361,3 +361,28 @@ def test_validation_messages_name_the_accepted_spellings() -> None:
     for call, expected in cases:
         with pytest.raises(ValueError, match=expected):
             call()
+
+
+def test_no_assert_validates_user_input() -> None:
+    """Argument validation raises ValueError; `assert` is for internal invariants (SPEC E-4).
+
+    Asserts vanish under ``python -O``, so a validating assert means bad input silently produces
+    wrong geometry. The test for which is which (PLAN E-P2): if the message names something the
+    caller typed — a function call or a parameter — it is validation.
+    """
+    import ast
+
+    offenders: list[str] = []
+    for path in sorted(PACKAGE.rglob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not isinstance(node, ast.Assert) or node.msg is None:
+                continue
+            if isinstance(node.msg, ast.Constant):
+                message = str(node.msg.value)
+            elif isinstance(node.msg, ast.JoinedStr):
+                message = "".join(p.value for p in node.msg.values if isinstance(p, ast.Constant))
+            else:
+                continue
+            if "()" in message or "=" in message:
+                offenders.append(f"{path.relative_to(PACKAGE.parent)}:{node.lineno}: {message[:60]}")
+    assert not offenders, "asserts that validate user input:\n  " + "\n  ".join(offenders)

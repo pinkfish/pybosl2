@@ -193,15 +193,16 @@ def grid_copies(
     num_copies: int | Sequence[int] | np.ndarray | None = None,
 ) -> list[np.ndarray]:
     """Return copies laid out in a square or staggered (hex) grid."""
-    assert stagger in (
-        False,
-        True,
-        StaggerMode.ALT,
-    ), "grid_copies(): stagger must be False, True or 'alt'."
-    assert len(axes) == 2, "grid_copies(): invalid axes."
-    assert axes[0] in "xyz", "grid_copies(): invalid axes."
-    assert axes[1] in "xyz", "grid_copies(): invalid axes."
-    assert axes[0] != axes[1], "grid_copies(): invalid axes."
+    if stagger not in (False, True, StaggerMode.ALT):
+        raise ValueError("grid_copies(): stagger must be False, True or 'alt'.")
+    if not (len(axes) == 2):
+        raise ValueError("grid_copies(): invalid axes.")
+    if axes[0] not in "xyz":
+        raise ValueError("grid_copies(): invalid axes.")
+    if axes[1] not in "xyz":
+        raise ValueError("grid_copies(): invalid axes.")
+    if not (axes[0] != axes[1]):
+        raise ValueError("grid_copies(): invalid axes.")
     ai: dict[str, int] = {"x": 0, "y": 1, "z": 2}
 
     def permax(pt: Sequence[float]) -> np.ndarray:
@@ -297,9 +298,8 @@ def rot_copies(
     num_copies: int | None = None,
 ) -> list[np.ndarray]:
     """Return rotated copies about an axis, optionally offset into a ring."""
-    assert subrot or np.linalg.norm(_vec3(delta, 0.0)) > 0, (
-        "rot_copies(): subrot can only be False when delta is nonzero."
-    )
+    if not (subrot or np.linalg.norm(_vec3(delta, 0.0)) > 0):
+        raise ValueError("rot_copies(): subrot can only be False when delta is nonzero.")
     sang = sa + offset
     if num_copies is not None:
         angs = [] if num_copies <= 0 else [i / num_copies * 360 + sang for i in range(num_copies)]
@@ -504,8 +504,10 @@ def path_copies(
             distances = sorted((e - center) % length for e in ptlist)
         else:
             distances = [e + length / 2 - center for e in ptlist]
-    assert min(distances) >= -1e-9, "path_copies(): copies don't fit on the path."
-    assert max(distances) <= length + 1e-9, "path_copies(): copies don't fit on the path."
+    if not (min(distances) >= -1e-09):
+        raise ValueError("path_copies(): copies don't fit on the path.")
+    if not (max(distances) <= length + 1e-09):
+        raise ValueError("path_copies(): copies don't fit on the path.")
     distances = [min(max(dst, 0.0), length) for dst in distances]
     cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
@@ -849,7 +851,8 @@ class Distributable(ABC):
         dir_norm = float(np.linalg.norm(dir_arr))
         dirv = dir_arr / dir_norm if dir_norm else dir_arr
         cnt = len(children)
-        assert cnt >= 1, "distribute(): needs at least one child."
+        if not (cnt >= 1):
+            raise ValueError("distribute(): needs at least one child.")
         if sizes is None:
             extents = [
                 abs(float(np.dot(np.asarray(c.bounds()[1]), dirv) - np.dot(np.asarray(c.bounds()[0]), dirv)))

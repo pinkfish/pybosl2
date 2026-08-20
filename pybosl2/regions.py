@@ -180,7 +180,8 @@ class Region:
             A new :class:`Region`; *self* is unchanged.
 
         """
-        assert tolerance > 0, f"tolerance must be > 0, got {tolerance}"
+        if not (tolerance > 0):
+            raise ValueError(f"tolerance must be > 0, got {tolerance}")
         polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
         colours = self._polygon_colors or [self._color] * len(polys)
         pieces: list[tuple[Any, Any]] = []
@@ -632,7 +633,8 @@ class Region:
             A numpy array ``[[min_x, min_y], [max_x, max_y]]``.
 
         """
-        assert self.paths, "empty Region has no bounds"
+        if not (self.paths):
+            raise ValueError("empty Region has no bounds")
         all_pts = np.vstack([p.array for p in self.paths])
         return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
 

@@ -162,7 +162,8 @@ class KnuckleHinge:
             None.
 
         """
-        assert segs >= 2, "knuckle_hinge(): segs must be >= 2."
+        if not (segs >= 2):
+            raise ValueError("knuckle_hinge(): segs must be >= 2.")
         seglen = (length - (segs - 1) * gap) / segs
         mine = 1 if inner else 0
 

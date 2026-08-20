@@ -900,7 +900,8 @@ def _rack2d_path(
 ) -> list[list[float]]:
     a = _adendum(center)
     diameter = _dedendum(center, clearance)
-    assert a + diameter < height, "rack(): height must exceed adendum + dedendum."
+    if not (a + diameter < height):
+        raise ValueError("rack(): height must exceed adendum + dedendum.")
     xa = a * math.sin(math.radians(pressure_angle))
     xd = diameter * math.sin(math.radians(pressure_angle))
     left = -(teeth - 1) / 2 * center - 0.5 * center
@@ -1860,7 +1861,8 @@ class WormGear:
             None
 
         """
-        assert 10 <= worm_arc <= 60, "worm_gear(): worm_arc must be between 10 and 60 degrees."
+        if not (10 <= worm_arc <= 60):
+            raise ValueError("worm_gear(): worm_arc must be between 10 and 60 degrees.")
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         p = _pitch_radius(center, teeth)
         circ = 2 * PI * p
