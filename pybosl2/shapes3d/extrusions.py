@@ -399,7 +399,7 @@ def path_text(
 
 
 def _s2cross(
-    size: float | Sequence[float] = [10, 10],
+    size: float | Sequence[float] = (10, 10),
     arm_width: float | Sequence[float] | None = None,
 ) -> "Bosl2Shape2D":
     """Return the 2‑D cross polygon as a Bosl2Shape2D (internal helper for the 3‑D cross)."""
@@ -409,7 +409,7 @@ def _s2cross(
 
 
 def cross(
-    size: float | Sequence[float] = [10, 10],
+    size: float | Sequence[float] = (10, 10),
     height: float | None = None,
     arm_width: float | Sequence[float] | None = None,
     length: float | None = None,

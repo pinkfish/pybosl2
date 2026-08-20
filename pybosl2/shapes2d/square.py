@@ -519,7 +519,7 @@ def octagon(
 
 
 def right_triangle(
-    size: Sequence[float] = [1, 1],
+    size: Sequence[float] = (1, 1),
     center: bool | None = None,
     rounding: float = 0,
     chamfer: float = 0,

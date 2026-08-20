@@ -353,7 +353,7 @@ def cube(
 
 
 def cuboid(
-    size: float | Sequence[float] = [1, 1, 1],
+    size: float | Sequence[float] = (1, 1, 1),
     p1: Point | None = None,
     p2: Point | None = None,
     chamfer: float | None = None,
@@ -495,7 +495,7 @@ def prismoid(
     size1: Sequence[float],
     size2: Sequence[float],
     height: float | None = None,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     rounding: float | Sequence[float] = 0,
     rounding1: float | Sequence[float] | None = None,
     rounding2: float | Sequence[float] | None = None,
@@ -604,7 +604,7 @@ def octahedron(
 
 
 def wedge(
-    size: Sequence[float] = [1, 1, 1],
+    size: Sequence[float] = (1, 1, 1),
     center: bool | None = None,
     anchor: Anchor | Sequence[float] = FRONT.vector + LEFT.vector + BOTTOM.vector,
     spin: float = 0,
@@ -668,7 +668,7 @@ def rect_tube(
     size: float | Sequence[float] | None = None,
     isize: float | Sequence[float] | None = None,
     center: bool | None = None,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     wall: float | None = None,
     size1: float | Sequence[float] | None = None,
     size2: float | Sequence[float] | None = None,
@@ -760,6 +760,10 @@ def rect_tube(
     s2 = as2(size2) if size2 is not None else as2(size)
     i1 = as2(isize1) if isize1 is not None else as2(isize)
     i2 = as2(isize2) if isize2 is not None else as2(isize)
+    # An outer size with nothing said about the bore means "just make it a tube": derive the
+    # hole from a 1 mm wall rather than making the caller state the obvious (SPEC.md P-3).
+    if wall is None and i1 is None and i2 is None:
+        wall = 1.0
     size1_v = (
         s1
         if s1 is not None
@@ -780,14 +784,19 @@ def rect_tube(
         if i2 is not None
         else ([s2[0] - 2 * wall, s2[1] - 2 * wall] if (wall is not None and s2 is not None) else None)
     )
-    assert size1_v is not None, "rect_tube(): bad size/size1/size2 argument."
-    assert size2_v is not None, "rect_tube(): bad size/size1/size2 argument."
-    assert isize1_v is not None, "rect_tube(): bad isize/isize1/isize2 argument."
-    assert isize2_v is not None, "rect_tube(): bad isize/isize1/isize2 argument."
-    assert isize1_v[0] < size1_v[0], "rect_tube(): inner size is larger than outer size at the bottom."
-    assert isize1_v[1] < size1_v[1], "rect_tube(): inner size is larger than outer size at the bottom."
-    assert isize2_v[0] < size2_v[0], "rect_tube(): inner size is larger than outer size at the top."
-    assert isize2_v[1] < size2_v[1], "rect_tube(): inner size is larger than outer size at the top."
+    if size1_v is None or size2_v is None:
+        raise ValueError(
+            "rect_tube(): needs an outer size -- give size (or size1/size2), or an inner size with a wall thickness."
+        )
+    if isize1_v is None or isize2_v is None:
+        raise ValueError(
+            "rect_tube(): needs a bore -- give isize (or isize1/isize2), or a wall thickness to "
+            "derive it from the outer size."
+        )
+    if isize1_v[0] >= size1_v[0] or isize1_v[1] >= size1_v[1]:
+        raise ValueError(f"rect_tube(): bore {isize1_v} is not smaller than the outer size {size1_v} at the bottom.")
+    if isize2_v[0] >= size2_v[0] or isize2_v[1] >= size2_v[1]:
+        raise ValueError(f"rect_tube(): bore {isize2_v} is not smaller than the outer size {size2_v} at the top.")
 
     rounding1_v = force4f(rounding1 if rounding1 is not None else rounding)
     rounding2_v = force4f(rounding2 if rounding2 is not None else rounding)
@@ -859,7 +868,7 @@ def regular_prism(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     center: bool | None = None,
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,

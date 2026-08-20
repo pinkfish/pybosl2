@@ -82,7 +82,7 @@ def cylinder(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
@@ -247,7 +247,7 @@ def cyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
@@ -548,7 +548,7 @@ def xcyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
@@ -654,7 +654,7 @@ def ycyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
@@ -760,7 +760,7 @@ def zcyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = Anchor.TOP,
@@ -961,10 +961,11 @@ def tube(
     rad2 = orr2 if orr2 is not None else (irr2 + wall_v if irr2 is not None else None)
     irad1 = irr1 if irr1 is not None else (orr1 - wall_v if orr1 is not None else None)
     irad2 = irr2 if irr2 is not None else (orr2 - wall_v if orr2 is not None else None)
-    assert rad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    assert rad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    assert irad1 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
-    assert irad2 is not None, "tube(): must specify two of inner radius/diam, outer radius/diam, and wall width."
+    if rad1 is None or rad2 is None or irad1 is None or irad2 is None:
+        raise ValueError(
+            "tube(): needs two of the three sizes -- an inner radius/diameter, an outer "
+            "radius/diameter, and a wall thickness."
+        )
     assert irad1 <= rad1, "tube(): inner radius is larger than outer radius."
     assert irad2 <= rad2, "tube(): inner radius is larger than outer radius."
     use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)

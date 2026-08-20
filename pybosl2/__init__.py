@@ -26,6 +26,18 @@ from pybosl2.version import Version, __version__, version
 # the attribute is first accessed.
 
 _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
+    # backend selection
+    "current_backend": ("pybosl2._backend", "current_backend"),
+    "use_backend": ("pybosl2._backend", "use_backend"),
+    "set_default_backend": ("pybosl2._backend", "set_default_backend"),
+    "known_backends": ("pybosl2._backend", "known_backends"),
+    # ambient resolution defaults
+    "Resolution": ("pybosl2.defaults", "Resolution"),
+    "current_defaults": ("pybosl2.defaults", "current_defaults"),
+    "use_defaults": ("pybosl2.defaults", "use_defaults"),
+    "set_defaults": ("pybosl2.defaults", "set_defaults"),
+    "reset_defaults": ("pybosl2.defaults", "reset_defaults"),
+    "effective_defaults": ("pybosl2.solid", "effective_defaults"),
     # core types
     "Path": ("pybosl2.paths", "Path"),
     "CutPoint": ("pybosl2.paths", "CutPoint"),
@@ -38,7 +50,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "Bounds3D": ("pybosl2.bounds", "Bounds3D"),
     "CapSpec": ("pybosl2.caps", "CapSpec"),
     "CapType": ("pybosl2.caps", "CapType"),
+    "Bosl2Error": ("pybosl2.exceptions", "Bosl2Error"),
     "UnsupportedByBackendError": ("pybosl2.exceptions", "UnsupportedByBackendError"),
+    "CrossBackendError": ("pybosl2.exceptions", "CrossBackendError"),
     "Solid": ("pybosl2.solid", "Solid"),
     "Flat": ("pybosl2.flat", "Flat"),
     "Shape2D": ("pybosl2.flat", "Shape2D"),
@@ -189,16 +203,11 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> object:
     if name in _LAZY_EXPORTS:
-        parts = _LAZY_EXPORTS[name]
+        module_name, attribute = _LAZY_EXPORTS[name]
         import importlib
 
-        mod = importlib.import_module(parts[0])
-        if len(parts) == 3 and parts[1]:
-            obj = getattr(getattr(mod, parts[1]), parts[2])
-        elif parts[1]:
-            obj = getattr(mod, parts[1])
-        else:
-            obj = mod  # side-effect import only (empty attr name)
+        mod = importlib.import_module(module_name)
+        obj = getattr(mod, attribute) if attribute else mod  # empty attr name: the module itself
         globals()[name] = obj
         return obj
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

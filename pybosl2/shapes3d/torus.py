@@ -206,7 +206,11 @@ def torus(
     elif _or is not None and _r_min is not None:
         maj_rad = _or - _r_min
     else:
-        raise AssertionError("torus(): bad parameters.")
+        raise ValueError(
+            "torus(): needs enough radii to fix the major radius -- give major_radius/major_diameter, "
+            "or any two of inner_radius/inner_diameter, outer_radius/outer_diameter and "
+            "minor_radius/minor_diameter."
+        )
 
     if _r_min is not None:
         min_rad = _r_min
@@ -215,7 +219,10 @@ def torus(
     elif _or is not None:
         min_rad = _or - maj_rad
     else:
-        raise AssertionError("torus(): bad parameters.")
+        raise ValueError(
+            "torus(): needs enough radii to fix the minor radius -- give minor_radius/minor_diameter, "
+            "inner_radius/inner_diameter or outer_radius/outer_diameter alongside the major radius."
+        )
 
     use_anchor = _resolve_center_anchor(center, anchor, DOWN)
 

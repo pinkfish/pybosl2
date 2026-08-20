@@ -21,6 +21,7 @@ from functools import reduce
 from typing import TYPE_CHECKING, Any
 
 from pybosl2._edges_lang import Anchor
+from pybosl2.defaults import resolve_facets
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -223,8 +224,10 @@ def frag_count(
 ) -> int:
     """Return the number of polygon segments to approximate a circle of radius *radius*, mirroring.
 
-    OpenSCAD's $fn/$fa/$fs rules.
+    OpenSCAD's $fn/$fa/$fs rules.  Anything the caller left as None falls back to the ambient
+    defaults (:func:`pybosl2.defaults.use_defaults`) before OpenSCAD's own $fa=12 / $fs=2.
     """
+    fn, fa, fs = resolve_facets(fn, fa, fs)
     if fn is not None and fn >= 3:
         return int(math.floor(fn))
     fa = fa if fa else 12.0
