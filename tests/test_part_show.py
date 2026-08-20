@@ -51,15 +51,12 @@ ARGUMENTS: dict[str, tuple[Any, ...]] = {
     "WireBundle": ([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]], 3),
 }
 
-#: Parts whose geometry is slow enough that building it twice is not worth the coverage.
-SLOW = frozenset({"BevelGear", "WormGear", "Worm", "HerringboneGear"})
-
 
 def _part_classes() -> list[str]:
     names = []
     for name in parts.__all__:
         obj = getattr(parts, name)
-        if not inspect.isclass(obj) or not hasattr(obj, "show") or name in SLOW:
+        if not inspect.isclass(obj) or not hasattr(obj, "show"):
             continue
         names.append(name)
     return sorted(names)

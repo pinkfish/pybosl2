@@ -31,6 +31,10 @@ if TYPE_CHECKING:
 __all__ = [
     "Flat",
     "circle",
+    "ellipse",
+    "regular_ngon",
+    "star",
+    "trapezoid",
     "polygon",
     "rect",
     "square",
@@ -375,4 +379,268 @@ def text(
             fa=fa,
             fs=fs,
         ),
+    )
+
+
+def ellipse(
+    radius: float | Sequence[float] | None = None,
+    diameter: float | Sequence[float] | None = None,
+    *,
+    realign: bool = False,
+    anchor: Anchor | Sequence[float] = CENTER,
+    spin: float = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Flat:
+    """Return an ellipse on the active backend.
+
+    Args:
+        radius: Radius, or a per-axis pair.
+        diameter: Diameter, or a per-axis pair.
+        realign: Rotate by half a segment so a flat faces +X (CSG backend only).
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        fn: Arc smoothness override (CSG backend only).
+        fa: Arc smoothness override (CSG backend only).
+        fs: Arc smoothness override (CSG backend only).
+        res: Sampling resolution (SDF backend only).
+
+    Returns:
+        A 2-D shape on whichever backend is active.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2.flat import ellipse
+            ellipse(radius=[20, 10]).linear_extrude(height=4).show()
+
+    """
+    if current_backend() == "sdf":
+        from pybosl2.sdf.shapes2d import ellipse2d
+
+        return cast("Flat", ellipse2d(radius=radius, diameter=diameter, res=_resolve_res(res) or 10))
+
+    from pybosl2.shapes2d import ellipse as csg_ellipse
+
+    return cast(
+        "Flat",
+        csg_ellipse(radius=radius, diameter=diameter, realign=realign, anchor=anchor, spin=spin, fn=fn, fa=fa, fs=fs),
+    )
+
+
+def star(
+    tips: int = 5,
+    radius: float | None = None,
+    inner_radius: float | None = None,
+    *,
+    diameter: float | None = None,
+    inner_diameter: float | None = None,
+    step: int | None = None,
+    realign: bool = False,
+    anchor: Anchor | Sequence[float] = CENTER,
+    spin: float = 0,
+    res: int | None = None,
+) -> Flat:
+    """Return a star on the active backend.
+
+    Args:
+        tips: Number of points.
+        radius: Outer radius (to the tips).
+        inner_radius: Inner radius (to the valleys).
+        diameter: Outer diameter, instead of *radius*.
+        inner_diameter: Inner diameter, instead of *inner_radius*.
+        step: Skip-count star form, instead of an inner radius (CSG backend only).
+        realign: Rotate by half a point (CSG backend only).
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        res: Sampling resolution (SDF backend only).
+
+    Returns:
+        A 2-D shape on whichever backend is active.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2.flat import star
+            star(tips=6, radius=20, inner_radius=9).linear_extrude(height=4).show()
+
+    """
+    if current_backend() == "sdf":
+        from pybosl2.sdf.shapes2d import star2d
+
+        return cast(
+            "Flat",
+            star2d(
+                num_sides=tips,
+                radius=radius,
+                inner_radius=inner_radius,
+                diameter=diameter,
+                inner_diameter=inner_diameter,
+                res=_resolve_res(res) or 10,
+            ),
+        )
+
+    from pybosl2.shapes2d import star as csg_star
+
+    return cast(
+        "Flat",
+        csg_star(
+            tips=tips,
+            radius=radius,
+            inner_radius=inner_radius,
+            diameter=diameter,
+            inner_diameter=inner_diameter,
+            step=step,
+            realign=realign,
+            anchor=anchor,
+            spin=spin,
+        ),
+    )
+
+
+def regular_ngon(
+    sides: int = 6,
+    radius: float | None = None,
+    *,
+    diameter: float | None = None,
+    outer_radius: float | None = None,
+    outer_diameter: float | None = None,
+    rounding: float = 0,
+    realign: bool = False,
+    anchor: Anchor | Sequence[float] = CENTER,
+    spin: float = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+    res: int | None = None,
+) -> Flat:
+    """Return a regular polygon on the active backend.
+
+    Args:
+        sides: Number of sides.
+        radius: Radius to a vertex.
+        diameter: Diameter to a vertex, instead of *radius*.
+        outer_radius: Radius of the circumscribed circle.
+        outer_diameter: Diameter of the circumscribed circle.
+        rounding: Corner rounding radius (CSG backend only).
+        realign: Rotate by half a side (CSG backend only).
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        fn: Fragment count for the rounded corners; ambient default when omitted.
+        fa: Minimum fragment angle for the rounded corners.
+        fs: Minimum fragment size for the rounded corners.
+        res: Sampling resolution (SDF backend only).
+
+    Returns:
+        A 2-D shape on whichever backend is active.
+
+    Raises:
+        UnsupportedByBackendError: If *rounding* is asked for on the SDF backend, which has no
+            rounded-corner ngon.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2.flat import regular_ngon
+            regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()
+
+    """
+    if current_backend() == "sdf":
+        if rounding:
+            raise UnsupportedByBackendError(
+                "regular_ngon(rounding=)",
+                "sdf",
+                hint="the sdf ngon has no corner rounding; build it on the csg backend, or round "
+                "the field with .round() afterwards.",
+            )
+        from pybosl2.sdf.shapes2d import regular_ngon2d
+
+        return cast(
+            "Flat",
+            regular_ngon2d(
+                num_sides=sides,
+                radius=radius,
+                diameter=diameter,
+                outer_radius=outer_radius,
+                outer_diameter=outer_diameter,
+                res=_resolve_res(res) or 10,
+            ),
+        )
+
+    from pybosl2.shapes2d import regular_ngon as csg_ngon
+
+    return cast(
+        "Flat",
+        csg_ngon(
+            sides=sides,
+            radius=radius,
+            diameter=diameter,
+            outer_radius=outer_radius,
+            outer_diameter=outer_diameter,
+            rounding=rounding,
+            realign=realign,
+            anchor=anchor,
+            spin=spin,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+        ),
+    )
+
+
+def trapezoid(
+    height: float | None = None,
+    width1: float | None = None,
+    width2: float | None = None,
+    *,
+    angle: float | None = None,
+    shift: float = 0,
+    anchor: Anchor | Sequence[float] = CENTER,
+    spin: float = 0,
+    res: int | None = None,
+) -> Flat:
+    """Return a trapezoid on the active backend.
+
+    Give exactly three of *height*, *width1*, *width2* and *angle*.
+
+    Args:
+        height: Height of the trapezoid.
+        width1: Width of the bottom edge.
+        width2: Width of the top edge.
+        angle: Base angle in degrees.
+        shift: Shift of the top edge along X.
+        anchor: Anchor point.
+        spin: Z-axis rotation in degrees after anchor (CSG backend only).
+        res: Sampling resolution (SDF backend only).
+
+    Returns:
+        A 2-D shape on whichever backend is active.
+
+    Raises:
+        ValueError: If other than three of height/width1/width2/angle are given.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2.flat import trapezoid
+            trapezoid(height=10, width1=20, width2=12).linear_extrude(height=4).show()
+
+    """
+    if current_backend() == "sdf":
+        from pybosl2.sdf.shapes2d import trapezoid2d
+
+        return cast(
+            "Flat",
+            trapezoid2d(
+                height=height, width1=width1, width2=width2, angle=angle, shift=shift, res=_resolve_res(res) or 10
+            ),
+        )
+
+    from pybosl2.shapes2d import trapezoid as csg_trapezoid
+
+    return cast(
+        "Flat",
+        csg_trapezoid(height=height, width1=width1, width2=width2, angle=angle, shift=shift, anchor=anchor, spin=spin),
     )

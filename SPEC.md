@@ -648,6 +648,8 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | **PAR-1 / C-19 / B-5** | The SDF shape's `__getattr__` meshed the field to answer any method it lacked, returning a raw native handle — 19 names, including every directional move and all of colour | Moves and colour implemented natively (colour rides the field as metadata); attachment state moved to the CSG-only list; the fallback is a documented mesh-operations allowlist and everything else refuses, naming `.to_csg()` |
 | **R-5** | `fn=0` as the opt-out from an ambient `fn` was undocumented and untested | Documented in four places and covered by a test |
 | **Q-4** | The minimum-argument check covered only `pybosl2.solid` | Parametrised over the four public shape modules plus a parts probe; it immediately found eight more E-4 violations and one missing `__all__` |
+| **A-6** | The top level mixed neutral names with CSG-only ones, so an `sdf` block quietly built CSG geometry | The four with SDF twins dispatch through the façade; the rest refuse with a hint. A test asserts no top-level name returns a CSG shape inside an `sdf` block |
+| **B-3 / PAR-5** | The façade defaulted shared arguments to `None` and forwarded only what the caller passed, so an identical call could resolve differently per backend | 64 shared defaults lifted into the façade; backends filter by what their constructor declares; `effective_defaults()` reports the façade first. A convergence test asserts both backends place and size a bare call alike |
 | **A-4 / DOC-1** | `import pybosl2` pulled `webcolors` eagerly, so it failed inside the PythonSCAD app and broke 89 rendered examples; promoting path2d/path3d generated second pages for modules `paths.rst` already documented, giving 266 duplicate-object warnings | `Color` and `webcolors` are lazy (hex parsed locally); `_rstgen` skips modules a committed page documents; dataclass fields use `#:` comments. Docs build: 0 warnings |
 | **C-1 / E-3** | `CsgSolid` read `current_backend()` into its own tag, so a CSG solid built inside a `use_backend("sdf")` block claimed to be SDF and the cross-backend guard never fired | The tag is a class constant; `backend_only()` makes a backend's own constructors refuse elsewhere (64 of them) and `builds_with()` scopes CSG internals that legitimately build CSG |
 | **S-48 … S-50** | `show()` was reachable only through the native passthrough, so it was in no contract and — under Python 3.12's protocol rules — `isinstance(shape, Flat)` was false for every CSG shape | Declared on `Flat`/`Solid` and implemented as a real method on the CSG base, on `SdfSolid` (meshes, as rendering must) and on the 2-D SDF shape (refuses, naming the extrusion) |
@@ -659,27 +661,17 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **A-6** | The top level mixes backend-neutral names (`cuboid`, `circle`, `sphere`) with CSG-only ones (`star`, `cone`, `egg`, `roof`, `text3d`, `path_text`, and most of `shapes2d`), so under `use_backend("sdf")` some names quietly build on the wrong backend. Resolution: give the CSG-only ones façade constructors that dispatch, refusing on SDF where there is no equivalent. |
-| 2 | **E-4** | **277** `assert`s carry user-facing messages (13 converted so far) (`star(): must specify tips`, `base= must be a finite positive number`). Under `python -O` every one vanishes, so bad input silently yields wrong geometry. Public entry points are converted first; asserts stay only as genuine internal invariants. |
-| 3 | **DOC-2 / D-P5** | 27 façade callables — the layer §4 names as the recommended entry point — have no `Args:` section and no rendering example, so `help(pybosl2.cuboid)` tells a user nothing about `size`, `rounding` or the defaults. The backend-specific modules they delegate to are fully documented. |
-| 4 | **S-46a** | Parts import `pybosl2.shapes3d` directly, so `Screw(…)` builds a CSG solid whatever backend is active — `with use_backend("sdf")` silently yields a CSG part that cannot be combined with SDF geometry. Every part must build through the façade instead, refusing where a backend genuinely cannot express what it needs. |
-| 5 | **B-3 / PAR-5** | The façade is now *specified* as the owner of shared defaults, but not yet implemented: its constructors still default shared arguments to `None` and forward only what the caller passed, leaving each backend's own default in play. Closing this means lifting each shared default into the façade signature (≈20 constructors) and filtering forwarded arguments by what the target backend declares. Until then `effective_defaults()` is the way to see what a call resolves to, and `tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share` guards the four shapes it covers. |
-| 6 | **R-1** | **30 of 119** public curved-geometry callables still do not accept `fn`/`fa`/`fs` (50 at the start; 14 were reclassified as placement-only under R-1a and 6 fixed) — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink; R-1a is the rule for deciding which of the pinned entries are genuine debt rather than placement radii. |
-| 7 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
-| 8 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
-
-
-
-
-
-
-
-
+| 1 | **E-4** | **238** `assert`s carry user-facing messages (52 converted so far) (`star(): must specify tips`, `base= must be a finite positive number`). Under `python -O` every one vanishes, so bad input silently yields wrong geometry. Public entry points are converted first; asserts stay only as genuine internal invariants. |
+| 2 | **DOC-2 / D-P5** | 27 façade callables — the layer §4 names as the recommended entry point — have no `Args:` section and no rendering example, so `help(pybosl2.cuboid)` tells a user nothing about `size`, `rounding` or the defaults. The backend-specific modules they delegate to are fully documented. |
+| 3 | **S-46a** | Parts import `pybosl2.shapes3d` directly, so `Screw(…)` builds a CSG solid whatever backend is active — `with use_backend("sdf")` silently yields a CSG part that cannot be combined with SDF geometry. Every part must build through the façade instead, refusing where a backend genuinely cannot express what it needs. |
+| 4 | **R-1** | **29 of 119** public curved-geometry callables still do not accept `fn`/`fa`/`fs` (50 at the start; 14 were reclassified as placement-only under R-1a and 6 fixed) — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink; R-1a is the rule for deciding which of the pinned entries are genuine debt rather than placement radii. |
+| 5 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
+| 6 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
+| 7 | **PAR-5** | The SDF `pie_slice` stores the full disc's bounding box rather than the wedge's, so `bounds()` over-reports on a shape whose selling point is exact bounds. `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it. |
 
 
 
 ## 13. Change process
-
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
    (`feat(solid): ambient resolution defaults — R-4`).
 2. Adding a required parameter to an existing public callable is a breaking change and needs a

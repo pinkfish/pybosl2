@@ -67,3 +67,33 @@ def test_part_show_returns_the_shape() -> None:
         if inspect.signature(cls.show).return_annotation in (None, "None"):
             offenders.append(name)
     assert not offenders, f"parts whose show() returns None: {offenders}"
+
+
+def test_no_top_level_name_builds_on_the_wrong_backend() -> None:
+    """A top-level name honours the active backend or refuses; it never returns the other's shape.
+
+    SPEC A-6: `from pybosl2 import …` must not quietly hand back CSG geometry inside a
+    `use_backend("sdf")` block, because the mistake only surfaces later as a CrossBackendError.
+    """
+    import inspect
+
+    import pybosl2.sdf
+    from pybosl2._backend import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    offenders: list[str] = []
+    with use_backend("sdf"):
+        for name in pybosl2.__all__:
+            candidate = getattr(pybosl2, name)
+            if not inspect.isfunction(candidate):
+                continue
+            parameters = inspect.signature(candidate).parameters.values()
+            if any(p.default is inspect.Parameter.empty and p.kind is not p.VAR_POSITIONAL for p in parameters):
+                continue
+            try:
+                built = candidate()
+            except (UnsupportedByBackendError, ValueError, TypeError):
+                continue  # refused, or needs arguments -- both fine
+            if getattr(built, "backend", None) == "csg":
+                offenders.append(name)
+    assert not offenders, f"top-level names that built CSG geometry inside an sdf block: {offenders}"

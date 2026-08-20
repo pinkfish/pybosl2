@@ -136,6 +136,29 @@ class _FrepResult:
         r.offset = [self.offset[i] + v[i] for i in range(3)]
         return r
 
+    # -- what a real meshed solid answers once the field has been realized -------------------
+
+    def show(self):
+        """Register as the output, as the app's show() does; returns self so chains continue."""
+        self.shown = True
+        return self
+
+    def color(self, c, alpha=None):
+        self.colour = (c, alpha)
+        return self
+
+    def highlight(self):
+        self.modifier = "highlight"
+        return self
+
+    def background(self):
+        self.modifier = "ghost"
+        return self
+
+    def render(self):
+        self.rendered = True
+        return self
+
     def sample(self, px, py, pz):
         # Subtract the accumulated translate offset to get back into the SDF's own frame.
         return self.sdf(px - self.offset[0], py - self.offset[1], pz - self.offset[2])

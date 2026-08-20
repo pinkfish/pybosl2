@@ -38,6 +38,7 @@ from pybosl2._backend import (
     set_default_backend,
     use_backend,
 )
+from pybosl2._edges_lang import Anchor
 from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
 
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
@@ -46,7 +47,7 @@ _AMBIENT = frozenset({"fn", "fa", "fs", "res"})
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2._edges_lang import Anchor, EdgeAtom
+    from pybosl2._edges_lang import EdgeAtom
 
 _SHARED_3D = (
     "cube",
@@ -107,14 +108,14 @@ __all__ = [
 
 
 def cube(
-    size: float | Sequence[float] | None = None,
+    size: float | Sequence[float] | None = 1,
     *,
     chamfer: float | None = None,
     rounding: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -149,15 +150,15 @@ def cube(
 
 
 def cuboid(
-    size: float | Sequence[float] | None = None,
+    size: float | Sequence[float] | None = (1, 1, 1),
     *,
     chamfer: float | None = None,
     rounding: float | None = None,
-    edges: EdgeAtom | list[EdgeAtom] | None = None,
+    edges: EdgeAtom | list[EdgeAtom] | None = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -209,10 +210,10 @@ def cyl(
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
-    shift: Sequence[float] | None = None,
+    shift: Sequence[float] | None = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -276,8 +277,8 @@ def cylinder(
     diameter1: float | None = None,
     diameter2: float | None = None,
     anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -323,11 +324,11 @@ def cylinder(
 
 
 def octahedron(
-    size: float | None = None,
+    size: float | None = 1,
     *,
-    anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     res: int | None = None,
 ) -> Solid:
     """Return an octahedron on the active backend.
@@ -346,12 +347,12 @@ def octahedron(
 def onion(
     radius: float | None = None,
     *,
-    angle: float | None = None,
+    angle: float | None = 45,
     cap_height: float | None = None,
     diameter: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -389,17 +390,17 @@ def pie_slice(
     height: float | None = None,
     radius: float | None = None,
     *,
-    angle: float | None = None,
+    angle: float | None = 30,
     radius1: float | None = None,
     radius2: float | None = None,
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
     length: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -444,12 +445,12 @@ def prismoid(
     size2: Sequence[float],
     *,
     height: float | None = None,
-    shift: Sequence[float] | None = None,
+    shift: Sequence[float] | None = (0, 0),
     length: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.BOTTOM,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -491,13 +492,13 @@ def rect_tube(
     *,
     isize: float | Sequence[float] | None = None,
     wall: float | None = None,
-    rounding: float | Sequence[float] | None = None,
-    inner_rounding: float | Sequence[float] | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
+    rounding: float | Sequence[float] | None = 0,
+    inner_rounding: float | Sequence[float] | None = 0,
+    anchor: Anchor | Sequence[float] | None = Anchor.BOTTOM.vector,
     length: float | None = None,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -551,11 +552,11 @@ def regular_prism(
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
-    realign: bool | None = None,
+    realign: bool | None = False,
     anchor: Anchor | Sequence[float] | None = None,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -605,9 +606,9 @@ def sphere(
     radius: float | None = None,
     *,
     diameter: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -643,9 +644,9 @@ def spheroid(
     radius: float | None = None,
     *,
     diameter: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -681,16 +682,16 @@ def teardrop(
     height: float | None = None,
     radius: float | None = None,
     *,
-    angle: float | None = None,
+    angle: float | None = 45,
     cap_height: float | None = None,
     radius1: float | None = None,
     radius2: float | None = None,
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -739,10 +740,10 @@ def torus(
     inner_radius: float | None = None,
     outer_diameter: float | None = None,
     inner_diameter: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -796,10 +797,10 @@ def tube(
     chamfer: float | None = None,
     chamfer1: float | None = None,
     chamfer2: float | None = None,
-    anchor: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -844,12 +845,12 @@ def tube(
 
 
 def wedge(
-    size: Sequence[float] | None = None,
+    size: Sequence[float] | None = (1, 1, 1),
     *,
-    anchor: Anchor | Sequence[float] | None = None,
+    anchor: Anchor | Sequence[float] | None = Anchor.BOTTOM_FRONT_LEFT.vector,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     res: int | None = None,
 ) -> Solid:
     """Return a wedge on the active backend.
@@ -884,8 +885,8 @@ def xcyl(
     rounding2: float | None = None,
     anchor: Anchor | Sequence[float] | None = None,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -948,8 +949,8 @@ def ycyl(
     rounding2: float | None = None,
     anchor: Anchor | Sequence[float] | None = None,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1012,8 +1013,8 @@ def zcyl(
     rounding2: float | None = None,
     anchor: Anchor | Sequence[float] | None = None,
     center: bool | None = None,
-    spin: float | None = None,
-    orient: Anchor | Sequence[float] | None = None,
+    spin: float | None = 0,
+    orient: Anchor | Sequence[float] | None = Anchor.TOP,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1072,9 +1073,10 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]
         backend: Backend to report for; the active one by default.
 
     Returns:
-        Each parameter of that backend's constructor mapped to its default, omitting the ones with
-        no default (the caller must supply those) and the ambient resolution knobs, which come
-        from :func:`pybosl2.defaults.use_defaults`.
+        Each parameter mapped to the value a bare call resolves to: the façade's own default for
+        everything both backends understand, plus the backend's own for its exclusive options.
+        Parameters with no default (the caller must supply those) and the ambient resolution
+        knobs are omitted -- the latter come from :func:`pybosl2.defaults.use_defaults`.
 
     Raises:
         ValueError: If the backend has no constructor by that name.
@@ -1085,13 +1087,23 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]
         (1, 1, 1)
 
     """
+    facade = globals().get(shape)
+    owned: dict[str, Any] = {}
+    if inspect.isfunction(facade):
+        # the façade owns the default for everything both backends understand (SPEC B-3)
+        owned = {
+            name: parameter.default
+            for name, parameter in inspect.signature(facade).parameters.items()
+            if parameter.default is not inspect.Parameter.empty and name not in _AMBIENT
+        }
     constructor = get_backend(backend).constructor(shape)
     parameters = inspect.signature(constructor).parameters
-    return {
+    backend_own = {
         name: parameter.default
         for name, parameter in parameters.items()
-        if parameter.default is not inspect.Parameter.empty and name not in _AMBIENT
+        if parameter.default is not inspect.Parameter.empty and name not in _AMBIENT and name not in owned
     }
+    return {**owned, **backend_own}
 
 
 def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> Solid:

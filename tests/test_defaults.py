@@ -127,23 +127,70 @@ def test_effective_defaults_rejects_an_unknown_shape() -> None:
 
 
 def test_backends_agree_on_the_defaults_they_share() -> None:
-    """Where both backends declare the same parameter with a real default, they must match."""
+    """Every façade shape, not a spot-check: an omitted argument means the same on both backends.
+
+    The façade owns the default for anything both backends understand (SPEC B-3) and forwards it,
+    so the two can only diverge on options exclusive to one of them.
+    """
     import pybosl2.sdf.shapes3d as sdf_shapes
     import pybosl2.shapes3d as csg_shapes
+    import pybosl2.solid as facade
 
-    for name in ("cube", "octahedron", "onion", "pie_slice"):
-        csg = inspect.signature(getattr(csg_shapes, name)).parameters
-        sdf = inspect.signature(getattr(sdf_shapes, name)).parameters
-        for param, csg_p in csg.items():
-            sdf_p = sdf.get(param)
-            if sdf_p is None or param in {"fn", "fa", "fs", "res", "anchor"}:
+    ambient = {"fn", "fa", "fs", "res"}
+    checked = 0
+    for name in facade.__all__:
+        function = getattr(facade, name)
+        if not inspect.isfunction(function) or name in {"effective_defaults", "given_arguments"}:
+            continue
+        csg = getattr(csg_shapes, name, None)
+        sdf = getattr(sdf_shapes, name, None)
+        if csg is None or sdf is None:
+            continue
+        facade_params = inspect.signature(function).parameters
+        csg_params = inspect.signature(csg).parameters
+        sdf_params = inspect.signature(sdf).parameters
+        for param, declared in facade_params.items():
+            if param in ambient or declared.default is inspect.Parameter.empty:
                 continue
-            if csg_p.default in (None, inspect.Parameter.empty) or sdf_p.default in (
-                None,
-                inspect.Parameter.empty,
-            ):
+            if param not in csg_params or param not in sdf_params:
                 continue
-            assert csg_p.default == sdf_p.default, f"{name}({param}=) differs between backends"
+            checked += 1
+            # the façade's value is what both receive; a backend default only shows through when
+            # the façade leaves the argument as None ("not given")
+            if declared.default is not None:
+                continue
+            csg_default = csg_params[param].default
+            sdf_default = sdf_params[param].default
+            if inspect.Parameter.empty in (csg_default, sdf_default):
+                continue
+            if csg_default is None or sdf_default is None:
+                continue
+            assert _same_default(csg_default, sdf_default), (
+                f"{name}({param}=) resolves differently per backend: csg={csg_default!r} sdf={sdf_default!r}"
+            )
+    assert checked > 100, f"only {checked} shared parameters checked"
+
+
+def _same_default(left: object, right: object) -> bool:
+    """True if two spellings of a default mean the same thing (Anchor.CENTER vs [0, 0, 0])."""
+    if left == right:
+        return True
+    try:
+        return [float(x) for x in getattr(left, "vector", left)] == [  # type: ignore[union-attr]
+            float(x)
+            for x in getattr(right, "vector", right)  # type: ignore[union-attr]
+        ]
+    except (TypeError, ValueError):
+        return False
+
+
+def test_the_facade_owns_the_shared_defaults() -> None:
+    """A bare call resolves to the façade's own value, not to whatever a backend happened to pick."""
+    from pybosl2.solid import cuboid, effective_defaults
+
+    assert inspect.signature(cuboid).parameters["size"].default == (1, 1, 1)
+    assert effective_defaults("cuboid")["size"] == (1, 1, 1)
+    assert effective_defaults("cuboid", "sdf")["size"] == (1, 1, 1)
 
 
 # --- the rules themselves (SPEC.md D-1, D-3) ----------------------------------------------

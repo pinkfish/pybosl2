@@ -25,6 +25,7 @@ from __future__ import annotations
 import contextlib
 import contextvars
 import functools
+import inspect
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, Self, TypeVar, cast, runtime_checkable
 
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
@@ -51,6 +52,7 @@ def given_arguments(arguments: dict[str, Any]) -> dict[str, Any]:
 __all__ = [
     "BackendName",
     "given_arguments",
+    "for_backend",
     "backend_only",
     "builds_with",
     "current_backend",
@@ -179,6 +181,40 @@ def builds_with(backend: str) -> "Callable[[_F], _F]":
         return cast("_F", scoped)
 
     return decorate
+
+
+@functools.lru_cache(maxsize=None)
+def accepted_parameters(constructor: "Callable[..., Any]") -> frozenset[str]:
+    """Return the parameter names *constructor* declares (cached per callable).
+
+    The façade owns the default for every argument both backends understand (SPEC B-3) and always
+    forwards it, so each backend filters by what it actually declares rather than relying on the
+    caller to have omitted the ones it does not know (PLAN F-P2).
+    """
+    try:
+        parameters = inspect.signature(constructor).parameters
+    except (TypeError, ValueError):  # pragma: no cover - signature-less callables
+        return frozenset()
+    if any(p.kind is p.VAR_KEYWORD for p in parameters.values()):
+        return frozenset(parameters) | {"**"}
+    return frozenset(parameters)
+
+
+def for_backend(constructor: "Callable[..., Any]", arguments: "Mapping[str, Any]") -> dict[str, Any]:
+    """Return just the *arguments* this constructor can take.
+
+    Args:
+        constructor: The backend constructor about to be called.
+        arguments: Everything the façade declared, defaults included.
+
+    Returns:
+        The subset the constructor declares; a constructor taking ``**kwargs`` gets them all.
+
+    """
+    accepted = accepted_parameters(constructor)
+    if "**" in accepted:
+        return dict(arguments)
+    return {name: value for name, value in arguments.items() if name in accepted}
 
 
 def supports(backend: str, feature: str) -> bool:

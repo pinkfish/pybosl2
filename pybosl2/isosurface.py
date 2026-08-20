@@ -144,8 +144,10 @@ def mb_sphere(
 
     """
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
-    assert rr, "mb_sphere(): need a positive radius or diameter."
-    assert rr > 0, "mb_sphere(): need a positive radius or diameter."
+    if not (rr):
+        raise ValueError("mb_sphere(): need a positive radius or diameter.")
+    if not (rr > 0):
+        raise ValueError("mb_sphere(): need a positive radius or diameter.")
     neg = -1 if negative else 1
 
     def field(pts: np.ndarray) -> np.ndarray:
@@ -191,7 +193,8 @@ def mb_cuboid(
             ).polyhedron().show()
 
     """
-    assert 0 <= squareness <= 1, "mb_cuboid(): squareness must be in [0, 1]."
+    if not (0 <= squareness <= 1):
+        raise ValueError("mb_cuboid(): squareness must be in [0, 1].")
     xp = _squircle_se_exponent(squareness)
     inv = np.array([2 / size] * 3, dtype=float) if isinstance(size, (int, float)) else 2 / np.asarray(size, dtype=float)
     neg = -1 if negative else 1
@@ -247,10 +250,14 @@ def mb_torus(
         (_pick_radius(radius=major_radius, diameter=major_diameter, dflt=None)),
         (_pick_radius(radius=minor_radius, diameter=minor_diameter, dflt=None)),
     )
-    assert rmaj, "mb_torus(): need positive major_radius and minor_radius."
-    assert rmin, "mb_torus(): need positive major_radius and minor_radius."
-    assert rmaj > 0, "mb_torus(): need positive major_radius and minor_radius."
-    assert rmin > 0, "mb_torus(): need positive major_radius and minor_radius."
+    if not (rmaj):
+        raise ValueError("mb_torus(): need positive major_radius and minor_radius.")
+    if not (rmin):
+        raise ValueError("mb_torus(): need positive major_radius and minor_radius.")
+    if not (rmaj > 0):
+        raise ValueError("mb_torus(): need positive major_radius and minor_radius.")
+    if not (rmin > 0):
+        raise ValueError("mb_torus(): need positive major_radius and minor_radius.")
     neg = -1 if negative else 1
 
     def field(pts: np.ndarray) -> np.ndarray:
@@ -287,12 +294,17 @@ def mb_capsule(
 
     """
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
-    assert height, "mb_capsule(): need positive height and radius."
-    assert rr, "mb_capsule(): need positive height and radius."
-    assert height > 0, "mb_capsule(): need positive height and radius."
-    assert rr > 0, "mb_capsule(): need positive height and radius."
+    if not (height):
+        raise ValueError("mb_capsule(): need positive height and radius.")
+    if not (rr):
+        raise ValueError("mb_capsule(): need positive height and radius.")
+    if not (height > 0):
+        raise ValueError("mb_capsule(): need positive height and radius.")
+    if not (rr > 0):
+        raise ValueError("mb_capsule(): need positive height and radius.")
     hl = (height - 2 * rr) / 2
-    assert hl > 0, "mb_capsule(): total length must exceed the two rounded ends."
+    if not (hl > 0):
+        raise ValueError("mb_capsule(): total length must exceed the two rounded ends.")
     neg = -1 if negative else 1
 
     def field(pts: np.ndarray) -> np.ndarray:
@@ -332,13 +344,18 @@ def mb_disk(
 
     """
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
-    assert height, "mb_disk(): need positive height and radius."
-    assert rr, "mb_disk(): need positive height and radius."
-    assert height > 0, "mb_disk(): need positive height and radius."
-    assert rr > 0, "mb_disk(): need positive height and radius."
+    if not (height):
+        raise ValueError("mb_disk(): need positive height and radius.")
+    if not (rr):
+        raise ValueError("mb_disk(): need positive height and radius.")
+    if not (height > 0):
+        raise ValueError("mb_disk(): need positive height and radius.")
+    if not (rr > 0):
+        raise ValueError("mb_disk(): need positive height and radius.")
     hl = height / 2
     ri = rr - hl
-    assert ri > 0, "mb_disk(): diameter must exceed the thickness."
+    if not (ri > 0):
+        raise ValueError("mb_disk(): diameter must exceed the thickness.")
     neg = -1 if negative else 1
 
     def field(pts: np.ndarray) -> np.ndarray:
@@ -373,7 +390,8 @@ def mb_octahedron(
         AssertionError: If *squareness* is not in ``[0, 1]``.
 
     """
-    assert 0 <= squareness <= 1, "mb_octahedron(): squareness must be in [0, 1]."
+    if not (0 <= squareness <= 1):
+        raise ValueError("mb_octahedron(): squareness must be in [0, 1].")
     xp = _squircle_se_exponent(squareness)
 
     def _octdist(p: np.ndarray) -> np.ndarray:
@@ -432,9 +450,12 @@ def mb_connector(
 
     rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
     a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
-    assert rr, "mb_connector(): need distinct points and positive radius."
-    assert rr > 0, "mb_connector(): need distinct points and positive radius."
-    assert not np.array_equal(a, b), "mb_connector(): need distinct points and positive radius."
+    if not (rr):
+        raise ValueError("mb_connector(): need distinct points and positive radius.")
+    if not (rr > 0):
+        raise ValueError("mb_connector(): need distinct points and positive radius.")
+    if np.array_equal(a, b):
+        raise ValueError("mb_connector(): need distinct points and positive radius.")
     neg = -1 if negative else 1
     dc: np.ndarray = b - a
     height: float = float(np.linalg.norm(dc)) / 2
@@ -496,7 +517,8 @@ def metaballs2d(
             Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
 
     """
-    assert spec, "metaballs2d(): the spec is empty."
+    if not (spec):
+        raise ValueError("metaballs2d(): the spec is empty.")
     from pybosl2.vnf import contour
 
     invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in spec]

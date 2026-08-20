@@ -55,7 +55,6 @@ __all__ = [
     "chain_hull",
     "minkowski_difference",
     "Extrudable",
-    "Miscellaneous",
 ]
 
 
@@ -189,10 +188,14 @@ def cylindrical_extrude(
 
     irv = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
     orv = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
-    assert irv is not None, "cylindrical_extrude(): give positive inner and outer radius/diameter."
-    assert orv is not None, "cylindrical_extrude(): give positive inner and outer radius/diameter."
-    assert irv > 0, "cylindrical_extrude(): give positive inner and outer radius/diameter."
-    assert orv > 0, "cylindrical_extrude(): give positive inner and outer radius/diameter."
+    if not (irv is not None):
+        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+    if not (orv is not None):
+        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+    if not (irv > 0):
+        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+    if not (orv > 0):
+        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
     circumf = 2 * math.pi * orv
     if size is None:
         size = [circumf, 1000.0]
@@ -246,7 +249,8 @@ def chain_hull(*objects: object) -> Bosl2Solid:
     from pybosl2.shapes3d import Bosl2Solid
 
     objs = list(objects[0]) if len(objects) == 1 and isinstance(objects[0], (list, tuple)) else list(objects)
-    assert objs, "chain_hull(): needs at least one object."
+    if not objs:
+        raise ValueError("chain_hull(): needs at least one shape to hull.")
     natives = [unwrap(o) for o in objs]
     if len(natives) == 1:
         return Bosl2Solid(natives[0])
@@ -266,7 +270,8 @@ def minkowski_difference(base: object, *diffs: object, size: float = 1000, conve
     raw = list(diffs[0]) if len(diffs) == 1 and isinstance(diffs[0], (list, tuple)) else list(diffs)
     # Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.
     ds = [unwrap(d) for d in raw]
-    assert ds, "minkowski_difference(): needs at least one diff shape."
+    if not (ds):
+        raise ValueError("minkowski_difference(): needs at least one diff shape.")
     center, sz = Bosl2Solid(b).bounds() if isinstance(base, Bosl2Solid) else _native_bounds(b)
     box0 = _cube([sz[i] for i in range(3)], center=True).translate([float(c) for c in center])
     box1 = _cube([sz[i] + 2 for i in range(3)], center=True).translate([float(c) for c in center])
@@ -310,12 +315,15 @@ class Extrudable:
         """
         from pybosl2.shapes3d import Bosl2Solid
 
-        assert len(self[0]) == 2, "path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."  # type: ignore[index]
+        if not (len(self[0]) == 2):  # type: ignore[index]
+            raise ValueError("path_extrude2d(): the path must be 2-D (use path_extrude for 3-D).")
         is_closed = self.closed if closed is None else closed  # type: ignore[attr-defined]
-        assert not (caps and is_closed), "path_extrude2d(): cannot cap a closed extrusion."
+        if caps and is_closed:
+            raise ValueError("path_extrude2d(): cannot cap a closed extrusion.")
         pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]  # type: ignore[attr-defined]
         sides = len(pts)
-        assert sides >= 2, "path_extrude2d(): need at least two points."
+        if not (sides >= 2):
+            raise ValueError("path_extrude2d(): need at least two points.")
         if s is None:
             min_x = min(p[0] for p in pts)
             min_y = min(p[1] for p in pts)
@@ -359,7 +367,8 @@ class Extrudable:
                 cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
                 parts.append(cap)
-        assert parts, "path_extrude2d(): nothing to extrude."
+        if not (parts):
+            raise ValueError("path_extrude2d(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
     def path_extrude(
@@ -383,7 +392,8 @@ class Extrudable:
         dim = len(self[0])  # type: ignore[index]
         path: list[list[float]] = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]  # type: ignore[attr-defined]
         sides = len(path)
-        assert sides >= 2, "path_extrude(): need at least two points."
+        if not (sides >= 2):
+            raise ValueError("path_extrude(): need at least two points.")
         parr = [np.asarray(p) for p in path]
         rotmats = []
         acc = np.eye(4)
@@ -426,114 +436,11 @@ class Extrudable:
                 .translate([float(c) for c in pt2])
             )
             parts.append((ext - c1) - c2)
-        assert parts, "path_extrude(): nothing to extrude."
+        if not (parts):
+            raise ValueError("path_extrude(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
 
 # ---------------------------------------------------------------------------
 # Section: Miscellaneous mixin (Bosl2Solid)
 # ---------------------------------------------------------------------------
-
-
-class Miscellaneous:
-    """Mixin adding bounding_box / offset3d / round3d / chain_hull / minkowski_difference as methods.
-
-    on :class:`~pybosl2.shapes3d.Bosl2Solid`.  Requires ``_wrap`` (provided by
-    :class:`~pybosl2._shape.BaseShape`).
-    """
-
-    def bounding_box(self, excess: float = 0) -> Bosl2Solid:
-        """Return the smallest axis-aligned cuboid containing this solid, grown by *excess*.
-
-        Uses the native bounding box, so it is exact and fast (BOSL2's projection/minkowski trick is
-        not needed here).
-        """
-        from pybosl2.shapes3d import cuboid
-
-        center, size = self.bounds()  # type: ignore[attr-defined]
-        return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
-
-    def offset3d(
-        self,
-        radius: float,
-        size: float = 1000,
-        convexity: int = 10,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Expand (or, for negative *radius*, contract) the surface of this solid by *radius*.
-
-        Uses ``minkowski()`` with a sphere and is *very* slow; use sparingly.
-
-        Args:
-            radius: Distance to expand by; negative contracts.
-            size: Size of the enclosing cube used for the negative case.
-            convexity: Accepted for signature compatibility; unused.
-            fn: Facet count for the minkowski sphere; ambient default when omitted.
-            fa: Minimum fragment angle for that sphere.
-            fs: Minimum fragment size for that sphere.
-
-        Returns:
-            The offset solid.
-
-        """
-        _ = convexity
-        from pythonscad import cube as _cube
-        from pythonscad import minkowski as _mink
-        from pythonscad import sphere as _sphere
-
-        from pybosl2._helpers import frag_count as _frag_count
-
-        if radius == 0:
-            return self  # type: ignore[return-value]
-        sides = max(8, _frag_count(abs(radius), fn, fa, fs))
-        sides = int(math.ceil(sides / 4) * 4)
-        if radius > 0:
-            return self._wrap(_mink(self.shape, _sphere(radius, fn=sides)))  # type: ignore[attr-defined, no-any-return]
-        big1 = _cube([size * 1.02] * 3, center=True)
-        big2 = _cube([size] * 3, center=True)
-        return self._wrap(big2 - _mink(big1 - self.shape, _sphere(-radius, fn=sides)))  # type: ignore[attr-defined, no-any-return]
-
-    def round3d(
-        self,
-        radius: float | None = None,
-        outer_radius: float | None = None,
-        inner_radius: float | None = None,
-        size: float = 1000,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> Bosl2Solid:
-        """Round the corners of this solid: *radius* rounds all, *outer_radius* only convex,.
-
-        *inner_radius* only concave. Uses ``offset3d`` three times and is extremely slow.
-
-        Args:
-            radius: Rounding radius for every corner.
-            outer_radius: Rounding radius for convex corners only.
-            inner_radius: Rounding radius for concave corners only.
-            size: Size of the enclosing cube used by :meth:`offset3d`.
-            fn: Facet count for the rounding spheres; ambient default when omitted.
-            fa: Minimum fragment angle for those spheres.
-            fs: Minimum fragment size for those spheres.
-
-        Returns:
-            The rounded solid.
-
-        """
-        orr = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
-        irr = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
-        return (
-            self.offset3d(orr, size=size, fn=fn, fa=fa, fs=fs)
-            .offset3d(-irr - orr, size=size, fn=fn, fa=fa, fs=fs)
-            .offset3d(irr, size=size, fn=fn, fa=fa, fs=fs)
-        )
-
-    def chain_hull(self, *others: object) -> Bosl2Solid:
-        """Return this solid chain-hulled with *others*, in order (see :func:`chain_hull`)."""
-        return chain_hull(self, *others)
-
-    def minkowski_difference(self, *diffs: object, size: float = 1000) -> Bosl2Solid:
-        """Carve *diffs* out of this solid's surface (see :func:`minkowski_difference`)."""
-        return minkowski_difference(self, *diffs, size=size)

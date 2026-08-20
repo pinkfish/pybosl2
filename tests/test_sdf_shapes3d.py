@@ -520,7 +520,7 @@ class TestTubes:
         assert size[0] >= 8, "outer diameter = 10"
 
     def test_tube_requires_enough_parameters(self) -> None:
-        with pytest.raises(AssertionError):
+        with pytest.raises(ValueError, match="two of the three sizes"):
             sdf_s3d.tube(height=10)
 
     def test_rect_tube(self) -> None:

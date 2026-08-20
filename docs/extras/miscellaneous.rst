@@ -45,7 +45,7 @@ Coverage of BOSL2 ``miscellaneous.scad``
      - :func:`~pybosl2.miscellaneous` -- wrap a 2-D profile around a cylinder.
    * - ``bounding_box``
      - ported
-     - :meth:`~pybosl2.miscellaneous.Miscellaneous.bounding_box` -- uses the native bbox (exact and
+     - :meth:`~pybosl2.shapes3d.Bosl2Solid.bounding_box` -- uses the native bbox (exact and
        fast; BOSL2's projection/minkowski trick isn't needed). ``planar`` is not ported (the host
        is always a 3-D solid).
    * - ``chain_hull``
@@ -57,7 +57,7 @@ Coverage of BOSL2 ``miscellaneous.scad``
      - :func:`~pybosl2.miscellaneous` and the method form.
    * - ``offset3d`` / ``round3d``
      - ported
-     - :meth:`~pybosl2.miscellaneous.Miscellaneous.offset3d` / :meth:`~pybosl2.miscellaneous.Miscellaneous.round3d`
+     - :meth:`~pybosl2.shapes3d.Bosl2Solid.offset3d` / :meth:`~pybosl2.shapes3d.Bosl2Solid.round3d`
        -- minkowski-based; **very** slow, as in BOSL2.
 
 Examples
@@ -94,10 +94,7 @@ API reference
 .. automodule:: pybosl2.miscellaneous
    :members:
    :undoc-members:
-   :exclude-members: Extrudable, Miscellaneous
+   :exclude-members: Extrudable
 
 .. autoclass:: pybosl2.miscellaneous.Extrudable
-   :members:
-
-.. autoclass:: pybosl2.miscellaneous.Miscellaneous
    :members:

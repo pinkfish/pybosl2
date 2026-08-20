@@ -117,11 +117,12 @@ signature, not asserted (`star(tips=None)` is the same defect as the old `prismo
 a test that greps for the pattern so it cannot come back.
 
 
-**In progress — 13 of 290 converted.** Done: the shapes2d entry points reachable with no arguments
+**In progress — 52 of 290 converted; 238 remain.** Done: the shapes2d entry points reachable with no arguments
 (`arc`, `ring` ×3, `round2d`, `shell2d` ×2, `hull`, `trapezoid`), `shapes3d.cross`,
 `sdf.shapes2d.trapezoid2d`, and `rounding.round_corners` ×4. Each now names the accepted spellings,
 and the six tests that asserted `AssertionError` were updated to assert `ValueError` **and its
-message**. Remaining batches are unchanged below; 277 asserts with user-facing messages are left.
+message**. `isosurface.py` (22) and `miscellaneous.py` (11) were converted wholesale with an AST pass, plus
+the SDF `tube`/`rect_tube` and `chain_hull`. Remaining batches are unchanged below.
 
 ---
 
@@ -232,7 +233,7 @@ re-declared on `Flat`.
 
 ---
 
-## T2 — Give the façade ownership of shared defaults
+## T2 — Give the façade ownership of shared defaults ✅
 
 **Closes:** §12.2 item 9 (B-3, PAR-5) · **Implements:** PLAN F-P1 … F-P4 · **Size:** L
 **Risk:** medium — behaviour-affecting
@@ -252,9 +253,24 @@ passed, so an identical call can resolve differently per backend.
 **Done when:** the extended agreement test passes over all façade shapes; `effective_defaults()`
 needs no change (PLAN F-P4); no golden STL shifts.
 
+
+**Landed.** 64 shared defaults lifted into the façade signatures (`size=(1, 1, 1)`,
+`anchor=Anchor.CENTER`, `orient=Anchor.TOP`, `spin=0`, `edges=Anchor.ALL`, `angle=45`, …), and both
+backends now filter what they are handed by what their constructor declares (`for_backend()`), so
+the façade can forward every default it owns without a backend choking on an option it lacks.
+`effective_defaults()` reports the façade's value first and the backend's only for its exclusive
+options. The audit found exactly one disagreement across 19 constructors — `anchor`, and only as
+two spellings of the same vector — so no behaviour was chosen away. Tests:
+`test_backends_agree_on_the_defaults_they_share` (now every façade shape, 100+ parameters),
+`test_the_facade_owns_the_shared_defaults`,
+`test_the_same_call_builds_the_same_geometry_on_both_backends`.
+
+Two E-4 asserts in the SDF backend (`tube`, `rect_tube`) became reachable once defaults were
+forwarded, and were converted to `ValueError` with them.
+
 ---
 
-## T2b — Make the top level backend-neutral
+## T2b — Make the top level backend-neutral ✅
 
 **Closes:** §12.2 item 2 (A-6) · **Implements:** PLAN M-2a, B-P1 · **Size:** M · **Risk:** low
 
@@ -301,6 +317,16 @@ the three attachment properties joined `CSG_ONLY_FEATURES`. The fallback is now 
 else refuses, naming `.to_csg()`. No public CSG shape method reaches the mesher any more. Tests:
 `test_sdf_shapes_keep_their_backend_through_moves_and_colour`,
 `test_an_unknown_operation_refuses_instead_of_meshing`.
+
+
+**Landed.** T0's guards had already stopped the silent wrong-backend builds; this closed the other
+half — `ellipse`, `star`, `regular_ngon` and `trapezoid` are now dispatching façade constructors
+(the SDF backend already had `ellipse2d`/`star2d`/`regular_ngon2d`/`trapezoid2d`), and the
+top-level exports point at the façade. The remaining backend-module names refuse on the other
+backend with a hint rather than building. `regular_ngon` gained `rounding`/`fn`/`fa`/`fs` on the
+way — the facet ratchet caught that the façade version had dropped them, and it refuses `rounding`
+on SDF where there is no rounded-corner ngon. Test:
+`test_no_top_level_name_builds_on_the_wrong_backend`.
 
 ---
 
@@ -367,7 +393,7 @@ sub-construction (PLAN R-P2), document the three in `Args:`, and remove the entr
 **Done when:** `KNOWN_WITHOUT_FACETS` is empty and `tests/test_facets.py` still passes.
 
 
-**In progress — triage done, 6 of 36 fixed.** The R-1a triage moved 14 entries to a documented
+**In progress — triage done, 7 of 36 fixed; 29 remain.** The R-1a triage moved 14 entries to a documented
 `PLACEMENT_ONLY` set in `tests/test_facets.py` (copy distributors, `polar_to_xy`,
 `circle_circle_tangents`, `hex_offsets`, `PhillipsSpec.depth`) — they take a radius to place or
 measure, and nothing they return has a facet count. Of the 36 real debt entries, these are fixed:
