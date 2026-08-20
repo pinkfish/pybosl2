@@ -57,6 +57,7 @@ from pybosl2._helpers import scale4 as _scale4
 from pybosl2._helpers import translate4, zrot4
 from pybosl2._helpers import xrot4 as _xrot4
 from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_with_decorative_caps
+from pybosl2.defaults import resolve_facets
 from pybosl2.enums import ResampleMethod, RoundingMethod, SamplingType, SkinMethod, SweepMethod, VNFStyle
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
@@ -242,12 +243,33 @@ class Sweepable:
         diameter2: float | None = None,
         center: bool = True,
         style: VNFStyle = VNFStyle.MIN_EDGE,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> VNF | Bosl2Solid:
         """Sweep this 2-D profile along a helix.
 
         The profile follows a helical path of *height* and *radius* (or separate start/end radii)
         over *turns* revolutions. Unlike rotate_sweep, the profile also gains height, producing
         a coil.
+
+        Args:
+            height: Overall height of the coil.
+            radius: Helix radius; use radius1/radius2 for a taper.
+            turns: Number of revolutions.
+            radius1: Radius at the start.
+            radius2: Radius at the end.
+            diameter: Helix diameter, instead of radius.
+            diameter1: Diameter at the start.
+            diameter2: Diameter at the end.
+            center: Centre the coil on the origin.
+            style: Quad-subdivision style for the mesh.
+            fn: Fixed fragment count per turn; ambient default when omitted.
+            fa: Minimum fragment angle per turn.
+            fs: Minimum fragment size per turn.
+
+        Returns:
+            The swept coil.
 
         Examples:
             A rectangular-section coil spring:
@@ -272,6 +294,9 @@ class Sweepable:
             diameter2=diameter2,
             center=center,
             style=style,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     def sweep(
@@ -776,6 +801,9 @@ def _spiral_sweep(
     diameter2: float | None = None,
     center: bool = True,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Sweep a 2-D cross-section *poly* along a helix (internal implementation).
 
@@ -801,7 +829,7 @@ def _spiral_sweep(
     )
     poly = [[p[0], p[1]] for p in poly]
     nturns = abs(turns)
-    sides = _segs(max(rr1, rr2))
+    sides = _segs(max(rr1, rr2), fn, fa, fs)
     ang_step = 360.0 / sides
     total = 360.0 * nturns
     steps = math.ceil(total / ang_step)
@@ -1093,9 +1121,12 @@ def _offset_sweep(
     height: float,
     bottom: object = None,
     top: object = None,
-    steps: int = 16,
+    steps: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
 
@@ -1116,7 +1147,11 @@ def _offset_sweep(
         height: Total extrusion height (Z from 0 to height).
         bottom: Bottom-rim treatment descriptor (or ``None`` for square).
         top:    Top-rim treatment descriptor (or ``None`` for square).
-        steps:  Number of slices/steps per rim treatment (default 16).
+        steps:  Number of slices per rim treatment; resolved from the rim radius and the
+                ambient facet controls when omitted (SPEC R-1).
+        fn:     Fixed fragment count for the rim arcs; ambient default when omitted.
+        fa:     Minimum fragment angle for the rim arcs.
+        fs:     Minimum fragment size for the rim arcs.
         caps:   Cap the flat top and bottom (default True); bool or [bool, bool].
         style:  ``vnf_vertex_array`` quad-subdivision style.
 
@@ -1230,8 +1265,26 @@ def _offset_sweep(
 
         return ([0.0], [0.0])
 
-    bot_deltas, bot_zs = _arc_column(bottom_desc, steps)
-    top_deltas, top_zs = _arc_column(top_desc, steps)
+    def _rim_steps(desc: Any) -> int:
+        """Slices for one rim treatment.
+
+        What the caller asked for, else the facet count implied by the rim's radius when any
+        resolution was set (explicitly or ambiently), else BOSL2's own default of 16. Deriving
+        unconditionally would COARSEN a small rim -- a 2 mm roundover is 4 segments at $fa=12 --
+        so the derived value is used only when someone actually asked for a resolution (R-5).
+        """
+        if steps is not None:
+            return int(steps)
+        resolved_fn, resolved_fa, resolved_fs = resolve_facets(fn, fa, fs)
+        if resolved_fn is None and resolved_fa is None and resolved_fs is None:
+            return 16
+        radius = abs(float(desc.get("r", 0.0) or desc.get("h", 0.0) or 0.0)) if desc else 0.0
+        if not radius:
+            return 16
+        return max(4, _segs(radius, resolved_fn, resolved_fa, resolved_fs) // 4)
+
+    bot_deltas, bot_zs = _arc_column(bottom_desc, _rim_steps(bottom_desc))
+    top_deltas, top_zs = _arc_column(top_desc, _rim_steps(top_desc))
 
     h_bot = bot_zs[-1]
     h_top = top_zs[-1]
@@ -1581,9 +1634,12 @@ def _prism_connector(
     fillet: float = 0.0,
     fillet1: float | None = None,
     fillet2: float | None = None,
-    steps: int = 16,
+    steps: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
 
@@ -1594,7 +1650,18 @@ def _prism_connector(
     f2 = fillet2 if fillet2 is not None else fillet
     bot_desc = os_circle(radius=-f1) if f1 > 0 else None
     top_desc = os_circle(radius=-f2) if f2 > 0 else None
-    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+    return _offset_sweep(
+        profile,
+        height=length,
+        bottom=bot_desc,
+        top=top_desc,
+        steps=steps,
+        caps=caps,
+        style=style,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
 
 
 def _attach_prism(
@@ -1602,9 +1669,12 @@ def _attach_prism(
     length: float,
     fillet: float = 0.0,
     rounding: float = 0.0,
-    steps: int = 16,
+    steps: int | None = None,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> VNF | Bosl2Solid:
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
 
@@ -1613,7 +1683,18 @@ def _attach_prism(
     """
     bot_desc = os_circle(radius=-fillet) if fillet > 0 else None
     top_desc = os_circle(radius=rounding) if rounding > 0 else None
-    return _offset_sweep(profile, height=length, bottom=bot_desc, top=top_desc, steps=steps, caps=caps, style=style)
+    return _offset_sweep(
+        profile,
+        height=length,
+        bottom=bot_desc,
+        top=top_desc,
+        steps=steps,
+        caps=caps,
+        style=style,
+        fn=fn,
+        fa=fa,
+        fs=fs,
+    )
 
 
 def _bent_cutout_mask(

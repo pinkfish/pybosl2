@@ -288,6 +288,9 @@ def interior_fillet(
     anchor: Sequence[float] = FRONT + LEFT,
     spin: float = 0,
     orient: Anchor | Sequence[float] = UP,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
 ) -> Bosl2Solid:
     """Return a shape to fillet an interior corner between two faces.
 
@@ -300,6 +303,9 @@ def interior_fillet(
         anchor:  anchor point (default FRONT+LEFT)
         spin:    Z-axis rotation in degrees after anchor (default 0)
         orient:  direction to rotate the top towards, after spin (default UP)
+        fn:      Fixed fragment count for the fillet arc; ambient default when omitted.
+        fa:      Minimum fragment angle for the fillet arc.
+        fs:      Minimum fragment size for the fillet arc.
 
     """
     from pybosl2._native import native
@@ -307,7 +313,7 @@ def interior_fillet(
     _opolygon = native("polygon")
 
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
-    sides = _frag_count(rad)
+    sides = _frag_count(rad, fn, fa, fs)
     path = _interior_fillet_path(rad, angle, overlap, sides)
     shape = _opolygon(path).linear_extrude(height=length, center=True)
     pts3d = [[p[0], p[1], z] for z in (-length / 2, length / 2) for p in path]

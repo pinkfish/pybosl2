@@ -880,6 +880,9 @@ class CsgSolid(BaseShape):
         r: float | None = None,
         d: float | None = None,
         tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Bosl2Solid":
         """Cut a 2-D mask profile along each selected edge of this box-shaped solid.
 
@@ -894,6 +897,9 @@ class CsgSolid(BaseShape):
             r:            rounding radius alias
             d:            rounding diameter alias
             tag:          override tag for attachment (defaults to AttachTag.KEEP if negative, else AttachTag.REMOVE)
+            fn:           fixed fragment count for the default roundover mask; ambient default when omitted
+            fa:           minimum fragment angle for the default roundover mask
+            fs:           minimum fragment size for the default roundover mask
 
         """
         from pybosl2 import masking
@@ -908,7 +914,7 @@ class CsgSolid(BaseShape):
 
         resolved_children: Sequence[Sequence[float]] | Path2D | None = children
         if rad is not None and resolved_children is None:
-            resolved_children = masking.mask2d_roundover(abs(rad))
+            resolved_children = masking.mask2d_roundover(abs(rad), fn=fn, fa=fa, fs=fs)
         if resolved_children is not None and not isinstance(resolved_children, Path2D):
             resolved_children = Path2D(resolved_children, closed=False)
 
@@ -947,6 +953,9 @@ class CsgSolid(BaseShape):
         r: float | None = None,
         d: float | None = None,
         tag: AttachTag | str | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Bosl2Solid":
         """Cut an asymmetric edge profile into the solid's edges."""
         return self.edge_profile(
@@ -959,6 +968,9 @@ class CsgSolid(BaseShape):
             r=r,
             d=d,
             tag=tag,
+            fn=fn,
+            fa=fa,
+            fs=fs,
         )
 
     def corner_profile(

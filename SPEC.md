@@ -648,6 +648,7 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | **PAR-1 / C-19 / B-5** | The SDF shape's `__getattr__` meshed the field to answer any method it lacked, returning a raw native handle — 19 names, including every directional move and all of colour | Moves and colour implemented natively (colour rides the field as metadata); attachment state moved to the CSG-only list; the fallback is a documented mesh-operations allowlist and everything else refuses, naming `.to_csg()` |
 | **R-5** | `fn=0` as the opt-out from an ambient `fn` was undocumented and untested | Documented in four places and covered by a test |
 | **Q-4** | The minimum-argument check covered only `pybosl2.solid` | Parametrised over the four public shape modules plus a parts probe; it immediately found eight more E-4 violations and one missing `__all__` |
+| **R-1** | 50 public curved-geometry callables took no facet controls, so ambient resolution could not reach them | 18 fixed and 32 triaged out of scope under R-1a (placement, caller-supplied sampling, or descriptors); the backlog list is empty and `tests/test_facets.py` keeps it that way |
 | **E-4** | 290 `assert`s validated user input, so `python -O` deleted the checks and bad input silently produced wrong geometry | All converted to `ValueError` naming the accepted spellings; 65 tests updated to assert the type *and* the message; a ratchet test walks the AST so it cannot come back. 25 asserts remain, all genuine internal invariants |
 | **DOC-2 / D-P5** | 27 façade callables — the recommended entry point — had no `Args:` and no example, so `help(pybosl2.cuboid)` taught nothing | Descriptions and examples lifted from the backend constructors they delegate to; two tests keep them present and runnable |
 | **S-46a** | 17 parts still built CSG geometry inside an `sdf` block through paths no constructor guard covers | `@csg_part` on every part's `shape` property: all 53 refuse uniformly, naming the way forward |
@@ -664,11 +665,11 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **R-1** | **29 of 119** public curved-geometry callables still do not accept `fn`/`fa`/`fs` (50 at the start; 14 were reclassified as placement-only under R-1a and 6 fixed) — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink; R-1a is the rule for deciding which of the pinned entries are genuine debt rather than placement radii. |
-| 2 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
-| 3 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
-| 4 | **PAR-5** | The SDF `pie_slice` stores the full disc's bounding box rather than the wedge's, so `bounds()` over-reports on a shape whose selling point is exact bounds. `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it. |
-| 5 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. Closing this means expressing the ones that can be (simple prisms, bearings, hoses) through the façade, and keeping the refusal only where a part genuinely needs CSG-only operations. |
+| 1 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
+| 2 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
+| 3 | **PAR-5** | The SDF `pie_slice` stores the full disc's bounding box rather than the wedge's, so `bounds()` over-reports on a shape whose selling point is exact bounds. `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it. |
+| 4 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. Closing this means expressing the ones that can be (simple prisms, bearings, hoses) through the façade, and keeping the refusal only where a part genuinely needs CSG-only operations. |
+
 
 
 

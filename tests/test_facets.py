@@ -24,7 +24,8 @@ CURVED = {"rounding", "radius", "radius1", "diameter", "inner_rounding"}
 FACETS = {"fn", "fa", "fs"}
 
 #: Reviewed against SPEC R-1a and found to be OUT of scope: each takes a radius to place or
-#: measure geometry, and nothing it returns has an observable facet count. A copy distributor
+#: measure geometry, or samples exactly where the caller says (an explicit angle/z list, an
+#: explicit xrange/yrange), so nothing it returns has a facet count for fn/fa/fs to choose. A copy distributor
 #: positions whatever it is given; polar_to_xy and circle_circle_tangents return points.
 PLACEMENT_ONLY: frozenset[str] = frozenset(
     {
@@ -42,6 +43,9 @@ PLACEMENT_ONLY: frozenset[str] = frozenset(
         "parts/screw_drive.py::PhillipsSpec.depth",
         "parts/wiring.py::hex_offsets",
         "transforms.py::polar_to_xy",
+        "surfaces3d.py::plot_revolution",
+        "rounding.py::Roundable.bent_cutout_mask",
+        "surfaces3d.py::cylindrical_heightfield",
         # a star's vertex count is `tips` and an ngon's is `sides`: the caller states the
         # tessellation outright, so there is no facet count for fn/fa/fs to choose
         "shapes2d/curves.py::star",
@@ -49,41 +53,38 @@ PLACEMENT_ONLY: frozenset[str] = frozenset(
     }
 )
 
-#: The real backlog (SPEC.md §12.2): these DO tessellate, and must grow fn/fa/fs and pass them
-#: down (R-1). Nothing may be added; entries leave as they are fixed.
-KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
+#: Reviewed against SPEC R-1a and found OUT of scope for a second reason: each returns a
+#: *description* rather than tessellated geometry, and whatever consumes it owns the facet count.
+#: The bezier handles are control points; the metaballs are fields the isosurface mesher samples;
+#: the Platonic solids are flat-faced; squircle_radius_fg returns a number; supershape takes an
+#: explicit `count`; and the os_* rim profiles are consumed by offset_sweep, which resolves the
+#: facet count itself.
+DESCRIPTORS: frozenset[str] = frozenset(
     {
         "beziers.py::Bezier.begin",
         "beziers.py::Bezier.end",
         "beziers.py::Bezier.joint",
         "beziers.py::Bezier.tang",
-        "isosurface.py::mb_capsule",
-        "isosurface.py::mb_connector",
-        "isosurface.py::mb_disk",
         "isosurface.py::mb_sphere",
+        "isosurface.py::mb_capsule",
+        "isosurface.py::mb_disk",
+        "isosurface.py::mb_connector",
         "parts/polyhedra.py::RegularPolyhedron.cube",
         "parts/polyhedra.py::RegularPolyhedron.dodecahedron",
         "parts/polyhedra.py::RegularPolyhedron.icosahedron",
         "parts/polyhedra.py::RegularPolyhedron.octahedron",
         "parts/polyhedra.py::RegularPolyhedron.tetrahedron",
-        "path2d.py::Path2D.minkowski_sum_circle",
-        "path3d.py::Path3D.helix",
-        "rounding.py::Roundable.attach_prism",
-        "rounding.py::Roundable.bent_cutout_mask",
-        "rounding.py::Roundable.path_join",
         "shapes2d/curves.py::squircle_radius_fg",
         "shapes2d/curves.py::supershape",
-        "shapes3d/base.py::CsgSolid.edge_profile",
-        "shapes3d/base.py::CsgSolid.edge_profile_asym",
-        "skin.py::Sweepable.spiral_sweep",
         "skin.py::os_circle",
         "skin.py::os_smooth",
         "skin.py::os_teardrop",
-        "surfaces3d.py::cylindrical_heightfield",
-        "surfaces3d.py::interior_fillet",
-        "surfaces3d.py::plot_revolution",
     }
 )
+
+#: The real backlog (SPEC.md §12.2): these DO tessellate, and must grow fn/fa/fs and pass them
+#: down (R-1). Nothing may be added; entries leave as they are fixed.
+KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset({})
 
 
 def _public_callables_missing_facets() -> set[str]:
@@ -113,7 +114,7 @@ def _public_callables_missing_facets() -> set[str]:
 
 
 def test_no_new_curved_api_without_facet_controls() -> None:
-    new = sorted(_public_callables_missing_facets() - KNOWN_WITHOUT_FACETS - PLACEMENT_ONLY)
+    new = sorted(_public_callables_missing_facets() - KNOWN_WITHOUT_FACETS - PLACEMENT_ONLY - DESCRIPTORS)
     assert not new, "these draw curves but take no fn/fa/fs (SPEC.md R-1): " + ", ".join(new)
 
 

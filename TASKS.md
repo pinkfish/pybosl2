@@ -368,45 +368,33 @@ design review — it now leads with that warning and states the four real gaps.
 
 ---
 
-## T5 — Close the facet-control backlog
+## T5 — Close the facet-control backlog ✅
 
-**Closes:** §12.2 item 11 (R-1) · **Implements:** PLAN R-P2, R-P3, R-P5 · **Size:** L, batchable
-**Risk:** low
+**Closes:** §12.2 item 2 (R-1) · **Implements:** PLAN R-P2, R-P3, R-P5, R-P6
 
-50 pinned entries in `tests/test_facets.py`. First triage each against **R-1a**: does the output
-have an observable facet count? If not, it is not debt — delete the entry with a one-line note.
+**Landed — the backlog is empty.** Of the 50 entries the audit found, R-1a triage moved **32** out
+of scope in three documented categories, and **18** were genuine and are fixed:
 
-*Likely not debt (placement/measurement only, ~13):* `distributors` (10 rot/arc/sphere copies),
-`transforms.polar_to_xy`, `geometry.circle_circle_tangents`, `parts/wiring.hex_offsets`,
-`parts/screw_drive.PhillipsSpec.depth`.
+* *placement or measurement* — the copy distributors, `polar_to_xy`, `circle_circle_tangents`,
+  `hex_offsets`, `PhillipsSpec.depth`;
+* *the caller supplies the sampling* — `plot_revolution` (explicit angle/z lists),
+  `cylindrical_heightfield` (explicit xrange/yrange), `bent_cutout_mask` (wraps the path it is
+  given), `star`/`regular_ngon`/`supershape` (an explicit vertex count);
+* *descriptors, not geometry* — the bezier handles, the metaball fields, the Platonic solids,
+  `squircle_radius_fg`, and the `os_*` rim profiles, whose consumer owns the facet count.
 
-*Genuine debt, batched by module:*
+Fixed: `Region.offset`/`round_corners`, `offset3d`/`round3d` (both copies), `rect_tube`,
+`interior_fillet`, `Path3D.helix`, `Path2D.minkowski_sum_circle`, `Roundable.path_join`,
+`attach_prism`, `offset_sweep`, `_prism_connector`, `Sweepable.spiral_sweep`,
+`CsgSolid.edge_profile`/`edge_profile_asym`.
 
-- [ ] `regions.py` — `Region.offset`, `Region.round_corners` (2) — highest value: rounding a region is a headline operation
-- [ ] `shapes3d/base.py` — `edge_profile`, `edge_profile_asym`, `offset3d`, `round3d` (4)
-- [ ] `skin.py` — `spiral_sweep`, `os_circle`, `os_smooth`, `os_teardrop` (4)
-- [ ] `shapes2d/curves.py` — `star`, `supershape`, `squircle_radius_fg` (3)
-- [ ] `parts/polyhedra.py` — the five `RegularPolyhedron` factories (5)
-- [ ] `isosurface.py` — `mb_sphere`, `mb_capsule`, `mb_disk`, `mb_connector` (4)
-- [ ] `rounding.py` — `attach_prism`, `bent_cutout_mask`, `path_join` (3)
-- [ ] `surfaces3d.py` — `cylindrical_heightfield`, `interior_fillet`, `plot_revolution` (3)
-- [ ] `beziers.py` — `Bezier.begin`/`tang`/`joint`/`end` (4)
-- [ ] `miscellaneous.py` — `offset3d`, `round3d` (2)
-- [ ] `path2d.py` `minkowski_sum_circle`, `path3d.py` `helix` (2)
-
-Each batch: add `fn`/`fa`/`fs` keyword-only defaulting to `None`, forward to every
-sub-construction (PLAN R-P2), document the three in `Args:`, and remove the entries from
-`KNOWN_WITHOUT_FACETS`.
-
-**Done when:** `KNOWN_WITHOUT_FACETS` is empty and `tests/test_facets.py` still passes.
-
-
-**In progress — triage done, 7 of 36 fixed; 29 remain.** The R-1a triage moved 14 entries to a documented
-`PLACEMENT_ONLY` set in `tests/test_facets.py` (copy distributors, `polar_to_xy`,
-`circle_circle_tangents`, `hex_offsets`, `PhillipsSpec.depth`) — they take a radius to place or
-measure, and nothing they return has a facet count. Of the 36 real debt entries, these are fixed:
-`Region.offset`, `Region.round_corners`, `CsgSolid.offset3d`, `CsgSolid.round3d`,
-`Miscellaneous.offset3d`, `Miscellaneous.round3d`. 30 remain, batched by module below.
+**A trap worth recording.** Three of these had a hardcoded facet count — `steps=16` on the rim
+sweeps, `quad_segs=16` on the minkowski rounding. Resolving them from `frag_count()`
+unconditionally *coarsened* the default output (a 2 mm roundover becomes 4 segments at `$fa=12`,
+a 5 mm minkowski radius becomes 3 per quadrant), which two tests caught. The rule now is: use the
+derived value only when a resolution was actually asked for, explicitly or ambiently; otherwise
+keep BOSL2's own default. Ambient settings reach the geometry without changing what an unchanged
+call produces.
 
 ---
 

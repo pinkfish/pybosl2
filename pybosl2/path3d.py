@@ -123,6 +123,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         diameter: float | None = None,
         diameter1: float | None = None,
         diameter2: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> Path3D:
         """Return a 3-D helical path on a (possibly conical) surface -- BOSL2's ``helix()``.
 
@@ -143,6 +146,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             diameter: Diameter for a constant-radius helix.
             diameter1: Bottom diameter.
             diameter2: Top diameter.
+            fn: Fixed fragment count per turn; ambient default when omitted.
+            fa: Minimum fragment angle per turn.
+            fs: Minimum fragment size per turn.
 
         Examples:
             A 2.5-turn helix drawn as a tube:
@@ -172,7 +178,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         else:
             assert length is not None
             maxtheta = 360.0 * length / dz
-        nseg = _frag_count(max(r1v, r2v))
+        nseg = _frag_count(max(r1v, r2v), fn, fa, fs)
         count = max(3, math.ceil(abs(maxtheta) * nseg / 360))
         out: list[list[float]] = []
         for theta in lerpn(0, maxtheta, count):

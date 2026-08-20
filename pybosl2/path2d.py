@@ -1568,7 +1568,10 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         join: MinkowskiJoin = MinkowskiJoin.ROUND,
         mitre_limit: float = 5.0,
         single_sided: bool = False,
-        quad_segs: int = 16,
+        quad_segs: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
     ) -> "Path2D":
         r"""Return the Minkowski sum of this closed path with a circle of *radius*.
 
@@ -1589,7 +1592,11 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             join: Corner join style (default :attr:`MinkowskiJoin.ROUND`).
             mitre_limit: Maximum mitre extension ratio (:attr:`MinkowskiJoin.MITRE` only).
             single_sided: If ``True``, dilate on one side of the outline only.
-            quad_segs: Segments per quadrant for round joins (default 16).
+            quad_segs: Segments per quadrant for round joins; resolved from the radius and the
+                ambient facet controls when omitted.
+            fn: Fixed fragment count for the round joins; ambient default when omitted.
+            fa: Minimum fragment angle for the round joins.
+            fs: Minimum fragment size for the round joins.
 
         Returns:
             A new closed :class:`Path2D`.
@@ -1630,13 +1637,34 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         from shapely.geometry import Polygon as _Polygon
 
         pts = [(float(p[0]), float(p[1])) for p in self._points]
+        from pybosl2._helpers import frag_count as _facet_count
+        from pybosl2.defaults import resolve_facets
+
+        def _quad_segs() -> int:
+            """Segments per quadrant: the caller's, else the resolution they asked for, else 16.
+
+            Deriving unconditionally would COARSEN the default (a 5 mm radius is 3 segments per
+            quadrant at $fa=12), so the derived value is used only when a resolution was actually
+            set -- explicitly or ambiently (SPEC R-5).
+            """
+            if quad_segs is not None:
+                return int(quad_segs)
+            resolved = resolve_facets(fn, fa, fs)
+            if all(value is None for value in resolved):
+                return 16
+            return max(1, _facet_count(abs(radius), *resolved) // 4)
+
         style_map = {
             MinkowskiJoin.ROUND: JOIN_STYLE.round,
             MinkowskiJoin.MITRE: JOIN_STYLE.mitre,
             MinkowskiJoin.BEVEL: JOIN_STYLE.bevel,
         }
         poly = _Polygon(pts).buffer(
-            radius, join_style=style_map[join], mitre_limit=mitre_limit, single_sided=single_sided, quad_segs=quad_segs
+            radius,
+            join_style=style_map[join],
+            mitre_limit=mitre_limit,
+            single_sided=single_sided,
+            quad_segs=_quad_segs(),
         )
         if poly.is_empty:
             return Path2D([], closed=True)
