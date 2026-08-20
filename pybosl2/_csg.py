@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import functools
 import operator
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -33,14 +33,29 @@ class CsgBackend:
 
     name = "csg"
 
-    def construct(self, shape: str, arguments: Mapping[str, Any]) -> Any:
-        """Build the named shape via pybosl2.shapes3d (the CSG constructors)."""
+    def constructor(self, shape: str, /) -> Callable[..., Any]:
+        """Return the pybosl2.shapes3d constructor for *shape*.
+
+        Args:
+            shape: BOSL2 shape name, e.g. ``"cuboid"``.
+
+        Returns:
+            The CSG constructor that builds it.
+
+        Raises:
+            ValueError: If pybosl2.shapes3d has no such constructor.
+
+        """
         import pybosl2.shapes3d as _m
 
         fn = getattr(_m, shape, None)
         if not callable(fn):
             raise ValueError(f"the csg backend has no shape constructor {shape!r}")
-        return fn(**arguments)
+        return cast("Callable[..., Any]", fn)
+
+    def construct(self, shape: str, arguments: Mapping[str, Any]) -> Any:
+        """Build the named shape via pybosl2.shapes3d (the CSG constructors)."""
+        return self.constructor(shape)(**arguments)
 
     def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Any:
         from pybosl2._native import native

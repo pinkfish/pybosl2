@@ -37,7 +37,7 @@ def cube(
     orient: Anchor | Sequence[float] = ...,
 ) -> Solid: ...
 def cuboid(
-    size: float | Sequence[float] = [1, 1, 1],
+    size: float | Sequence[float] = (1, 1, 1),
     p1: Point | None = None,
     p2: Point | None = None,
     chamfer: float | None = None,
@@ -71,7 +71,7 @@ def cyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = ...,
@@ -153,7 +153,7 @@ def prismoid(
     size1: Sequence[float],
     size2: Sequence[float],
     height: float | None = None,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     rounding: float | Sequence[float] = 0,
     rounding1: float | Sequence[float] | None = None,
     rounding2: float | Sequence[float] | None = None,
@@ -174,7 +174,7 @@ def rect_tube(
     size: float | Sequence[float] | None = None,
     isize: float | Sequence[float] | None = None,
     center: bool | None = None,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     wall: float | None = None,
     size1: float | Sequence[float] | None = None,
     size2: float | Sequence[float] | None = None,
@@ -196,6 +196,9 @@ def rect_tube(
     spin: float = 0,
     orient: Anchor | Sequence[float] = ...,
     length: float | None = None,
+    fn: int | None = ...,
+    fa: float | None = ...,
+    fs: float | None = ...,
 ) -> Solid: ...
 def regular_prism(
     sides: int,
@@ -216,7 +219,7 @@ def regular_prism(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     center: bool | None = None,
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
@@ -314,7 +317,7 @@ def tube(
     fs: float | None = None,
 ) -> Solid: ...
 def wedge(
-    size: Sequence[float] = [1, 1, 1],
+    size: Sequence[float] = (1, 1, 1),
     center: bool | None = None,
     anchor: Anchor | Sequence[float] = ...,
     spin: float = 0,
@@ -338,7 +341,7 @@ def xcyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = ...,
@@ -380,7 +383,7 @@ def ycyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = ...,
@@ -422,7 +425,7 @@ def zcyl(
     rounding2: float | None = None,
     circumscribe: bool = False,
     realign: bool = False,
-    shift: Sequence[float] = [0, 0],
+    shift: Sequence[float] = (0, 0),
     anchor: Anchor | Sequence[float] | None = None,
     spin: float = 0,
     orient: Anchor | Sequence[float] = ...,
@@ -446,6 +449,7 @@ def zcyl(
     tex_depth: float = 1.0,
     tex_inset: float | bool = False,
 ) -> Solid: ...
+def effective_defaults(shape: str, backend: str | None = ...) -> dict[str, Any]: ...
 def polyhedron(points: Any, faces: Any = ..., **kwargs: Any) -> Solid: ...
 def union(*solids: Solid) -> Solid: ...
 def difference(*solids: Solid) -> Solid: ...

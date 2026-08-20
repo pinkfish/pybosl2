@@ -13,7 +13,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+import functools
+import inspect
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -22,9 +24,19 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
 
 from pybosl2._backend import SolidBackend, register_backend
+from pybosl2.defaults import resolve_res
 from pybosl2.sdf import shapes3d as _s
 
 __all__: list[str] = []
+
+
+@functools.lru_cache(maxsize=None)
+def _takes_res(constructor: Callable[..., Any]) -> bool:
+    """Return True if *constructor* declares a ``res`` parameter (cached per callable)."""
+    try:
+        return "res" in inspect.signature(constructor).parameters
+    except (TypeError, ValueError):  # builtins and other signature-less callables
+        return False
 
 
 class SdfBackend:
@@ -35,13 +47,37 @@ class SdfBackend:
     #: Parameters this backend spells differently from the BOSL2 names the facade uses.
     _OWN_NAMES = {"sides": "num_sides"}
 
-    def construct(self, shape: str, arguments: Mapping[str, Any]) -> _s.PyShape:
-        """Build the named shape via the vendored SDF constructors (pybosl2.sdf.shapes3d)."""
+    def constructor(self, shape: str, /) -> Callable[..., _s.PyShape]:
+        """Return the pybosl2.sdf.shapes3d constructor for *shape*.
+
+        Args:
+            shape: BOSL2 shape name, e.g. ``"cuboid"``.
+
+        Returns:
+            The SDF constructor that builds it.
+
+        Raises:
+            ValueError: If pybosl2.sdf.shapes3d has no such constructor.
+        """
         fn = getattr(_s, shape, None)
         if not callable(fn):
             raise ValueError(f"the sdf backend has no shape constructor {shape!r}")
+        return cast("Callable[..., _s.PyShape]", fn)
+
+    def construct(self, shape: str, arguments: Mapping[str, Any]) -> _s.PyShape:
+        """Build the named shape via the vendored SDF constructors (pybosl2.sdf.shapes3d).
+
+        A caller who said nothing about sampling resolution gets the ambient one
+        (:func:`pybosl2.defaults.use_defaults`), but only for constructors that actually take a
+        ``res`` -- the rest never see an argument they have no notion of.
+        """
+        fn = self.constructor(shape)
         named = {self._OWN_NAMES.get(name, name): value for name, value in arguments.items()}
-        return fn(**named)  # type: ignore[no-any-return]
+        if "res" not in named and _takes_res(fn):
+            ambient = resolve_res()
+            if ambient is not None:
+                named["res"] = ambient
+        return fn(**named)
 
     def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> _s.PyShape:
         """Return the convex hull of `points` as an SDF.

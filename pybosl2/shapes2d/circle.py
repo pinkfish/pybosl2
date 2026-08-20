@@ -46,6 +46,7 @@ from pybosl2._helpers import (
 )
 from pybosl2._native import native
 from pybosl2.constants import CENTER
+from pybosl2.defaults import resolve_facets as _resolve_facets
 from pybosl2.geometry import is_collinear
 from pybosl2.geometry import vector_angle3 as _vector_angle
 from pybosl2.path2d import Path2D
@@ -121,6 +122,7 @@ def circle(
             s2.circle(radius=15).linear_extrude(height=5).show()
 
     """
+    fn, fa, fs = _resolve_facets(fn, fa, fs)
     if points is not None:
         center, rad = _circle_from_3pts(points)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])

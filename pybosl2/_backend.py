@@ -24,12 +24,12 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
-from typing import TYPE_CHECKING, Any, Iterator, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, runtime_checkable
 
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Mapping, Sequence
 
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
@@ -232,11 +232,11 @@ class Solid(Protocol):
     def __or__(self, other: "Solid") -> "Solid": ...
     def __and__(self, other: "Solid") -> "Solid": ...
     def __sub__(self, other: "Solid") -> "Solid": ...
-    def translate(self, v: Any) -> "Solid": ...
-    def rotate(self, a: Any = None, v: Any = None) -> "Solid": ...
-    def scale(self, v: Any) -> "Solid": ...
-    def mirror(self, v: Any) -> "Solid": ...
-    def bounds(self) -> Any: ...
+    def translate(self, v: "Sequence[float]") -> "Solid": ...
+    def rotate(self, a: "float | Sequence[float] | None" = None, v: "Sequence[float] | None" = None) -> "Solid": ...
+    def scale(self, v: "Sequence[float]") -> "Solid": ...
+    def mirror(self, v: "Sequence[float]") -> "Solid": ...
+    def bounds(self) -> "tuple[list[float], list[float]]": ...
 
 
 class SolidBackend(Protocol):
@@ -248,6 +248,18 @@ class SolidBackend(Protocol):
     """
 
     name: str
+
+    def constructor(self, shape: str, /) -> "Callable[..., Solid]":
+        """Return the callable this backend would use to build *shape*.
+
+        Exposed so the defaults a caller did not supply stay inspectable rather than silent --
+        :func:`pybosl2.solid.effective_defaults` reads them straight off this signature.
+
+        Raises:
+            ValueError: If this backend has no constructor by that name.
+
+        """
+        ...
 
     def construct(self, shape: str, arguments: Mapping[str, Any]) -> Solid:
         """Build the named shape constructor (e.g. ``"torus"``) in this backend's idiom.

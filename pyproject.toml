@@ -10,7 +10,7 @@ dynamic = ["version"]
 description = "Python ports of the BOSL2 OpenSCAD library for use with PythonSCAD"
 readme = "README.md"
 license = "BSD-2-Clause"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
     { name = "pinkfish" },
 ]
@@ -21,7 +21,6 @@ classifiers = [
     "Intended Audience :: Manufacturing",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -71,6 +70,11 @@ include = ["pybosl2", "pybosl2.*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# The render tests write meshes into tmp_path; keeping every passing test's scratch filled the
+# system volume (and, when TMPDIR was unwritable, dropped a pytest-of-* tree in the repo root).
+# Keep scratch only for failures, and only the last run's.
+tmp_path_retention_policy = "failed"
+tmp_path_retention_count = 1
 
 [tool.ruff]
 # Target Python version

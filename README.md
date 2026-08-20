@@ -14,6 +14,8 @@ ports that work in plain CPython. The modules that build native geometry
 
 * [Docs](https://pinkfish.github.io/pybosl2/)
 * [Specs](https://pinkfish.github.io/pybosl2/specs/index.html) of the various parts
+* [SPEC.md](SPEC.md) — what the system is and does, and the contracts it honours
+* [PLAN.md](PLAN.md) — how that is implemented in Python (typing, classes, docs, tests)
 
 ## Installation
 

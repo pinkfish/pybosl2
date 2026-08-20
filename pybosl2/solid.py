@@ -27,6 +27,7 @@
 
 from __future__ import annotations
 
+import inspect
 from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import (
@@ -38,6 +39,9 @@ from pybosl2._backend import (
     use_backend,
 )
 from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
+
+#: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
+_AMBIENT = frozenset({"fn", "fa", "fs", "res"})
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -67,6 +71,7 @@ _SHARED_3D = (
 )
 
 __all__ = [
+    "effective_defaults",
     "cube",
     "cuboid",
     "cyl",
@@ -435,8 +440,8 @@ def pie_slice(
 
 
 def prismoid(
-    size1: Sequence[float] | None = None,
-    size2: Sequence[float] | None = None,
+    size1: Sequence[float],
+    size2: Sequence[float],
     *,
     height: float | None = None,
     shift: Sequence[float] | None = None,
@@ -493,6 +498,9 @@ def rect_tube(
     center: bool | None = None,
     spin: float | None = None,
     orient: Anchor | Sequence[float] | None = None,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
     res: int | None = None,
 ) -> Solid:
     """Return a rect_tube on the active backend.
@@ -518,6 +526,9 @@ def rect_tube(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "fn": fn,
+                "fa": fa,
+                "fs": fs,
                 "res": res,
             }
         ),
@@ -525,7 +536,7 @@ def rect_tube(
 
 
 def regular_prism(
-    sides: int | None = None,
+    sides: int,
     height: float | None = None,
     radius: float | None = None,
     *,
@@ -1047,6 +1058,42 @@ def zcyl(
     )
 
 
+def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]:
+    """Report the value each argument of *shape* takes when the caller leaves it out.
+
+    The facade constructors default every argument to ``None`` and forward only what was actually
+    given (:func:`~pybosl2._backend.given_arguments`), so the backend keeps its own defaults. That
+    keeps the two backends independent, but it would leave a caller unable to see what
+    ``cuboid()`` with no arguments actually builds -- this reports it, read live off the
+    constructor the backend would call, so it can never drift from the code.
+
+    Args:
+        shape: BOSL2 shape name, e.g. ``"cuboid"``.
+        backend: Backend to report for; the active one by default.
+
+    Returns:
+        Each parameter of that backend's constructor mapped to its default, omitting the ones with
+        no default (the caller must supply those) and the ambient resolution knobs, which come
+        from :func:`pybosl2.defaults.use_defaults`.
+
+    Raises:
+        ValueError: If the backend has no constructor by that name.
+
+    Examples:
+        >>> from pybosl2.solid import effective_defaults
+        >>> effective_defaults("cuboid")["size"]
+        (1, 1, 1)
+
+    """
+    constructor = get_backend(backend).constructor(shape)
+    parameters = inspect.signature(constructor).parameters
+    return {
+        name: parameter.default
+        for name, parameter in parameters.items()
+        if parameter.default is not inspect.Parameter.empty and name not in _AMBIENT
+    }
+
+
 def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> Solid:
     """Return a polyhedron on the active backend.
 
@@ -1057,16 +1104,49 @@ def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> 
     return get_backend().polyhedron(points, faces, convexity=convexity)
 
 
+def _require_operands(operation: str, solids: tuple[Solid, ...]) -> None:
+    """Reject an n-ary boolean with nothing to combine.
+
+    Args:
+        operation: Name of the calling boolean, used in the message.
+        solids: The operands as given.
+
+    Raises:
+        ValueError: If *solids* is empty.
+
+    """
+    if not solids:
+        raise ValueError(f"{operation}(): needs at least one solid to combine.")
+
+
 def union(*solids: Solid) -> Solid:
-    """Return the union of *solids* on the active backend (all operands must share the active backend)."""
+    """Return the union of *solids* on the active backend (all operands must share the active backend).
+
+    Raises:
+        ValueError: If no solids are given.
+
+    """
+    _require_operands("union", solids)
     return get_backend().union(solids)
 
 
 def difference(*solids: Solid) -> Solid:
-    """Return the first solid minus the rest, on the active backend."""
+    """Return the first solid minus the rest, on the active backend.
+
+    Raises:
+        ValueError: If no solids are given.
+
+    """
+    _require_operands("difference", solids)
     return get_backend().difference(solids)
 
 
 def intersection(*solids: Solid) -> Solid:
-    """Return the intersection of *solids* on the active backend."""
+    """Return the intersection of *solids* on the active backend.
+
+    Raises:
+        ValueError: If no solids are given.
+
+    """
+    _require_operands("intersection", solids)
     return get_backend().intersection(solids)

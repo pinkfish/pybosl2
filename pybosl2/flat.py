@@ -18,11 +18,13 @@ from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 from pybosl2._backend import current_backend
 from pybosl2._edges_lang import resolve_anchor
 from pybosl2.constants import CENTER
+from pybosl2.defaults import resolve_res as _resolve_res
 from pybosl2.exceptions import UnsupportedByBackendError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
 
 
@@ -37,35 +39,35 @@ class Flat(Protocol):
 
     backend: str
 
-    def __or__(self, other: Any) -> Any:
+    def __or__(self, other: Flat) -> Flat:
         """Union of two 2D shapes."""
         ...
 
-    def __and__(self, other: Any) -> Any:
+    def __and__(self, other: Flat) -> Flat:
         """Intersection of two 2D shapes."""
         ...
 
-    def __sub__(self, other: Any) -> Any:
+    def __sub__(self, other: Flat) -> Flat:
         """Difference of two 2D shapes."""
         ...
 
-    def translate(self, v: Any) -> Any:
+    def translate(self, v: Sequence[float]) -> Flat:
         """Translate this shape by vector *v*."""
         ...
 
-    def rotate(self, a: Any) -> Any:
-        """Rotate this shape by *a*."""
+    def rotate(self, a: float | Sequence[float]) -> Flat:
+        """Rotate this shape *a* degrees about Z."""
         ...
 
-    def scale(self, v: Any) -> Any:
+    def scale(self, v: float | Sequence[float]) -> Flat:
         """Scale this shape by *v*."""
         ...
 
-    def mirror(self, v: Any) -> Any:
+    def mirror(self, v: Sequence[float]) -> Flat:
         """Mirror this shape across plane/axis *v*."""
         ...
 
-    def linear_extrude(self, height: float, **kwargs: Any) -> Any:
+    def linear_extrude(self, height: float, **kwargs: Any) -> Solid:
         """Extrude this 2-D shape into a 3-D solid."""
         ...
 
@@ -116,7 +118,7 @@ def circle(
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import circle2d
 
-        return cast("Flat", circle2d(radius=radius, diameter=diameter, res=res or 10))
+        return cast("Flat", circle2d(radius=radius, diameter=diameter, res=_resolve_res(res) or 10))
 
     from pybosl2.shapes2d.circle import circle as csg_circle
 
@@ -182,7 +184,7 @@ def square(
             resolved_anchor = resolve_anchor(cast("Any", anchor)).vector_2d.tolist()
         except Exception:
             resolved_anchor = list(anchor)
-        return cast("Flat", square2d(size=size, anchor=resolved_anchor, res=res or 10))
+        return cast("Flat", square2d(size=size, anchor=resolved_anchor, res=_resolve_res(res) or 10))
 
     from pybosl2.shapes2d.square import square as csg_square
 
@@ -253,7 +255,7 @@ def rect(
                 rounding=rounding,
                 chamfer=chamfer,
                 anchor=resolved_anchor,
-                res=res or 10,
+                res=_resolve_res(res) or 10,
             ),
         )
 
@@ -304,7 +306,7 @@ def polygon(
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import polygon2d
 
-        return cast("Flat", polygon2d(paths=points, res=res or 10))
+        return cast("Flat", polygon2d(paths=points, res=_resolve_res(res) or 10))
 
     from pybosl2.path2d import Path2D
     from pybosl2.shapes2d.square import polygon as csg_polygon

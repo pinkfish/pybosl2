@@ -245,7 +245,7 @@ def shell2d(
 
 
 def cross(
-    size: float | Sequence[float] = [10, 10],
+    size: float | Sequence[float] = (10, 10),
     arm_width: float | Sequence[float] | None = None,
     center: bool | None = None,
     anchor: Anchor | Sequence[float] = CENTER,

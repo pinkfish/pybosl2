@@ -56,6 +56,9 @@ from .cuboid import (
     wedge as wedge,
 )
 from .cylinder import (
+    cone as cone,
+)
+from .cylinder import (
     cyl as cyl,
 )
 from .cylinder import (

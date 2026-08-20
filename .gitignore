@@ -20,6 +20,9 @@ docs/_build/
 # OS
 .DS_Store
 
+# Pytest scratch (basetemp lands here when TMPDIR is unwritable)
+pytest-of-*/
+
 # Coverage stuff
 .coverage
 wiki/

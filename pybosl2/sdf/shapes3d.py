@@ -1597,7 +1597,11 @@ def torus(
     elif _or is not None and _r_min is not None:
         maj = _or - _r_min
     else:
-        raise AssertionError("torus(): bad parameters.")
+        raise ValueError(
+            "torus(): needs enough radii to fix the major radius -- give major_radius/major_diameter, "
+            "or any two of inner_radius/inner_diameter, outer_radius/outer_diameter and "
+            "minor_radius/minor_diameter."
+        )
     if _r_min is not None:
         minr = _r_min
     elif _ir is not None:
@@ -1605,7 +1609,10 @@ def torus(
     elif _or is not None:
         minr = _or - maj
     else:
-        raise AssertionError("torus(): bad parameters.")
+        raise ValueError(
+            "torus(): needs enough radii to fix the minor radius -- give minor_radius/minor_diameter, "
+            "inner_radius/inner_diameter or outer_radius/outer_diameter alongside the major radius."
+        )
 
     sdf_fn = lambda x, y, z: _lv_hypot(_lv_hypot(x, y) - maj, z) - minr  # noqa: E731
     outer = maj + minr

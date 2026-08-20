@@ -1,171 +1,41 @@
 # AGENTS.md
 
-## Project Context
+Guidance for agents and contributors working in this repository. The rules that used to live here
+have been merged into two documents, so there is one place for each kind of decision:
 
-- **Language**: Python 3.11+
-- **Environment**: Strict type-checking, automated linting, and rigorous documentation standards.
+| Document | Answers |
+|---|---|
+| **[SPEC.md](SPEC.md)** | *What the system is and does* — purpose, the BOSL2 relationship (feature parity, not API parity), the API-ergonomics principles, architecture and layering, the shape/geometry/backend contracts, the defaults and curve-resolution model, the error contract. High level; no Python mechanics. |
+| **[PLAN.md](PLAN.md)** | *How that is written in Python* — the language baseline, typing rules, class-oriented design, resolution plumbing, docstring and file-header rules, module/import layout, error mechanics, style, tests, commands, and the review checklist. |
 
-## Code Style & Formatting Rules
+**Read SPEC.md first, then PLAN.md.** Both are normative. Requirements are numbered (`P-1`, `D-3`,
+`R-1`, `T-2`, `O-2`, …); cite them in reviews and commit bodies.
 
-- Always use standard Python style guides unless explicitly overridden here.
-- Maximize clarity by using short, cohesive functions under 50 lines long.
-- Do not emit code containing `TODO` comments or stubbed code segments.
-- For all the doc strings, classes too, add a single line summary first and then a blank line and a description.
-- For any method that makes a 3d or 2d output add an example on how to use it that generates an stl.
-- All public methods must have a doc string.
+## The short version
 
-## 1. Type Hinting Guide
+1. **Ease of use is the product.** At most one required argument per constructor; every other
+   parameter has a sensible default; derive anything derivable. (SPEC §3)
+2. **Feature compatible with BOSL2, not API compatible.** Keep BOSL2's names and behaviour; use
+   Python's design — objects, methods, enums, exceptions, keyword arguments. (SPEC §2)
+3. **Objects over argument bags.** Parts, paths, regions and meshes are classes that own their
+   operations and expose derived dimensions as properties. (SPEC P-8, PLAN §3)
+4. **Curve resolution is universal.** Anything drawing an arc, circle, rounding or chamfer takes
+   `fn`/`fa`/`fs` (or `res`) and passes them to everything it builds. (SPEC §7.2, PLAN §4)
+5. **Type everything, `Any` almost never.** `mypy --strict` clean; full element types on every
+   collection; stubs for anything bound dynamically. (PLAN §2)
+6. **Google docstrings on every public callable**, with `Args:`/`Returns:`/`Raises:` and a
+   rendering example for anything that produces geometry. (PLAN §5)
+7. **Bad input raises `ValueError` naming the fix** — never `assert`, never silent coercion.
+   (SPEC §8, PLAN §7)
 
-AI agents must enforce strict, static type safety across the entire repository.
+## Before you finish
 
-### Rules
-
-- **Total Coverage**: Every function, method, parameter, and return value requires explicit type hints.
-- **No Implicit Any**: Do not use `Any` unless it is functionally unavoidable.
-- **Modern Syntax**: Use native pipe operators `|` for unions and built-in collection classes instead of the legacy `typing` module.
-- **Local Variable Annotations**: Explicitly type complex intermediate variables, collection initializations, or API payloads.
-- **Generic Constraints**: Define structural interfaces with `Protocol` or apply explicit variance rules on `TypeVar`.
-- **Python usgae**: Make sure to use built in python
-maths systems and other built in python mechanisms rather
-than making a new one.
-- **Paths**: For all lists of paths use the Paths object,
-list[Sequence[float]] or numpy arrays should use paths.
-- **Type overrides**: avoid type mixing in overrides, dont
-do 'float | list[float]' change it to handle only the list.
-
-### Good Implementation Example
-
-```python
-from collections.abc import Mapping, Sequence
-from typing import Protocol, TypeVar
-
-T = TypeVar("T", covariant=True)
-
-
-class Renderable(Protocol[T]):
-    def render(self) -> str: ...
-
-
-def process_items(items: Sequence[Renderable[str]], config: Mapping[str, int | float]) -> list[str]:
-    """Process a sequence of generic renderable items based on local configuration details."""
-    results: list[str] = []
-    limit: int | float = config.get("max_length", 100)
-
-    for item in items:
-        rendered: str = item.render()
-        if len(rendered) <= limit:
-            results.append(rendered)
-
-    return results
+```bash
+export TMPDIR=/Volumes/ExternalDocs/tmp/   # keep test scratch off a full system disk
+pytest                                     # full suite; STL-render tests skip without the app
+mypy --strict pybosl2                      # zero errors
+ruff check . --fix && ruff format .
 ```
 
-### Bad Implementation Example
-
-```python
-# AVOID: Missing types, legacy Union/List syntax, and implicit Any usage.
-from typing import List, Union
-
-
-def process_items(items, config: dict):
-    results = []  # Untyped empty collection
-    for item in items:
-        results.append(item.render())
-    return results
-```
-
-## 2. Documentation & Docstring Guide
-
-### File Header Tags
-
-Every source file must carry metadata tags in its comment header block immediately
-after the license text.  These drive the auto-generated documentation:
-
-- ``# DocCategory: <section>`` — **Required.**  Assigns the module to a section in
-  the API-reference toctree.  Valid values are: ``Foundational``,
-  ``Paths, regions & surfaces``, ``Math & geometry``, ``Parts library``,
-  ``Extras``, or ``internal`` (for support/private modules excluded from the
-  public docs).
-
-- ``# LibFile: pybosl2/<name>.py`` — **Required for public modules.**  The
-  canonical path to the file; its basename (without ``.py``) becomes the
-  navigation label in the docs sidebar.
-
-- ``# FileSummary: …`` — **Required for public modules.**  A single-line summary
-  (shown as the RST page subtitle and as the tooltip in the sidebar).  Keep it
-  under 120 characters.
-
-- ``# FileGroup: BOSL2`` — The BOSL2 origin group.  All modules currently belong
-  to this group.
-
-Example header block::
-
-    # Copyright (c) 2026, pinkfish
-    #
-    # Licensed under the BSD 2-Clause License. See the LICENSE file in the project
-    # root for the full license text.
-    # SPDX-License-Identifier: BSD-2-Clause
-
-    # LibFile: pybosl2/geometry.py
-    # FileSummary: Points, lines and polygon geometry helpers (BOSL2 geometry.scad).
-    # DocCategory: Math & geometry
-    # FileGroup: BOSL2
-
-### Docstring Rules
-
-- **Format style**: Adhere strictly to the Google Python Style Guide for all docstrings.
-- **Mandatory Fields**: Every public module, class, and function must include an explanatory docstring overview.
-- **Section Breaks**: Delineate `Args:`, `Returns:`, and `Raises:` arguments with clear line breaks.
-- **No Type Redundancy**: Do not duplicate type names inside the docstrings text; rely exclusively on the source type hints.
-- **Error Transparency**: Every exception explicitly thrown in the function block must be declared under a `Raises:` header.
-
-### Good Implementation Example
-
-```python
-def fetch_user_profile(user_id: int, timeout_seconds: float = 5.0) -> dict[str, str]:
-    """Retrieves comprehensive account credentials for a verified user profile.
-
-    This function queries the database backend directly to parse core identity schemas.
-
-    Args:
-        user_id: The unique database row identifier assigned to the user profile.
-        timeout_seconds: Maximum duration in seconds to wait before terminating the request.
-
-    Returns:
-        A map containing verified user account attributes such as email and username status.
-
-    Raises:
-        ValueError: If the requested user_id is zero or structurally malformed.
-        ConnectionError: If the remote authentication database times out.
-    """
-    if user_id <= 0:
-        raise ValueError("The provided user account identifier must be a positive integer.")
-    ...
-```
-
-### Bad Implementation Example
-
-```python
-def fetch_user_profile(user_id: int, timeout_seconds: float = 5.0) -> dict[str, str]:
-    """Fetches profiles.
-
-    :param user_id: int (AVOID: Redundant type listing and non-Google style layout)
-    :returns: dict
-    """
-    ...
-```
-
-## 3. Architectural Constraints & Dynamic Code Rules
-
-- **No Dynamic Globals**: Never use `globals()[name] = ...` or `setattr(module, ...)` to dynamically register functions, classes, or primitives. All public APIs must be explicitly declared and statically typed.
-- **No Untyped Whitelists / Magic __getattr__**: Avoid implementing dynamic method dispatchers via `__getattr__` without corresponding static type definitions or `.pyi` stubs. All usable methods must be visible to IDEs and static analyzers.
-- **Proxy Design & Autocast Interop**: Ensure `Bosl2Solid` and `Bosl2Shape2D` remain independent objects wrapping raw geometry via composition rather than inheritance. They must proxy all operations the PythonSCAD object handles. For interop with the C++ layer, implement conversion hooks (e.g., `__scad__` or standard conversion methods) to allow the PythonSCAD extension to resolve the raw shape automatically.
-- **Dimension Validation**: Always keep 2-D shapes (`Bosl2Shape2D`) and 3-D shapes (`Bosl2Solid`) separate. Do not allow implicit mixed-dimension operations (e.g., applying 3-D transforms directly on 2-D objects without extrusion).
-- **STL Examples for 2-D Shapes**: Any 2-D shape example demonstrating STL generation MUST first use `.linear_extrude(...)` or another extrusion operation to convert the 2-D shape to 3-D. Standard STL exports do not support pure 2-D geometry.
-- **Explicit Casts on FFI Primitives**: When calling native primitives obtained via `native("...")`, wrap or cast the returned callable to an explicit type signature (using `Callable` or a typing Protocol) rather than allowing the return type to default to `Any`.
-- **Run Tests Before Completion**: When modifying geometry, backends, or paths, always run `pytest` (and specifically rendering tests via `pytest tests/test_stl_render.py` if a PythonSCAD binary is available) to verify that no functional regressions were introduced.
-
-## Validation & Verification Commands
-
-Always test modifications locally before finalizing suggestions or submitting pull requests:
-- **Type Check**: `mypy --strict .`
-- **Lint & Format**: `ruff check . --fix` and `ruff format .`
+The full checklist is [PLAN.md §11](PLAN.md#11-review-checklist); open debt is tracked in
+[SPEC.md §11](SPEC.md#11-conformance-status).

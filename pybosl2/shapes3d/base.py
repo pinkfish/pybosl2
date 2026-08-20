@@ -33,6 +33,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import unwrap
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
+from pybosl2.defaults import resolve_facets as _resolve_facets
 from pybosl2.enums import AttachTag
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
@@ -70,7 +71,12 @@ def _ocylinder(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "PyOpenSCAD":
-    """Return the native cylinder, accepting this file's full-word kwargs (native wants h/r/radius1/radius2)."""
+    """Return the native cylinder, accepting this file's full-word kwargs (native wants h/r/radius1/radius2).
+
+    Whatever the caller left as None comes from the ambient defaults
+    (:func:`pybosl2.defaults.use_defaults`) before the renderer's own $fa/$fs.
+    """
+    fn, fa, fs = _resolve_facets(fn, fa, fs)
     kw = {}
     for full, nat in (
         (height, "h"),
@@ -94,7 +100,12 @@ def _osphere(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "PyOpenSCAD":
-    """Return the native sphere, accepting this file's full-word kwargs (native wants r)."""
+    """Return the native sphere, accepting this file's full-word kwargs (native wants r).
+
+    Whatever the caller left as None comes from the ambient defaults
+    (:func:`pybosl2.defaults.use_defaults`) before the renderer's own $fa/$fs.
+    """
+    fn, fa, fs = _resolve_facets(fn, fa, fs)
     kw = {}
     for full, nat in (
         (radius, "r"),
