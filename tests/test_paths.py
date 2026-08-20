@@ -33,7 +33,7 @@ def test_is_a_list_of_plain_floats() -> None:
 
 
 def test_rejects_non_xy_points() -> None:
-    with pytest.raises(ValueError, match="Path2D\ needs\ \[x,\ y\]\ points,\ got"):
+    with pytest.raises(ValueError, match=r"Path2D needs \[x, y\] points, got"):
         Path2D([[0, 0, 0], [1, 1, 1]])
 
 

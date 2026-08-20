@@ -268,14 +268,11 @@ def _regular_ngon_path(
             raise ValueError("Cannot set both rounding and chamfer at the same time on an n-gon.")
         half_angle = math.radians((180 - 360.0 / sides) / 2)
         inset: float = chamfer / math.sin(half_angle) if chamfer else rounding / math.sin(half_angle)
-        assert inset < radius, (
-            f"{'chamfer' if chamfer else 'rounding'} value {chamfer or rounding} is too large "
-            f"for a {sides}-gon of radius {radius}"
-        )
-        assert inset < radius, (
-            f"{'chamfer' if chamfer else 'rounding'} value {chamfer or rounding} is too large "
-            f"for a {sides}-gon of radius {radius}"
-        )
+        if inset >= radius:
+            treatment = "chamfer" if chamfer else "rounding"
+            raise ValueError(
+                f"{treatment} value {chamfer or rounding} is too large for a {sides}-gon of radius {radius}."
+            )
         steps = max(1, int(_frag_count(radius, fn, fa, fs) // sides))
         path2: list[list[float]] = []
         for i in range(sides):

@@ -92,9 +92,9 @@ def test_catenary_sign_flips_with_negative_droop() -> None:
 
 
 def test_catenary_requires_exactly_one_of_droop_angle() -> None:
-    with pytest.raises(ValueError, match="catenary\(\)\ needs\ exactly\ one\ of"):
+    with pytest.raises(ValueError, match=r"catenary\(\) needs exactly one of"):
         Path2D.catenary(width=10)
-    with pytest.raises(ValueError, match="catenary\(\)\ needs\ exactly\ one\ of"):
+    with pytest.raises(ValueError, match=r"catenary\(\) needs exactly one of"):
         Path2D.catenary(width=10, droop=2, angle=30)
 
 

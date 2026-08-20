@@ -286,9 +286,9 @@ def test_offset_returns_the_2d_wrapper() -> None:
 
 
 def test_offset_needs_exactly_one_of_radius_or_delta() -> None:
-    with pytest.raises(ValueError, match="give\ exactly\ one\ of"):
+    with pytest.raises(ValueError, match="give exactly one of"):
         s2.square(10).offset()
-    with pytest.raises(ValueError, match="give\ exactly\ one\ of"):
+    with pytest.raises(ValueError, match="give exactly one of"):
         s2.square(10).offset(radius=2, delta=2)
 
 
@@ -668,7 +668,7 @@ def test_regular_ngon_both_rounding_and_chamfer_raises() -> None:
 
 
 def test_regular_ngon_oversized_chamfer_raises() -> None:
-    with pytest.raises(AssertionError, match="too large"):
+    with pytest.raises(ValueError, match="too large"):
         s2.regular_ngon(sides=6, radius=10, chamfer=20)
 
 

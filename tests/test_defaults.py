@@ -368,21 +368,29 @@ def test_no_assert_validates_user_input() -> None:
 
     Asserts vanish under ``python -O``, so a validating assert means bad input silently produces
     wrong geometry. The test for which is which (PLAN E-P2): if the message names something the
-    caller typed — a function call or a parameter — it is validation.
+    caller typed — a call, a parameter assignment, or one of the enclosing function's own
+    parameter names — it is validation.
     """
     import ast
 
     offenders: list[str] = []
     for path in sorted(PACKAGE.rglob("*.py")):
-        for node in ast.walk(ast.parse(path.read_text())):
-            if not isinstance(node, ast.Assert) or node.msg is None:
+        tree = ast.parse(path.read_text())
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
-            if isinstance(node.msg, ast.Constant):
-                message = str(node.msg.value)
-            elif isinstance(node.msg, ast.JoinedStr):
-                message = "".join(p.value for p in node.msg.values if isinstance(p, ast.Constant))
-            else:
-                continue
-            if "()" in message or "=" in message:
-                offenders.append(f"{path.relative_to(PACKAGE.parent)}:{node.lineno}: {message[:60]}")
+            args = node.args
+            names = {a.arg for a in args.args + args.kwonlyargs + args.posonlyargs} - {"self", "cls"}
+            for sub in ast.walk(node):
+                if not isinstance(sub, ast.Assert) or sub.msg is None:
+                    continue
+                if isinstance(sub.msg, ast.Constant):
+                    message = str(sub.msg.value)
+                elif isinstance(sub.msg, ast.JoinedStr):
+                    message = "".join(p.value for p in sub.msg.values if isinstance(p, ast.Constant))
+                else:
+                    continue
+                spoken = {n for n in names if n in message or n.replace("_", " ") in message}
+                if "()" in message or "=" in message or spoken:
+                    offenders.append(f"{path.relative_to(PACKAGE.parent)}:{sub.lineno}: {message[:58]}")
     assert not offenders, "asserts that validate user input:\n  " + "\n  ".join(offenders)

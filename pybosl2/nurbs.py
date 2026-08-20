@@ -387,9 +387,8 @@ def _curve_points(
         )
         return [np.asarray(pt[:-1], dtype=float) / pt[-1] for pt in rational]
 
-    assert nurbs_type == NurbsType.CLOSED or len(control) >= degree + 1, (
-        f"Not enough control points for a degree {degree} {nurbs_type.value} curve."
-    )
+    if not (nurbs_type == NurbsType.CLOSED or len(control) >= degree + 1):
+        raise ValueError(f"Not enough control points for a degree {degree} {nurbs_type.value} curve.")
     ctrl = [np.asarray(p, dtype=float) for p in control]
     if nurbs_type == NurbsType.CLOSED:
         ctrl = ctrl + ctrl[:degree]
@@ -788,9 +787,8 @@ class NurbsCurve:
             raise ValueError(f"degree must be a positive integer, got {degree!r}")
         if not (isinstance(nurbs_type, NurbsType)):
             raise ValueError(f"unknown NURBS type: {nurbs_type!r}")
-        assert nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1, (
-            f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points"
-        )
+        if not (nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1):
+            raise ValueError(f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points")
         if not (weights is None or len(weights) == pts.shape[0]):
             raise ValueError("weights must match the number of control points.")
         pts.flags.writeable = False  # the definition is fixed once built; make a new curve to change it
@@ -1025,9 +1023,8 @@ class NurbsPatch:
             raise ValueError(f"degree must be positive integers, got {degree!r}")
         if not (all((isinstance(t, NurbsType) for t in nurbs_type))):
             raise ValueError(f"unknown NURBS type: {nurbs_type!r}")
-        assert weights is None or np.asarray(weights, dtype=float).shape == pts.shape[:2], (
-            "weights must be the same size as the control-point grid."
-        )
+        if not (weights is None or np.asarray(weights, dtype=float).shape == pts.shape[:2]):
+            raise ValueError("weights must be the same size as the control-point grid.")
         pts.flags.writeable = False  # the definition is fixed once built; make a new patch to change it
         self._control = pts
         self._degree = (degree[0], degree[1])

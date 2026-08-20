@@ -517,9 +517,8 @@ def cylindrical_heightfield(
     circ = 2 * math.pi * maxr
     astep = 360 / circ * stepx
     arc = astep * (xlen - 1)
-    assert stepx * xlen <= circ, (
-        f"heightfield ({xlen} x {ylen}) needs a radius of at least {maxr * stepx * xlen / circ}."
-    )
+    if not (stepx * xlen <= circ):
+        raise ValueError(f"heightfield ({xlen} x {ylen}) needs a radius of at least {maxr * stepx * xlen / circ}.")
     bsteps = max(1, round(_frag_count(maxr - base) * arc / 360))
     bstep = arc / bsteps
 

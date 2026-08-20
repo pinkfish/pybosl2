@@ -62,17 +62,17 @@ def test_curve_repr_round_trips_the_definition() -> None:
 
 
 def test_bad_degree_raises() -> None:
-    with pytest.raises(ValueError, match="degree\ must\ be\ a"):
+    with pytest.raises(ValueError, match="degree must be a"):
         NurbsCurve(CTRL2, 0)
 
 
 def test_too_few_control_points_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="control points"):
         NurbsCurve([[0, 0], [10, 0]], 3)  # degree 3 needs >= 4 points
 
 
 def test_weights_must_match_control_points() -> None:
-    with pytest.raises(ValueError, match="weights\ must\ match\ the"):
+    with pytest.raises(ValueError, match="weights must match the"):
         NurbsCurve(CTRL2, 3, weights=[1, 2])
 
 
@@ -111,7 +111,7 @@ def test_points_returns_one_row_per_parameter() -> None:
 
 
 def test_u_out_of_range_raises() -> None:
-    with pytest.raises(ValueError, match="u\ must\ lie\ in"):
+    with pytest.raises(ValueError, match="u must lie in"):
         NurbsCurve(CTRL3, 3).points([0, 1.5])
 
 
@@ -189,7 +189,7 @@ def test_elevate_weighted_curve_keeps_weights() -> None:
 
 
 def test_elevate_closed_curve_raises() -> None:
-    with pytest.raises(ValueError, match="degree\ elevation\ needs\ a"):
+    with pytest.raises(ValueError, match="degree elevation needs a"):
         NurbsCurve([[0, 0], [10, 0], [10, 10], [0, 10]], 2, NurbsType.CLOSED).elevate_degree()
 
 
@@ -241,12 +241,12 @@ def test_patch_state_is_encapsulated() -> None:
 
 
 def test_patch_rejects_a_ragged_grid() -> None:
-    with pytest.raises(ValueError, match="control\ must\ be\ a"):
+    with pytest.raises(ValueError, match="control must be a"):
         NurbsPatch([[[0, 0, 0], [1, 0, 0]], [[0, 1, 0]]], (1, 1))
 
 
 def test_patch_weights_must_match_the_grid() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="same size"):
         NurbsPatch(PATCH, (3, 3), weights=[[1.0, 1.0], [1.0, 1.0]])
 
 
@@ -305,7 +305,7 @@ def test_vnf_uses_default_degree_and_splinesteps() -> None:
 
 
 def test_vnf_caps_require_closed_clamped() -> None:
-    with pytest.raises(ValueError, match="caps\ require\ \(CLAMPED,CLOSED\)"):
+    with pytest.raises(ValueError, match=r"caps require \(CLAMPED,CLOSED\)"):
         # both directions clamped -> no caps allowed
         NurbsPatch(PATCH, (3, 3)).vnf(caps=CapType.BUTT)
 

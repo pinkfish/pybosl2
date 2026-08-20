@@ -26,7 +26,7 @@ def test_construction_requires_3d_points() -> None:
     assert isinstance(p, Path3D)
     assert len(p) == 4
     np.testing.assert_array_equal(p[0], [0.0, 0.0, 0.0])
-    with pytest.raises(ValueError, match="Path3D\ needs\ \[x,\ y,\ z\]\ points,"):
+    with pytest.raises(ValueError, match=r"Path3D needs \[x, y, z\] points,"):
         Path3D([[0, 0], [1, 1]])  # 2-D points rejected
     assert p.array.shape == (4, 3)
     assert p.closed is True

@@ -220,9 +220,10 @@ def arc(
     if corner is not None:
         if not (len(corner) == 3):
             raise ValueError("corner= needs exactly 3 points")
-        assert not is_collinear(
+        if is_collinear(
             Point(corner[0][0], corner[0][1]), Point(corner[1][0], corner[1][1]), Point(corner[2][0], corner[2][1])
-        ), "Collinear corner does not define an arc"
+        ):
+            raise ValueError("Collinear corner does not define an arc")
         rad = _pick_radius(radius=radius, diameter=diameter)
         if not (rad is not None):
             raise ValueError("arc(corner=) needs radius= or diameter=")

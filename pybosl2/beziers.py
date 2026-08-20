@@ -118,10 +118,13 @@ class Bezier:
         if pts.size == 0:
             self._points = np.empty((0, 0), dtype=float)
         else:
-            assert pts.ndim == 2, (
-                f"control points must be a 2-D array (N points x D dims), got {pts.ndim}-D shape {pts.shape}"
-            )
-            if not (pts.shape[0] >= 1):
+            if not (pts.ndim == 2):
+                raise ValueError(
+                    f"control points must be a 2-D array (N points x D dims), got {pts.ndim}-D shape {pts.shape}"
+                )
+            if not (
+                pts.shape[0] >= 1
+            ):  # pragma: no cover - defensive: an empty sequence is handled by the size == 0 branch above
                 raise ValueError(f"control points must have at least 1 point, got shape {pts.shape}")
             if pts.shape[1] not in (2, 3):
                 raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
@@ -1143,12 +1146,17 @@ class BezierPatch:
         if pts.size == 0:
             self._rows = np.empty((0, 0, 0), dtype=float)
         else:
-            assert pts.ndim == 3, (
-                f"patch rows must be a 3-D array (R rows x C cols x 3 dim), got {pts.ndim}-D shape {pts.shape}"
-            )
-            if not (pts.shape[0] >= 1):
+            if not (pts.ndim == 3):
+                raise ValueError(
+                    f"patch rows must be a 3-D array (R rows x C cols x 3 dim), got {pts.ndim}-D shape {pts.shape}"
+                )
+            if not (
+                pts.shape[0] >= 1
+            ):  # pragma: no cover - defensive: an empty sequence is handled by the size == 0 branch above
                 raise ValueError(f"patch must have at least 1 row, got shape {pts.shape}")
-            if not (pts.shape[1] >= 1):
+            if not (
+                pts.shape[1] >= 1
+            ):  # pragma: no cover - defensive: a row-less array is already rejected by the ndim check
                 raise ValueError(f"patch must have at least 1 column, got shape {pts.shape}")
             if not (pts.shape[2] == 3):
                 raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
