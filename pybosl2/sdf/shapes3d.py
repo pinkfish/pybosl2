@@ -255,6 +255,19 @@ class SdfSolid(Distributable):
         size = [b - a for a, b in zip(self.mn, self.mx, strict=False)]
         return center, size
 
+    def show(self) -> "SdfSolid":
+        """Hand this shape to the renderer as the output of the script, and return it.
+
+        Meshing the field is unavoidable here and is not the implicit conversion SPEC B-5
+        forbids: rendering *is* meshing, and nothing meshed is handed back — the return value is
+        this SDF shape, so the chain stays in SDF-land.
+
+        Returns:
+            This shape, so the call can be chained or assigned.
+        """
+        self.mesh().show()
+        return self
+
     def mesh(self) -> Any:
         """Mesh this SDF into a real solid via frep() (cached after the first call).
 

@@ -70,6 +70,11 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   `Self` is what makes SPEC C-16 static: `flat | flat` checks, `flat | solid` does not, with no
   runtime guard and no `TypeVar` machinery. A shared member MUST NOT be re-declared on `Flat` or
   `Solid` — re-declaring is how the two drifted apart in the first place.
+* **T-6b Protocol members must be real methods.** Since Python 3.12, `isinstance()` against a
+  `runtime_checkable` Protocol uses static lookup and ignores anything `__getattr__` supplies. A
+  member that exists only through a dynamic passthrough therefore fails the check even though the
+  call works — which is how `show()` was absent from every shape contract while appearing to be
+  present. Anything in a contract MUST be declared on the class.
 * **T-7 Variance is explicit.** `TypeVar("T", covariant=True)` / `contravariant=True` where a
   generic is exposed publicly.
 * **T-8 Stubs for dynamic surfaces.** Any module whose public names are bound dynamically MUST ship
@@ -94,6 +99,9 @@ what they need, rather than passing a bag of numbers through free functions.
   paths and curves, regions, meshes and surfaces, sweeps, strokes and caps, masks, partitions,
   distribution, textures, colour, import/interchange, parts. New work belongs to one of them; if it
   does not, the spec gains a subsection before the code lands.
+* **O-0a Parts build through the façade.** A part imports `pybosl2.solid` / `pybosl2.flat`, never
+  `pybosl2.shapes3d` / `pybosl2.shapes2d` directly, so it honours the active backend (SPEC S-46a).
+  Reaching a backend module directly is what makes a part silently CSG-only.
 * **O-1 Parts are classes.** Every entry in `pybosl2/parts/` is a class — `Screw`, `SpurGear`,
   `KnuckleHinge`, `RegularPolyhedron`, `NemaMotor` — not a family of functions. A stateless family
   of catalogue lookups MAY instead be a class holding classmethod factories
@@ -105,8 +113,12 @@ what they need, rather than passing a bag of numbers through free functions.
      on the first line of `__init__`,
   3. read-only `@property` accessors for every derived dimension (`diameter`, `pitch`,
      `pitch_radius`, `head_height`) so callers can measure without building geometry,
-  4. a `shape` property returning the `Solid`/`Flat`, built lazily and cached,
+  4. a **`@property` named `shape`** returning the `Solid`/`Flat`, built on first access and
+     cached in a private attribute — `part.shape`, never `part.shape()`,
   5. a `show()` for the interactive/preview case.
+
+  Beware the name: on a backend wrapper, `.shape` is the *raw native handle* (SPEC C-14a). A part's
+  `shape` returns the wrapped `Solid`; a wrapper's returns what it wraps.
 * **O-3 Geometry types are classes too.** `Path2D`, `Path3D`, `Region`, `VNF`, `Bezier`,
   `NurbsCurve`, `Color`, `Bounds2D/3D` own their operations as methods, so work reads as a fluent
   chain rather than nested calls.
@@ -120,6 +132,13 @@ what they need, rather than passing a bag of numbers through free functions.
 * **O-6 Enums for closed vocabularies.** `StrEnum` in `pybosl2/enums.py` and
   `pybosl2/parts/enums.py`, so the legacy string spelling still compares equal. A new bare-string
   parameter with a fixed set of accepted values is a defect.
+* **O-5a `show()` returns the shape.** Every implementation of `show()` returns `Self`, never
+  `None` (SPEC S-49), so it can close a chain: `part = cuboid([20, 20, 10]).up(5).show()`. A
+  builder's `show()` delegates to its `shape`'s and returns the same way.
+* **O-6a The backend tag is a class constant.** A wrapper declares `backend = "csg"` (or
+  `"sdf"`) as a class attribute; it MUST NOT be assigned from `current_backend()` in `__init__`.
+  The tag says *who built this object*, not *what was selected when it happened* (SPEC C-1), and
+  reading the ambient value there silently disables the cross-backend guard.
 * **O-7 Composition at the FFI boundary.** `Bosl2Solid`/`Bosl2Shape2D` wrap the native handle by
   composition, never inheritance, and proxy operations through the explicit
   `_NATIVE_PASSTHROUGH` allowlist (SPEC C-6).
@@ -185,6 +204,11 @@ Python that means:
   and the default's effect.
 * **D-P4 `Raises:` is complete.** Every exception raised in the body appears there, including the
   `ValueError`s from argument validation.
+* **D-P4a The façade is documented like any other API.** A constructor in `solid.py`/`flat.py`
+  carries its own `Args:` for every parameter it declares and its own example — delegating to a
+  backend module documents the backend, not the entry point users are told to use (SPEC DOC-2).
+  Where the resolved default differs per backend, say what it resolves to and point at
+  `effective_defaults()`.
 * **D-P5 Examples that build geometry.** Every function producing 2-D or 3-D output carries a
   `.. pythonscad-example::` block that renders to STL. A 2-D example MUST extrude
   (`.linear_extrude(...)`) before `.show()`, since STL has no 2-D form.
@@ -230,7 +254,10 @@ Python that means:
   radius/diameter, and a wall thickness."*
 * **E-P2** `assert` is for internal invariants only. An `assert` that a user's argument combination
   is valid is a defect: asserts vanish under `python -O`, and `AssertionError` tells the caller
-  nothing about what to pass.
+  nothing about what to pass. The test for which is which: **if the message names a parameter the
+  caller typed, it is validation and must raise `ValueError`**; if it states something the code
+  guarantees for itself ("cells are non-empty here"), it is an invariant and may stay an assert
+  with no user-facing wording.
 * **E-P3** Library errors derive from `pybosl2.exceptions.Bosl2Error`; backend refusals use
   `UnsupportedByBackendError(feature, backend, hint=…)` and cross-backend mixing uses
   `CrossBackendError`. Both MUST carry an actionable hint.

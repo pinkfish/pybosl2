@@ -74,6 +74,24 @@ class SdfShape2D:
     def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:  # type: ignore[type-arg]
         return PyShape2D(sdf_fn, mn, mx, self.res)
 
+    def show(self) -> PyShape2D:
+        """Refuse to render a 2-D field, naming the extrusion that would make it renderable.
+
+        Returns:
+            Never returns.
+
+        Raises:
+            UnsupportedByBackendError: Always -- a 2-D distance field has no rendering of its own.
+        """
+        from pybosl2.exceptions import UnsupportedByBackendError
+
+        raise UnsupportedByBackendError(
+            "show",
+            "sdf",
+            hint="a 2-D distance field has no rendering of its own -- extrude it first, e.g. "
+            "shape.linear_extrude(height=5).show().",
+        )
+
     # ---- transforms ----
 
     def translate(self, v: Sequence[float]) -> PyShape2D:

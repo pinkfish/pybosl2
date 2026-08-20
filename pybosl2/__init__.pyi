@@ -61,7 +61,6 @@ from pybosl2.exceptions import Bosl2Error as Bosl2Error
 from pybosl2.exceptions import CrossBackendError as CrossBackendError
 from pybosl2.exceptions import UnsupportedByBackendError as UnsupportedByBackendError
 from pybosl2.flat import Flat as Flat
-from pybosl2.flat import Shape2D as Shape2D
 from pybosl2.flat import circle as circle
 from pybosl2.flat import polygon as polygon
 from pybosl2.flat import rect as rect
@@ -216,7 +215,6 @@ __all__: list[str] = [
     "Region",
     "Resolution",
     "SEGMENT",
-    "Shape2D",
     "Solid",
     "TOP",
     "UP",

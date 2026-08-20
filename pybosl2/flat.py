@@ -75,9 +75,9 @@ class Flat(Protocol):
         """Axis-aligned bounding box as ``(center, size)``, without rendering."""
         ...
 
-
-# Backward compatibility alias
-Shape2D = Flat
+    def show(self) -> Any:
+        """Hand this shape to the renderer as the output of the script, and return it."""
+        ...
 
 
 def circle(

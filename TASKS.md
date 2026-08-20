@@ -13,16 +13,129 @@ Run with `TMPDIR` pointed at a volume with room (PLAN X-6).
 ## Order and why
 
 ```
+  T0 backend tag ──► everything else            the cross-backend guard must work first
+       │
+  T0b asserts · T0c parts.shape · T0d parts __all__ · T0e façade docs   user-visible, independent
+       │
+  T0f parts honour the backend (needs T0 + T2b)
+       │
   T1 Shape merge ──► T2 façade defaults ──► T3 SDF fallback ──► T4 parity records
-   (contract)          (uses the contract)    (needs T1's Self)   (reconcile the lists)
+   (contract)          (uses the contract)     (needs T1's Self)   (reconcile the lists)
+       │
+  T2b top-level neutrality (needs T2's façade defaults)
 
   T5 facet backlog ─── independent, batchable by module
   T6 fn=0 · T7 min-arg check · T8 class-ify · T9 BOSL2 matrix ─── independent
 ```
 
-T1 → T2 because the façade signatures are easier to change once `Shape` fixes what "a shared
-argument" means. T2 → T3 because the fallback fix needs the shared surface to know what an SDF
-shape *should* implement. T5–T9 are independent and can be picked up in any order or in parallel.
+**T0 goes first.** While the backend tag lies, every other backend-related change is being tested
+against a guard that does not fire. T0b–T0e are what a user hits on day one and need nothing else
+landed first. T1 → T2 because the façade signatures are easier to change once `Shape` fixes what
+"a shared argument" means; T2 → T2b because promoting shapes to the façade means declaring their
+defaults there.
+
+---
+
+## T0 — Make the backend tag tell the truth
+
+**Closes:** C-1, E-3 (§12.2 item 1) · **Size:** S · **Risk:** low, but it exposes latent mixing bugs
+
+`CsgSolid.__init__` does `self.backend = current_backend()`, so a CSG solid built inside a
+`use_backend("sdf")` block claims to be an SDF solid. `check_operand_backend` then waves it through
+and the user gets `AssertionError: every argument must be a PyShape, got ['CsgSolid']` from inside
+the SDF backend instead of `CrossBackendError` with the conversion hint.
+
+1. Replace the assignment with a class constant `backend = "csg"` on `CsgSolid` (PLAN O-6a), the
+   way `CsgShape2D` already does it.
+2. Make CSG-only constructors refuse inside an SDF block: raise `UnsupportedByBackendError` naming
+   the neutral equivalent (`pybosl2.solid.cyl` for `pybosl2.shapes3d.cyl`, …) rather than returning
+   a shape the caller cannot combine.
+3. Expect fallout — tests that build CSG shapes inside an SDF block on purpose now fail; each is a
+   real mixing bug or a test that should say which backend it means.
+
+**Done when:** a test asserts that a CSG shape built inside `use_backend("sdf")` reports
+`backend == "csg"`, and that combining it with an SDF shape raises `CrossBackendError`.
+
+---
+
+## T0b — Convert user-input asserts to `ValueError`
+
+**Closes:** E-4 (§12.2 item 3) · **Size:** L, batchable · **Risk:** low
+
+290 asserts carry user-facing messages; `python -O` deletes all of them. Public entry points first
+(PLAN E-P2's test: does the message name a parameter the caller typed?).
+
+Batches, highest user contact first:
+- [ ] `shapes2d/` (17 in `circle.py` alone — `star(): must specify tips` lives here) and `shapes3d/`
+- [ ] `solid.py` / `flat.py` façades
+- [ ] `parts/` — a wrong trade size or dimension is the most likely user error of all
+- [ ] `skin.py` (20), `isosurface.py` (22), `surfaces3d.py` (15), `texture.py` (13), `beziers.py`,
+      `nurbs.py`, `miscellaneous.py`
+- [ ] `sdf/` (31 in `shapes3d.py`, 11 each in `shapes2d.py`/`paths.py`)
+
+While converting, fold in D-8: an argument the function actually requires should be required in the
+signature, not asserted (`star(tips=None)` is the same defect as the old `prismoid`).
+
+**Done when:** no `assert` in the package carries a message naming a caller-supplied parameter; add
+a test that greps for the pattern so it cannot come back.
+
+---
+
+## T0c — Make `part.shape` a property
+
+**Closes:** C-14 (§12.2 item 4) · **Size:** M · **Risk:** low, but API-visible
+
+All 37 part classes define `shape` as a method; the spec, the docs and every example say property.
+
+1. Add `@property` with lazy caching to each part's `shape` (many already cache in `self._solid`).
+2. Update docstring examples and the spec sheets that call `.shape()`.
+3. Add a test walking `pybosl2.parts.__all__` asserting `shape` is a property on every class.
+4. Keep the C-14a distinction visible in docstrings: a part's `shape` is the finished solid, a
+   wrapper's is the native handle.
+
+---
+
+## T0d — Fix the broken export
+
+**Closes:** A-7 (§12.2 item 6) · **Size:** XS · **Risk:** none
+
+`pybosl2.parts.__all__` lists `Threading`, which does not exist, so `from pybosl2.parts import *`
+raises. Remove it (or export the intended name), then add a test asserting every name in every
+public module's `__all__` resolves.
+
+---
+
+## T0e — Document the façade
+
+**Closes:** DOC-2, D-P4a (§12.2 item 5) · **Size:** M · **Risk:** none
+
+27 façade callables have no `Args:` and no example, so `help(pybosl2.cuboid)` — the entry point the
+spec recommends — documents nothing. Give each an `Args:` covering the parameters it declares, a
+note on what an omitted argument resolves to (and `effective_defaults()`), and one
+`.. pythonscad-example::`. Best done with or after T2, when the façade owns the defaults it would
+be documenting.
+
+---
+
+---
+
+## T0f — Make parts honour the active backend
+
+**Closes:** S-46a, PAR-1 (§12.2 item 7) · **Size:** L · **Risk:** medium
+
+Every part imports `pybosl2.shapes3d` directly, so `with use_backend("sdf"): Screw("M6", length=20)`
+returns a CSG part that cannot be combined with the SDF geometry around it.
+
+1. Re-point each part module's imports at `pybosl2.solid` / `pybosl2.flat` (PLAN O-0a).
+2. Where a part needs something only CSG can express (threading helices, text, some masks), raise
+   `UnsupportedByBackendError` naming the backend rather than returning the other backend's shape.
+3. Fix the parts' `show()` while you are there: `self.shape.show()` after T0c, returning the shape
+   (S-49, §12.2 item 8).
+4. Add a test: every part class built inside `use_backend("sdf")` either yields `backend == "sdf"`
+   or raises `UnsupportedByBackendError`.
+
+**Depends on:** T0 (the backend tag must be truthful before this can be tested) and T2b (the façade
+needs the shapes parts use).
 
 ---
 
@@ -40,8 +153,8 @@ long after `Solid` was not, and why it lacked `bounds()` until recently.
 2. Redeclare `Flat(Shape, Protocol)` with only `linear_extrude`, `rotate_extrude`, `offset`, and
    `Solid(Shape, Protocol)` with only `projection` and the 3-D-only surface. Remove every member
    that is now inherited — a re-declaration re-opens the drift.
-3. Re-point `flat.py` and `solid.py` at the new declarations; keep `Flat`/`Solid`/`Shape2D` exported
-   (add `Shape` to `_LAZY_EXPORTS` and `__init__.pyi`).
+3. Re-point `flat.py` and `solid.py` at the new declarations; export `Shape` alongside
+   `Flat`/`Solid` (`_LAZY_EXPORTS` + `__init__.pyi`). There is no `Shape2D` alias any more (C-18).
 4. Confirm the four implementations still satisfy the protocols: `CsgSolid`, `SdfSolid`,
    `CsgShape2D`, `PyShape2D`.
 
@@ -71,6 +184,21 @@ passed, so an identical call can resolve differently per backend.
 needs no change (PLAN F-P4); no golden STL shifts.
 
 ---
+
+## T2b — Make the top level backend-neutral
+
+**Closes:** A-6 (§12.2 item 2) · **Size:** M · **Risk:** low
+
+`star`, `cone`, `egg`, `roof`, `text3d`, `path_text` and most of `shapes2d` are exported from the
+top level but only build on CSG.
+
+1. Give each a façade constructor that dispatches on the active backend, using the SDF equivalents
+   that already exist (`star2d`, `ellipse2d`, `regular_ngon2d`, `trapezoid2d`, `keyhole2d`, …).
+2. Where the SDF backend has no equivalent (`roof`, `text3d`, `path_text`), raise
+   `UnsupportedByBackendError` with a hint rather than silently building CSG.
+3. Re-point `_LAZY_EXPORTS` at the façade and regenerate `__init__.pyi`.
+4. Add a test: for every top-level shape name, building it inside `use_backend("sdf")` either
+   returns an SDF-backed shape or raises `UnsupportedByBackendError` — never a CSG shape.
 
 ## T3 — Stop the SDF fallback silently meshing
 

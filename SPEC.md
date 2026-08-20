@@ -129,6 +129,13 @@ show the basic case, the defaults are wrong, not the example.
   exported name MUST still be statically declared so editors and type checkers see the full API.
 * **A-5** `square`/`circle`/`cube`/`text` intentionally shadow the OpenSCAD builtins with the
   anchor-aware versions, so the package MUST NOT be wildcard re-exported.
+* **A-6** Everything exported from the top level MUST honour the active backend. A constructor that
+  only one backend can build belongs on that backend's module, not on `pybosl2`, so that
+  `from pybosl2 import …` never silently produces a shape on the backend the caller did not
+  select. Mixed neutral and backend-specific names at the top level is the defect this rule
+  exists to prevent.
+* **A-7** A name in a module's `__all__` MUST resolve. An `__all__` entry with no matching
+  attribute breaks `import *` and every tool that walks the export list.
 
 ---
 
@@ -144,7 +151,7 @@ with two dimensional specialisations**, not as two parallel contracts that happe
                     Shape                     the universal contract
               backend tag · | & -             (§5.1, C-15)
         translate/rotate/scale/mirror
-                  bounds()
+              bounds() · show()
                  ╱          ╲
              Flat            Solid            the dimensional specialisations
       linear_extrude         projection  →  Flat
@@ -153,7 +160,8 @@ with two dimensional specialisations**, not as two parallel contracts that happe
 ```
 
 * **C-15 One contract, two specialisations.** `Shape` declares everything true of every shape on
-  every backend: the `backend` tag, the boolean operators, the transforms, and `bounds()`. `Flat`
+  every backend: the `backend` tag, the boolean operators, the transforms, `bounds()`, and
+  `show()` (§6.16). `Flat`
   and `Solid` extend it and add **only** what is genuinely dimensional. A member that both would
   declare identically MUST live on `Shape` instead — that duplication is how `Flat` came to be
   missing `bounds()` (S-2) and to be typed `Any` long after `Solid` was not.
@@ -164,14 +172,20 @@ with two dimensional specialisations**, not as two parallel contracts that happe
 * **C-17 Crossing dimensions is explicit and named.** `Flat` → `Solid` happens only through an
   extrusion or sweep; `Solid` → `Flat` only through `projection`. Each direction is a method a
   reader can see at the call site; neither happens implicitly.
-* **C-18 One declaration site.** All three protocols are declared together in the backend-contract
-  layer (L1), so a change to the shared surface cannot land on one dimension and miss the other.
+* **C-18 One declaration site, one name each.** All three protocols are declared together in the
+  backend-contract layer (L1), so a change to the shared surface cannot land on one dimension and
+  miss the other. `Shape`, `Flat` and `Solid` are the only names for them — no aliases: a second
+  spelling of a contract is a second thing to keep in step, and `Shape2D` was exactly that.
 * **C-19 Colour and distribution belong to the shared contract.** Both are operations on "any
   shape", not on solids specifically, so they SHOULD be members of `Shape` (S-37, S-31). They are
   not yet universal — the SDF backend's shapes carry no colour, and its 2-D shapes no distribution
   — which is a parity gap (§12.2), not a reason to split the contract.
-* **C-1** Every shape carries a `backend` tag. Booleans and transforms return a shape on the
-  *same* backend; mixing raises `CrossBackendError` naming the conversion that fixes it.
+* **C-1** Every shape carries a `backend` tag naming the backend that **produced** it. It is a
+  property of the object, never a reading of the ambient backend at construction time — a CSG
+  shape built inside a `use_backend("sdf")` block is still a CSG shape, and must say so. Booleans
+  and transforms return a shape on the same backend; mixing raises `CrossBackendError` naming the
+  conversion that fixes it. A tag that reports the ambient backend defeats that guard entirely and
+  turns a clear error into an internal one.
 * **C-2** Operators are the primary spelling: `|` union, `&` intersection, `-` difference.
 * **C-3** Shapes are immutable by convention: every operation returns a new shape, so calls chain.
   `attach()` and `tag()` copy rather than mutate; the `attachments` / `tag_name` setters exist for
@@ -211,7 +225,11 @@ with two dimensional specialisations**, not as two parallel contracts that happe
 
 * **C-14** Every part is a class (P-8) that resolves its inputs into a frozen **spec object**,
   exposes derived dimensions as read-only properties, builds geometry lazily under a `shape`
-  property, and offers `show()`. Callers can therefore *measure* a part without building it.
+  **property** (`Screw("M6", length=20).shape`, not `.shape()`), and offers `show()`. Callers can
+  therefore *measure* a part without building it.
+* **C-14a** Note the deliberate difference in what `.shape` means either side of the FFI boundary:
+  on a part it is the finished `Solid`/`Flat`; on a backend wrapper (`CsgSolid.shape`) it is the
+  raw native handle being wrapped. Docstrings MUST say which one they mean.
 
 ---
 
@@ -404,11 +422,35 @@ resolution rules in §8, and the error contract in §9.
   sliders and rails, tripod plates, Platonic solids, FDM walls, wiring bundles, hooks.
 * **S-46** Parts MUST expose their catalogue as data (spec objects and tables), so a caller can
   query dimensions — and the docs can tabulate them — without building geometry.
+* **S-46a Parts honour the active backend.** A part builds through the backend-neutral façade
+  (L3), not by importing a backend's module directly, so `with use_backend("sdf"): Screw(…)`
+  produces an SDF part. Where a part needs an operation only one backend can express, it raises
+  `UnsupportedByBackendError` naming that backend (B-4) rather than quietly returning a shape from
+  the other one. Parts are not exempt from PAR-1.
 
 ### 6.15 Documentation surface
 
 * **S-47** Every subsystem above MUST appear in the generated API reference under a
   `DocCategory`, and every geometry-producing callable MUST carry a rendering example (§10).
+
+### 6.16 Display and output
+
+* **S-48 `show()` is how a shape leaves the library.** It hands the shape to the renderer: inside
+  the PythonSCAD app it displays in the viewer, and in a script it marks the shape as what the run
+  produces. It is the one call in the library with a side effect on the session, and the
+  convention every docstring example ends with.
+* **S-49 `show()` returns the shape.** It closes a chain without swallowing the value —
+  `part = cuboid([20, 20, 10]).up(5).show()` both displays and binds. It MUST NOT return `None`.
+* **S-50 `show()` is on the shared contract.** Every shape can be shown, 2-D or 3-D, on either
+  backend (C-15). Showing an SDF solid meshes its field — that is not the implicit conversion B-5
+  forbids, because rendering *is* meshing and nothing meshed is handed back. Showing a 2-D
+  distance field refuses instead, naming the extrusion that would make it renderable: a field over
+  the plane has no rendering of its own.
+* **S-51 Builders delegate.** A part or any other builder exposes `show()` as a convenience that
+  shows its `shape`, so a caller never has to reach inside to display something.
+* **S-52 `show()` needs a renderer.** With the pip wheel alone it marks the object for output; the
+  PythonSCAD **app** is what puts it on screen. Documentation examples therefore end in `.show()`
+  and are rendered by the docs build, not by the test suite.
 
 ---
 
@@ -599,6 +641,8 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | **S-2 / C-1** | The `Flat` contract had no `bounds()`, so 2-D shapes could not be measured through the protocol | `bounds()` added to `Flat`; both 2-D implementations already provided it |
 | **S-47 / DOC-1** | `path2d`, `path3d`, `points`, `bounds`, `caps` and `surfaces3d` were tagged `internal` while holding top-level public API, so paths, strokes/caps, bounds and heightfields had no reference page | Retagged into public categories; seven reference stubs generated |
 | **PAR-3** | The CSG-only list claimed 2-D geometry as CSG-only, which stopped being true when the SDF backend gained `PyShape2D` | Rationale corrected in the spec and in the code comment: only `projection` and `fill` are CSG-only |
+| **S-48 … S-50** | `show()` was reachable only through the native passthrough, so it was in no contract and — under Python 3.12's protocol rules — `isinstance(shape, Flat)` was false for every CSG shape | Declared on `Flat`/`Solid` and implemented as a real method on the CSG base, on `SdfSolid` (meshes, as rendering must) and on the 2-D SDF shape (refuses, naming the extrusion) |
+| **C-18** | `Shape2D` was a second name for `Flat`, exported alongside it | Removed; `Flat` is the only spelling |
 | packaging | `requires-python = ">=3.10"` with a 3.10 classifier, but `StrEnum` (3.11+) is used in ~30 places | Floor raised to 3.11 |
 | hygiene | `distributors.py.bak` shipped inside the package; 854 MB of pytest scratch in the repo root | Removed; `pytest-of-*/` ignored and scratch retention capped |
 
@@ -606,15 +650,25 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **B-3 / PAR-5** | The façade is now *specified* as the owner of shared defaults, but not yet implemented: its constructors still default shared arguments to `None` and forward only what the caller passed, leaving each backend's own default in play. Closing this means lifting each shared default into the façade signature (≈20 constructors) and filtering forwarded arguments by what the target backend declares. Until then `effective_defaults()` is the way to see what a call resolves to, and `tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share` guards the four shapes it covers. |
-| 2 | **C-15 … C-19** | `Shape` does not exist yet: `Solid` is declared in `_backend.py`, `Flat` separately in `flat.py`, and the two duplicate the `backend` tag, the three boolean operators, four transforms and `bounds()`. Merging them means declaring `Shape` in L1 with `Self`-returning members, deriving `Flat` (extrusions) and `Solid` (`projection`, and the CSG-only attachment surface) from it, and re-pointing the two façade modules at the new declarations. The four concrete implementations (`CsgSolid`, `SdfSolid`, `CsgShape2D`, `PyShape2D`) already satisfy the universal core, so this is a contract change rather than a geometry change — except C-19, which needs colour on the SDF shapes and distribution on the SDF 2-D shape before it can be declared honestly. |
-| 3 | **R-1** | **50 of 119** public curved-geometry callables do not accept `fn`/`fa`/`fs` — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink; R-1a is the rule for deciding which of the pinned entries are genuine debt rather than placement radii. |
-| 4 | **PAR-1 / C-1 / B-5** | The SDF shape's attribute fallback **silently meshes the field and forwards to the meshed native solid** for any method it does not implement. So on the SDF backend `shape.up(5)` and `shape.color("red")` appear to work, but they convert the exact field to a mesh behind the caller's back and return a raw native handle — losing the `backend` tag (C-1) and performing exactly the implicit conversion B-5 forbids. Nineteen names reach this path today: the directional moves (`up`, `down`, `left`, `right`, `back`, `forward`, `fwd`, `move`, `rot`), the colour and display operations (`color`, `color_this`, `recolor`, `hsl`, `hsv`, `highlight`, `ghost`), and three attachment properties (`attachments`, `diff_config`, `tag_name`) that belong on the CSG-only list. The fallback MUST either implement the operation natively or refuse it. |
-| 5 | **PAR-3** | `docs/design/sdf-csg-compatibility.md` is stale and now misleads: `projection`, `bounding_box`, `distribute_on_path`, `inside`, `chain_hull`, `half_of`, `partition`, `round3d` and `offset3d` are all implemented on the SDF side, yet the doc lists them as gaps. Worse, `projection` is *both* implemented on `SdfSolid` and listed in `CSG_ONLY_FEATURES`, so the refusal never fires and the two records of what the backend can do disagree. The doc and the exclusive lists MUST be reconciled against the code. |
-| 6 | **R-5** | The `fn=0` opt-out works because `frag_count()` treats `fn < 3` as unset, but it is neither documented in the constructors' docstrings nor covered by a test. |
-| 7 | **Q-4** | The minimum-argument check runs only over `pybosl2.solid`'s façade constructors. Parts classes, path/region methods and the 2-D façade are not covered. |
-| 8 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
-| 9 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
+| 1 | **C-1 / E-3** | `CsgSolid.__init__` sets `self.backend = current_backend()`, so a CSG solid built inside a `use_backend("sdf")` block reports `backend == "sdf"`. `CrossBackendError` therefore never fires for it and the user meets `AssertionError: every argument must be a PyShape, got ['CsgSolid']` instead. The 2-D class already does it correctly with a fixed `backend = "csg"`. **Highest priority: it silently disables the cross-backend guard.** |
+| 2 | **A-6** | The top level mixes backend-neutral names (`cuboid`, `circle`, `sphere`) with CSG-only ones (`star`, `cone`, `egg`, `roof`, `text3d`, `path_text`, and most of `shapes2d`), so under `use_backend("sdf")` some names quietly build on the wrong backend. Resolution: give the CSG-only ones façade constructors that dispatch, refusing on SDF where there is no equivalent. |
+| 3 | **E-4** | **290** `assert`s carry user-facing messages (`star(): must specify tips`, `base= must be a finite positive number`). Under `python -O` every one vanishes, so bad input silently yields wrong geometry. Public entry points are converted first; asserts stay only as genuine internal invariants. |
+| 4 | **C-14** | `shape` is a **method** on all 37 part classes, while C-14 and PLAN O-2 specify a property, so `Screw("M6", length=20).shape` silently yields a bound method. |
+| 5 | **DOC-2 / D-P5** | 27 façade callables — the layer §4 names as the recommended entry point — have no `Args:` section and no rendering example, so `help(pybosl2.cuboid)` tells a user nothing about `size`, `rounding` or the defaults. The backend-specific modules they delegate to are fully documented. |
+| 6 | **A-7** | `pybosl2.parts.__all__` advertises `Threading`, which does not exist; `from pybosl2.parts import *` raises `AttributeError`. |
+| 7 | **S-46a** | Parts import `pybosl2.shapes3d` directly, so `Screw(…)` builds a CSG solid whatever backend is active — `with use_backend("sdf")` silently yields a CSG part that cannot be combined with SDF geometry. Every part must build through the façade instead, refusing where a backend genuinely cannot express what it needs. |
+| 8 | **S-51** | Parts' `show()` calls `self.shape()`; it becomes `self.shape.show()` with T0c, and should return the shape (S-49) rather than `None`. |
+| 9 | **B-3 / PAR-5** | The façade is now *specified* as the owner of shared defaults, but not yet implemented: its constructors still default shared arguments to `None` and forward only what the caller passed, leaving each backend's own default in play. Closing this means lifting each shared default into the façade signature (≈20 constructors) and filtering forwarded arguments by what the target backend declares. Until then `effective_defaults()` is the way to see what a call resolves to, and `tests/test_defaults.py::test_backends_agree_on_the_defaults_they_share` guards the four shapes it covers. |
+| 10 | **C-15 … C-19** | `Shape` does not exist yet: `Solid` is declared in `_backend.py`, `Flat` separately in `flat.py`, and the two duplicate the `backend` tag, the three boolean operators, four transforms and `bounds()`. Merging them means declaring `Shape` in L1 with `Self`-returning members, deriving `Flat` (extrusions) and `Solid` (`projection`, and the CSG-only attachment surface) from it, and re-pointing the two façade modules at the new declarations. The four concrete implementations (`CsgSolid`, `SdfSolid`, `CsgShape2D`, `PyShape2D`) already satisfy the universal core, so this is a contract change rather than a geometry change — except C-19, which needs colour on the SDF shapes and distribution on the SDF 2-D shape before it can be declared honestly. |
+| 11 | **R-1** | **50 of 119** public curved-geometry callables do not accept `fn`/`fa`/`fs` — among them `Region.offset`/`round_corners`, `Path2D.minkowski_sum_circle`, `shapes2d.star`/`supershape`, the `RegularPolyhedron` factories, and `edge_profile`/`edge_profile_asym`. `tests/test_facets.py` pins the list so it can only shrink; R-1a is the rule for deciding which of the pinned entries are genuine debt rather than placement radii. |
+| 12 | **PAR-1 / C-1 / B-5** | The SDF shape's attribute fallback **silently meshes the field and forwards to the meshed native solid** for any method it does not implement. So on the SDF backend `shape.up(5)` and `shape.color("red")` appear to work, but they convert the exact field to a mesh behind the caller's back and return a raw native handle — losing the `backend` tag (C-1) and performing exactly the implicit conversion B-5 forbids. Nineteen names reach this path today: the directional moves (`up`, `down`, `left`, `right`, `back`, `forward`, `fwd`, `move`, `rot`), the colour and display operations (`color`, `color_this`, `recolor`, `hsl`, `hsv`, `highlight`, `ghost`), and three attachment properties (`attachments`, `diff_config`, `tag_name`) that belong on the CSG-only list. The fallback MUST either implement the operation natively or refuse it. |
+| 13 | **PAR-3** | `docs/design/sdf-csg-compatibility.md` is stale and now misleads: `projection`, `bounding_box`, `distribute_on_path`, `inside`, `chain_hull`, `half_of`, `partition`, `round3d` and `offset3d` are all implemented on the SDF side, yet the doc lists them as gaps. Worse, `projection` is *both* implemented on `SdfSolid` and listed in `CSG_ONLY_FEATURES`, so the refusal never fires and the two records of what the backend can do disagree. The doc and the exclusive lists MUST be reconciled against the code. |
+| 14 | **R-5** | The `fn=0` opt-out works because `frag_count()` treats `fn < 3` as unset, but it is neither documented in the constructors' docstrings nor covered by a test. |
+| 15 | **Q-4** | The minimum-argument check runs only over `pybosl2.solid`'s façade constructors. Parts classes, path/region methods and the 2-D façade are not covered. |
+| 16 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
+| 17 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
+
+
 
 
 ## 13. Change process

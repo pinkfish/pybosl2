@@ -55,7 +55,6 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "CrossBackendError": ("pybosl2.exceptions", "CrossBackendError"),
     "Solid": ("pybosl2.solid", "Solid"),
     "Flat": ("pybosl2.flat", "Flat"),
-    "Shape2D": ("pybosl2.flat", "Shape2D"),
     # anchor system
     "Anchor": ("pybosl2._edges_lang", "Anchor"),
     "EdgePlane": ("pybosl2._edges_lang", "EdgePlane"),

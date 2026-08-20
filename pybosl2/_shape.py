@@ -67,7 +67,6 @@ _NATIVE_PASSTHROUGH = frozenset(
         "intersection",
         "difference",
         "rotate_extrude",
-        "show",
         "roof",
     }
 )
@@ -376,6 +375,26 @@ class BaseShape(Colorable, Distributable):
 
         _forward.__name__ = name
         return _forward
+
+    def show(self) -> Self:
+        """Hand this shape to the renderer as the output of the script, and return it.
+
+        This is the one call in the library with a side effect on the session: inside the
+        PythonSCAD app it displays the shape in the viewer, and in a script it marks the shape as
+        what the run produces. It returns the shape itself, so it can close a chain without
+        swallowing the value:
+        ``cuboid([20, 20, 10]).rounding(2).up(5).show()``.
+
+        Attachments are resolved first, so what is shown is what a render would produce.
+
+        Returns:
+            This shape, so the call can be chained or assigned.
+
+        """
+        realized = self.realize() if getattr(self, "_attachments", None) else self
+        native = object.__getattribute__(realized, "shape")
+        native.show()
+        return self
 
     def tag(self, name: AttachTag | str) -> Self:
         """Assign an attachment tag to this shape.
