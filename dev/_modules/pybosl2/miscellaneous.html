@@ -2312,7 +2312,9 @@
                 <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">rot_from_to4</span><span class="p">(</span><span class="n">BACK</span><span class="p">,</span> <span class="p">[</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
                 <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">])</span>
                 <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cap</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>  <span class="c1"># pragma: no cover - defensive: a path short enough to build nothing is</span>
+            <span class="c1"># already rejected above ("need at least two points"), and a degenerate one fails in</span>
+            <span class="c1"># the frame maths before reaching here. Kept so the failure would name the call.</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): nothing to extrude."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span></div>
 
@@ -2384,7 +2386,9 @@
                 <span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt2</span><span class="p">])</span>
             <span class="p">)</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ext</span> <span class="o">-</span> <span class="n">c1</span><span class="p">)</span> <span class="o">-</span> <span class="n">c2</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>  <span class="c1"># pragma: no cover - defensive: a path short enough to build nothing is</span>
+            <span class="c1"># already rejected above ("need at least two points"), and a degenerate one fails in</span>
+            <span class="c1"># the frame maths before reaching here. Kept so the failure would name the call.</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude(): nothing to extrude."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span></div>
 </div>
