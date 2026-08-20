@@ -70,7 +70,7 @@ def test_arc_corner_is_tangent_fillet() -> None:
 
 
 def test_arc_collinear_points_raise() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="collinear"):
         arc(count=5, points=[[0, 0], [1, 0], [2, 0]])
 
 

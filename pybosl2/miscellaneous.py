@@ -367,7 +367,9 @@ class Extrudable:
                 cap = cap.multmatrix(rot_from_to4(BACK, [a[0] - b[0], a[1] - b[1], 0]).tolist())
                 cap = cap.translate([a[0], a[1], 0])
                 parts.append(cap)
-        if not (parts):
+        if not parts:  # pragma: no cover - defensive: a path short enough to build nothing is
+            # already rejected above ("need at least two points"), and a degenerate one fails in
+            # the frame maths before reaching here. Kept so the failure would name the call.
             raise ValueError("path_extrude2d(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
@@ -436,7 +438,9 @@ class Extrudable:
                 .translate([float(c) for c in pt2])
             )
             parts.append((ext - c1) - c2)
-        if not (parts):
+        if not parts:  # pragma: no cover - defensive: a path short enough to build nothing is
+            # already rejected above ("need at least two points"), and a degenerate one fails in
+            # the frame maths before reaching here. Kept so the failure would name the call.
             raise ValueError("path_extrude(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
