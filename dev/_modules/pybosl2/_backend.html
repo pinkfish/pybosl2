@@ -1954,6 +1954,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">contextvars</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">runtime_checkable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Error</span><span class="p">,</span> <span class="n">UnsupportedByBackendError</span>
@@ -1983,8 +1984,10 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"BackendName"</span><span class="p">,</span>
     <span class="s2">"given_arguments"</span><span class="p">,</span>
+    <span class="s2">"for_backend"</span><span class="p">,</span>
     <span class="s2">"backend_only"</span><span class="p">,</span>
     <span class="s2">"builds_with"</span><span class="p">,</span>
+    <span class="s2">"csg_part"</span><span class="p">,</span>
     <span class="s2">"current_backend"</span><span class="p">,</span>
     <span class="s2">"set_default_backend"</span><span class="p">,</span>
     <span class="s2">"use_backend"</span><span class="p">,</span>
@@ -2111,6 +2114,72 @@
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"_F"</span><span class="p">,</span> <span class="n">scoped</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">decorate</span>
+
+
+<span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">accepted_parameters</span><span class="p">(</span><span class="n">constructor</span><span class="p">:</span> <span class="s2">"Callable[..., Any]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return the parameter names *constructor* declares (cached per callable).</span>
+
+<span class="sd">    The façade owns the default for every argument both backends understand (SPEC B-3) and always</span>
+<span class="sd">    forwards it, so each backend filters by what it actually declares rather than relying on the</span>
+<span class="sd">    caller to have omitted the ones it does not know (PLAN F-P2).</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>  <span class="c1"># pragma: no cover - signature-less callables</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">is</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="s2">"**"</span><span class="p">}</span>
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">for_backend</span><span class="p">(</span><span class="n">constructor</span><span class="p">:</span> <span class="s2">"Callable[..., Any]"</span><span class="p">,</span> <span class="n">arguments</span><span class="p">:</span> <span class="s2">"Mapping[str, Any]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return just the *arguments* this constructor can take.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        constructor: The backend constructor about to be called.</span>
+<span class="sd">        arguments: Everything the façade declared, defaults included.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The subset the constructor declares; a constructor taking ``**kwargs`` gets them all.</span>
+
+<span class="sd">    """</span>
+    <span class="n">accepted</span> <span class="o">=</span> <span class="n">accepted_parameters</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"**"</span> <span class="ow">in</span> <span class="n">accepted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">arguments</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">accepted</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">csg_part</span><span class="p">(</span><span class="n">getter</span><span class="p">:</span> <span class="s2">"_F"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"_F"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Guard a part's ``shape`` property: the parts library builds exact CSG geometry.</span>
+
+<span class="sd">    Every part is composed from CSG primitives, meshes and native operations, so none of them has</span>
+<span class="sd">    an SDF form yet. Rather than letting whichever internal path happens to be unguarded hand back</span>
+<span class="sd">    a CSG solid inside a ``use_backend("sdf")`` block -- which cannot combine with the surrounding</span>
+<span class="sd">    SDF geometry, and only fails much later -- the part says so at the point of use (SPEC S-46a).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        getter: The property getter to guard.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The getter, wrapped so it refuses on any backend but ``"csg"``.</span>
+
+<span class="sd">    """</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">guarded</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="n">active</span> <span class="o">=</span> <span class="n">current_backend</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">active</span> <span class="o">!=</span> <span class="s2">"csg"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.shape"</span><span class="p">,</span>
+                <span class="n">active</span><span class="p">,</span>
+                <span class="n">hint</span><span class="o">=</span><span class="s2">"the parts library builds exact CSG geometry, so build the part inside "</span>
+                <span class="s1">'`with use_backend("csg")` and bring the surrounding SDF work over with '</span>
+                <span class="s2">".to_csg() to combine them."</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"_F"</span><span class="p">,</span> <span class="n">guarded</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">supports</span><span class="p">(</span><span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

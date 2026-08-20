@@ -1960,6 +1960,10 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"Flat"</span><span class="p">,</span>
     <span class="s2">"circle"</span><span class="p">,</span>
+    <span class="s2">"ellipse"</span><span class="p">,</span>
+    <span class="s2">"regular_ngon"</span><span class="p">,</span>
+    <span class="s2">"star"</span><span class="p">,</span>
+    <span class="s2">"trapezoid"</span><span class="p">,</span>
     <span class="s2">"polygon"</span><span class="p">,</span>
     <span class="s2">"rect"</span><span class="p">,</span>
     <span class="s2">"square"</span><span class="p">,</span>
@@ -2327,6 +2331,282 @@
             <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
             <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
         <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ellipse">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.ellipse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ellipse</span><span class="p">(</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return an ellipse on the active backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        radius: Radius, or a per-axis pair.</span>
+<span class="sd">        diameter: Diameter, or a per-axis pair.</span>
+<span class="sd">        realign: Rotate by half a segment so a flat faces +X (CSG backend only).</span>
+<span class="sd">        anchor: Anchor point.</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
+<span class="sd">        fn: Arc smoothness override (CSG backend only).</span>
+<span class="sd">        fa: Arc smoothness override (CSG backend only).</span>
+<span class="sd">        fs: Arc smoothness override (CSG backend only).</span>
+<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A 2-D shape on whichever backend is active.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.flat import ellipse</span>
+<span class="sd">            ellipse(radius=[20, 10]).linear_extrude(height=4).show()</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">ellipse2d</span>
+
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Flat"</span><span class="p">,</span> <span class="n">ellipse2d</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">_resolve_res</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">))</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">ellipse</span> <span class="k">as</span> <span class="n">csg_ellipse</span>
+
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
+        <span class="n">csg_ellipse</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">realign</span><span class="o">=</span><span class="n">realign</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="star">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.star">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">star</span><span class="p">(</span>
+    <span class="n">tips</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a star on the active backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tips: Number of points.</span>
+<span class="sd">        radius: Outer radius (to the tips).</span>
+<span class="sd">        inner_radius: Inner radius (to the valleys).</span>
+<span class="sd">        diameter: Outer diameter, instead of *radius*.</span>
+<span class="sd">        inner_diameter: Inner diameter, instead of *inner_radius*.</span>
+<span class="sd">        step: Skip-count star form, instead of an inner radius (CSG backend only).</span>
+<span class="sd">        realign: Rotate by half a point (CSG backend only).</span>
+<span class="sd">        anchor: Anchor point.</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
+<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A 2-D shape on whichever backend is active.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.flat import star</span>
+<span class="sd">            star(tips=6, radius=20, inner_radius=9).linear_extrude(height=4).show()</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">star2d</span>
+
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="s2">"Flat"</span><span class="p">,</span>
+            <span class="n">star2d</span><span class="p">(</span>
+                <span class="n">num_sides</span><span class="o">=</span><span class="n">tips</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+                <span class="n">inner_radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span>
+                <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
+                <span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span>
+                <span class="n">res</span><span class="o">=</span><span class="n">_resolve_res</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">star</span> <span class="k">as</span> <span class="n">csg_star</span>
+
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
+        <span class="n">csg_star</span><span class="p">(</span>
+            <span class="n">tips</span><span class="o">=</span><span class="n">tips</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+            <span class="n">inner_radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span>
+            <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
+            <span class="n">inner_diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
+            <span class="n">realign</span><span class="o">=</span><span class="n">realign</span><span class="p">,</span>
+            <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="regular_ngon">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.regular_ngon">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">regular_ngon</span><span class="p">(</span>
+    <span class="n">sides</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">realign</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a regular polygon on the active backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sides: Number of sides.</span>
+<span class="sd">        radius: Radius to a vertex.</span>
+<span class="sd">        diameter: Diameter to a vertex, instead of *radius*.</span>
+<span class="sd">        outer_radius: Radius of the circumscribed circle.</span>
+<span class="sd">        outer_diameter: Diameter of the circumscribed circle.</span>
+<span class="sd">        rounding: Corner rounding radius (CSG backend only).</span>
+<span class="sd">        realign: Rotate by half a side (CSG backend only).</span>
+<span class="sd">        anchor: Anchor point.</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
+<span class="sd">        fn: Fragment count for the rounded corners; ambient default when omitted.</span>
+<span class="sd">        fa: Minimum fragment angle for the rounded corners.</span>
+<span class="sd">        fs: Minimum fragment size for the rounded corners.</span>
+<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A 2-D shape on whichever backend is active.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        UnsupportedByBackendError: If *rounding* is asked for on the SDF backend, which has no</span>
+<span class="sd">            rounded-corner ngon.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.flat import regular_ngon</span>
+<span class="sd">            regular_ngon(sides=7, radius=15).linear_extrude(height=4).show()</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rounding</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
+                <span class="s2">"regular_ngon(rounding=)"</span><span class="p">,</span>
+                <span class="s2">"sdf"</span><span class="p">,</span>
+                <span class="n">hint</span><span class="o">=</span><span class="s2">"the sdf ngon has no corner rounding; build it on the csg backend, or round "</span>
+                <span class="s2">"the field with .round() afterwards."</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">regular_ngon2d</span>
+
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="s2">"Flat"</span><span class="p">,</span>
+            <span class="n">regular_ngon2d</span><span class="p">(</span>
+                <span class="n">num_sides</span><span class="o">=</span><span class="n">sides</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+                <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
+                <span class="n">outer_radius</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span>
+                <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+                <span class="n">res</span><span class="o">=</span><span class="n">_resolve_res</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">10</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">regular_ngon</span> <span class="k">as</span> <span class="n">csg_ngon</span>
+
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
+        <span class="n">csg_ngon</span><span class="p">(</span>
+            <span class="n">sides</span><span class="o">=</span><span class="n">sides</span><span class="p">,</span>
+            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+            <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
+            <span class="n">outer_radius</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span>
+            <span class="n">outer_diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span>
+            <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
+            <span class="n">realign</span><span class="o">=</span><span class="n">realign</span><span class="p">,</span>
+            <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span>
+            <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">,</span>
+            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="trapezoid">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.trapezoid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">trapezoid</span><span class="p">(</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">width1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">width2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
+    <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">res</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Flat</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a trapezoid on the active backend.</span>
+
+<span class="sd">    Give exactly three of *height*, *width1*, *width2* and *angle*.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        height: Height of the trapezoid.</span>
+<span class="sd">        width1: Width of the bottom edge.</span>
+<span class="sd">        width2: Width of the top edge.</span>
+<span class="sd">        angle: Base angle in degrees.</span>
+<span class="sd">        shift: Shift of the top edge along X.</span>
+<span class="sd">        anchor: Anchor point.</span>
+<span class="sd">        spin: Z-axis rotation in degrees after anchor (CSG backend only).</span>
+<span class="sd">        res: Sampling resolution (SDF backend only).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A 2-D shape on whichever backend is active.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If other than three of height/width1/width2/angle are given.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        .. pythonscad-example::</span>
+
+<span class="sd">            from pybosl2.flat import trapezoid</span>
+<span class="sd">            trapezoid(height=10, width1=20, width2=12).linear_extrude(height=4).show()</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">trapezoid2d</span>
+
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="s2">"Flat"</span><span class="p">,</span>
+            <span class="n">trapezoid2d</span><span class="p">(</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width1</span><span class="o">=</span><span class="n">width1</span><span class="p">,</span> <span class="n">width2</span><span class="o">=</span><span class="n">width2</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span> <span class="n">res</span><span class="o">=</span><span class="n">_resolve_res</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">10</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">trapezoid</span> <span class="k">as</span> <span class="n">csg_trapezoid</span>
+
+    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="s2">"Flat"</span><span class="p">,</span>
+        <span class="n">csg_trapezoid</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">width1</span><span class="o">=</span><span class="n">width1</span><span class="p">,</span> <span class="n">width2</span><span class="o">=</span><span class="n">width2</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span> <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">anchor</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="n">spin</span><span class="p">),</span>
     <span class="p">)</span></div>
 
 </code></pre></div>
