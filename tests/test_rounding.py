@@ -81,9 +81,9 @@ def test_width_requires_chamfer_method() -> None:
 
 
 def test_k_requires_smooth_method() -> None:
-    with pytest.raises(ValueError, match="k\ is\ only\ allowed"):
+    with pytest.raises(ValueError, match="k is only allowed"):
         Path2D(SQ).round_corners(method=RoundingMethod.CIRCLE, cut=3, curvature=0.5)
-    with pytest.raises(ValueError, match="k\ is\ only\ allowed"):
+    with pytest.raises(ValueError, match="k is only allowed"):
         Path2D(SQ).round_corners(method=RoundingMethod.CIRCLE, cut=3, k=0.5)
 
 
@@ -101,7 +101,7 @@ def test_too_short_path_raises() -> None:
 
 def test_oversized_roundover_raises() -> None:
     # a radius bigger than the sides can't fit
-    with pytest.raises(ValueError, match="Roundovers\ are\ too\ big"):
+    with pytest.raises(ValueError, match="Roundovers are too big"):
         Path2D(SQ).round_corners(method=RoundingMethod.SMOOTH, cut=10)
 
 

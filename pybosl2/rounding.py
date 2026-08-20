@@ -228,16 +228,13 @@ def _round_corners(
         if (not closed and (i == 0 or i == sides - 1)) or parm[i] == 0:
             dk.append([0.0])
             continue
-        assert not np.allclose(p0, p1, rtol=0, atol=EPSILON), (
-            f"Repeated point in path at index {i} with nonzero rounding."
-        )
-        assert not np.allclose(p1, p2, rtol=0, atol=EPSILON), (
-            f"Repeated point in path at index {i} with nonzero rounding."
-        )
+        if np.allclose(p0, p1, rtol=0, atol=EPSILON):
+            raise ValueError(f"Repeated point in path at index {i} with nonzero rounding.")
+        if np.allclose(p1, p2, rtol=0, atol=EPSILON):
+            raise ValueError(f"Repeated point in path at index {i} with nonzero rounding.")
         angle = _vector_angle3(p0, p1, p2) / 2
-        assert not math.isclose(angle, 0, rel_tol=0, abs_tol=EPSILON), (
-            f"Path2D turns back on itself at index {i} with nonzero rounding."
-        )
+        if math.isclose(angle, 0, rel_tol=0, abs_tol=EPSILON):
+            raise ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding.")
         ar = math.radians(angle)
         if method == RoundingMethod.CHAMFER:
             dk.append(

@@ -34,6 +34,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families) | M |
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
 | — | housekeeping | [T10](#t10--housekeeping) | S |
+| — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths-) 🔶 | L |
 
 ## Order and why
 
@@ -495,6 +496,35 @@ B2-1 claims feature parity with BOSL2, and nothing measures it.
       The docs build is at **0 warnings**.
 - [ ] Check `docs/design/` for other documents that have drifted the way
       `sdf-csg-compatibility.md` did — a stale design note is worse than none (T4).
+
+---
+
+## T11 — Cover the rejection paths 🔶
+
+**Serves:** E-4, DOC-2 · **Implements:** PLAN E-P1, E-P2 · **Size:** L, batchable
+
+T0b turned 290 validating `assert`s into `if`/`raise` pairs. An `assert` line counted as covered
+because it executed on every call; a `raise` line only counts when something triggers it — so the
+conversion left **329 uncovered rejection paths**. `tests/test_validation_messages.py` closes them
+module by module, asserting the *message* as well as the type, because E-4 is about the message
+naming the fix.
+
+**Progress: 329 → 201.** Done: `isosurface`, `miscellaneous`, `surfaces3d`, `shapes3d/extrusions`,
+`shapes2d/circle`, `beziers`, `texture`, `skin`, `sdf/shapes3d`, `sdf/shapes2d`, `sdf/paths`,
+`nurbs`, `path2d`, `path3d`. Remaining by size: `turtle2d` (13), `masking` (12), `sdf/shapes3d`
+(12 left), `distributors` (9), `shapes2d/curves` (9), `beziers` (8), `partitions` (8), `path2d` (8).
+
+**What the tests keep finding.** Six defects so far, each invisible until something exercised the
+path: a `raise AssertionError` the ratchet missed because it is not an `assert` statement;
+`path_text(size=[...])` producing a `TypeError` from a numeric comparison; a multi-line collinear
+`assert` both conversion passes had skipped; a duplicated identical check in `regular_ngon`;
+`Path2D.offset()` not propagating its own `closed` flag, so the open-path rejection is unreachable
+from the public API; and several guards that cannot fire at all, now marked `# pragma: no cover`
+with the reason rather than left as permanent holes.
+
+The ratchet in `tests/test_defaults.py` was also sharpened: it now flags an `assert` whose message
+names any parameter of its enclosing function, not just one containing `()` or `=`. That found 13
+more validating asserts, all converted.
 
 ---
 

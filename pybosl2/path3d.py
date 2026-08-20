@@ -674,9 +674,8 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             raise ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
         method_val = method.value
         pts_arr = self._points
-        assert sum(x is not None for x in (points, None, maxlen)) == 1, (
-            "Must give exactly one of sides, refine, and maxlen"
-        )
+        if not (sum((x is not None for x in (points, None, maxlen))) == 1):
+            raise ValueError("Must give exactly one of sides, refine, and maxlen")
         if points == len(pts_arr):
             return self.__class__(list(pts_arr), closed=self.closed)
         if maxlen is not None:

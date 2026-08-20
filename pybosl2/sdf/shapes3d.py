@@ -971,7 +971,8 @@ class SdfSolid(Colorable, Distributable):
 
         if len(args) == 1 and isinstance(args[0], (list, tuple)) and args[0] and isinstance(args[0][0], PyShape):
             args = list(args[0])
-        if not (args):
+        if not args:  # pragma: no cover - defensive: `self` is always in args, so this cannot fire
+            # from the method form; kept for the day hull() also exists as a free function.
             raise ValueError("hull() needs at least one shape or point set")
 
         entries: list[tuple[str, Any]] = []

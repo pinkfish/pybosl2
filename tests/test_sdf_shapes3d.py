@@ -66,9 +66,9 @@ class TestPyShape:
 
     def test_round_and_chamfer_require_cuboid_size(self) -> None:
         s = sdf_s3d.sphere(radius=5)
-        with pytest.raises(ValueError, match="round\(\)\ requires\ a"):
+        with pytest.raises(ValueError, match=r"round\(\) requires a"):
             s.round(1)
-        with pytest.raises(ValueError, match="chamfer\(\)\ requires\ a"):
+        with pytest.raises(ValueError, match=r"chamfer\(\) requires a"):
             s.chamfer(1)
 
     def test_rotate_euler_vector_form_moves_the_surface(self) -> None:
@@ -92,7 +92,7 @@ class TestPyShape:
 
     def test_rotate_drops_cuboid_metadata(self) -> None:
         shape = sdf_s3d.cuboid(size=[10.0, 10.0, 10.0]).rotate([0, 0, 45])
-        with pytest.raises(ValueError, match="round\(\)\ requires\ a"):
+        with pytest.raises(ValueError, match=r"round\(\) requires a"):
             shape.round(1)
 
 
@@ -120,9 +120,9 @@ class TestNamedCombinators:
         assert sdf_s3d.PyShape.union(a, b).res == 30
 
     def test_union_rejects_non_shapes(self) -> None:
-        with pytest.raises(ValueError, match="every\ argument\ must\ be\ a"):
+        with pytest.raises(ValueError, match="every argument must be a"):
             sdf_s3d.PyShape.union(sdf_s3d.cuboid(size=[6.0, 6.0, 6.0]), "not a shape")  # type: ignore[arg-type]
-        with pytest.raises(ValueError, match="need\ at\ least\ one"):
+        with pytest.raises(ValueError, match="need at least one"):
             sdf_s3d.PyShape.union()
 
     def test_intersection_nary(self) -> None:
@@ -262,7 +262,7 @@ class TestCuboid:
         assert math.isclose(float(shape.sample(-5, 0, -5)), float(0), abs_tol=10 ** (-9))
 
     def test_rounding_and_chamfer_are_mutually_exclusive(self) -> None:
-        with pytest.raises(ValueError, match="Cannot\ specify\ nonzero\ value"):
+        with pytest.raises(ValueError, match="Cannot specify nonzero value"):
             sdf_s3d.cuboid(size=[10.0, 10.0, 10.0], rounding=1, chamfer=1)
 
     def test_round_then_chamfer_compose(self) -> None:
@@ -302,7 +302,7 @@ class TestCuboid:
         assert shape.mn[1] > -10.5, "unflared side bounds untouched (minus padding)"
 
     def test_negative_rounding_rejects_z_edges(self) -> None:
-        with pytest.raises(ValueError, match="Cannot\ use\ negative\ rounding"):
+        with pytest.raises(ValueError, match="Cannot use negative rounding"):
             sdf_s3d.cuboid([20.0, 20.0, 10.0], rounding=-2, edges=Anchor.Z)
 
 
@@ -348,11 +348,11 @@ class TestScale:
         assert shape.sample(0, 0, 3) > 0
 
     def test_scale_drops_cuboid_metadata(self) -> None:
-        with pytest.raises(ValueError, match="round\(\)\ requires\ a"):
+        with pytest.raises(ValueError, match=r"round\(\) requires a"):
             sdf_s3d.cuboid([10.0, 10.0, 10.0]).scale(2).round(1, edges=Anchor.Z)
 
     def test_rejects_nonpositive_factors(self) -> None:
-        with pytest.raises(ValueError, match="scale\(\)\ factors\ must\ be"):
+        with pytest.raises(ValueError, match=r"scale\(\) factors must be"):
             sdf_s3d.cuboid([10.0, 10.0, 10.0]).scale([1, -1, 1])
 
 
@@ -389,9 +389,9 @@ class TestConvexPolyhedron:
             assert math.isclose(float(with_interior.sample(*p)), float(without.sample(*p)), abs_tol=10 ** (-9))
 
     def test_rejects_too_few_or_coplanar_points(self) -> None:
-        with pytest.raises(ValueError, match="convex_polyhedron\(\)\ needs\ at"):
+        with pytest.raises(ValueError, match=r"convex_polyhedron\(\) needs at"):
             sdf_s3d.convex_polyhedron([[0, 0, 0], [1, 0, 0], [0, 1, 0]])
-        with pytest.raises(ValueError, match="hull\ planes:\ points\ are"):
+        with pytest.raises(ValueError, match="hull planes: points are"):
             sdf_s3d.convex_polyhedron([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]])
 
 
@@ -461,7 +461,7 @@ class TestCylinders:
         assert math.isclose(float(shape.sample(5, 0, -5)), float(0), abs_tol=10 ** (-9)), "unchamfered bottom rim"
 
     def test_cyl_rounding_and_chamfer_are_mutually_exclusive(self) -> None:
-        with pytest.raises(ValueError, match="Cannot\ specify\ nonzero\ value"):
+        with pytest.raises(ValueError, match="Cannot specify nonzero value"):
             sdf_s3d.cyl(height=10, radius=5, rounding=1, chamfer=1)
 
     def test_xcyl_ycyl_zcyl_orient_the_axis(self) -> None:
@@ -504,7 +504,7 @@ class TestCylShift:
         assert shape.sample(6, 0, 5.1) > 0, "above the top face"
 
     def test_shift_rejects_rounding(self) -> None:
-        with pytest.raises(ValueError, match="shift=\ cannot\ be\ combined"):
+        with pytest.raises(ValueError, match="shift= cannot be combined"):
             sdf_s3d.cyl(height=10, radius=4, shift=[2, 0], rounding=1)
 
 
@@ -686,11 +686,11 @@ class TestPolygonPrism:
         assert shape.sample(15, 5, 2) > 0, "in the gap between islands"
 
     def test_rejects_bad_arguments(self) -> None:
-        with pytest.raises(ValueError, match="height\ must\ be\ >\ 0,\ height=0"):
+        with pytest.raises(ValueError, match="height must be > 0, height=0"):
             sdf_s3d.polygon_prism(self.L_PATH, height=0)
-        with pytest.raises(ValueError, match="every\ path\ needs\ >=\ 3\ points,\ got"):
+        with pytest.raises(ValueError, match="every path needs >= 3 points, got"):
             sdf_s3d.polygon_prism([[0, 0], [1, 0]], height=5)
-        with pytest.raises(ValueError, match="rim\ treatments\ must\ be\ smaller"):
+        with pytest.raises(ValueError, match="rim treatments must be smaller"):
             sdf_s3d.polygon_prism(self.L_PATH, height=5, rounding_top=6)
 
     def test_polygon_prism_chamfer_top(self) -> None:
