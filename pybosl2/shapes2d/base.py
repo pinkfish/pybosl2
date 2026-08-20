@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Union
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor, resolve_anchor
 from pybosl2._helpers import (
     anchor_offset_box as _anchor_offset_box,
@@ -155,6 +156,7 @@ def _sign(value: float) -> int:
     return (value > 0) - (value < 0)
 
 
+@backend_only("csg")
 def _finish(
     shape: PyOpenSCAD,
     offset: Anchor | Sequence[float],

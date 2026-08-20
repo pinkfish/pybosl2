@@ -15,6 +15,7 @@ from typing import Final
 
 from pybosl2 import shapes2d as shapes2d
 from pybosl2 import shapes3d as shapes3d
+from pybosl2._backend import Shape as Shape
 from pybosl2._backend import current_backend as current_backend
 from pybosl2._backend import known_backends as known_backends
 from pybosl2._backend import set_default_backend as set_default_backend
@@ -61,7 +62,6 @@ from pybosl2.exceptions import Bosl2Error as Bosl2Error
 from pybosl2.exceptions import CrossBackendError as CrossBackendError
 from pybosl2.exceptions import UnsupportedByBackendError as UnsupportedByBackendError
 from pybosl2.flat import Flat as Flat
-from pybosl2.flat import Shape2D as Shape2D
 from pybosl2.flat import circle as circle
 from pybosl2.flat import polygon as polygon
 from pybosl2.flat import rect as rect
@@ -216,7 +216,7 @@ __all__: list[str] = [
     "Region",
     "Resolution",
     "SEGMENT",
-    "Shape2D",
+    "Shape",
     "Solid",
     "TOP",
     "UP",

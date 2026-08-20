@@ -21,6 +21,7 @@ import numpy as np
 import shapely as _shapely
 from shapely.geometry import LineString
 
+from pybosl2._backend import builds_with
 from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, normalize_one, place, trim_ends
 
 if TYPE_CHECKING:
@@ -111,6 +112,7 @@ def _shapely_to_path2d(geom: _shapely.Polygon | _shapely.MultiPolygon, fallback_
     return Path2D(fallback_pts, closed=False)
 
 
+@builds_with("csg")
 def stroke_2d(
     path: Any,
     width: float = 1,
@@ -170,6 +172,7 @@ def stroke_2d(
     return _shapely_to_path2d(body, work_pts)
 
 
+@builds_with("csg")
 def dashed_stroke_2d(
     path: Any,
     dashpat: Sequence[float] | None = None,

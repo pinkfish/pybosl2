@@ -63,9 +63,9 @@ def test_phillips_size_parsing() -> None:
     # "#2" and 2 resolve identically.
     assert PhillipsSpec("#2").depth(4.0) == PhillipsSpec(2).depth(4.0)
     with pytest.raises(ValueError, match="phillips size must be"):
-        PhillipsMask("#9").shape()
+        _ = PhillipsMask("#9").shape
     with pytest.raises(ValueError, match="phillips size must be"):
-        PhillipsMask(5).shape()
+        _ = PhillipsMask(5).shape
 
 
 def test_phillips_depth_diam_roundtrip() -> None:
@@ -97,15 +97,15 @@ def test_phillips_diam_out_of_range() -> None:
 @pytest.mark.parametrize(
     "obj",
     [
-        PhillipsMask("#2").shape(),
-        PhillipsMask(4, center=True).shape(),
-        HexDriveMask(5, 10).shape(),
-        HexDriveMask(6, 8, slop=0.05).shape(),
-        TorxMask2d(30).shape(),
-        TorxMask(30, 10).shape(),
-        TorxMask(8, 5, center=True).shape(),
-        RobertsonMask(2).shape(),
-        RobertsonMask(0, l=3.27, angle=3.0).shape(),
+        PhillipsMask("#2").shape,
+        PhillipsMask(4, center=True).shape,
+        HexDriveMask(5, 10).shape,
+        HexDriveMask(6, 8, slop=0.05).shape,
+        TorxMask2d(30).shape,
+        TorxMask(30, 10).shape,
+        TorxMask(8, 5, center=True).shape,
+        RobertsonMask(2).shape,
+        RobertsonMask(0, l=3.27, angle=3.0).shape,
     ],
 )
 def test_masks_return_solid(obj: Bosl2Solid) -> None:
@@ -115,8 +115,8 @@ def test_masks_return_solid(obj: Bosl2Solid) -> None:
 def test_mask_composes_with_head() -> None:
     # A recess subtracts cleanly from a head.
     head = cyl(diameter1=2, diameter2=8, height=4).down(2)
-    assert isinstance(head - PhillipsMask("#2").shape(), Bosl2Solid)
-    assert isinstance(head - TorxMask(30, 4).shape(), Bosl2Solid)
+    assert isinstance(head - PhillipsMask("#2").shape, Bosl2Solid)
+    assert isinstance(head - TorxMask(30, 4).shape, Bosl2Solid)
 
 
 def test_robertson_size_validation() -> None:

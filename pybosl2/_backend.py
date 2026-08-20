@@ -24,9 +24,12 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, runtime_checkable
+import functools
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, Self, TypeVar, cast, runtime_checkable
 
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
+
+_F = TypeVar("_F", bound=Callable[..., Any])
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -48,6 +51,8 @@ def given_arguments(arguments: dict[str, Any]) -> dict[str, Any]:
 __all__ = [
     "BackendName",
     "given_arguments",
+    "backend_only",
+    "builds_with",
     "current_backend",
     "set_default_backend",
     "use_backend",
@@ -57,15 +62,22 @@ __all__ = [
     "check_operand_backend",
     "supports",
     "unsupported_feature",
+    "Shape",
     "Solid",
     "SolidBackend",
 ]
 
 # Features one backend has that the other cannot faithfully express. Calling one of these on the
-# wrong backend raises UnsupportedByBackendError (see the wrappers' __getattr__) instead of a confusing
-# AttributeError -- or, for the SDF backend, instead of meshing just to fail.
+# wrong backend raises UnsupportedByBackendError (see the wrappers' __getattr__) instead of a
+# confusing AttributeError -- or, for the SDF backend, instead of meshing just to fail.
+#
+# These two lists are the single source of truth for what is exclusive (SPEC PAR-3), and every
+# entry carries the reason it cannot cross over. An entry that becomes implementable is REMOVED,
+# not left as an excuse -- and a name listed here must genuinely be absent from the other
+# backend's class, or the refusal never fires (tests/test_backend_parity.py).
 CSG_ONLY_FEATURES = frozenset(
-    {  # BOSL2's attachment / anchor system -- no SDF equivalent
+    {  # BOSL2's attachment/anchor system: anchoring needs a shape's face and edge structure,
+        # which a distance field does not retain -- there is nothing to anchor TO.
         "attach",
         "anchor_point",
         "reanchor",
@@ -80,12 +92,17 @@ CSG_ONLY_FEATURES = frozenset(
         "face_profile",
         "tag",
         "tag_this",
+        # the attachment system's own state -- same reason as the operations above
+        "attachments",
+        "diff_config",
+        "tag_name",
         "diff",
         "intersect",
         "realize",
         # Both backends build 2-D shapes (Bosl2Shape2D / PyShape2D), but these two need a 2-D
-        # shadow of a 3-D solid and an outline to fill -- neither is derivable in closed form
-        # from a distance field (see docs/design/sdf-csg-compatibility.md for the sampling plan).
+        # shadow of a 3-D solid and an outline to fill -- neither is derivable in closed form from
+        # a distance field. Meshing to answer them would hand back a CSG shape from an SDF one
+        # (SPEC B-5), so they refuse and name `.to_csg()` as the explicit conversion.
         "projection",
         "fill",
     }
@@ -96,6 +113,72 @@ SDF_ONLY_FEATURES = frozenset(
         "chamfer",
     }
 )
+
+
+def backend_only(backend: str, neutral: str | None = None) -> "Callable[[_F], _F]":
+    """Decorate a backend's own constructor so it refuses when another backend is active.
+
+    A constructor in ``pybosl2.shapes3d`` builds CSG geometry whatever is selected. Called inside
+    a ``use_backend("sdf")`` block it used to hand back a shape that could not combine with the
+    surrounding SDF geometry; now it says so (SPEC C-1, B-4, PLAN B-P1).
+
+    Args:
+        backend: The backend this constructor belongs to.
+        neutral: Dotted path of the backend-neutral equivalent, named in the error's hint.
+
+    Returns:
+        A decorator that wraps the constructor with the guard.
+
+    """
+
+    def decorate(fn: "_F") -> "_F":
+        @functools.wraps(fn)
+        def guarded(*args: Any, **kwargs: Any) -> Any:
+            active = current_backend()
+            if active != backend:
+                hint = (
+                    f"{neutral} builds this on whichever backend is active."
+                    if neutral
+                    else f"it is the {backend!r} backend's own constructor."
+                )
+                raise UnsupportedByBackendError(
+                    f"{fn.__module__}.{fn.__name__}",
+                    active,
+                    hint=f"{hint} To build it as {backend!r} geometry anyway, "
+                    f'wrap the call in `with use_backend("{backend}")`.',
+                )
+            return fn(*args, **kwargs)
+
+        return cast("_F", guarded)
+
+    return decorate
+
+
+def builds_with(backend: str) -> "Callable[[_F], _F]":
+    """Decorate a backend's own implementation so it runs with that backend selected.
+
+    The counterpart to :func:`backend_only`: where that one refuses, this one *establishes* the
+    context. A CSG implementation detail (the CSG stroke, a CSG mask) legitimately builds CSG
+    geometry no matter what the caller selected, so it declares that rather than tripping the
+    guards on the constructors it calls.
+
+    Args:
+        backend: The backend to select for the duration of the call.
+
+    Returns:
+        A decorator that runs the function inside ``use_backend(backend)``.
+
+    """
+
+    def decorate(fn: "_F") -> "_F":
+        @functools.wraps(fn)
+        def scoped(*args: Any, **kwargs: Any) -> Any:
+            with use_backend(backend):
+                return fn(*args, **kwargs)
+
+        return cast("_F", scoped)
+
+    return decorate
 
 
 def supports(backend: str, feature: str) -> bool:
@@ -121,9 +204,9 @@ def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError |
         hint = "attachment/anchoring is a CSG-backend feature; build it with the default (csg) backend."
         if name in ("projection", "fill"):
             hint = (
-                f"{name}() produces or consumes 2-D geometry, which only the csg backend has "
-                "(pybosl2.shapes2d.Bosl2Shape2D). Convert first with .to_csg(), or build the shape "
-                "on the default (csg) backend."
+                f"{name}() needs a 2-D shadow of a solid, which is not derivable in closed form "
+                "from a distance field -- both backends build 2-D shapes otherwise. Mesh it "
+                f"explicitly with .to_csg().{name}(), or build the shape on the csg backend."
             )
         return UnsupportedByBackendError(name, "sdf", hint=hint)
     if backend == "csg" and name in SDF_ONLY_FEATURES:
@@ -220,24 +303,39 @@ def get_backend(name: str | None = None) -> "SolidBackend":
 
 
 @runtime_checkable
-class Solid(Protocol):
-    """The common solid contract both backend wrappers satisfy.
+class Shape(Protocol):
+    """Everything true of every shape, in either dimension, on either backend.
 
-    A ``Solid`` carries a ``backend`` tag; booleans/transforms return a ``Solid`` on the *same*
-    backend, and combining solids from two backends raises
-    :class:`~pybosl2.exceptions.CrossBackendError`. ``.to_csg()`` / ``.to_sdf()`` convert between them.
+    A 2-D outline and a 3-D solid are built, combined, moved and measured identically, so that
+    surface is declared once here and the dimensional protocols extend it (SPEC C-15). Members
+    return ``Self``, so an operation keeps the kind of shape it was given and a boolean between
+    the two dimensions is a static error rather than a runtime surprise (SPEC C-16).
+
+    A shape carries a ``backend`` tag naming the backend that *produced* it; combining shapes from
+    two backends raises :class:`~pybosl2.exceptions.CrossBackendError`.
     """
 
     backend: str
 
-    def __or__(self, other: "Solid") -> "Solid": ...
-    def __and__(self, other: "Solid") -> "Solid": ...
-    def __sub__(self, other: "Solid") -> "Solid": ...
-    def translate(self, v: "Sequence[float]") -> "Solid": ...
-    def rotate(self, a: "float | Sequence[float] | None" = None, v: "Sequence[float] | None" = None) -> "Solid": ...
-    def scale(self, v: "Sequence[float]") -> "Solid": ...
-    def mirror(self, v: "Sequence[float]") -> "Solid": ...
+    def __or__(self, other: Self) -> Self: ...
+    def __and__(self, other: Self) -> Self: ...
+    def __sub__(self, other: Self) -> Self: ...
+    def translate(self, v: "Sequence[float]") -> Self: ...
+    def scale(self, v: "Sequence[float]") -> Self: ...
+    def mirror(self, v: "Sequence[float]") -> Self: ...
     def bounds(self) -> "tuple[list[float], list[float]]": ...
+    def show(self) -> Any: ...
+
+
+@runtime_checkable
+class Solid(Shape, Protocol):
+    """A 3-D shape: :class:`Shape` plus what only three dimensions can do.
+
+    ``.to_csg()`` / ``.to_sdf()`` convert between the backends; ``projection()`` is the one way
+    down to 2-D (SPEC C-17).
+    """
+
+    def rotate(self, a: "float | Sequence[float] | None" = None, v: "Sequence[float] | None" = None) -> "Solid": ...
 
 
 class SolidBackend(Protocol):

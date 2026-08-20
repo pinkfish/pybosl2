@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor, EdgeAtom
 from pybosl2._native import native
 
@@ -244,6 +245,7 @@ def _edge_mask_negative(
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg")
 def roof(shape: object, method: str = "straight") -> Bosl2Solid:
     """Raise a hip roof over a 2-D *shape* via its straight skeleton (native ``roof()``).
 
@@ -269,6 +271,7 @@ def roof(shape: object, method: str = "straight") -> Bosl2Solid:
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg", neutral="pybosl2.solid.cube")
 def cube(
     size: float | Sequence[float] = 1,
     center: bool | None = None,
@@ -352,6 +355,7 @@ def cube(
     )
 
 
+@backend_only("csg", neutral="pybosl2.solid.cuboid")
 def cuboid(
     size: float | Sequence[float] = (1, 1, 1),
     p1: Point | None = None,
@@ -491,6 +495,7 @@ def cuboid(
     return _finish3(shape, offset, spin, orient, size=sz, anchor=anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.prismoid")
 def prismoid(
     size1: Sequence[float],
     size2: Sequence[float],
@@ -564,6 +569,7 @@ def prismoid(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.octahedron")
 def octahedron(
     size: float = 1,
     anchor: Anchor | Sequence[float] = Anchor.CENTER,
@@ -603,6 +609,7 @@ def octahedron(
     return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.wedge")
 def wedge(
     size: Sequence[float] = (1, 1, 1),
     center: bool | None = None,
@@ -663,6 +670,7 @@ def _rect_tube_rounding(
     ]
 
 
+@backend_only("csg", neutral="pybosl2.solid.rect_tube")
 def rect_tube(
     height: float | None = None,
     size: float | Sequence[float] | None = None,
@@ -723,7 +731,6 @@ def rect_tube(
         anchor:     anchor point (default BOTTOM)
         spin:       Z-axis rotation in degrees after anchor (default 0)
         orient:     direction to rotate the top towards, after spin (default UP)
-        length:     synonym for height
         fn:         arc smoothness override for the rounded corners, passed to both prismoids
         fa:         arc smoothness override for the rounded corners, passed to both prismoids
         fs:         arc smoothness override for the rounded corners, passed to both prismoids
@@ -866,6 +873,7 @@ def rect_tube(
     return _finish3(shape, offset, spin, orient, size=out_size, anchor=use_anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.regular_prism")
 def regular_prism(
     sides: int,
     height: float | None = None,

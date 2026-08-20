@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
+from pybosl2._backend import backend_only
+
 # Import base class and helper functions from shapes2d.base
 from pybosl2._helpers import (
     AnchorType,
@@ -79,6 +81,7 @@ else:
     _otext = native("text")
 
 
+@backend_only("csg")
 def star(
     tips: int | None = None,
     radius: float | None = None,
@@ -151,6 +154,7 @@ def star(
     return _finish(shape, offset, spin)
 
 
+@backend_only("csg")
 def teardrop2d(
     radius: float | None = None,
     angle: float = 45,
@@ -220,6 +224,7 @@ def teardrop2d(
     return _finish(shape, offset, spin)
 
 
+@backend_only("csg")
 def egg(
     length: float | None = None,
     radius1: float | None = None,
@@ -339,6 +344,7 @@ def _superformula(
     return (t1 + t2) ** (-1.0 / n1)  # type: ignore[no-any-return]
 
 
+@backend_only("csg")
 def supershape(
     step: float = 0.5,
     count: int | None = None,
@@ -446,6 +452,7 @@ def _squircle_fg_path(
     return pts
 
 
+@backend_only("csg")
 def squircle(
     size: float | Sequence[float],
     squareness: float = 0.5,
@@ -493,6 +500,7 @@ def squircle(
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg")
 def jittered_poly(path: Sequence[Sequence[float]], dist: float = 1 / 512) -> list[list[float]]:
     """Add tiny random jitter to a path's points.
 

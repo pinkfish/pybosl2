@@ -194,26 +194,62 @@ def test_facade_never_defaults_an_argument_its_backend_requires() -> None:
     assert not lies, "; ".join(lies)
 
 
-def test_argument_free_constructors_either_build_or_explain() -> None:
-    """No-argument calls must build or raise ValueError -- never assert or TypeError (SPEC.md P-1, E-4)."""
-    import pybosl2.solid as facade
-
-    built = 0
-    for name in facade.__all__:
-        function = getattr(facade, name)
+def _argument_free(module: object) -> list[tuple[str, object]]:
+    """Return the module's public callables that declare no required parameter."""
+    found: list[tuple[str, object]] = []
+    for name in getattr(module, "__all__", []):
+        function = getattr(module, name, None)
         if not inspect.isfunction(function) or name in {"effective_defaults", "given_arguments"}:
             continue
         parameters = inspect.signature(function).parameters.values()
         if any(p.default is inspect.Parameter.empty and p.kind is not p.VAR_POSITIONAL for p in parameters):
             continue
+        found.append((f"{getattr(module, '__name__', module)}.{name}", function))
+    return found
+
+
+@pytest.mark.parametrize("module_name", ["pybosl2.solid", "pybosl2.flat", "pybosl2.shapes2d", "pybosl2.shapes3d"])
+def test_argument_free_constructors_either_build_or_explain(module_name: str) -> None:
+    """No-argument calls must build or raise ValueError -- never assert or TypeError (SPEC P-1, E-4)."""
+    import importlib
+
+    module = importlib.import_module(module_name)
+    built = 0
+    for label, function in _argument_free(module):
         try:
-            assert function() is not None, name
+            assert function() is not None, label
         except ValueError:
             continue  # a documented "you must choose one of these spellings"
-        except (AssertionError, TypeError) as exc:  # pragma: no cover - the failure we are guarding against
-            pytest.fail(f"{name}() with no arguments raised {type(exc).__name__}: {exc}")
+        except (AssertionError, TypeError) as exc:  # pragma: no cover - the failure we guard against
+            pytest.fail(f"{label}() with no arguments raised {type(exc).__name__}: {exc}")
         built += 1
-    assert built >= 13, f"only {built} facade constructors build with no arguments at all"
+    assert built, f"no argument-free constructor in {module_name} actually built"
+
+
+def test_parts_build_from_their_catalogue_name_alone() -> None:
+    """A part takes its trade size and nothing else (SPEC P-1, P-4)."""
+    import pybosl2.parts as parts
+
+    # Screw/ScrewHole carry the one justified second required argument (SPEC D-2): a length no
+    # default can invent. Everything else builds from the catalogue name alone.
+    cases = {
+        "Screw": ("M6", 20),
+        "Nut": ("M6",),
+        "ScrewHole": ("M6", 20),
+        "SpurGear": (),
+        "RegularPolyhedron": (),
+        "NemaMotor": (),
+        "WireBundle": ([[0.0, 0.0, 0.0], [10.0, 0.0, 0.0], [10.0, 10.0, 0.0]], 3),  # route + wire count
+    }
+    for name, args in cases.items():
+        cls = getattr(parts, name, None)
+        if cls is None:
+            continue
+        try:
+            part = cls(*args)
+        except (AssertionError, TypeError) as exc:  # pragma: no cover - the failure we guard against
+            pytest.fail(f"{name}({', '.join(map(repr, args))}) raised {type(exc).__name__}: {exc}")
+        assert part.shape is not None, name
 
 
 def test_size_only_rect_tube_gets_a_wall() -> None:
@@ -250,3 +286,31 @@ def test_empty_boolean_explains_itself(operation: str) -> None:
 
     with pytest.raises(ValueError, match="at least one solid"):
         getattr(facade, operation)()
+
+
+def test_fn_zero_opts_out_of_an_ambient_fn() -> None:
+    """`fn=0` means "use fa/fs", so one call can escape an ambient fn (SPEC R-5)."""
+    plain = len(s2.arc(radius=10, angle=90))
+    with use_defaults(fn=64):
+        assert len(s2.arc(radius=10, angle=90)) == 17
+        assert len(s2.arc(radius=10, angle=90, fn=0)) == plain
+
+
+def test_validation_messages_name_the_accepted_spellings() -> None:
+    """Each converted assert became a ValueError that says what to pass (SPEC E-4)."""
+    import pybosl2.shapes2d as shapes2d
+    import pybosl2.shapes3d as shapes3d
+    from pybosl2.sdf.shapes2d import trapezoid2d
+
+    cases = [
+        (lambda: shapes2d.ring(radius=-10, ring_width=5), "positive outer radius"),
+        (lambda: shapes2d.shell2d(thickness=2), "children="),
+        (lambda: shapes2d.round2d(radius=2), "children="),
+        (lambda: shapes2d.arc(), "radius="),
+        (lambda: shapes2d.trapezoid(height=5), "exactly three"),
+        (lambda: trapezoid2d(height=5), "exactly three"),
+        (lambda: shapes3d.cross(height=0), "positive height="),
+    ]
+    for call, expected in cases:
+        with pytest.raises(ValueError, match=expected):
+            call()

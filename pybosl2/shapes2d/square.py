@@ -19,6 +19,8 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
+from pybosl2._backend import backend_only
+
 # Import base class and helper functions from shapes2d.base
 from pybosl2._helpers import (
     anchor_offset_box as _anchor_offset_box,
@@ -89,6 +91,7 @@ else:
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg", neutral="pybosl2.flat.square")
 def square(
     size: float | Sequence[float] = 1,
     center: bool | None = None,
@@ -136,6 +139,7 @@ def square(
     return _finish(shape, offset, spin or 0, size=sz, anchor=use_anchor)
 
 
+@backend_only("csg", neutral="pybosl2.flat.rect")
 def rect(
     size: float | Sequence[float] = 1,
     rounding: float | Sequence[float] = 0,
@@ -180,6 +184,7 @@ def rect(
     return _finish(shape, offset, spin, size=sz, anchor=anchor)
 
 
+@backend_only("csg")
 def rect_path(
     size: float | Sequence[float] = 1,
     rounding: float | Sequence[float] = 0,
@@ -221,6 +226,7 @@ def rect_path(
     return [[float(p[0]) + offset[0], float(p[1]) + offset[1]] for p in path]
 
 
+@backend_only("csg", neutral="pybosl2.flat.polygon")
 def polygon(
     path: Path2D,
     anchor: Anchor | Sequence[float] = CENTER,
@@ -302,6 +308,7 @@ def _regular_ngon_path(
     return path
 
 
+@backend_only("csg")
 def regular_ngon(
     sides: int = 6,
     radius: float | None = None,
@@ -392,6 +399,7 @@ def regular_ngon(
     return _finish(shape, offset, spin)
 
 
+@backend_only("csg")
 def pentagon(
     radius: float | None = None,
     diameter: float | None = None,
@@ -434,6 +442,7 @@ def pentagon(
     )
 
 
+@backend_only("csg")
 def hexagon(
     radius: float | None = None,
     diameter: float | None = None,
@@ -476,6 +485,7 @@ def hexagon(
     )
 
 
+@backend_only("csg")
 def octagon(
     radius: float | None = None,
     diameter: float | None = None,
@@ -518,6 +528,7 @@ def octagon(
     )
 
 
+@backend_only("csg")
 def right_triangle(
     size: Sequence[float] = (1, 1),
     center: bool | None = None,
@@ -639,6 +650,7 @@ def _trapezoid_path(
     return list(reversed(cpath))
 
 
+@backend_only("csg")
 def trapezoid(
     height: float | None = None,
     width1: float | None = None,
@@ -680,7 +692,8 @@ def trapezoid(
 
     """
     defined = sum(x is not None for x in (height, width1, width2, angle))
-    assert defined == 3, "Must give exactly 3 of the arguments height, width1, width2, and angle."
+    if defined != 3:
+        raise ValueError(f"trapezoid(): give exactly three of height=, width1=, width2= and angle= (got {defined}).")
     if height is None:
         assert width1 is not None
         assert width2 is not None

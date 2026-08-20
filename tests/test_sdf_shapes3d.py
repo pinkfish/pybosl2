@@ -932,17 +932,26 @@ class TestHalfOf:
 
 
 class TestProjection:
-    """projection() — 2-D shadow from 3-D SDF."""
+    """projection() — refused on the SDF backend, naming the explicit conversion.
 
-    def test_projection_runs(self) -> None:
+    A 2-D shadow is not derivable in closed form from a distance field, and meshing to answer it
+    would hand back a CSG shape from an SDF one (SPEC B-5, PAR-3). It is listed in
+    CSG_ONLY_FEATURES, so the refusal fires rather than converting behind the caller's back.
+    """
+
+    def test_projection_refuses_and_names_to_csg(self) -> None:
+        from pybosl2.exceptions import UnsupportedByBackendError
+
         s = sdf_s3d.cuboid([10, 10, 10])
-        result = s.projection()
-        assert result is not None
+        with pytest.raises(UnsupportedByBackendError, match=r"\.to_csg\(\)"):
+            s.projection()
 
-    def test_projection_cut(self) -> None:
+    def test_projection_cut_refuses_too(self) -> None:
+        from pybosl2.exceptions import UnsupportedByBackendError
+
         s = sdf_s3d.sphere(radius=10)
-        result = s.projection(cut=True)
-        assert result is not None
+        with pytest.raises(UnsupportedByBackendError):
+            s.projection(cut=True)
 
 
 class TestDistributeOnPath:

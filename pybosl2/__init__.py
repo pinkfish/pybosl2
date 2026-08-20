@@ -19,7 +19,6 @@
 
 """Top-level convenience re-exports (lazy) for the pybosl2 BOSL2 toolkit."""
 
-from pybosl2.color import Color
 from pybosl2.version import Version, __version__, version
 
 # All other exports are lazy — the sub-module is only imported when
@@ -53,9 +52,9 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "Bosl2Error": ("pybosl2.exceptions", "Bosl2Error"),
     "UnsupportedByBackendError": ("pybosl2.exceptions", "UnsupportedByBackendError"),
     "CrossBackendError": ("pybosl2.exceptions", "CrossBackendError"),
+    "Shape": ("pybosl2._backend", "Shape"),
     "Solid": ("pybosl2.solid", "Solid"),
     "Flat": ("pybosl2.flat", "Flat"),
-    "Shape2D": ("pybosl2.flat", "Shape2D"),
     # anchor system
     "Anchor": ("pybosl2._edges_lang", "Anchor"),
     "EdgePlane": ("pybosl2._edges_lang", "EdgePlane"),
@@ -89,6 +88,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "constrain": ("pybosl2.math", "constrain"),
     "mean": ("pybosl2.math", "mean"),
     # colour
+    "Color": ("pybosl2.color", "Color"),
     "rainbow": ("pybosl2.color", "rainbow"),
     "rainbow_colors": ("pybosl2.color", "rainbow_colors"),
     # 2-D shapes
@@ -213,4 +213,4 @@ def __getattr__(name: str) -> object:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["Color", "Version", "__version__", "version"] + sorted(k for k in _LAZY_EXPORTS if k)
+__all__ = ["Version", "__version__", "version"] + sorted(k for k in _LAZY_EXPORTS if k)

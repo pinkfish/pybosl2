@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
+from typing import Any
 
 import numpy as np
 
@@ -218,13 +219,19 @@ class RingHook:
         """Cylinder inner (bore) radius."""
         return self._inner_radius
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the ring hook geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the ring hook in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the ring hook in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 def _hole_cutter(

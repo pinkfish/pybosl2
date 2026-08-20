@@ -1,0 +1,490 @@
+# pybosl2 — Conformance Work Queue
+
+Ordered, checkable work to bring the code up to [SPEC.md](SPEC.md), with the Python mechanics in
+[PLAN.md](PLAN.md). **[SPEC.md §12.2](SPEC.md#122-open) is the authoritative list of what is open**
+— this file is how to close it. When a task lands, move its row from §12.2 to §12.1 in the same
+commit, and tick it here.
+
+Definition of done for **every** task: the five gates in [PLAN.md §10](PLAN.md#10-gates-and-commands)
+pass (`pytest`, `mypy --strict pybosl2`, `ruff check . && ruff format .`, the minimum-argument and
+example checks, the contract tests), the new contract test named in the task exists, and the spec's
+conformance tables are updated. Run with `TMPDIR` pointed at a volume with room (PLAN X-6).
+
+## Spec item → task
+
+✅ done · 🔶 in progress · (blank) not started
+
+| §12.2 | Requirement | Task | Size |
+|---|---|---|---|
+| 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) ✅ | S |
+| 2 | A-6 | [T2b](#t2b--make-the-top-level-backend-neutral) | M |
+| 3 | E-4 | [T0b](#t0b--convert-user-input-asserts-to-valueerror) | L |
+| 4 | C-14 | [T0c](#t0c--make-partshape-a-property) | M |
+| 5 | DOC-2 / D-P5 | [T0e](#t0e--document-the-façade) | M |
+| 6 | A-7 | [T0d](#t0d--fix-the-broken-export) | XS |
+| 7 | S-46a | [T0f](#t0f--make-parts-honour-the-active-backend) | L |
+| 8 | S-51 | [T0f](#t0f--make-parts-honour-the-active-backend) step 3 | — |
+| 9 | B-3 / PAR-5 | [T2](#t2--give-the-façade-ownership-of-shared-defaults) | L |
+| 10 | C-15 … C-19 | [T1](#t1--merge-solid-and-flat-into-one-shape-contract) | M |
+| 11 | R-1 | [T5](#t5--close-the-facet-control-backlog) | L |
+| 12 | PAR-1 / C-1 / B-5 | [T3](#t3--stop-the-sdf-fallback-silently-meshing) | M |
+| 13 | PAR-3 | [T4](#t4--reconcile-the-parity-records-with-the-code) | S |
+| 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) | S |
+| 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) | M |
+| 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families) | M |
+| 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
+| — | housekeeping | [T10](#t10--housekeeping) | S |
+
+## Order and why
+
+```
+  T0 backend tag ──► everything else            the cross-backend guard must work first
+       │
+  T0b asserts · T0c parts.shape · T0d parts __all__ · T0e façade docs   user-visible, independent
+       │
+  T0f parts honour the backend (needs T0 + T2b)
+       │
+  T1 Shape merge ──► T2 façade defaults ──► T3 SDF fallback ──► T4 parity records
+   (contract)          (uses the contract)     (needs T1's Self)   (reconcile the lists)
+       │
+  T2b top-level neutrality (needs T2's façade defaults)
+
+  T5 facet backlog ─── independent, batchable by module
+  T6 fn=0 · T7 min-arg check · T8 class-ify · T9 BOSL2 matrix ─── independent
+```
+
+**T0 goes first.** While the backend tag lies, every other backend-related change is being tested
+against a guard that does not fire. T0b–T0e are what a user hits on day one and need nothing else
+landed first. T1 → T2 because the façade signatures are easier to change once `Shape` fixes what
+"a shared argument" means; T2 → T2b because promoting shapes to the façade means declaring their
+defaults there.
+
+---
+
+## T0 — Make the backend tag tell the truth ✅
+
+**Closes:** §12.2 item 1 (C-1, E-3) · **Implements:** PLAN O-6a, B-P3 · **Size:** S
+**Risk:** low in itself, but it exposes latent mixing bugs that were passing silently
+
+`CsgSolid.__init__` does `self.backend = current_backend()`, so a CSG solid built inside a
+`use_backend("sdf")` block claims to be an SDF solid. `check_operand_backend` then waves it through
+and the user gets `AssertionError: every argument must be a PyShape, got ['CsgSolid']` from inside
+the SDF backend instead of `CrossBackendError` with the conversion hint.
+
+1. Replace the assignment with a class constant `backend = "csg"` on `CsgSolid` (PLAN O-6a), the
+   way `CsgShape2D` already does it.
+2. Make CSG-only constructors refuse inside an SDF block: raise `UnsupportedByBackendError` naming
+   the neutral equivalent (`pybosl2.solid.cyl` for `pybosl2.shapes3d.cyl`, …) rather than returning
+   a shape the caller cannot combine.
+3. Expect fallout — tests that build CSG shapes inside an SDF block on purpose now fail; each is a
+   real mixing bug or a test that should say which backend it means.
+
+**Done when:** a test asserts that a CSG shape built inside `use_backend("sdf")` reports
+`backend == "csg"`, and that combining it with an SDF shape raises `CrossBackendError`.
+
+---
+
+**Landed.** `CsgSolid.backend` is the class constant `"csg"`; `backend_only("csg", neutral=…)`
+guards 64 constructors in `shapes2d`/`shapes3d`/`surfaces3d` so they refuse on another backend and
+name the neutral twin; `builds_with("csg")` is its counterpart for CSG internals (the strokes) that
+legitimately build CSG whatever is selected. `stroke_3d` now reads the caller's backend before
+entering that context, so the decorative-cap fallback warning still fires. Tests:
+`test_a_csg_shape_built_inside_an_sdf_block_still_says_csg`,
+`test_2d_shape_constructors_refuse_on_another_backend`.
+
+---
+
+## T0b — Convert user-input asserts to `ValueError`
+
+**Closes:** §12.2 item 3 (E-4) · **Implements:** PLAN E-P1, E-P2, E-P4a · **Size:** L, batchable
+**Risk:** low
+
+290 asserts carry user-facing messages; `python -O` deletes all of them. Public entry points first
+(PLAN E-P2's test: does the message name a parameter the caller typed?).
+
+Batches, highest user contact first:
+- [ ] `shapes2d/` (17 in `circle.py` alone — `star(): must specify tips` lives here) and `shapes3d/`
+- [ ] `solid.py` / `flat.py` façades
+- [ ] `parts/` — a wrong trade size or dimension is the most likely user error of all
+- [ ] `skin.py` (20), `isosurface.py` (22), `surfaces3d.py` (15), `texture.py` (13), `beziers.py`,
+      `nurbs.py`, `miscellaneous.py`
+- [ ] `sdf/` (31 in `shapes3d.py`, 11 each in `shapes2d.py`/`paths.py`)
+
+While converting, fold in D-8: an argument the function actually requires should be required in the
+signature, not asserted (`star(tips=None)` is the same defect as the old `prismoid`).
+
+**Done when:** no `assert` in the package carries a message naming a caller-supplied parameter; add
+a test that greps for the pattern so it cannot come back.
+
+
+**In progress — 13 of 290 converted.** Done: the shapes2d entry points reachable with no arguments
+(`arc`, `ring` ×3, `round2d`, `shell2d` ×2, `hull`, `trapezoid`), `shapes3d.cross`,
+`sdf.shapes2d.trapezoid2d`, and `rounding.round_corners` ×4. Each now names the accepted spellings,
+and the six tests that asserted `AssertionError` were updated to assert `ValueError` **and its
+message**. Remaining batches are unchanged below; 277 asserts with user-facing messages are left.
+
+---
+
+## T0c — Make `part.shape` a property ✅
+
+**Closes:** §12.2 item 4 (C-14) · **Implements:** PLAN O-2, O-5a · **Size:** M
+**Risk:** low, but API-visible
+
+All 37 part classes define `shape` as a method; the spec, the docs and every example say property.
+
+1. Add `@property` with lazy caching to each part's `shape` (many already cache in `self._solid`).
+2. Update docstring examples and the spec sheets that call `.shape()`.
+3. Add a test walking `pybosl2.parts.__all__` asserting `shape` is a property on every class.
+4. Keep the C-14a distinction visible in docstrings: a part's `shape` is the finished solid, a
+   wrapper's is the native handle.
+
+
+**Landed.** 50 part classes gained `@property` on `shape`; 551 call sites across the package,
+tests and docs were rewritten from `.shape()` to `.shape`. All 50 `show()` methods now return the
+shape instead of `None` (S-49/S-51, §12.2 item 7 closed with this one). Tests:
+`test_every_part_exposes_shape_as_a_property`, `test_part_show_returns_the_shape`.
+
+---
+
+## T0d — Fix the broken export ✅
+
+**Closes:** §12.2 item 6 (A-7) · **Implements:** PLAN M-2 · **Size:** XS · **Risk:** none
+
+`pybosl2.parts.__all__` lists `Threading`, which does not exist, so `from pybosl2.parts import *`
+raises. Remove it (or export the intended name), then add a test asserting every name in every
+public module's `__all__` resolves.
+
+
+**Landed.** `Threading` removed from `pybosl2.parts.__all__` (the module exports `ThreadedRod`,
+`ThreadedNut` and `ThreadHelix`). `tests/test_exports.py` now walks every public module and
+asserts each `__all__` entry resolves — 77 modules covered.
+
+---
+
+## T0e — Document the façade
+
+**Closes:** §12.2 item 5 (DOC-2) · **Implements:** PLAN D-P4a, D-P1, D-P5 · **Size:** M
+**Risk:** none
+
+27 façade callables have no `Args:` and no example, so `help(pybosl2.cuboid)` — the entry point the
+spec recommends — documents nothing. Give each an `Args:` covering the parameters it declares, a
+note on what an omitted argument resolves to (and `effective_defaults()`), and one
+`.. pythonscad-example::`. Best done with or after T2, when the façade owns the defaults it would
+be documenting.
+
+---
+
+---
+
+## T0f — Make parts honour the active backend
+
+**Closes:** §12.2 items 7 and 8 (S-46a, S-51) · **Implements:** PLAN O-0a, O-5a · **Size:** L
+**Risk:** medium
+
+Every part imports `pybosl2.shapes3d` directly, so `with use_backend("sdf"): Screw("M6", length=20)`
+returns a CSG part that cannot be combined with the SDF geometry around it.
+
+1. Re-point each part module's imports at `pybosl2.solid` / `pybosl2.flat` (PLAN O-0a).
+2. Where a part needs something only CSG can express (threading helices, text, some masks), raise
+   `UnsupportedByBackendError` naming the backend rather than returning the other backend's shape.
+3. Fix the parts' `show()` while you are there: `self.shape.show()` after T0c, returning the shape
+   (S-49, §12.2 item 8).
+4. Add a test: every part class built inside `use_backend("sdf")` either yields `backend == "sdf"`
+   or raises `UnsupportedByBackendError`.
+
+**Depends on:** T0 (the backend tag must be truthful before this can be tested) and T2b (the façade
+needs the shapes parts use).
+
+---
+
+## T1 — Merge `Solid` and `Flat` into one `Shape` contract ✅
+
+**Closes:** §12.2 item 10 (C-15 … C-18) · **Implements:** PLAN T-6a, T-6b · **Size:** M
+**Risk:** low — a contract change, not a geometry change
+
+Today `Solid` lives in `_backend.py` and `Flat` in `flat.py`, duplicating the `backend` tag, three
+boolean operators, four transforms and `bounds()`. That duplication is why `Flat` was `Any`-typed
+long after `Solid` was not, and why it lacked `bounds()` until recently.
+
+1. In the L1 contract module declare `Shape(Protocol)` with the universal surface — `backend`,
+   `__or__`/`__and__`/`__sub__`, `translate`/`rotate`/`scale`/`mirror`/`multmatrix`, `bounds()` —
+   typing shared members `-> Self` (PLAN T-6a).
+2. Redeclare `Flat(Shape, Protocol)` with only `linear_extrude`, `rotate_extrude`, `offset`, and
+   `Solid(Shape, Protocol)` with only `projection` and the 3-D-only surface. Remove every member
+   that is now inherited — a re-declaration re-opens the drift.
+3. Re-point `flat.py` and `solid.py` at the new declarations; export `Shape` alongside
+   `Flat`/`Solid` (`_LAZY_EXPORTS` + `__init__.pyi`). There is no `Shape2D` alias any more (C-18).
+4. Confirm the four implementations still satisfy the protocols: `CsgSolid`, `SdfSolid`,
+   `CsgShape2D`, `PyShape2D`.
+
+**Done when:** `mypy --strict` is clean; a test asserts `flat | solid` is rejected statically
+(`assert_type` / a `# type: ignore[operator]` that mypy reports as unused if the error disappears);
+`tests/test_init_stub.py` passes with `Shape` exported.
+
+
+**Landed.** `Shape` is declared in `_backend.py` with `Self`-returning members (`backend`, the
+three boolean operators, `translate`/`scale`/`mirror`, `bounds()`, `show()`); `Solid(Shape)` adds
+`rotate`'s 3-D signature and `Flat(Shape)` adds only `rotate` and `linear_extrude`. `Shape` is
+exported at the top level and in the stub. C-19 (colour and distribution on the shared contract)
+stays open until T3 gives the SDF shapes colour. Test:
+`test_one_shape_contract_with_two_specialisations`, which also asserts no shared member is
+re-declared on `Flat`.
+
+---
+
+## T2 — Give the façade ownership of shared defaults
+
+**Closes:** §12.2 item 9 (B-3, PAR-5) · **Implements:** PLAN F-P1 … F-P4 · **Size:** L
+**Risk:** medium — behaviour-affecting
+
+Façade constructors default every shared argument to `None` and forward only what the caller
+passed, so an identical call can resolve differently per backend.
+
+1. For each constructor in `solid.py` and `flat.py`, replace `None` with the real default for every
+   argument **both** backends understand (PLAN F-P1). `effective_defaults()` reports today's values
+   per backend — use it as the source, and where the two disagree, decide deliberately and record it.
+2. Replace the blanket `given_arguments()` filter with a signature-aware one (PLAN F-P2), reusing
+   the cached-signature approach `_takes_res` already uses.
+3. Keep backend-exclusive options (`res`; `spin`/`orient`/`fn`/`fa`/`fs`) defaulting on the backend.
+4. Extend `test_backends_agree_on_the_defaults_they_share` from its four shapes to every façade
+   shape, so a future divergence fails.
+
+**Done when:** the extended agreement test passes over all façade shapes; `effective_defaults()`
+needs no change (PLAN F-P4); no golden STL shifts.
+
+---
+
+## T2b — Make the top level backend-neutral
+
+**Closes:** §12.2 item 2 (A-6) · **Implements:** PLAN M-2a, B-P1 · **Size:** M · **Risk:** low
+
+`star`, `cone`, `egg`, `roof`, `text3d`, `path_text` and most of `shapes2d` are exported from the
+top level but only build on CSG.
+
+1. Give each a façade constructor that dispatches on the active backend, using the SDF equivalents
+   that already exist (`star2d`, `ellipse2d`, `regular_ngon2d`, `trapezoid2d`, `keyhole2d`, …).
+2. Where the SDF backend has no equivalent (`roof`, `text3d`, `path_text`), raise
+   `UnsupportedByBackendError` with a hint rather than silently building CSG.
+3. Re-point `_LAZY_EXPORTS` at the façade and regenerate `__init__.pyi`.
+4. Add a test: for every top-level shape name, building it inside `use_backend("sdf")` either
+   returns an SDF-backed shape or raises `UnsupportedByBackendError` — never a CSG shape.
+
+## T3 — Stop the SDF fallback silently meshing ✅
+
+**Closes:** §12.2 item 12 (PAR-1, C-1, B-5) · **Implements:** PLAN E-P6, O-6a · **Size:** M
+**Risk:** medium — changes SDF behaviour
+
+`SdfSolid.__getattr__` forwards any unimplemented name to `self.mesh()`, so `shape.up(5)` and
+`shape.color("red")` quietly convert an exact field to a mesh and hand back a raw native handle
+with no `backend` tag — the implicit conversion B-5 forbids.
+
+1. **Directional moves** (`up`, `down`, `left`, `right`, `back`, `forward`, `fwd`, `move`, `rot`):
+   implement natively on the SDF shape as thin wrappers over its exact `translate`/`rotate`. These
+   are pure wins — cheap, exact, and they keep the field.
+2. **Colour and display** (`color`, `color_this`, `recolor`, `hsl`, `hsv`, `highlight`, `ghost`):
+   make `SdfSolid` carry colour as metadata that survives transforms and is applied when the field
+   is realized. This is what C-19 needs before colour can join the `Shape` contract.
+3. **Attachment properties** (`attachments`, `diff_config`, `tag_name`): add to
+   `CSG_ONLY_FEATURES` so they refuse rather than mesh.
+4. Make the fallback's last resort an explicit refusal, not `getattr(self.mesh(), name)`.
+
+**Done when:** no public CSG shape method reaches the meshing fallback; a test asserts
+`use_backend("sdf")` + `.up(5)` returns an SDF-backed shape with `backend == "sdf"`; the 19-name
+gap list in §12.2 item 4 is empty.
+
+
+**Landed.** The nine directional moves are real methods on `SdfSolid` (exact wrappers over its own
+`translate`/`rotate`); colour is metadata carried on the field and applied when it is realized, so
+`SdfSolid` now satisfies `Colorable` and `.color()/.ghost()/.hsl()` keep the shape in SDF-land;
+the three attachment properties joined `CSG_ONLY_FEATURES`. The fallback is now a documented
+`_MESH_OPERATIONS` allowlist — operations that genuinely consume mesh topology — and everything
+else refuses, naming `.to_csg()`. No public CSG shape method reaches the mesher any more. Tests:
+`test_sdf_shapes_keep_their_backend_through_moves_and_colour`,
+`test_an_unknown_operation_refuses_instead_of_meshing`.
+
+---
+
+## T4 — Reconcile the parity records with the code ✅
+
+**Closes:** §12.2 item 13 (PAR-3) · **Implements:** PLAN B-P1, B-P4 · **Size:** S · **Risk:** none
+
+`docs/design/sdf-csg-compatibility.md` lists `projection`, `bounding_box`, `distribute_on_path`,
+`inside`, `chain_hull`, `half_of`, `partition`, `round3d` and `offset3d` as gaps — all nine are
+implemented. `projection` is simultaneously implemented on `SdfSolid` and listed in
+`CSG_ONLY_FEATURES`, so the refusal never fires.
+
+1. Decide `projection` on SDF: if the sampling implementation is sound, remove it from
+   `CSG_ONLY_FEATURES`; if not, remove the method. The two records must agree.
+2. Rewrite the design doc as a *current* gap list, or delete it and let `CSG_ONLY_FEATURES` +
+   `SDF_ONLY_FEATURES` be the single source of truth (PAR-3 says they are).
+3. Give each remaining exclusive entry its one-line reason inline, as PAR-3 requires.
+4. Add a test that every name in `CSG_ONLY_FEATURES` is genuinely absent from the SDF shape, so
+   the lists can never drift from the implementations again.
+
+**Done when:** that test passes and the design doc either matches reality or is gone.
+
+
+**Landed.** `SdfSolid.projection()` was meshing and returning a CSG 2-D shape while `projection`
+sat in `CSG_ONLY_FEATURES` — an implicit cross-backend conversion whose refusal never fired. The
+method is gone, so the refusal fires and names `.to_csg().projection()`. Each exclusive entry now
+carries its reason inline, and `tests/test_backend_parity.py` fails if a listed name is
+implemented on the other backend. `docs/design/sdf-csg-compatibility.md` was rewritten from
+scratch: it had listed nine features as missing that had all shipped, and that stale list misled a
+design review — it now leads with that warning and states the four real gaps.
+
+---
+
+## T5 — Close the facet-control backlog
+
+**Closes:** §12.2 item 11 (R-1) · **Implements:** PLAN R-P2, R-P3, R-P5 · **Size:** L, batchable
+**Risk:** low
+
+50 pinned entries in `tests/test_facets.py`. First triage each against **R-1a**: does the output
+have an observable facet count? If not, it is not debt — delete the entry with a one-line note.
+
+*Likely not debt (placement/measurement only, ~13):* `distributors` (10 rot/arc/sphere copies),
+`transforms.polar_to_xy`, `geometry.circle_circle_tangents`, `parts/wiring.hex_offsets`,
+`parts/screw_drive.PhillipsSpec.depth`.
+
+*Genuine debt, batched by module:*
+
+- [ ] `regions.py` — `Region.offset`, `Region.round_corners` (2) — highest value: rounding a region is a headline operation
+- [ ] `shapes3d/base.py` — `edge_profile`, `edge_profile_asym`, `offset3d`, `round3d` (4)
+- [ ] `skin.py` — `spiral_sweep`, `os_circle`, `os_smooth`, `os_teardrop` (4)
+- [ ] `shapes2d/curves.py` — `star`, `supershape`, `squircle_radius_fg` (3)
+- [ ] `parts/polyhedra.py` — the five `RegularPolyhedron` factories (5)
+- [ ] `isosurface.py` — `mb_sphere`, `mb_capsule`, `mb_disk`, `mb_connector` (4)
+- [ ] `rounding.py` — `attach_prism`, `bent_cutout_mask`, `path_join` (3)
+- [ ] `surfaces3d.py` — `cylindrical_heightfield`, `interior_fillet`, `plot_revolution` (3)
+- [ ] `beziers.py` — `Bezier.begin`/`tang`/`joint`/`end` (4)
+- [ ] `miscellaneous.py` — `offset3d`, `round3d` (2)
+- [ ] `path2d.py` `minkowski_sum_circle`, `path3d.py` `helix` (2)
+
+Each batch: add `fn`/`fa`/`fs` keyword-only defaulting to `None`, forward to every
+sub-construction (PLAN R-P2), document the three in `Args:`, and remove the entries from
+`KNOWN_WITHOUT_FACETS`.
+
+**Done when:** `KNOWN_WITHOUT_FACETS` is empty and `tests/test_facets.py` still passes.
+
+
+**In progress — triage done, 6 of 36 fixed.** The R-1a triage moved 14 entries to a documented
+`PLACEMENT_ONLY` set in `tests/test_facets.py` (copy distributors, `polar_to_xy`,
+`circle_circle_tangents`, `hex_offsets`, `PhillipsSpec.depth`) — they take a radius to place or
+measure, and nothing they return has a facet count. Of the 36 real debt entries, these are fixed:
+`Region.offset`, `Region.round_corners`, `CsgSolid.offset3d`, `CsgSolid.round3d`,
+`Miscellaneous.offset3d`, `Miscellaneous.round3d`. 30 remain, batched by module below.
+
+---
+
+## T6 — Document and test the `fn=0` opt-out ✅
+
+**Closes:** §12.2 item 14 (R-5) · **Implements:** PLAN R-P6 · **Size:** S · **Risk:** none
+
+`fn=0` means "ignore any ambient `fn`, use `fa`/`fs`" because `frag_count()` treats `fn < 3` as
+unset — true but undocumented and untested.
+
+1. Say so in `pybosl2/defaults.py`'s module docstring and in `use_defaults`' docstring.
+2. Add a test: inside `use_defaults(fn=64)`, a call with `fn=0` produces the `fa`/`fs` result.
+3. Mention it in the `fn` line of the `Args:` block of the most-used constructors (`cyl`, `sphere`,
+   `circle`, `cuboid`).
+
+
+**Landed.** Documented in `defaults.py`'s module header (with a worked example), in
+`use_defaults`' `Note:`, in `resolve_facets`' `Returns:` and in `frag_count`. Test:
+`test_fn_zero_opts_out_of_an_ambient_fn`.
+
+---
+
+## T7 — Generalise the minimum-argument check ✅
+
+**Closes:** §12.2 item 15 (Q-4) · **Implements:** PLAN X-3, T-9a · **Size:** M · **Risk:** none
+
+`test_argument_free_constructors_either_build_or_explain` covers only `pybosl2.solid`.
+
+1. Extend it over `pybosl2.flat`, then the `pybosl2.parts` classes (construct with the catalogue
+   name only), then `shapes2d`/`shapes3d`.
+2. Keep the contract: build, or raise `ValueError` — never `AssertionError`/`TypeError`.
+3. Expect finds: fix each as a P-1/E-4 defect rather than adding it to an exemption list.
+
+
+**Landed.** The check is parametrised over `pybosl2.solid`, `pybosl2.flat`, `pybosl2.shapes2d` and
+`pybosl2.shapes3d`, plus a parts probe that builds each from its catalogue name alone. It found
+eight more E-4 violations on its first run (`arc`, `trapezoid`, `ring`, `round2d`, `shell2d`,
+`hull`, `cross`, `round_corners`) — all converted — and one M-2 violation: `pybosl2.flat` had no
+`__all__`. Tests: `test_argument_free_constructors_either_build_or_explain[4 modules]`,
+`test_parts_build_from_their_catalogue_name_alone`.
+
+---
+
+## T8 — Class-ify the remaining function families
+
+**Closes:** §12.2 item 16 (P-8) · **Implements:** PLAN O-1, O-4, O-6 · **Size:** M
+**Risk:** low, but API-visible
+
+1. `masking.mask2d_*` / `mask3d_*` → a `Mask2D`/`Mask3D` class (or a `Profile` class with
+   classmethod factories), keeping the free functions as thin aliases for one release.
+2. `isosurface.mb_*` → `Metaball` subclasses or classmethod factories on `Metaball`.
+3. `turtle2d`/`turtle3d` → one `Turtle` class with a 2-D and 3-D mode (`turtle3d.Turtle` exists —
+   unify rather than duplicate).
+
+Each needs a deprecation path (P-6, change-process rule 2) and docs updates.
+
+---
+
+## T9 — Track BOSL2 feature coverage
+
+**Closes:** §12.2 item 17 (B2-1) · **Implements:** PLAN D-P7 · **Size:** M · **Risk:** none
+
+B2-1 claims feature parity with BOSL2, and nothing measures it.
+
+1. Generate a matrix of BOSL2 `.scad` modules against pybosl2 modules, marking ported / partial /
+   unported with a note.
+2. Put it under `docs/` so it publishes, and regenerate it in CI or via a script like
+   `docs/_specgen.py`.
+3. Cite it from SPEC B2-1 so the claim has evidence.
+
+---
+
+## T10 — Housekeeping
+
+**Size:** S each
+
+- [ ] `README.md` — point contributors at `SPEC.md` / `PLAN.md` / `TASKS.md` in the development
+      section (the reference links are already there).
+- [x] `pybosl2/__init__.py` — `Color` was eager and pulled `webcolors` at import time. Now lazy,
+      and `color.py` imports `webcolors` only to resolve a CSS colour *name* (hex is parsed
+      locally). This was breaking **89 docs examples**: the PythonSCAD app's bundled Python has no
+      webcolors, so `import pybosl2` raised inside the app and every example reported "Current top
+      level object is empty". Guarded by
+      `test_import_pybosl2_needs_no_optional_dependency` (SPEC A-4).
+- [ ] `effective_defaults()` returns `dict[str, Any]`; narrow it once the façade owns its defaults
+      (T2), when the value types become knowable (PLAN T-2).
+- [ ] Audit `Sequence` parameters that are documented as paths for SPEC C-7 — they should take a
+      `Path` (PLAN T-4).
+- [ ] Add a ruff rule (or a test) banning new `assert` statements with a message naming a
+      parameter, so T0b cannot regress (PLAN E-P2).
+- [x] `docs/_rstgen.py` — stub generation now skips a module a committed page already documents
+      with an `automodule` block. Promoting `path2d`/`path3d` to public categories had generated a
+      second page for each, and `docs/paths/paths.rst` already covered them with curated prose and
+      `exclude-members` lists — **266 duplicate-object warnings**. Guarded by
+      `test_no_module_is_documented_by_two_pages`.
+- [x] `Resolution`'s fields use `#:` comments instead of a docstring `Attributes:` block, which
+      napoleon and autodoc were both rendering; `rect_tube` no longer documents `length` twice.
+      The docs build is at **0 warnings**.
+- [ ] Check `docs/design/` for other documents that have drifted the way
+      `sdf-csg-compatibility.md` did — a stale design note is worse than none (T4).
+
+---
+
+## Keeping this file honest
+
+The mapping table at the top is the contract between this file and the spec. Two ways it goes
+stale, both cheap to prevent:
+
+* A task lands but §12.2 keeps its row — fix by moving the row to §12.1 **in the same commit** as
+  the code, per SPEC §13 rule 4.
+* A new defect is found and only lands here — always add the §12.2 row first; this file never
+  holds work the spec does not know about.
+
+When a review turns up something new, the order is: reproduce it as a user would, add the §12.2
+row citing the requirement it violates, then add the task here with its plan rules and its test.

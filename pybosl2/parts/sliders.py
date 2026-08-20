@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
@@ -141,13 +142,19 @@ class Slider:
         """Slider height in mm."""
         return self._height
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the slider geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the slider in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the slider in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class Rail:
@@ -312,10 +319,16 @@ class Rail:
         """Rail height in mm."""
         return self._height
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the rail geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the rail in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the rail in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

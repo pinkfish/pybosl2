@@ -29,6 +29,7 @@ What it does:
 from __future__ import annotations
 
 import ast
+import functools
 import re
 import sys
 from pathlib import Path
@@ -516,6 +517,23 @@ _CATEGORY_DIRS: dict[str, str] = {
 }
 
 
+@functools.cache
+def _documented_by_hand() -> frozenset[str]:
+    """Modules a committed .rst already documents with an automodule directive."""
+    pattern = re.compile(r"^\.\. automodule:: ([\w.]+)", re.M)
+    found: set[str] = set()
+    for rst in DOCS_DIR.rglob("*.rst"):
+        if "_build" in rst.parts:
+            continue
+        found.update(pattern.findall(rst.read_text()))
+    return frozenset(found)
+
+
+def _documented_elsewhere(module_path: str) -> bool:
+    """Return True if a committed page already carries this module's automodule block."""
+    return module_path in _documented_by_hand()
+
+
 def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
     """Create missing .rst files for modules. Returns list of created paths."""
     created: list[str] = []
@@ -542,6 +560,12 @@ def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
         target_dir.mkdir(parents=True, exist_ok=True)
         rst_path = target_dir / f"{name}.rst"
         if rst_path.exists():
+            continue
+        # A hand-written page may already document this module (docs/paths/paths.rst covers
+        # paths + path2d + path3d together, with curated prose and exclude-members lists).
+        # Generating a second automodule for it makes Sphinx report every member as a duplicate
+        # object description, so leave the curated page as the canonical one.
+        if _documented_elsewhere(module_path):
             continue
 
         title = info.get("file_id", name).replace("_", " ").title()

@@ -16,6 +16,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
 
@@ -64,6 +65,7 @@ else:
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg", neutral="pybosl2.solid.cylinder")
 def cylinder(
     height: float | None = None,
     radius: float | None = None,
@@ -229,6 +231,7 @@ def cylinder(
     )
 
 
+@backend_only("csg", neutral="pybosl2.solid.cyl")
 def cyl(
     height: float | None = None,
     radius: float | None = None,
@@ -530,6 +533,7 @@ def cyl_profile(
     return path
 
 
+@backend_only("csg", neutral="pybosl2.solid.xcyl")
 def xcyl(
     height: float | None = None,
     radius: float | None = None,
@@ -636,6 +640,7 @@ def xcyl(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.ycyl")
 def ycyl(
     height: float | None = None,
     radius: float | None = None,
@@ -742,6 +747,7 @@ def ycyl(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
+@backend_only("csg", neutral="pybosl2.solid.zcyl")
 def zcyl(
     height: float | None = None,
     radius: float | None = None,
@@ -842,6 +848,7 @@ def zcyl(
     )
 
 
+@backend_only("csg", neutral="pybosl2.solid.tube")
 def tube(
     height: float | None = None,
     outer_radius: float | None = None,
@@ -1004,6 +1011,7 @@ def tube(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
+@backend_only("csg")
 def cone(
     height: float | None = None,
     radius: float | None = None,

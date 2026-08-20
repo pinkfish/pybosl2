@@ -338,7 +338,7 @@ class PhillipsMask:
 
             from pybosl2.parts.screw_drive import PhillipsMask
             from pybosl2.solid import cyl
-            (cyl(diameter1=2, diameter2=8, height=4).down(2) - PhillipsMask(size="#2").shape()).show()
+            (cyl(diameter1=2, diameter2=8, height=4).down(2) - PhillipsMask(size="#2").shape).show()
 
     """
 
@@ -453,6 +453,7 @@ class PhillipsMask:
         """Computed height of the recess."""
         return self._length
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the Phillips driver-recess mask geometry.
 
@@ -462,14 +463,19 @@ class PhillipsMask:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import PhillipsMask
-                PhillipsMask(size="#2").shape().show()
+                PhillipsMask(size="#2").shape.show()
 
         """
         return self._solid
 
-    def show(self) -> None:
-        """Display the Phillips driver-recess mask in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the Phillips driver-recess mask in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class HexDriveMask:
@@ -536,13 +542,19 @@ class HexDriveMask:
         """Actual across-flats dimension after ISO oversizing."""
         return self._realsize
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the hex drive mask geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the hex drive mask in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the hex drive mask in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 hex_mask = HexDriveMask  #: Alias for :class:`HexDriveMask`.
@@ -560,7 +572,7 @@ class TorxMask2d:
         .. pythonscad-example::
 
             from pybosl2.parts.screw_drive import TorxMask2d
-            TorxMask2d(size=30).shape().linear_extrude(height=10).show()
+            TorxMask2d(size=30).shape.linear_extrude(height=10).show()
 
     """
 
@@ -583,6 +595,7 @@ class TorxMask2d:
         """Torx size number."""
         return self._size
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the 2-D Torx profile.
 
@@ -592,14 +605,19 @@ class TorxMask2d:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import TorxMask2d
-                TorxMask2d(size=30).shape().linear_extrude(height=10).show()
+                TorxMask2d(size=30).shape.linear_extrude(height=10).show()
 
         """
         return self._solid
 
-    def show(self) -> None:
-        """Display the 2-D Torx profile in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the 2-D Torx profile in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class TorxMask:
@@ -657,6 +675,7 @@ class TorxMask:
         """Outer diameter of the Torx profile."""
         return self._outer_diameter
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the Torx driver-recess mask geometry.
 
@@ -666,14 +685,19 @@ class TorxMask:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import TorxMask
-                TorxMask(size=30, l=10).shape().show()
+                TorxMask(size=30, l=10).shape.show()
 
         """
         return self._solid
 
-    def show(self) -> None:
-        """Display the Torx driver-recess mask in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the Torx driver-recess mask in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 class RobertsonMask:
@@ -749,6 +773,7 @@ class RobertsonMask:
         """Slop enlargement."""
         return self._slop
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the Robertson driver-recess mask geometry.
 
@@ -758,11 +783,16 @@ class RobertsonMask:
             .. pythonscad-example::
 
                 from pybosl2.parts.screw_drive import RobertsonMask
-                RobertsonMask(size=2).shape().show()
+                RobertsonMask(size=2).shape.show()
 
         """
         return self._solid
 
-    def show(self) -> None:
-        """Display the Robertson driver-recess mask in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the Robertson driver-recess mask in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()

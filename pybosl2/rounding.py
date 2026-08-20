@@ -188,13 +188,19 @@ def _round_corners(
         )
         if v is not None
     ]
-    assert len(given) == 1, "Must give exactly one of radius, cut, joint or width."
+    if len(given) != 1:
+        raise ValueError("round_corners(): give exactly one of radius=, cut=, joint= or width=.")
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)
-    assert sides > 2, f"Path2D has length {sides}. Length must be 3 or more."
-    assert method == RoundingMethod.CIRCLE or measure != Measure.RADIUS, 'radius is allowed only with method="circle".'
-    assert method == RoundingMethod.CHAMFER or measure != Measure.WIDTH, 'width is allowed only with method="chamfer".'
+    if sides <= 2:
+        raise ValueError(f"round_corners(): needs a path of 3 or more points to round; got {sides}.")
+    if method != RoundingMethod.CIRCLE and measure == Measure.RADIUS:
+        raise ValueError(
+            'round_corners(): radius= is allowed only with method="circle"; use cut=/joint=/width= instead.'
+        )
+    if method != RoundingMethod.CHAMFER and measure == Measure.WIDTH:
+        raise ValueError('round_corners(): width= is allowed only with method="chamfer".')
 
     if is_num(size):
         parm = [float(size)] * sides  # type: ignore[arg-type]

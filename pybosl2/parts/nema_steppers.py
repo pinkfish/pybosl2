@@ -21,6 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Any
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
@@ -175,6 +176,7 @@ class NemaMotor:
         """Shaft projection length in mm."""
         return self._shaft_len
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the motor geometry (cached)."""
         if self._solid is not None:
@@ -223,9 +225,14 @@ class NemaMotor:
         )
         return self._solid
 
-    def show(self) -> None:
-        """Display the motor in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the motor in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
 
 class NemaMountMask:
@@ -303,6 +310,7 @@ class NemaMountMask:
         """Mask cutout type."""
         return self._atype
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the mount mask geometry (cached)."""
         if self._solid is not None:
@@ -337,6 +345,11 @@ class NemaMountMask:
         self._solid = Bosl2Solid(_union(parts).shape, size=[ss + sz, w, self._depth])
         return self._solid
 
-    def show(self) -> None:
-        """Display the mount mask in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the mount mask in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()

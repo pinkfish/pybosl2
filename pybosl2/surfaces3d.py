@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._native import native
@@ -277,6 +278,7 @@ def _cylindrical_point(radius: float, theta_deg: float, z: float) -> list[float]
     return [radius * math.cos(th), radius * math.sin(th), z]
 
 
+@backend_only("csg")
 def interior_fillet(
     length: float = 1.0,
     radius: float | None = None,
@@ -313,6 +315,7 @@ def interior_fillet(
     return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
+@backend_only("csg")
 def heightfield(
     data: "Callable[[float, float], float | None] | Sequence[Sequence[float]]",
     size: Sequence[float] = (100, 100),
@@ -425,6 +428,7 @@ def heightfield(
     return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
+@backend_only("csg")
 def cylindrical_heightfield(
     data: "Callable[[float, float], float | None] | Sequence[Sequence[float]]",
     length: float | None = None,
@@ -556,6 +560,7 @@ def cylindrical_heightfield(
     return _finish3(shape, offset, spin, orient, size=None, anchor=anchor)
 
 
+@backend_only("csg")
 def plot3d(
     f: Callable[[float, float], float],
     x: Sequence[float],
@@ -613,6 +618,7 @@ def plot3d(
     return Bosl2Solid(vnf.polyhedron())
 
 
+@backend_only("csg")
 def plot_revolution(
     f: Callable[[float, float], float],
     angle: float,
@@ -718,6 +724,7 @@ def plot_revolution(
     return Bosl2Solid(vnf.polyhedron())
 
 
+@backend_only("csg")
 def fillet(
     length: float | None = None,
     radius: float | None = None,
@@ -778,6 +785,7 @@ def fillet(
     )
 
 
+@backend_only("csg")
 def textured_tile(
     texture: Any,
     size: Sequence[float],
@@ -885,6 +893,7 @@ def textured_tile(
     return heightfield(tiled, size=sz, bottom=bottom, style=style)
 
 
+@backend_only("csg")
 def ruler(
     length: float = 100,
     width: float | None = None,

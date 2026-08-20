@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
+from pybosl2._backend import backend_only
 from pybosl2._edges_lang import Anchor
 
 # Import base class and helper functions from shapes2d.base
@@ -61,6 +62,7 @@ else:
     _otext = native("text")
 
 
+@backend_only("csg")
 def osimport(
     file: str,
     convexity: int | None = None,
@@ -106,6 +108,7 @@ def osimport(
     return Bosl2Shape2D(_oosimport(file, **kwargs))
 
 
+@backend_only("csg")
 def fill(children: "Shape2DLike") -> Bosl2Shape2D:
     """*children* with every hole filled in -- only the outermost outline survives.
 
@@ -119,6 +122,7 @@ def fill(children: "Shape2DLike") -> Bosl2Shape2D:
     return Bosl2Shape2D(_ofill(_as_native_2d(children)))
 
 
+@backend_only("csg")
 def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
     """Return the 2-D convex hull of *children* (OpenSCAD ``hull()``, the module form of.
 
@@ -133,7 +137,8 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
     items = list(children)
     if len(items) == 1 and not _is_child_2d(items[0]):
         items = list(items[0])  # type: ignore[arg-type]  # a single list *of* shapes
-    assert items, "hull(): needs at least one child."
+    if not items:
+        raise ValueError("hull(): needs at least one shape to hull.")
     return Bosl2Shape2D(_ohull(*[_as_native_2d(c) for c in items]))
 
 
@@ -142,6 +147,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg")
 def round2d(
     radius: float | None = None,
     outer_radius: float | None = None,
@@ -171,13 +177,15 @@ def round2d(
     """
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
-    assert children is not None, "round2d(): must give children"
+    if children is None:
+        raise ValueError("round2d(): needs the shape(s) to round -- pass children=.")
     shape = Bosl2Shape2D(_as_native_2d(children))
     shape = shape.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
     return shape.offset(radius=orad, fn=fn, fa=fa, fs=fs)
 
 
+@backend_only("csg")
 def shell2d(
     thickness: float | Sequence[float] | None = None,
     outer_radius: float | Sequence[float] = 0,
@@ -204,8 +212,10 @@ def shell2d(
         fs: arc smoothness overrides
 
     """
-    assert thickness is not None, "shell2d(): must give thickness"
-    assert children is not None, "shell2d(): must give children"
+    if thickness is None:
+        raise ValueError("shell2d(): needs a wall thickness -- pass thickness=.")
+    if children is None:
+        raise ValueError("shell2d(): needs the shape(s) to shell -- pass children=.")
     if isinstance(thickness, (int, float)):
         th = [float(thickness), 0.0] if thickness < 0 else [0.0, float(thickness)]
     else:
@@ -244,6 +254,7 @@ def shell2d(
 # -- cross / plus shape --------------------------------------------------------
 
 
+@backend_only("csg")
 def cross(
     size: float | Sequence[float] = (10, 10),
     arm_width: float | Sequence[float] | None = None,
@@ -301,6 +312,7 @@ def cross(
 # ---------------------------------------------------------------------------
 
 
+@backend_only("csg", neutral="pybosl2.flat.text")
 def text(
     text: str,
     size: float = 10,

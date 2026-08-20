@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import Sequence
+from typing import Any, Sequence
 
 from pybosl2._edges_lang import Anchor
 from pybosl2.masking import chamfer_edge_mask, edge_mask
@@ -232,13 +232,19 @@ class ManfrottoRC2Plate:
         """Chamfer mode: "all", "bottom"/"bot", or "none"."""
         return self._chamfer
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Return the RC2 plate geometry."""
         return self._solid
 
-    def show(self) -> None:
-        """Display the RC2 plate in the viewer."""
-        self._solid.show()
+    def show(self) -> Any:
+        """Display the RC2 plate in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self._solid.show()
 
 
 manfrotto_rc2_plate = ManfrottoRC2Plate  #: Alias for :class:`ManfrottoRC2Plate`.

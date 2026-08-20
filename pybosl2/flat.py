@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 
-from pybosl2._backend import current_backend
+from pybosl2._backend import Shape, current_backend
 from pybosl2._edges_lang import resolve_anchor
 from pybosl2.constants import CENTER
 from pybosl2.defaults import resolve_res as _resolve_res
@@ -28,56 +28,32 @@ if TYPE_CHECKING:
     from pybosl2._edges_lang import Anchor
 
 
+__all__ = [
+    "Flat",
+    "circle",
+    "polygon",
+    "rect",
+    "square",
+    "text",
+]
+
+
 @runtime_checkable
-class Flat(Protocol):
-    """The common 2-D shape contract both backend wrappers satisfy.
+class Flat(Shape, Protocol):
+    """A 2-D shape: :class:`~pybosl2._backend.Shape` plus what only two dimensions can do.
 
-    A ``Flat`` carries a ``backend`` tag; booleans/transforms return a ``Flat`` on the *same*
-    backend, and combining shapes from two backends raises
-    :class:`~pybosl2.exceptions.CrossBackendError`.
+    Everything shared with solids — the ``backend`` tag, the boolean operators, the transforms,
+    ``bounds()`` and ``show()`` — is declared once on ``Shape`` (SPEC C-15, C-18). What is left
+    here is the way up into three dimensions (SPEC C-17).
     """
-
-    backend: str
-
-    def __or__(self, other: Flat) -> Flat:
-        """Union of two 2D shapes."""
-        ...
-
-    def __and__(self, other: Flat) -> Flat:
-        """Intersection of two 2D shapes."""
-        ...
-
-    def __sub__(self, other: Flat) -> Flat:
-        """Difference of two 2D shapes."""
-        ...
-
-    def translate(self, v: Sequence[float]) -> Flat:
-        """Translate this shape by vector *v*."""
-        ...
 
     def rotate(self, a: float | Sequence[float]) -> Flat:
         """Rotate this shape *a* degrees about Z."""
         ...
 
-    def scale(self, v: float | Sequence[float]) -> Flat:
-        """Scale this shape by *v*."""
-        ...
-
-    def mirror(self, v: Sequence[float]) -> Flat:
-        """Mirror this shape across plane/axis *v*."""
-        ...
-
     def linear_extrude(self, height: float, **kwargs: Any) -> Solid:
         """Extrude this 2-D shape into a 3-D solid."""
         ...
-
-    def bounds(self) -> tuple[list[float], list[float]]:
-        """Axis-aligned bounding box as ``(center, size)``, without rendering."""
-        ...
-
-
-# Backward compatibility alias
-Shape2D = Flat
 
 
 def circle(

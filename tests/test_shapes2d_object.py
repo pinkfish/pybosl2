@@ -249,7 +249,7 @@ def test_module_level_hull_takes_varargs_or_one_list() -> None:
 
 
 def test_module_level_hull_rejects_no_children() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="at least one shape"):
         s2.hull()
 
 

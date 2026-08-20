@@ -13,7 +13,7 @@ modular hose
 
     <div class="spec-panel">
       <div class="spec-draw">
-        <div class="spec-caption"><span id="vpart">HoseSegment(0.5, HoseType.SEGMENT).shape()</span></div>
+        <div class="spec-caption"><span id="vpart">HoseSegment(0.5, HoseType.SEGMENT).shape</span></div>
         <div class="spec-viewer" id="viewer">
           <div class="spec-poster" id="poster"><svg viewBox="0 0 460 240" role="img" aria-label="Section of a modular hose segment: a ball end, a waist, and a socket end with a through bore." xmlns="http://www.w3.org/2000/svg"><line x1="230" y1="30" x2="230" y2="222" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="10 4 2 4"/><circle cx="230" cy="74" r="46" fill="color-mix(in srgb,var(--accent) 20%,var(--panel-2))" stroke="var(--ink-dim)" stroke-width="1.6"/><path d="M 196,96 L 264,96 L 270,150 L 190,150 Z" fill="var(--panel-2)" stroke="var(--ink-dim)" stroke-width="1.6"/><path d="M 172,150 A 58 58 0 0 0 288,150 L 288,204 A 58 58 0 0 1 274,164 A 44 44 0 0 1 186,164 A 58 58 0 0 1 172,204 Z" fill="url(#h)" stroke="var(--ink-dim)" stroke-width="1.6"/><defs><pattern id="h" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--line)" stroke-width="1.4"/></pattern></defs><rect x="215" y="30" width="30" height="150" fill="var(--ground)" stroke="var(--ink-dim)" stroke-width="1.2" opacity="0.9"/><text x="230" y="222" text-anchor="middle" fill="var(--ink-dim)" font-family="var(--mono)" font-size="11">ball · waist · socket · through bore</text></svg></div>
         </div>
@@ -33,7 +33,7 @@ modular hose
         </div>
         <div class="spec-code-wrap">
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
-          <div class="spec-code" id="code">&gt;&gt;&gt; HoseSegment(0.5, HoseType.SEGMENT).shape()</div>
+          <div class="spec-code" id="code">&gt;&gt;&gt; HoseSegment(0.5, HoseType.SEGMENT).shape</div>
         </div>
 
         <div class="spec-tests">16 tests</div>
@@ -42,7 +42,7 @@ modular hose
 
 .. raw:: html
 
-    <script id="spec-data" type="application/json">[{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "HoseSegment(0.5, HoseType.SEGMENT).shape()", "part": "HoseSegment(0.5, HoseType.SEGMENT).shape()", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "HoseSegment(0.5, HoseType.BALL).shape()", "part": "HoseSegment(0.5, HoseType.BALL).shape()", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "HoseSegment(0.5, HoseType.SOCKET).shape()", "part": "HoseSegment(0.5, HoseType.SOCKET).shape()", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}]</script>
+    <script id="spec-data" type="application/json">[{"id": "segment", "label": "segment", "uri": "_stl/modular_hose-segment.stl", "code": "HoseSegment(0.5, HoseType.SEGMENT).shape", "part": "HoseSegment(0.5, HoseType.SEGMENT).shape", "tris": 2760, "vol": "3,432.6", "bbox": "25\u00d725\u00d730", "wt": true}, {"id": "ball", "label": "ball end", "uri": "_stl/modular_hose-ball.stl", "code": "HoseSegment(0.5, HoseType.BALL).shape", "part": "HoseSegment(0.5, HoseType.BALL).shape", "tris": 1500, "vol": "1,465.7", "bbox": "21\u00d721\u00d713", "wt": true}, {"id": "socket", "label": "socket end", "uri": "_stl/modular_hose-socket.stl", "code": "HoseSegment(0.5, HoseType.SOCKET).shape", "part": "HoseSegment(0.5, HoseType.SOCKET).shape", "tris": 1500, "vol": "2,105.5", "bbox": "25\u00d725\u00d718", "wt": true}]</script>
     <script type="module">
     import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
     import { STLLoader } from "https://unpkg.com/three@0.160.0/examples/jsm/loaders/STLLoader.js";

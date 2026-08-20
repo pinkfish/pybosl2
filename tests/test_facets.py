@@ -23,16 +23,11 @@ PACKAGE = Path(__file__).resolve().parent.parent / "pybosl2"
 CURVED = {"rounding", "radius", "radius1", "diameter", "inner_rounding"}
 FACETS = {"fn", "fa", "fs"}
 
-#: The known backlog (SPEC.md 12.2 item 1). Entries are either real debt -- Region.offset,
-#: Path2D.minkowski_sum_circle, shapes2d.star, the RegularPolyhedron factories -- or cases where
-#: the radius places geometry rather than tessellating it (the distributors, polar_to_xy). Both
-#: kinds must be reviewed before removal; nothing may be ADDED.
-KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
+#: Reviewed against SPEC R-1a and found to be OUT of scope: each takes a radius to place or
+#: measure geometry, and nothing it returns has an observable facet count. A copy distributor
+#: positions whatever it is given; polar_to_xy and circle_circle_tangents return points.
+PLACEMENT_ONLY: frozenset[str] = frozenset(
     {
-        "beziers.py::Bezier.begin",
-        "beziers.py::Bezier.end",
-        "beziers.py::Bezier.joint",
-        "beziers.py::Bezier.tang",
         "distributors.py::Distributable.arc_copies",
         "distributors.py::Distributable.sphere_copies",
         "distributors.py::Distributable.xrot_copies",
@@ -44,23 +39,31 @@ KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
         "distributors.py::yrot_copies",
         "distributors.py::zrot_copies",
         "geometry.py::circle_circle_tangents",
+        "parts/screw_drive.py::PhillipsSpec.depth",
+        "parts/wiring.py::hex_offsets",
+        "transforms.py::polar_to_xy",
+    }
+)
+
+#: The real backlog (SPEC.md §12.2): these DO tessellate, and must grow fn/fa/fs and pass them
+#: down (R-1). Nothing may be added; entries leave as they are fixed.
+KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
+    {
+        "beziers.py::Bezier.begin",
+        "beziers.py::Bezier.end",
+        "beziers.py::Bezier.joint",
+        "beziers.py::Bezier.tang",
         "isosurface.py::mb_capsule",
         "isosurface.py::mb_connector",
         "isosurface.py::mb_disk",
         "isosurface.py::mb_sphere",
-        "miscellaneous.py::Miscellaneous.offset3d",
-        "miscellaneous.py::Miscellaneous.round3d",
         "parts/polyhedra.py::RegularPolyhedron.cube",
         "parts/polyhedra.py::RegularPolyhedron.dodecahedron",
         "parts/polyhedra.py::RegularPolyhedron.icosahedron",
         "parts/polyhedra.py::RegularPolyhedron.octahedron",
         "parts/polyhedra.py::RegularPolyhedron.tetrahedron",
-        "parts/screw_drive.py::PhillipsSpec.depth",
-        "parts/wiring.py::hex_offsets",
         "path2d.py::Path2D.minkowski_sum_circle",
         "path3d.py::Path3D.helix",
-        "regions.py::Region.offset",
-        "regions.py::Region.round_corners",
         "rounding.py::Roundable.attach_prism",
         "rounding.py::Roundable.bent_cutout_mask",
         "rounding.py::Roundable.path_join",
@@ -69,8 +72,6 @@ KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
         "shapes2d/curves.py::supershape",
         "shapes3d/base.py::CsgSolid.edge_profile",
         "shapes3d/base.py::CsgSolid.edge_profile_asym",
-        "shapes3d/base.py::CsgSolid.offset3d",
-        "shapes3d/base.py::CsgSolid.round3d",
         "skin.py::Sweepable.spiral_sweep",
         "skin.py::os_circle",
         "skin.py::os_smooth",
@@ -78,7 +79,6 @@ KNOWN_WITHOUT_FACETS: frozenset[str] = frozenset(
         "surfaces3d.py::cylindrical_heightfield",
         "surfaces3d.py::interior_fillet",
         "surfaces3d.py::plot_revolution",
-        "transforms.py::polar_to_xy",
     }
 )
 
@@ -110,7 +110,7 @@ def _public_callables_missing_facets() -> set[str]:
 
 
 def test_no_new_curved_api_without_facet_controls() -> None:
-    new = sorted(_public_callables_missing_facets() - KNOWN_WITHOUT_FACETS)
+    new = sorted(_public_callables_missing_facets() - KNOWN_WITHOUT_FACETS - PLACEMENT_ONLY)
     assert not new, "these draw curves but take no fn/fa/fs (SPEC.md R-1): " + ", ".join(new)
 
 

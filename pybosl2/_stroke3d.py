@@ -20,6 +20,7 @@ import operator
 from functools import reduce
 from typing import TYPE_CHECKING, Any
 
+from pybosl2._backend import builds_with
 from pybosl2.caps import CapSpec, CapType, endcap_polys, oriented_to
 from pybosl2.shapes3d import cyl as _cyl
 from pybosl2.shapes3d import sphere as _sphere
@@ -30,26 +31,52 @@ if TYPE_CHECKING:
     from pybosl2.shapes3d import Bosl2Solid
 
 
-def endcap_geometry_3d(spec: CapSpec, at: Sequence[float], outdir: Sequence[float], width: float) -> Any:
+def endcap_geometry_3d(
+    spec: CapSpec,
+    at: Sequence[float],
+    outdir: Sequence[float],
+    width: float,
+    requested: str | None = None,
+) -> Any:
+    """Build the cap geometry for *spec*, or the ROUND fallback when the caller is on the SDF backend.
+
+    Args:
+        spec: The cap to build.
+        at: Where the cap sits.
+        outdir: Which way it points.
+        width: Stroke width the cap is sized from.
+        requested: Backend the caller selected; read from the context when omitted. It is passed
+            in because the cap geometry itself is always built as CSG, so the ambient value inside
+            this function no longer says what the caller asked for.
+
+    Returns:
+        The cap solid, or None when the cap type has no geometry.
+
+    """
     import warnings
 
-    from pybosl2._backend import current_backend
+    from pybosl2._backend import current_backend, use_backend
+
+    active = requested if requested is not None else current_backend()
 
     if spec.cap_type in (CapType.NONE, CapType.BUTT):
         return None
     if spec.cap_type == CapType.ROUND:
-        return _sphere(radius=width / 2).translate([float(c) for c in at])
+        with use_backend("csg"):
+            return _sphere(radius=width / 2).translate([float(c) for c in at])
     if spec.cap_type == CapType.DOT:
-        return _sphere(radius=width).translate([float(c) for c in at])
+        with use_backend("csg"):
+            return _sphere(radius=width).translate([float(c) for c in at])
     polys = endcap_polys(spec, width)
     if not polys:
         return None
-    if current_backend() != "csg":
+    if active != "csg":
         warnings.warn(
             f"Decorative endcap {spec.cap_type!r} not supported on SDF backend; falling back to ROUND sphere",
             stacklevel=2,
         )
-        return _sphere(radius=width / 2).translate([float(c) for c in at])
+        with use_backend("csg"):
+            return _sphere(radius=width / 2).translate([float(c) for c in at])
     from pythonscad import polygon as _opolygon
     from pythonscad import rotate_extrude as _orotate_extrude
     from pythonscad import square as _osquare
@@ -69,7 +96,36 @@ def stroke_3d(
     endcap1: CapSpec | None = None,
     endcap2: CapSpec | None = None,
 ) -> Bosl2Solid:
-    """3-D stroke: a tube along *path* as a :class:`Bosl2Solid` union."""
+    """3-D stroke: a tube along *path* as a :class:`Bosl2Solid` union.
+
+    Args:
+        path: Points to stroke along.
+        width: Stroke width.
+        closed: Close the path; taken from the path itself when omitted.
+        endcap1: Cap at the start.
+        endcap2: Cap at the end.
+
+    Returns:
+        The stroked tube as a CSG solid.
+
+    """
+    from pybosl2._backend import current_backend
+
+    # read what the caller selected before the CSG build context is entered -- the cap geometry
+    # decides on it (a decorative cap has no SDF form and falls back with a warning)
+    return _stroke_3d_csg(path, width, closed, endcap1, endcap2, requested=current_backend())
+
+
+@builds_with("csg")
+def _stroke_3d_csg(
+    path: Any,
+    width: float,
+    closed: bool | None,
+    endcap1: CapSpec | None,
+    endcap2: CapSpec | None,
+    requested: str,
+) -> Bosl2Solid:
+    """Build the stroke as CSG geometry; see :func:`stroke_3d`."""
     from pybosl2.shapes3d import Bosl2Solid
 
     pts = [list(map(float, p)) for p in path]
@@ -99,13 +155,14 @@ def stroke_3d(
     if not is_closed and sides >= 2:
         for cap, end, ref in ((ec1, pts[0], pts[1]), (ec2, pts[-1], pts[-2])):
             outdir = [end[j] - ref[j] for j in range(3)]
-            blob = endcap_geometry_3d(cap, end, outdir, width)
+            blob = endcap_geometry_3d(cap, end, outdir, width, requested=requested)
             if blob is not None:
                 shapes.append(blob)
     assert shapes, "stroke(): path has no drawable segments."
     return Bosl2Solid(reduce(operator.or_, shapes))
 
 
+@builds_with("csg")
 def dashed_stroke_3d(
     path: Any,
     dashpat: Sequence[float] | None = None,

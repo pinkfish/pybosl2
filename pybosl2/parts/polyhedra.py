@@ -23,6 +23,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Any
 
 import numpy as np
 
@@ -277,6 +278,7 @@ class RegularPolyhedron:
         """
         return PolyhedronInfo(self._name)
 
+    @property
     def shape(self) -> Bosl2Solid:
         """Build and return the polyhedron geometry (cached)."""
         if self._solid is not None:
@@ -297,9 +299,14 @@ class RegularPolyhedron:
         self._solid = Bosl2Solid(solid, size=[2 * scale, 2 * scale, 2 * scale])
         return self._solid
 
-    def show(self) -> None:
-        """Display the polyhedron in the viewer."""
-        self.shape().show()
+    def show(self) -> Any:
+        """Display the polyhedron in the viewer, and return it.
+
+        Returns:
+            The shape, so the call can be chained or assigned.
+
+        """
+        return self.shape.show()
 
     @classmethod
     def tetrahedron(

@@ -18,10 +18,10 @@ Pure-Python port of BOSL2's ``screw_drive.scad``: masks for the driver recess cu
 head. The :mod:`pybosl2.parts.screw_drive` module provides classes and functions that each return a
 :class:`~pybosl2.shapes3d` mask -- subtract one from a head to make the recess::
 
-    head - PhillipsMask("#2").shape()     # a #2 Phillips recess
-    head - HexDriveMask(5, 4).shape()     # a 5mm hex (Allen) recess, 4mm deep
-    head - TorxMask(30, 4).shape()        # a T30 Torx recess
-    head - RobertsonMask(2).shape()       # a #2 Robertson/square recess
+    head - PhillipsMask("#2").shape     # a #2 Phillips recess
+    head - HexDriveMask(5, 4).shape     # a 5mm hex (Allen) recess, 4mm deep
+    head - TorxMask(30, 4).shape        # a T30 Torx recess
+    head - RobertsonMask(2).shape       # a #2 Robertson/square recess
 
 Every ``*Mask`` is built bottom-on-the-XY-plane (BOSL2's ``anchor=BOTTOM``); pass ``center=True``
 to center it vertically. The spec classes :class:`~pybosl2.parts.screw_drive.TorxSpec` and
@@ -42,14 +42,14 @@ A #2 Phillips recess cut into a tapered head:
     from pybosl2 import shapes3d as s3
     from pybosl2.parts.screw_drive import PhillipsMask
 
-    (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - PhillipsMask("#2").shape()).show()
+    (s3.cyl(diameter1=2, diameter2=8, height=4).down(2) - PhillipsMask("#2").shape).show()
 
 A T30 Torx tip:
 
 .. pythonscad-example::
 
     from pybosl2.parts.screw_drive import TorxMask
-    TorxMask(size=30, l=10).shape().show()
+    TorxMask(size=30, l=10).shape.show()
 
 API reference
 -------------
@@ -93,7 +93,7 @@ A #1 Phillips recess:
 
    from pybosl2.parts.screw_drive import PhillipsMask
 
-   PhillipsMask(size="#1").shape().show()
+   PhillipsMask(size="#1").shape.show()
 
 A #2 Phillips recess:
 
@@ -101,7 +101,7 @@ A #2 Phillips recess:
 
    from pybosl2.parts.screw_drive import PhillipsMask
 
-   PhillipsMask(size="#2").shape().show()
+   PhillipsMask(size="#2").shape.show()
 
 A #3 Phillips recess:
 
@@ -109,7 +109,7 @@ A #3 Phillips recess:
 
    from pybosl2.parts.screw_drive import PhillipsMask
 
-   PhillipsMask(size=3).shape().show()
+   PhillipsMask(size=3).shape.show()
 
 .. rubric:: ``robertson_mask``
 
@@ -119,4 +119,4 @@ A #2 Robertson (square) recess:
 
    from pybosl2.parts.screw_drive import RobertsonMask
 
-   RobertsonMask(size=2).shape().show()
+   RobertsonMask(size=2).shape.show()

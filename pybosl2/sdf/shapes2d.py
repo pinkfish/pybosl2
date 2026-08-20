@@ -74,6 +74,24 @@ class SdfShape2D:
     def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:  # type: ignore[type-arg]
         return PyShape2D(sdf_fn, mn, mx, self.res)
 
+    def show(self) -> PyShape2D:
+        """Refuse to render a 2-D field, naming the extrusion that would make it renderable.
+
+        Returns:
+            Never returns.
+
+        Raises:
+            UnsupportedByBackendError: Always -- a 2-D distance field has no rendering of its own.
+        """
+        from pybosl2.exceptions import UnsupportedByBackendError
+
+        raise UnsupportedByBackendError(
+            "show",
+            "sdf",
+            hint="a 2-D distance field has no rendering of its own -- extrude it first, e.g. "
+            "shape.linear_extrude(height=5).show().",
+        )
+
     # ---- transforms ----
 
     def translate(self, v: Sequence[float]) -> PyShape2D:
@@ -892,7 +910,8 @@ def trapezoid2d(
 
     _ = anchor
     defined = sum(x is not None for x in (height, width1, width2, angle))
-    assert defined == 3, "Must give exactly 3 of height, width1, width2, and angle."
+    if defined != 3:
+        raise ValueError(f"trapezoid2d(): give exactly three of height=, width1=, width2= and angle= (got {defined}).")
 
     if height is None:
         height = abs(width2 - width1) / 2 / _m.tan(_m.radians(abs(angle)))  # type: ignore[operator,arg-type]

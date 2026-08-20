@@ -263,7 +263,7 @@ def _neck_thread(
         flank_angle=diameter.flank_angle,
         turns=turns,
     )
-    thread = thread_hx.shape().down(turns * diameter.thread_pitch / 2)
+    thread = thread_hx.shape.down(turns * diameter.thread_pitch / 2)
     top = 1.82 + 2 * math.sin(math.radians(29)) * thread_h
     cuts = []
     for m_out in DistributableMatrix.zrot_copies(rots=[90, 270]):
@@ -334,7 +334,7 @@ def _build_cap(
         flank_angle=diameter.cap_flank_angle,
         turns=turns,
     )
-    thread_solid = cap_thread.shape().up(thread_height / 2 + wall + 2)
+    thread_solid = cap_thread.shape.up(thread_height / 2 + wall + 2)
     cap = (shell | thread_solid).rotate([0, 0, 45])
     return Bosl2Solid(cap.shape, size=[w, w, height])
 
