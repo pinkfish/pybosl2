@@ -2257,7 +2257,8 @@
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CUSTOM</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">spec</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"CapType.CUSTOM requires path= on the CapSpec"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"CapType.CUSTOM requires path= on the CapSpec"</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pt</span><span class="p">]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">path</span><span class="p">]]</span>
 
     <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">cap_type</span> <span class="o">==</span> <span class="n">CapType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">:</span>

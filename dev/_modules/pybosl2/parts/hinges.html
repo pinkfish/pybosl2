@@ -2099,7 +2099,8 @@
 <span class="sd">            None.</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="n">segs</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"knuckle_hinge(): segs must be &gt;= 2."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">segs</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"knuckle_hinge(): segs must be &gt;= 2."</span><span class="p">)</span>
         <span class="n">seglen</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="p">(</span><span class="n">segs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gap</span><span class="p">)</span> <span class="o">/</span> <span class="n">segs</span>
         <span class="n">mine</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">inner</span> <span class="k">else</span> <span class="mi">0</span>
 

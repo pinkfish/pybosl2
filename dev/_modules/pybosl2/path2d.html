@@ -2203,9 +2203,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_geom</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="n">closed</span>
             <span class="k">return</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Path2D needs a list of [x, y] points, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D array"</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Path2D needs [x, y] points, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
-        <span class="k">assert</span> <span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Path2D needs float64 points, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path2D needs a list of [x, y] points, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D array"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path2D needs [x, y] points, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path2D needs float64 points, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="n">closed</span>
         <span class="n">pts</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">writeable</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># shared by every _points reader; see the property</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_array</span> <span class="o">=</span> <span class="n">pts</span>
@@ -2259,16 +2262,21 @@
 <span class="sd">                Path2D.catenary(width=80, droop=30).stroke(width=2).linear_extrude(height=6).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span><span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">"catenary() needs exactly one of droop= or angle="</span>
-        <span class="k">assert</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"catenary() needs width &gt; 0."</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">"catenary() needs a positive integer sides."</span>
-        <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"catenary() needs a positive integer sides."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"catenary() needs exactly one of droop= or angle="</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">width</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"catenary() needs width &gt; 0."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"catenary() needs a positive integer sides."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"catenary() needs a positive integer sides."</span><span class="p">)</span>
         <span class="n">given</span> <span class="o">=</span> <span class="n">droop</span> <span class="k">if</span> <span class="n">droop</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">angle</span>
         <span class="k">assert</span> <span class="n">given</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">sgn</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">given</span><span class="p">))</span>
         <span class="n">droop_a</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">droop</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">droop</span><span class="p">)</span>
         <span class="n">angle_a</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">angle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">angle_a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">angle_a</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">),</span> <span class="s2">"catenary() angle must satisfy 0 &lt; |angle| &lt; 90."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">angle_a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">angle_a</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"catenary() angle must satisfy 0 &lt; |angle| &lt; 90."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">droop_a</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># solve for the scale that gives the requested endpoint slope</span>
             <span class="k">assert</span> <span class="n">angle_a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2832,9 +2840,8 @@
 <span class="w">        </span><span class="sd">"""Subdivide the path into more points."""</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
-        <span class="k">assert</span> <span class="n">points_per_segment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">method</span> <span class="o">==</span> <span class="n">SubdivideMethod</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">,</span> <span class="p">(</span>
-            <span class="s2">"points_per_segment requires method=SubdivideMethod.SEGMENT"</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">points_per_segment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">method</span> <span class="o">==</span> <span class="n">SubdivideMethod</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"points_per_segment requires method=SubdivideMethod.SEGMENT"</span><span class="p">)</span>
         <span class="n">ls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shapely</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">ls</span><span class="o">.</span><span class="n">length</span>
         <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;</span> <span class="mf">1e-12</span><span class="p">:</span>
@@ -3647,7 +3654,10 @@
         <span class="n">join</span><span class="p">:</span> <span class="n">MinkowskiJoin</span> <span class="o">=</span> <span class="n">MinkowskiJoin</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
         <span class="n">mitre_limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span><span class="p">,</span>
         <span class="n">single_sided</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">quad_segs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="n">quad_segs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""Return the Minkowski sum of this closed path with a circle of *radius*.</span>
 
@@ -3668,7 +3678,11 @@
 <span class="sd">            join: Corner join style (default :attr:`MinkowskiJoin.ROUND`).</span>
 <span class="sd">            mitre_limit: Maximum mitre extension ratio (:attr:`MinkowskiJoin.MITRE` only).</span>
 <span class="sd">            single_sided: If ``True``, dilate on one side of the outline only.</span>
-<span class="sd">            quad_segs: Segments per quadrant for round joins (default 16).</span>
+<span class="sd">            quad_segs: Segments per quadrant for round joins; resolved from the radius and the</span>
+<span class="sd">                ambient facet controls when omitted.</span>
+<span class="sd">            fn: Fixed fragment count for the round joins; ambient default when omitted.</span>
+<span class="sd">            fa: Minimum fragment angle for the round joins.</span>
+<span class="sd">            fs: Minimum fragment size for the round joins.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new closed :class:`Path2D`.</span>
@@ -3709,13 +3723,34 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">_Polygon</span>
 
         <span class="n">pts</span> <span class="o">=</span> <span class="p">[(</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">]</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_facet_count</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_facets</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_quad_segs</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">"""Segments per quadrant: the caller's, else the resolution they asked for, else 16.</span>
+
+<span class="sd">            Deriving unconditionally would COARSEN the default (a 5 mm radius is 3 segments per</span>
+<span class="sd">            quadrant at $fa=12), so the derived value is used only when a resolution was actually</span>
+<span class="sd">            set -- explicitly or ambiently (SPEC R-5).</span>
+<span class="sd">            """</span>
+            <span class="k">if</span> <span class="n">quad_segs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">quad_segs</span><span class="p">)</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="n">resolve_facets</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">resolved</span><span class="p">):</span>
+                <span class="k">return</span> <span class="mi">16</span>
+            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_facet_count</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">radius</span><span class="p">),</span> <span class="o">*</span><span class="n">resolved</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+
         <span class="n">style_map</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">MinkowskiJoin</span><span class="o">.</span><span class="n">ROUND</span><span class="p">:</span> <span class="n">JOIN_STYLE</span><span class="o">.</span><span class="n">round</span><span class="p">,</span>
             <span class="n">MinkowskiJoin</span><span class="o">.</span><span class="n">MITRE</span><span class="p">:</span> <span class="n">JOIN_STYLE</span><span class="o">.</span><span class="n">mitre</span><span class="p">,</span>
             <span class="n">MinkowskiJoin</span><span class="o">.</span><span class="n">BEVEL</span><span class="p">:</span> <span class="n">JOIN_STYLE</span><span class="o">.</span><span class="n">bevel</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="n">_Polygon</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span>
-            <span class="n">radius</span><span class="p">,</span> <span class="n">join_style</span><span class="o">=</span><span class="n">style_map</span><span class="p">[</span><span class="n">join</span><span class="p">],</span> <span class="n">mitre_limit</span><span class="o">=</span><span class="n">mitre_limit</span><span class="p">,</span> <span class="n">single_sided</span><span class="o">=</span><span class="n">single_sided</span><span class="p">,</span> <span class="n">quad_segs</span><span class="o">=</span><span class="n">quad_segs</span>
+            <span class="n">radius</span><span class="p">,</span>
+            <span class="n">join_style</span><span class="o">=</span><span class="n">style_map</span><span class="p">[</span><span class="n">join</span><span class="p">],</span>
+            <span class="n">mitre_limit</span><span class="o">=</span><span class="n">mitre_limit</span><span class="p">,</span>
+            <span class="n">single_sided</span><span class="o">=</span><span class="n">single_sided</span><span class="p">,</span>
+            <span class="n">quad_segs</span><span class="o">=</span><span class="n">_quad_segs</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">poly</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Path2D</span><span class="p">([],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -4389,14 +4424,15 @@
 <span class="sd">                the fold repair that would drop points (``delta``, no chamfer).</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">delta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"offset() needs exactly one of radius= or delta=, radius=</span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2"> delta=</span><span class="si">{</span><span class="n">delta</span><span class="si">}</span><span class="s2">"</span>
-        <span class="p">)</span>
-        <span class="k">assert</span> <span class="n">closed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"Open paths are not supported by offset()"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">delta</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"offset() needs exactly one of radius= or delta=, radius=</span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2"> delta=</span><span class="si">{</span><span class="n">delta</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">closed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Open paths are not supported by offset()"</span><span class="p">)</span>
         <span class="n">closed</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">assert</span> <span class="ow">not</span> <span class="n">same_length</span> <span class="ow">or</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">chamfer</span><span class="p">),</span> <span class="p">(</span>
-            <span class="s2">"offset(same_length=True) needs a plain delta offset: rounded and chamfered joins add points."</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="ow">not</span> <span class="n">same_length</span> <span class="ow">or</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">chamfer</span><span class="p">))):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"offset(same_length=True) needs a plain delta offset: rounded and chamfered joins add points."</span>
+            <span class="p">)</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">amount</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">delta</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">use_round</span> <span class="o">=</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -4523,7 +4559,8 @@
         <span class="k">if</span> <span class="n">keep</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">pts</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="n">keep</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"offset() needs at least 3 distinct points"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"offset() needs at least 3 distinct points"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pts</span>
 
     <span class="nd">@staticmethod</span>
@@ -4668,11 +4705,15 @@
             <span class="n">mitre_limit</span><span class="o">=</span><span class="mf">1e9</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">grown</span><span class="p">,</span> <span class="s2">"geoms"</span><span class="p">,</span> <span class="p">[</span><span class="n">grown</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span><span class="o">.</span><span class="n">is_empty</span><span class="p">]</span>
-        <span class="k">assert</span> <span class="n">parts</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"offset() collapsed the path: offsetting by </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="si">}</span><span class="s2"> leaves nothing of this outline."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">parts</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"offset() collapsed the path: offsetting by </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="si">}</span><span class="s2"> leaves nothing of this outline."</span>
+            <span class="p">)</span>
         <span class="n">ring</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">max</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">part</span><span class="p">:</span> <span class="n">part</span><span class="o">.</span><span class="n">area</span><span class="p">)</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"offset() collapsed the path: offsetting by </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="si">}</span><span class="s2"> leaves nothing of this outline."</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"offset() collapsed the path: offsetting by </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="si">}</span><span class="s2"> leaves nothing of this outline."</span>
+            <span class="p">)</span>
         <span class="n">source_sign</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">ring</span>
@@ -4695,7 +4736,8 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="p">[</span><span class="n">lst</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">sides</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">start</span><span class="p">]</span>
             <span class="k">return</span> <span class="n">lst</span><span class="p">[</span><span class="n">start</span> <span class="o">%</span> <span class="n">sides</span><span class="p">]</span>  <span class="c1"># type: ignore[no-any-return]</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">"_path_select(): slice form needs integer start"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"_path_select(): slice form needs integer start"</span><span class="p">)</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">start</span> <span class="o">%</span> <span class="n">sides</span>
         <span class="n">e</span> <span class="o">=</span> <span class="n">end</span> <span class="o">%</span> <span class="n">sides</span>
         <span class="k">if</span> <span class="n">s</span> <span class="o">&lt;=</span> <span class="n">e</span><span class="p">:</span>
@@ -5157,9 +5199,11 @@
 
 <span class="sd">        """</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"Path2D has length </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">. Length must be 3 or more."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path2D has length </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">. Length must be 3 or more."</span><span class="p">)</span>
         <span class="n">size</span> <span class="o">=</span> <span class="n">radius</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius</span>
-        <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"Must specify radius"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Must specify radius"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
             <span class="n">parm</span> <span class="o">=</span> <span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>

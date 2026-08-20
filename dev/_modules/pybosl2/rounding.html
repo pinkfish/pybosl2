@@ -2138,13 +2138,17 @@
     <span class="k">if</span> <span class="n">curv_val</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="k">elif</span> <span class="n">curv_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">is_num</span><span class="p">(</span><span class="n">curv_val</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="s1">'k is only allowed with method="smooth".'</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'k is only allowed with method="smooth".'</span><span class="p">)</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"float"</span><span class="p">,</span> <span class="n">curv_val</span><span class="p">))]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">curv_val</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
-        <span class="k">assert</span> <span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">,</span> <span class="s1">'k is only allowed with method="smooth".'</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">method</span> <span class="o">==</span> <span class="n">RoundingMethod</span><span class="o">.</span><span class="n">SMOOTH</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'k is only allowed with method="smooth".'</span><span class="p">)</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">curv_val</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">curv_val</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">sides</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">curv_val</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parm</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2"> must be nonnegative."</span>
-    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">),</span> <span class="s2">"k must be in [0, 1]."</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">all</span><span class="p">((</span><span class="n">v</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">parm</span><span class="p">))):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">measure</span><span class="si">}</span><span class="s2"> must be nonnegative."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">all</span><span class="p">((</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">))):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"k must be in [0, 1]."</span><span class="p">)</span>
 
     <span class="c1"># dk[i] = [joint distance, shape param] per corner (chamfer has just [distance])</span>
     <span class="n">dk</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2202,7 +2206,8 @@
                 <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
             <span class="p">)</span>
             <span class="n">scale</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
-    <span class="k">assert</span> <span class="ow">not</span> <span class="n">scale</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-9</span><span class="p">,</span> <span class="s2">"Roundovers are too big for the path (they overlap); reduce the sizes."</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="ow">not</span> <span class="n">scale</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mf">1e-09</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Roundovers are too big for the path (they overlap); reduce the sizes."</span><span class="p">)</span>
 
     <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">):</span>
@@ -2428,11 +2433,31 @@
         <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">bottom</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">top</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Offset sweep/extrusion of this 2-D shape."""</span>
+<span class="w">        </span><span class="sd">"""Offset sweep/extrusion of this 2-D shape.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            height: Extrusion height.</span>
+<span class="sd">            bottom: Rim treatment for the bottom edge (an ``os_*`` profile).</span>
+<span class="sd">            top: Rim treatment for the top edge.</span>
+<span class="sd">            steps: Slices per rim treatment; resolved from the rim radius and the ambient facet</span>
+<span class="sd">                controls when omitted.</span>
+<span class="sd">            caps: End caps for the extrusion.</span>
+<span class="sd">            style: Quad-subdivision style for the mesh.</span>
+<span class="sd">            fn: Fixed fragment count for the rim arcs; ambient default when omitted.</span>
+<span class="sd">            fa: Minimum fragment angle for the rim arcs.</span>
+<span class="sd">            fs: Minimum fragment size for the rim arcs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The extruded solid.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_offset_sweep</span> <span class="k">as</span> <span class="n">_os</span>
 
         <span class="k">return</span> <span class="n">_os</span><span class="p">(</span>
@@ -2440,6 +2465,9 @@
             <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
             <span class="n">bottom</span><span class="o">=</span><span class="n">bottom</span><span class="p">,</span>
             <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span>
+            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
             <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span>
             <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
@@ -2565,11 +2593,31 @@
         <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">fillet</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Attach a filleted prism with optional rounded end."""</span>
+<span class="w">        </span><span class="sd">"""Attach a filleted prism with optional rounded end.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            length: Length of the prism.</span>
+<span class="sd">            fillet: Fillet radius where the prism meets the surface.</span>
+<span class="sd">            rounding: Rounding radius on the free end.</span>
+<span class="sd">            steps: Slices per fillet/rounding arc; resolved from the radius and the ambient facet</span>
+<span class="sd">                controls when omitted.</span>
+<span class="sd">            caps: End caps for the prism.</span>
+<span class="sd">            style: Quad-subdivision style for the mesh.</span>
+<span class="sd">            fn: Fixed fragment count for the arcs; ambient default when omitted.</span>
+<span class="sd">            fa: Minimum fragment angle for the arcs.</span>
+<span class="sd">            fs: Minimum fragment size for the arcs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The prism solid.</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_attach_prism</span> <span class="k">as</span> <span class="n">_ap</span>
 
         <span class="k">return</span> <span class="n">_ap</span><span class="p">(</span>
@@ -2578,6 +2626,9 @@
             <span class="n">fillet</span><span class="o">=</span><span class="n">fillet</span><span class="p">,</span>
             <span class="n">rounding</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span>
             <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span>
+            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
             <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
         <span class="p">)</span></div>
@@ -2614,6 +2665,9 @@
         <span class="n">relocate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Join multiple paths to this path end-to-end (see :func:`path_join`)."""</span>
         <span class="k">return</span> <span class="n">_path_join</span><span class="p">(</span>
@@ -2625,6 +2679,9 @@
             <span class="n">relocate</span><span class="o">=</span><span class="n">relocate</span><span class="p">,</span>
             <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span><span class="p">,</span>  <span class="c1"># type: ignore[attr-defined]</span>
             <span class="n">k</span><span class="o">=</span><span class="n">k</span><span class="p">,</span>
+            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -2639,6 +2696,9 @@
     <span class="n">relocate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Join multiple paths end-to-end with optional rounding at the joint connections (BOSL2 path_join()).</span>
 
@@ -2655,6 +2715,9 @@
 <span class="sd">        relocate:  Merge consecutive endpoints if they are close (default True).</span>
 <span class="sd">        closed:    Close the resulting joined path (default False).</span>
 <span class="sd">        k:         Acronym alias for *curvature*.</span>
+<span class="sd">        fn:        Fixed fragment count for the joint rounding; ambient default when omitted.</span>
+<span class="sd">        fa:        Minimum fragment angle for the joint rounding.</span>
+<span class="sd">        fs:        Minimum fragment size for the joint rounding.</span>
 <span class="sd">        **kwargs: Additional keyword arguments (e.g. ``k`` for curvature).</span>
 
 <span class="sd">    Returns:</span>
@@ -2745,6 +2808,9 @@
         <span class="n">width</span><span class="o">=</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"width"</span><span class="p">],</span>
         <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
         <span class="n">k</span><span class="o">=</span><span class="n">k_list</span><span class="p">,</span>
+        <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+        <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+        <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
     <span class="p">)</span>
 
 

@@ -2777,7 +2777,8 @@
 <span class="sd">            cut.polyhedron().show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">"halfspace(): plane must be [A, B, C, D]."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"halfspace(): plane must be [A, B, C, D]."</span><span class="p">)</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">plane</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="n">verts_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts_in</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -3349,7 +3350,8 @@
                 <span class="n">vs_final</span> <span class="o">=</span> <span class="p">(</span><span class="n">bb</span><span class="o">.</span><span class="n">max_x</span> <span class="o">-</span> <span class="n">bb</span><span class="o">.</span><span class="n">min_x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"from_field(): a callable field needs a bounding_box."</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"from_field(): a callable field needs a bounding_box."</span><span class="p">)</span>
             <span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span> <span class="o">=</span> <span class="n">_resolve_grid</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">,</span> <span class="n">voxel_count</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="p">)</span>
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">_sample_field</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
@@ -3408,7 +3410,8 @@
 <span class="sd">            ).polyhedron().show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="n">spec</span><span class="p">,</span> <span class="s2">"from_metaballs(): the spec is empty."</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"from_metaballs(): the spec is empty."</span><span class="p">)</span>
 
         <span class="n">bb</span><span class="p">:</span> <span class="n">Bounds3D</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bounding_box</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">):</span>

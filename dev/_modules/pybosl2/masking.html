@@ -2005,7 +2005,8 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
     <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"mask2d_roundover(): must give radius or diameter"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mask2d_roundover(): must give radius or diameter"</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
     <span class="n">inset_x</span><span class="p">,</span> <span class="n">inset_y</span> <span class="o">=</span> <span class="n">inset</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inset</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">inset</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">inset</span><span class="p">))</span>
@@ -2178,8 +2179,10 @@
 <span class="sd">        return_cutter: If True, returns the generated cutter shape instead of cutting it.</span>
 
 <span class="sd">    """</span>
-    <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"size= (the box's size) must be given"</span>
-    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"children= (the edge cutter) must be given"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"size= (the box's size) must be given"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"children= (the edge cutter) must be given"</span><span class="p">)</span>
     <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -2224,8 +2227,10 @@
 
 <span class="sd">    """</span>
     <span class="n">_</span> <span class="o">=</span> <span class="n">convexity</span>
-    <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"size= (the box's size) must be given"</span>
-    <span class="k">assert</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"children= (the 2-D mask path) must be given"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"size= (the box's size) must be given"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"children= (the 2-D mask path) must be given"</span><span class="p">)</span>
     <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
@@ -2363,10 +2368,12 @@
 <span class="sd">    """</span>
     <span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="n">convexity</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"corner_profile(): must give radius or diameter"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"corner_profile(): must give radius or diameter"</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"size= (the box's size) must be given"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"size= (the box's size) must be given"</span><span class="p">)</span>
     <span class="n">corner_set</span> <span class="o">=</span> <span class="n">_corners</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">except_corners</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">corner_set</span><span class="p">):</span>
@@ -2419,7 +2426,8 @@
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">assert</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"face_profile(): must give radius or diameter"</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"face_profile(): must give radius or diameter"</span><span class="p">)</span>
         <span class="n">radius</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">children</span> <span class="k">if</span> <span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">mask2d_roundover</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
