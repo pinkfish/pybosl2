@@ -1574,7 +1574,7 @@ def build_variant_stls(force: bool = False) -> dict:
                 "wt": bool(mm.watertight),
             }
             print(f"  rendered {mod}-{vid}: {mm.ntris} tris, wt={mm.watertight}")
-    cache_path.write_text(json.dumps(cache, indent=1))
+    cache_path.write_text(json.dumps(cache, indent=1) + "\n")
     return cache
 
 
@@ -2002,7 +2002,11 @@ def main():
         **{f"{k}.rst": module_page(k, m, metrics) for k, m in MODULES.items()},
     }
     for name, rst_content in pages.items():
-        (OUT / name).write_text(rst_content)
+        # Normalise before writing. The templates leave a trailing blank where an optional block
+        # renders empty, and editors strip it back out again -- so an un-normalised page shows up
+        # modified after every docs build even when nothing about it changed.
+        normalised = "\n".join(line.rstrip() for line in rst_content.splitlines()).rstrip("\n") + "\n"
+        (OUT / name).write_text(normalised)
     print("wrote", OUT)
 
 

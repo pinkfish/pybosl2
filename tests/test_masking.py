@@ -17,16 +17,43 @@ from pybosl2.masking import _corner_set, _corners, chamfer_edge_mask, mask2d_rou
 from pybosl2.shapes3d import Bosl2Solid
 
 
-def test_chamfer_edge_mask_builds() -> None:
-    m = chamfer_edge_mask(length=10, chamfer=2)
-    # a diamond bar: spans +-chamfer on X and Y, length l (+excess) on Z
-    assert m is not None
-    # Wrap in a Bosl2Solid with known size to verify dimension via bounds
-    s = Bosl2Solid(m, size=[4, 4, 10.1])
-    center, size = s.bounds()
-    assert size[0] == pytest.approx(4, abs=0.01)  # 2*chamfer
-    assert size[1] == pytest.approx(4, abs=0.01)
-    assert size[2] == pytest.approx(10.1, abs=0.01)  # l + excess
+@pytest.mark.parametrize(("length", "chamfer", "excess"), [(10, 2, 0.1), (30, 1, 0.1), (10, 2, 1.0)])
+def test_chamfer_edge_mask_is_a_diamond_bar(length: float, chamfer: float, excess: float) -> None:
+    """A diamond bar: it spans +-chamfer on X and Y, and `length` plus the excess on Z.
+
+    This used to hand the answer to itself -- `Bosl2Solid(m, size=[4, 4, 10.1])` and then assert
+    the size was [4, 4, 10.1] -- because chamfer_edge_mask() returned a bare native handle with no
+    bounds() of its own to ask. It returns a wrapped solid now, so the measurement is real.
+    """
+    mask = chamfer_edge_mask(length=length, chamfer=chamfer, excess=excess)
+    assert isinstance(mask, Bosl2Solid)
+    assert mask.backend == "csg"
+
+    centre, size = mask.bounds()
+    assert size == pytest.approx([2 * chamfer, 2 * chamfer, length + excess], abs=0.01)
+    assert centre == pytest.approx([0.0, 0.0, 0.0], abs=0.01)  # centred on the edge it cuts
+
+
+def test_rounding_edge_mask_is_a_wrapped_solid() -> None:
+    """Its sibling had the same bare-native return, and the same lack of a real measurement."""
+    from pybosl2.masking import rounding_edge_mask
+
+    mask = rounding_edge_mask(length=10, radius=2)
+    assert isinstance(mask, Bosl2Solid)
+    assert mask.backend == "csg"
+
+    _centre, size = mask.bounds()
+    assert size[2] == pytest.approx(10.0, abs=0.01)  # runs the length of the edge
+    # The cross-section is the corner the fillet leaves behind: the radius, plus the excess that
+    # carries the cut past the two faces.
+    assert size[:2] == pytest.approx([2.1, 2.1], abs=0.01)
+    assert rounding_edge_mask(length=10, radius=4).bounds()[1][:2] == pytest.approx([4.1, 4.1], abs=0.01)
+    assert rounding_edge_mask(length=10, radius=2, excess=0.5).bounds()[1][:2] == pytest.approx([2.5, 2.5], abs=0.01)
+
+    # A tapered mask takes its cross-section from the wide end.
+    _centre, tapered_size = rounding_edge_mask(length=30, radius1=1, radius2=3).bounds()
+    assert tapered_size[2] == pytest.approx(30.0, abs=0.01)
+    assert tapered_size[0] == pytest.approx(3.1, abs=0.01)
 
 
 def test_returns_a_point_path() -> None:

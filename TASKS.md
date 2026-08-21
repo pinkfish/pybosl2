@@ -14,29 +14,37 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 
 ✅ done · 🔶 in progress · (blank) not started
 
+The first column is the item's number in §12.2 *as it stood when the task was written*; the
+spec renumbers as items close, and all but S-46a have.
+
 | §12.2 | Requirement | Task | Size |
 |---|---|---|---|
 | 1 | C-1 / E-3 | [T0](#t0--make-the-backend-tag-tell-the-truth) ✅ | S |
-| 2 | A-6 | [T2b](#t2b--make-the-top-level-backend-neutral) | M |
-| 3 | E-4 | [T0b](#t0b--convert-user-input-asserts-to-valueerror) | L |
-| 4 | C-14 | [T0c](#t0c--make-partshape-a-property) | M |
-| 5 | DOC-2 / D-P5 | [T0e](#t0e--document-the-façade) | M |
-| 6 | A-7 | [T0d](#t0d--fix-the-broken-export) | XS |
-| 7 | S-46a | [T0f](#t0f--make-parts-honour-the-active-backend) | L |
-| 8 | S-51 | [T0f](#t0f--make-parts-honour-the-active-backend) step 3 | — |
-| 9 | B-3 / PAR-5 | [T2](#t2--give-the-façade-ownership-of-shared-defaults) | L |
-| 10 | C-15 … C-19 | [T1](#t1--merge-solid-and-flat-into-one-shape-contract) | M |
-| 11 | R-1 | [T5](#t5--close-the-facet-control-backlog) | L |
-| 12 | PAR-1 / C-1 / B-5 | [T3](#t3--stop-the-sdf-fallback-silently-meshing) | M |
-| 13 | PAR-3 | [T4](#t4--reconcile-the-parity-records-with-the-code) | S |
-| 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) | S |
-| 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) | M |
+| 2 | A-6 | [T2b](#t2b--make-the-top-level-backend-neutral) ✅ | M |
+| 3 | E-4 | [T0b](#t0b--convert-user-input-asserts-to-valueerror) ✅ | L |
+| 4 | C-14 | [T0c](#t0c--make-partshape-a-property) ✅ | M |
+| 5 | DOC-2 / D-P5 | [T0e](#t0e--document-the-façade) ✅ | M |
+| 6 | A-7 | [T0d](#t0d--fix-the-broken-export) ✅ | XS |
+| 7 | S-46a | [T0f](#t0f--make-parts-honour-the-active-backend) ✅ | L |
+| 8 | S-51 | [T0f](#t0f--make-parts-honour-the-active-backend) step 3 ✅ | — |
+| 9 | B-3 / PAR-5 | [T2](#t2--give-the-façade-ownership-of-shared-defaults) ✅ | L |
+| 10 | C-15 … C-19 | [T1](#t1--merge-solid-and-flat-into-one-shape-contract) ✅ | M |
+| 11 | R-1 | [T5](#t5--close-the-facet-control-backlog) ✅ | L |
+| 12 | PAR-1 / C-1 / B-5 | [T3](#t3--stop-the-sdf-fallback-silently-meshing) ✅ | M |
+| 13 | PAR-3 | [T4](#t4--reconcile-the-parity-records-with-the-code) ✅ | S |
+| 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) ✅ | S |
+| 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) ✅ | M |
 | 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families-) ✅ | M |
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage-) ✅ | M |
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 | — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
 | — | test quality | [T13](#t13--replace-the-existence-only-tests-) ✅ | L |
+
+**Everything above is done except T11**, whose last four rejection paths need a real
+libfive install to reach. The only open conformance item is S-46a / PAR-1: parts refuse on
+the SDF backend rather than building — see [T14](#t14--give-parts-an-sdf-form-where-they-have-one)
+for what that would actually take.
 
 ## Order and why
 
@@ -663,6 +671,43 @@ Two live bugs surfaced, both in code that had never run:
 One upstream quirk is now pinned rather than smoothed over: BOSL2 documents cutpath tiles as
 ``Y between -0.5 and 0.5``, but its own `sawtooth` reaches 1. We reproduce it (B2-1), and the test
 says why.
+
+---
+
+## T14 — Give parts an SDF form where they have one
+
+**Serves:** S-46a, PAR-1 · **Size:** L, batchable per module · **Status:** triaged, not started
+
+All 53 parts refuse on the SDF backend (`@csg_part`). The refusal is honest — every part builds
+CSG geometry today — but it is blanket, and the triage says most of them need no new geometry at
+all, only a different import.
+
+**What the triage found.** Building each part under `use_backend("sdf")` with the guard bypassed:
+
+* **38 fail, and 30 of those fail on the same thing** — the part imports its primitives straight
+  from `pybosl2.shapes3d` (`cuboid`, `cyl`, `prismoid`, `regular_prism`), which is
+  `backend_only("csg")`. The error already names the fix: *"pybosl2.solid.cuboid builds on either
+  backend"*. Routing those parts through the façade is a mechanical change, and the façade really
+  does carry the pattern — a `cuboid - cuboid | prismoid.up(15)` chain with moves and a rotate
+  builds on both backends and lands the same bounds to 3 decimal places.
+* **15 "succeed" — and that is the dangerous half.** They return a `CsgSolid` tagged
+  `backend="csg"` from inside an SDF block, which is precisely what S-46a's guard exists to stop.
+  These reach CSG-only machinery: gears and `RingHook` through `linear_extrude` of a 2-D profile,
+  threading through `spiral_sweep`, wiring through `path_sweep`, polyhedra/sliders/walls through
+  `polyhedron`, the driver-recess masks through 2-D shapes.
+
+**The split, by module:** façade-routing candidates are `cubetruss` (8), `hinges` (5),
+`joiners` (3), `nema_steppers` (2), `sliders` (Slider), `tripod_mounts` (2), `screws`
+(`ScrewHole`), plus `ball_bearings`, `linear_bearings`, `bottlecaps` and `modular_hose`, whose
+static call graphs are already free of CSG-only operations. Genuinely CSG-only: `gears` (9),
+`threading` (3), `screw_drive` (6), `wiring` (1), `polyhedra` (1), most of `walls` (6).
+
+**Sequence.** Pilot one module (`cubetruss` is the biggest and the most uniform — every part is
+cuboids and prismoids), which settles the two open questions before the bulk work: whether
+`@csg_part` becomes per-part or is replaced by letting the primitives refuse on their own, and
+what a part's `backend` tag should say when it is built from façade calls. Then the remaining
+façade-routing modules, and finally re-word the refusal on the ones that keep it, so it says
+*this* part needs CSG rather than *the parts library* does.
 
 ---
 

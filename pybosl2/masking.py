@@ -116,13 +116,18 @@ def rounding_edge_mask(
         diameter=diameter,
         dflt=1.0,
     )
+    from pybosl2.shapes3d import Bosl2Solid
+
+    # Wrapped, for the same reason _extrude_mask_along_edge() wraps: the native polygon()/
+    # linear_extrude() pair hands back a bare native handle, which has no bounds() and no backend
+    # tag, and will not compose with a Bosl2Solid on the right of a boolean.
     if rad1 < rad2:
         cross = mask2d_roundover(rad2, excess=excess, fn=fn, fa=fa, fs=fs)
-        shape = _opolygon(cross).linear_extrude(height=length, center=True, scale=rad1 / rad2)
-        return shape.rotate(180, [1, 0, 0])  # type: ignore[no-any-return]
+        shape = Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=rad1 / rad2))
+        return shape.rotate(180, [1, 0, 0])
     cross = mask2d_roundover(rad1, excess=excess, fn=fn, fa=fa, fs=fs)
     scale = rad2 / rad1 if rad1 else 1.0
-    return _opolygon(cross).linear_extrude(height=length, center=True, scale=scale)  # type: ignore[no-any-return]
+    return Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=scale))
 
 
 def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float = 0.1) -> "Bosl2Solid":
@@ -139,8 +144,10 @@ def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float =
         A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
 
     """
+    from pybosl2.shapes3d import Bosl2Solid
+
     diamond = [[chamfer, 0.0], [0.0, chamfer], [-chamfer, 0.0], [0.0, -chamfer]]
-    return _opolygon(diamond).linear_extrude(height=length + excess, center=True)  # type: ignore[no-any-return]
+    return Bosl2Solid(_opolygon(diamond).linear_extrude(height=length + excess, center=True))
 
 
 def _pick_axes(vec: Point) -> tuple[int, int, int, float, float]:
