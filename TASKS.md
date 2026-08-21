@@ -674,18 +674,23 @@ claimed to cover was never executed, and two of its features were outright broke
 | `tests/test_gears.py` | 10 | 0 |
 | `tests/test_svg.py` | 10 | 7 |
 
-`test_color.py` (9 → 0) and `test_rounding.py` (8 → 0) followed. Next by size:
-`test_tripod_mounts.py` (8), `test_profiles.py` (7), `test_screws.py` (7), `test_skin.py` (7),
-`turtle/test_turtle3d.py` (7), `test_svg.py` (7), `test_sdf_skin.py` (6).
+`test_color.py` (9 → 0), `test_rounding.py` (8 → 0) and `test_profiles.py` (7 → 0) followed;
+**303 → 132**. Next by size: `test_tripod_mounts.py` (8), `test_screws.py` (7),
+`test_skin.py` (7), `turtle/test_turtle3d.py` (7), `test_svg.py` (7), `test_sdf_skin.py` (6).
 
-**Open lead: `corner_profile()` appears to cut inside out.** Measuring
-`cuboid([20, 20, 20]).corner_profile(radius=3).realize()` shows the *interior* points (5,5,5) and
-(8,8,8) reported outside while the corner region (8.5..9.9) is still solid — the opposite of a
-rounded corner. `masking._corner_cutter()` builds `block - sphere` with the sphere at the block's
-outer corner rather than the inner one, so subtracting it scoops out the body and leaves the
-corner. `edge_profile` and `face_profile` on the same cube behave correctly, and no render test
-covers `corner_profile`. Confirm against a render before changing it -- `inside()` on a lazily
-realized attachment is the only evidence so far.
+The masking family (`corner_profile`, `face_profile`, `edge_profile`, `edge_mask`) is measured by
+`realize()`ing the lazy attachment and probing with `inside()`: assert the treated edge or corner
+is gone *and* that the faces, the neighbouring untreated edges and the interior all survive. That
+pairing is what catches an inverted cutter.
+
+**`corner_profile()` cut inside out** — found and fixed. `masking._corner_cutter()` built a
+`2 * radius` block and put the subtracted sphere on the body's *corner* instead of one radius in,
+so the cutter was the corner block *minus a ball at the corner*: subtracting it scooped out the
+inside of the solid and left the corner standing. Measuring
+`cuboid([20, 20, 20]).corner_profile(radius=3).realize()` showed (5,5,5) and (8,8,8) reported
+outside while the corner region stayed solid. The cutter is now the radius-sided block filling the
+corner minus the sphere at the inner point, and `test_profiles.py` asserts the corner is gone
+while the interior, the neighbouring edge and the face centres all survive.
 
 Convert them per X-8, module by module — bounds for solids, point counts and spans for paths,
 area for regions, vertex counts and volume for meshes. Where the subject carries no tracked size
