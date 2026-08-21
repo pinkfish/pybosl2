@@ -634,36 +634,66 @@ def test_oop_skin_and_sweep() -> None:
 
 
 def test_path_sweep_arrow_cap() -> None:
+    """A decorative cap needs real geometry, so the sweep comes back as a solid, not a VNF."""
     from pybosl2.caps import CapSpec
+    from pybosl2.vnf import VNF
 
     circle = [[5, 0], [3, 4], [-4, 3], [-5, 0], [-4, -3], [3, -4]]
     spine = Path2D([[0, 0], [20, 0], [20, 20]])
-    result = spine.path_sweep(circle, caps=CapSpec(CapType.ARROW, length=2))
-    assert result is not None
+    plain = spine.path_sweep(circle)
+    capped = spine.path_sweep(circle, caps=CapSpec(CapType.ARROW, length=2))
+    assert isinstance(plain, VNF)
+    assert not isinstance(capped, VNF)
+    assert "rotate_extrude" in repr(capped.shape)  # the arrow is a revolved profile
 
 
 def test_linear_sweep_decorative_cap() -> None:
+    """The capped extrusion keeps the profile's own 20x20x10 envelope."""
     from pybosl2.caps import CapSpec
 
     sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
-    result = sq.linear_sweep(height=10, caps=CapSpec(CapType.ARROW, length=3))
-    assert result is not None
+    capped = sq.linear_sweep(height=10, caps=CapSpec(CapType.ARROW, length=3))
+    assert [float(v) for v in capped.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
 
 
 def test_rotate_sweep_decorative_cap() -> None:
+    """A dot cap is a sphere on each open end, so the revolved quarter grows past its own profile."""
     from pybosl2.caps import CapSpec
 
     profile = [[10, 0], [10, 2], [2, 6], [0, 10]]
-    result = Path2D(profile).rotate_sweep(angle=90, caps=CapSpec(CapType.DOT))
-    assert result is not None
+    capped = Path2D(profile).rotate_sweep(angle=90, caps=CapSpec(CapType.DOT))
+    assert "sphere(" in repr(capped.shape)
+    assert float(capped.bounds()[1][0]) > 10.0  # the profile reaches x=10; the cap goes further
+
+
+#: (name, the rim descriptor). Each treats the top rim of the same 20x20x10 prism.
+PRISM_RIMS = [
+    ("teardrop", lambda: os_teardrop(radius=3)),
+    ("smooth", lambda: os_smooth(cut=3, curvature=0.8)),
+    ("chamfer", lambda: os_chamfer(width=2)),
+    ("profile", lambda: os_profile([[0, 0], [1, 3], [2, 5]])),
+]
+
+
+@pytest.mark.parametrize(("name", "rim"), PRISM_RIMS, ids=[row[0] for row in PRISM_RIMS])
+def test_rounded_prism_rim_treatments(name: str, rim: object) -> None:
+    """Every rim style takes material off the top edge and leaves the prism's envelope alone."""
+    base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    plain = base.rounded_prism(height=10)
+    treated = base.rounded_prism(height=10, joint_top=rim())  # type: ignore[operator, arg-type]
+    points = np.asarray(treated.vertices)
+    assert points.min(axis=0).tolist() == pytest.approx([0.0, 0.0, 0.0], abs=0.01), name
+    assert points.max(axis=0).tolist() == pytest.approx([20.0, 20.0, 10.0], abs=0.01), name
+    assert 0 < float(treated.volume()) < float(plain.volume()), name
+    assert len(treated.vertices) > len(plain.vertices), name  # the rim is a curve now
 
 
 def test_rounded_prism_teardrop_rim() -> None:
-    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
-        height=10,
-        joint_top=os_teardrop(radius=3),  # type: ignore[arg-type]
-    )
-    assert result is not None
+    """A teardrop rim leans the roundover over so it prints without support."""
+    base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    teardrop = base.rounded_prism(height=10, joint_top=os_teardrop(radius=3))  # type: ignore[arg-type]
+    chamfered = base.rounded_prism(height=10, joint_top=os_chamfer(width=2))  # type: ignore[arg-type]
+    assert float(teardrop.volume()) > float(chamfered.volume())  # it keeps more material
 
 
 # ── rot_resample with transforms path ───────────────────────────────────
@@ -678,25 +708,25 @@ def test_rot_resample_twist_list() -> None:
 
 
 def test_rounded_prism_smooth_rim() -> None:
-    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
-        height=10,
-        joint_top=os_smooth(cut=3, curvature=0.8),  # type: ignore[arg-type]
-    )
-    assert result is not None
+    """`curvature=` tunes how tightly the smooth rim hugs the corner, so it changes the volume."""
+    base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    tight = base.rounded_prism(height=10, joint_top=os_smooth(cut=3, curvature=0.2))  # type: ignore[arg-type]
+    loose = base.rounded_prism(height=10, joint_top=os_smooth(cut=3, curvature=0.8))  # type: ignore[arg-type]
+    assert float(tight.volume()) != pytest.approx(float(loose.volume()), abs=1.0)
 
 
 def test_rounded_prism_chamfer_rim() -> None:
-    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
-        height=10,
-        joint_top=os_chamfer(width=2),  # type: ignore[arg-type]
-    )
-    assert result is not None
+    """A wider chamfer cuts more off the rim."""
+    base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    narrow = base.rounded_prism(height=10, joint_top=os_chamfer(width=1))  # type: ignore[arg-type]
+    wide = base.rounded_prism(height=10, joint_top=os_chamfer(width=3))  # type: ignore[arg-type]
+    assert float(wide.volume()) < float(narrow.volume())
 
 
 def test_rounded_prism_profile_rim() -> None:
-    custom = [[0, 0], [1, 3], [2, 5]]
-    result = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]]).rounded_prism(
-        height=10,
-        joint_top=os_profile(custom),  # type: ignore[arg-type]
-    )
-    assert result is not None
+    """A hand-drawn rim profile is swept round the top edge like any of the named ones."""
+    base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
+    custom = base.rounded_prism(height=10, joint_top=os_profile([[0, 0], [1, 3], [2, 5]]))  # type: ignore[arg-type]
+    plain = base.rounded_prism(height=10)
+    assert float(custom.volume()) < float(plain.volume())
+    assert np.asarray(custom.vertices).max(axis=0).tolist() == pytest.approx([20.0, 20.0, 10.0], abs=0.01)

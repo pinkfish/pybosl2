@@ -42,15 +42,21 @@ class TestManfrottoRC2Plate:
 
     @pytest.mark.parametrize("chamfer", ["all", "bot", "bottom", "none"])
     def test_returns_bosl2solid(self, chamfer: str) -> None:
-        """Every chamfer mode returns a Bosl2Solid instance."""
+        """The plate is the same catalogue part whatever gets chamfered."""
         obj = ManfrottoRC2Plate(chamfer=chamfer).shape
         assert isinstance(obj, Bosl2Solid)
+        assert _size(obj) == pytest.approx([self._BOTWID, self._LENGTH, self._THICKNESS], abs=0.01)
 
-    @pytest.mark.parametrize("chamfer", ["all", "bot", "bottom", "none"])
-    def test_module_level_alias_works(self, chamfer: str) -> None:
-        """The module-level manfrotto_rc2_plate alias returns a Bosl2Solid."""
-        obj = ManfrottoRC2Plate(chamfer=chamfer).shape
-        assert isinstance(obj, Bosl2Solid)
+    def test_chamfer_mode_changes_what_is_cut(self) -> None:
+        """ "all" chamfers both faces, "bot" only the underside, "none" neither -- and each does
+        strictly more work than the last, which the bounding box cannot see."""
+        programs = {mode: repr(ManfrottoRC2Plate(chamfer=mode).shape.shape) for mode in ("all", "bot", "none")}
+        assert len(programs["all"]) > len(programs["bot"]) > len(programs["none"])
+
+    def test_bottom_is_an_alias_for_bot(self) -> None:
+        assert repr(ManfrottoRC2Plate(chamfer="bottom").shape.shape) == repr(
+            ManfrottoRC2Plate(chamfer="bot").shape.shape
+        )
 
     # ── error handling ─────────────────────────────────────────────────
 
@@ -181,32 +187,34 @@ class TestManfrottoRC2Plate:
 
     # ── fn/fa/fs parameters ────────────────────────────────────────────
 
-    def test_fn_parameter_accepted(self) -> None:
-        """fn parameter is accepted and produces valid geometry."""
-        obj = ManfrottoRC2Plate(fn=32).shape
-        assert isinstance(obj, Bosl2Solid)
+    @pytest.mark.parametrize(
+        ("name", "kwargs"),
+        [
+            ("fn", {"fn": 32}),
+            ("fa", {"fa": 5.0}),
+            ("fs", {"fs": 1.0}),
+            ("all_three", {"fn": 32, "fa": 5.0, "fs": 1.0}),
+        ],
+    )
+    def test_facet_controls_are_accepted_and_passed_down(self, name: str, kwargs: dict[str, float]) -> None:
+        """The plate takes fn/fa/fs and threads them into the shapes it builds (SPEC R-1).
 
-    def test_fa_parameter_accepted(self) -> None:
-        """fa parameter is accepted and produces valid geometry."""
-        obj = ManfrottoRC2Plate(fa=5.0).shape
-        assert isinstance(obj, Bosl2Solid)
-
-    def test_fs_parameter_accepted(self) -> None:
-        """fs parameter is accepted and produces valid geometry."""
-        obj = ManfrottoRC2Plate(fs=1.0).shape
-        assert isinstance(obj, Bosl2Solid)
-
-    def test_fn_fa_fs_combined_accepted(self) -> None:
-        """All smoothness parameters combined produce valid geometry."""
-        obj = ManfrottoRC2Plate(fn=32, fa=5.0, fs=1.0).shape
-        assert isinstance(obj, Bosl2Solid)
+        Its geometry is all boxes, chamfers and swept polygons -- no arcs -- so the facet count
+        has nothing to smooth and the result is identical either way. That the *geometry* does not
+        move is the point: a plate that changed shape with fn would be the bug.
+        """
+        plate = ManfrottoRC2Plate(**kwargs).shape  # type: ignore[arg-type]
+        assert isinstance(plate, Bosl2Solid)
+        assert repr(plate.shape) == repr(ManfrottoRC2Plate().shape.shape), name
 
     # ── numeric anchor parameter ───────────────────────────────────────
 
     def test_numeric_vector_anchor_accepted(self) -> None:
-        """A numeric [x, y, z] anchor is accepted."""
-        obj = ManfrottoRC2Plate(anchor=[1.0, 0.0, 0.0]).shape
-        assert isinstance(obj, Bosl2Solid)
+        """A numeric [x, y, z] anchor puts that face on the origin, without resizing the plate."""
+        anchored = ManfrottoRC2Plate(anchor=[1.0, 0.0, 0.0]).shape
+        assert isinstance(anchored, Bosl2Solid)
+        assert _size(anchored) == pytest.approx([self._BOTWID, self._LENGTH, self._THICKNESS], abs=0.01)
+        assert _center(anchored)[0] == pytest.approx(-self._BOTWID / 2, abs=0.6)
 
     def test_numeric_anchor_moves_center(self) -> None:
         """A numeric anchor off center shifts the object's center."""
@@ -220,9 +228,10 @@ class TestManfrottoRC2Plate:
     # ── numeric orient parameter ───────────────────────────────────────
 
     def test_numeric_vector_orient_accepted(self) -> None:
-        """A numeric [x, y, z] vector orient is accepted."""
-        obj = ManfrottoRC2Plate(orient=[0.0, 1.0, 0.0]).shape
-        assert isinstance(obj, Bosl2Solid)
+        """orient=+Y stands the plate on end, so its length and thickness swap axes."""
+        upright = ManfrottoRC2Plate(orient=[0.0, 1.0, 0.0]).shape
+        assert isinstance(upright, Bosl2Solid)
+        assert _size(upright) == pytest.approx([self._BOTWID, self._THICKNESS, self._LENGTH], abs=0.01)
 
     # ── zero rotation identity ─────────────────────────────────────────
 
