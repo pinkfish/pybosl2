@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1963,7 +1987,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">arc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.turtle3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">TurtleCommandType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommands</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">TurtleCommandType</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
@@ -2047,7 +2072,7 @@
 <span class="c1"># -- Turtle2D class ----------------------------------------------------------</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">Turtle2D</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Turtle2D</span><span class="p">(</span><span class="n">TurtleCommands</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A 2-D turtle: walk it with a command list to produce a 2-D path.</span>
 
 <span class="sd">    The turtle starts at the origin pointing along +X with a step length of 1.</span>
@@ -2256,6 +2281,8 @@
             <span class="k">return</span> <span class="n">default</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">Point</span><span class="p">):</span>
+            <span class="n">sz</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>  <span class="c1"># a plain [x, y] / [x, y, z] reads the same as a Point</span>
         <span class="k">return</span> <span class="n">sz</span><span class="o">.</span><span class="n">x</span>
 
     <span class="nd">@staticmethod</span>
@@ -2264,6 +2291,8 @@
             <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sz</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">Point</span><span class="p">):</span>
+            <span class="n">sz</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>  <span class="c1"># a plain [x, y] / [x, y, z] reads the same as a Point</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">sz</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">sz</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">sz</span><span class="o">.</span><span class="n">z</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_xymove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parm</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

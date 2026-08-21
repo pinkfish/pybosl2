@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1982,12 +2006,19 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">]</span>
+<span class="c1">#: Anything an API that wants a polyline accepts: a :class:`Path` (what the library hands back and</span>
+<span class="c1">#: what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array.</span>
+<span class="c1">#: Normalise it on the first line -- ``np.asarray(x, dtype=float)`` or ``Path2D(x)`` -- so the rest</span>
+<span class="c1">#: of the body works on one shape (PLAN T-4).</span>
+<span class="n">PathLike</span><span class="p">:</span> <span class="s2">"TypeAlias"</span> <span class="o">=</span> <span class="s2">"Path | Sequence[Sequence[float]] | NDArray[np.float64]"</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="SubdivideMethod">
@@ -2077,6 +2108,12 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__array__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return a numpy array representation."""</span>
+        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return whether two objects are equal."""</span>
@@ -2179,7 +2216,7 @@
 <span class="sd">            An ndarray of unit tangent vectors, one per path point.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.</span>
+<span class="sd">            ValueError: If two adjacent points coincide, leaving a zero-length tangent.</span>
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

@@ -14,7 +14,7 @@
         <link rel="prev" href="../foundational/transforms.html">
       
       
-        <link rel="next" href="isosurface.html">
+        <link rel="next" href="commands.html">
       
       
       <link rel="icon" href="../_static/favicon.png">
@@ -2696,6 +2696,30 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -5762,7 +5786,7 @@ groups that <code class="docutils literal notranslate"><span class="pre">flatten
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.__init__.control_points"><span class="sig-name descname">control_points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | np.ndarray</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.__init__.control_points" title="Permalink to this definition">¶</a></dt><dd><p>the control points (anything array-like; 2-D or 3-D points)</p>
+<dt id="pybosl2.beziers.Bezier.__init__.control_points"><span class="sig-name descname">control_points</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.__init__.control_points" title="Permalink to this definition">¶</a></dt><dd><p>the control points (anything array-like; 2-D or 3-D points)</p>
 </dd>
 </dl>
 </dd>
@@ -5786,12 +5810,12 @@ groups that <code class="docutils literal notranslate"><span class="pre">flatten
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.from_list-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.from_list-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.from_list.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.from_list.points" title="Permalink to this definition">¶</a></dt><dd><p>A sequence of 2-D or 3-D control points.</p>
+<dt id="pybosl2.beziers.Bezier.from_list.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.from_list.points" title="Permalink to this definition">¶</a></dt><dd><p>A sequence of 2-D or 3-D control points.</p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.Bezier.from_list-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.from_list-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p><a class="reference internal" href="#pybosl2.beziers.Bezier" title="pybosl2.beziers.Bezier (Python class) — Bases: object"><em>Bezier</em></a></p>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.beziers.Bezier" title="pybosl2.beziers.Bezier (Python class) — Bases: object">Bezier</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -5888,7 +5912,7 @@ recursively by first reducing the control polygon via differencing.</p>
 a 1-D vector; for a list of <em>u</em> values the result is a 2-D array.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.derivative-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.derivative-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>order</em> is not a non-negative integer.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>order</em> is not a non-negative integer.</p>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.Bezier.derivative-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.derivative-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
@@ -6171,7 +6195,7 @@ linear blending segments of degree <em>n_degree</em>.</p>
 path’s start and end to the specified axis.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.close_to_axis-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.close_to_axis-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>axis</em> is not <code class="docutils literal notranslate"><span class="pre">&quot;X&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Y&quot;</span></code>, or if the
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>axis</em> is not <code class="docutils literal notranslate"><span class="pre">&quot;X&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;Y&quot;</span></code>, or if the
     patch is not 2-D.</p>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.Bezier.close_to_axis-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.close_to_axis-return-type" title="Permalink to this headline">¶</a></dt>
@@ -6201,7 +6225,7 @@ suitable for extrusion.</p>
 original path with its offset copy.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.path_offset-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.path_offset-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If the bezier is not 2-D.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the bezier is not 2-D.</p>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.Bezier.path_offset-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.path_offset-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><a class="reference internal" href="#pybosl2.beziers.Bezier" title="pybosl2.beziers.Bezier (Python class) — Bases: object"><em>Bezier</em></a></p>
@@ -6542,7 +6566,7 @@ tension; omit both to use the default (relsize=0.1).</p>
 of the input path.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.create_bezier-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.create_bezier-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If both <em>size</em> and <em>relsize</em> are specified, or if any
+<dd class="field-odd"><p><strong>ValueError</strong> – If both <em>size</em> and <em>relsize</em> are specified, or if any
     path segment has zero length.</p>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.create_bezier-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.create_bezier-return-type" title="Permalink to this headline">¶</a></dt>
@@ -6858,7 +6882,7 @@ patch in opposite normal directions and connecting the boundary
 edges.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.BezierPatch.sheet-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.sheet-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If the patch has degenerate normals.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the patch has degenerate normals.</p>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.BezierPatch.sheet-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.sheet-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><em>VNF</em></a></p>
@@ -7037,13 +7061,13 @@ surfaces, control nets, and control-point markers.</p>
         
         
           
-          <a href="isosurface.html" class="md-footer__link md-footer__link--next" aria-label="Next: Isosurface">
+          <a href="commands.html" class="md-footer__link md-footer__link--next" aria-label="Next: Commands">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Isosurface
+                Commands
               </div>
             </div>
             <div class="md-footer__button md-icon">

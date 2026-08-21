@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1996,6 +2020,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 
 <span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
@@ -2022,7 +2047,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">circle</span><span class="p">(</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2081,7 +2106,7 @@
     <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">thickness</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2618,8 +2643,8 @@
 <span class="sd">            s2.reuleaux_polygon(sides=3, radius=15).linear_extrude(height=5).show()</span>
 
 <span class="sd">    """</span>
-    <span class="k">assert</span> <span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">3</span>
-    <span class="k">assert</span> <span class="n">sides</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">sides</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"reuleaux_polygon(): sides must be an odd number of 3 or more, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">ssegs</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">_frag_count</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">/</span> <span class="n">sides</span><span class="p">))</span>
     <span class="n">slen</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="n">_polar_to_xy</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">_polar_to_xy</span><span class="p">(</span><span class="n">rad</span><span class="p">,</span> <span class="mi">180</span> <span class="o">-</span> <span class="mf">180.0</span> <span class="o">/</span> <span class="n">sides</span><span class="p">))</span>

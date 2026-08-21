@@ -67,7 +67,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pybosl2.solid.effective_defaults" class="md-skip">
+        <a href="#pybosl2.solid.DefaultValue-type" class="md-skip">
           Skip to content
         </a>
       
@@ -706,6 +706,16 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.solid.DefaultValue-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Type</span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#pybosl2.solid.effective_defaults" class="md-nav__link">
@@ -2277,6 +2287,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../paths/isosurface.html" class="md-nav__link">
         
   
@@ -3397,6 +3431,16 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.solid.DefaultValue-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Type</span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#pybosl2.solid.effective_defaults" class="md-nav__link">
@@ -4846,6 +4890,19 @@
 
 <h1 id="module-pybosl2.solid"><span id="solid"></span>Solid<a class="headerlink" href="#module-pybosl2.solid" title="Link to this heading">¶</a></h1>
 <p>Statically typed shape constructors and backend-neutral solid facade.</p>
+<dl class="py data objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.solid.DefaultValue">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.solid.</span></span><span class="sig-name descname"><span class="pre">DefaultValue</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">TypeAlias</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">'bool | int | float | str | tuple[float, ...] | Anchor | Point | None'</span></code><a class="headerlink" href="#pybosl2.solid.DefaultValue" title="Link to this definition">¶</a></dt>
+<dd><p>a scalar, a
+size/shift tuple, an anchor, or <code class="docutils literal notranslate"><span class="pre">None</span></code> – which means “decide for me” rather than “no value”
+(PLAN T-9b). Every façade and backend default across the shape surface is one of these.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.solid.DefaultValue-type">Type<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.DefaultValue-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>What an omitted argument resolves to, as reported by <a class="reference internal" href="#pybosl2.solid.effective_defaults" title="pybosl2.solid.effective_defaults (Python function) — Report the value each argument of shape takes when the caller leaves it out."><code class="xref py py-func docutils literal notranslate"><span class="pre">effective_defaults()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.solid.effective_defaults">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.solid.</span></span><span class="sig-name descname"><span class="pre">effective_defaults</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.effective_defaults.shape" title="pybosl2.solid.effective_defaults.shape (Python parameter) — BOSL2 shape name, e.g."><span class="n"><span class="pre">shape</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.effective_defaults.backend" title="pybosl2.solid.effective_defaults.backend (Python parameter) — Backend to report for; the active one by default."><span class="n"><span class="pre">backend</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/solid.html#effective_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.solid.effective_defaults" title="Link to this definition">¶</a></dt>
@@ -4871,7 +4928,7 @@ Parameters with no default (the caller must supply those) and the ambient resolu
 knobs are omitted – the latter come from <a class="reference internal" href="defaults.html#pybosl2.defaults.use_defaults" title="pybosl2.defaults.use_defaults (Python function) — Apply resolution defaults to every shape built inside the block."><code class="xref py py-func docutils literal notranslate"><span class="pre">pybosl2.defaults.use_defaults()</span></code></a>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.solid.effective_defaults-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.effective_defaults-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Each parameter mapped to the value a bare call resolves to</p>
+<dd class="field-odd"><p>Each parameter mapped to the <a class="reference internal" href="#pybosl2.solid.DefaultValue" title="pybosl2.solid.DefaultValue (Python data) — a scalar, a size/shift tuple, an anchor, or None -- which means &quot;decide for me&quot; rather than &quot;no value&quot; (PLAN T-9b). Every façade and backend default across the shape surface is one of these."><code class="xref py py-data docutils literal notranslate"><span class="pre">DefaultValue</span></code></a> a bare call resolves to</p>
 </dd>
 <dt class="field-even" id="pybosl2.solid.effective_defaults-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.effective_defaults-raises" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If the backend has no constructor by that name.</p>

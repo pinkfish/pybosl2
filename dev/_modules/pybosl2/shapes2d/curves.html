@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1990,6 +2014,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 
 <span class="n">Shape2DLike</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s2">"Bosl2Shape2D"</span><span class="p">,</span> <span class="s2">"PyOpenSCAD"</span><span class="p">,</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
@@ -2460,7 +2485,7 @@
 <div class="viewcode-block" id="jittered_poly">
 <a class="viewcode-back" href="../../../foundational/shapes2d/curves.html#pybosl2.shapes2d.curves.jittered_poly">[docs]</a>
 <span class="nd">@backend_only</span><span class="p">(</span><span class="s2">"csg"</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">jittered_poly</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">jittered_poly</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">512</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Add tiny random jitter to a path's points.</span>
 
 <span class="sd">    Used to work around rendering artifacts from exactly-overlapping coplanar faces.</span>

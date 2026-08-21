@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1952,7 +1976,6 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -1963,105 +1986,18 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapType</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">rot_from_to4</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">FRONT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">UP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rot_decode</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">._fluent</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommands</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommand</span> <span class="k">as</span> <span class="n">TurtleCommand</span>  <span class="c1"># re-exported: its home is commands.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommandType</span> <span class="k">as</span> <span class="n">TurtleCommandType</span>
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"turtle3d"</span><span class="p">,</span> <span class="s2">"Turtle3D"</span><span class="p">,</span> <span class="s2">"Turtle3DState"</span><span class="p">,</span> <span class="s2">"TurtleCommand"</span><span class="p">,</span> <span class="s2">"TurtleCommandType"</span><span class="p">]</span>
-
-<span class="c1"># Note: the TurtleCommandType enum has members named RIGHT, UP, etc. — the</span>
-<span class="c1"># constants from pybosl2.constants are used only for math direction vectors.</span>
-<span class="c1"># Use ``TurtleCommandType.RIGHT`` for the command enum, ``RIGHT`` for [1,0,0].</span>
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">TurtleCommandType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Turtle movement command type."""</span>
-
-    <span class="n">MOVE</span> <span class="o">=</span> <span class="s2">"move"</span>
-    <span class="n">UNTILX</span> <span class="o">=</span> <span class="s2">"untilx"</span>
-    <span class="n">UNTILY</span> <span class="o">=</span> <span class="s2">"untily"</span>
-    <span class="n">UNTILZ</span> <span class="o">=</span> <span class="s2">"untilz"</span>
-    <span class="n">XMOVE</span> <span class="o">=</span> <span class="s2">"xmove"</span>
-    <span class="n">YMOVE</span> <span class="o">=</span> <span class="s2">"ymove"</span>
-    <span class="n">ZMOVE</span> <span class="o">=</span> <span class="s2">"zmove"</span>
-    <span class="n">XYZMOVE</span> <span class="o">=</span> <span class="s2">"xyzmove"</span>
-    <span class="n">JUMP</span> <span class="o">=</span> <span class="s2">"jump"</span>
-    <span class="n">XJUMP</span> <span class="o">=</span> <span class="s2">"xjump"</span>
-    <span class="n">YJUMP</span> <span class="o">=</span> <span class="s2">"yjump"</span>
-    <span class="n">ZJUMP</span> <span class="o">=</span> <span class="s2">"zjump"</span>
-    <span class="n">ANGLE</span> <span class="o">=</span> <span class="s2">"angle"</span>
-    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">"length"</span>
-    <span class="n">SCALE</span> <span class="o">=</span> <span class="s2">"scale"</span>
-    <span class="n">ADDLENGTH</span> <span class="o">=</span> <span class="s2">"addlength"</span>
-    <span class="n">ARCSTEPS</span> <span class="o">=</span> <span class="s2">"arcsteps"</span>
-    <span class="n">ROLL</span> <span class="o">=</span> <span class="s2">"roll"</span>
-    <span class="n">RIGHT</span> <span class="o">=</span> <span class="s2">"right"</span>
-    <span class="n">LEFT</span> <span class="o">=</span> <span class="s2">"left"</span>
-    <span class="n">UP</span> <span class="o">=</span> <span class="s2">"up"</span>
-    <span class="n">DOWN</span> <span class="o">=</span> <span class="s2">"down"</span>
-    <span class="n">XROT</span> <span class="o">=</span> <span class="s2">"xrot"</span>
-    <span class="n">YROT</span> <span class="o">=</span> <span class="s2">"yrot"</span>
-    <span class="n">ZROT</span> <span class="o">=</span> <span class="s2">"zrot"</span>
-    <span class="n">ROT</span> <span class="o">=</span> <span class="s2">"rot"</span>
-    <span class="n">SETDIR</span> <span class="o">=</span> <span class="s2">"setdir"</span>
-    <span class="n">ARCLEFT</span> <span class="o">=</span> <span class="s2">"arcleft"</span>
-    <span class="n">ARCRIGHT</span> <span class="o">=</span> <span class="s2">"arcright"</span>
-    <span class="n">ARCLEFTTO</span> <span class="o">=</span> <span class="s2">"arcleftto"</span>
-    <span class="n">ARCRIGHTTO</span> <span class="o">=</span> <span class="s2">"arcrightto"</span>
-    <span class="n">ARCUP</span> <span class="o">=</span> <span class="s2">"arcup"</span>
-    <span class="n">ARCDOWN</span> <span class="o">=</span> <span class="s2">"arcdown"</span>
-    <span class="n">ARCXROT</span> <span class="o">=</span> <span class="s2">"arcxrot"</span>
-    <span class="n">ARCYROT</span> <span class="o">=</span> <span class="s2">"arcyrot"</span>
-    <span class="n">ARCZROT</span> <span class="o">=</span> <span class="s2">"arczrot"</span>
-    <span class="n">ARCTODIR</span> <span class="o">=</span> <span class="s2">"arctodir"</span>
-    <span class="n">ARCROT</span> <span class="o">=</span> <span class="s2">"arcrot"</span>
-    <span class="n">REPEAT</span> <span class="o">=</span> <span class="s2">"repeat"</span>
-    <span class="n">ARC</span> <span class="o">=</span> <span class="s2">"arc"</span>
-
-
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TurtleCommand</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""A single turtle command with its typed parameters.</span>
-
-<span class="sd">    Compound ARC commands use ``angle`` to encode the rotation amount and</span>
-<span class="sd">    ``rotation_type`` to indicate the axis.  Use :attr:`RotationType` members</span>
-<span class="sd">    (e.g. ``TurtleCommand.RotationType.LEFT``).</span>
-<span class="sd">    """</span>
-
-    <span class="k">class</span><span class="w"> </span><span class="nc">RotationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""The rotation axis/direction for a compound ARC command."""</span>
-
-        <span class="n">NONE</span> <span class="o">=</span> <span class="s2">""</span>
-        <span class="n">LEFT</span> <span class="o">=</span> <span class="s2">"left"</span>
-        <span class="n">RIGHT</span> <span class="o">=</span> <span class="s2">"right"</span>
-        <span class="n">UP</span> <span class="o">=</span> <span class="s2">"up"</span>
-        <span class="n">DOWN</span> <span class="o">=</span> <span class="s2">"down"</span>
-        <span class="n">XROT</span> <span class="o">=</span> <span class="s2">"xrot"</span>
-        <span class="n">YROT</span> <span class="o">=</span> <span class="s2">"yrot"</span>
-        <span class="n">ZROT</span> <span class="o">=</span> <span class="s2">"zrot"</span>
-        <span class="n">ROT</span> <span class="o">=</span> <span class="s2">"rot"</span>
-        <span class="n">TODIR</span> <span class="o">=</span> <span class="s2">"todir"</span>
-
-    <span class="n">cmd_type</span><span class="p">:</span> <span class="n">TurtleCommandType</span>
-    <span class="n">size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">grow</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">shrink</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">roll</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">rollto</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">rrollto</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">lrollto</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">is_compound</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">sub_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">TurtleCommand</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">rotation_type</span><span class="p">:</span> <span class="s2">"RotationType"</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">RotationType</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span>
 
 
 <span class="c1"># -- Turtle3DState ---------------------------------------------------------</span>
@@ -2092,7 +2028,7 @@
 
 <div class="viewcode-block" id="Turtle3D">
 <a class="viewcode-back" href="../../../paths/turtle3d.html#pybosl2.turtle.turtle3d.Turtle3D">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Turtle3D</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Turtle3D</span><span class="p">(</span><span class="n">TurtleCommands</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms.</span>
 
 <span class="sd">    The turtle starts at the origin pointing in *state* (default ``RIGHT`` = +X), with "up" along +Z.</span>
@@ -2593,6 +2529,8 @@
             <span class="k">return</span> <span class="n">default</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">Point</span><span class="p">):</span>
+            <span class="n">sz</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>  <span class="c1"># a plain [x, y] / [x, y, z] reads the same as a Point</span>
         <span class="k">return</span> <span class="n">sz</span><span class="o">.</span><span class="n">x</span>
 
     <span class="nd">@staticmethod</span>
@@ -2602,6 +2540,8 @@
             <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
             <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">sz</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">Point</span><span class="p">):</span>
+            <span class="n">sz</span> <span class="o">=</span> <span class="n">Point</span><span class="o">.</span><span class="n">from_seq</span><span class="p">(</span><span class="n">sz</span><span class="p">)</span>  <span class="c1"># a plain [x, y] / [x, y, z] reads the same as a Point</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">sz</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">sz</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">sz</span><span class="o">.</span><span class="n">z</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2707,7 +2647,8 @@
             <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCUP</span><span class="p">,</span>
             <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCDOWN</span><span class="p">,</span>
         <span class="p">):</span>
-            <span class="k">assert</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">radius</span> <span class="o">=</span> <span class="n">step</span> <span class="o">*</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span>
             <span class="n">myangle</span> <span class="o">=</span> <span class="n">ang</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ang</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="n">angle</span>
             <span class="n">center</span> <span class="o">=</span> <span class="p">[</span>
@@ -2721,7 +2662,8 @@
             <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tupdate</span><span class="p">(</span><span class="n">tran</span><span class="p">,</span> <span class="p">[</span><span class="n">last_pre</span><span class="p">]</span> <span class="o">*</span> <span class="n">steps</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">ct</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCXROT</span><span class="p">,</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCYROT</span><span class="p">,</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCZROT</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">radius</span> <span class="o">=</span> <span class="n">step</span> <span class="o">*</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span>
             <span class="n">myangle</span> <span class="o">=</span> <span class="n">ang</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ang</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="n">angle</span>
             <span class="n">length</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">myangle</span><span class="p">)</span> <span class="o">/</span> <span class="mi">360</span>
@@ -2744,7 +2686,8 @@
             <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tupdate</span><span class="p">(</span><span class="n">tran</span><span class="p">,</span> <span class="p">[</span><span class="n">last_pre</span><span class="p">]</span> <span class="o">*</span> <span class="n">steps</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">ct</span> <span class="ow">in</span> <span class="p">(</span><span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCTODIR</span><span class="p">,</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCROT</span><span class="p">):</span>
-            <span class="k">assert</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">rot_part</span><span class="p">,</span> <span class="n">shift</span> <span class="o">=</span> <span class="n">Turtle3D</span><span class="o">.</span><span class="n">_rotpart</span><span class="p">(</span><span class="n">last_xform</span><span class="p">),</span> <span class="n">Turtle3D</span><span class="o">.</span><span class="n">_transpart</span><span class="p">(</span><span class="n">last_xform</span><span class="p">)</span>
             <span class="n">v_dir</span> <span class="o">=</span> <span class="n">Turtle3D</span><span class="o">.</span><span class="n">_apply</span><span class="p">(</span><span class="n">rot_part</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
             <span class="n">rd</span> <span class="o">=</span> <span class="n">rot_decode</span><span class="p">(</span><span class="n">rot_from_to4</span><span class="p">(</span><span class="n">v_dir</span><span class="p">,</span> <span class="n">ang</span><span class="p">)</span> <span class="k">if</span> <span class="n">ct</span> <span class="o">==</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCTODIR</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ang</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>

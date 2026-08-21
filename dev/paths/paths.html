@@ -806,6 +806,30 @@
   
   
     <li class="md-nav__item">
+      <a href="commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="isosurface.html" class="md-nav__link">
         
   
@@ -2211,6 +2235,16 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybosl2.paths.PathLike-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Type</span>
+    </span>
+  </a>
   
 </li>
       
@@ -7959,6 +7993,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pybosl2.paths.PathLike-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Type</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pybosl2.paths.SubdivideMethod" class="md-nav__link">
     
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
@@ -11571,7 +11615,7 @@ points are unevenly spaced far better.</p>
 <dd class="field-even"><p>An ndarray of unit tangent vectors, one per path point.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.paths.Path.tangent_array-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.paths.Path.tangent_array-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If two adjacent points coincide, leaving a zero-length tangent.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If two adjacent points coincide, leaving a zero-length tangent.</p>
 </dd>
 <dt class="field-even" id="pybosl2.paths.Path.tangent_array-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.paths.Path.tangent_array-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>NDArray[np.float64]</p>
@@ -12037,6 +12081,20 @@ non-collinear point is found.</p>
 
 </dd></dl>
 
+<dl class="py data objdesc">
+<dt class="sig sig-object highlight sig-wrap py" id="pybosl2.paths.PathLike">
+<span class="sig-prename descclassname"><span class="pre">pybosl2.paths.</span></span><span class="sig-name descname"><span class="pre">PathLike</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">TypeAlias</span></span><span class="p"> <span class="pre">=</span> </span><code class="code python docutils literal highlight highlight-python"><span class="s1">'Path | Sequence[Sequence[float]] | NDArray[np.float64]'</span></code><a class="headerlink" href="#pybosl2.paths.PathLike" title="Link to this definition">¶</a></dt>
+<dd><p>a <a class="reference internal" href="#pybosl2.paths.Path" title="pybosl2.paths.Path (Python class) — Bases: ABC"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> (what the library hands back and
+what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array.
+Normalise it on the first line – <code class="docutils literal notranslate"><span class="pre">np.asarray(x,</span> <span class="pre">dtype=float)</span></code> or <code class="docutils literal notranslate"><span class="pre">Path2D(x)</span></code> – so the rest
+of the body works on one shape (PLAN T-4).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.paths.PathLike-type">Type<span class="colon">:</span><a class="headerlink" href="#pybosl2.paths.PathLike-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>Anything an API that wants a polyline accepts</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.paths.SubdivideMethod">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.paths.</span></span><span class="sig-name descname"><span class="pre">SubdivideMethod</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.paths.SubdivideMethod" title="pybosl2.paths.SubdivideMethod.__init__.values (Python parameter)"><span class="n"><span class="pre">values</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/paths.html#SubdivideMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.paths.SubdivideMethod" title="Link to this definition">¶</a></dt>
@@ -12075,7 +12133,7 @@ reused as the base for several derived outlines.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.path2d.Path2D.__init__.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | NDArray[np.float64]</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.__init__.points" title="Permalink to this definition">¶</a></dt><dd><p>the [x, y] points (anything array-like; numpy scalars are converted to float)</p>
+<dt id="pybosl2.path2d.Path2D.__init__.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.__init__.points" title="Permalink to this definition">¶</a></dt><dd><p>the [x, y] points (anything array-like; numpy scalars are converted to float)</p>
 </dd>
 <dt id="pybosl2.path2d.Path2D.__init__.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.path2d.Path2D.__init__.closed" title="Permalink to this definition">¶</a></dt><dd><p>whether the path is a closed polygon – default False, an open polyline, matching
 BOSL2, where a path is open unless a function is told otherwise. Pass
@@ -12252,7 +12310,7 @@ much more closely.</p>
 <dd class="field-even"><p>A list of unit tangent vectors, one per path point.</p>
 </dd>
 <dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If two adjacent points coincide, leaving a zero-length tangent.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If two adjacent points coincide, leaving a zero-length tangent.</p>
 </dd>
 <dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>list[<a class="reference internal" href="../math/points.html#pybosl2.points.Point" title="pybosl2.points.Point (Python class) — Bases: Sequence[float]"><em>Point</em></a>]</p>
@@ -12724,7 +12782,7 @@ the raw corner construction – do not use it for outlines you intend to keep.</
 <dd class="field-even"><p>A new offset <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>.</p>
 </dd>
 <dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If not exactly one of <em>radius</em>/<em>delta</em> is given, if the path is open,
+<dd class="field-odd"><p><strong>ValueError</strong> – If not exactly one of <em>radius</em>/<em>delta</em> is given, if the path is open,
     if <em>same_length</em> is combined with rounded or chamfered joins, or if the offset
     collapsed the outline entirely (shrinking a shape by more than its own
     half-width leaves nothing).</p>
@@ -13975,7 +14033,7 @@ tangents, <code class="xref py py-meth docutils literal notranslate"><span class
 <dl class="field-list simple">
 <dt class="field-odd" id="parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.path3d.Path3D.__init__.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | NDArray[np.float64]</span></span><a class="headerlink" href="#pybosl2.path3d.Path3D.__init__.points" title="Permalink to this definition">¶</a></dt><dd><p>the <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> points (anything array-like; numpy scalars are converted to float)</p>
+<dt id="pybosl2.path3d.Path3D.__init__.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike</span></span><a class="headerlink" href="#pybosl2.path3d.Path3D.__init__.points" title="Permalink to this definition">¶</a></dt><dd><p>the <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> points (anything array-like; numpy scalars are converted to float)</p>
 </dd>
 <dt id="pybosl2.path3d.Path3D.__init__.closed"><span class="sig-name descname">closed</span><span class="p"> : </span><span class="desctype"><span class="desctype">bool</span></span><a class="headerlink" href="#pybosl2.path3d.Path3D.__init__.closed" title="Permalink to this definition">¶</a></dt><dd><p>whether the path is a closed loop – default False, an open polyline, matching
 BOSL2, where a path is open unless a function is told otherwise. Pass
@@ -14204,7 +14262,7 @@ much more closely.</p>
 <dd class="field-even"><p>A list of unit tangent vectors, one per path point.</p>
 </dd>
 <dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If two adjacent points coincide, leaving a zero-length tangent.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If two adjacent points coincide, leaving a zero-length tangent.</p>
 </dd>
 <dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p>list[<a class="reference internal" href="../math/points.html#pybosl2.points.Point" title="pybosl2.points.Point (Python class) — Bases: Sequence[float]"><em>Point</em></a>]</p>
@@ -14293,7 +14351,7 @@ principal normal estimated via the triple-product cross.</p>
 <dd class="field-even"><p>A list of <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> subpaths.</p>
 </dd>
 <dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If the first cut distance is not positive or the last cut
+<dd class="field-odd"><p><strong>ValueError</strong> – If the first cut distance is not positive or the last cut
     distance exceeds the path length.</p>
 </dd>
 <dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
@@ -14506,7 +14564,7 @@ perpendicular vector in the XY plane is used instead.</p>
 <dd class="field-even"><p>A new <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> with the subdivided points.</p>
 </dd>
 <dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If more than one of <em>points</em>, <em>points_per_segment</em>, and <em>maxlen</em>
+<dd class="field-odd"><p><strong>ValueError</strong> – If more than one of <em>points</em>, <em>points_per_segment</em>, and <em>maxlen</em>
     is given, or if <em>points_per_segment</em> is given without <code class="docutils literal notranslate"><span class="pre">SEGMENT</span></code> method.</p>
 </dd>
 <dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
@@ -14543,7 +14601,7 @@ perpendicular vector in the XY plane is used instead.</p>
 <dd class="field-even"><p>A new <code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code> with the uniformly resampled points.</p>
 </dd>
 <dt class="field-odd" id="raises">Raises<span class="colon">:</span><a class="headerlink" href="#raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If both or neither of <em>num_copies</em> and <em>spacing</em> are given.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If both or neither of <em>num_copies</em> and <em>spacing</em> are given.</p>
 </dd>
 <dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><em>Path3D</em></p>

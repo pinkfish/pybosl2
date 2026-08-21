@@ -19,14 +19,31 @@ Helix
 2-D Turtle
 ----------
 
-The 2-D turtle is a standalone function that returns a :class:`~pybosl2.path2d.Path2D`:
+Drive the turtle with methods -- one per command, each returning the turtle so calls chain --
+and take the path when you are done:
+
+.. pythonscad-example::
+
+    from pybosl2.turtle import Turtle2D
+
+    path = Turtle2D().set_length(40).set_arc_steps(24)
+    for _ in range(4):
+        path.move().arc_left(radius=8)
+    path.points().stroke(width=3, closed=True).linear_extrude(height=4).show()
+
+The command objects still work, and are what the methods build underneath; hand a list of them to
+:func:`~pybosl2.turtle.turtle2d` when you are generating a program rather than writing one.
+
+.. autoclass:: pybosl2.turtle.TurtleCommands
+   :members:
 
 .. autofunction:: pybosl2.turtle.turtle2d
 
 3-D Turtle
 ----------
 
-The 3-D turtle is documented in :doc:`/paths/turtle3d`.
+The 3-D turtle takes the same commands and the same methods; it is documented in
+:doc:`/paths/turtle3d`.
 
 Stroke & dashed stroke
 -----------------------
@@ -60,7 +77,8 @@ Coverage of BOSL2 ``drawing.scad``
        included).
    * - ``turtle``
      - ported
-     - :func:`~pybosl2.turtle.turtle2d` — the full command set, including ``repeat`` and the
+     - :class:`~pybosl2.turtle.Turtle2D` (methods) or :func:`~pybosl2.turtle.turtle2d` (command
+       objects) — the full command set, including ``repeat`` and the
        ``arcleft``/``arcright``/``arcleftto``/``arcrightto`` arcs.
    * - ``stroke``
      - ported

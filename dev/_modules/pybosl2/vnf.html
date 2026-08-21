@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1970,8 +1994,9 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapsSpec</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">_MetaballSpec</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaballSpec</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 <span class="n">_EPS</span> <span class="o">=</span> <span class="mf">1e-9</span>
@@ -2761,7 +2786,7 @@
 <span class="sd">            A new :class:`VNF` containing only the requested halfspace.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If *plane* does not have exactly 4 elements.</span>
+<span class="sd">            ValueError: If *plane* does not have exactly 4 elements.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>
@@ -2955,9 +2980,11 @@
         <span class="n">make_cap1</span><span class="p">,</span> <span class="n">cap1_round</span> <span class="o">=</span> <span class="n">_resolve_cap</span><span class="p">(</span><span class="n">cap1</span><span class="p">)</span>
         <span class="n">make_cap2</span><span class="p">,</span> <span class="n">cap2_round</span> <span class="o">=</span> <span class="n">_resolve_cap</span><span class="p">(</span><span class="n">cap2</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">make_cap1</span> <span class="ow">or</span> <span class="n">make_cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">col_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"col_wrap must be true if caps are requested"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column."</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">make_cap1</span> <span class="ow">or</span> <span class="n">make_cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"cannot combine caps with row_wrap"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"vertex_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."</span>
+            <span class="p">)</span>
 
         <span class="n">parr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># flattened, row-major</span>
         <span class="n">pcnt</span> <span class="o">=</span> <span class="n">rows</span> <span class="o">*</span> <span class="n">cols</span>
@@ -3139,7 +3166,9 @@
 <span class="sd">        meshes triangular / irregular point arrays (what the degenerate bezier patches produce).</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">caps</span> <span class="ow">or</span> <span class="n">cap1</span> <span class="ow">or</span> <span class="n">cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">"cannot combine caps with row_wrap"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."</span>
+            <span class="p">)</span>
         <span class="n">plen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
         <span class="n">st</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
@@ -3370,7 +3399,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_metaballs</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">spec</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_MetaballSpec</span><span class="p">],</span>
+        <span class="n">spec</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetaballSpec</span><span class="p">],</span>
         <span class="n">bounding_box</span><span class="p">:</span> <span class="n">Bounds3D</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
         <span class="n">voxel_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">voxel_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3381,8 +3410,8 @@
 <span class="w">        </span><span class="sd">"""Mesh transformed metaball primitives into a blobby :class:`VNF`.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            spec: A list of :class:`_MetaballSpec` entries,</span>
-<span class="sd">                each holding a transform (4×4 matrix or Point position) and a :class:`_Metaball`.</span>
+<span class="sd">            spec: A list of :class:`MetaballSpec` entries,</span>
+<span class="sd">                each holding a transform (4×4 matrix or Point position) and a :class:`Metaball`.</span>
 <span class="sd">            bounding_box: A :class:`~pybosl2.bounds.Bounds3D`.</span>
 <span class="sd">            voxel_size: Isotropic voxel size.</span>
 <span class="sd">            voxel_count: Approximate total voxel count.</span>
@@ -3440,14 +3469,14 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"bounding_box must be Bounds3D, float, or list/tuple."</span><span class="p">)</span>
 
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">_MetaballSpec</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaballSpec</span>
 
-        <span class="n">norm_spec</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_MetaballSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">norm_spec</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetaballSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">spec</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">_MetaballSpec</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">MetaballSpec</span><span class="p">):</span>
                 <span class="n">norm_spec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">norm_spec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_MetaballSpec</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">norm_spec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MetaballSpec</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
         <span class="n">bb</span><span class="p">,</span> <span class="n">vs</span> <span class="o">=</span> <span class="n">_resolve_grid</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">,</span> <span class="n">voxel_count</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="p">)</span>
         <span class="n">invs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">transform</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">norm_spec</span><span class="p">]</span>
@@ -3468,7 +3497,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_skin</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
+        <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PathLike</span><span class="p">],</span>
         <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SkinMethod</span> <span class="o">=</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">,</span>

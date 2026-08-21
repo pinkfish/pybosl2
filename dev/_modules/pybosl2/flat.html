@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1955,6 +1979,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -2004,7 +2029,7 @@
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">corner</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2210,7 +2235,7 @@
 <div class="viewcode-block" id="polygon">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.polygon">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">polygon</span><span class="p">(</span>
-    <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>

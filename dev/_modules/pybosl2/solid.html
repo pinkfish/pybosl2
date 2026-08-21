@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1973,10 +1997,17 @@
 <span class="c1">#: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).</span>
 <span class="n">_AMBIENT</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"fn"</span><span class="p">,</span> <span class="s2">"fa"</span><span class="p">,</span> <span class="s2">"fs"</span><span class="p">,</span> <span class="s2">"res"</span><span class="p">})</span>
 
+<span class="c1">#: What an omitted argument resolves to, as reported by :func:`effective_defaults`: a scalar, a</span>
+<span class="c1">#: size/shift tuple, an anchor, or ``None`` -- which means "decide for me" rather than "no value"</span>
+<span class="c1">#: (PLAN T-9b). Every façade and backend default across the shape surface is one of these.</span>
+<span class="n">DefaultValue</span><span class="p">:</span> <span class="s2">"TypeAlias"</span> <span class="o">=</span> <span class="s2">"bool | int | float | str | tuple[float, ...] | Anchor | Point | None"</span>
+
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EdgeAtom</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>  <span class="c1"># noqa: F401  # used by the DefaultValue alias (a string, so ruff cannot see it)</span>
 
 <span class="n">_SHARED_3D</span> <span class="o">=</span> <span class="p">(</span>
     <span class="s2">"cube"</span><span class="p">,</span>
@@ -2001,6 +2032,7 @@
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"DefaultValue"</span><span class="p">,</span>
     <span class="s2">"effective_defaults"</span><span class="p">,</span>
     <span class="s2">"cube"</span><span class="p">,</span>
     <span class="s2">"cuboid"</span><span class="p">,</span>
@@ -3674,7 +3706,7 @@
 
 <div class="viewcode-block" id="effective_defaults">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.effective_defaults">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">effective_defaults</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">effective_defaults</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DefaultValue</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Report the value each argument of *shape* takes when the caller leaves it out.</span>
 
 <span class="sd">    The facade constructors default every argument to ``None`` and forward only what was actually</span>
@@ -3688,7 +3720,7 @@
 <span class="sd">        backend: Backend to report for; the active one by default.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Each parameter mapped to the value a bare call resolves to: the façade's own default for</span>
+<span class="sd">        Each parameter mapped to the :data:`DefaultValue` a bare call resolves to: the façade's own default for</span>
 <span class="sd">        everything both backends understand, plus the backend's own for its exclusive options.</span>
 <span class="sd">        Parameters with no default (the caller must supply those) and the ambient resolution</span>
 <span class="sd">        knobs are omitted -- the latter come from :func:`pybosl2.defaults.use_defaults`.</span>
@@ -3703,7 +3735,7 @@
 
 <span class="sd">    """</span>
     <span class="n">facade</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
-    <span class="n">owned</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">owned</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DefaultValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isfunction</span><span class="p">(</span><span class="n">facade</span><span class="p">):</span>
         <span class="c1"># the façade owns the default for everything both backends understand (SPEC B-3)</span>
         <span class="n">owned</span> <span class="o">=</span> <span class="p">{</span>
@@ -3713,7 +3745,7 @@
         <span class="p">}</span>
     <span class="n">constructor</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">)</span><span class="o">.</span><span class="n">constructor</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
     <span class="n">parameters</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">constructor</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
-    <span class="n">backend_own</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">backend_own</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DefaultValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">parameter</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_AMBIENT</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">owned</span>

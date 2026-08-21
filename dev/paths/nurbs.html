@@ -806,6 +806,30 @@
   
   
     <li class="md-nav__item">
+      <a href="commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="isosurface.html" class="md-nav__link">
         
   
@@ -3666,7 +3690,7 @@ the same points as this one.</p>
 <dd class="field-even"><p>A new <a class="reference internal" href="#pybosl2.nurbs.NurbsCurve" title="pybosl2.nurbs.NurbsCurve (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">NurbsCurve</span></code></a> of degree <code class="docutils literal notranslate"><span class="pre">self.degree</span> <span class="pre">+</span> <span class="pre">times</span></code>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.nurbs.NurbsCurve.elevate_degree-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.nurbs.NurbsCurve.elevate_degree-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If the curve is <a class="reference internal" href="#pybosl2.nurbs.NurbsType.CLOSED" title="pybosl2.nurbs.NurbsType.CLOSED (Python attribute) — Closed (periodic) — start and end connect."><code class="xref py py-attr docutils literal notranslate"><span class="pre">NurbsType.CLOSED</span></code></a>, or <em>times</em> is negative.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the curve is <a class="reference internal" href="#pybosl2.nurbs.NurbsType.CLOSED" title="pybosl2.nurbs.NurbsType.CLOSED (Python attribute) — Closed (periodic) — start and end connect."><code class="xref py py-attr docutils literal notranslate"><span class="pre">NurbsType.CLOSED</span></code></a>, or <em>times</em> is negative.</p>
 </dd>
 <dt class="field-even" id="pybosl2.nurbs.NurbsCurve.elevate_degree-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.nurbs.NurbsCurve.elevate_degree-return-type" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><p><a class="reference internal" href="#pybosl2.nurbs.NurbsCurve" title="pybosl2.nurbs.NurbsCurve (Python class) — Bases: object"><em>NurbsCurve</em></a></p>
@@ -3861,7 +3885,7 @@ iteration and <code class="docutils literal notranslate"><span class="pre">len()
 <dd class="field-even"><p>A <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF" title="pybosl2.vnf.VNF (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">VNF</span></code></a>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.nurbs.NurbsPatch.vnf-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.nurbs.NurbsPatch.vnf-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><strong>AssertionError</strong> – If <em>caps</em> are requested on a patch that isn’t paired
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>caps</em> are requested on a patch that isn’t paired
     <code class="docutils literal notranslate"><span class="pre">CLAMPED</span></code>/<code class="docutils literal notranslate"><span class="pre">CLOSED</span></code> (or the reverse).</p>
 </dd>
 <dt class="field-even" id="pybosl2.nurbs.NurbsPatch.vnf-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.nurbs.NurbsPatch.vnf-return-type" title="Permalink to this headline">¶</a></dt>

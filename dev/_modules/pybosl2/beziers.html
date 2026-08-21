@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1982,7 +2006,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -2035,7 +2059,7 @@
 
     <span class="n">_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">control_points</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">=</span> <span class="p">())</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize a Bezier with a sequence of 2-D or 3-D control points.</span>
 
 <span class="sd">        Accepts any array-like: Python lists, numpy arrays, or nested sequences.</span>
@@ -2084,7 +2108,7 @@
 <div class="viewcode-block" id="Bezier.from_list">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.from_list">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_list</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bezier</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Create a Bezier from a plain list of control points.</span>
 
 <span class="sd">        Args:</span>
@@ -2181,11 +2205,11 @@
 <span class="sd">            a 1-D vector; for a list of *u* values the result is a 2-D array.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If *order* is not a non-negative integer.</span>
+<span class="sd">            ValueError: If *order* is not a non-negative integer.</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">order</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">order</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"derivative(): order must be a non-negative integer, got </span><span class="si">{</span><span class="n">order</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
@@ -2537,7 +2561,7 @@
 <span class="sd">            path's start and end to the specified axis.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If *axis* is not ``"X"`` or ``"Y"``, or if the</span>
+<span class="sd">            ValueError: If *axis* is not ``"X"`` or ``"Y"``, or if the</span>
 <span class="sd">                patch is not 2-D.</span>
 
 <span class="sd">        """</span>
@@ -2551,7 +2575,7 @@
         <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">"Y"</span><span class="p">:</span>
             <span class="n">foot_s</span><span class="p">,</span> <span class="n">foot_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">ep</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">'axis must be "X" or "Y"'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'close_to_axis(): axis must be "X" or "Y", got </span><span class="si">{</span><span class="n">axis</span><span class="si">!r}</span><span class="s1">.'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -2582,7 +2606,7 @@
 <span class="sd">            original path with its offset copy.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the bezier is not 2-D.</span>
+<span class="sd">            ValueError: If the bezier is not 2-D.</span>
 
 <span class="sd">        """</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
@@ -3043,7 +3067,7 @@
 <span class="sd">        of the input path.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        AssertionError: If both *size* and *relsize* are specified, or if any</span>
+<span class="sd">        ValueError: If both *size* and *relsize* are specified, or if any</span>
 <span class="sd">            path segment has zero length.</span>
 
 <span class="sd">    """</span>
@@ -3463,7 +3487,8 @@
 <span class="sd">            patch.vnf(splinesteps=16).polyhedron().show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">assert</span> <span class="n">n_degree</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">n_degree</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BezierPatch.flat(): n_degree must be positive, got </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
         <span class="n">patch</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[[</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">n_degree</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">y</span> <span class="o">/</span> <span class="n">n_degree</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
@@ -3498,7 +3523,7 @@
 <span class="sd">            edges.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the patch has degenerate normals.</span>
+<span class="sd">            ValueError: If the patch has degenerate normals.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">        .. pythonscad-example::</span>

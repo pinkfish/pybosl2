@@ -806,6 +806,30 @@
   
   
     <li class="md-nav__item">
+      <a href="commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="isosurface.html" class="md-nav__link">
         
   
@@ -3984,7 +4008,7 @@ lists; the interpolation is vertex-by-vertex.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.skin.slice_profiles-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.skin.slice_profiles-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.skin.slice_profiles.profiles"><span class="sig-name descname">profiles</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[Sequence[float]]]</span></span><a class="headerlink" href="#pybosl2.skin.slice_profiles.profiles" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.skin.slice_profiles.profiles"><span class="sig-name descname">profiles</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[PathLike]</span></span><a class="headerlink" href="#pybosl2.skin.slice_profiles.profiles" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.skin.slice_profiles.slices"><span class="sig-name descname">slices</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.skin.slice_profiles.slices" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -4007,7 +4031,7 @@ the profile lengths. Returns the stacked list of (equal-length) profiles.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.skin.subdivide_and_slice-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.skin.subdivide_and_slice-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.skin.subdivide_and_slice.profiles"><span class="sig-name descname">profiles</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[Sequence[float]]]</span></span><a class="headerlink" href="#pybosl2.skin.subdivide_and_slice.profiles" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.skin.subdivide_and_slice.profiles"><span class="sig-name descname">profiles</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[PathLike]</span></span><a class="headerlink" href="#pybosl2.skin.subdivide_and_slice.profiles" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.skin.subdivide_and_slice.slices"><span class="sig-name descname">slices</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.skin.subdivide_and_slice.slices" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -4205,7 +4229,7 @@ relative to the vertical wall, allowing support-free printing.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.skin.os_profile-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.skin.os_profile-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.skin.os_profile.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]]</span></span><a class="headerlink" href="#pybosl2.skin.os_profile.profile" title="Permalink to this definition">¶</a></dt><dd><p>Sequence of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points. The first must be <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>.</p>
+<dt id="pybosl2.skin.os_profile.profile"><span class="sig-name descname">profile</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike</span></span><a class="headerlink" href="#pybosl2.skin.os_profile.profile" title="Permalink to this definition">¶</a></dt><dd><p>Sequence of <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y]</span></code> points. The first must be <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>.</p>
 </dd>
 <dt id="pybosl2.skin.os_profile.extra"><span class="sig-name descname">extra</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.skin.os_profile.extra" title="Permalink to this definition">¶</a></dt><dd><p>Extra extension (default 0).</p>
 </dd>
@@ -4215,7 +4239,7 @@ relative to the vertical wall, allowing support-free printing.</p>
 <dd class="field-even"><p>A descriptor <code class="docutils literal notranslate"><span class="pre">OSProfile</span></code> consumed by <code class="xref py py-func docutils literal notranslate"><span class="pre">offset_sweep()</span></code>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.skin.os_profile-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.skin.os_profile-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><em>OSProfile</em></p>
+<dd class="field-odd"><p>OSProfile</p>
 </dd>
 </dl>
 </dd></dl>

@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -2874,7 +2898,7 @@
 <span class="sd">            A new :class:`NurbsCurve` of degree ``self.degree + times``.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.</span>
+<span class="sd">            ValueError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.</span>
 
 <span class="sd">        """</span>
         <span class="n">control</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">knots</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">_elevate_curve</span><span class="p">(</span>
@@ -3137,7 +3161,7 @@
 <span class="sd">            A :class:`~pybosl2.vnf.VNF`.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If *caps* are requested on a patch that isn't paired</span>
+<span class="sd">            ValueError: If *caps* are requested on a patch that isn't paired</span>
 <span class="sd">                            ``CLAMPED``/``CLOSED`` (or the reverse).</span>
 
 <span class="sd">        Examples:</span>

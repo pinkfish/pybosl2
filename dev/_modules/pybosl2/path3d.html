@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1956,6 +1980,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 
@@ -2017,7 +2042,7 @@
 
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the instance."""</span>
         <span class="n">pts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2145,12 +2170,6 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">__array__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return a numpy array representation."""</span>
-        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -2314,7 +2333,7 @@
 <span class="sd">            A list of unit tangent vectors, one per path point.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.</span>
+<span class="sd">            ValueError: If two adjacent points coincide, leaving a zero-length tangent.</span>
 
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span>
@@ -2429,7 +2448,7 @@
 <span class="sd">            A list of :class:`Path3D` subpaths.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the first cut distance is not positive or the last cut</span>
+<span class="sd">            ValueError: If the first cut distance is not positive or the last cut</span>
 <span class="sd">                distance exceeds the path length.</span>
 
 <span class="sd">        Examples:</span>
@@ -2643,7 +2662,7 @@
 <span class="sd">            A new :class:`Path3D` with the subdivided points.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If more than one of *points*, *points_per_segment*, and *maxlen*</span>
+<span class="sd">            ValueError: If more than one of *points*, *points_per_segment*, and *maxlen*</span>
 <span class="sd">                is given, or if *points_per_segment* is given without ``SEGMENT`` method.</span>
 
 <span class="sd">        Examples:</span>
@@ -2731,7 +2750,7 @@
 <span class="sd">            A new :class:`Path3D` with the uniformly resampled points.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If both or neither of *num_copies* and *spacing* are given.</span>
+<span class="sd">            ValueError: If both or neither of *num_copies* and *spacing* are given.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            Resampling a helix to 120 evenly spaced points:</span>
@@ -3579,15 +3598,21 @@
 <span class="sd">        A list of :class:`CutPoint` or :class:`` entries, one per cut distance.</span>
 
 <span class="sd">    """</span>
-    <span class="n">long_enough</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="n">long_enough</span><span class="p">,</span> <span class="p">(</span>
-        <span class="s2">"Two points needed to define a path"</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">"Closed path must include three points"</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="mi">3</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cut_points(): a closed path needs three points, an open one two; got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutdist</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">_path_cut_points</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="p">[</span><span class="n">cutdist</span><span class="p">],</span> <span class="n">direction</span><span class="p">)</span>
-    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutdist</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutdist</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cut_points(): give a distance or a list of increasing distances, got </span><span class="si">{</span><span class="n">cutdist</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">all</span><span class="p">((</span><span class="n">cutdist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">cutdist</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cutdist</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cut distances must be an increasing list"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cutdist</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cutdist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># 0 is the path start and is a fine place to cut; a negative distance divides by a</span>
+        <span class="c1"># zero-length partial segment further down, so catch it here with something actionable.</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cut_points(): distances are measured forward along the path, so they cannot be negative; "</span>
+            <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="n">cutdist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span>
     <span class="n">cuts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CutPoint</span><span class="p">]</span> <span class="o">=</span> <span class="n">_path_cut_points_recurse</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cutdist</span><span class="p">])</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">direction</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">cuts</span>

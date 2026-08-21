@@ -806,6 +806,30 @@
   
   
     <li class="md-nav__item">
+      <a href="commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="isosurface.html" class="md-nav__link">
         
   
@@ -1054,7 +1078,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: object"><span>pybosl2.<wbr>turtle.<wbr>turtle3d.<wbr>Turtle3D</span></span>
+      <span title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: TurtleCommands"><span>pybosl2.<wbr>turtle.<wbr>turtle3d.<wbr>Turtle3D</span></span>
     </span>
   </a>
   
@@ -2182,7 +2206,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: object"><span>pybosl2.<wbr>turtle.<wbr>turtle3d.<wbr>Turtle3D</span></span>
+      <span title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: TurtleCommands"><span>pybosl2.<wbr>turtle.<wbr>turtle3d.<wbr>Turtle3D</span></span>
     </span>
   </a>
   
@@ -2401,7 +2425,7 @@
 
 
 <h1 id="turtle-3-d">Turtle (3-D)<a class="headerlink" href="#turtle-3-d" title="Link to this heading">¶</a></h1>
-<p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">turtle3d.scad</span></code> as a <a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D" title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle3D</span></code></a> class. A turtle
+<p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">turtle3d.scad</span></code> as a <a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D" title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: TurtleCommands"><code class="xref py py-class docutils literal notranslate"><span class="pre">Turtle3D</span></code></a> class. A turtle
 walks through 3-D space carrying an orientation frame; a flat list of commands drives it, and the
 result is either the list of points it visited (<a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.points" title="pybosl2.turtle.turtle3d.Turtle3D.points (Python method) — Return the de-duplicated list of 3-D points the turtle has visited."><code class="xref py py-meth docutils literal notranslate"><span class="pre">points()</span></code></a>) or a list of
 4x4 transforms (<a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.transforms" title="pybosl2.turtle.turtle3d.Turtle3D.transforms (Python method) — Return the list of 4x4 transforms (position + orientation) for sweeping a profile along the path."><code class="xref py py-meth docutils literal notranslate"><span class="pre">transforms()</span></code></a>) ready to sweep a profile with
@@ -2417,7 +2441,7 @@ frame, and, for <code class="docutils literal notranslate"><span class="pre">arc
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.turtle.turtle3d.Turtle3D">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.turtle.turtle3d.</span></span><span class="sig-name descname"><span class="pre">Turtle3D</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D.__init__.state" title="pybosl2.turtle.turtle3d.Turtle3D.__init__.state (Python parameter)"><span class="n"><span class="pre">state</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">Anchor</span><span class="o">.</span><span class="n">RIGHT</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/turtle/turtle3d.html#Turtle3D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="../foundational/drawing.html#pybosl2.turtle.TurtleCommands" title="pybosl2.turtle._fluent.TurtleCommands (Python class)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommands</span></code></a></p>
 <p>A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms.</p>
 <p>The turtle starts at the origin pointing in <em>state</em> (default <code class="docutils literal notranslate"><span class="pre">RIGHT</span></code> = +X), with “up” along +Z.
 Commands are a flat list of <code class="xref py py-class docutils literal notranslate"><span class="pre">TurtleCommand</span></code> objects. Turns: <code class="docutils literal notranslate"><span class="pre">left</span></code>/<code class="docutils literal notranslate"><span class="pre">right</span></code> (about up),
@@ -2464,14 +2488,14 @@ repeats. A compound <code class="xref py py-class docutils literal notranslate">
 </dd>
 <dt class="field-even" id="pybosl2.turtle.turtle3d.Turtle3D.run-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D.run-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-even"><dl class="simple api-field highlight">
-<dt id="pybosl2.turtle.turtle3d.Turtle3D.run.commands"><span class="sig-name descname">commands</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[TurtleCommand]</span></span><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D.run.commands" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.turtle.turtle3d.Turtle3D.run.commands"><span class="sig-name descname">commands</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[<a class="reference internal" href="commands.html#pybosl2.turtle.commands.TurtleCommand" title="pybosl2.turtle.commands.TurtleCommand (Python class) — Bases: object">TurtleCommand</a>]</span></span><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D.run.commands" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.turtle.turtle3d.Turtle3D.run.repeat"><span class="sig-name descname">repeat</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D.run.repeat" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 </dl>
 </dd>
 <dt class="field-odd" id="pybosl2.turtle.turtle3d.Turtle3D.run-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.turtle.turtle3d.Turtle3D.run-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D" title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: object">Turtle3D</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.turtle.turtle3d.Turtle3D" title="pybosl2.turtle.turtle3d.Turtle3D (Python class) — Bases: TurtleCommands">Turtle3D</a></p>
 </dd>
 </dl>
 </dd></dl>

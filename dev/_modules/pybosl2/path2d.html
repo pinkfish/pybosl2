@@ -797,6 +797,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../paths/commands.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Commands</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../paths/isosurface.html" class="md-nav__link">
         
   
@@ -1962,6 +1986,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.beziers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
@@ -2191,7 +2216,7 @@
 
 <span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">PathLike</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Initialize the instance."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">:</span> <span class="s2">"Color | None"</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="c1"># A copy, not asarray: the array is frozen below and handed to every _points reader, so</span>
@@ -2365,12 +2390,6 @@
 <span class="w">        </span><span class="sd">"""Return an iterator."""</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__array__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return a numpy array representation."""</span>
-        <span class="k">if</span> <span class="n">copy</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
-
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""The points as an (N, 2) numpy array, for doing your own vectorised maths.</span>
@@ -2528,7 +2547,7 @@
 <span class="sd">            A list of unit tangent vectors, one per path point.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.</span>
+<span class="sd">            ValueError: If two adjacent points coincide, leaving a zero-length tangent.</span>
 
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tangent_array</span><span class="p">(</span><span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">)]</span></div>
@@ -3111,7 +3130,7 @@
 <span class="sd">            A new offset :class:`Path2D`.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If not exactly one of *radius*/*delta* is given, if the path is open,</span>
+<span class="sd">            ValueError: If not exactly one of *radius*/*delta* is given, if the path is open,</span>
 <span class="sd">                if *same_length* is combined with rounded or chamfered joins, or if the offset</span>
 <span class="sd">                collapsed the outline entirely (shrinking a shape by more than its own</span>
 <span class="sd">                half-width leaves nothing).</span>
@@ -4694,7 +4713,7 @@
 <span class="sd">            The offset outline, wound the same way as *source*.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            AssertionError: If the offset leaves nothing at all.</span>
+<span class="sd">            ValueError: If the offset leaves nothing at all.</span>
 
 <span class="sd">        """</span>
         <span class="n">polygon</span> <span class="o">=</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">source</span><span class="p">,</span> <span class="n">source</span><span class="p">[:</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
