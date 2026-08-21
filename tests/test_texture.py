@@ -79,11 +79,32 @@ def test_textured_tile_by_name_builds(name: str) -> None:
     assert round(sz[1]) == 40
 
 
-def test_textured_tile_raw_array_still_works() -> None:
-    s = textured_tile([[0, 0, 0], [0, 1, 0], [0, 0, 0]], size=[40, 40], tex_reps=[4, 4], tex_depth=3)  # type: ignore[operator]
-    assert isinstance(s, Bosl2Solid)
+@pytest.mark.parametrize(("peak", "tex_depth"), [(1.0, 3), (1.0, 6), (0.5, 3)])
+def test_textured_tile_raw_array_drives_the_height(peak: float, tex_depth: float) -> None:
+    """A raw height-field array is used as given: heights are fractions of tex_depth."""
+    base = 0.1  # the backing plate textured_tile always lays down
+    s = textured_tile(  # type: ignore[operator]
+        [[0, 0, 0], [0, peak, 0], [0, 0, 0]],
+        size=[40, 40],
+        tex_reps=[4, 4],
+        tex_depth=tex_depth,
+    )
+    _, size = s.bounds()
+    assert size[:2] == pytest.approx([40.0, 40.0])
+    assert size[2] == pytest.approx(peak * tex_depth + base)
+
+    # An all-zero array is the control: nothing but the backing plate.
+    flat = textured_tile([[0, 0, 0]] * 3, size=[40, 40], tex_reps=[4, 4], tex_depth=tex_depth)  # type: ignore[operator]
+    assert flat.bounds()[1][2] == pytest.approx(base)
 
 
-def test_textured_tile_tex_size_picks_reps() -> None:
-    s = textured_tile("pyramids", size=[40, 40], tex_size=10, tex_depth=2)  # type: ignore[operator]
-    assert isinstance(s, Bosl2Solid)
+@pytest.mark.parametrize(("tex_size", "reps"), [(20, 2), (10, 4), (5, 8)])
+def test_textured_tile_tex_size_picks_reps(tex_size: float, reps: int) -> None:
+    """tex_size is the repeat *size*: on a 40mm tile it must choose 40/tex_size repeats.
+
+    Same tile, same texture, so picking the right count means emitting the identical model.
+    """
+    by_size = textured_tile("pyramids", size=[40, 40], tex_size=tex_size, tex_depth=2)  # type: ignore[operator]
+    by_reps = textured_tile("pyramids", size=[40, 40], tex_reps=[reps, reps], tex_depth=2)  # type: ignore[operator]
+    assert repr(by_size) == repr(by_reps)
+    assert by_size.bounds()[1] == pytest.approx([40.0, 40.0, 2.1])

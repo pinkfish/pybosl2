@@ -232,7 +232,12 @@ def test_projection_is_csg_only() -> None:
     from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.shapes2d import Bosl2Shape2D
 
-    assert isinstance(solid.cuboid([30, 20, 10]).projection(), Bosl2Shape2D)  # type: ignore[attr-defined]
+    shadow = solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
+    assert isinstance(shadow, Bosl2Shape2D)
+    # The shadow of a 30x20x10 box is its 30x20 footprint; extruding it back measures the outline.
+    _, extents = shadow.linear_extrude(height=1).bounds()
+    assert extents == pytest.approx([30.0, 20.0, 1.0])
+
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match=r"\.to_csg\(\)"):
         solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
 
@@ -260,11 +265,28 @@ def test_stroke_of_a_3d_path_follows_the_active_backend(backend) -> None:  # typ
     assert isinstance(tube, Solid)
 
 
-def test_stroke_of_a_2d_path_is_csg_only() -> None:
+@pytest.mark.parametrize("width", [3, 6])
+def test_stroke_of_a_2d_path_is_a_backend_free_outline(width: float) -> None:
+    """A 2-D stroke is pure geometry: a closed outline half a width out from the open spine.
+
+    It has no backend to dispatch on, so the active backend must not change the answer.
+    """
+    import numpy as np
+
     from pybosl2.path2d import Path2D
 
     flat = Path2D([[0, 0], [20, 0], [20, 20]], closed=False)
-    assert isinstance(flat.stroke(width=3), Path2D)
+    outline = flat.stroke(width=width)
+    assert isinstance(outline, Path2D)
+    assert outline.closed  # the spine is open; its stroke is the closed boundary around it
+
+    points = np.array(outline)
+    np.testing.assert_allclose(points.min(axis=0), [-width / 2, -width / 2])
+    np.testing.assert_allclose(points.max(axis=0), [20 + width / 2, 20 + width / 2])
+
+    with use_backend("sdf"):
+        under_sdf = np.array(flat.stroke(width=width))
+    np.testing.assert_allclose(under_sdf, points)
 
 
 def test_sdf_stroke_rejects_a_revolved_endcap() -> None:

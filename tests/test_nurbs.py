@@ -296,12 +296,31 @@ def test_patch_weighted_grid() -> None:
     assert not np.allclose(weighted, plain)
 
 
-def test_vnf_returns_vnf() -> None:
-    assert isinstance(NurbsPatch(PATCH, (3, 3)).vnf(splinesteps=(4, 4)), VNF)
+@pytest.mark.parametrize("steps", [2, 4, 8])
+def test_vnf_meshes_the_patch_at_the_requested_resolution(steps: int) -> None:
+    """splinesteps is the quad count per side: (n+1)^2 vertices, two triangles per quad."""
+    vnf = NurbsPatch(PATCH, (3, 3)).vnf(splinesteps=(steps, steps))
+    assert len(vnf.vertices) == (steps + 1) ** 2
+    assert len(vnf.faces) == 2 * steps**2
+
+    verts = np.array(vnf.vertices)
+    # A clamped patch interpolates its four corner control points exactly ...
+    grid = np.array(PATCH)
+    for corner in (grid[0, 0], grid[0, -1], grid[-1, 0], grid[-1, -1]):
+        assert np.linalg.norm(verts - corner, axis=1).min() == pytest.approx(0.0, abs=1e-9)
+    # ... and stays inside the control hull: the interior points sit at z=40, the surface at 30.
+    np.testing.assert_allclose(verts.min(axis=0), [-50, -50, 0])
+    np.testing.assert_allclose(verts.max(axis=0), [50, 50, 30])
 
 
 def test_vnf_uses_default_degree_and_splinesteps() -> None:
-    assert isinstance(NurbsPatch(PATCH).vnf(), VNF)
+    """The defaults are degree (3, 3) and 16 splinesteps: the same surface, finely meshed."""
+    default = NurbsPatch(PATCH).vnf()
+    assert len(default.vertices) == 17**2
+    assert len(default.faces) == 2 * 16**2
+
+    coarse = NurbsPatch(PATCH, (3, 3)).vnf(splinesteps=(16, 16))
+    np.testing.assert_allclose(np.array(default.vertices), np.array(coarse.vertices))
 
 
 def test_vnf_caps_require_closed_clamped() -> None:

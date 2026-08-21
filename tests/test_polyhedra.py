@@ -44,13 +44,42 @@ def test_euler_characteristic(name: PlatonicSolid) -> None:
     assert verts - edges + faces == 2  # type: ignore[operator]
 
 
+# Bounding box of each solid when it is circumscribed by the unit sphere. The tetrahedron and
+# the cube share vertices (the tetrahedron uses four of the cube's eight), so they share a box.
+_PHI = (1 + math.sqrt(5)) / 2
+_UNIT_BOXES: dict[PlatonicSolid, float] = {
+    PlatonicSolid.TETRAHEDRON: 2 / math.sqrt(3),
+    PlatonicSolid.CUBE: 2 / math.sqrt(3),
+    PlatonicSolid.OCTAHEDRON: 2.0,
+    PlatonicSolid.DODECAHEDRON: 2 * _PHI / math.sqrt(3),
+    PlatonicSolid.ICOSAHEDRON: 2 * _PHI / math.sqrt(1 + _PHI**2),
+}
+
+# Bounding box of each solid built with side=1, from the standard circumradius formulas.
+_SIDE_BOXES: dict[PlatonicSolid, float] = {
+    PlatonicSolid.TETRAHEDRON: 1 / math.sqrt(2),
+    PlatonicSolid.CUBE: 1.0,
+    PlatonicSolid.OCTAHEDRON: math.sqrt(2),
+    PlatonicSolid.DODECAHEDRON: _PHI**2,
+    PlatonicSolid.ICOSAHEDRON: _PHI,
+}
+
+
 @pytest.mark.parametrize("name", list(_COUNTS))
-def test_builds(name: PlatonicSolid) -> None:
-    assert isinstance(RegularPolyhedron(name).shape, Bosl2Solid)
+def test_default_solid_is_circumscribed_by_the_unit_sphere(name: PlatonicSolid) -> None:
+    """With no size given every solid has circumradius 1, and is centred and isotropic."""
+    lo, size = RegularPolyhedron(name).shape._native_bounds()  # type: ignore[misc]
+    assert size == pytest.approx([_UNIT_BOXES[name]] * 3, abs=1e-9)
+    assert lo == pytest.approx([-_UNIT_BOXES[name] / 2] * 3, abs=1e-9)
 
 
-def test_named_methods() -> None:
-    assert isinstance(RegularPolyhedron.dodecahedron(side=10).shape, Bosl2Solid)
+@pytest.mark.parametrize("name", list(_COUNTS))
+def test_named_methods_match_the_enum_form(name: PlatonicSolid) -> None:
+    """Each named factory is its enum call, and side= scales the box by the circumradius ratio."""
+    named = getattr(RegularPolyhedron, name.value)(side=10).shape._native_bounds()  # type: ignore[misc]
+    by_enum = RegularPolyhedron(name, side=10).shape._native_bounds()  # type: ignore[misc]
+    assert named == by_enum
+    assert named[1] == pytest.approx([10 * _SIDE_BOXES[name]] * 3, abs=1e-9)
 
 
 def test_cube_circumradius_gives_expected_side() -> None:
