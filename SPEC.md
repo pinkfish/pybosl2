@@ -477,7 +477,8 @@ resolution rules in §8, and the error contract in §9.
   that default in its own signature and always forwards it, so an identical call produces identical
   geometry on either backend (PAR-5). A backend keeps its own defaults only for options exclusive
   to it. Arguments a backend has no notion of MUST NOT be forwarded to it — that filtering is by
-  *what the backend declares*, not by *what the caller happened to pass*.
+  *what the backend declares*, not by *what the caller happened to pass*. The filtering applies to
+  **façade-owned defaults only**; a value the caller supplied is subject to B-9 instead.
 * **B-4** A backend MUST NOT silently approximate a feature it cannot express; it raises
   `UnsupportedByBackendError` with a hint naming the alternative or the backend that does support it.
 * **B-5** Conversion is one-directional and honest: SDF → CSG is an exact mesh; CSG → SDF is lossy
@@ -487,6 +488,16 @@ resolution rules in §8, and the error contract in §9.
   backends (or an explicit refusal), and a row in the backend matrix tests.
 * **B-8** What a caller gets when they leave an argument out MUST be inspectable, not silent:
   `effective_defaults(shape)` reports the active backend's real defaults.
+* **B-9** The façade exposes the **union** of what the backends can build, not the intersection,
+  and a caller-supplied argument the active backend cannot honour raises
+  `UnsupportedByBackendError` naming the parameter, the backend, and the way forward. Dropping it
+  is forbidden: `regular_prism(radius1=8, radius2=4)` must not quietly return a straight prism on
+  a backend with no taper. This is B-4 applied to arguments rather than whole features, and it is
+  what lets one body of code — the parts library above all — be written once against the façade
+  and fail loudly where a backend falls short, instead of being written twice.
+  * A parameter that describes *tessellation* (`fn`/`fa`/`fs`, `realign`, `circumscribe`) is not a
+    feature gap on a backend that has no facets: those MAY be accepted and ignored, provided
+    `effective_defaults()` says so.
 
 ### 7.1 Backend parity
 
@@ -681,7 +692,8 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. Closing this means expressing the ones that can be (simple prisms, bearings, hoses) through the façade, and keeping the refusal only where a part genuinely needs CSG-only operations. |
+| 1 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. The gap is measured in [TASKS.md](TASKS.md) T14 — 146 façade parameters, 21 CSG-only solid methods, and 28 hand re-wraps in the parts themselves — with a phased plan. Attachments are the pivot: they are bookkeeping over bounds and anchor, not CSG topology, so the SDF backend's exact bounds carry them unchanged, and most non-primitive parts are attachment chains. |
+| 2 | **B-9** | The façade still exposes the intersection of the two backends, so 146 CSG parameters are unreachable through `pybosl2.solid` and `for_backend()` would silently drop a caller-supplied one rather than refuse it. T14 phase 1. |
 
 
 

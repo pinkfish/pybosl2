@@ -676,51 +676,90 @@ says why.
 
 ## T14 — Give parts an SDF form where they have one
 
-**Serves:** S-46a, PAR-1 · **Size:** L, batchable per module · **Status:** triaged, not started
+**Serves:** S-46a, PAR-1 · **Size:** XL, phased · **Status:** planned
 
 All 53 parts refuse on the SDF backend (`@csg_part`). The refusal is honest — every part builds
-CSG geometry today — but it is blanket, and the triage says most of them need no new geometry at
-all, only a different import.
+CSG geometry today — but it is blanket, and closing it properly means closing the gap between the
+two backends rather than papering over it per part.
 
-**What the triage found.** Building each part under `use_backend("sdf")` with the guard bypassed,
-38 fail and 15 return a `CsgSolid` tagged `backend="csg"` — that second group is the dangerous
-one, and precisely what S-46a's guard exists to stop. They reach CSG-only machinery: gears and
-`RingHook` through `linear_extrude` of a 2-D profile, threading through `spiral_sweep`, wiring
-through `path_sweep`, polyhedra/sliders/walls through `polyhedron`, the driver-recess masks
-through 2-D shapes.
+### What the gap actually is
 
-The first reading of the 38 was too optimistic. Each part reports only the error it hits *first*,
-and for 30 of them that first error is the import — the part takes its primitives straight from
-`pybosl2.shapes3d`, which is `backend_only("csg")`, and the message even names the fix
-(*"pybosl2.solid.cuboid builds on either backend"*). Swapping `cubetruss`'s three primitives for
-the façade and rebuilding shows what is behind that first error:
+Three measurements, all reproducible from the probes in this task's history:
 
-| blocker | example | why |
+| gap | size | where |
 |---|---|---|
-| hand re-wrapping | `Bosl2Solid(body.shape, size=[sz, sz, sz])` | reaches for the native handle; the SDF solid has no `.shape`. **28 occurrences across 13 of the 15 parts modules** — the real structural blocker, not the imports |
-| façade signature gaps | `regular_prism(radius1=, radius2=)` | the façade exposes only what both backends share, and the SDF prism has no taper. `TrussFoot`/`TrussJoiner` genuinely need the CSG constructor |
-| CSG-only helpers | `_cmask()` → `chamfer_edge_mask` | native `polygon` + `linear_extrude`, so mixing it into an SDF chain raises `CrossBackendError`. The SDF backend does have `rounding_edge_mask`/`interior_fillet`, so an SDF chamfer mask looks feasible |
-| argument shapes | `'float' object is not subscriptable` | some SDF constructors want a different argument form than their CSG twins |
+| façade parameters | **146 CSG parameters across 15 of the 19 shared constructors** are unreachable through `pybosl2.solid`, because the façade exposes only the intersection of the two backends | `cyl`/`cylinder`/`xcyl`/`ycyl`/`zcyl` drop 18–19 each, `rect_tube` 15, `tube` 9, `teardrop` 7, `prismoid` 6 |
+| solid methods | **21 public members** of `CsgSolid` that `PyShape` lacks; 7 more are forwarded to the mesh | attachments (`attach`, `align`, `position`, `anchor_point`, `attachments`, `reanchor`, `reorient`, `orient`, `realize`), tagging/diff (`tag`, `tag_name`, `tag_this`, `diff`, `diff_config`, `intersect`), profiles (`edge_profile`, `edge_profile_asym`, `edge_mask`, `corner_profile`, `face_profile`), and `projection` |
+| the parts idiom | **28 hand re-wraps** (`Bosl2Solid(x.shape, size=...)`) across 13 of the 15 parts modules | reaches for the native handle, which an SDF solid does not have |
 
-So of `cubetruss`'s 8 parts, none converts by import alone: 4 need the re-wrap removed, 2 need a
-tapered prism the SDF backend cannot build, 1 needs an SDF chamfer mask, 1 needs both.
+Of `cubetruss`'s 8 parts, none converts by changing imports alone: 4 need the re-wrap removed,
+2 need a tapered `regular_prism` the SDF backend cannot build, 1 needs an SDF chamfer edge mask,
+1 needs both.
 
-**A finding that came out of the same probe.** The hand-declared `size=` in those re-wraps is
-nominal metadata that nothing checks, and **15 of 41 parts declare a size that does not match the
-geometry** — `TrussJoiner` says z=4.6 where the solid is 19.59, `SnapLock`/`SnapSocket` say 6
-where they are 8, `RegularPolyhedron` says 2 where the box is 1.155, `HexDriveMask` gives the
-across-flats width where the shape is across-corners. The blast radius is small today, because
-`bounds()` prefers the native bbox and only falls back to this metadata when the native accessors
-are missing (the numeric mock) — so mostly it is wrong data that mock-path anchoring believes.
-Some may be deliberate (`RegularPolyhedron`'s 2 is the circumsphere diameter, which is plausibly
-what BOSL2 anchors on), so this needs a decision per part rather than a sweep.
+### The mechanism that has to change first
 
-**Sequence.** Settle the declared-size question first — it is the thing standing in the way, and
-it wants an answer anyway. Then pilot one module to decide whether `@csg_part` becomes per-part or
-gives way to letting the primitives refuse on their own, and what a converted part's `backend` tag
-should say. `hinges` or `joiners` is a better pilot than `cubetruss`: same re-wrap pattern, no
-tapered prisms. Finally, re-word the refusal on the parts that keep it, so it says *this* part
-needs CSG rather than *the parts library* does.
+The façade forwards its own defaults, and `for_backend()` filters them down to what the target
+constructor declares — **silently**. That is right for a façade-owned default, and wrong for a
+value the caller actually asked for: today `solid.regular_prism(radius1=8, radius2=4)` would not
+raise on the SDF backend, it would drop the taper and hand back a straight prism. `given_arguments()`
+already separates "the caller gave this" (non-`None`) from "nobody did", so the information is
+there; nothing acts on it.
+
+**So: the façade exposes the union, not the intersection, and a caller-supplied argument the
+active backend cannot honour raises `UnsupportedByBackendError` naming the parameter, the backend,
+and what to do instead.** Silence is the one outcome that is not allowed. This inverts the rule
+recorded under B-7 (façade = shared surface), so SPEC changes with it.
+
+### Phases
+
+1. **Make the façade refuse rather than drop.** Thread the caller-supplied set through
+   `construct()` and fail on any of them the backend's constructor does not declare. Then widen the
+   façade signatures constructor by constructor toward the CSG surface, starting with what parts
+   actually need (`regular_prism` taper, `prismoid` chamfer/rounding, `tube` per-end radii).
+   Each widening is covered by a pair of tests: it builds on CSG, it refuses by name on SDF.
+2. **Give the Shape contract a backend-neutral nominal box.** The 28 re-wraps exist to attach a
+   nominal anchor box (SPEC S-2a) to a solid built from something else. `Bosl2Solid(x.shape, size=)`
+   cannot do that on SDF; a `with_nominal_size()` on the `Shape` protocol, implemented on both
+   backends, can. This is the single change that unblocks the most parts.
+3. **Convert parts, module by module.** `hinges` or `joiners` first — same re-wrap pattern, no
+   tapered prisms in the way — to settle whether `@csg_part` becomes per-part or gives way to
+   letting the primitives refuse on their own, and what a converted part's `backend` tag says.
+   Then the rest of the façade-routable modules.
+4. **Re-word the refusal on the parts that keep it**, so it names *this* part and what it needs,
+   not "the parts library builds exact CSG geometry".
+
+### Closing the method gap (phase 5, and the larger half)
+
+The 21 CSG-only methods are not one problem. Triaged by what they would actually take:
+
+* **Attachments (9 names) — implementable, and worth the most.** `attach`/`align`/`position`/
+  `anchor_point`/`reanchor`/`reorient`/`orient`/`attachments`/`realize` are bookkeeping over
+  *bounds + anchor*, not over CSG topology. The SDF backend has exact bounds — better ones than
+  CSG, which is the whole point of PAR-5 — so the arithmetic carries over unchanged. The work is
+  lifting the attachment state off `CsgSolid` into a mixin the `Shape` protocol declares, and
+  making `realize()` compose fields instead of native children. Doing this alone would move most
+  of the parts library, because the parts that are not primitives are mostly attachment chains.
+* **Tagging and diff (6 names) — implementable, lower value.** `tag`/`tag_this`/`tag_name`/`diff`/
+  `diff_config`/`intersect` are a naming scheme over the same tree; they need no geometry. Worth
+  doing only after attachments, since they exist to serve them.
+* **Profiles and masks (5 names) — partially expressible.** `edge_profile`/`corner_profile`/
+  `face_profile` sweep a 2-D mask along a box's edges. The SDF backend already has
+  `rounding_edge_mask`, `interior_fillet` and `polygon_extrude`, so the roundover and chamfer
+  cases are reachable; an arbitrary caller-supplied `Path2D` mask is not, because 2-D geometry is
+  a CSG notion. Ship the named treatments, refuse the arbitrary-profile form naming `.to_csg()`.
+* **`projection` — permanently CSG-only.** A 2-D shadow is not derivable from a distance field,
+  and meshing to answer it would cross backends silently. Already recorded and already refused
+  (PAR-3); it stays a documented exclusion, not a gap.
+* **The 146 parameters — triage into three.** (i) *Expressible*: tapers, chamfers and roundings
+  that are ordinary SDF constructions (`prismoid` chamfer/rounding, `regular_prism`/`tube` per-end
+  radii, `teardrop` caps). (ii) *Meaningless in a field*: `realign`, `circumscribe`, `fn`/`fa`/`fs`
+  — these describe tessellation, and an SDF has none; the façade should accept and ignore them on
+  SDF, with `effective_defaults()` saying so. (iii) *Mesh-only*: the `texture`/`tex_*` family, which
+  needs a mesh to displace and belongs with the forwarded mesh operations.
+
+**Order matters:** phase 1 unblocks phase 3, phase 2 unblocks phase 3, and attachments (phase 5a)
+unblock more parts than phases 1–3 together. A reasonable first cut is 1 → 2 → 5a → 3, leaving the
+long tail of parameters and the profile family for last.
 
 ---
 
