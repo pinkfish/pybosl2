@@ -59,10 +59,17 @@ def test_wall_thickness_changes_cap_size() -> None:
     assert _size(thick)[2] > _size(thin)[2]
 
 
-def test_texture_falls_back_to_plain() -> None:
-    # Textures aren't supported by this port; the builder still succeeds (plain wall).
-    for tex in ("none", "knurled", "ribbed"):
-        assert isinstance(BottleCaps.pco1881_cap(texture=tex, fn=None, fa=None, fs=None), Bosl2Solid)
+@pytest.mark.parametrize("texture", ["knurled", "ribbed"])
+def test_texture_falls_back_to_plain(texture: str) -> None:
+    """Textures aren't supported by this port, so a textured cap *is* the plain one.
+
+    Not merely "the builder still succeeds": the fallback is only honest if the model that comes
+    out is identical to the untextured cap, rather than something quietly half-textured.
+    """
+    plain = BottleCaps.pco1881_cap(texture="none", fn=None, fa=None, fs=None)
+    textured = BottleCaps.pco1881_cap(texture=texture, fn=None, fa=None, fs=None)
+    assert _size(textured) == pytest.approx(_size(plain))
+    assert repr(textured) == repr(plain)
 
 
 def test_neck_and_cap_are_distinct_pieces() -> None:

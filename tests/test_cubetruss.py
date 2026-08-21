@@ -112,20 +112,33 @@ def test_support_envelope(extents, ex, ez) -> None:  # type: ignore[no-untyped-d
 
 
 @pytest.mark.parametrize(
-    "obj",
+    ("obj", "expected"),
     [
-        TrussClip(extents=1, fn=None, fa=None, fs=None).shape,
-        TrussClip(extents=2, slop=0.1, fn=None, fa=None, fs=None).shape,
-        TrussUClip(dual=True, fn=None, fa=None, fs=None).shape,
-        TrussUClip(dual=False, fn=None, fa=None, fs=None).shape,
-        TrussFoot(w=1, fn=None, fa=None, fs=None).shape,
-        TrussFoot(w=3, fn=None, fa=None, fs=None).shape,
-        TrussJoiner(w=1, vert=True, fn=None, fa=None, fs=None).shape,
-        TrussJoiner(w=1, vert=False, fn=None, fa=None, fs=None).shape,
+        # A clip spans one truss cell per extent: 33.18 plus 27 (the 30 pitch less the 3 wall).
+        (TrussClip(extents=1, fn=None, fa=None, fs=None).shape, (33.18, 7.8, 19.6)),
+        (TrussClip(extents=2, fn=None, fa=None, fs=None).shape, (60.18, 7.8, 19.6)),
+        (TrussClip(extents=2, slop=0.1, fn=None, fa=None, fs=None).shape, (60.18, 7.8, 19.6)),
+        # A dual U-clip is the single one plus a second arm, 3 wider.
+        (TrussUClip(dual=False, fn=None, fa=None, fs=None).shape, (6.2, 6.2, 8.571)),
+        (TrussUClip(dual=True, fn=None, fa=None, fs=None).shape, (9.2, 6.2, 8.571)),
+        # A foot spans w cells the same way.
+        (TrussFoot(w=1, fn=None, fa=None, fs=None).shape, (33.2, 24.0, 6.99)),
+        (TrussFoot(w=3, fn=None, fa=None, fs=None).shape, (87.2, 24.0, 6.99)),
+        # A joiner stands a whole cell tall when vertical, and lies flat when not.
+        (TrussJoiner(w=1, vert=True, fn=None, fa=None, fs=None).shape, (33.2, 54.0, 19.59)),
+        (TrussJoiner(w=1, vert=False, fn=None, fa=None, fs=None).shape, (33.2, 54.0, 7.69)),
     ],
 )
-def test_accessory_builds(obj) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(obj, Bosl2Solid)
+def test_accessory_envelope(obj: Bosl2Solid, expected: tuple[float, float, float]) -> None:
+    assert _size(obj) == pytest.approx(expected, abs=0.01)  # type: ignore[no-untyped-call]
+
+
+def test_clip_slop_changes_the_clip_without_moving_its_envelope() -> None:
+    """slop= is clearance cut inside the clip, so only the model itself shows it."""
+    tight = TrussClip(extents=2, fn=None, fa=None, fs=None).shape
+    loose = TrussClip(extents=2, slop=0.1, fn=None, fa=None, fs=None).shape
+    assert _size(loose) == pytest.approx(_size(tight), abs=0.01)  # type: ignore[no-untyped-call]
+    assert repr(loose) != repr(tight)
 
 
 def test_foot_span_scales_with_w() -> None:

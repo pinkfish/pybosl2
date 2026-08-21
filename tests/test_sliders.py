@@ -18,14 +18,18 @@ def _size(solid: Bosl2Solid) -> list[float]:
 
 
 @pytest.mark.parametrize(
-    "kw",
+    ("kw", "expected"),
     [
-        {"l": 30, "base": 10, "wall": 4, "slop": 0.2},
-        {"l": 40, "w": 14, "h": 12, "base": 8, "wall": 5},
+        # length, then w + a wall each side + slop each side, then h stacked on the base
+        ({"l": 30, "base": 10, "wall": 4, "slop": 0.2}, (30.0, 10 + 2 * 4 + 2 * 0.2, 10 + 10)),
+        ({"l": 40, "w": 14, "h": 12, "base": 8, "wall": 5}, (40.0, 14 + 2 * 5, 12 + 8)),
+        ({"l": 30, "base": 10, "wall": 4}, (30.0, 10 + 2 * 4, 10 + 10)),  # no slop: nothing added
     ],
 )
-def test_slider_builds(kw: dict[str, object]) -> None:
-    assert isinstance(Slider(**kw, fn=None, fa=None, fs=None).shape, Bosl2Solid)  # type: ignore[arg-type]
+def test_slider_envelope(kw: dict[str, object], expected: tuple[float, float, float]) -> None:
+    """A slider is `l` long, `w` wide plus its walls and slop, and `h` riding on a `base`."""
+    slider = Slider(**kw, fn=None, fa=None, fs=None).shape  # type: ignore[arg-type]
+    assert _size(slider) == pytest.approx(expected, abs=0.05)
 
 
 def test_rail_envelope() -> None:
