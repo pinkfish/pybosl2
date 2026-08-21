@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
 
-from pybosl2._backend import for_backend, register_backend
+from pybosl2._backend import for_backend, refuse_unhonoured, register_backend
 from pybosl2._native import native
 
 _polygon = native("polygon")
@@ -60,6 +60,7 @@ class CsgBackend:
         default it owns without a constructor choking on an option it has no notion of (B-3).
         """
         constructor = self.constructor(shape)
+        refuse_unhonoured(shape, arguments, constructor, "csg")
         return constructor(**for_backend(constructor, arguments))
 
     def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> Any:

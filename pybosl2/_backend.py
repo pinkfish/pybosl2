@@ -53,6 +53,8 @@ __all__ = [
     "BackendName",
     "given_arguments",
     "for_backend",
+    "refuse_unhonoured",
+    "TESSELLATION_PARAMETERS",
     "backend_only",
     "builds_with",
     "csg_part",
@@ -216,6 +218,98 @@ def for_backend(constructor: "Callable[..., Any]", arguments: "Mapping[str, Any]
     if "**" in accepted:
         return dict(arguments)
     return {name: value for name, value in arguments.items() if name in accepted}
+
+
+#: Parameters that describe *tessellation*, not shape. A backend with no facets is not missing a
+#: feature when it cannot honour these, so they are accepted and ignored rather than refused
+#: (SPEC B-9); `effective_defaults()` reports what each backend actually did with them.
+#:
+#: `realign` is here because it rotates a shape by half a *facet*, which means nothing on a smooth
+#: field -- and where it does mean something (`regular_prism`, whose sides are exact on either
+#: backend) the SDF constructor declares it, so it is honoured rather than reaching this list.
+#: `circumscribe` is deliberately NOT here: on `regular_prism` it decides whether the polygon
+#: encloses the circle or is inscribed in it, which is real geometry, and silently ignoring it
+#: would be exactly the failure B-9 exists to stop.
+TESSELLATION_PARAMETERS = frozenset({"fn", "fa", "fs", "res", "realign"})
+
+
+@functools.cache
+def _facade_defaults(shape: str) -> "Mapping[str, Any]":
+    """Return the façade constructor's own default for each parameter, or ``{}`` if it has none."""
+    from pybosl2 import solid as facade
+
+    function = getattr(facade, shape, None)
+    if not callable(function):  # pragma: no cover - every shape the backends build has a façade
+        return {}
+    try:
+        parameters = inspect.signature(function).parameters
+    except (TypeError, ValueError):  # pragma: no cover - signature-less callables
+        return {}
+    return {name: p.default for name, p in parameters.items() if p.default is not inspect.Parameter.empty}
+
+
+def refuse_unhonoured(
+    shape: str,
+    arguments: "Mapping[str, Any]",
+    constructor: "Callable[..., Any]",
+    backend: str,
+    own_names: "Mapping[str, str] | None" = None,
+) -> None:
+    """Raise if the caller asked for something this backend's constructor cannot take (SPEC B-9).
+
+    The façade forwards its own defaults as well as the caller's arguments, and filtering those
+    down to what a backend declares is right (B-3) -- but only for the defaults. Dropping a value
+    the caller actually asked for is not: ``regular_prism(radius1=8, radius2=4)`` must not quietly
+    come back a straight prism on a backend with no taper.
+
+    A value counts as asked-for when it differs from the façade's own default for that parameter,
+    which is what distinguishes it from a default being forwarded on the caller's behalf.
+
+    Args:
+        shape: The façade shape name, used to find the façade's defaults.
+        arguments: What the façade is forwarding, in façade spelling.
+        constructor: The backend constructor about to be called.
+        backend: The active backend's name, for the message.
+        own_names: This backend's spelling for any façade parameter it names differently.
+
+    Raises:
+        UnsupportedByBackendError: naming every parameter the backend cannot honour.
+
+    """
+    accepted = accepted_parameters(constructor)
+    if "**" in accepted:
+        return
+    renamed = own_names or {}
+    defaults = _facade_defaults(shape)
+    unhonoured = sorted(
+        name
+        for name, value in arguments.items()
+        if renamed.get(name, name) not in accepted
+        and name not in TESSELLATION_PARAMETERS
+        and not _is_default(defaults, name, value)
+    )
+    if unhonoured:
+        raise UnsupportedByBackendError(
+            f"{shape}({', '.join(f'{name}=' for name in unhonoured)})",
+            backend,
+            hint=(
+                f"the {backend} backend's {shape}() has no "
+                f"{' or '.join(repr(name) for name in unhonoured)}. Build it inside "
+                '`with use_backend("csg")` and bring the result over with .to_csg(), or leave the '
+                "argument out."
+            ),
+        )
+
+
+def _is_default(defaults: "Mapping[str, Any]", name: str, value: Any) -> bool:
+    """Report whether *value* is the façade's own default for *name* -- i.e. nobody asked for it."""
+    if name not in defaults:
+        return False
+    default = defaults[name]
+    try:
+        return bool(default == value)
+    except Exception:  # pragma: no cover - defensive: exotic __eq__ on a default
+        return default is value
 
 
 def csg_part(getter: "_F") -> "_F":

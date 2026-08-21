@@ -693,7 +693,7 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | # | Requirement | Current state |
 |---|---|---|
 | 1 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. The gap is measured in [TASKS.md](TASKS.md) T14 — 146 façade parameters, 21 CSG-only solid methods, and 28 hand re-wraps in the parts themselves — with a phased plan. Attachments are the pivot: they are bookkeeping over bounds and anchor, not CSG topology, so the SDF backend's exact bounds carry them unchanged, and most non-primitive parts are attachment chains. |
-| 2 | **B-9** | The façade still exposes the intersection of the two backends, so 146 CSG parameters are unreachable through `pybosl2.solid` and `for_backend()` would silently drop a caller-supplied one rather than refuse it. T14 phase 1. |
+| 2 | **B-9** | The refusal mechanism is in (`refuse_unhonoured()`, run by both backends' `construct()`), and it immediately caught `cube(spin=45)` being silently ignored on SDF. The widening is partial: `regular_prism` carries its taper now, leaving **142** CSG parameters still unreachable through `pybosl2.solid`. T14 phase 1. |
 
 
 
