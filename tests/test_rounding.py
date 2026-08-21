@@ -57,10 +57,23 @@ def test_chamfer_replaces_each_corner_with_two_points() -> None:
     assert len(Path2D(SQ).round_corners(method=RoundingMethod.CHAMFER, joint=6)) == 6
 
 
-def test_3d_paths_return_path3d() -> None:
-    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.SMOOTH, joint=6), Path3D)
-    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.CHAMFER, joint=6), Path3D)
-    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.CIRCLE, radius=5), Path3D)
+@pytest.mark.parametrize(
+    ("method", "kwargs"),
+    [
+        (RoundingMethod.SMOOTH, {"joint": 6}),
+        (RoundingMethod.CHAMFER, {"joint": 6}),
+        (RoundingMethod.CIRCLE, {"radius": 5}),
+    ],
+    ids=["smooth", "chamfer", "circle"],
+)
+def test_3d_paths_return_path3d(method: RoundingMethod, kwargs: dict[str, float]) -> None:
+    """Every method rounds the interior corners and leaves the two endpoints where they were."""
+    original = Path3D(P3)
+    rounded = original.round_corners(method=method, **kwargs)
+    assert isinstance(rounded, Path3D)
+    assert len(rounded) > len(original)  # the corners became several points each
+    assert [float(v) for v in rounded[0]] == pytest.approx([float(v) for v in original[0]])
+    assert [float(v) for v in rounded[-1]] == pytest.approx([float(v) for v in original[-1]])
 
 
 def test_open_path_leaves_endpoints() -> None:
@@ -115,7 +128,13 @@ def test_path_round_corners_method_uses_own_closed() -> None:
 
 
 def test_path3d_round_corners_method() -> None:
-    assert isinstance(Path3D(P3).round_corners(method=RoundingMethod.SMOOTH, joint=6), Path3D)
+    """A bigger joint cuts further back along each leg, so it needs no more points but moves more."""
+    small = Path3D(P3).round_corners(method=RoundingMethod.SMOOTH, joint=2)
+    large = Path3D(P3).round_corners(method=RoundingMethod.SMOOTH, joint=6)
+    assert isinstance(large, Path3D)
+    corner = np.asarray(P3[1], dtype=float)
+    nearest = lambda path: min(float(np.linalg.norm(np.asarray(pt, float) - corner)) for pt in path)  # noqa: E731
+    assert nearest(large) > nearest(small)  # the larger joint stays further from the sharp corner
 
 
 # -- smooth_path --------------------------------------------------------------------------
@@ -138,13 +157,26 @@ def test_smooth_path_closed_drops_duplicate_end() -> None:
 
 
 def test_smooth_path_3d() -> None:
-    out = Path3D([[0, 0, 0], [10, 30, 5], [30, -10, 10], [50, 20, 0]], closed=False).smooth_path(relsize=0.4)
-    assert isinstance(out, Path3D)
+    """A smoothed path is resampled into a curve through the same endpoints."""
+    original = Path3D([[0, 0, 0], [10, 30, 5], [30, -10, 10], [50, 20, 0]], closed=False)
+    smoothed = original.smooth_path(relsize=0.4)
+    assert isinstance(smoothed, Path3D)
+    assert len(smoothed) > len(original)
+    assert [float(v) for v in smoothed[0]] == pytest.approx([0.0, 0.0, 0.0])
+    assert [float(v) for v in smoothed[-1]] == pytest.approx([50.0, 20.0, 0.0])
 
 
 def test_smooth_path_method_on_path() -> None:
-    p = Path2D([[0, 0], [10, 30], [30, -10]], closed=False)
-    assert isinstance(p.smooth_path(relsize=0.4), Path2D)
+    """The 2-D method does the same, and keeps the corner point off the smoothed curve."""
+    path = Path2D([[0, 0], [10, 30], [30, -10]], closed=False)
+    smoothed = path.smooth_path(relsize=0.4)
+    assert isinstance(smoothed, Path2D)
+    assert len(smoothed) > len(path)
+    assert [float(v) for v in smoothed[0]] == pytest.approx([0.0, 0.0])
+    assert [float(v) for v in smoothed[-1]] == pytest.approx([30.0, -10.0])
+    # smooth_path interpolates: the curve runs *through* the corner (round_corners cuts it off)
+    corner = np.asarray([10.0, 30.0])
+    assert min(float(np.linalg.norm(np.asarray(pt, float) - corner)) for pt in smoothed) == pytest.approx(0.0)
 
 
 # -- path_join ----------------------------------------------------------------------------
@@ -181,10 +213,14 @@ def test_path_join_with_rounding() -> None:
 
 
 def test_path_join_3d() -> None:
-    p1 = [[0, 0, 0], [10, 0, 0]]
-    p2 = [[10, 0, 0], [20, 10, 10]]
-    res = Path3D(p1, closed=False).path_join([Path3D(p2, closed=False)], radius=1)  # type: ignore[list-item]
-    assert isinstance(res, Path3D)
+    """Joining two paths runs them end to end, rounding the join by the given radius."""
+    first = Path3D([[0, 0, 0], [10, 0, 0]], closed=False)
+    second = Path3D([[10, 0, 0], [20, 10, 10]], closed=False)
+    joined = first.path_join([second], radius=1)  # type: ignore[list-item]
+    assert isinstance(joined, Path3D)
+    assert [float(v) for v in joined[0]] == pytest.approx([0.0, 0.0, 0.0])
+    assert [float(v) for v in joined[-1]] == pytest.approx([20.0, 10.0, 10.0])
+    assert len(joined) > len(first) + 1  # the join itself became an arc
 
 
 # -- offset_stroke ------------------------------------------------------------------------
@@ -260,19 +296,34 @@ def test_round_corners_per_corner_size() -> None:
 
 
 def test_smooth_path_with_tangents() -> None:
-    p = Path2D([[0, 0], [10, 10], [20, 0]], closed=False)
-    result = p.smooth_path(tangents=[[1, 0], [0, 1], [1, 0]])  # type: ignore[call-arg]
-    assert isinstance(result, Path2D)
+    """Given tangents, the curve leaves the first point along the one it was handed."""
+    path = Path2D([[0, 0], [10, 10], [20, 0]], closed=False)
+    smoothed = path.smooth_path(tangents=[[1, 0], [0, 1], [1, 0]])  # type: ignore[call-arg]
+    assert isinstance(smoothed, Path2D)
+    assert [float(v) for v in smoothed[0]] == pytest.approx([0.0, 0.0])
+    start_direction = np.asarray(smoothed[1], float) - np.asarray(smoothed[0], float)
+    assert abs(float(start_direction[0])) > abs(float(start_direction[1]))  # heading +X, as asked
+
+
+def _path_length(path: Path2D) -> float:
+    points = np.asarray(path.to_list, dtype=float)
+    return float(np.linalg.norm(np.diff(points, axis=0), axis=1).sum())
 
 
 def test_smooth_path_with_size() -> None:
-    p = Path2D([[0, 0], [10, 10], [20, 0]], closed=False)
-    result = p.smooth_path(size=5)  # type: ignore[call-arg]
-    assert isinstance(result, Path2D)
+    """`size=` is an absolute bulge: a bigger one bows the curve further out, so it runs longer."""
+    path = Path2D([[0, 0], [10, 10], [20, 0]], closed=False)
+    gentle = path.smooth_path(size=1)  # type: ignore[call-arg]
+    strong = path.smooth_path(size=5)  # type: ignore[call-arg]
+    assert isinstance(strong, Path2D)
+    assert _path_length(strong) > _path_length(gentle) > _path_length(path)
 
 
 def test_path_join_closed() -> None:
+    """`closed=True` makes the joined run a loop, and relocate moves the second onto the first."""
     a = Path2D([[0, 0], [10, 10]], closed=False)
     b = Path2D([[20, 0], [30, 10]], closed=False)
-    result = a.path_join([b], closed=True, relocate=True)  # type: ignore[list-item]
-    assert isinstance(result, Path2D)
+    joined = a.path_join([b], closed=True, relocate=True)  # type: ignore[list-item]
+    assert isinstance(joined, Path2D)
+    assert joined.closed
+    assert [float(v) for v in joined[0]] == pytest.approx([0.0, 0.0])

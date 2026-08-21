@@ -9,6 +9,7 @@ on Bosl2Solid. HSL and HSV conversions are handled by Python's ``colorsys`` modu
 via the :meth:`Colorable.hsl` and :meth:`Colorable.hsv` methods."""
 
 import colorsys
+import re
 
 import numpy as np
 import pytest
@@ -125,13 +126,17 @@ def test_color_equality_non_color() -> None:
 
 
 def test_hsl_via_method() -> None:
+    """hue 0, full saturation, mid lightness is pure red."""
     box = cuboid([10, 10, 10]).hsl(0, 1, 0.5)
     assert isinstance(box, Bosl2Solid)
+    assert applied_colour(box) == pytest.approx([1.0, 0.0, 0.0, 1.0])
 
 
 def test_hsv_via_method() -> None:
+    """hue 60 at full saturation and value is yellow."""
     box = cuboid([10, 10, 10]).hsv(60, 1, 1)
     assert isinstance(box, Bosl2Solid)
+    assert applied_colour(box) == pytest.approx([1.0, 1.0, 0.0, 1.0])
 
 
 def test_hls_to_rgb_red() -> None:
@@ -155,8 +160,12 @@ def test_grayscale_when_saturation_zero() -> None:
 
 
 def test_ghost_for_opacity() -> None:
-    box = cuboid([10, 10, 10]).hsl(200, 0.8, 0.5).ghost()
-    assert isinstance(box, Bosl2Solid)
+    """ghost() marks the solid for see-through preview and leaves its colour alone."""
+    coloured = cuboid([10, 10, 10]).hsl(200, 0.8, 0.5)
+    ghosted = coloured.ghost()
+    assert isinstance(ghosted, Bosl2Solid)
+    assert applied_colour(ghosted) == pytest.approx(applied_colour(coloured))
+    assert repr(ghosted.shape) != repr(coloured.shape)
 
 
 # -- rainbow ------------------------------------------------------------------
@@ -192,11 +201,23 @@ def test_rainbow_colors_each_object() -> None:
 BOX = cuboid([10, 10, 10])
 
 
+def applied_colour(solid: Bosl2Solid) -> list[float]:
+    """The RGBA the operator actually handed the backend, read out of the emitted program.
+
+    Colour is not geometry, so `bounds()` cannot see it (PLAN X-8) -- but the emitted
+    ``color([r, g, b, a])`` call says exactly what was applied.
+    """
+    found = re.search(r"color\(\[([^]]*)\]\)", repr(solid.shape))
+    assert found, f"no colour applied: {repr(solid.shape)[:120]}"
+    return [float(v) for v in found.group(1).split(",")]
+
+
 def test_color_forms_return_solid() -> None:
-    assert isinstance(BOX.color("red"), Bosl2Solid)
-    assert isinstance(BOX.color([1, 0, 0]), Bosl2Solid)
-    assert isinstance(BOX.color([1, 0, 0, 0.5]), Bosl2Solid)
-    assert isinstance(BOX.color("red", alpha=0.4), Bosl2Solid)
+    """Name, RGB list and RGBA list are three spellings of the same red; alpha= sets the fourth."""
+    assert applied_colour(BOX.color("red")) == pytest.approx([1.0, 0.0, 0.0, 1.0])
+    assert applied_colour(BOX.color([1, 0, 0])) == pytest.approx([1.0, 0.0, 0.0, 1.0])
+    assert applied_colour(BOX.color([1, 0, 0, 0.5])) == pytest.approx([1.0, 0.0, 0.0, 0.5])
+    assert applied_colour(BOX.color("red", alpha=0.4)) == pytest.approx([1.0, 0.0, 0.0, 0.4])
 
 
 def test_color_noop_when_nothing_given() -> None:
@@ -212,8 +233,9 @@ def test_recolor_and_color_this() -> None:
 
 
 def test_hsl_hsv_methods_return_solid() -> None:
-    assert isinstance(BOX.hsl(200, 0.8, 0.5), Bosl2Solid)
-    assert isinstance(BOX.hsv(60, 1, 1), Bosl2Solid)
+    """Both go through colorsys, so they must match it exactly."""
+    assert applied_colour(BOX.hsl(200, 0.8, 0.5))[:3] == pytest.approx(colorsys.hls_to_rgb(200 / 360, 0.5, 0.8))
+    assert applied_colour(BOX.hsv(60, 1, 1))[:3] == pytest.approx(colorsys.hsv_to_rgb(60 / 360, 1, 1))
 
 
 def test_highlight_and_ghost() -> None:
@@ -224,22 +246,29 @@ def test_highlight_and_ghost() -> None:
 
 
 def test_color_chains_with_transforms() -> None:
+    """The colour survives the transforms that follow it, and the transforms still move the box."""
     result = cuboid([10, 10, 10]).hsv(30).right(5).up(2)
     assert isinstance(result, Bosl2Solid)
+    assert applied_colour(result)[:3] == pytest.approx(colorsys.hsv_to_rgb(30 / 360, 1, 1))
+    assert [float(v) for v in result.bounds()[0]] == pytest.approx([5.0, 0.0, 2.0])
 
 
-def test_color_by_name() -> None:
-    """color() accepts colour name strings."""
-    assert isinstance(cuboid([10, 10, 10]).color("red"), Bosl2Solid)
-    assert isinstance(cuboid([10, 10, 10]).color("blue"), Bosl2Solid)
-    assert isinstance(cuboid([10, 10, 10]).color("green"), Bosl2Solid)
+@pytest.mark.parametrize(
+    ("name", "rgb"),
+    [("red", [1.0, 0.0, 0.0]), ("blue", [0.0, 0.0, 1.0]), ("green", [0.0, 128 / 255, 0.0])],
+)
+def test_color_by_name(name: str, rgb: list[float]) -> None:
+    """A CSS colour name resolves to its own RGB -- "green" is the CSS half-green, not [0, 1, 0]."""
+    assert applied_colour(cuboid([10, 10, 10]).color(name))[:3] == pytest.approx(rgb, abs=1e-5)
 
 
 def test_hsl_edge_cases() -> None:
-    """HSL at extremes."""
-    assert cuboid([10, 10, 10]).hsl(0, 0, 0) is not None  # black
-    assert cuboid([10, 10, 10]).hsl(0, 0, 1) is not None  # white
-    assert cuboid([10, 10, 10]).hsl(360, 1, 0.5) is not None  # wrap-around
+    """Lightness 0 and 1 are black and white whatever the hue, and 360 degrees wraps to 0."""
+    assert applied_colour(cuboid([10, 10, 10]).hsl(0, 0, 0))[:3] == pytest.approx([0.0, 0.0, 0.0])
+    assert applied_colour(cuboid([10, 10, 10]).hsl(0, 0, 1))[:3] == pytest.approx([1.0, 1.0, 1.0])
+    assert applied_colour(cuboid([10, 10, 10]).hsl(360, 1, 0.5)) == pytest.approx(
+        applied_colour(cuboid([10, 10, 10]).hsl(0, 1, 0.5))
+    )  # wrap-around
 
 
 # -- every colour operator must accept a Color, and must live ON the class -------------
@@ -255,7 +284,9 @@ def test_colour_operators_accept_a_color_object(method: str) -> None:
     failed depending on which operator you reached for.
     """
     solid = cuboid([10, 10, 10])
-    assert isinstance(getattr(solid, method)(Color("green")), Bosl2Solid)
+    coloured = getattr(solid, method)(Color("green"))
+    assert isinstance(coloured, Bosl2Solid)
+    assert applied_colour(coloured)[:3] == pytest.approx(Color("green").rgb, abs=1e-5)
 
 
 @pytest.mark.parametrize("method", ["color", "recolor", "color_this", "hsl", "hsv", "highlight", "ghost"])
