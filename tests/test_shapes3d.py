@@ -35,6 +35,7 @@ from pybosl2.shapes3d import (
     zcyl,
 )
 from pybosl2.shapes3d.base import _anchor_offset_hull3
+from pybosl2.texture import TextureType
 
 # unit-cube corner cloud, for exercising _anchor_offset_hull3 directly
 _UNIT_CUBE = [[x, y, z] for x in (-0.5, 0.5) for y in (-0.5, 0.5) for z in (-0.5, 0.5)]
@@ -124,16 +125,20 @@ def test_wrap_unwrap() -> None:
 
 
 def test_csg_operators_return_bosl2solid() -> None:
+    """The small cube sits inside the big one, so only the intersection changes the box."""
     a, b = cuboid([10, 10, 10]), cuboid([5, 5, 5])
     assert isinstance(a | b, Bosl2Solid)
-    assert isinstance(a - b, Bosl2Solid)
-    assert isinstance(a & b, Bosl2Solid)
+    assert [float(v) for v in (a | b).bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])
+    assert [float(v) for v in (a - b).bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])
+    assert [float(v) for v in (a & b).bounds()[1]] == pytest.approx([5.0, 5.0, 5.0])
 
 
 def test_color_and_scale_preserve_wrapper() -> None:
     c = cuboid([10, 10, 10])
-    assert isinstance(c.color(Color("red")), Bosl2Solid)
-    assert isinstance(c.scale([2, 2, 2]), Bosl2Solid)
+    coloured = c.color(Color("red"))
+    assert isinstance(coloured, Bosl2Solid)
+    assert [float(v) for v in coloured.bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])  # colour is not geometry
+    assert [float(v) for v in c.scale([2, 2, 2]).bounds()[1]] == pytest.approx([20.0, 20.0, 20.0])
 
 
 # BUG: c.color(alpha=0.5) segfaults in the native OpenSCAD extension on Python 3.14
@@ -141,13 +146,24 @@ def test_color_and_scale_preserve_wrapper() -> None:
 # All other color() parameter forms work.  See https://github.com/gsohler/openscad/issues/...
 
 
-def test_color_native_all_parameter_forms() -> None:
-    c = cuboid([5, 5, 5])
-    assert isinstance(c.color(), Bosl2Solid)
-    assert isinstance(c.color(Color("blue")), Bosl2Solid)
-    assert isinstance(c.color(Color("green"), alpha=0.3), Bosl2Solid)
-    assert isinstance(c.color(Color("#ff0000")), Bosl2Solid)
-    assert isinstance(c.color(Color([1.0, 0.5, 0.0])), Bosl2Solid)
+@pytest.mark.parametrize(
+    ("name", "call"),
+    [
+        ("no_argument", lambda c: c.color()),
+        ("by_name", lambda c: c.color(Color("blue"))),
+        ("with_alpha", lambda c: c.color(Color("green"), alpha=0.3)),
+        ("by_hex", lambda c: c.color(Color("#ff0000"))),
+        ("by_components", lambda c: c.color(Color([1.0, 0.5, 0.0]))),
+    ],
+    ids=["no_argument", "by_name", "with_alpha", "by_hex", "by_components"],
+)
+def test_color_native_all_parameter_forms(name: str, call: object) -> None:
+    """Every spelling colours the solid without disturbing its geometry."""
+    coloured = call(cuboid([5, 5, 5]))  # type: ignore[operator]
+    assert isinstance(coloured, Bosl2Solid)
+    assert [float(v) for v in coloured.bounds()[1]] == pytest.approx([5.0, 5.0, 5.0]), name
+    if name != "no_argument":  # a bare color() keeps the default, which emits no colour call
+        assert "color" in repr(coloured.shape), name
     # BUG: alpha-only segfaults — see above
     # assert isinstance(c.color(alpha=0.5), Bosl2Solid)
 
@@ -168,26 +184,39 @@ def test_other_primitives_build() -> None:
 
 
 def test_getattr_falls_through_to_native() -> None:
-    # a method not defined on Bosl2Solid resolves on the wrapped native shape
+    """A method not on Bosl2Solid resolves on the wrapped native shape -- and still does its job."""
+    from pybosl2._edges_lang import Anchor
+
     c = cuboid([10, 10, 10])
-    assert c.position is not None  # native accessor via __getattr__
+    assert callable(c.position)
+    placed = c.position(Anchor.TOP, cuboid([2, 2, 2])).realize()
+    assert float(placed.bounds()[1][2]) > 10.0  # the child now hangs off the top
 
 
 def test_plot3d_surface_and_solid() -> None:
+    """The surface spans the sample grid; `base=` drops a skirt to that height underneath it."""
     import math
 
     xs = list(range(-9, 10, 3))
     ys = list(range(-9, 10, 3))
-    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys), Bosl2Solid)  # type: ignore[operator]
-    assert isinstance(plot3d(lambda x, _y: math.cos(x / 6), xs, ys, base=0), Bosl2Solid)  # type: ignore[operator]
+    surface = plot3d(lambda x, _y: math.cos(x / 6), xs, ys)  # type: ignore[operator]
+    assert isinstance(surface, Bosl2Solid)
+    assert [float(v) for v in surface.bounds()[1]][:2] == pytest.approx([18.0, 18.0])  # the -9..9 grid
+    solid = plot3d(lambda x, _y: math.cos(x / 6), xs, ys, base=0)
+    assert float(solid.bounds()[1][2]) < float(surface.bounds()[1][2])  # cut off at z=0  # type: ignore[operator]
 
 
 def test_orient_reorient_return_bosl2solid() -> None:
+    """orient() lays the solid over; reorient() also spins and re-anchors it."""
     from pybosl2.constants import RIGHT, TOP
 
     c = cuboid([40, 30, 20])
-    assert isinstance(c.orient(RIGHT), Bosl2Solid)
-    assert isinstance(c.reorient(anchor=TOP, spin=30, orient=RIGHT), Bosl2Solid)
+    laid_over = c.orient(RIGHT)
+    assert isinstance(laid_over, Bosl2Solid)
+    assert repr(laid_over.shape) != repr(c.shape)
+    reoriented = c.reorient(anchor=TOP, spin=30, orient=RIGHT)
+    assert isinstance(reoriented, Bosl2Solid)
+    assert repr(reoriented.shape) != repr(laid_over.shape)
     # (the numeric mock does not transform the bbox through multmatrix; the geometric result is
     # verified in test_stl_render.py against the real app)
 
@@ -241,29 +270,37 @@ def test_fillet_rejects_non_right_angle() -> None:
 
 
 def test_plot_revolution_taper_and_path() -> None:
+    """Both forms revolve a 20-tall profile about Z, roughly 20 across at its widest."""
     import math
 
     def _f(a, _z):  # type: ignore[no-untyped-def]
         return 2 * math.sin(math.radians(a))
 
-    assert isinstance(
-        plot_revolution(  # type: ignore[operator]
-            _f,
-            angle=list(range(0, 361, 20)),
-            z=list(range(0, 21, 5)),
-            radius1=10,
-            radius2=6,
-        ),
-        Bosl2Solid,
+    tapered = plot_revolution(  # type: ignore[operator]
+        _f,
+        angle=list(range(0, 361, 20)),
+        z=list(range(0, 21, 5)),
+        radius1=10,
+        radius2=6,
     )
-    prof = [[10, 0], [8, 10], [10, 20]]
-    assert isinstance(plot_revolution(_f, angle=list(range(0, 361, 20)), path=prof), Bosl2Solid)  # type: ignore[operator]
+    assert isinstance(tapered, Bosl2Solid)
+    size = [float(v) for v in tapered.bounds()[1]]
+    assert size[0] == pytest.approx(20.0, abs=0.5)  # the radius-10 end, both sides
+    assert size[2] == pytest.approx(20.0, abs=1.0)  # z=0..20
+
+    by_path = plot_revolution(_f, angle=list(range(0, 361, 20)), path=[[10, 0], [8, 10], [10, 20]])
+    assert isinstance(by_path, Bosl2Solid)
+    assert [float(v) for v in by_path.bounds()[1]][0] == pytest.approx(20.0, abs=0.5)  # type: ignore[operator]
 
 
 def test_textured_tile_reps_and_size() -> None:
+    """A tile fills the size it is given; tex_depth sets how far the texture stands out of it."""
     bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-    assert isinstance(textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3), Bosl2Solid)  # type: ignore[operator]
-    assert isinstance(textured_tile(bump, size=[40, 40], tex_size=10), Bosl2Solid)  # type: ignore[operator]
+    deep = textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3)  # type: ignore[operator]
+    assert isinstance(deep, Bosl2Solid)
+    assert [float(v) for v in deep.bounds()[1]][:2] == pytest.approx([40.0, 40.0])
+    shallow = textured_tile(bump, size=[40, 40], tex_size=10)
+    assert float(shallow.bounds()[1][2]) < float(deep.bounds()[1][2])  # type: ignore[operator]
 
 
 # --- regressions for the Bosl2Solid wrapper review fixes ---
@@ -304,12 +341,18 @@ def test_native_passthrough_op_keeps_wrapper_and_chains() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap so the fluent API survives
     chained = cuboid([10, 10, 10]).resize([5, 5, 5]).up(3)  # type: ignore[operator]
     assert isinstance(chained, Bosl2Solid)
+    centre, size = chained.bounds()
+    assert [float(v) for v in size] == pytest.approx([5.0, 5.0, 5.0])  # the resize took
+    assert float(centre[2]) == pytest.approx(3.0)  # ...and so did the up()
 
 
 def test_rotate_accepts_numpy_int_scalar() -> None:
-    # np.int64 is not a Python int; the scalar->Z-rotation normalization must still apply
-    assert isinstance(cuboid([10, 10, 10]).rotate(np.int64(90)), Bosl2Solid)
-    assert isinstance(cuboid([10, 10, 10]).rotate(np.float64(45)), Bosl2Solid)
+    """np.int64 is not a Python int; the scalar -> Z-rotation normalisation must still apply."""
+    quarter = cuboid([10, 10, 10]).rotate(np.int64(90))
+    assert [float(v) for v in quarter.bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])  # square: unchanged
+    eighth = cuboid([10, 10, 10]).rotate(np.float64(45))
+    # turned 45 degrees about Z, a 10mm square footprint measures 10*sqrt(2) across
+    assert [float(v) for v in eighth.bounds()[1]] == pytest.approx([14.142, 14.142, 10.0], abs=0.01)
 
 
 def test_bounds_metadata_fallback_no_longer_checks_staleness() -> None:
@@ -321,13 +364,17 @@ def test_bounds_metadata_fallback_no_longer_checks_staleness() -> None:
     assert m.bounds()[0] == [0.0, 0.0, 0.0]  # tracked metadata (may be stale, but accepted)
 
 
-def test_cyl_missing_args() -> None:
-    # Test that cyl and xcyl/ycyl/zcyl accept all the new parameters
-    # and construct without errors.
-    c = cyl(length=40, radius=10, extra=5, chamfer_angle=30, from_end=True)
-    assert isinstance(c, Bosl2Solid)
+def test_cyl_extra_lengthens_the_cylinder() -> None:
+    """`extra=` adds length past each end, for a clean boolean cut."""
+    plain = cyl(length=40, radius=10)
+    stretched = cyl(length=40, radius=10, extra=5, chamfer_angle=30, from_end=True)
+    assert float(plain.bounds()[1][2]) == pytest.approx(40.0)
+    assert float(stretched.bounds()[1][2]) == pytest.approx(50.0)  # 5 past each end
 
-    c2 = cyl(
+
+def test_cyl_per_end_extras_are_independent() -> None:
+    """extra1/extra2 lengthen one end each, so the solid also shifts by their difference."""
+    solid = cyl(
         height=50,
         diameter=20,
         extra1=2,
@@ -337,78 +384,118 @@ def test_cyl_missing_args() -> None:
         from_end1=True,
         from_end2=False,
     )
-    assert isinstance(c2, Bosl2Solid)
+    assert float(solid.bounds()[1][2]) == pytest.approx(55.0)  # 50 + 2 + 3
+    assert float(solid.bounds()[0][2]) == pytest.approx(0.5)  # (3 - 2) / 2 upward
 
-    c3 = cyl(radius1=12, radius2=8, chamfer=2, realign=True)
-    assert isinstance(c3, Bosl2Solid)
 
-    # Test xcyl, ycyl, zcyl
-    x = xcyl(length=40, radius=10, extra=2)
-    assert isinstance(x, Bosl2Solid)
+@pytest.mark.parametrize(
+    ("name", "call", "axis"),
+    [
+        ("xcyl", lambda: xcyl(length=40, radius=10, extra=2), 0),
+        ("ycyl", lambda: ycyl(height=50, diameter=20, extra1=1), 1),
+        ("zcyl", lambda: zcyl(height=30, radius=10), 2),
+    ],
+    ids=["xcyl", "ycyl", "zcyl"],
+)
+def test_the_axis_cylinders_lie_along_their_own_axis(name: str, call: object, axis: int) -> None:
+    """Each is the same cylinder turned onto its named axis, so that axis is the long one."""
+    size = [float(v) for v in call().bounds()[1]]  # type: ignore[operator]
+    assert size[axis] == max(size), f"{name}: {size}"
 
-    y = ycyl(height=50, diameter=20, extra1=1)
-    assert isinstance(y, Bosl2Solid)
 
-    z = zcyl(radius1=12, radius2=8, chamfer=2)
-    assert isinstance(z, Bosl2Solid)
+def test_cyl_tapered_with_chamfer() -> None:
+    """A tapered cylinder chamfers on the wider end's radius, not a single shared one."""
+    tapered = cyl(height=30, radius1=12, radius2=8, chamfer=2, realign=True)
+    assert float(tapered.bounds()[1][0]) == pytest.approx(24.0, abs=0.2)  # the radius-12 end
+    assert float(tapered.bounds()[1][2]) == pytest.approx(30.0)
 
-    # Test texture parameters acceptance
-    c_tex_none = cyl(radius=10, height=20, texture="none", tex_size=5, tex_reps=4, tex_depth=2, tex_inset=True)
-    assert isinstance(c_tex_none, Bosl2Solid)
 
-    from pybosl2.texture import TextureType
+def test_cyl_accepts_the_texture_arguments_it_cannot_yet_apply() -> None:
+    """`texture="none"` takes the whole texture argument set and builds a plain cylinder."""
+    plain = cyl(radius=10, height=20)
+    textured = cyl(radius=10, height=20, texture="none", tex_size=5, tex_reps=4, tex_depth=2, tex_inset=True)
+    assert [float(v) for v in textured.bounds()[1]] == pytest.approx([float(v) for v in plain.bounds()[1]])
 
+
+@pytest.mark.parametrize(
+    ("name", "call"),
+    [
+        ("cyl_enum", lambda: cyl(radius=10, height=20, texture=TextureType.RIBS)),
+        ("xcyl_string", lambda: xcyl(radius=10, height=20, texture="ribs")),
+    ],
+    ids=["cyl_enum", "xcyl_string"],
+)
+def test_a_real_texture_on_a_cylinder_is_refused_for_now(name: str, call: object) -> None:  # noqa: ARG001 - shared table
     with pytest.raises(NotImplementedError):
-        cyl(radius=10, height=20, texture=TextureType.RIBS)
+        call()  # type: ignore[operator]
 
-    with pytest.raises(NotImplementedError):
-        xcyl(radius=10, height=20, texture="ribs")
 
-    # Test teardrop and clip_angle rounding
-    c_td = cyl(radius=10, height=20, rounding=2, teardrop=True, clip_angle=45)
-    assert isinstance(c_td, Bosl2Solid)
-
-    c_td_float = cyl(radius=10, height=20, rounding=2, teardrop=30, clip_angle=60)
-    assert isinstance(c_td_float, Bosl2Solid)
+@pytest.mark.parametrize(
+    ("name", "kwargs"),
+    [
+        ("teardrop_true", {"teardrop": True, "clip_angle": 45}),
+        ("teardrop_angle", {"teardrop": 30, "clip_angle": 60}),
+    ],
+    ids=["teardrop_true", "teardrop_angle"],
+)
+def test_a_teardrop_rounding_clips_the_overhang(name: str, kwargs: dict[str, object]) -> None:
+    """A teardrop rim keeps the cylinder's extent but flattens the top of the roundover."""
+    plain = cyl(radius=10, height=20, rounding=2)
+    teardrop = cyl(radius=10, height=20, rounding=2, **kwargs)  # type: ignore[arg-type]
+    assert [float(v) for v in teardrop.bounds()[1]] == pytest.approx([float(v) for v in plain.bounds()[1]], abs=0.5), (
+        name
+    )
+    assert repr(teardrop.shape) != repr(plain.shape), name
 
 
 def test_texture_enum() -> None:
+    """A TextureType resolves to its height map, and a cap accepts the enum spelling.
+
+    The cap's texture is a documented fallback (bottlecaps.py: "cap surface textures fall back to
+    a plain wall"), so the ribbed cap is the plain one -- asserted here so the day it stops being
+    a fallback, this test says so.
+    """
     from pybosl2.parts.bottlecaps import BottleCaps, BottleCapTexture
-    from pybosl2.texture import TextureType, texture
+    from pybosl2.texture import texture
 
-    # Test that texture resolved correctly with enum
-    t = texture(TextureType.RIBS)
-    assert isinstance(t, list)
+    ribs = texture(TextureType.RIBS)
+    assert [list(row) for row in ribs] == [[1.0, 0.0]]  # one rib per tile, full height then flat
 
-    # Test that cap constructs correctly with enum texture
-    cap = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS, fn=None, fa=None, fs=None)
-    assert isinstance(cap, Bosl2Solid)
+    plain = BottleCaps.pco1810_cap(texture=BottleCapTexture.NONE, fn=None, fa=None, fs=None)
+    ribbed = BottleCaps.pco1810_cap(texture=BottleCapTexture.RIBS, fn=None, fa=None, fs=None)
+    assert isinstance(ribbed, Bosl2Solid)
+    assert repr(ribbed.shape) == repr(plain.shape)
 
 
 def test_align_places_child_on_face() -> None:
-    """align() places a child on the parent face without reorienting."""
+    """align() puts the child on the parent's top face -- so the pair is 5mm taller than the parent.
+
+    The attachment is lazy, so the extra height only shows once it is realized.
+    """
     from pybosl2._edges_lang import Anchor
 
     parent = cuboid([30, 30, 10])
-    child = cuboid([5, 5, 5])
-    result = parent.align(Anchor.TOP, child)
-    assert result is not None
+    result = parent.align(Anchor.TOP, cuboid([5, 5, 5])).realize()
+    assert [float(v) for v in result.bounds()[1]] == pytest.approx([30.0, 30.0, 15.0])
+    assert float(result.bounds()[0][2]) == pytest.approx(2.5)  # grown upward only
 
 
 def test_position_places_child_at_anchor() -> None:
-    """position() places child at anchor point."""
+    """position() centres the child on the named corner, so it hangs half outside on three axes."""
     from pybosl2._edges_lang import Anchor
 
     parent = cuboid([30, 30, 30])
-    child = cuboid([5, 5, 5])
-    result = parent.position(Anchor.TOP_FRONT_LEFT, child)
-    assert result is not None
+    result = parent.position(Anchor.TOP_FRONT_LEFT, cuboid([5, 5, 5])).realize()
+    # 2.5mm of the child sticks out past each of the three faces meeting at that corner
+    assert [float(v) for v in result.bounds()[1]] == pytest.approx([32.5, 32.5, 32.5])
 
 
 def test_mirror_preserves_wrapper() -> None:
-    """mirror() returns a Bosl2Solid."""
-    c = cuboid([10, 10, 10]).mirror([1, 0, 0])
-    assert isinstance(c, Bosl2Solid)
+    """mirror() reflects across the plane and keeps the wrapper."""
+    offset = cuboid([10, 10, 10]).right(20)
+    mirrored = offset.mirror([1, 0, 0])
+    assert isinstance(mirrored, Bosl2Solid)
+    assert float(mirrored.bounds()[0][0]) == pytest.approx(-float(offset.bounds()[0][0]))
 
 
 def test_center_false_aligns_to_bottom_front_left() -> None:
@@ -444,13 +531,13 @@ def test_p1_p2_cuboid() -> None:
 
 
 def test_attach_aligns_child_to_parent() -> None:
-    """attach() with specific child anchor."""
+    """attach() stands the child's BOTTOM on the parent's TOP, so the whole 15mm sits above."""
     from pybosl2._edges_lang import Anchor
 
     parent = cuboid([30, 30, 10])
-    child = cuboid([5, 5, 15])
-    result = parent.attach(Anchor.TOP, child, child_anchor=Anchor.BOTTOM)
-    assert result is not None
+    result = parent.attach(Anchor.TOP, cuboid([5, 5, 15]), child_anchor=Anchor.BOTTOM).realize()
+    assert [float(v) for v in result.bounds()[1]] == pytest.approx([30.0, 30.0, 25.0])
+    assert float(result.bounds()[0][2]) == pytest.approx(7.5)
 
 
 # ---------------------------------------------------------------------------
@@ -476,16 +563,27 @@ def test_cone_truncated_returns_solid() -> None:
     assert size[1] >= 16
 
 
-def test_cone_chamfered_returns_solid() -> None:
-    result = cone(height=30, radius=15, chamfer=1)
-    assert isinstance(result, Bosl2Solid)
-    # bounds() on chamfered cone requires valid rotate_extrude params
+@pytest.mark.parametrize("treatment", ["chamfer1", "rounding1"])
+def test_a_cone_can_be_treated_at_its_base(treatment: str) -> None:
+    """The base has a rim to work with, so it rounds or chamfers like any cylinder end."""
+    plain = cone(height=30, radius=15)
+    treated = cone(height=30, radius=15, **{treatment: 1})
+    assert isinstance(treated, Bosl2Solid)
+    assert [float(v) for v in treated.bounds()[1]] == pytest.approx([float(v) for v in plain.bounds()[1]], abs=0.01)
+    assert repr(treated.shape) != repr(plain.shape)
 
 
-def test_cone_rounded_returns_solid() -> None:
-    result = cone(height=30, radius=15, rounding=1)
-    assert isinstance(result, Bosl2Solid)
-    # bounds() on rounded cone requires valid rotate_extrude params
+@pytest.mark.parametrize("treatment", ["chamfer", "rounding", "chamfer2", "rounding2"])
+def test_a_cone_tip_cannot_be_rounded_or_chamfered(treatment: str) -> None:
+    """A cone's top radius is 0, so there is no rim to treat.
+
+    This used to "work": the revolved profile crossed the axis, OpenSCAD printed "Children of
+    rotate_extrude() may not lie across the Y axis" to stderr, and the caller got a solid with no
+    bounding box. The old tests asserted only isinstance and passed -- one even carried the
+    comment "bounds() on chamfered cone requires valid rotate_extrude params" (SPEC E-4).
+    """
+    with pytest.raises(ValueError, match="larger than that end's radius"):
+        cone(height=30, radius=15, **{treatment: 1})
 
 
 def test_cone_bounds_positive_z() -> None:
@@ -732,11 +830,14 @@ def test_cuboid_p1_single_point_anchor() -> None:
 
 
 def test_cuboid_except_edges() -> None:
-    """cuboid with except_edges exercises edge-set exclusion."""
+    """except_edges leaves those edges sharp, so the solid keeps its full extent there."""
     from pybosl2._edges_lang import Anchor
 
-    result = cuboid([10, 10, 10], except_edges=[Anchor.TOP])
-    assert isinstance(result, Bosl2Solid)
+    everywhere = cuboid([10, 10, 10], rounding=2)
+    kept_sharp = cuboid([10, 10, 10], rounding=2, except_edges=[Anchor.TOP])
+    assert isinstance(kept_sharp, Bosl2Solid)
+    # rounding every edge pulls the bounding box in; sparing the top edges keeps it out there
+    assert float(kept_sharp.bounds()[1][2]) > float(everywhere.bounds()[1][2])
 
 
 def test_prismoid_asymmetric_rounding_and_chamfer() -> None:
@@ -763,13 +864,18 @@ def test_regular_prism_inner_radius_sizing() -> None:
 
 
 def test_regular_prism_circumscribe() -> None:
-    """regular_prism with circumscribe=True scales radius by 1/cos(180/sides)."""
-    result = regular_prism(sides=8, height=10, circumscribe=True)
-    assert isinstance(result, Bosl2Solid)
+    """circumscribe=True measures the radius to the flats, so the polygon grows by 1/cos(180/n)."""
+    import math
+
+    inscribed = regular_prism(sides=8, height=10, radius=10)
+    circumscribed = regular_prism(sides=8, height=10, radius=10, circumscribe=True)
+    assert isinstance(circumscribed, Bosl2Solid)
+    grew = float(circumscribed.bounds()[1][0]) / float(inscribed.bounds()[1][0])
+    assert grew == pytest.approx(1 / math.cos(math.pi / 8), abs=0.01)
 
 
 def test_regular_prism_combined_options() -> None:
-    """regular_prism with realign, shift, and tapered radii."""
+    """realign turns the polygon, shift leans the prism over, and the radii taper it."""
     result = regular_prism(
         sides=6,
         height=10,
@@ -779,3 +885,7 @@ def test_regular_prism_combined_options() -> None:
         radius2=5,
     )
     assert isinstance(result, Bosl2Solid)
+    centre, size = result.bounds()
+    assert float(size[2]) == pytest.approx(10.0)  # the height is unaffected by the lean
+    assert float(centre[0]) == pytest.approx(-1.0, abs=0.01)  # leaned 2mm over its own base
+    assert float(size[0]) < 2 * 8  # tapered, so narrower than twice the bottom radius

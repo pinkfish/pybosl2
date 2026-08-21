@@ -661,25 +661,44 @@ proves only that the call returned — which the absence of an exception already
 what that costs: `partitions.py` had a suite of such checks that all passed while the code they
 claimed to cover was never executed, and two of its features were outright broken.
 
-**303 tests** currently assert nothing but the type (or `is not None`). By file, the largest:
+**Progress: 303 → 200.** The four biggest files are done:
 
-| Tests | File |
-|---:|---|
-| 50 | `tests/test_shapes2d_object.py` |
-| 25 | `tests/test_regions.py` |
-| 22 | `tests/test_shapes3d.py` |
-| 21 | `tests/test_drawing.py` |
-| 17 | `tests/test_miscellaneous.py` |
-| 15 | `tests/test_sdf_shapes3d.py` |
-| 10 | `tests/test_gears.py`, `tests/test_svg.py` |
+| File | Before | After |
+|---|---:|---:|
+| `tests/test_shapes2d_object.py` | 50 | 12 (all deliberate type contracts, each paired with a measuring sibling) |
+| `tests/test_regions.py` | 25 | 0 |
+| `tests/test_shapes3d.py` | 22 | 0 |
+| `tests/test_drawing.py` | 21 | 0 |
+| `tests/test_miscellaneous.py` | 17 | 17 |
+| `tests/test_sdf_shapes3d.py` | 15 | 15 |
+| `tests/test_gears.py`, `tests/test_svg.py` | 10 each | 10 each |
 
 Convert them per X-8, module by module — bounds for solids, point counts and spans for paths,
-vertex counts and volume for meshes. `tests/test_partitions.py` is the worked example: every
-`isinstance` there is now a measurement, including the ones whose subject carries no tracked size
-(the mask builders), where the assertion reads the emitted OpenSCAD outline back instead.
+area for regions, vertex counts and volume for meshes. Where the subject carries no tracked size
+(the partition mask builders, a 3-D stroke's union of primitives), read the emitted OpenSCAD back
+instead: the polygon outline, or the count of `cylinder(`/`sphere(`/`rotate_extrude` calls against
+the path's own point count.
 
-Keep the type assertion where the *type* is the claim — "the façade returns the active backend's
-class", "a part refuses on the SDF backend" — and say so in the test name.
+Keep the type assertion where the *type* is the claim — "every constructor returns the wrapper",
+"a Region enters the same pipeline as a shape" — say so in the test name, and pair it with a
+sibling that measures.
+
+**What the conversion keeps finding.** Every file so far has hidden at least one real defect:
+
+* **`right_triangle(chamfer=)` did nothing, and `rounding=` grew the triangle** instead of
+  rounding it. Both went through `offset(delta=+n).offset(delta=-n)`, which restores the sharp
+  corner; the rounding case only did the outward half, so `right_triangle([15, 10], rounding=2)`
+  came back 18.95 x 13.9. Both now treat the corners in place, like `square()` does.
+* **`linear_extrude(scale=2)` silently ignored the scale.** The native honours a *vector* scale
+  and drops a scalar, so a uniform taper came out a plain prism. The wrapper normalises it now.
+* **`cone(..., chamfer=)` / `cone(..., rounding=)` produced invalid geometry.** A cone's top
+  radius is 0, so treating that rim pushed the revolved profile across the axis: OpenSCAD printed
+  "Children of rotate_extrude() may not lie across the Y axis" to stderr and returned a solid with
+  no bounding box. The old test asserted `isinstance` and passed — one even carried the comment
+  *"bounds() on chamfered cone requires valid rotate_extrude params"*. `cyl()` now rejects any rim
+  treatment larger than that end's radius (E-4), which also catches `cyl(radius=10, rounding=12)`.
+* **`osimport()` is lazy**, so its geometry must be measured while the file still exists — the
+  first conversion measured after the `with tempfile...` block and got `-inf` bounds.
 
 ---
 

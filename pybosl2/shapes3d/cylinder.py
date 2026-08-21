@@ -377,6 +377,7 @@ def cyl(
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     if (r1v or r2v) and (c1v or c2v):
         raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+    _check_rim_treatments(rad1, rad2, r1v, r2v, c1v, c2v)
 
     cfang1 = chamfer_angle1 if chamfer_angle1 is not None else (chamfer_angle if chamfer_angle is not None else None)
     cfang2 = chamfer_angle2 if chamfer_angle2 is not None else (chamfer_angle if chamfer_angle is not None else None)
@@ -464,6 +465,46 @@ def cyl(
     return _finish3(shape, offset, spin, orient, size=None, anchor=use_anchor)
 
 
+def _check_rim_treatments(
+    radius1: float,
+    radius2: float,
+    rounding1: float,
+    rounding2: float,
+    chamfer1: float,
+    chamfer2: float,
+) -> None:
+    """Reject a rim rounding/chamfer too big for the rim it sits on.
+
+    A treatment bigger than its end's radius pushes the revolved profile past the axis, and
+    ``rotate_extrude()`` refuses children that cross it -- which used to surface as a raw OpenSCAD
+    error plus a solid with no bounding box. A cone's top radius is 0, so *any* top treatment did
+    this: ``cone(height=30, radius=15, chamfer=1)`` produced nothing usable (SPEC E-4).
+
+    Args:
+        radius1: Radius at the bottom end.
+        radius2: Radius at the top end.
+        rounding1: Rounding radius at the bottom rim.
+        rounding2: Rounding radius at the top rim.
+        chamfer1: Chamfer size at the bottom rim.
+        chamfer2: Chamfer size at the top rim.
+
+    Raises:
+        ValueError: If a treatment exceeds the radius of the end it is applied to.
+
+    """
+    for label, treatment, radius in (
+        ("rounding1", rounding1, radius1),
+        ("rounding2", rounding2, radius2),
+        ("chamfer1", chamfer1, radius1),
+        ("chamfer2", chamfer2, radius2),
+    ):
+        if treatment and treatment > radius:
+            raise ValueError(
+                f"cyl(): {label}={treatment} is larger than that end's radius ({radius}); "
+                f"a rim treatment has to fit inside the rim it rounds."
+            )
+
+
 def cyl_profile(
     radius1: float,
     radius2: float,
@@ -489,6 +530,8 @@ def cyl_profile(
     if teardrop is not False and teardrop is not None:
         td_ang = teardrop if isinstance(teardrop, (int, float)) else 45.0
         eff_clip = min(eff_clip, 90.0 - td_ang)
+
+    _check_rim_treatments(radius1, radius2, rounding1, rounding2, chamfer1, chamfer2)
 
     path = [[0.0, -length / 2]]
     if rounding1:

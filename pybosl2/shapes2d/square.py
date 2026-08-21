@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, cast
 
 import numpy as np
 
@@ -575,14 +575,25 @@ def right_triangle(
         use_anchor = CENTER
     else:
         use_anchor = [-1, -1, 0]
-    shape = _opolygon([[sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, sz[1] / 2]])
-    bshape = Bosl2Shape2D(shape)
-    if chamfer:
-        bshape = bshape.offset(delta=chamfer, chamfer=True).offset(delta=-chamfer)
-    if rounding:
-        bshape = bshape.offset(radius=rounding, fn=fn, fa=fa, fs=fs)
+    corners = [[sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, -sz[1] / 2], [-sz[0] / 2, sz[1] / 2]]
+    if rounding or chamfer:
+        # Treat the corners in place, the way square() does, rather than growing and shrinking the
+        # whole outline: grow-then-shrink restores the sharp corner (so chamfer= did nothing at
+        # all), and a lone outward offset rounds the corners but enlarges the triangle.
+        from pybosl2.enums import RoundingMethod
+        from pybosl2.path2d import Path2D
+
+        path = Path2D(corners, closed=True)
+        treated = cast(
+            "Path2D",
+            path.round_corners(method=RoundingMethod.CIRCLE, radius=rounding, fn=fn, fa=fa, fs=fs)
+            if rounding
+            else path.round_corners(method=RoundingMethod.CHAMFER, joint=chamfer),
+        )
+        corners = [[float(point[0]), float(point[1])] for point in treated]
+    shape = _opolygon(corners)
     offset = _anchor_offset_box(sz, use_anchor)
-    return _finish(bshape.__scad__(), offset, spin, size=sz, anchor=use_anchor)
+    return _finish(shape, offset, spin, size=sz, anchor=use_anchor)
 
 
 def _trapezoid_path(
