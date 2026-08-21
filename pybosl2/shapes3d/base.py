@@ -231,7 +231,20 @@ class CsgSolid(BaseShape, Partitionable):
         size: Sequence[float] | None = None,
         anchor: Anchor | Sequence[float] | None = None,
     ):
-        """Initialize the instance."""
+        """Initialize the instance.
+
+        Args:
+            shape: The native handle this wraps.
+            size: The **nominal anchor box** -- the frame ``anchor=`` is measured against, which is
+                deliberately not always the bounding box. A part may anchor to the box it is
+                designed around (a spur gear to its pitch circle, a regular polyhedron to its
+                circumsphere) while its geometry sits inside that box, or pokes outside it. So a
+                `size` that disagrees with `bounds()` is not by itself a defect; `bounds()` reports
+                the geometry and prefers the native bbox, and only falls back to this when the
+                native accessors are missing.
+            anchor: Which point of that nominal box the shape is positioned by.
+
+        """
         self.shape = shape
         self.size = size
         a_val: Anchor | None

@@ -1537,6 +1537,8 @@ class Rack:
         else:
             sheared_length = teeth * center
         z_extent = height + diameter - a
+        # Nominal anchor box: the rack's nominal tooth height, which the rounded tooth tips sit
+        # just inside. Anchoring follows the pitch line rather than the printed profile.
         self._solid: Bosl2Solid = Bosl2Solid(shape, size=[sheared_length, thickness, z_extent])
         self._teeth: int = teeth
 
@@ -1688,6 +1690,9 @@ class BevelGear:
         if not left_handed:
             vnf = _vnf_xflip(vnf)
         vnf = VNF([[x, y, z - cpz] for x, y, z in vnf.vertices], vnf.faces)
+        # Nominal anchor box: the pitch circle and the nominal face width. A bevel gear's teeth
+        # stand outside it and its cone runs past the face width, so this is deliberately
+        # smaller than bounds() -- anchor to the gear's design circle, not to its tooth tips.
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * pr, 2 * pr, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
@@ -1783,6 +1788,8 @@ class Worm:
         vnf = VNF.vertex_array(rprofiles, caps=CapType.BUTT, col_wrap=True, style=VNFStyle.MIN_EDGE)
         if left_handed:
             vnf = _vnf_xflip(vnf)
+        # Nominal anchor box: the worm's pitch diameter. The thread crests stand proud of it, so
+        # bounds() reports a wider solid -- mating parts line up on the pitch cylinder.
         self._solid: Bosl2Solid = Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
 
     @property
@@ -1907,6 +1914,7 @@ class WormGear:
         vnf = _vnf_join([top_cap, bot_cap, sides])
         if left_handed:
             vnf = _vnf_xflip(vnf)
+        # Nominal anchor box: the pitch circle, which the teeth stand outside of (see BevelGear).
         solid = Bosl2Solid(vnf.polyhedron(), size=[2 * p, 2 * p, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=worm_diam, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)

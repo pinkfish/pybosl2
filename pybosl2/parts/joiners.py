@@ -210,6 +210,9 @@ class SnapPin:
         tip = sphere(diameter=diameter, fn=fn, fa=fa, fs=fs).up(length / 2)
         pin = shaft | barb | tip
         pin = pin - cuboid([diameter + 2 * nub_depth + 1, slot, length + snap], fn=fn, fa=fa, fs=fs)
+        # Nominal anchor box: the pin's nominal envelope -- shaft diameter plus the barbs, and the
+        # length plus a nominal tip. The moulded barb and rounded tip do not fill it exactly, so
+        # bounds() differs slightly; anchoring follows the stated size a socket is cut for.
         self._solid: Bosl2Solid = Bosl2Solid(
             pin.shape,
             size=[diameter + 2 * nub_depth, diameter, length + diameter / 2],
@@ -293,6 +296,8 @@ class SnapPinSocket:
             fa=fa,
             fs=fs,
         ).up(length / 2 - snap / 2)
+        # Nominal anchor box: the matching pin's envelope plus the clearance, so a pin and its
+        # socket anchor alike (see SnapPin). The relief cut makes the real solid a little different.
         self._solid: Bosl2Solid = Bosl2Solid(
             (bore | relief).shape,
             size=[diameter + 2 * nub_depth + 2 * clearance, diameter + 2 * clearance, length],
