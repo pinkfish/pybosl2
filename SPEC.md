@@ -252,6 +252,14 @@ resolution rules in §8, and the error contract in §9.
 * **S-2** `Point`/`Vector` are the point types; `Bounds2D`/`Bounds3D` are the axis-aligned box
   types. Every shape and mesh MUST report its bounds without rendering — this is part of both the
   `Solid` and the `Flat` contract, not just the 3-D one.
+* **S-2a** A shape's `size` is its **nominal anchor box**, and is not required to equal its
+  bounding box. `anchor=` is measured against the box the shape is *designed* around — a gear's
+  pitch circle, a regular polyhedron's circumsphere, the plate a snap fitting mounts on — so real
+  geometry may sit inside it (a polyhedron inside its circumsphere) or stand outside it (gear teeth
+  past the pitch circle, a truss clip's hooks past the cell it grips). `bounds()` reports the
+  geometry and MUST prefer the native bounding box; it falls back to `size` only where no native
+  box is available. A part whose `size` differs from its `bounds()` MUST say at the declaration
+  which box it is naming and why. Tests MUST NOT assert that the two agree.
 * **S-3** Line/plane/polygon predicates and intersections (`geometry`) operate on `Point`s and
   `Path`s, and honour the `SEGMENT`/`RAY`/`LINE` specifiers.
 

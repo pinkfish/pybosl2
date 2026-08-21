@@ -432,6 +432,11 @@ Python that means:
   * **Meshes** — `VNF` vertex/face counts, signed volume, watertightness.
   * **Anything with a backend** — the `backend` tag as well as the type (SPEC C-1).
 
+  Measure `bounds()`, never `size`. `size` is the **nominal anchor box** (SPEC S-2a), which is
+  allowed to differ from the geometry — asserting `shape.size == [...]` states what the
+  constructor was handed, not what it built, and passes however wrong the geometry is. Where a
+  test needs both, assert them as two separate claims and say which is which.
+
   A type assertion is a legitimate *addition* to those, and it is the whole point only in a
   contract test whose subject genuinely is the type — "the façade returns the active backend's
   class", "a part refuses on the SDF backend". Those state the type claim in the test name.
