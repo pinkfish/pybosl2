@@ -134,22 +134,39 @@ def test_compound_rollto_builds() -> None:
 
 
 def test_debug_polygon_builds_with_labels() -> None:
-    p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]])
-    assert isinstance(p.debug_polygon(size=3), Bosl2Solid)
-    assert isinstance(p.debug_polygon(vertices=False), Bosl2Solid)
+    """The debug view is the flat polygon plus vertex markers, which stand outside its outline."""
+    path = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]])
+    bare = path.debug_polygon(vertices=False)
+    assert [float(v) for v in bare.bounds()[1]][:2] == pytest.approx([40.0, 30.0], abs=0.01)
+
+    labelled = path.debug_polygon(size=3)
+    assert float(labelled.bounds()[1][0]) > 40.0  # the markers reach past the corners
+    assert float(labelled.bounds()[1][1]) > 30.0
 
 
 def test_debug_region_builds() -> None:
-    r = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])  # type: ignore[arg-type]
-    assert isinstance(r.debug_region(size=3), Bosl2Solid)
+    """A region's debug view covers its outline, with the same markers standing proud of it."""
+    region = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])  # type: ignore[arg-type]
+    debug = region.debug_region(size=3)
+    assert isinstance(debug, Bosl2Solid)
+    assert float(debug.bounds()[1][0]) > 50.0
+    assert float(debug.bounds()[1][2]) < 1.0  # it stays a flat overlay
 
 
 def test_debug_region_single_path_defers_to_polygon() -> None:
-    assert isinstance(Region([[[0, 0], [20, 0], [10, 20]]]).debug_region(), Bosl2Solid)
+    """One outline means the region view is exactly the polygon view of that outline."""
+    outline = [[0, 0], [20, 0], [10, 20]]
+    from_region = Region([outline]).debug_region()
+    from_path = Path2D(outline).debug_polygon()
+    assert repr(from_region.shape) == repr(from_path.shape)
 
 
 def test_turtle3d_is_instance() -> None:
-    assert isinstance(Turtle3D(), Turtle3D)
+    """A fresh turtle sits at the origin facing +X, with just its starting point recorded."""
+    turtle = Turtle3D()
+    assert isinstance(turtle, Turtle3D)
+    assert np.asarray(turtle.points()).tolist() == [[0.0, 0.0, 0.0]]
+    assert np.asarray(turtle.run([M(Tct.MOVE, size=10)]).points())[-1].tolist() == [10.0, 0.0, 0.0]
 
 
 # ── uncovered command types ─────────────────────────────────────────────
@@ -221,19 +238,29 @@ def test_scale_3d() -> None:
     np.testing.assert_allclose(p[-1], [10, 0, 0], atol=1e-9)
 
 
+def _end_point(commands: list[M]) -> list[float]:
+    """Where the turtle finishes after running *commands*."""
+    return [round(float(v), 3) for v in np.asarray(Turtle3D().run(commands).points())[-1]]
+
+
 def test_roll_3d() -> None:
-    t = Turtle3D().run([M(Tct.ROLL, angle=90)])
-    assert isinstance(t, Turtle3D)
+    """Roll turns the turtle about its own heading: +X still leads, but "up" has moved."""
+    assert _end_point([M(Tct.ROLL, angle=90), M(Tct.MOVE, size=10)]) == [10.0, 0.0, 0.0]
+    assert _end_point([M(Tct.UP, angle=90), M(Tct.MOVE, size=10)]) == [0.0, 0.0, 10.0]
+    assert _end_point([M(Tct.ROLL, angle=90), M(Tct.UP, angle=90), M(Tct.MOVE, size=10)]) == [0.0, -10.0, 0.0]
 
 
 def test_xrot_3d() -> None:
-    t = Turtle3D().run([M(Tct.XROT, angle=-90)])
-    assert isinstance(t, Turtle3D)
+    """xrot turns about the world X axis, which is where the turtle already points."""
+    assert _end_point([M(Tct.XROT, angle=-90), M(Tct.MOVE, size=10)]) == [10.0, 0.0, 0.0]
+    # ...so it shows up in where "up" now leads -- the opposite way round from a roll
+    assert _end_point([M(Tct.XROT, angle=-90), M(Tct.UP, angle=90), M(Tct.MOVE, size=10)]) == [0.0, 10.0, 0.0]
 
 
 def test_yrot_3d() -> None:
-    t = Turtle3D().run([M(Tct.YROT, angle=-90)])
-    assert isinstance(t, Turtle3D)
+    """yrot tips the heading out of the XY plane: -90 about Y points the turtle at +Z."""
+    assert _end_point([M(Tct.YROT, angle=-90), M(Tct.MOVE, size=10)]) == [0.0, 0.0, 10.0]
+    assert _end_point([M(Tct.ZROT, angle=90), M(Tct.MOVE, size=10)]) == [0.0, 10.0, 0.0]
 
 
 def test_arcleft_3d() -> None:

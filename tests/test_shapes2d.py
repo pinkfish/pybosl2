@@ -9,6 +9,7 @@
 import math
 
 import numpy as np
+import pytest
 
 import pybosl2.shapes2d as s2
 from pybosl2._helpers import (
@@ -111,7 +112,11 @@ def test_circle_from_3pts() -> None:
 
 
 def test_circle_builds_a_solid_via_mock() -> None:
-    assert circle(radius=5) is not None
+    """radius 5 gives a diameter-10 shape, measured flat-to-flat across its facets."""
+    shape = circle(radius=5)
+    if shape.shape.size is None:
+        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
+    assert [float(v) for v in shape.bounds()[1]] == pytest.approx([10.0, 10.0], abs=0.01)
 
 
 def test_squircle_circle_at_zero_squareness() -> None:
@@ -136,37 +141,51 @@ def test_squircle_radius_fg_circle() -> None:
 
 
 def test_squircle_builds_solid() -> None:
-    assert squircle(40, squareness=0.7) is not None
+    """A squircle fills its nominal size: 40 across, near enough at any squareness."""
+    shape = squircle(40, squareness=0.7)
+    if shape.shape.size is None:
+        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
+    assert [float(v) for v in shape.bounds()[1]] == pytest.approx([40.0, 40.0], abs=0.2)
 
 
 def test_squircle_rejects_bad_squareness() -> None:
-    import pytest
-
     with pytest.raises(ValueError, match="squareness must be between"):
         squircle(40, squareness=1.5)
 
 
 def test_keyhole_builds_both_orientations() -> None:
-    assert keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2) is not None
-    assert keyhole(length=25, radius1=9, radius2=4, shoulder_radius=2) is not None
-    assert keyhole(length=20, radius1=5, radius2=10) is not None
+    """A keyhole is as wide as its bigger lobe, and swapping the radii flips it end for end."""
+    small_first = keyhole(length=25, radius1=4, radius2=9, shoulder_radius=2)
+    if small_first.shape.size is None:
+        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
+    large_first = keyhole(length=25, radius1=9, radius2=4, shoulder_radius=2)
+    assert float(small_first.bounds()[1][0]) == pytest.approx(2 * 9, abs=0.1)
+    assert [float(v) for v in large_first.bounds()[1]] == pytest.approx(
+        [float(v) for v in small_first.bounds()[1]], abs=0.01
+    )
+    assert float(large_first.bounds()[0][1]) > float(small_first.bounds()[0][1])  # flipped over
+
+    no_shoulder = keyhole(length=20, radius1=5, radius2=10)
+    assert float(no_shoulder.bounds()[1][0]) == pytest.approx(2 * 10, abs=0.1)
 
 
 def test_keyhole_rejects_short_length() -> None:
-    import pytest
-
     with pytest.raises(ValueError, match="length must be positive"):
         keyhole(length=3, radius1=5, radius2=10)
 
 
 def test_ring_forms() -> None:
-    assert ring(radius=20, ring_width=4) is not None
-    assert ring(radius1=10, radius2=16) is not None
+    """`ring_width` and an inner/outer radius pair are two ways of naming the same annulus."""
+    by_width = ring(radius=20, ring_width=4)
+    if by_width.shape.size is None:
+        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
+    # radius=20 is the mid-wall, so a 4mm wall puts the outer edge at 22
+    assert float(by_width.bounds()[1][0]) == pytest.approx(2 * 24, abs=0.1)
+    by_radii = ring(radius1=10, radius2=16)
+    assert float(by_radii.bounds()[1][0]) == pytest.approx(2 * 16, abs=0.1)
 
 
 def test_ring_requires_valid_params() -> None:
-    import pytest
-
     with pytest.raises(ValueError, match="two sizes"):
         ring(radius=10)
     with pytest.raises(ValueError, match="positive wall"):
@@ -177,28 +196,24 @@ def test_star_and_supershape_atype_enum() -> None:
     from pybosl2.constants import LEFT, RIGHT
     from pybosl2.shapes2d import AnchorType, star, supershape
 
-    # Test star atype
-    s1 = star(tips=5, radius=10, atype=AnchorType.BOX, anchor=RIGHT)
-    s2 = star(tips=5, radius=10, atype=AnchorType.HULL, anchor=RIGHT)
-    s3 = star(tips=5, radius=10, atype=AnchorType.INTERSECT, anchor=RIGHT)
-    assert s1 is not None
-    assert s2 is not None
-    assert s3 is not None
+    # Test star atype -- anchoring puts the named edge on the origin, so the centre moves
+    stars = [star(tips=5, radius=10, atype=atype, anchor=RIGHT) for atype in AnchorType]
+    if stars[0].shape.size is None:
+        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
+    for atype, shape in zip(AnchorType, stars, strict=True):
+        centre, size = shape.bounds()
+        assert float(centre[0]) == pytest.approx(-float(size[0]) / 2, abs=0.01), atype
+        assert float(size[0]) == pytest.approx(2 * 10, abs=0.1), atype  # tip to tip
 
-    # Test supershape atype
-    f1 = supershape(m1=4, radius=10, atype="box", anchor=LEFT)
-    f2 = supershape(m1=4, radius=10, atype="hull", anchor=LEFT)
-    f3 = supershape(m1=4, radius=10, atype="intersect", anchor=LEFT)
-    assert f1 is not None
-    assert f2 is not None
-    assert f3 is not None
+    # ...and the same for the supershape, anchored the other way
+    for atype in ("box", "hull", "intersect"):
+        centre, size = supershape(m1=4, radius=10, atype=atype, anchor=LEFT).bounds()
+        assert float(centre[0]) == pytest.approx(float(size[0]) / 2, abs=0.01), atype
 
 
 def test_regular_ngon_inner_radius() -> None:
     """regular_ngon with inner_radius correctly scales to outer radius."""
     import math
-
-    import pytest
 
     from pybosl2.shapes2d.square import _regular_ngon_path
 
@@ -218,8 +233,6 @@ def test_regular_ngon_inner_diameter() -> None:
     """regular_ngon with inner_diameter correctly scales to outer radius."""
     import math
 
-    import pytest
-
     from pybosl2.shapes2d.square import _regular_ngon_path
 
     sc = 1.0 / math.cos(math.radians(36.0))
@@ -237,8 +250,6 @@ def test_regular_ngon_inner_diameter() -> None:
 def test_regular_ngon_side() -> None:
     """regular_ngon with side= computes correct outer radius and all edges equal."""
     import math
-
-    import pytest
 
     from pybosl2.shapes2d.square import _regular_ngon_path
 
@@ -259,8 +270,6 @@ def test_regular_ngon_realign() -> None:
     """regular_ngon with realign=True rotates first vertex away from X+ axis."""
     import math
 
-    import pytest
-
     from pybosl2.shapes2d.square import _regular_ngon_path
 
     path = _regular_ngon_path(6, 10.0, realign=True)
@@ -273,15 +282,22 @@ def test_regular_ngon_realign() -> None:
 
 
 def test_regular_ngon_no_size_defaults() -> None:
-    """regular_ngon() with no size parameter falls back to dflt=0 (degenerate shape)."""
+    """regular_ngon() with no size at all falls back to radius 0 -- a degenerate, empty shape.
+
+    It builds rather than refusing, which is why nothing has ever caught it; the bounds come back
+    non-finite because there is no geometry to measure (see TASKS.md T13).
+    """
+    import math as _math
+
     shape = s2.regular_ngon()
-    assert shape is not None
+    if shape.shape.size is None:
+        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
+    _centre, size = shape.bounds()
+    assert not all(_math.isfinite(float(v)) for v in size)
 
 
 def test_right_triangle_center() -> None:
     """right_triangle with center=True anchors at CENTER."""
-    import pytest
-
     shape = s2.right_triangle([15, 10], center=True)
     assert shape is not None
     assert shape.size == pytest.approx([15.0, 10.0])
@@ -289,8 +305,6 @@ def test_right_triangle_center() -> None:
 
 def test_right_triangle_scalar() -> None:
     """right_triangle with scalar size (float) expands to [size, size]."""
-    import pytest
-
     shape = s2.right_triangle(10)
     assert shape is not None
     assert shape.size == pytest.approx([10.0, 10.0])
@@ -299,8 +313,6 @@ def test_right_triangle_scalar() -> None:
 def test_trapezoid_angle_derivation() -> None:
     """trapezoid derives height from angle when width1, width2, angle are given."""
     import math
-
-    import pytest
 
     from pybosl2.shapes2d.square import _trapezoid_path
 
