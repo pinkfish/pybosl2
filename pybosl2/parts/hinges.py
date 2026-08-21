@@ -404,6 +404,8 @@ class SnapLock:
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hg / 2
         post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)
         ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
+        # Nominal anchor box: the plate the snap is mounted on, so a lock and its socket anchor to
+        # the same frame. The snap head stands above it, making bounds() taller.
         self._solid: Bosl2Solid = Bosl2Solid((post | ridge).back(snap_x).shape, size=[snaplen, snapdiam, 2 * thick])
         self._thick: float = thick
 
@@ -482,6 +484,8 @@ class SnapSocket:
             .left((snaplen + snapdiam / 12) / 2)
             .up(snapdiam / 2 + thick)
         )
+        # Nominal anchor box: the plate, as SnapLock uses, so the two halves anchor to the same
+        # frame. The socket's ridge stands above the plate, so bounds() is taller.
         self._solid: Bosl2Solid = Bosl2Solid(
             ((post | ridge) - divot).forward(snap_x).shape,
             size=[snaplen, snapdiam, 2 * thick],

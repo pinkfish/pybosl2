@@ -623,6 +623,8 @@ class TrussClip:
                 for m in DistributableMatrix.xflip_copy(offset=(extents * (sz - st) + st) / 2)
             ]
         )
+        # Nominal anchor box: the truss cell the clip mounts into, so a clip anchors to the truss
+        # it grips rather than to its own hooks -- which stand outside this box in Y.
         s_arr = [
             extents * (sz - st) + st + 2 * ct,
             st * 2,
@@ -757,6 +759,8 @@ class TrussFoot:
                 ).rotate([0, 0, mz_ang])
             parts.append(plug.right((xcol - (w - 1) / 2) * (sz - st)))
         result = _union(parts).down(ct)
+        # Nominal anchor box: the foot's plate. Its plugs stand proud of the plate in Z, so
+        # bounds() is taller -- anchoring follows the surface the foot sits on.
         s_arr = [span + 2 * ct, sz - 2 * st, st + ct]
         self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
 
@@ -955,6 +959,8 @@ class TrussJoiner:
                 for my in _yflip_copy(offset=st + slop / 2):
                     parts.append(wallclip.multmatrix((mx @ my).tolist()).up(sz / 2))
         result = _union(parts).down(ct)
+        # Nominal anchor box: the joiner's plate, as TrussFoot uses. Its wall clips stand well
+        # above the plate, so bounds() is several times taller in Z.
         s_arr = [span + 2 * ct, 2 * (sz - st) + st, st + ct]
         self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
 

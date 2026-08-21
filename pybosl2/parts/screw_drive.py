@@ -516,6 +516,8 @@ class HexDriveMask:
 
         realsize = 1.0072 * size + 0.0341 + 2 * slop
         solid = hexagon(inner_diameter=realsize).linear_extrude(height=l, center=center)
+        # Nominal anchor box: the hex key's across-flats size, which is what the fastener is named
+        # for. The recess measures 2/sqrt(3) of that across the corners, so bounds() is wider in X.
         self._solid: Bosl2Solid = Bosl2Solid(solid.shape, size=[realsize, realsize, l])
         self._realsize: float = realsize
 
@@ -656,6 +658,8 @@ class TorxMask:
         spec = TorxSpec(size)
         outer_diameter = spec.diam
         solid = spec._profile().linear_extrude(height=l, center=center)
+        # Nominal anchor box: the Torx size's outer diameter. The lobed profile only touches that
+        # circle at the six lobes, so bounds() is narrower across the flats between them.
         self._solid: Bosl2Solid = Bosl2Solid(solid.shape, size=[outer_diameter, outer_diameter, l])
         self._outer_diameter: float = outer_diameter
 

@@ -298,6 +298,9 @@ class RegularPolyhedron:
             scale = 1.0
         sv = [[x * scale, y * scale, z * scale] for x, y, z in verts]
         solid = VNF(sv, faces).polyhedron()
+        # Nominal anchor box: the circumsphere, as BOSL2's regular_polyhedron() anchors. Every
+        # Platonic solid sits strictly inside its circumsphere except at the vertices, so this is
+        # larger than bounds() -- a cube of circumradius 1 measures 2/sqrt(3) across.
         self._solid = Bosl2Solid(solid, size=[2 * scale, 2 * scale, 2 * scale])
         return self._solid
 

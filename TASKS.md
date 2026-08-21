@@ -682,32 +682,45 @@ All 53 parts refuse on the SDF backend (`@csg_part`). The refusal is honest — 
 CSG geometry today — but it is blanket, and the triage says most of them need no new geometry at
 all, only a different import.
 
-**What the triage found.** Building each part under `use_backend("sdf")` with the guard bypassed:
+**What the triage found.** Building each part under `use_backend("sdf")` with the guard bypassed,
+38 fail and 15 return a `CsgSolid` tagged `backend="csg"` — that second group is the dangerous
+one, and precisely what S-46a's guard exists to stop. They reach CSG-only machinery: gears and
+`RingHook` through `linear_extrude` of a 2-D profile, threading through `spiral_sweep`, wiring
+through `path_sweep`, polyhedra/sliders/walls through `polyhedron`, the driver-recess masks
+through 2-D shapes.
 
-* **38 fail, and 30 of those fail on the same thing** — the part imports its primitives straight
-  from `pybosl2.shapes3d` (`cuboid`, `cyl`, `prismoid`, `regular_prism`), which is
-  `backend_only("csg")`. The error already names the fix: *"pybosl2.solid.cuboid builds on either
-  backend"*. Routing those parts through the façade is a mechanical change, and the façade really
-  does carry the pattern — a `cuboid - cuboid | prismoid.up(15)` chain with moves and a rotate
-  builds on both backends and lands the same bounds to 3 decimal places.
-* **15 "succeed" — and that is the dangerous half.** They return a `CsgSolid` tagged
-  `backend="csg"` from inside an SDF block, which is precisely what S-46a's guard exists to stop.
-  These reach CSG-only machinery: gears and `RingHook` through `linear_extrude` of a 2-D profile,
-  threading through `spiral_sweep`, wiring through `path_sweep`, polyhedra/sliders/walls through
-  `polyhedron`, the driver-recess masks through 2-D shapes.
+The first reading of the 38 was too optimistic. Each part reports only the error it hits *first*,
+and for 30 of them that first error is the import — the part takes its primitives straight from
+`pybosl2.shapes3d`, which is `backend_only("csg")`, and the message even names the fix
+(*"pybosl2.solid.cuboid builds on either backend"*). Swapping `cubetruss`'s three primitives for
+the façade and rebuilding shows what is behind that first error:
 
-**The split, by module:** façade-routing candidates are `cubetruss` (8), `hinges` (5),
-`joiners` (3), `nema_steppers` (2), `sliders` (Slider), `tripod_mounts` (2), `screws`
-(`ScrewHole`), plus `ball_bearings`, `linear_bearings`, `bottlecaps` and `modular_hose`, whose
-static call graphs are already free of CSG-only operations. Genuinely CSG-only: `gears` (9),
-`threading` (3), `screw_drive` (6), `wiring` (1), `polyhedra` (1), most of `walls` (6).
+| blocker | example | why |
+|---|---|---|
+| hand re-wrapping | `Bosl2Solid(body.shape, size=[sz, sz, sz])` | reaches for the native handle; the SDF solid has no `.shape`. **28 occurrences across 13 of the 15 parts modules** — the real structural blocker, not the imports |
+| façade signature gaps | `regular_prism(radius1=, radius2=)` | the façade exposes only what both backends share, and the SDF prism has no taper. `TrussFoot`/`TrussJoiner` genuinely need the CSG constructor |
+| CSG-only helpers | `_cmask()` → `chamfer_edge_mask` | native `polygon` + `linear_extrude`, so mixing it into an SDF chain raises `CrossBackendError`. The SDF backend does have `rounding_edge_mask`/`interior_fillet`, so an SDF chamfer mask looks feasible |
+| argument shapes | `'float' object is not subscriptable` | some SDF constructors want a different argument form than their CSG twins |
 
-**Sequence.** Pilot one module (`cubetruss` is the biggest and the most uniform — every part is
-cuboids and prismoids), which settles the two open questions before the bulk work: whether
-`@csg_part` becomes per-part or is replaced by letting the primitives refuse on their own, and
-what a part's `backend` tag should say when it is built from façade calls. Then the remaining
-façade-routing modules, and finally re-word the refusal on the ones that keep it, so it says
-*this* part needs CSG rather than *the parts library* does.
+So of `cubetruss`'s 8 parts, none converts by import alone: 4 need the re-wrap removed, 2 need a
+tapered prism the SDF backend cannot build, 1 needs an SDF chamfer mask, 1 needs both.
+
+**A finding that came out of the same probe.** The hand-declared `size=` in those re-wraps is
+nominal metadata that nothing checks, and **15 of 41 parts declare a size that does not match the
+geometry** — `TrussJoiner` says z=4.6 where the solid is 19.59, `SnapLock`/`SnapSocket` say 6
+where they are 8, `RegularPolyhedron` says 2 where the box is 1.155, `HexDriveMask` gives the
+across-flats width where the shape is across-corners. The blast radius is small today, because
+`bounds()` prefers the native bbox and only falls back to this metadata when the native accessors
+are missing (the numeric mock) — so mostly it is wrong data that mock-path anchoring believes.
+Some may be deliberate (`RegularPolyhedron`'s 2 is the circumsphere diameter, which is plausibly
+what BOSL2 anchors on), so this needs a decision per part rather than a sweep.
+
+**Sequence.** Settle the declared-size question first — it is the thing standing in the way, and
+it wants an answer anyway. Then pilot one module to decide whether `@csg_part` becomes per-part or
+gives way to letting the primitives refuse on their own, and what a converted part's `backend` tag
+should say. `hinges` or `joiners` is a better pilot than `cubetruss`: same re-wrap pattern, no
+tapered prisms. Finally, re-word the refusal on the parts that keep it, so it says *this* part
+needs CSG rather than *the parts library* does.
 
 ---
 
