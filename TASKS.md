@@ -675,10 +675,15 @@ claimed to cover was never executed, and two of its features were outright broke
 | `tests/test_svg.py` | 10 | 7 |
 
 `test_color.py`, `test_rounding.py`, `test_profiles.py`, `test_tripod_mounts.py`,
-`test_screws.py`, `test_skin.py`, `turtle/test_turtle3d.py`, `test_sdf_skin.py` and
-`test_shapes2d.py` followed — all to 0. **303 → 78**, and what is left is a long tail of 1–5 per
-file: `test_native_ops.py` (5), `test_distributors.py` (4), `test_threading.py` (4), then
-threes and below.
+`test_screws.py`, `test_skin.py`, `turtle/test_turtle3d.py`, `test_sdf_skin.py`,
+`test_shapes2d.py`, `test_native_ops.py`, `test_distributors.py` and `test_threading.py`
+followed — all to 0. **303 → 66**, and what is left is a tail of 1–3 per file plus the 12
+deliberate type contracts in `test_shapes2d_object.py`.
+
+One op resists measurement entirely: **`Bosl2Solid.wrap()` never returns its bounds.** The call
+itself is instant (the native op is lazy), but asking the wrapped solid for `bounds()` -- or even
+its program text -- re-enters the native `wrap` and hangs. Its test keeps the type assertion, says
+why, and points at `test_stl_render.py`, which measures it against the real app.
 
 The count also excludes `assert x is None` now: that *is* a content assertion (the helper returns
 None for bad input), unlike `is not None`. That correction alone accounted for 20 of the

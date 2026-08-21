@@ -151,40 +151,63 @@ def test_path3d_sphere_copies() -> None:
 
 
 def test_solid_grid_copies_returns_solid() -> None:
-    result = cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20)  # type: ignore[var-annotated]
-    assert isinstance(result, list)
-    assert all(isinstance(c, Bosl2Solid) for c in result)
+    """3 x 3 copies, 20 apart, centred on the origin."""
+    copies = cuboid([10, 10, 10]).grid_copies(num_copies=[3, 3], spacing=20)  # type: ignore[var-annotated]
+    assert len(copies) == 9
+    assert all(isinstance(c, Bosl2Solid) for c in copies)
+    centres = [[round(float(v), 3) for v in c.bounds()[0]] for c in copies]
+    assert sorted({c[0] for c in centres}) == pytest.approx([-20.0, 0.0, 20.0])
+    assert sorted({c[1] for c in centres}) == pytest.approx([-20.0, 0.0, 20.0])
 
 
 def test_solid_ring_and_flip_return_solid() -> None:
+    """Each copier places its copies where it says: on a ring, mirrored, or at named points."""
     box = cuboid([10, 10, 10])
-    result = box.zrot_copies(num_copies=6, radius=30)  # type: ignore[var-annotated]
-    assert isinstance(result, list)
-    assert all(isinstance(c, Bosl2Solid) for c in result)
-    result2 = box.right(20).xflip_copy()  # type: ignore[var-annotated]
-    assert isinstance(result2, list)
-    assert all(isinstance(c, Bosl2Solid) for c in result2)
-    result3 = box.move_and_copy([Point(0, 0, 0), Point(20, 0, 0), Point(0, 20, 0)])  # type: ignore[var-annotated]
-    assert isinstance(result3, list)
-    assert all(isinstance(c, Bosl2Solid) for c in result3)
+
+    ring = box.zrot_copies(num_copies=6, radius=30)  # type: ignore[var-annotated]
+    assert len(ring) == 6
+    radii = [math.hypot(float(c.bounds()[0][0]), float(c.bounds()[0][1])) for c in ring]
+    assert radii == pytest.approx([30.0] * 6)  # every copy the same distance out
+
+    mirrored = box.right(20).xflip_copy()  # type: ignore[var-annotated]
+    assert sorted(round(float(c.bounds()[0][0]), 3) for c in mirrored) == pytest.approx([-20.0, 20.0])
+
+    placed = box.move_and_copy([Point(0, 0, 0), Point(20, 0, 0), Point(0, 20, 0)])  # type: ignore[var-annotated]
+    corners = sorted((round(float(c.bounds()[0][0]), 3), round(float(c.bounds()[0][1]), 3)) for c in placed)
+    assert corners == [(0.0, 0.0), (0.0, 20.0), (20.0, 0.0)]
 
 
 def test_solid_path_copies_returns_solid() -> None:
+    """Six copies spread along a 60mm dogleg: evenly spaced, starting at the path's own start."""
     box = cuboid([4, 4, 4])
     path = Path2D([[0, 0], [30, 0], [30, 30]])
-    result = box.path_copies(path, num_copies=6)  # type: ignore[arg-type, var-annotated]
-    assert isinstance(result, list)
-    assert all(isinstance(c, Bosl2Solid) for c in result)
+    copies = box.path_copies(path, num_copies=6)  # type: ignore[arg-type, var-annotated]
+    assert len(copies) == 6
+    assert all(isinstance(c, Bosl2Solid) for c in copies)
+    first = [round(float(v), 3) for v in copies[0].bounds()[0]]
+    assert first == pytest.approx([0.0, 0.0, 0.0])
+    last = [round(float(v), 3) for v in copies[-1].bounds()[0]]
+    assert last[1] > 0  # the run turns the corner and climbs the second leg
 
 
 # -- distribute (list of distinct children) -----------------------------------------------
 
 
 def test_distribute_returns_solid() -> None:
+    """Distributing lays the children out along one axis; the others keep the widest child."""
     a, b, c = cuboid([10, 10, 10]), cuboid([20, 20, 20]), cuboid([5, 5, 5])
-    assert isinstance(xdistribute([a, b, c], spacing=5), Bosl2Solid)
-    assert isinstance(ydistribute([a, b], sizes=[10, 20]), Bosl2Solid)
-    assert isinstance(zdistribute([a, b, c], length=100), Bosl2Solid)
+
+    spread_x = xdistribute([a, b, c], spacing=5)
+    assert isinstance(spread_x, Bosl2Solid)
+    size_x = [float(v) for v in spread_x.bounds()[1]]
+    assert size_x[0] > 20.0  # laid out along X
+    assert size_x[1:] == pytest.approx([20.0, 20.0])  # ...and only as wide as the biggest child
+
+    spread_y = ydistribute([a, b], sizes=[10, 20])
+    assert float(spread_y.bounds()[1][1]) > float(spread_y.bounds()[1][0])
+
+    spread_z = zdistribute([a, b, c], length=100)
+    assert float(spread_z.bounds()[1][2]) >= 100.0  # the run fills the length it was given
 
 
 # ── _vec3 edge cases ─────────────────────────────────────────────────────

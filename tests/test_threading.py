@@ -109,7 +109,13 @@ def test_thread_profile_is_structured_dataclass() -> None:
     ],
 )
 def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
-    assert isinstance(call(), Bosl2Solid)
+    """Every rod profile builds a round bar: circular in plan, and taller than it is wide."""
+    rod = call()
+    assert isinstance(rod, Bosl2Solid)
+    _centre, size = rod.bounds()
+    width, depth, height = (float(v) for v in size)
+    assert width == pytest.approx(depth, rel=0.02)  # round in plan, whatever the thread form
+    assert height > width  # a rod, not a washer
 
 
 # -- nut builders return solids -----------------------------------------------------------
@@ -128,20 +134,29 @@ def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
     ],
 )
 def test_nut_builders(call: Callable[[], Bosl2Solid]) -> None:
-    assert isinstance(call(), Bosl2Solid)
+    """Every nut is a squat block with a bore: wider than it is tall, and finite in every axis."""
+    nut = call()
+    assert isinstance(nut, Bosl2Solid)
+    _centre, size = nut.bounds()
+    width, _depth, height = (float(v) for v in size)
+    assert width > height
+    assert all(math.isfinite(float(v)) and float(v) > 0 for v in size)
 
 
 def test_nut_with_zero_pitch_is_plain_hole() -> None:
-    # pitch 0 -> unthreaded bore
-    assert isinstance(iso_threaded_nut(18, 12, 10, 0).shape, Bosl2Solid)
+    """pitch 0 leaves the bore unthreaded -- the same nut body, a different hole."""
+    plain = iso_threaded_nut(18, 12, 10, 0).shape
+    threaded = iso_threaded_nut(18, 12, 10, 1.75).shape
+    assert [float(v) for v in plain.bounds()[1]] == pytest.approx([float(v) for v in threaded.bounds()[1]])
+    assert repr(plain.shape) != repr(threaded.shape)
 
 
 def test_thread_helix_builds() -> None:
-    assert isinstance(ThreadHelix(20, 4, turns=3).shape, Bosl2Solid)
-    assert isinstance(
-        ThreadHelix(20, 4, thread_depth=1.5, flank_angle=20, turns=2).shape,
-        Bosl2Solid,
-    )
+    """A helix is `turns` * `pitch` tall, standing on a d=20 core -- more turns, more height."""
+    three = ThreadHelix(20, 4, turns=3).shape
+    two = ThreadHelix(20, 4, thread_depth=1.5, flank_angle=20, turns=2).shape
+    assert float(three.bounds()[1][0]) == pytest.approx(20.0, abs=0.2)  # the core diameter
+    assert float(three.bounds()[1][2]) > float(two.bounds()[1][2])
 
 
 def test_invalid_rod_dims_raise() -> None:
