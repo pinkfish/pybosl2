@@ -381,9 +381,9 @@ Python that means:
 * **X-2** Pure-geometry (L0) tests MUST pass with no CAD runtime installed. Tests needing the
   PythonSCAD **app** (`tests/test_stl_render*.py`) skip when no binary is found via
   `PYTHONSCAD_BIN` or `/Applications` — they skip, never fail.
-* **X-3** Every new public callable gets three tests: it builds, it builds **with the minimum
-  arguments** (this is how SPEC P-1 is enforced mechanically), and its docstring example validates
-  (`tests/validate_examples.py`).
+* **X-3** Every new public callable gets three tests: it builds *and is measurably right* (X-8),
+  it builds **with the minimum arguments** (this is how SPEC P-1 is enforced mechanically), and its
+  docstring example validates (`tests/validate_examples.py`).
 * **X-4** Contract tests that guard the rules in this plan, and MUST keep passing:
   | Test | Guards |
   |---|---|
@@ -419,6 +419,27 @@ Python that means:
   `# pragma: no cover` **on the `if`/`else` header**, with the reason in a comment below it:
   coverage matches the pragma against a line, so a marker on its own comment line excludes
   nothing. `test_no_cover_pragmas_are_attached_to_a_statement` enforces the placement.
+* **X-8 A test asserts what the result *is*, never merely that it exists.**
+  `assert isinstance(result, Bosl2Solid)` passes for every wrong answer that is still a solid: the
+  wrong size, the wrong place, an empty union, a cut that removed everything. It proves the call
+  returned, which the absence of an exception already proved. Every test MUST make at least one
+  assertion about the *content* of what it built:
+  * **Solids and 2-D shapes** — `bounds()` (centre and size), or a dimension derived from it. A
+    half-cut halves an extent; an offset grows one; a spread separates two centres. These are
+    cheap, exact, and they fail when the geometry is wrong.
+  * **Paths and regions** — point counts, endpoints, x/y span, closure, winding, perimeter or
+    area. For anything symmetric, assert the symmetry.
+  * **Meshes** — `VNF` vertex/face counts, signed volume, watertightness.
+  * **Anything with a backend** — the `backend` tag as well as the type (SPEC C-1).
+
+  A type assertion is a legitimate *addition* to those, and it is the whole point only in a
+  contract test whose subject genuinely is the type — "the façade returns the active backend's
+  class", "a part refuses on the SDF backend". Those state the type claim in the test name.
+
+  The cost of getting this wrong is not hypothetical: `pybosl2/partitions.py` was 60% covered with
+  a suite full of `isinstance` checks that all passed while the code they claimed to test was
+  never executed at all (its methods were shadowed by a duplicate), and two of its features were
+  outright broken (see [TASKS.md](TASKS.md) T12).
 * **X-5** Changing geometry, backends, or paths means running the full suite — including
   `pytest tests/test_stl_render.py` when a PythonSCAD binary is available — before the work is
   called done.
@@ -476,7 +497,8 @@ Before calling a change done:
 6. Google docstring with `Args:`/`Returns:`/`Raises:` and a rendering example? (D-P1, D-P5)
 7. Bad input → `ValueError` naming the fix, not `assert`, and radius/diameter through
    `pick_radius`? (E-P1, E-P2, E-P5)
-8. Minimum-argument test added? (X-3)
+8. Minimum-argument test added, and does every new test assert the *content* of what it built —
+   bounds, counts, a span — rather than only that an object came back? (X-3, X-8)
 9. `ruff check` / `ruff format` clean, functions under 50 lines? (S-1, S-2)
 10. If it is a façade constructor, does the façade own the shared default? (F-P1)
 11. If it is a shared shape operation, is it declared once on `Shape` — as a real method, not via a

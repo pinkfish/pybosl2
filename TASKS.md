@@ -36,6 +36,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 | — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
+| — | test quality | [T13](#t13--replace-the-existence-only-tests-) 🔶 | L |
 
 ## Order and why
 
@@ -648,6 +649,37 @@ Two live bugs surfaced, both in code that had never run:
 One upstream quirk is now pinned rather than smoothed over: BOSL2 documents cutpath tiles as
 ``Y between -0.5 and 0.5``, but its own `sawtooth` reaches 1. We reproduce it (B2-1), and the test
 says why.
+
+---
+
+## T13 — Replace the existence-only tests 🔶
+
+**Serves:** PLAN X-8 · **Size:** L, batchable per module
+
+`assert isinstance(result, Bosl2Solid)` passes for every wrong answer that is still a solid, and
+proves only that the call returned — which the absence of an exception already proved. T12 showed
+what that costs: `partitions.py` had a suite of such checks that all passed while the code they
+claimed to cover was never executed, and two of its features were outright broken.
+
+**303 tests** currently assert nothing but the type (or `is not None`). By file, the largest:
+
+| Tests | File |
+|---:|---|
+| 50 | `tests/test_shapes2d_object.py` |
+| 25 | `tests/test_regions.py` |
+| 22 | `tests/test_shapes3d.py` |
+| 21 | `tests/test_drawing.py` |
+| 17 | `tests/test_miscellaneous.py` |
+| 15 | `tests/test_sdf_shapes3d.py` |
+| 10 | `tests/test_gears.py`, `tests/test_svg.py` |
+
+Convert them per X-8, module by module — bounds for solids, point counts and spans for paths,
+vertex counts and volume for meshes. `tests/test_partitions.py` is the worked example: every
+`isinstance` there is now a measurement, including the ones whose subject carries no tracked size
+(the mask builders), where the assertion reads the emitted OpenSCAD outline back instead.
+
+Keep the type assertion where the *type* is the claim — "the façade returns the active backend's
+class", "a part refuses on the SDF backend" — and say so in the test name.
 
 ---
 

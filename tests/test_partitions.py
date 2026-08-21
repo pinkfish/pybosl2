@@ -10,6 +10,7 @@ the segment grammar and that each cutting method builds. Native geometry is mock
 geometric correctness (half volumes, interlocking pieces) is verified in test_stl_render.py."""
 
 import math
+import re
 
 import numpy as np
 import pytest
@@ -98,19 +99,61 @@ def test_partition_cutpath_repeats_to_length() -> None:
 # -- mask builders ------------------------------------------------------------------------
 
 
-def test_partition_mask_builds() -> None:
-    assert isinstance(partition_mask(length=60, w=30, height=20, cutpath="dovetail"), Bosl2Solid)
-    assert isinstance(
-        partition_mask(length=60, w=30, height=20, cutpath="jigsaw", inverse=True, fn=12),
-        Bosl2Solid,
-    )
+def _box(solid: Bosl2Solid) -> tuple[list[float], list[float]]:
+    """The solid's bounding box as ``(centre, size)`` in plain floats."""
+    centre, size = solid.bounds()
+    return [float(v) for v in centre], [float(v) for v in size]
 
 
-def test_partition_cut_mask_builds() -> None:
-    assert isinstance(
-        partition_cut_mask(length=60, height=20, cutpath="dovetail", slop=0.2),
-        Bosl2Solid,
-    )
+def _mask_outline(mask: Bosl2Solid) -> list[list[float]]:
+    """The 2-D outline the mask extrudes, read back out of the emitted OpenSCAD.
+
+    The mask builders go straight to native polygon()/linear_extrude() and carry no tracked size,
+    so `bounds()` cannot answer for them; the emitted program still says exactly what was built.
+    """
+    source = repr(mask.shape)
+    points = re.search(r"polygon\(points = \[(.*?)\], paths", source, re.DOTALL)
+    assert points, source[:200]
+    return [[float(v) for v in pair.split(",")] for pair in re.findall(r"\[([^]]*)\]", points.group(1))]
+
+
+def _extrude_height(mask: Bosl2Solid) -> float:
+    found = re.search(r"linear_extrude\(height = ([-\d.]+)", repr(mask.shape))
+    assert found, repr(mask.shape)[:120]
+    return float(found.group(1))
+
+
+def test_partition_mask_spans_the_length_and_height_it_was_given() -> None:
+    """The mask covers one whole side of the cut: full length, full height, teeth on the cut line."""
+    mask = partition_mask(length=60, w=30, height=20, cutpath="dovetail")
+    outline = _mask_outline(mask)
+    xs = [p[0] for p in outline]
+    assert min(xs) == pytest.approx(-30)
+    assert max(xs) == pytest.approx(30)
+    assert _extrude_height(mask) == pytest.approx(20)
+    assert max(p[1] for p in outline) == pytest.approx(30)  # it fills to +w on the kept side
+
+
+def test_an_inverse_mask_is_the_other_side_of_the_same_cut() -> None:
+    """`inverse=True` fills the far side, so the mating piece is the complement of the first."""
+    plain = _mask_outline(partition_mask(length=60, w=30, height=20, cutpath="jigsaw", fn=12))
+    inverse = _mask_outline(partition_mask(length=60, w=30, height=20, cutpath="jigsaw", inverse=True, fn=12))
+    assert max(p[1] for p in plain) == pytest.approx(30)
+    assert min(p[1] for p in inverse) == pytest.approx(-30)
+    # the cut edge itself -- everything but the flat backing wall -- is identical
+    cut_edge = lambda outline: sorted(tuple(p) for p in outline if abs(p[1]) < 29)  # noqa: E731
+    assert np.allclose(cut_edge(plain), cut_edge(inverse))
+
+
+def test_partition_cut_mask_is_the_kerf_itself() -> None:
+    """The cut mask is the gap between the pieces: the cut line, thickened by slop."""
+    mask = partition_cut_mask(length=60, height=20, cutpath="dovetail", slop=0.2)
+    outline = _mask_outline(mask)
+    ys = [p[1] for p in outline]
+    assert _extrude_height(mask) == pytest.approx(20)
+    assert max(ys) - min(ys) < 60  # a kerf, not a whole half
+    # slop grows the kerf on every side, so it overhangs the nominal length by that much
+    assert max(p[0] for p in outline) - min(p[0] for p in outline) == pytest.approx(60 + 2 * 0.2)
 
 
 # -- Partitionable methods on Bosl2Solid --------------------------------------------------
@@ -118,23 +161,48 @@ def test_partition_cut_mask_builds() -> None:
 BOX = cuboid([40, 30, 20])
 
 
-def test_axis_half_methods_return_solid() -> None:
-    assert isinstance(BOX.left_half(), Bosl2Solid)
-    assert isinstance(BOX.right_half(x=5), Bosl2Solid)
-    assert isinstance(BOX.front_half(), Bosl2Solid)
-    assert isinstance(BOX.back_half(y=-3), Bosl2Solid)
-    assert isinstance(BOX.top_half(), Bosl2Solid)
-    assert isinstance(BOX.bottom_half(z=5), Bosl2Solid)
+#: (method, keyword args, expected centre, expected size) for a 40 x 30 x 20 box cut in half.
+AXIS_HALVES = [
+    ("left_half", {}, [-10.0, 0.0, 0.0], [20.0, 30.0, 20.0]),
+    ("right_half", {"x": 5}, [12.5, 0.0, 0.0], [15.0, 30.0, 20.0]),
+    ("front_half", {}, [0.0, -7.5, 0.0], [40.0, 15.0, 20.0]),
+    ("back_half", {"y": -3}, [0.0, 6.0, 0.0], [40.0, 18.0, 20.0]),
+    ("top_half", {}, [0.0, 0.0, 5.0], [40.0, 30.0, 10.0]),
+    ("bottom_half", {"z": 5}, [0.0, 0.0, -2.5], [40.0, 30.0, 15.0]),
+]
 
 
-def test_half_of_general_normal() -> None:
-    assert isinstance(BOX.half_of([0, 1, 1]), Bosl2Solid)
-    assert isinstance(sphere(radius=20).half_of([1, 0, 0], center=5), Bosl2Solid)  # type: ignore[arg-type]
+@pytest.mark.parametrize(("method", "kwargs", "centre", "size"), AXIS_HALVES, ids=[row[0] for row in AXIS_HALVES])
+def test_each_axis_half_keeps_its_own_side(
+    method: str, kwargs: dict[str, float], centre: list[float], size: list[float]
+) -> None:
+    """Each half-cut keeps exactly the half its name promises, offset by the cut position."""
+    got_centre, got_size = _box(getattr(BOX, method)(**kwargs))
+    assert got_centre == pytest.approx(centre)
+    assert got_size == pytest.approx(size)
+
+
+def test_half_of_cuts_on_a_diagonal_plane() -> None:
+    """An off-axis normal cuts a plane through the box, trimming the corner it points away from."""
+    centre, size = _box(BOX.half_of([0, 1, 1]))
+    assert size[0] == pytest.approx(40)  # untouched across X
+    assert size[1] < 30  # trimmed in Y and lifted in +Y
+    assert centre[1] > 0
+
+
+def test_half_of_works_on_a_shape_with_no_flat_face() -> None:
+    centre, size = _box(sphere(radius=20).half_of([1, 0, 0], center=5))  # type: ignore[arg-type]
+    assert size[0] == pytest.approx(15)  # from x=5 out to the +X pole at x=20
+    assert centre[0] == pytest.approx(12.5)
 
 
 def test_half_of_with_cut_path() -> None:
+    """A cut path makes the join interlock: same half, but the cut face is no longer flat."""
     center = partition_path([40, "jigsaw", 40], fn=12)
-    assert isinstance(BOX.back_half(cut_path=center), Bosl2Solid)
+    interlocking = BOX.back_half(cut_path=center)
+    flat = BOX.back_half()
+    assert _box(interlocking)[1] == pytest.approx(_box(flat)[1])
+    assert repr(interlocking.shape) != repr(flat.shape)
 
 
 def test_partition_returns_two_pieces() -> None:
@@ -443,9 +511,17 @@ def test_a_section_can_be_an_explicit_profile() -> None:
     assert sect.to_list == [[0.0, 0.0], [20.0, 20.0], [40.0, 0.0]]
 
 
-def test_partition_mask_slop_shrinks_the_mask() -> None:
-    """`slop=` insets the mask so the two printed halves actually fit together."""
-    assert isinstance(partition_mask(length=60, w=30, height=20, cutpath="dovetail", slop=0.3), Bosl2Solid)
+def test_partition_mask_slop_insets_the_whole_outline() -> None:
+    """`slop=` insets the mask so the two printed halves actually fit together.
+
+    It is applied as a negative offset around the finished outline, not by moving points, so the
+    polygon is unchanged and the inset rides on top of it.
+    """
+    plain = partition_mask(length=60, w=30, height=20, cutpath="dovetail")
+    slopped = partition_mask(length=60, w=30, height=20, cutpath="dovetail", slop=0.3)
+    assert _mask_outline(slopped) == _mask_outline(plain)
+    assert "offset(delta = -0.3" in repr(slopped.shape)
+    assert "offset(" not in repr(plain.shape)
 
 
 # -- Partitionable: the cut operators the solids actually use -------------------------------
@@ -464,37 +540,56 @@ def test_bosl2_solid_gets_its_cuts_from_the_partitions_mixin() -> None:
 
 
 def test_half_of_accepts_a_2d_normal() -> None:
-    """A 2-D direction is padded to 3-D, so `half_of([1, 0])` means "keep +X"."""
-    assert isinstance(BOX.half_of([1, 0]), Bosl2Solid)
+    """A 2-D direction is padded to 3-D, so `half_of([1, 0])` keeps the +X half, not the +Z one."""
+    kept = BOX.half_of([1, 0])
+    assert _box(kept) == (pytest.approx([10.0, 0.0, 0.0]), pytest.approx([20.0, 30.0, 20.0]))
 
 
-def test_half_of_accepts_a_scalar_distance_along_the_normal() -> None:
-    assert isinstance(BOX.half_of(UP, center=5), Bosl2Solid)
-    assert isinstance(BOX.half_of(UP, center=[0, 0, 5]), Bosl2Solid)
+def test_a_scalar_distance_means_the_same_as_a_point_on_the_plane() -> None:
+    """`center=5` shifts the cut 5 along the normal -- identical to naming the point (0, 0, 5).
+
+    The two spellings disagreeing is exactly the drift that hid in the duplicated copy of this
+    method (T12): one padded a 2-D centre to 3-D, the other did not.
+    """
+    by_distance = _box(BOX.half_of(UP, center=5))
+    by_point = _box(BOX.half_of(UP, center=[0, 0, 5]))
+    assert by_distance == (pytest.approx(by_point[0]), pytest.approx(by_point[1]))
+    assert by_distance[1][2] == pytest.approx(5.0)  # 5mm of the 20mm box is above z=5
 
 
 def test_half_of_offset_grows_the_mask() -> None:
-    """`offset=` grows the cutting mask -- it goes through the native offset, which takes r=."""
-    assert isinstance(BOX.half_of(UP, offset=2), Bosl2Solid)
+    """`offset=` grows the cutting mask, so the kept half reaches further past the cut plane."""
+    plain = _box(BOX.half_of(UP))[1][2]
+    grown = _box(BOX.half_of(UP, offset=2))[1][2]
+    assert grown == pytest.approx(plain + 2)
 
 
 def test_half_of_takes_a_cut_path_in_either_direction() -> None:
-    """A right-to-left cut path is reversed rather than producing an inside-out mask."""
+    """A right-to-left cut path is reversed, giving the same mask -- not an inside-out one."""
     left_to_right = Path2D([[-20.0, 0.0], [0.0, 5.0], [20.0, 0.0]])
     right_to_left = Path2D([[20.0, 0.0], [0.0, 5.0], [-20.0, 0.0]])
-    assert isinstance(BOX.half_of(UP, cut_path=left_to_right), Bosl2Solid)
-    assert isinstance(BOX.half_of(UP, cut_path=right_to_left), Bosl2Solid)
+    forwards = BOX.half_of(UP, cut_path=left_to_right)
+    backwards = BOX.half_of(UP, cut_path=right_to_left)
+    assert repr(backwards.shape) == repr(forwards.shape)
+    assert repr(forwards.shape) != repr(BOX.half_of(UP).shape)  # and the path did change the cut
 
 
 def test_half_of_cut_angle_spins_the_cut_face() -> None:
     path = Path2D([[-20.0, 0.0], [0.0, 5.0], [20.0, 0.0]])
-    assert isinstance(BOX.half_of(UP, cut_path=path, cut_angle=30), Bosl2Solid)
+    straight = BOX.half_of(UP, cut_path=path)
+    spun = BOX.half_of(UP, cut_path=path, cut_angle=30)
+    assert repr(spun.shape) != repr(straight.shape)
+    assert _box(spun)[1] == pytest.approx(_box(straight)[1])  # a spin, not a resize
 
 
-def test_down_and_up_cuts_pick_their_own_reference_axis() -> None:
+def test_up_and_down_cuts_are_mirror_images() -> None:
     """A mask normal to +Z/-Z has no XY component, so the code falls back to FRONT/BACK."""
-    assert isinstance(BOX.half_of([0, 0, 1]), Bosl2Solid)
-    assert isinstance(BOX.half_of([0, 0, -1]), Bosl2Solid)
+    top_centre, top_size = _box(BOX.half_of([0, 0, 1]))
+    bottom_centre, bottom_size = _box(BOX.half_of([0, 0, -1]))
+    assert top_size == pytest.approx(bottom_size)
+    assert top_size[2] == pytest.approx(10.0)  # half of the 20mm box
+    assert top_centre[2] == pytest.approx(-bottom_centre[2])
+    assert top_centre[2] > 0
 
 
 def _separation(pieces: list[Bosl2Solid]) -> float:
