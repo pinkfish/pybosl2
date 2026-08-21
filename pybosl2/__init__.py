@@ -39,6 +39,7 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "effective_defaults": ("pybosl2.solid", "effective_defaults"),
     # core types
     "Path": ("pybosl2.paths", "Path"),
+    "PathLike": ("pybosl2.paths", "PathLike"),
     "CutPoint": ("pybosl2.paths", "CutPoint"),
     "Path2D": ("pybosl2.path2d", "Path2D"),
     "Path3D": ("pybosl2.path3d", "Path3D"),
@@ -196,6 +197,8 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "quaternion_slerp": ("pybosl2.quaternions", "quaternion_slerp"),
     "quaternion_rot": ("pybosl2.quaternions", "quaternion_rot"),
     # masking
+    "Mask2D": ("pybosl2.masking", "Mask2D"),
+    "Mask3D": ("pybosl2.masking", "Mask3D"),
     "mask2d_chamfer": ("pybosl2.masking", "mask2d_chamfer"),
     "mask2d_cove": ("pybosl2.masking", "mask2d_cove"),
     "mask2d_tear": ("pybosl2.masking", "mask2d_tear"),

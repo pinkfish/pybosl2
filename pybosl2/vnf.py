@@ -41,8 +41,9 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pybosl2.caps import CapSpec, CapsSpec
-    from pybosl2.isosurface import _MetaballSpec
+    from pybosl2.isosurface import MetaballSpec
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d import Bosl2Solid
 
 _EPS = 1e-9
@@ -810,7 +811,7 @@ class VNF:
             A new :class:`VNF` containing only the requested halfspace.
 
         Raises:
-            AssertionError: If *plane* does not have exactly 4 elements.
+            ValueError: If *plane* does not have exactly 4 elements.
 
         Examples:
         .. pythonscad-example::
@@ -998,9 +999,11 @@ class VNF:
         make_cap1, cap1_round = _resolve_cap(cap1)
         make_cap2, cap2_round = _resolve_cap(cap2)
         if (make_cap1 or make_cap2) and not col_wrap:
-            raise AssertionError("col_wrap must be true if caps are requested")
+            raise ValueError("vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column.")
         if (make_cap1 or make_cap2) and row_wrap:
-            raise AssertionError("cannot combine caps with row_wrap")
+            raise ValueError(
+                "vertex_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
+            )
 
         parr = np.asarray(grid, dtype=float).reshape(rows * cols, -1)  # flattened, row-major
         pcnt = rows * cols
@@ -1179,7 +1182,9 @@ class VNF:
         meshes triangular / irregular point arrays (what the degenerate bezier patches produce).
         """
         if (caps or cap1 or cap2) and row_wrap:
-            raise AssertionError("cannot combine caps with row_wrap")
+            raise ValueError(
+                "tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
+            )
         plen = len(points)
         st = []
         for row in points:
@@ -1398,7 +1403,7 @@ class VNF:
     @classmethod
     def from_metaballs(
         cls,
-        spec: list[_MetaballSpec],
+        spec: list[MetaballSpec],
         bounding_box: Bounds3D | float | Sequence[float] | Sequence[Sequence[float]],
         voxel_size: float | None = None,
         voxel_count: int | None = None,
@@ -1409,8 +1414,8 @@ class VNF:
         """Mesh transformed metaball primitives into a blobby :class:`VNF`.
 
         Args:
-            spec: A list of :class:`_MetaballSpec` entries,
-                each holding a transform (4×4 matrix or Point position) and a :class:`_Metaball`.
+            spec: A list of :class:`MetaballSpec` entries,
+                each holding a transform (4×4 matrix or Point position) and a :class:`Metaball`.
             bounding_box: A :class:`~pybosl2.bounds.Bounds3D`.
             voxel_size: Isotropic voxel size.
             voxel_count: Approximate total voxel count.
@@ -1468,14 +1473,14 @@ class VNF:
         else:
             raise TypeError("bounding_box must be Bounds3D, float, or list/tuple.")
 
-        from pybosl2.isosurface import _MetaballSpec
+        from pybosl2.isosurface import MetaballSpec
 
-        norm_spec: list[_MetaballSpec] = []
+        norm_spec: list[MetaballSpec] = []
         for item in spec:
-            if isinstance(item, _MetaballSpec):
+            if isinstance(item, MetaballSpec):
                 norm_spec.append(item)
             else:
-                norm_spec.append(_MetaballSpec(item[0], item[1]))
+                norm_spec.append(MetaballSpec(item[0], item[1]))
 
         bb, vs = _resolve_grid(bb, voxel_size, voxel_count, exact_bounds)
         invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in norm_spec]
@@ -1493,7 +1498,7 @@ class VNF:
     @classmethod
     def from_skin(
         cls,
-        profiles: Sequence[Sequence[Sequence[float]]],
+        profiles: Sequence[PathLike],
         slices: int,
         refine: float = 1.0,
         method: SkinMethod = SkinMethod.DIRECT,

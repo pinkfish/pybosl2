@@ -50,12 +50,19 @@ class CutPoint:
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import TypeAlias
 
     from numpy.typing import NDArray
 
     from pybosl2.color import Color
 
-__all__ = ["CutPoint", "Path", "SubdivideMethod"]
+#: Anything an API that wants a polyline accepts: a :class:`Path` (what the library hands back and
+#: what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array.
+#: Normalise it on the first line -- ``np.asarray(x, dtype=float)`` or ``Path2D(x)`` -- so the rest
+#: of the body works on one shape (PLAN T-4).
+PathLike: "TypeAlias" = "Path | Sequence[Sequence[float]] | NDArray[np.float64]"
+
+__all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod"]
 
 
 class SubdivideMethod(Enum):
@@ -134,6 +141,12 @@ class Path(ABC):
     def __iter__(self) -> Iterator[np.ndarray]:
         """Return an iterator."""
         return iter(self._points)
+
+    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
+        """Return a numpy array representation."""
+        if copy:
+            return self._points.copy()
+        return self._points
 
     def __eq__(self, other: object) -> bool:
         """Return whether two objects are equal."""
@@ -222,7 +235,7 @@ class Path(ABC):
             An ndarray of unit tangent vectors, one per path point.
 
         Raises:
-            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+            ValueError: If two adjacent points coincide, leaving a zero-length tangent.
 
         """
         if closed is None:

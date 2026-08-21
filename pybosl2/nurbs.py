@@ -929,7 +929,7 @@ class NurbsCurve:
             A new :class:`NurbsCurve` of degree ``self.degree + times``.
 
         Raises:
-            AssertionError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.
+            ValueError: If the curve is :attr:`NurbsType.CLOSED`, or *times* is negative.
 
         """
         control, degree, knots, weights = _elevate_curve(
@@ -1174,7 +1174,7 @@ class NurbsPatch:
             A :class:`~pybosl2.vnf.VNF`.
 
         Raises:
-            AssertionError: If *caps* are requested on a patch that isn't paired
+            ValueError: If *caps* are requested on a patch that isn't paired
                             ``CLAMPED``/``CLOSED`` (or the reverse).
 
         Examples:

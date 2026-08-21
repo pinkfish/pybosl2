@@ -26,6 +26,7 @@ from pybosl2.defaults import resolve_facets
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2.paths import PathLike
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -337,7 +338,7 @@ def anchor_offset_box(size: Sequence[float], anchor: Anchor | Sequence[float]) -
     return [-d[0] * size[0] / 2, -d[1] * size[1] / 2]
 
 
-def anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
+def anchor_offset_hull(points: PathLike, anchor: Anchor | Sequence[float]) -> list[float]:
     d = dir2(anchor)
     if d[0] == 0 and d[1] == 0:
         return [0.0, 0.0]
@@ -346,7 +347,7 @@ def anchor_offset_hull(points: Sequence[Sequence[float]], anchor: Anchor | Seque
 
 
 def anchor_offset_generic(
-    points: Sequence[Sequence[float]],
+    points: PathLike,
     anchor: Anchor | Sequence[float],
     atype: str | AnchorType,
 ) -> list[float]:
@@ -393,7 +394,7 @@ def anchor_offset_box3(size: Sequence[float], anchor: Anchor | Sequence[float]) 
     return [-a[i] * size[i] / 2 for i in range(3)]
 
 
-def anchor_offset_hull3(points: Sequence[Sequence[float]], anchor: Anchor | Sequence[float]) -> list[float]:
+def anchor_offset_hull3(points: PathLike, anchor: Anchor | Sequence[float]) -> list[float]:
     """3-D convex hull anchor offset with centroid tie-breaking."""
     a = anchor_vector(anchor)
     if a[0] == 0 and a[1] == 0 and a[2] == 0:
@@ -466,8 +467,8 @@ def arc_points(
     return pts
 
 
-def circle_from_3pts(points: Sequence[Sequence[float]]) -> tuple[list[float], float]:
-    (x1, y1), (x2, y2), (x3, y3) = points
+def circle_from_3pts(points: PathLike) -> tuple[list[float], float]:
+    (x1, y1), (x2, y2), (x3, y3) = np.asarray(points, dtype=float)
     d = 2 * (x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))
     ux = ((x1**2 + y1**2) * (y2 - y3) + (x2**2 + y2**2) * (y3 - y1) + (x3**2 + y3**2) * (y1 - y2)) / d
     uy = ((x1**2 + y1**2) * (x3 - x2) + (x2**2 + y2**2) * (x1 - x3) + (x3**2 + y3**2) * (x2 - x1)) / d

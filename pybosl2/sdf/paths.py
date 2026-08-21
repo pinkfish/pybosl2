@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -34,10 +34,12 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike, NDArray
 
+    from pybosl2.paths import PathLike
+
     _VecLike = Sequence[float] | NDArray[np.float64]
 
 
-def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.float64]]:  # type: ignore[type-arg]
+def as_path_list(paths: PathLike | Sequence[PathLike]) -> list[NDArray[np.float64]]:
     """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a.
 
     list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
@@ -50,7 +52,8 @@ def as_path_list(paths: Sequence[Sequence[float]] | NDArray) -> list[NDArray[np.
 
     if isinstance(first, (_PathBase, np.ndarray)) or isinstance(first[0], (list, tuple, np.ndarray)):
         return [as_points(q) for q in paths]
-    return [as_points(paths)]
+    # not a list of paths, so it is one path: a plain sequence of [x, y] points
+    return [as_points(cast("Sequence[Sequence[float]]", paths))]
 
 
 def as_points(pts: ArrayLike) -> NDArray[np.float64]:
@@ -412,7 +415,8 @@ def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n
     total length, and side arcs of radius arc_radius blending them -- as a closed point path.
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
     """
-    assert length > 0
+    if length <= 0:
+        raise ValueError(f"egg_path(): length must be positive, got {length}.")
     if not (length / 2 < arc_radius):
         raise ValueError("Side radius arc_radius must be larger than length/2")
     if not (length > radius1 + radius2):

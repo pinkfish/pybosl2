@@ -1129,3 +1129,61 @@ SIBLING_GUARD_CASES: list[tuple[Callable[[], object], str]] = [
 def test_sibling_guards_say_what_to_pass(call: Callable[[], object], expected: str) -> None:
     with pytest.raises(ValueError, match=expected):
         call()
+
+
+_GRID3 = [[[float(i), float(j), 0.0] for j in range(3)] for i in range(3)]
+_BEZ = beziers.Bezier([[0.0, 0.0], [1.0, 1.0], [2.0, 0.0], [3.0, 1.0]])
+
+WAS_ASSERTION_CASES: list[tuple[Callable[[], object], str]] = [
+    # each of these used to raise AssertionError or a message-less assert: bad input, reported as
+    # an internal invariant (and, for the bare asserts, erased entirely under `python -O`).
+    (lambda: VNF.vertex_array(_GRID3, caps=True), "caps need col_wrap=True"),
+    (lambda: VNF.vertex_array(_GRID3, caps=True, col_wrap=True, row_wrap=True), "cannot be combined with row_wrap"),
+    (lambda: VNF.tri_array(_GRID3, caps=True, row_wrap=True), "cannot be combined with row_wrap"),
+    (lambda: beziers.Bezier([[0.0, 1.0], [1.0, 2.0], [2.0, 1.0]]).close_to_axis(axis="Z"), 'axis must be "X" or "Y"'),
+    (lambda: misc.extrude_from_to(Path2D(_SQ2D, closed=True), [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]), "points must differ"),
+    (
+        lambda: Path3D([[0.0, 0.0, 0.0], [0.0, 0.0, 10.0]]).path_sweep(Path2D(_SQ2D, closed=True), method="bogus"),
+        "unknown method",
+    ),
+    (
+        lambda: (
+            threading.ThreadedNut(
+                nutwidth=15, id=10, h=8, pitch=2, profile=[[-0.5, 0.0], [0.0, 0.5], [0.5, 0.0]], shape="bogus"
+            ).shape
+        ),
+        "shape must be NutShape",
+    ),
+    (lambda: _BEZ.derivative(0.5, order=-1), "order must be a non-negative integer"),
+    (lambda: _BEZ.derivative(0.5, order=1.5), "order must be a non-negative integer"),
+    (lambda: beziers.BezierPatch.flat([100, 100], n_degree=0), "n_degree must be positive"),
+    (lambda: Path3D([[0.0, 0.0, 0.0]]).cut_points(1.0), "a closed path needs three points"),
+    (lambda: Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]).cut_points("x"), "a distance or a list of increasing"),
+    (lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=0, size=(10, 10, 10)), "must be positive"),
+    (lambda: dist.path_copies([[0.0, 0.0], [10.0, 0.0]]), "to say where the copies go"),
+    (lambda: sdfp.egg_path(length=0, radius1=1, radius2=1, arc_radius=10), "length must be positive"),
+    (lambda: s2.reuleaux_polygon(sides=4, radius=5), "odd number of 3 or more"),
+    (lambda: s2.reuleaux_polygon(sides=1, radius=5), "odd number of 3 or more"),
+    (
+        lambda: skin.rot_resample([np.eye(4), np.eye(4)], num_copies=2, method="length"),
+        "method must be a ResampleMethod",
+    ),
+    (
+        lambda: turtle3d([TurtleCommand(TurtleCommandType.ARCLEFT, angle=90)]),
+        "needs a numeric radius",
+    ),
+    (
+        lambda: turtle3d([TurtleCommand(TurtleCommandType.ARCXROT, angle=90)]),
+        "needs a numeric radius",
+    ),
+    (
+        lambda: turtle3d([TurtleCommand(TurtleCommandType.ARCROT, angle=90)]),
+        "needs a numeric radius",
+    ),
+]
+
+
+@pytest.mark.parametrize(("call", "expected"), WAS_ASSERTION_CASES)
+def test_former_assertions_now_reject_with_value_error(call: Callable[[], object], expected: str) -> None:
+    with pytest.raises(ValueError, match=expected):
+        call()

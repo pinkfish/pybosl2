@@ -33,6 +33,7 @@ if TYPE_CHECKING:
     from pybosl2.beziers import Bezier
     from pybosl2.color import Color
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
     from pybosl2.shapes3d import Bosl2Solid
@@ -257,7 +258,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     """
 
-    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
+    def __init__(self, points: PathLike = (), closed: bool = False) -> None:
         """Initialize the instance."""
         self._color: "Color | None" = None
         # A copy, not asarray: the array is frozen below and handed to every _points reader, so
@@ -425,12 +426,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         """Return an iterator."""
         return iter(self._points)
 
-    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
-        """Return a numpy array representation."""
-        if copy:
-            return self._points.copy()
-        return self._points
-
     @property
     def array(self) -> np.ndarray:
         """The points as an (N, 2) numpy array, for doing your own vectorised maths.
@@ -574,7 +569,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of unit tangent vectors, one per path point.
 
         Raises:
-            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+            ValueError: If two adjacent points coincide, leaving a zero-length tangent.
 
         """
         return [Point(float(t[0]), float(t[1])) for t in self.tangent_array(closed=closed, uniform=uniform)]
@@ -1094,7 +1089,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new offset :class:`Path2D`.
 
         Raises:
-            AssertionError: If not exactly one of *radius*/*delta* is given, if the path is open,
+            ValueError: If not exactly one of *radius*/*delta* is given, if the path is open,
                 if *same_length* is combined with rounded or chamfered joins, or if the offset
                 collapsed the outline entirely (shrinking a shape by more than its own
                 half-width leaves nothing).
@@ -2559,7 +2554,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             The offset outline, wound the same way as *source*.
 
         Raises:
-            AssertionError: If the offset leaves nothing at all.
+            ValueError: If the offset leaves nothing at all.
 
         """
         polygon = Polygon(np.vstack([source, source[:1]]).tolist())

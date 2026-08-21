@@ -152,5 +152,5 @@ def test_invalid_rod_dims_raise() -> None:
 
 
 def test_bad_nut_shape_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="shape must be NutShape"):
         _ = iso_threaded_nut(18, 12, 10, 1.75, shape="round").shape

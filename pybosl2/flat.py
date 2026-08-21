@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
     from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
+    from pybosl2.paths import PathLike
 
 
 __all__ = [
@@ -64,7 +65,7 @@ def circle(
     radius: float | None = None,
     diameter: float | None = None,
     *,
-    points: Sequence[Sequence[float]] | None = None,
+    points: PathLike | None = None,
     corner: Sequence[Sequence[float]] | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -261,7 +262,7 @@ def rect(
 
 
 def polygon(
-    points: Sequence[Sequence[float]],
+    points: PathLike,
     *,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,

@@ -42,54 +42,29 @@ from ._edges_lang import edges as resolve_edges
 from .constants import CENTER
 from .shapes3d.base import _anchor_offset_box3
 
+__all__ = [
+    "Mask2D",
+    "Mask3D",
+    "chamfer_edge_mask",
+    "corner_profile",
+    "edge_mask",
+    "edge_profile",
+    "face_profile",
+    "mask2d_chamfer",
+    "mask2d_cove",
+    "mask2d_groove",
+    "mask2d_roundover",
+    "mask2d_step",
+    "mask2d_tear",
+    "mask3d_chamfer",
+    "mask3d_groove",
+    "mask3d_roundover",
+    "rounding_edge_mask",
+]
+
 _ocube = native("cube")
 _opolygon = native("polygon")
 _osphere = native("sphere")
-
-
-def mask2d_roundover(
-    radius: float | None = None,
-    inset: float | tuple[float, float] = 0.0,
-    excess: float = 0.01,
-    diameter: float | None = None,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> "Path2D":
-    """Return the 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.
-
-    Args:
-        radius: Rounding radius.
-        inset: Scalar or ``(x, y)`` inset of the rounding center from the corner (default 0).
-        excess: Amount the flat sides extend past the origin, for a clean boolean cut (default 0.01).
-        diameter: Rounding diameter (alternative to *radius*).
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
-
-    Returns:
-        A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
-
-    """
-    from pybosl2.path2d import Path2D
-
-    if radius is None:
-        if not (diameter is not None):
-            raise ValueError("mask2d_roundover(): must give radius or diameter")
-        radius = diameter / 2
-    rad = float(radius)
-    inset_x, inset_y = inset if isinstance(inset, tuple) else (float(inset), float(inset))
-    steps = max(1, int(quantup(_frag_count(rad, fn, fa, fs), 4) // 4))
-    step = 90.0 / steps
-    path = [
-        [rad + inset_x, -excess],
-        [-excess, -excess],
-        [-excess, rad + inset_y],
-    ]
-    for i in range(steps + 1):
-        p = _polar_to_xy(rad, 180 + i * step)
-        path.append([rad + inset_x + p[0], rad + inset_y + p[1]])
-    return Path2D(path, closed=True)
 
 
 def rounding_edge_mask(
@@ -364,7 +339,8 @@ def _corner_cutter(
     fa: float | None = None,
     fs: float | None = None,
 ) -> "Bosl2Solid":
-    assert radius > 0
+    if radius <= 0:
+        raise ValueError(f"corner_profile(): radius/diameter must be positive, got {radius}.")
     # Standard cutter: box-shaped negative roundover. Built by placing a negative sphere
     # (or rather, the positive chunk to subtract) in the corner of a size-sized box.
     # We do this by taking a box at the corner, and subtracting a sphere.
@@ -529,264 +505,356 @@ def face_profile(
     )
 
 
-def mask2d_chamfer(
-    x: float,
-    y: float | None = None,
-    excess: float = 0.01,
-) -> "Path2D":
-    """Return the 2-D L-shaped cutter cross-section for chamfering a 90-degree edge.
+class Mask2D:
+    """The 2-D cutter cross-sections (BOSL2's ``mask2d_*`` family), as factories returning a Path2D.
 
-    Args:
-        x: Chamfer width (X direction).
-        y: Chamfer height (Y direction). Defaults to `x`.
-        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+    Each returns the profile you sweep along an edge to cut it -- pass one as the *children* of
+    :meth:`~pybosl2.shapes3d.base.Bosl2Solid.edge_profile` /
+    :meth:`~pybosl2.shapes3d.base.Bosl2Solid.corner_profile`, or extrude it yourself. The BOSL2 spellings
+    (``mask2d_roundover`` and friends) remain as aliases of these.
 
-    """
-    from pybosl2.path2d import Path2D
+    Examples:
+        .. pythonscad-example::
 
-    y_val = x if y is None else y
-    pts = [
-        [x, -excess],
-        [-excess, -excess],
-        [-excess, y_val],
-        [0.0, y_val],
-        [x, 0.0],
-    ]
-    return Path2D(pts, closed=True)
+            from pybosl2 import Anchor, Mask2D, cuboid
 
-
-def mask2d_cove(
-    radius: float,
-    excess: float = 0.01,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> "Path2D":
-    """Return the 2-D L-shaped cutter cross-section for a concave corner fillet (cove).
-
-    Args:
-        radius: Cove radius.
-        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
+            cuboid([30, 30, 20]).edge_profile(edges=[Anchor.TOP], children=Mask2D.roundover(4)).show()
 
     """
-    from pybosl2.path2d import Path2D
 
-    steps = max(1, int(quantup(_frag_count(radius, fn, fa, fs), 4) // 4))
-    path = [
-        [radius, -excess],
-        [-excess, -excess],
-        [-excess, radius],
-        [0.0, radius],
-    ]
-    for i in range(steps + 1):
-        ang = math.radians(180.0 + (90.0 * i / steps))
-        path.append(
-            [
-                radius + radius * math.cos(ang),
-                radius + radius * math.sin(ang),
-            ]
+    @staticmethod
+    def roundover(
+        radius: float | None = None,
+        inset: float | tuple[float, float] = 0.0,
+        excess: float = 0.01,
+        diameter: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Path2D":
+        """Return the 2-D L-shaped cutter cross-section for rounding a 90-degree edge/corner to radius *radius*.
+
+        Args:
+            radius: Rounding radius.
+            inset: Scalar or ``(x, y)`` inset of the rounding center from the corner (default 0).
+            excess: Amount the flat sides extend past the origin, for a clean boolean cut (default 0.01).
+            diameter: Rounding diameter (alternative to *radius*).
+            fn: Arc smoothness overrides.
+            fa: Arc smoothness overrides.
+            fs: Arc smoothness overrides.
+
+        Returns:
+            A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
+
+        """
+        from pybosl2.path2d import Path2D
+
+        if radius is None:
+            if not (diameter is not None):
+                raise ValueError("Mask2D.roundover(): must give radius or diameter")
+            radius = diameter / 2
+        rad = float(radius)
+        inset_x, inset_y = inset if isinstance(inset, tuple) else (float(inset), float(inset))
+        steps = max(1, int(quantup(_frag_count(rad, fn, fa, fs), 4) // 4))
+        step = 90.0 / steps
+        path = [
+            [rad + inset_x, -excess],
+            [-excess, -excess],
+            [-excess, rad + inset_y],
+        ]
+        for i in range(steps + 1):
+            p = _polar_to_xy(rad, 180 + i * step)
+            path.append([rad + inset_x + p[0], rad + inset_y + p[1]])
+        return Path2D(path, closed=True)
+
+    @staticmethod
+    def chamfer(
+        x: float,
+        y: float | None = None,
+        excess: float = 0.01,
+    ) -> "Path2D":
+        """Return the 2-D L-shaped cutter cross-section for chamfering a 90-degree edge.
+
+        Args:
+            x: Chamfer width (X direction).
+            y: Chamfer height (Y direction). Defaults to `x`.
+            excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+
+        """
+        from pybosl2.path2d import Path2D
+
+        y_val = x if y is None else y
+        pts = [
+            [x, -excess],
+            [-excess, -excess],
+            [-excess, y_val],
+            [0.0, y_val],
+            [x, 0.0],
+        ]
+        return Path2D(pts, closed=True)
+
+    @staticmethod
+    def cove(
+        radius: float,
+        excess: float = 0.01,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Path2D":
+        """Return the 2-D L-shaped cutter cross-section for a concave corner fillet (cove).
+
+        Args:
+            radius: Cove radius.
+            excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+            fn: Arc smoothness overrides.
+            fa: Arc smoothness overrides.
+            fs: Arc smoothness overrides.
+
+        """
+        from pybosl2.path2d import Path2D
+
+        steps = max(1, int(quantup(_frag_count(radius, fn, fa, fs), 4) // 4))
+        path = [
+            [radius, -excess],
+            [-excess, -excess],
+            [-excess, radius],
+            [0.0, radius],
+        ]
+        for i in range(steps + 1):
+            ang = math.radians(180.0 + (90.0 * i / steps))
+            path.append(
+                [
+                    radius + radius * math.cos(ang),
+                    radius + radius * math.sin(ang),
+                ]
+            )
+        path.append([radius, 0.0])
+        return Path2D(path, closed=True)
+
+    @staticmethod
+    def tear(
+        r: float,
+        maxgap: float | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Path2D":
+        """Return the 2-D L-shaped cutter cross-section with a teardrop-shaped profile.
+
+        Args:
+            r: Radius of the teardrop circle.
+            maxgap: Maximum gap height (unused, kept for compatibility).
+            fn: Arc smoothness overrides.
+            fa: Arc smoothness overrides.
+            fs: Arc smoothness overrides.
+
+        """
+        from pybosl2.path2d import Path2D
+
+        _ = maxgap
+        excess = 0.01
+        path = [
+            [r, -excess],
+            [-excess, -excess],
+            [-excess, r],
+        ]
+        steps = max(1, int(quantup(_frag_count(r, fn, fa, fs), 4) // 4))
+        for i in range(steps + 1):
+            ang = math.radians(180.0 + (135.0 * i / steps))
+            path.append(
+                [
+                    r + r * math.cos(ang),
+                    r + r * math.sin(ang),
+                ]
+            )
+        tip = [r * (1.0 - math.sqrt(2.0)), r * (1.0 - math.sqrt(2.0))]
+        path.append(tip)
+        return Path2D(path, closed=True)
+
+    @staticmethod
+    def step(
+        width: float,
+        height: float,
+        excess: float = 0.01,
+    ) -> "Path2D":
+        """Return the 2-D cutter cross-section for cutting a step profile in a corner.
+
+        Args:
+            width: Step width.
+            height: Step height.
+            excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+
+        """
+        from pybosl2.path2d import Path2D
+
+        pts = [
+            [width, -excess],
+            [-excess, -excess],
+            [-excess, height],
+            [0.0, height],
+            [0.0, 0.0],
+            [width, 0.0],
+        ]
+        return Path2D(pts, closed=True)
+
+    @staticmethod
+    def groove(
+        width: float,
+        depth: float,
+        chamfer: float = 0.0,
+        round_radius: float = 0.0,
+        excess: float = 0.01,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Path2D":
+        """Return the 2-D cutter cross-section for cutting a slot or groove.
+
+        Args:
+            width: Groove width.
+            depth: Groove depth.
+            chamfer: Groove chamfer offset (unused, kept for compatibility).
+            round_radius: Groove corner rounding radius (unused, kept for compatibility).
+            excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+            fn: Arc smoothness overrides.
+            fa: Arc smoothness overrides.
+            fs: Arc smoothness overrides.
+
+        """
+        from pybosl2.path2d import Path2D
+
+        _ = (chamfer, round_radius, fn, fa, fs)
+        half_w = width / 2.0
+        pts = [
+            [half_w + excess, -excess],
+            [-half_w - excess, -excess],
+            [-half_w - excess, depth + excess],
+            [-half_w, depth + excess],
+            [-half_w, 0.0],
+            [half_w, 0.0],
+            [half_w, depth + excess],
+            [half_w + excess, depth + excess],
+        ]
+        return Path2D(pts, closed=True)
+
+
+class Mask3D:
+    """The ready-made 3-D cutter solids (BOSL2's ``mask3d_*`` family), as factories.
+
+    Unlike :class:`Mask2D`, these are whole solids: subtract one from your shape to cut every
+    selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
+
+    Examples:
+        .. pythonscad-example::
+
+            from pybosl2 import Mask3D, cuboid
+
+            (cuboid([30, 30, 30]) - Mask3D.roundover(4, size=(30, 30, 30))).show()
+
+    """
+
+    @staticmethod
+    def roundover(
+        r: float,
+        size: tuple[float, float, float],
+        corners: Anchor = Anchor.ALL,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Bosl2Solid":
+        """3-D cutter shape for rounding corners and edges of a box of the given size.
+
+        Args:
+            r: Rounding radius.
+            size: Bounding box size (X, Y, Z).
+            corners: Corners to select.
+            fn: Arc smoothness overrides.
+            fa: Arc smoothness overrides.
+            fs: Arc smoothness overrides.
+
+        """
+        from pybosl2.shapes3d import cuboid
+
+        body = cuboid(size)
+        cutter = corner_profile(
+            body,
+            corners=corners,
+            radius=r,
+            size=size,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+            return_cutter=True,
         )
-    path.append([radius, 0.0])
-    return Path2D(path, closed=True)
+        if cutter is None:
+            raise ValueError(
+                "Mask3D.roundover(): corners= selected no corners, so there is nothing to round; "
+                "pass an Anchor naming at least one corner."
+            )
+        return cutter
 
+    @staticmethod
+    def chamfer(
+        chamfer: float,
+        size: tuple[float, float, float],
+        corners: Anchor = Anchor.ALL,
+    ) -> "Bosl2Solid":
+        """3-D cutter shape for chamfering corners and edges of a box of the given size.
 
-def mask2d_tear(
-    r: float,
-    maxgap: float | None = None,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> "Path2D":
-    """Return the 2-D L-shaped cutter cross-section with a teardrop-shaped profile.
+        Args:
+            chamfer: Chamfer distance.
+            size: Bounding box size (X, Y, Z).
+            corners: Corners to select.
 
-    Args:
-        r: Radius of the teardrop circle.
-        maxgap: Maximum gap height (unused, kept for compatibility).
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
+        """
+        from pybosl2.shapes3d import cuboid
 
-    """
-    from pybosl2.path2d import Path2D
-
-    _ = maxgap
-    excess = 0.01
-    path = [
-        [r, -excess],
-        [-excess, -excess],
-        [-excess, r],
-    ]
-    steps = max(1, int(quantup(_frag_count(r, fn, fa, fs), 4) // 4))
-    for i in range(steps + 1):
-        ang = math.radians(180.0 + (135.0 * i / steps))
-        path.append(
-            [
-                r + r * math.cos(ang),
-                r + r * math.sin(ang),
-            ]
+        body = cuboid(size)
+        mask = mask2d_chamfer(chamfer)
+        cutter = corner_profile(
+            body,
+            corners=corners,
+            radius=chamfer,
+            size=size,
+            children=mask,
+            return_cutter=True,
         )
-    tip = [r * (1.0 - math.sqrt(2.0)), r * (1.0 - math.sqrt(2.0))]
-    path.append(tip)
-    return Path2D(path, closed=True)
+        if cutter is None:
+            raise ValueError(
+                "Mask3D.chamfer(): corners= selected no corners, so there is nothing to chamfer; "
+                "pass an Anchor naming at least one corner."
+            )
+        return cutter
+
+    @staticmethod
+    def groove(
+        width: float,
+        depth: float,
+        length: float,
+        chamfer: float = 0.0,
+    ) -> "Bosl2Solid":
+        """3-D cutter shape representing a slot or groove of the given width, depth, and length.
+
+        Args:
+            width: Groove width.
+            depth: Groove depth.
+            length: Groove length.
+            chamfer: Groove chamfer offset.
+
+        """
+        g2d = mask2d_groove(width, depth, chamfer=chamfer)
+        # Extrude along Z:
+        return g2d.linear_extrude(height=length, center=True)  # type: ignore[return-value]
 
 
-def mask2d_step(
-    width: float,
-    height: float,
-    excess: float = 0.01,
-) -> "Path2D":
-    """Return the 2-D cutter cross-section for cutting a step profile in a corner.
-
-    Args:
-        width: Step width.
-        height: Step height.
-        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-
-    """
-    from pybosl2.path2d import Path2D
-
-    pts = [
-        [width, -excess],
-        [-excess, -excess],
-        [-excess, height],
-        [0.0, height],
-        [0.0, 0.0],
-        [width, 0.0],
-    ]
-    return Path2D(pts, closed=True)
-
-
-def mask2d_groove(
-    width: float,
-    depth: float,
-    chamfer: float = 0.0,
-    round_radius: float = 0.0,
-    excess: float = 0.01,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> "Path2D":
-    """Return the 2-D cutter cross-section for cutting a slot or groove.
-
-    Args:
-        width: Groove width.
-        depth: Groove depth.
-        chamfer: Groove chamfer offset (unused, kept for compatibility).
-        round_radius: Groove corner rounding radius (unused, kept for compatibility).
-        excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
-
-    """
-    from pybosl2.path2d import Path2D
-
-    _ = (chamfer, round_radius, fn, fa, fs)
-    half_w = width / 2.0
-    pts = [
-        [half_w + excess, -excess],
-        [-half_w - excess, -excess],
-        [-half_w - excess, depth + excess],
-        [-half_w, depth + excess],
-        [-half_w, 0.0],
-        [half_w, 0.0],
-        [half_w, depth + excess],
-        [half_w + excess, depth + excess],
-    ]
-    return Path2D(pts, closed=True)
-
-
-def mask3d_roundover(
-    r: float,
-    size: tuple[float, float, float],
-    corners: Anchor = Anchor.ALL,
-    fn: int | None = None,
-    fa: float | None = None,
-    fs: float | None = None,
-) -> "Bosl2Solid":
-    """3-D cutter shape for rounding corners and edges of a box of the given size.
-
-    Args:
-        r: Rounding radius.
-        size: Bounding box size (X, Y, Z).
-        corners: Corners to select.
-        fn: Arc smoothness overrides.
-        fa: Arc smoothness overrides.
-        fs: Arc smoothness overrides.
-
-    """
-    from pybosl2.shapes3d import cuboid
-
-    body = cuboid(size)
-    cutter = corner_profile(
-        body,
-        corners=corners,
-        radius=r,
-        size=size,
-        fn=fn,
-        fa=fa,
-        fs=fs,
-        return_cutter=True,
-    )
-    if cutter is None:
-        raise ValueError(
-            "mask3d_roundover(): corners= selected no corners, so there is nothing to round; "
-            "pass an Anchor naming at least one corner."
-        )
-    return cutter
-
-
-def mask3d_chamfer(
-    chamfer: float,
-    size: tuple[float, float, float],
-    corners: Anchor = Anchor.ALL,
-) -> "Bosl2Solid":
-    """3-D cutter shape for chamfering corners and edges of a box of the given size.
-
-    Args:
-        chamfer: Chamfer distance.
-        size: Bounding box size (X, Y, Z).
-        corners: Corners to select.
-
-    """
-    from pybosl2.shapes3d import cuboid
-
-    body = cuboid(size)
-    mask = mask2d_chamfer(chamfer)
-    cutter = corner_profile(
-        body,
-        corners=corners,
-        radius=chamfer,
-        size=size,
-        children=mask,
-        return_cutter=True,
-    )
-    if cutter is None:
-        raise ValueError(
-            "mask3d_chamfer(): corners= selected no corners, so there is nothing to chamfer; "
-            "pass an Anchor naming at least one corner."
-        )
-    return cutter
-
-
-def mask3d_groove(
-    width: float,
-    depth: float,
-    length: float,
-    chamfer: float = 0.0,
-) -> "Bosl2Solid":
-    """3-D cutter shape representing a slot or groove of the given width, depth, and length.
-
-    Args:
-        width: Groove width.
-        depth: Groove depth.
-        length: Groove length.
-        chamfer: Groove chamfer offset.
-
-    """
-    g2d = mask2d_groove(width, depth, chamfer=chamfer)
-    # Extrude along Z:
-    return g2d.linear_extrude(height=length, center=True)  # type: ignore[return-value]
+# The BOSL2 spellings, kept as aliases of the factories above (SPEC P-6). New code should use the
+# classes -- these stay for one release.
+mask2d_roundover = Mask2D.roundover
+mask2d_chamfer = Mask2D.chamfer
+mask2d_cove = Mask2D.cove
+mask2d_tear = Mask2D.tear
+mask2d_step = Mask2D.step
+mask2d_groove = Mask2D.groove
+mask3d_roundover = Mask3D.roundover
+mask3d_chamfer = Mask3D.chamfer
+mask3d_groove = Mask3D.groove

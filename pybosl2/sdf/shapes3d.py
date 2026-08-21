@@ -1825,7 +1825,7 @@ def _cyl_edge_sdf(
             qv = lv.abs(axial) - hb + a
             base = lv.min(lv.max(qu, qv), 0) + _lv_hypot(lv.max(qu, 0), lv.max(qv, 0)) - a
         else:
-            assert mode == EdgeMode.CHAMFER
+            assert mode == EdgeMode.CHAMFER, "only rounded and chamfered rims reach this builder"
             qu = radial - r_ref
             qv = lv.abs(axial) - hb
             base = lv.max(lv.max(qu, qv), (qu + qv + a) / _SQRT2)

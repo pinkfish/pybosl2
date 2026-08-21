@@ -53,7 +53,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import Anchor
     from pybosl2.caps import CapsSpec, CapType
-    from pybosl2.paths import Path
+    from pybosl2.paths import Path, PathLike
     from pybosl2.points import Point
     from pybosl2.shapes3d import Bosl2Solid
 
@@ -104,7 +104,7 @@ class Bezier:
 
     _points: np.ndarray
 
-    def __init__(self, control_points: Sequence[Sequence[float]] | np.ndarray = ()) -> None:
+    def __init__(self, control_points: PathLike = ()) -> None:
         """Initialize a Bezier with a sequence of 2-D or 3-D control points.
 
         Accepts any array-like: Python lists, numpy arrays, or nested sequences.
@@ -151,7 +151,7 @@ class Bezier:
         return f"Bezier({self._points.tolist()})"
 
     @classmethod
-    def from_list(cls, points: Sequence[Sequence[float]] | np.ndarray) -> Bezier:
+    def from_list(cls, points: PathLike) -> Bezier:
         """Create a Bezier from a plain list of control points.
 
         Args:
@@ -239,11 +239,11 @@ class Bezier:
             a 1-D vector; for a list of *u* values the result is a 2-D array.
 
         Raises:
-            AssertionError: If *order* is not a non-negative integer.
+            ValueError: If *order* is not a non-negative integer.
 
         """
-        assert isinstance(order, int)
-        assert order >= 0
+        if not isinstance(order, int) or order < 0:
+            raise ValueError(f"derivative(): order must be a non-negative integer, got {order!r}.")
         if order == 0:
             return self.points(u)
         sides = len(self) - 1
@@ -565,7 +565,7 @@ class Bezier:
             path's start and end to the specified axis.
 
         Raises:
-            AssertionError: If *axis* is not ``"X"`` or ``"Y"``, or if the
+            ValueError: If *axis* is not ``"X"`` or ``"Y"``, or if the
                 patch is not 2-D.
 
         """
@@ -579,7 +579,7 @@ class Bezier:
         elif axis == "Y":
             foot_s, foot_e = np.array([0.0, sp[1]]), np.array([0.0, ep[1]])
         else:
-            raise AssertionError('axis must be "X" or "Y"')
+            raise ValueError(f'close_to_axis(): axis must be "X" or "Y", got {axis!r}.')
         return Bezier(
             np.concatenate(
                 [
@@ -607,7 +607,7 @@ class Bezier:
             original path with its offset copy.
 
         Raises:
-            AssertionError: If the bezier is not 2-D.
+            ValueError: If the bezier is not 2-D.
 
         """
         arr = self.array
@@ -1040,7 +1040,7 @@ def create_bezier(
         of the input path.
 
     Raises:
-        AssertionError: If both *size* and *relsize* are specified, or if any
+        ValueError: If both *size* and *relsize* are specified, or if any
             path segment has zero length.
 
     """
@@ -1434,7 +1434,8 @@ class BezierPatch:
             patch.vnf(splinesteps=16).polyhedron().show()
 
         """
-        assert n_degree > 0
+        if n_degree <= 0:
+            raise ValueError(f"BezierPatch.flat(): n_degree must be positive, got {n_degree}.")
         sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
         patch = [
             [[sz[0] * (x / n_degree - 0.5), sz[1] * (0.5 - y / n_degree), 0.0] for y in range(n_degree + 1)]
@@ -1466,7 +1467,7 @@ class BezierPatch:
             edges.
 
         Raises:
-            AssertionError: If the patch has degenerate normals.
+            ValueError: If the patch has degenerate normals.
 
         Examples:
         .. pythonscad-example::

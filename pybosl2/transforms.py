@@ -24,11 +24,14 @@ from __future__ import annotations
 # DocCategory: Foundational
 # FileGroup: BOSL2
 import math
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 import numpy as np
 
 from pybosl2._edges_lang import Anchor
+
+if TYPE_CHECKING:
+    from pybosl2.paths import PathLike
 
 
 def polar_to_xy(radius: float, angle: float) -> list[float]:
@@ -193,7 +196,7 @@ def reorient(
 
 def apply(
     transform: Sequence[Sequence[float]] | np.ndarray,
-    points: Sequence[Sequence[float]] | np.ndarray,
+    points: PathLike,
 ) -> list[list[float]]:
     """Apply a 4x4 (or 3x3, 2-D) *transform* matrix to every point in *points*.
 

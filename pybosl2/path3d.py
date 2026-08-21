@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
     from pybosl2.color import Color
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -86,7 +87,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
     """
 
-    def __init__(self, points: Sequence[Sequence[float]] | NDArray[np.float64] = (), closed: bool = False) -> None:
+    def __init__(self, points: PathLike = (), closed: bool = False) -> None:
         """Initialize the instance."""
         pts: np.ndarray = np.asarray(points, dtype=np.float64)
         if pts.size == 0:
@@ -208,12 +209,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def __iter__(self) -> Iterator[np.ndarray]:
         """Return an iterator."""
         return iter(self._points)
-
-    def __array__(self, dtype: None = None, copy: bool = False) -> np.ndarray:
-        """Return a numpy array representation."""
-        if copy:
-            return self._points.copy()
-        return self._points
 
     @property
     def array(self) -> np.ndarray:
@@ -363,7 +358,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of unit tangent vectors, one per path point.
 
         Raises:
-            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+            ValueError: If two adjacent points coincide, leaving a zero-length tangent.
 
         """
         return [
@@ -466,7 +461,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of :class:`Path3D` subpaths.
 
         Raises:
-            AssertionError: If the first cut distance is not positive or the last cut
+            ValueError: If the first cut distance is not positive or the last cut
                 distance exceeds the path length.
 
         Examples:
@@ -656,7 +651,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path3D` with the subdivided points.
 
         Raises:
-            AssertionError: If more than one of *points*, *points_per_segment*, and *maxlen*
+            ValueError: If more than one of *points*, *points_per_segment*, and *maxlen*
                 is given, or if *points_per_segment* is given without ``SEGMENT`` method.
 
         Examples:
@@ -741,7 +736,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path3D` with the uniformly resampled points.
 
         Raises:
-            AssertionError: If both or neither of *num_copies* and *spacing* are given.
+            ValueError: If both or neither of *num_copies* and *spacing* are given.
 
         Examples:
             Resampling a helix to 120 evenly spaced points:
@@ -1512,15 +1507,21 @@ def _path_cut_points(
         A list of :class:`CutPoint` or :class:`` entries, one per cut distance.
 
     """
-    long_enough = len(points) >= (3 if closed else 2)
-    assert long_enough, (
-        "Two points needed to define a path" if len(points) < 2 else "Closed path must include three points"
-    )
+    if len(points) < (3 if closed else 2):
+        raise ValueError(f"cut_points(): a closed path needs three points, an open one two; got {len(points)}.")
     if isinstance(cutdist, (int, float, np.floating, np.integer)):
         return _path_cut_points(points, closed, [cutdist], direction)
-    assert isinstance(cutdist, (list, tuple, np.ndarray))
+    if not isinstance(cutdist, (list, tuple, np.ndarray)):
+        raise ValueError(f"cut_points(): give a distance or a list of increasing distances, got {cutdist!r}.")
     if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
         raise ValueError("Cut distances must be an increasing list")
+    if len(cutdist) and cutdist[0] < 0:
+        # 0 is the path start and is a fine place to cut; a negative distance divides by a
+        # zero-length partial segment further down, so catch it here with something actionable.
+        raise ValueError(
+            f"cut_points(): distances are measured forward along the path, so they cannot be negative; "
+            f"got {cutdist[0]}."
+        )
     cuts: list[CutPoint] = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])
     if not direction:
         return cuts

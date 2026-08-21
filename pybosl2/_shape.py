@@ -257,7 +257,7 @@ class BaseShape(Colorable, Distributable):
             A new shape of the same kind as this one, holding the Minkowski sum.
 
         Raises:
-            AssertionError: If no shape to sweep is given.
+            ValueError: If no shape to sweep is given.
 
         Examples:
             .. pythonscad-example::

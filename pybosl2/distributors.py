@@ -50,6 +50,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import Anchor
     from pybosl2._shape import BaseShape as BaseShape
+    from pybosl2.paths import PathLike
 
 _CopyType = TypeVar("_CopyType", bound="Distributable")
 
@@ -468,7 +469,7 @@ def sphere_copies(
 
 
 def path_copies(
-    path: Sequence[Sequence[float]],
+    path: PathLike,
     spacing: float | None = None,
     start_pos: float | None = None,
     dist: Sequence[float] | None = None,
@@ -496,7 +497,8 @@ def path_copies(
     elif num_copies is not None and spacing is None:
         distances = list(np.linspace(0, length, num_copies, endpoint=not closed))
     else:
-        assert spacing is not None
+        if spacing is None:
+            raise ValueError("path_copies(): give num_copies=, spacing= or dist= to say where the copies go.")
         cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if closed else 1)
         ptlist = [i * spacing for i in range(cnt)]
         center = sum(ptlist) / len(ptlist)
@@ -776,7 +778,7 @@ class Distributable(ABC):
 
     def path_copies(
         self,
-        path: Sequence[Sequence[float]],
+        path: PathLike,
         spacing: float | None = None,
         start_pos: float | None = None,
         dist: Sequence[float] | None = None,

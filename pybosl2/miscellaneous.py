@@ -135,7 +135,7 @@ def extrude_from_to(
     diameter = [p2[i] - p1[i] for i in range(3)]
     height = math.hypot(math.hypot(diameter[0], diameter[1]), diameter[2])
     if height <= 0:
-        raise AssertionError("extrude_from_to(): the two points must differ.")
+        raise ValueError("extrude_from_to(): the two points must differ.")
     theta = math.degrees(math.atan2(diameter[1], diameter[0]))
     phi = math.degrees(math.atan2(math.hypot(diameter[0], diameter[1]), diameter[2]))
     native = _as_native_2d(profile)

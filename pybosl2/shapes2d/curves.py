@@ -61,6 +61,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import Anchor
     from pybosl2.path2d import Path2D
+    from pybosl2.paths import PathLike
 
 
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
@@ -511,7 +512,7 @@ def squircle(
 
 
 @backend_only("csg")
-def jittered_poly(path: Sequence[Sequence[float]], dist: float = 1 / 512) -> list[list[float]]:
+def jittered_poly(path: PathLike, dist: float = 1 / 512) -> list[list[float]]:
     """Add tiny random jitter to a path's points.
 
     Used to work around rendering artifacts from exactly-overlapping coplanar faces.

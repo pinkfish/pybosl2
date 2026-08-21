@@ -200,7 +200,9 @@ with two dimensional specialisations**, not as two parallel contracts that happe
 ### 5.2 Geometry objects
 
 * **C-7** `Path` is abstract; `Path2D`/`Path3D` are selected by point dimension. Any API taking a
-  polyline MUST accept a `Path`.
+  polyline MUST accept a `Path` — and MUST say so in its signature, not merely tolerate one at
+  runtime: a caller feeding one function's result to the next is the normal way to use the
+  library, and it must type-check ([PLAN T-4](PLAN.md#2-typing)).
 * **C-8** `Region` is outlines-with-holes; `VNF` is the vertex/face mesh interchange type. Anything
   that can produce a mesh SHOULD be able to produce a `VNF`, so it can be inspected and measured
   with no CAD runtime present.
@@ -628,6 +630,7 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | Requirement | What was wrong | Resolution |
 |---|---|---|
+| **P-8** | Three geometry areas were still loose function families where the rest of the library uses classes: the mask profiles, the metaball primitives, and the turtle command language | `Mask2D`/`Mask3D` and `Metaball` own their factories (`Metaball.sphere(...)`, `Mask2D.roundover(...)`), with `Metaball.at()` placing a field and the `mb_*`/`mask*_*` spellings kept as aliases; the turtles gained a method per command (`Turtle2D().move(40).arc_left(radius=8)`) from one shared table, and the command language moved to `pybosl2/turtle/commands.py` so all three modules can share it |
 | **R-4** | No ambient resolution defaults; `fn`/`fa`/`fs`/`res` had to be threaded through every call | `pybosl2/defaults.py`: `use_defaults()` / `set_defaults()` / `reset_defaults()`, resolved in `frag_count`, the native cylinder/sphere/circle wrappers, and both backends' `construct` |
 | **A-4** | The top-level package had no stub, so its lazy exports were invisible to type checkers and IDEs | `pybosl2/__init__.pyi`, kept in step by `tests/test_init_stub.py` |
 | **A-4 / P-5** | Backend switching was reachable only through a private module | `use_backend`, `set_default_backend`, `current_backend`, `known_backends` (plus the defaults API and the error types) are now top-level exports |
@@ -665,10 +668,9 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **P-8** | The parts library is fully class-based, but a few geometry areas remain function-families that would read better as classes: `masking.mask2d_*`/`mask3d_*`, `isosurface.mb_*`, and the `turtle2d`/`turtle3d` pair. |
-| 2 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
-| 3 | **PAR-5** | The SDF `pie_slice` stores the full disc's bounding box rather than the wedge's, so `bounds()` over-reports on a shape whose selling point is exact bounds. `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it. |
-| 4 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. Closing this means expressing the ones that can be (simple prisms, bearings, hoses) through the façade, and keeping the refusal only where a part genuinely needs CSG-only operations. |
+| 1 | **B2-1** | BOSL2 feature coverage is not tracked anywhere; there is no gap list saying which `.scad` modules remain unported. |
+| 2 | **PAR-5** | The SDF `pie_slice` stores the full disc's bounding box rather than the wedge's, so `bounds()` over-reports on a shape whose selling point is exact bounds. `tests/test_backend_parity.py::BOUNDS_NOT_YET_EXACT` pins it. |
+| 3 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. Closing this means expressing the ones that can be (simple prisms, bearings, hoses) through the façade, and keeping the refusal only where a part genuinely needs CSG-only operations. |
 
 
 

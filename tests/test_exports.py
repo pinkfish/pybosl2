@@ -8,8 +8,11 @@
 
 from __future__ import annotations
 
+import ast
 import importlib
+import pathlib
 import pkgutil
+import re
 
 import pytest
 
@@ -97,3 +100,63 @@ def test_no_top_level_name_builds_on_the_wrong_backend() -> None:
             if getattr(built, "backend", None) == "csg":
                 offenders.append(name)
     assert not offenders, f"top-level names that built CSG geometry inside an sdf block: {offenders}"
+
+
+#: Parameter names that mean "a polyline" -- the thing SPEC C-7 is about. Deliberately excludes
+#: `points`/`pts`, which are just as often a point *cloud* (hull inputs) or a sample grid.
+_POLYLINE_PARAMETERS = frozenset({"path", "paths", "profile", "profiles", "outline", "outlines", "poly", "polygon"})
+
+#: Annotations that spell a polyline as raw nesting -- the form that rejects a Path (PLAN T-4).
+_RAW_NESTING = re.compile(
+    r"(Sequence\[Sequence\[float\]\]|list\[list\[float\]\]"
+    r"|Sequence\[Sequence\[Sequence\[float\]\]\]|list\[list\[list\[float\]\]\])"
+)
+
+
+def _public_functions(tree: ast.Module) -> list[ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Module-level and class-level functions with public names -- not nested closures."""
+    out: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+    for node in tree.body:
+        bodies = node.body if isinstance(node, ast.ClassDef) else [node]
+        for item in bodies:
+            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and not item.name.startswith("_"):
+                out.append(item)
+    return out
+
+
+def test_every_polyline_parameter_accepts_a_path() -> None:
+    """An API taking a polyline must accept a `Path` (SPEC C-7, PLAN T-4).
+
+    A `Path` is what the library hands back, so an API that only spells its input as
+    `Sequence[Sequence[float]]` makes callers unpack their own return values -- it works at
+    runtime (a Path is iterable and array-like) while the checker rejects it, which is the worst
+    of both. `PathLike` is the alias to use; normalise on the first line of the body.
+    """
+    package = pathlib.Path(pybosl2.__file__).parent
+    offenders: list[str] = []
+    for path in sorted(package.rglob("*.py")):
+        tree = ast.parse(path.read_text())
+        for function in _public_functions(tree):
+            arguments = function.args
+            for argument in arguments.args + arguments.kwonlyargs + arguments.posonlyargs:
+                if argument.annotation is None or argument.arg.rstrip("123") not in _POLYLINE_PARAMETERS:
+                    continue
+                annotation = ast.unparse(argument.annotation)
+                if not _RAW_NESTING.search(annotation) or re.search(r"\bPath(Like|2D|3D)?\b", annotation):
+                    continue
+                offenders.append(
+                    f"{path.relative_to(package.parent)}:{argument.lineno}: "
+                    f"{function.name}({argument.arg}: {annotation}) -- use PathLike"
+                )
+    assert not offenders, "polyline parameters that reject a Path:\n  " + "\n  ".join(offenders)
+
+
+def test_polyline_ratchet_would_catch_a_raw_nesting() -> None:
+    """The check above is only worth having if it fires -- this is the shape it must catch."""
+    source = "def stroke(path: Sequence[Sequence[float]]) -> None: ...\n"
+    tree = ast.parse(source)
+    function = _public_functions(tree)[0]
+    annotation = ast.unparse(function.args.args[0].annotation)
+    assert _RAW_NESTING.search(annotation)
+    assert not re.search(r"\bPath(Like|2D|3D)?\b", annotation)
+    assert not _RAW_NESTING.search("PathLike | None")

@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -34,105 +33,18 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
 
     from pybosl2.caps import CapSpec, CapType
-    from pybosl2.points import Point
     from pybosl2.shapes3d import Bosl2Solid
 
 from pybosl2._helpers import rot_from_to4
 from pybosl2.constants import BACK, FRONT, RIGHT, UP
+from pybosl2.points import Point
 from pybosl2.transforms import rot_decode
 
+from ._fluent import TurtleCommands
+from .commands import TurtleCommand as TurtleCommand  # re-exported: its home is commands.py
+from .commands import TurtleCommandType as TurtleCommandType
+
 __all__ = ["turtle3d", "Turtle3D", "Turtle3DState", "TurtleCommand", "TurtleCommandType"]
-
-# Note: the TurtleCommandType enum has members named RIGHT, UP, etc. — the
-# constants from pybosl2.constants are used only for math direction vectors.
-# Use ``TurtleCommandType.RIGHT`` for the command enum, ``RIGHT`` for [1,0,0].
-
-
-class TurtleCommandType(Enum):
-    """Turtle movement command type."""
-
-    MOVE = "move"
-    UNTILX = "untilx"
-    UNTILY = "untily"
-    UNTILZ = "untilz"
-    XMOVE = "xmove"
-    YMOVE = "ymove"
-    ZMOVE = "zmove"
-    XYZMOVE = "xyzmove"
-    JUMP = "jump"
-    XJUMP = "xjump"
-    YJUMP = "yjump"
-    ZJUMP = "zjump"
-    ANGLE = "angle"
-    LENGTH = "length"
-    SCALE = "scale"
-    ADDLENGTH = "addlength"
-    ARCSTEPS = "arcsteps"
-    ROLL = "roll"
-    RIGHT = "right"
-    LEFT = "left"
-    UP = "up"
-    DOWN = "down"
-    XROT = "xrot"
-    YROT = "yrot"
-    ZROT = "zrot"
-    ROT = "rot"
-    SETDIR = "setdir"
-    ARCLEFT = "arcleft"
-    ARCRIGHT = "arcright"
-    ARCLEFTTO = "arcleftto"
-    ARCRIGHTTO = "arcrightto"
-    ARCUP = "arcup"
-    ARCDOWN = "arcdown"
-    ARCXROT = "arcxrot"
-    ARCYROT = "arcyrot"
-    ARCZROT = "arczrot"
-    ARCTODIR = "arctodir"
-    ARCROT = "arcrot"
-    REPEAT = "repeat"
-    ARC = "arc"
-
-
-@dataclass
-class TurtleCommand:
-    """A single turtle command with its typed parameters.
-
-    Compound ARC commands use ``angle`` to encode the rotation amount and
-    ``rotation_type`` to indicate the axis.  Use :attr:`RotationType` members
-    (e.g. ``TurtleCommand.RotationType.LEFT``).
-    """
-
-    class RotationType(Enum):
-        """The rotation axis/direction for a compound ARC command."""
-
-        NONE = ""
-        LEFT = "left"
-        RIGHT = "right"
-        UP = "up"
-        DOWN = "down"
-        XROT = "xrot"
-        YROT = "yrot"
-        ZROT = "zrot"
-        ROT = "rot"
-        TODIR = "todir"
-
-    cmd_type: TurtleCommandType
-    size: float | Point | None = None
-    angle: float | Point | None = None
-    radius: float | None = None
-    steps: int | None = None
-    center: Point | None = None
-    grow: float | Point | None = None
-    shrink: float | Point | None = None
-    twist: float | None = None
-    roll: float | None = None
-    reverse: bool = False
-    rollto: Point | None = None
-    rrollto: Point | None = None
-    lrollto: Point | None = None
-    is_compound: bool = False
-    sub_commands: list[TurtleCommand] | None = None
-    rotation_type: "RotationType" = field(default=RotationType.NONE)
 
 
 # -- Turtle3DState ---------------------------------------------------------
@@ -161,7 +73,7 @@ class Turtle3DState:
 # -- Turtle3D -----------------------------------------------------------
 
 
-class Turtle3D:
+class Turtle3D(TurtleCommands):
     """A 3-D turtle: walk it with a command list to produce a path or a list of sweep transforms.
 
     The turtle starts at the origin pointing in *state* (default ``RIGHT`` = +X), with "up" along +Z.
@@ -647,6 +559,8 @@ class Turtle3D:
             return default
         if isinstance(sz, (int, float)):
             return float(sz)
+        if not isinstance(sz, Point):
+            sz = Point.from_seq(sz)  # a plain [x, y] / [x, y, z] reads the same as a Point
         return sz.x
 
     @staticmethod
@@ -656,6 +570,8 @@ class Turtle3D:
             return (0.0, 0.0, 0.0)
         if isinstance(sz, (int, float)):
             return (float(sz), 0.0, 0.0)
+        if not isinstance(sz, Point):
+            sz = Point.from_seq(sz)  # a plain [x, y] / [x, y, z] reads the same as a Point
         return (sz.x, sz.y, sz.z or 0.0)
 
     def _command(self, cmd: TurtleCommand, index: int) -> None:
@@ -761,7 +677,8 @@ class Turtle3D:
             TurtleCommandType.ARCUP,
             TurtleCommandType.ARCDOWN,
         ):
-            assert cmd.radius is not None
+            if not isinstance(cmd.radius, (int, float)):
+                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             radius = step * cmd.radius
             myangle = ang if isinstance(ang, (int, float)) else angle
             center = [
@@ -775,7 +692,8 @@ class Turtle3D:
             ]
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCXROT, TurtleCommandType.ARCYROT, TurtleCommandType.ARCZROT):
-            assert cmd.radius is not None
+            if not isinstance(cmd.radius, (int, float)):
+                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             radius = step * cmd.radius
             myangle = ang if isinstance(ang, (int, float)) else angle
             length = 2 * math.pi * radius * abs(myangle) / 360
@@ -798,7 +716,8 @@ class Turtle3D:
             ]
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCTODIR, TurtleCommandType.ARCROT):
-            assert cmd.radius is not None
+            if not isinstance(cmd.radius, (int, float)):
+                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
             rd = rot_decode(rot_from_to4(v_dir, ang) if ct == TurtleCommandType.ARCTODIR else np.asarray(ang, float))

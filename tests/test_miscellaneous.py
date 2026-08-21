@@ -87,7 +87,7 @@ def test_extrude_from_to() -> None:
 
 
 def test_extrude_from_to_same_point_raises() -> None:
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="points must differ"):
         m.extrude_from_to(s2.circle(radius=4), [1, 2, 3], [1, 2, 3])
 
 

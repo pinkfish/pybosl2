@@ -44,10 +44,17 @@ from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
 _AMBIENT = frozenset({"fn", "fa", "fs", "res"})
 
+#: What an omitted argument resolves to, as reported by :func:`effective_defaults`: a scalar, a
+#: size/shift tuple, an anchor, or ``None`` -- which means "decide for me" rather than "no value"
+#: (PLAN T-9b). Every façade and backend default across the shape surface is one of these.
+DefaultValue: "TypeAlias" = "bool | int | float | str | tuple[float, ...] | Anchor | Point | None"
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import TypeAlias
 
     from pybosl2._edges_lang import EdgeAtom
+    from pybosl2.points import Point  # noqa: F401  # used by the DefaultValue alias (a string, so ruff cannot see it)
 
 _SHARED_3D = (
     "cube",
@@ -72,6 +79,7 @@ _SHARED_3D = (
 )
 
 __all__ = [
+    "DefaultValue",
     "effective_defaults",
     "cube",
     "cuboid",
@@ -1686,7 +1694,7 @@ def zcyl(
     )
 
 
-def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]:
+def effective_defaults(shape: str, backend: str | None = None) -> dict[str, DefaultValue]:
     """Report the value each argument of *shape* takes when the caller leaves it out.
 
     The facade constructors default every argument to ``None`` and forward only what was actually
@@ -1700,7 +1708,7 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]
         backend: Backend to report for; the active one by default.
 
     Returns:
-        Each parameter mapped to the value a bare call resolves to: the façade's own default for
+        Each parameter mapped to the :data:`DefaultValue` a bare call resolves to: the façade's own default for
         everything both backends understand, plus the backend's own for its exclusive options.
         Parameters with no default (the caller must supply those) and the ambient resolution
         knobs are omitted -- the latter come from :func:`pybosl2.defaults.use_defaults`.
@@ -1715,7 +1723,7 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]
 
     """
     facade = globals().get(shape)
-    owned: dict[str, Any] = {}
+    owned: dict[str, DefaultValue] = {}
     if inspect.isfunction(facade):
         # the façade owns the default for everything both backends understand (SPEC B-3)
         owned = {
@@ -1725,7 +1733,7 @@ def effective_defaults(shape: str, backend: str | None = None) -> dict[str, Any]
         }
     constructor = get_backend(backend).constructor(shape)
     parameters = inspect.signature(constructor).parameters
-    backend_own = {
+    backend_own: dict[str, DefaultValue] = {
         name: parameter.default
         for name, parameter in parameters.items()
         if parameter.default is not inspect.Parameter.empty and name not in _AMBIENT and name not in owned

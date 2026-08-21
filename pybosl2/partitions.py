@@ -210,7 +210,7 @@ def _partition_subpath(
                 )
             )
         )
-    raise AssertionError(f"Unsupported cutpath type: {cptype!r}")
+    raise ValueError(f"partition_path(): unsupported cut type {cptype!r}; use a PartitionCutType member or its name.")
 
 
 def _partition_cutpath(

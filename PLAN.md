@@ -43,9 +43,13 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   always `list[float]`, `dict[str, Anchor]`, `tuple[list[float], list[float]]`,
   `Sequence[Sequence[float]]`. This applies to local variables holding collections, to empty
   initialisations (`results: list[str] = []`), and to `.pyi` stubs.
-* **T-4 Inputs widen, outputs narrow.** Accept `Sequence[float]`, return `list[float]`. Accept a
-  `Path` object rather than `list[Sequence[float]]` or a raw NumPy array wherever a polyline is
-  meant (SPEC C-7).
+* **T-4 Inputs widen, outputs narrow.** Accept `Sequence[float]`, return `list[float]`. Wherever a
+  polyline is meant, the parameter is typed **`PathLike`** (`pybosl2.paths`) —
+  `Path | Sequence[Sequence[float]] | NDArray[np.float64]` — so a `Path`, the thing the library
+  itself hands back, is accepted by the checker and not merely at runtime (SPEC C-7). Normalise on
+  the first line of the body (`np.asarray(x, dtype=float)`, `Path2D(x)`, `as_points(x)`) so the
+  rest works on one shape. Guarded by
+  `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path`.
 * **T-5 No union-widening in overrides.** An override MUST NOT broaden a parameter to
   `float | list[float]` to cover both callers; pick the collection form and convert at the entry
   point. The one sanctioned union is a *spec argument* at a public constructor (SPEC D-7), which
@@ -122,6 +126,17 @@ what they need, rather than passing a bag of numbers through free functions.
   `KnuckleHinge`, `RegularPolyhedron`, `NemaMotor` — not a family of functions. A stateless family
   of catalogue lookups MAY instead be a class holding classmethod factories
   (`BallBearings.ball_bearing("608")`).
+* **O-1a Prefixed function families are factories on a class.** A group of free functions sharing a
+  prefix and a parameter list is an argument bag with extra steps (SPEC P-8): give the group a
+  class and make each member a factory on it — `Metaball.sphere(...)`, `Mask2D.roundover(...)`,
+  `Mask3D.chamfer(...)`. The old names stay as **aliases of the new members**
+  (`mask2d_roundover = Mask2D.roundover`), never as a second copy of the body, so the two spellings
+  cannot diverge.
+* **O-1b A command enum plus a parameter dataclass gets methods too.** Where an API is driven by
+  `Thing(CommandType.MOVE, size=40)` values, the object executing them also exposes one method per
+  command, generated from a single table so parallel implementations cannot drift
+  (`TurtleCommands`, mixed into `Turtle2D` and `Turtle3D`). The command objects remain the
+  substrate — the methods build them — so generated programs still work.
 * **O-2 The standard part shape.** A part class has:
   1. a `__init__` taking the catalogue name / defining dimension first and everything else
      defaulted (SPEC P-1),
@@ -306,7 +321,15 @@ Python that means:
   nothing about what to pass. The test for which is which: **if the message names a parameter the
   caller typed, it is validation and must raise `ValueError`**; if it states something the code
   guarantees for itself ("cells are non-empty here"), it is an invariant and may stay an assert
-  with no user-facing wording.
+  with no user-facing wording. Two corollaries, each with its own ratchet in
+  `tests/test_defaults.py`:
+  * A **message-less** `assert` on a parameter is validation too — it is the worst form, since
+    `python -O` erases it and the caller gets wrong geometry instead of an error. It is allowed
+    only where it *narrows* a value the function already validated, which shows as an earlier
+    `raise` whose message names that parameter.
+  * **`raise AssertionError(...)` is never right.** It survives `-O`, so it is not even an
+    assert's equivalent, and it reports the caller's mistake as an internal bug. Bad input raises
+    `ValueError`; a broken invariant uses `assert`.
 * **E-P3** Library errors derive from `pybosl2.exceptions.Bosl2Error`; backend refusals use
   `UnsupportedByBackendError(feature, backend, hint=…)` and cross-backend mixing uses
   `CrossBackendError`. Both MUST carry an actionable hint.
@@ -363,6 +386,7 @@ Python that means:
   | `tests/test_facets.py` | R-P2 / R-P5 |
   | `tests/test_defaults.py::test_a_radius_and_its_own_diameter_together_are_rejected` | E-P5 / SPEC D-5 |
   | `tests/test_docs_links.py` | D-P6 / D-P6a |
+  | `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path` | T-4 / SPEC C-7 |
   | `tests/test_validation_messages.py` | E-P1 / E-P2 / SPEC E-4 (X-7) |
   | `tests/test_validation_messages.py::test_no_cover_pragmas_are_attached_to_a_statement` | X-7 |
 
@@ -372,6 +396,7 @@ Python that means:
   |---|---|---|
   | a CSG shape built inside `use_backend("sdf")` reports `backend == "csg"` | O-6a / SPEC C-1 | T0 |
   | no `assert` carries a message naming a caller-supplied parameter | E-P2 / SPEC E-4 | T0b |
+  | no message-less `assert` and no `raise AssertionError` validates input | E-P2 / SPEC E-4 | T10 |
   | `shape` is a property on every class in `pybosl2.parts.__all__` | O-2 / SPEC C-14 | T0c |
   | every name in every public `__all__` resolves | M-2 / SPEC A-7 | T0d |
   | every top-level shape name yields the active backend or refuses | M-2a / SPEC A-6 | T2b |

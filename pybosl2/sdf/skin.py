@@ -23,6 +23,7 @@ from pybosl2.sdf.shapes3d import PyShape
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from pybosl2.paths import PathLike
     from pybosl2.sdf.shapes2d import PyShape2D
 
 # ---------------------------------------------------------------------------
@@ -30,12 +31,12 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 
-def path3d(path: list[list[float]]) -> list[list[float]]:
+def path3d(path: PathLike) -> list[list[float]]:
     """Pad a 2-D (or 3-D) point list to 3-D with z=0."""
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
-def clockwise_polygon(poly: list[list[float]]) -> list:  # type: ignore[type-arg]
+def clockwise_polygon(poly: PathLike) -> list:  # type: ignore[type-arg]
     """*poly* wound clockwise (reversed if CCW)."""
     area = 0.0
     pts = list(poly)

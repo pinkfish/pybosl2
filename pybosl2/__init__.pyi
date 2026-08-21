@@ -81,6 +81,8 @@ from pybosl2.isosurface import mb_octahedron as mb_octahedron
 from pybosl2.isosurface import mb_sphere as mb_sphere
 from pybosl2.isosurface import mb_torus as mb_torus
 from pybosl2.isosurface import metaballs2d as metaballs2d
+from pybosl2.masking import Mask2D as Mask2D
+from pybosl2.masking import Mask3D as Mask3D
 from pybosl2.masking import mask2d_chamfer as mask2d_chamfer
 from pybosl2.masking import mask2d_cove as mask2d_cove
 from pybosl2.masking import mask2d_groove as mask2d_groove
@@ -111,6 +113,7 @@ from pybosl2.path2d import Path2D as Path2D
 from pybosl2.path3d import Path3D as Path3D
 from pybosl2.paths import CutPoint as CutPoint
 from pybosl2.paths import Path as Path
+from pybosl2.paths import PathLike as PathLike
 from pybosl2.points import Point as Point
 from pybosl2.points import Vector as Vector
 from pybosl2.quaternions import quaternion as quaternion
@@ -206,6 +209,8 @@ __all__: list[str] = [
     "IDENT",
     "INCH",
     "LEFT",
+    "Mask2D",
+    "Mask3D",
     "LINE",
     "Metaball",
     "MetaballSpec",
@@ -214,6 +219,7 @@ __all__: list[str] = [
     "NurbsPatch",
     "NurbsType",
     "Path",
+    "PathLike",
     "Path2D",
     "Path3D",
     "Point",
