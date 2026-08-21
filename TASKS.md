@@ -661,7 +661,7 @@ proves only that the call returned — which the absence of an exception already
 what that costs: `partitions.py` had a suite of such checks that all passed while the code they
 claimed to cover was never executed, and two of its features were outright broken.
 
-**Progress: 303 → 200.** The four biggest files are done:
+**Progress: 303 → 156.** The eight biggest files are done:
 
 | File | Before | After |
 |---|---:|---:|
@@ -669,9 +669,13 @@ claimed to cover was never executed, and two of its features were outright broke
 | `tests/test_regions.py` | 25 | 0 |
 | `tests/test_shapes3d.py` | 22 | 0 |
 | `tests/test_drawing.py` | 21 | 0 |
-| `tests/test_miscellaneous.py` | 17 | 17 |
-| `tests/test_sdf_shapes3d.py` | 15 | 15 |
-| `tests/test_gears.py`, `tests/test_svg.py` | 10 each | 10 each |
+| `tests/test_miscellaneous.py` | 17 | 0 |
+| `tests/test_sdf_shapes3d.py` | 15 | 0 |
+| `tests/test_gears.py` | 10 | 0 |
+| `tests/test_svg.py` | 10 | 7 |
+
+Next by size: `test_color.py` (9), `test_rounding.py` (8), `test_tripod_mounts.py` (8),
+`test_profiles.py` (7), `test_screws.py` (7), `test_skin.py` (7), `turtle/test_turtle3d.py` (7).
 
 Convert them per X-8, module by module — bounds for solids, point counts and spans for paths,
 area for regions, vertex counts and volume for meshes. Where the subject carries no tracked size
@@ -699,6 +703,17 @@ sibling that measures.
   treatment larger than that end's radius (E-4), which also catches `cyl(radius=10, rounding=12)`.
 * **`osimport()` is lazy**, so its geometry must be measured while the file still exists — the
   first conversion measured after the `with tempfile...` block and got `-inf` bounds.
+* **Every SDF half-cut kept an eighth of the solid, not a half.** `SdfSolid.half_of()` built its
+  mask by shifting a cube `-s/2` on *all three* axes rather than along the cut normal, so
+  `left_half()` returned an octant — and `right_half()` and `back_half()` returned the *same*
+  octant as each other. `left_half()` even kept the +X side. All six were covered only by
+  `assert half is not None`; they now assert the exact box, and that the box is 5 x 10 x 10 rather
+  than an eighth's 5 x 5 x 5.
+* **Two SDF tests could not fail.** `test_minkowski_difference_delegates` and
+  `test_partition_returns_two_parts` wrapped their bodies in
+  `except (AttributeError, ValueError, TypeError): pass`. The cause is environmental — without
+  libfive the numeric mock's `to_csg()` yields a stand-in the CSG operators reject — so they now
+  measure properly and carry a `needs_csg_operable_mesh` skip that says so out loud.
 
 ---
 

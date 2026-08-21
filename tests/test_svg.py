@@ -413,12 +413,16 @@ def test_regions_from_svg_unfilled_gets_no_color(tmp_path) -> None:
 
 
 def test_regions_from_svg_colored_geometry_has_color(tmp_path) -> None:
-    """Colored regions should produce geometry that chains correctly."""
+    """Each coloured region builds geometry that carries its own colour into the program."""
     f = tmp_path / "colored.svg"
     f.write_text(COLORED)
-    for region in regions_from_svg(str(f)):
-        geom = region.geometry()
-        assert geom is not None
+    regions = regions_from_svg(str(f))
+    assert len(regions) == 2  # one red 40x30 path, one blue 30x30 path
+    for region in regions:
+        geometry = region.geometry()
+        assert geometry is not None
+        assert "color" in repr(geometry.shape)
+    assert {round(region.geom.area) for region in regions} == {1200, 900}
 
 
 def test_regions_from_svg_same_color_shapes_are_merged(tmp_path) -> None:
@@ -447,12 +451,13 @@ def test_regions_from_svg_empty_svg_returns_empty_list(tmp_path) -> None:
 
 
 def test_region_color_persists_through_extrude(tmp_path) -> None:
-    """Color set on a Region should carry through to geometry."""
+    """Colour set on a Region survives the extrusion, which keeps the region's own footprint."""
     f = tmp_path / "colored.svg"
     f.write_text(COLORED)
     for region in regions_from_svg(str(f)):
-        shape = region.geometry()
-        assert shape is not None
+        solid = region.linear_extrude(height=3)
+        assert "color" in repr(solid.shape)
+        assert float(solid.bounds()[1][2]) == pytest.approx(3.0, abs=0.01)
 
 
 # -- per-polygon colors via region_from_svg ---------------------------------------------------
@@ -826,11 +831,14 @@ class TestRingsToShapely:
     """Coverage for _rings_to_shapely edge cases."""
 
     def test_invalid_polygon_repaired_with_buffer(self) -> None:
-        """Self-intersecting polygon hits the buffer(0) repair path."""
+        """A self-intersecting bowtie is repaired into a valid polygon, not passed on broken."""
         from pybosl2.svg import _rings_to_shapely
 
         result = _rings_to_shapely([[[0, 0], [10, 10], [0, 10], [10, 0]]])
         assert result is not None
+        assert result.is_valid
+        # the two 5x5 triangular lobes of the bowtie survive; the crossing is resolved
+        assert result.area == pytest.approx(25.0)
 
     def test_empty_rings_returns_none(self) -> None:
         """All rings resolve to empty polys → None."""
