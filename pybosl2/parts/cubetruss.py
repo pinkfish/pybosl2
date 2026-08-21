@@ -63,8 +63,8 @@ _union = union
 
 
 def _cmask(length: float, chamfer: float, orient: str | None = None) -> Bosl2Solid:
-    """chamfer_edge_mask as a Bosl2Solid, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
-    m = Bosl2Solid(chamfer_edge_mask(length=length, chamfer=chamfer))
+    """chamfer_edge_mask, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
+    m = chamfer_edge_mask(length=length, chamfer=chamfer)
     if orient == "RIGHT":
         return m.rotate([0, 90, 0])
     if orient == "BACK":

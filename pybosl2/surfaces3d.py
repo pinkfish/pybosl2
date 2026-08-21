@@ -784,20 +784,18 @@ def fillet(
             height if height is not None else (height if height is not None else (length if length is not None else 1))
         )
     )
-    return Bosl2Solid(
-        masking.rounding_edge_mask(
-            length=lv,
-            radius=radius,
-            radius1=radius1,
-            radius2=radius2,
-            diameter=diameter,
-            diameter1=diameter1,
-            diameter2=diameter2,
-            excess=excess,
-            fn=fn,
-            fa=fa,
-            fs=fs,
-        )
+    return masking.rounding_edge_mask(
+        length=lv,
+        radius=radius,
+        radius1=radius1,
+        radius2=radius2,
+        diameter=diameter,
+        diameter1=diameter1,
+        diameter2=diameter2,
+        excess=excess,
+        fn=fn,
+        fa=fa,
+        fs=fs,
     )
 
 
