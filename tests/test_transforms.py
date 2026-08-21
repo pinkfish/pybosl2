@@ -74,9 +74,14 @@ def test_apply_single_point_vs_list() -> None:
 
 
 def test_apply_returns_plain_lists() -> None:
+    """apply() hands back plain nested lists of floats, not arrays: they go straight to the native."""
     out = apply(np.eye(4), [[1, 2, 3]])
+    assert out == [[1.0, 2.0, 3.0]]
     assert isinstance(out, list)
-    assert isinstance(out[0], list)
+    assert [type(v) for v in out[0]] == [float, float, float]
+
+    # A single point in gives a single flat point out, not a list of one.
+    assert apply(np.eye(4), [1, 2, 3]) == [1.0, 2.0, 3.0]  # type: ignore[arg-type, list-item]
 
 
 def test_rot_about_axis_through_point() -> None:
@@ -104,10 +109,16 @@ def test_rot_decode_identity_is_zero_angle() -> None:
     assert math.isclose(angle, 0.0, abs_tol=1e-9)
 
 
-def test_rot_decode_axis_is_vec3() -> None:
+def test_rot_decode_returns_3d_points() -> None:
+    """Every vector rot_decode() hands back is a 3-D Point, with the axis normalised."""
     from pybosl2.points import Point
 
-    _, axis, center, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))  # type: ignore[arg-type]
-    assert isinstance(axis, Point)
-    assert isinstance(center, Point)
-    assert isinstance(axial, Point)
+    angle, axis, center, axial = rot_decode(rot_about_axis(30, [1, 0, 0], center=[0, 2, 0]))  # type: ignore[arg-type]
+    for vec in (axis, center, axial):
+        assert isinstance(vec, Point)
+        assert len(vec) == 3
+
+    assert math.isclose(angle, 30.0, abs_tol=1e-9)
+    np.testing.assert_allclose(axis, [1, 0, 0], atol=1e-9)  # unit length, along the given axis
+    np.testing.assert_allclose(center, [0, 2, 0], atol=1e-9)  # the point it turns about
+    np.testing.assert_allclose(axial, [0, 0, 0], atol=1e-9)  # no screw translation along the axis

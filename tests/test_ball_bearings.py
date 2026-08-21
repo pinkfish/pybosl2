@@ -53,16 +53,32 @@ def test_unknown_size_raises() -> None:
 
 
 @pytest.mark.parametrize(
-    "kw",
+    ("kw", "outer_diameter", "width", "balls"),
     [
-        {"trade_size": "608"},
-        {"trade_size": "608", "shield": False},
-        {"trade_size": "6902ZZ"},
-        {"inner_diameter": 12, "outer_diameter": 32, "width": 10, "shield": False},
+        # 608 is an open bearing, so its balls are modelled ...
+        ({"trade_size": "608"}, 22, 7, 9),
+        # ... and the trade size decides that, not shield=: 608ZZ is the shielded spelling.
+        ({"trade_size": "608", "shield": True}, 22, 7, 9),
+        ({"trade_size": "6902ZZ"}, 28, 7, 0),
+        # With explicit dimensions there is no table to consult, so shield= is what decides.
+        ({"inner_diameter": 12, "outer_diameter": 32, "width": 10, "shield": False}, 32, 10, 9),
+        ({"inner_diameter": 12, "outer_diameter": 32, "width": 10, "shield": True}, 32, 10, 0),
     ],
 )
-def test_ball_bearing_builds(kw: dict[str, object]) -> None:
-    assert isinstance(BallBearings.ball_bearing(**kw), Bosl2Solid)  # type: ignore[arg-type]
+def test_ball_bearing_envelope_and_shielding(
+    kw: dict[str, object],
+    outer_diameter: float,
+    width: float,
+    balls: int,
+) -> None:
+    """The envelope is the outer diameter by the width; shielding hides the balls inside it."""
+    bearing = BallBearings.ball_bearing(**kw)  # type: ignore[arg-type]
+    size = _size(bearing)
+    assert size[0] == pytest.approx(outer_diameter, abs=0.01)
+    assert size[1] == pytest.approx(outer_diameter, abs=0.2)  # faceted circle, just inside
+    assert size[2] == pytest.approx(width, abs=0.01)
+    # A shield covers the race, so a shielded cartridge draws no balls at all.
+    assert repr(bearing).count("sphere(") == balls
 
 
 def test_envelope_matches_od_and_width() -> None:
