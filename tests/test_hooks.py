@@ -6,8 +6,11 @@
 
 """Tests for pybosl2.hooks: the ring hook."""
 
+import ast
 import math
+import re
 
+import numpy as np
 import pytest
 
 from pybosl2.parts.hooks import HoleType, RingHook, _circle_point_tangents
@@ -55,18 +58,36 @@ def test_wall_and_od_id_forms_equivalent() -> None:
 
 
 @pytest.mark.parametrize(
-    "kw",
+    ("kw", "cuts_a_hole"),
     [
-        {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0},  # solid paddle
-        {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 15, "hole": HoleType.D},  # D hole
-        {"base_size": [40, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0},  # narrow base
+        ({"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0}, False),  # solid paddle
+        ({"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 15}, True),  # round hole
+        (
+            {"base_size": [50, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 15, "hole": HoleType.D},
+            True,
+        ),  # D hole
+        ({"base_size": [40, 10], "hole_z": 25, "outer_radius": 25, "inner_radius": 0}, False),  # narrow base
     ],
 )
-def test_variants_build(kw: dict[str, object]) -> None:
-    assert isinstance(RingHook(**kw).shape, Bosl2Solid)  # type: ignore[arg-type]
+def test_variants_share_the_ring_envelope(kw: dict[str, object], cuts_a_hole: bool) -> None:
+    """Every variant is the same paddle: the ring sets the width, the hole is wholly inside it.
+
+    The narrow base is the interesting one -- a 40mm base is narrower than the 50mm ring, so the
+    ring still sets the envelope.
+    """
+    hook = RingHook(**kw).shape  # type: ignore[arg-type]
+    lo, size = _bounds(hook)
+    assert size[0] == pytest.approx(50.0)  # 2 * outer_radius, base or no base
+    assert size[1] == pytest.approx(10.0)  # base depth
+    assert size[2] == pytest.approx(50.0, abs=0.2)  # hole_z + outer_radius, faceted
+    assert lo[2] == pytest.approx(0.0, abs=0.05)
+
+    # Same envelope either way, so only the program says whether anything was cut out.
+    assert ("difference(" in repr(hook)) is cuts_a_hole
 
 
-def test_custom_hole_path_builds() -> None:
+def test_custom_hole_path_is_cut_verbatim() -> None:
+    """A custom hole path is used as given -- it reaches the model as that exact polygon."""
     oct8 = [
         [
             10 * math.cos(math.radians(22.5 + 45 * k)),
@@ -74,7 +95,16 @@ def test_custom_hole_path_builds() -> None:
         ]
         for k in range(8)
     ]
-    assert isinstance(RingHook([50, 20], 30, outer_radius=25, hole=oct8).shape, Bosl2Solid)  # type: ignore[arg-type]
+    hook = RingHook([50, 20], 30, outer_radius=25, hole=oct8).shape  # type: ignore[arg-type]
+    _, size = _bounds(hook)
+    assert size == pytest.approx([50.0, 20.0, 55.0], abs=0.2)  # the hole stays inside the ring
+
+    emitted = re.search(r"polygon\(points = (\[\[.*?\]\])", repr(hook))
+    assert emitted is not None, "the custom hole never reached the model"
+    points = np.array(ast.literal_eval(emitted.group(1)))
+    assert len(points) == 8
+    np.testing.assert_allclose(np.hypot(points[:, 0], points[:, 1]), 10.0, atol=1e-4)
+    np.testing.assert_allclose(points, oct8, atol=1e-4)
 
 
 def test_must_define_exactly_two_of_or_ir_wall() -> None:

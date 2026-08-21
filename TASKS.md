@@ -678,8 +678,17 @@ claimed to cover was never executed, and two of its features were outright broke
 `test_screws.py`, `test_skin.py`, `turtle/test_turtle3d.py`, `test_sdf_skin.py`,
 `test_shapes2d.py`, `test_native_ops.py`, `test_distributors.py`, `test_threading.py`,
 `test_helpers.py`, `test_isosurface.py`, `test_masking_primitives.py` and `test_screw_drive.py`
-followed — all to 0. **303 → 54**, and what is left is a tail of 1–2 per file plus the 12
-deliberate type contracts in `test_shapes2d_object.py`.
+followed — all to 0, then `test_hinges.py`, `test_hooks.py`, `test_joiners.py`,
+`test_linear_bearings.py` and `test_nema_steppers.py`. **303 → 44**, and what is left is a tail of
+1–2 per file plus the 12 deliberate type contracts in `test_shapes2d_object.py`.
+
+Two measuring techniques came out of the parts files and are worth reusing. **Slice to see a
+taper**: `solid & cuboid([100, 0.2, 100]).translate([0, y, 0])` gives the local width at *y*, so
+`Dovetail(taper=)` — invisible to a bounding box, which is the wide end either way — is now pinned
+at three stations along the slide. **Probe to see a hole**: `_native_bounds()` returns `None` for
+an empty solid, so intersecting a small cube with the model says whether material is there. That
+turns `NemaMountMask` from "returns a solid" into "all four screw holes are open, the plate corner
+is not, and `atype=FULL` bores the centre while `SCREWS` leaves it solid".
 
 `Mask3D.chamfer()` was the ninth bug the sweep turned up, and the worst-hidden: it called
 `corner_profile(children=mask2d_chamfer(...))`, but `corner_profile()` documents `children` as
