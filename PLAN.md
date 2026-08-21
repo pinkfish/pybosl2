@@ -132,6 +132,12 @@ what they need, rather than passing a bag of numbers through free functions.
   `Mask3D.chamfer(...)`. The old names stay as **aliases of the new members**
   (`mask2d_roundover = Mask2D.roundover`), never as a second copy of the body, so the two spellings
   cannot diverge.
+* **O-1c A mixin is inherited or it is deleted.** Where a class publishes operations through a
+  mixin, that mixin MUST be in the class's MRO — never re-implemented in the class alongside it.
+  A duplicate is dead on one side: `partitions.Partitionable` held all nine cut operators while
+  `shapes3d/base.py` carried its own copy of every one, so the mixin was documented, tested and
+  never executed, and the two copies had already drifted. If a mixin looks redundant, delete it;
+  do not leave two implementations of one operation.
 * **O-1b A command enum plus a parameter dataclass gets methods too.** Where an API is driven by
   `Thing(CommandType.MOVE, size=40)` values, the object executing them also exposes one method per
   command, generated from a single table so parallel implementations cannot drift

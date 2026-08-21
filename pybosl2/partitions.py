@@ -547,9 +547,11 @@ def _ptn_path_redirect(major_path: Path2D, minor_path: Path2D, center: bool = Tr
     out = []
     for pt in minor3:
         pinfo = Path2D(major3).cut_points(max(0.0, pt[0]), closed=False, direction=True)[0]
-        base = np.asarray(pinfo.point)
-        tangent = unit(np.asarray(pinfo.normal), [0.0, 1.0])
-        out.append(list(base + tangent * pt[1]))
+        base = np.asarray(pinfo.point, dtype=float)[:2]
+        # cut_points() reports direction/normal as 3-vectors even for a 2-D path; the offset is
+        # in the plane, so take the XY part rather than broadcasting a 3-vector onto a 2-D point.
+        normal = unit(np.asarray(pinfo.normal, dtype=float), [0.0, 1.0, 0.0])[:2]
+        out.append(list(base + normal * pt[1]))
     return _merge_collinear(_dedup(out))
 
 
@@ -736,7 +738,8 @@ class Partitionable:
         )
         poly = _polygon([[float(x), float(y)] for x, y in poly_pts])
         if offset:
-            poly = poly.offset(radius=offset)
+            # the native offset() takes r=/delta=, not pybosl2's own radius= spelling
+            poly = poly.offset(r=offset)
         mask = poly.linear_extrude(height=s, center=True)
         if bool(np.allclose(vu, UP.vector)):
             xyv = np.asarray(FRONT.vector, dtype=float)
