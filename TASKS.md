@@ -676,9 +676,19 @@ claimed to cover was never executed, and two of its features were outright broke
 
 `test_color.py`, `test_rounding.py`, `test_profiles.py`, `test_tripod_mounts.py`,
 `test_screws.py`, `test_skin.py`, `turtle/test_turtle3d.py`, `test_sdf_skin.py`,
-`test_shapes2d.py`, `test_native_ops.py`, `test_distributors.py` and `test_threading.py`
-followed — all to 0. **303 → 66**, and what is left is a tail of 1–3 per file plus the 12
+`test_shapes2d.py`, `test_native_ops.py`, `test_distributors.py`, `test_threading.py`,
+`test_helpers.py`, `test_isosurface.py`, `test_masking_primitives.py` and `test_screw_drive.py`
+followed — all to 0. **303 → 54**, and what is left is a tail of 1–2 per file plus the 12
 deliberate type contracts in `test_shapes2d_object.py`.
+
+`Mask3D.chamfer()` was the ninth bug the sweep turned up, and the worst-hidden: it called
+`corner_profile(children=mask2d_chamfer(...))`, but `corner_profile()` documents `children` as
+"accepted for call-site compatibility; unused" and drops it on the floor. So the chamfer factory
+returned the *roundover* cutter — `repr()`-identical, bbox-identical, three existence-only tests
+green. It now builds its own cutter (the corner block intersected with the three edge-chamfer
+bars, which is the surface `cuboid(chamfer=)` produces), and `test_stl_render.py` renders both
+cutters and checks the volume each takes off a 20 mm cube: 384 for the chamfer against the
+closed form, ~244 for the roundover.
 
 One op resists measurement entirely: **`Bosl2Solid.wrap()` never returns its bounds.** The call
 itself is instant (the native op is lazy), but asking the wrapped solid for `bounds()` -- or even
