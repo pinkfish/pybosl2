@@ -10,7 +10,7 @@ import pytest
 
 from pybosl2.parts.enums import Gender
 from pybosl2.parts.joiners import Dovetail, SnapPin, SnapPinSocket
-from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
 def _size(s: Bosl2Solid) -> list[float]:
@@ -40,20 +40,64 @@ def test_female_is_enlarged_by_slop() -> None:
     assert female[2] > male[2]  # female taller by the slop
 
 
-@pytest.mark.parametrize("kw", [{}, {"taper": 4}, {"back_width": 12}])
-def test_dovetail_taper_builds(kw: dict[str, object]) -> None:
-    assert isinstance(Dovetail(Gender.MALE, width=18, height=6, slide=40, **kw).shape, Bosl2Solid)  # type: ignore[arg-type]
+def _width_at(dt: Bosl2Solid, y: float) -> float:
+    """Width of the dovetail in a thin slice at *y* along the slide.
+
+    A taper only narrows one end, so the bounding box -- which is the wide end either way --
+    cannot see it. Slicing can.
+    """
+    slab = cuboid([100, 0.2, 100]).translate([0, y, 0])
+    return _size(dt & slab)[0]
 
 
-def test_snap_pin_and_socket_build() -> None:
-    assert isinstance(SnapPin().shape, Bosl2Solid)
-    assert isinstance(SnapPinSocket().shape, Bosl2Solid)
+@pytest.mark.parametrize(
+    ("kw", "back_width", "mid_width"),
+    [
+        ({}, 20.0, 20.0),  # untapered: the same 18 + 2*6/6 all the way along
+        ({"taper": 4}, 14.44, 17.22),  # tapered by angle
+        ({"back_width": 12}, 14.03, 17.02),  # tapered to a stated back width (12 + 2*6/6)
+    ],
+)
+def test_dovetail_taper_narrows_the_back(kw: dict[str, object], back_width: float, mid_width: float) -> None:
+    dt = Dovetail(Gender.MALE, width=18, height=6, slide=40, **kw).shape  # type: ignore[arg-type]
+    assert _size(dt) == pytest.approx([20.0, 40.0, 6.0], abs=0.05)  # the wide end sets the envelope
+    assert _width_at(dt, 19.9) == pytest.approx(20.0, abs=0.05)  # front stays full width
+    assert _width_at(dt, -19.9) == pytest.approx(back_width, abs=0.05)
+    assert _width_at(dt, 0.0) == pytest.approx(mid_width, abs=0.05)  # and narrows evenly between
 
 
-def test_socket_bore_clears_the_pin() -> None:
-    # the socket relief is at least as wide as the pin's barb so the pin fits
-    pin_w = _size(SnapPin(diameter=5, nub_depth=0.6).shape)[0]
-    sock_w = _size(SnapPinSocket(diameter=5, nub_depth=0.6).shape)[0]
-    # FIXME: geometry bug from param rename — skipping strict check
-    assert sock_w > 0
-    assert pin_w > 0
+@pytest.mark.parametrize("length", [12, 20])
+def test_snap_pin_and_socket_run_the_stated_length(length: float) -> None:
+    """Both are built about z=0 and grow only along the pin axis as `length` grows."""
+    pin_lo, pin_size = SnapPin(length=length).shape._native_bounds()  # type: ignore[misc]
+    sock_lo, sock_size = SnapPinSocket(length=length).shape._native_bounds()  # type: ignore[misc]
+
+    assert pin_lo[2] == pytest.approx(-length / 2)
+    assert pin_size[2] == pytest.approx(length + 2.31, abs=0.01)  # plus the rounded tip
+    assert sock_lo[2] == pytest.approx(-length / 2 - 0.5)
+    assert sock_size[2] == pytest.approx(length + 1.0)
+    # Length runs along the pin only; the cross-section is unchanged.
+    assert pin_size[:2] == pytest.approx(SnapPin().shape._native_bounds()[1][:2])  # type: ignore[misc]
+
+
+@pytest.mark.parametrize("diameter", [5, 8, 10])
+def test_socket_bore_clears_the_pin(diameter: float) -> None:
+    """The socket relief is wider than the pin's barb in both axes, so the pin fits."""
+    pin = _size(SnapPin(diameter=diameter, nub_depth=0.6).shape)
+    socket = _size(SnapPinSocket(diameter=diameter, nub_depth=0.6).shape)
+    assert socket[0] > pin[0]
+    assert socket[1] > pin[1]
+
+
+def test_clearance_opens_the_socket_and_leaves_the_pin_alone() -> None:
+    """clearance= is the fit allowance: it belongs to the socket, not to the pin."""
+    tight_pin = _size(SnapPin(diameter=5, clearance=0.0).shape)
+    loose_pin = _size(SnapPin(diameter=5, clearance=0.5).shape)
+    assert loose_pin == pytest.approx(tight_pin)
+
+    tight_socket = _size(SnapPinSocket(diameter=5, clearance=0.0).shape)
+    loose_socket = _size(SnapPinSocket(diameter=5, clearance=0.5).shape)
+    assert loose_socket[0] > tight_socket[0]
+    assert loose_socket[1] > tight_socket[1]
+    # With no clearance at all the bore is exactly the pin's own section: no room to insert it.
+    assert tight_socket[1] == pytest.approx(tight_pin[1])

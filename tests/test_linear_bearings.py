@@ -37,16 +37,40 @@ def test_lmxuu_bearing_envelope(size: int, outer_diameter: int, length: int) -> 
     assert height == pytest.approx(length, abs=0.05)
 
 
-def test_generic_bearing_builds() -> None:
-    assert isinstance(
-        LinearBearings.linear_bearing(length=24, outer_diameter=15, inner_diameter=8, fn=None, fa=None, fs=None),
-        Bosl2Solid,
+@pytest.mark.parametrize(
+    ("length", "outer_diameter", "inner_diameter"),
+    [(24, 15, 8), (30, 21, 12)],
+)
+def test_generic_bearing_is_a_bored_tube(length: float, outer_diameter: float, inner_diameter: float) -> None:
+    """The envelope is the outer diameter by the length, and the bore really is cut."""
+    bearing = LinearBearings.linear_bearing(
+        length=length,
+        outer_diameter=outer_diameter,
+        inner_diameter=inner_diameter,
+        fn=None,
+        fa=None,
+        fs=None,
     )
+    lo, size = bearing._native_bounds()  # type: ignore[misc]
+    assert size[0] == pytest.approx(outer_diameter, abs=0.5)  # faceted circle, slightly under
+    assert size[1] == pytest.approx(outer_diameter, abs=0.5)
+    assert size[2] == pytest.approx(length)
+    assert lo[2] == pytest.approx(-length / 2)  # centred on its own axis
+
+    # A bore is a hole: no bounding box can see it, so check it was cut at the stated radius.
+    program = repr(bearing)
+    assert f"r1 = {inner_diameter / 2:g}, r2 = {inner_diameter / 2:g}" in program
+    assert f"r1 = {outer_diameter / 2:g}, r2 = {outer_diameter / 2:g}" in program
 
 
-@pytest.mark.parametrize("kw", [{}, {"size": 12}, {"size": 20}])
-def test_housing_builds(kw: dict[str, object]) -> None:
-    assert isinstance(LinearBearings.lmxuu_housing(**kw), Bosl2Solid)  # type: ignore[arg-type]
+@pytest.mark.parametrize("size", [8, 12, 20])
+def test_housing_wraps_its_bearing(size: int) -> None:
+    """A pillow block is as long as the bearing it holds, and thicker than it in the other two."""
+    spec = LinearBearings.lmxuu_info(size)
+    housing = _size(LinearBearings.lmxuu_housing(size))
+    assert housing[1] == pytest.approx(spec.length)  # the bore runs the bearing's full length
+    assert housing[0] > spec.outer_diameter  # walls and mounting flanges on either side
+    assert housing[2] > spec.outer_diameter
 
 
 def test_housing_grows_with_bearing() -> None:
