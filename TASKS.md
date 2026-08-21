@@ -279,6 +279,20 @@ two spellings of the same vector — so no behaviour was chosen away. Tests:
 Two E-4 asserts in the SDF backend (`tube`, `rect_tube`) became reachable once defaults were
 forwarded, and were converted to `ValueError` with them.
 
+**PAR-5's remainder, closed later.** One shape was still exempt from the agreement test: the SDF
+`pie_slice` stored the full disc's bounding box rather than the wedge's. At 30° that claimed four
+times the area the shape occupies — 20×20 for a wedge living in 10×5 — on the backend whose whole
+selling point is exact bounds, and the CSG side had been reporting the true box all along.
+`_sector_xy_bounds()` now derives the sector's own box from the apex, the two arc endpoints, and
+whichever of the four axis directions the sweep passes through. Anchoring deliberately still uses
+the full cylinder, as the CSG `pie_slice` does — `anchor` names a point on the cylinder the slice
+was cut from — so an anchored slice lands in the same place on both backends.
+
+`BOUNDS_NOT_YET_EXACT` is now an empty frozenset with a comment saying it must stay that way, and
+`pie_slice` joins `test_both_backends_agree_on_bounds` with a stated size instead of an opt-out.
+The new tests pin all eight interesting angles (0, 30, 90, 180, 200, 270, 359, 360) and then sample
+the field around the box: a tight box is only correct if nothing is left outside it.
+
 ---
 
 ## T2b — Make the top level backend-neutral ✅

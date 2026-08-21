@@ -213,9 +213,11 @@ def test_a_private_name_is_answered_without_meshing() -> None:
         assert shape._mesh_cache is None  # nothing was meshed to answer that
 
 
-#: Shapes whose SDF bounds are not yet the shape's own: pie_slice stores the full disc's box
-#: rather than the wedge's, so an exact bounds() query over-reports (SPEC §12.2, PAR-5).
-BOUNDS_NOT_YET_EXACT = frozenset({"pie_slice"})
+#: Shapes whose SDF bounds() is not the shape's own box. Empty, and meant to stay that way: the
+#: SDF backend's selling point is exact bounds, so a conservative box here is a defect, not a
+#: tolerance. `pie_slice` was the last entry -- it stored the full disc rather than the wedge, and
+#: over-reported by four times the area at 30 degrees (PAR-5).
+BOUNDS_NOT_YET_EXACT: frozenset[str] = frozenset()
 
 
 def test_the_same_call_builds_the_same_geometry_on_both_backends() -> None:

@@ -31,7 +31,8 @@ SHARED_SHAPES = {
     "cylinder": ((), {"height": 20, "radius": 5}, [10, 10, 20], True),
     "octahedron": ((10,), {}, [10, 10, 10], True),
     "onion": ((), {"radius": 10}, None, True),
-    "pie_slice": ((), {"height": 10, "radius": 8, "angle": 45}, None, False),  # SDF bounds = full disc
+    # a 45deg wedge of an r=8 disc: 8 across in X, 8*sin(45) in Y (PAR-5)
+    "pie_slice": ((), {"height": 10, "radius": 8, "angle": 45}, [8, 5.657, 10], True),
     "prismoid": ((), {"size1": [10, 10], "size2": [6, 6], "height": 8}, [10, 10, 8], True),
     "rect_tube": ((), {"height": 10, "size": [20, 20], "wall": 2}, [20, 20, 10], True),
     "regular_prism": ((6,), {"height": 10, "radius": 8}, None, False),
