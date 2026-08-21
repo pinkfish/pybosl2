@@ -2398,6 +2398,37 @@
     <span class="k">return</span> <span class="n">block</span> <span class="o">-</span> <span class="n">sph</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_corner_chamfer_cutter</span><span class="p">(</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">corner_vec</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the material a corner chamfer of size *chamfer* removes from a *size* box.</span>
+
+<span class="sd">    The kept surface is the one ``cuboid(size, chamfer=chamfer)`` produces: each of the three</span>
+<span class="sd">    edges meeting at this corner is cut by its own 45 degree plane, and the three planes meet at</span>
+<span class="sd">    a point. So the cutter is the corner block intersected with the union of the three edge</span>
+<span class="sd">    chamfer bars -- everything inside the block that at least one of the three planes shaves off.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">chamfer</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Mask3D.chamfer(): chamfer must be positive, got </span><span class="si">{</span><span class="n">chamfer</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
+
+    <span class="n">corner_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="n">inner_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner_pt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">chamfer</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">chamfer</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">Point</span><span class="p">([(</span><span class="n">corner_pt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">inner_pt</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]))</span>
+
+    <span class="n">wedges</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">run_axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">edge_vec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">corner_vec</span><span class="p">)</span>
+        <span class="n">edge_vec</span><span class="p">[</span><span class="n">run_axis</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">chamfer_edge_mask</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="n">size</span><span class="p">[</span><span class="n">run_axis</span><span class="p">],</span> <span class="n">chamfer</span><span class="o">=</span><span class="n">chamfer</span><span class="p">)</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="n">_orient_mask_along_edge</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">Point</span><span class="p">(</span><span class="n">edge_vec</span><span class="p">))</span>
+        <span class="n">wedges</span> <span class="o">=</span> <span class="n">bar</span> <span class="k">if</span> <span class="n">wedges</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">wedges</span> <span class="o">|</span> <span class="n">bar</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">wedges</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"three edges meet at every corner"</span>
+    <span class="k">return</span> <span class="n">block</span> <span class="o">&amp;</span> <span class="n">wedges</span>
+
+
 <div class="viewcode-block" id="corner_profile">
 <a class="viewcode-back" href="../../foundational/masking.html#pybosl2.masking.corner_profile">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">corner_profile</span><span class="p">(</span>
@@ -2876,18 +2907,13 @@
 <span class="sd">            corners: Corners to select.</span>
 
 <span class="sd">        """</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
-
-        <span class="n">body</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask2d_chamfer</span><span class="p">(</span><span class="n">chamfer</span><span class="p">)</span>
-        <span class="n">cutter</span> <span class="o">=</span> <span class="n">corner_profile</span><span class="p">(</span>
-            <span class="n">body</span><span class="p">,</span>
-            <span class="n">corners</span><span class="o">=</span><span class="n">corners</span><span class="p">,</span>
-            <span class="n">radius</span><span class="o">=</span><span class="n">chamfer</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
-            <span class="n">children</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
-            <span class="n">return_cutter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="c1"># NOT corner_profile(children=mask2d_chamfer(...)): corner_profile ignores children= and</span>
+        <span class="c1"># always rounds, which used to make this factory return the roundover cutter verbatim.</span>
+        <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_corners</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="p">[])):</span>
+            <span class="k">if</span> <span class="n">sel</span><span class="p">:</span>
+                <span class="n">piece</span> <span class="o">=</span> <span class="n">_corner_chamfer_cutter</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">CORNER_OFFSETS</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">chamfer</span><span class="p">)</span>
+                <span class="n">cutter</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="n">cutter</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">cutter</span> <span class="o">|</span> <span class="n">piece</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cutter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">"Mask3D.chamfer(): corners= selected no corners, so there is nothing to chamfer; "</span>
