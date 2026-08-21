@@ -10,6 +10,8 @@ so these check that each method re-wraps into a Bosl2Solid (preserving the fluen
 separate()/inside() return the right Python types; the real geometry is verified in
 test_stl_render.py."""
 
+import pytest
+
 import pybosl2.shapes3d as s3
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -19,10 +21,20 @@ def _cube() -> Bosl2Solid:
 
 
 def test_repair_returns_solid() -> None:
-    assert isinstance(_cube().repair(), Bosl2Solid)
+    """repair() rebuilds the mesh without moving it."""
+    repaired = _cube().repair()
+    assert isinstance(repaired, Bosl2Solid)
+    assert [float(v) for v in repaired.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0])
 
 
 def test_wrap_returns_solid_with_and_without_fn() -> None:
+    """wrap() is the one op here that cannot be measured: the bounding box never comes back.
+
+    The call itself returns immediately -- the native op is lazy -- but asking the wrapped solid
+    for its bounds (or even its program text) re-enters the native ``wrap`` and does not return.
+    So this asserts the type, and the geometry is covered against the real app in
+    test_stl_render.py (PLAN X-8's stated exception).
+    """
     assert isinstance(_cube().wrap(20), Bosl2Solid)
     assert isinstance(_cube().wrap(20, fn=32), Bosl2Solid)
 
@@ -34,11 +46,17 @@ def test_wrap_returns_solid_with_and_without_fn() -> None:
 
 
 def test_pull_returns_solid() -> None:
-    assert isinstance(_cube().pull([0, 0, 1], 5), Bosl2Solid)
+    """pull() stretches the mesh, so the solid grows by the distance it was pulled."""
+    pulled = _cube().pull([0, 0, 1], 5)
+    assert isinstance(pulled, Bosl2Solid)
+    assert [float(v) for v in pulled.bounds()[1]] == pytest.approx([25.0, 25.0, 15.0])
 
 
 def test_oversample_returns_solid() -> None:
-    assert isinstance(_cube().oversample(2), Bosl2Solid)
+    """oversample() subdivides the faces: same solid, finer mesh."""
+    dense = _cube().oversample(2)
+    assert isinstance(dense, Bosl2Solid)
+    assert [float(v) for v in dense.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0])
 
 
 def test_separate_returns_list_of_solids() -> None:
@@ -62,6 +80,9 @@ def test_methods_are_chainable() -> None:
     # each returns a Bosl2Solid, so they compose fluently with the rest of the API
     out = _cube().oversample(2).repair().up(5)
     assert isinstance(out, Bosl2Solid)
+    centre, size = out.bounds()
+    assert [float(v) for v in size] == pytest.approx([20.0, 20.0, 10.0])  # neither op moved it
+    assert float(centre[2]) == pytest.approx(5.0)  # ...and the up() at the end did
 
 
 def test_pull_coerces_numpy_inputs() -> None:
