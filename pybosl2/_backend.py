@@ -489,6 +489,19 @@ class Shape(Protocol):
     def bounds(self) -> "tuple[list[float], list[float]]": ...
     def show(self) -> Any: ...
 
+    def with_nominal_size(self, size: "Sequence[float]", anchor: Any = None) -> Self:
+        """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
+
+        Backend-neutral, so a shape can name the frame it anchors to without reaching for a native
+        handle. `bounds()` keeps reporting the geometry.
+        """
+        ...
+
+    @property
+    def nominal_size(self) -> "list[float] | None":
+        """The nominal anchor box, or None if none was attached (SPEC S-2a)."""
+        ...
+
 
 @runtime_checkable
 class Solid(Shape, Protocol):

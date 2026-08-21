@@ -726,15 +726,26 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
    backend**, with no error — `spin` is CSG-only, and `for_backend()` dropped it. Every façade
    argument that only one backend understands had the same hole.
 
-   The first widening is done — `regular_prism` gained `radius1`/`radius2`/`shift`/`circumscribe`,
-   which is what `TrussFoot` and `TrussJoiner` need — taking the gap from 146 to 142. The rest go
-   constructor by constructor toward what parts actually use (`prismoid` chamfer/rounding, `tube`
-   per-end radii, then the `cyl` family's 19 apiece). Each widening carries the same pair of tests:
-   it builds on CSG, it refuses by name on SDF.
-2. **Give the Shape contract a backend-neutral nominal box.** The 28 re-wraps exist to attach a
-   nominal anchor box (SPEC S-2a) to a solid built from something else. `Bosl2Solid(x.shape, size=)`
-   cannot do that on SDF; a `with_nominal_size()` on the `Shape` protocol, implemented on both
-   backends, can. This is the single change that unblocks the most parts.
+   **The widening that actually blocks T14 is finished.** Asking which façade-missing parameters
+   the parts library *passes* — rather than widening all 146 alphabetically — gave a much shorter
+   list than expected: `regular_prism`'s taper (`radius1`/`radius2`/`shift`/`circumscribe`) and
+   `prismoid`'s edge treatments (`rounding`/`chamfer` and their per-end forms). Both are now on the
+   façade, both refuse by name on SDF, and **no part passes a shape argument the façade cannot
+   carry**. `test_no_part_needs_a_shape_argument_the_facade_cannot_carry` keeps it that way.
+
+   The gap is 146 → 136. What is left is a completeness backlog, not a blocker: the `cyl` family's
+   19 apiece, `rect_tube`'s 15, `tube`'s per-end radii, the `texture`/`tex_*` family. Each carries
+   the same pair of tests: it builds on CSG, it refuses by name on SDF.
+2. **Give the Shape contract a backend-neutral nominal box.** ✅ `with_nominal_size(size, anchor=)`
+   is on the `Shape` protocol and implemented on both backends: it returns a new shape around the
+   same geometry carrying the nominal anchor box, and — like colour — the box rides the field as
+   metadata, so it survives every exact transform rather than forcing a mesh. `bounds()` keeps
+   reporting geometry, per S-2a.
+
+   This replaces `Bosl2Solid(other.shape, size=[...])`, the idiom used at 28 sites across 13 of the
+   15 parts modules. That idiom reads `.shape` off the solid, which an SDF solid does not have —
+   asking raises rather than returning a handle — so a part written that way is CSG-only whatever
+   else it does. The 28 call sites are converted in phase 3, with the parts that use them.
 3. **Convert parts, module by module.** `hinges` or `joiners` first — same re-wrap pattern, no
    tapered prisms in the way — to settle whether `@csg_part` becomes per-part or gives way to
    letting the primitives refuse on their own, and what a converted part's `backend` tag says.

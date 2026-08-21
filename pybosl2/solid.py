@@ -708,6 +708,12 @@ def prismoid(
     height: float | None = None,
     shift: Sequence[float] | None = (0, 0),
     length: float | None = None,
+    rounding: float | Sequence[float] | None = None,
+    rounding1: float | Sequence[float] | None = None,
+    rounding2: float | Sequence[float] | None = None,
+    chamfer: float | Sequence[float] | None = None,
+    chamfer1: float | Sequence[float] | None = None,
+    chamfer2: float | Sequence[float] | None = None,
     anchor: Anchor | Sequence[float] | None = Anchor.BOTTOM,
     center: bool | None = None,
     spin: float | None = 0,
@@ -730,6 +736,14 @@ def prismoid(
         height: Height of the prism.
         shift: [X,Y] shift of the top center relative to the bottom center.
         length: Height of the prism.
+        rounding: Radius of the vertical edge rounding, or one radius per edge (CSG backend --
+            the SDF prismoid has no exact form for a tapered box's independently-radiused vertical
+            edges; see :func:`pybosl2.sdf.shapes3d.prismoid`).
+        rounding1: Vertical edge rounding at the bottom end (CSG backend).
+        rounding2: Vertical edge rounding at the top end (CSG backend).
+        chamfer: Size of the vertical edge chamfer, or one size per edge (CSG backend).
+        chamfer1: Vertical edge chamfer at the bottom end (CSG backend).
+        chamfer2: Vertical edge chamfer at the top end (CSG backend).
         anchor: Anchor point (default BOTTOM)
         center: If given, overrides anchor.
         spin: Z-axis rotation in degrees after anchor (default 0)
@@ -761,6 +775,12 @@ def prismoid(
                 "height": height,
                 "shift": shift,
                 "length": length,
+                "rounding": rounding,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
                 "anchor": anchor,
                 "center": center,
                 "spin": spin,
