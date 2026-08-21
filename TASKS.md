@@ -679,8 +679,9 @@ claimed to cover was never executed, and two of its features were outright broke
 `test_shapes2d.py`, `test_native_ops.py`, `test_distributors.py`, `test_threading.py`,
 `test_helpers.py`, `test_isosurface.py`, `test_masking_primitives.py` and `test_screw_drive.py`
 followed — all to 0, then `test_hinges.py`, `test_hooks.py`, `test_joiners.py`,
-`test_linear_bearings.py` and `test_nema_steppers.py`. **303 → 44**, and what is left is a tail of
-1–2 per file plus the 12 deliberate type contracts in `test_shapes2d_object.py`.
+`test_linear_bearings.py`, `test_nema_steppers.py`, `test_nurbs.py`, `test_polyhedra.py`,
+`test_texture.py`, `test_walls.py` and `test_backend_matrix.py`. **303 → 34**, and what is left is
+one per file plus the 12 deliberate type contracts in `test_shapes2d_object.py`.
 
 Two measuring techniques came out of the parts files and are worth reusing. **Slice to see a
 taper**: `solid & cuboid([100, 0.2, 100]).translate([0, y, 0])` gives the local width at *y*, so
@@ -689,6 +690,14 @@ at three stations along the slide. **Probe to see a hole**: `_native_bounds()` r
 an empty solid, so intersecting a small cube with the model says whether material is there. That
 turns `NemaMountMask` from "returns a solid" into "all four screw holes are open, the plate corner
 is not, and `atype=FULL` bores the centre while `SCREWS` leaves it solid".
+
+The same probe generalises to **thickness**, not just presence: reading `size[0]` of the probe
+intersection gives the wall thickness at a point, which is what finally pinned
+`ThinningTriangle(diagonly=True)` — same outline, same bounding box as the full form, but the
+upright and the base thin back from 4 mm to the 3 mm web while the hypotenuse keeps its rim.
+Where the difference is a *count* rather than a dimension, the emitted program is cheaper than
+probing: each `SparseWall` strut is one `polygon(`, so the lattice's response to `maxang`,
+`max_bridge` and `strut` is 16/12/10 ribs against the limits that produced them.
 
 `Mask3D.chamfer()` was the ninth bug the sweep turned up, and the worst-hidden: it called
 `corner_profile(children=mask2d_chamfer(...))`, but `corner_profile()` documents `children` as
