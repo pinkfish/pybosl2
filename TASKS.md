@@ -674,10 +674,15 @@ claimed to cover was never executed, and two of its features were outright broke
 | `tests/test_gears.py` | 10 | 0 |
 | `tests/test_svg.py` | 10 | 7 |
 
-`test_color.py` (9 → 0), `test_rounding.py` (8 → 0), `test_profiles.py` (7 → 0),
-`test_tripod_mounts.py` (8 → 0), `test_screws.py` (7 → 0) and `test_skin.py` (7 → 0) followed;
-**303 → 110**. Next by size: `turtle/test_turtle3d.py` (7), `test_svg.py` (7),
-`test_sdf_skin.py` (6), `test_shapes2d.py` (6).
+`test_color.py`, `test_rounding.py`, `test_profiles.py`, `test_tripod_mounts.py`,
+`test_screws.py`, `test_skin.py`, `turtle/test_turtle3d.py`, `test_sdf_skin.py` and
+`test_shapes2d.py` followed — all to 0. **303 → 78**, and what is left is a long tail of 1–5 per
+file: `test_native_ops.py` (5), `test_distributors.py` (4), `test_threading.py` (4), then
+threes and below.
+
+The count also excludes `assert x is None` now: that *is* a content assertion (the helper returns
+None for bad input), unlike `is not None`. That correction alone accounted for 20 of the
+apparent 110.
 
 Parts get catalogue arithmetic rather than magic numbers: an M6 nut measures 10mm across the
 flats and `10 * 2/sqrt(3)` across the hex points, a tapped hole is cut at the thread diameter
