@@ -235,7 +235,7 @@ class Path(ABC):
             An ndarray of unit tangent vectors, one per path point.
 
         Raises:
-            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+            ValueError: If two adjacent points coincide, leaving a zero-length tangent.
 
         """
         if closed is None:

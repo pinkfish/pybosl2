@@ -197,6 +197,8 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "quaternion_slerp": ("pybosl2.quaternions", "quaternion_slerp"),
     "quaternion_rot": ("pybosl2.quaternions", "quaternion_rot"),
     # masking
+    "Mask2D": ("pybosl2.masking", "Mask2D"),
+    "Mask3D": ("pybosl2.masking", "Mask3D"),
     "mask2d_chamfer": ("pybosl2.masking", "mask2d_chamfer"),
     "mask2d_cove": ("pybosl2.masking", "mask2d_cove"),
     "mask2d_tear": ("pybosl2.masking", "mask2d_tear"),

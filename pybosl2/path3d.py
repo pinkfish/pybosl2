@@ -358,7 +358,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of unit tangent vectors, one per path point.
 
         Raises:
-            AssertionError: If two adjacent points coincide, leaving a zero-length tangent.
+            ValueError: If two adjacent points coincide, leaving a zero-length tangent.
 
         """
         return [
@@ -461,7 +461,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A list of :class:`Path3D` subpaths.
 
         Raises:
-            AssertionError: If the first cut distance is not positive or the last cut
+            ValueError: If the first cut distance is not positive or the last cut
                 distance exceeds the path length.
 
         Examples:
@@ -651,7 +651,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path3D` with the subdivided points.
 
         Raises:
-            AssertionError: If more than one of *points*, *points_per_segment*, and *maxlen*
+            ValueError: If more than one of *points*, *points_per_segment*, and *maxlen*
                 is given, or if *points_per_segment* is given without ``SEGMENT`` method.
 
         Examples:
@@ -736,7 +736,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             A new :class:`Path3D` with the uniformly resampled points.
 
         Raises:
-            AssertionError: If both or neither of *num_copies* and *spacing* are given.
+            ValueError: If both or neither of *num_copies* and *spacing* are given.
 
         Examples:
             Resampling a helix to 120 evenly spaced points:
@@ -1515,6 +1515,13 @@ def _path_cut_points(
         raise ValueError(f"cut_points(): give a distance or a list of increasing distances, got {cutdist!r}.")
     if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
         raise ValueError("Cut distances must be an increasing list")
+    if len(cutdist) and cutdist[0] < 0:
+        # 0 is the path start and is a fine place to cut; a negative distance divides by a
+        # zero-length partial segment further down, so catch it here with something actionable.
+        raise ValueError(
+            f"cut_points(): distances are measured forward along the path, so they cannot be negative; "
+            f"got {cutdist[0]}."
+        )
     cuts: list[CutPoint] = _path_cut_points_recurse(points, closed, [float(v) for v in cutdist])
     if not direction:
         return cuts

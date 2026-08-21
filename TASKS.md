@@ -31,7 +31,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | 13 | PAR-3 | [T4](#t4--reconcile-the-parity-records-with-the-code) | S |
 | 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) | S |
 | 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) | M |
-| 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families) | M |
+| 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families-) ✅ | M |
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
@@ -439,18 +439,31 @@ eight more E-4 violations on its first run (`arc`, `trapezoid`, `ring`, `round2d
 
 ---
 
-## T8 — Class-ify the remaining function families
+## T8 — Class-ify the remaining function families ✅
 
-**Closes:** §12.2 item 16 (P-8) · **Implements:** PLAN O-1, O-4, O-6 · **Size:** M
+**Closed:** §12.2 item 16 (P-8) · **Implements:** PLAN O-1, O-4, O-6 · **Size:** M
 **Risk:** low, but API-visible
 
-1. `masking.mask2d_*` / `mask3d_*` → a `Mask2D`/`Mask3D` class (or a `Profile` class with
-   classmethod factories), keeping the free functions as thin aliases for one release.
-2. `isosurface.mb_*` → `Metaball` subclasses or classmethod factories on `Metaball`.
-3. `turtle2d`/`turtle3d` → one `Turtle` class with a 2-D and 3-D mode (`turtle3d.Turtle` exists —
-   unify rather than duplicate).
+1. **Masks.** `Mask2D` and `Mask3D` own the profile factories — `Mask2D.roundover(4)`,
+   `Mask3D.chamfer(...)`. The nine `mask2d_*`/`mask3d_*` names are now aliases *of* those
+   staticmethods (`mask2d_roundover is Mask2D.roundover`), so there is one implementation, not a
+   copy. `masking.py` gained the `__all__` it was missing.
+2. **Metaballs.** `Metaball.sphere/cuboid/torus/capsule/disk/octahedron/connector`, plus
+   `Metaball.at(position)` which returns the `MetaballSpec` the mesher consumes — so a scene reads
+   `VNF.from_metaballs([Metaball.sphere(12).at([-14, 0, 0]), ...])` instead of pairing bare
+   positions with fields by hand. The classes were also *named* `_Metaball`/`_MetaballSpec` with
+   public aliases, i.e. backwards: every repr leaked a private name. Now the classes are
+   `Metaball`/`MetaballSpec` with `_Metaball`/`_MetaballSpec` as the compatibility aliases.
+3. **Turtles.** These were already classes, so the real wart was the command *bag*:
+   `TurtleCommand(TurtleCommandType.MOVE, size=40)` for every step. `TurtleCommands` (mixed into
+   both `Turtle2D` and `Turtle3D`) gives a method per command, generated from one table so the
+   two turtles cannot drift: `Turtle2D().set_length(40).move().arc_left(radius=8)`. The command
+   objects still work and are what the methods build; `command()` runs one directly. The command
+   language moved from `turtle3d.py` to `pybosl2/turtle/commands.py` — it was only there by
+   accident, and the method form needs it without importing a turtle.
 
-Each needs a deprecation path (P-6, change-process rule 2) and docs updates.
+Every old spelling still works (P-6, change-process rule 2); docs pages for masking, isosurface
+and drawing were rewritten around the classes, and the docs build stays at zero warnings.
 
 ---
 

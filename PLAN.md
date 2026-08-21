@@ -126,6 +126,17 @@ what they need, rather than passing a bag of numbers through free functions.
   `KnuckleHinge`, `RegularPolyhedron`, `NemaMotor` — not a family of functions. A stateless family
   of catalogue lookups MAY instead be a class holding classmethod factories
   (`BallBearings.ball_bearing("608")`).
+* **O-1a Prefixed function families are factories on a class.** A group of free functions sharing a
+  prefix and a parameter list is an argument bag with extra steps (SPEC P-8): give the group a
+  class and make each member a factory on it — `Metaball.sphere(...)`, `Mask2D.roundover(...)`,
+  `Mask3D.chamfer(...)`. The old names stay as **aliases of the new members**
+  (`mask2d_roundover = Mask2D.roundover`), never as a second copy of the body, so the two spellings
+  cannot diverge.
+* **O-1b A command enum plus a parameter dataclass gets methods too.** Where an API is driven by
+  `Thing(CommandType.MOVE, size=40)` values, the object executing them also exposes one method per
+  command, generated from a single table so parallel implementations cannot drift
+  (`TurtleCommands`, mixed into `Turtle2D` and `Turtle3D`). The command objects remain the
+  substrate — the methods build them — so generated programs still work.
 * **O-2 The standard part shape.** A part class has:
   1. a `__init__` taking the catalogue name / defining dimension first and everything else
      defaulted (SPEC P-1),

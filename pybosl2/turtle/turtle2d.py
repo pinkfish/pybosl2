@@ -34,7 +34,8 @@ from pybosl2.points import Point
 from pybosl2.shapes2d import arc
 from pybosl2.vectors import unit
 
-from .turtle3d import TurtleCommand, TurtleCommandType
+from ._fluent import TurtleCommands
+from .commands import TurtleCommand, TurtleCommandType
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -118,7 +119,7 @@ class Turtle2DState:
 # -- Turtle2D class ----------------------------------------------------------
 
 
-class Turtle2D:
+class Turtle2D(TurtleCommands):
     """A 2-D turtle: walk it with a command list to produce a 2-D path.
 
     The turtle starts at the origin pointing along +X with a step length of 1.
@@ -327,6 +328,8 @@ class Turtle2D:
             return default
         if isinstance(sz, (int, float)):
             return float(sz)
+        if not isinstance(sz, Point):
+            sz = Point.from_seq(sz)  # a plain [x, y] / [x, y, z] reads the same as a Point
         return sz.x
 
     @staticmethod
@@ -335,6 +338,8 @@ class Turtle2D:
             return (0.0, 0.0, 0.0)
         if isinstance(sz, (int, float)):
             return (float(sz), 0.0, 0.0)
+        if not isinstance(sz, Point):
+            sz = Point.from_seq(sz)  # a plain [x, y] / [x, y, z] reads the same as a Point
         return (sz.x, sz.y, sz.z or 0.0)
 
     def _xymove(self, parm: Any, index: int) -> None:

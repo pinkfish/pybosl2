@@ -565,7 +565,7 @@ class Bezier:
             path's start and end to the specified axis.
 
         Raises:
-            AssertionError: If *axis* is not ``"X"`` or ``"Y"``, or if the
+            ValueError: If *axis* is not ``"X"`` or ``"Y"``, or if the
                 patch is not 2-D.
 
         """
@@ -607,7 +607,7 @@ class Bezier:
             original path with its offset copy.
 
         Raises:
-            AssertionError: If the bezier is not 2-D.
+            ValueError: If the bezier is not 2-D.
 
         """
         arr = self.array
@@ -1040,7 +1040,7 @@ def create_bezier(
         of the input path.
 
     Raises:
-        AssertionError: If both *size* and *relsize* are specified, or if any
+        ValueError: If both *size* and *relsize* are specified, or if any
             path segment has zero length.
 
     """
@@ -1467,7 +1467,7 @@ class BezierPatch:
             edges.
 
         Raises:
-            AssertionError: If the patch has degenerate normals.
+            ValueError: If the patch has degenerate normals.
 
         Examples:
         .. pythonscad-example::
