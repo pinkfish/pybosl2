@@ -32,7 +32,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | 14 | R-5 | [T6](#t6--document-and-test-the-fn0-opt-out) | S |
 | 15 | Q-4 | [T7](#t7--generalise-the-minimum-argument-check) | M |
 | 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families-) ✅ | M |
-| 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage) | M |
+| 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage-) ✅ | M |
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 
@@ -467,17 +467,25 @@ and drawing were rewritten around the classes, and the docs build stays at zero 
 
 ---
 
-## T9 — Track BOSL2 feature coverage
+## T9 — Track BOSL2 feature coverage ✅
 
-**Closes:** §12.2 item 17 (B2-1) · **Implements:** PLAN D-P7 · **Size:** M · **Risk:** none
+**Closed:** §12.2 item 17 (B2-1) · **Implements:** PLAN D-P7 · **Size:** M · **Risk:** none
 
-B2-1 claims feature parity with BOSL2, and nothing measures it.
+B2-1 claimed feature parity with BOSL2 and nothing measured it.
 
-1. Generate a matrix of BOSL2 `.scad` modules against pybosl2 modules, marking ported / partial /
-   unported with a note.
-2. Put it under `docs/` so it publishes, and regenerate it in CI or via a script like
-   `docs/_specgen.py`.
-3. Cite it from SPEC B2-1 so the claim has evidence.
+`docs/_covgen.py` now generates `docs/bosl2_coverage.rst`: every one of the **56** `.scad` files in
+BOSL2 v2.0.751 against the pybosl2 module that ports it, with a status and a note — **42 ported, 3
+partial** (attachments' module tree, isosurface's 2-D analogues, the deprecated metric-screws
+wrapper), **0 unported**, and 11 with nothing to port (OpenSCAD plumbing that Python or NumPy
+already provides). It is linked from the docs index and cited from SPEC B2-1.
+
+The upstream file list is **pinned** with its tree sha, so the docs build never needs the network;
+`python3 docs/_covgen.py --refresh` re-reads GitHub and reports anything added or removed upstream.
+
+`tests/test_bosl2_coverage.py` keeps it honest, because this is precisely the kind of document that
+rots: it imports every module a row names (a rename would otherwise leave a row pointing at
+nothing), rejects a `partial` row that does not say what is missing, requires a note on every row,
+and fails if the committed page has drifted from the generator.
 
 ---
 
