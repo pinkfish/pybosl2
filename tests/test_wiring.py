@@ -48,8 +48,22 @@ def test_public_hex_offsets_matches_private() -> None:
 
 
 @pytest.mark.parametrize("wires", [1, 7, 13, 30])
-def test_wire_bundle_builds(wires: int) -> None:
-    assert isinstance(WireBundle(_PATH, wires=wires, rounding=10).shape, Bosl2Solid)  # type: ignore[arg-type]
+def test_wire_bundle_wraps_the_route(wires: int) -> None:
+    """One wire per count, and the bundle is the route grown by the packed cross-section.
+
+    _PATH runs a 50mm cube, so the envelope is 50 plus the outermost hex offset and one wire
+    radius on each side: 52, 56, 60, 64 for 1, 7, 13 and 30 wires.
+    """
+    bundle = WireBundle(_PATH, wires=wires, rounding=10).shape  # type: ignore[arg-type]
+    _lo, size = bundle._native_bounds()  # type: ignore[misc]
+
+    offsets = np.array(_hex_offsets(wires, 2.0))
+    reach = float(np.linalg.norm(offsets, axis=1).max()) + 1.0  # outermost wire, plus its radius
+    assert size[0] == pytest.approx(50 + 2 * reach, abs=0.01)
+    assert 50 < size[1] <= size[0]  # the hex packing is narrower across the flats
+    assert 50 < size[2] <= size[0]
+
+    assert repr(bundle).count("color(") == wires  # every wire is drawn, and drawn separately
 
 
 def test_wire_bundle_grows_with_wire_count() -> None:

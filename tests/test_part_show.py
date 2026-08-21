@@ -64,11 +64,13 @@ def _part_classes() -> list[str]:
 
 @pytest.mark.parametrize("name", _part_classes())
 def test_show_returns_the_parts_shape(name: str) -> None:
+    """show() hands back the part's own shape object, not a copy and not None (SPEC S-49)."""
     cls = getattr(parts, name)
     args = ARGUMENTS.get(name, ())
     part = cls(*args, **KEYWORDS.get(name, {}))
     shown = part.show()
     assert shown is not None, f"{name}.show() returned None (SPEC S-49)"
+    assert shown is part.shape, f"{name}.show() returned a different object than .shape (SPEC S-51)"
 
 
 def test_show_is_the_shape_itself() -> None:

@@ -80,8 +80,15 @@ def test_addition_combines_directions() -> None:
 
 
 def test_result_is_point() -> None:
-    assert isinstance(TOP + LEFT, Point)
-    assert isinstance(TOP.vector * 2, Point)
+    """Arithmetic on anchors stays in Point space, so results keep composing."""
+    combined = TOP + LEFT
+    assert isinstance(combined, Point)
+    assert list(combined) == [-1, 0, 1]
+
+    scaled = TOP.vector * 2
+    assert isinstance(scaled, Point)
+    assert list(scaled) == [0, 0, 2]
+    assert list(scaled + LEFT) == [-1, 0, 2]  # ... and can be combined again
 
 
 def test_vector_arithmetic() -> None:
