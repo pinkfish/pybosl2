@@ -2919,6 +2919,10 @@
     <span class="n">inner_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">radius2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">shift</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">circumscribe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2951,6 +2955,11 @@
 <span class="sd">        inner_diameter: Overall size (see above)</span>
 <span class="sd">        side: Overall size (see above)</span>
 <span class="sd">        length: Prism height (default 1)</span>
+<span class="sd">        radius1: Bottom radius, for a tapered prism (CSG backend).</span>
+<span class="sd">        radius2: Top radius, for a tapered prism (CSG backend).</span>
+<span class="sd">        shift: ``[x, y]`` offset of the top face from the bottom (CSG backend).</span>
+<span class="sd">        circumscribe: If True the polygon encloses the given radius instead of being inscribed in</span>
+<span class="sd">            it (CSG backend).</span>
 <span class="sd">        rounding: End rounding radius (overall/bottom/top)</span>
 <span class="sd">        rounding1: End rounding radius (overall/bottom/top)</span>
 <span class="sd">        rounding2: End rounding radius (overall/bottom/top)</span>
@@ -2999,6 +3008,10 @@
                 <span class="s2">"inner_diameter"</span><span class="p">:</span> <span class="n">inner_diameter</span><span class="p">,</span>
                 <span class="s2">"side"</span><span class="p">:</span> <span class="n">side</span><span class="p">,</span>
                 <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"radius1"</span><span class="p">:</span> <span class="n">radius1</span><span class="p">,</span>
+                <span class="s2">"radius2"</span><span class="p">:</span> <span class="n">radius2</span><span class="p">,</span>
+                <span class="s2">"shift"</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
+                <span class="s2">"circumscribe"</span><span class="p">:</span> <span class="n">circumscribe</span><span class="p">,</span>
                 <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
                 <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
                 <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
