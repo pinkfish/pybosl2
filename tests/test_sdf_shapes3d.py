@@ -21,6 +21,27 @@ def round_offset(r: float) -> float:
     return r * (SQRT2 - 1)
 
 
+def _csg_operable_mesh() -> bool:
+    """True if a meshed SDF solid can go into the CSG boolean operators.
+
+    Without libfive the suite falls back to the numeric mock, whose ``to_csg()`` yields a stand-in
+    the native operators reject -- so anything that meshes *and then* cuts is unverifiable here.
+    These used to `except (AttributeError, ValueError, TypeError): pass`, which is a test that
+    cannot fail; skipping says the same thing out loud.
+    """
+    try:
+        meshed = sdf_s3d.cuboid([2, 2, 2]).to_csg()
+        _ = meshed.shape & meshed.shape
+    except Exception:
+        return False
+    return True
+
+
+needs_csg_operable_mesh = pytest.mark.skipif(
+    not _csg_operable_mesh(), reason="no libfive: a meshed SDF solid cannot enter the CSG operators"
+)
+
+
 def chamfer_offset(c: float) -> float:
     """Perpendicular distance from a sharp right-angle corner to a chamfer plane cutting `c`
     in from the corner along each edge."""
@@ -895,40 +916,50 @@ class TestOffset3d:
         assert rounded.backend == "sdf"
 
 
+#: (method, the exact box the cut half of a 10mm cube should have). The cube spans -5..5, so each
+#: half keeps exactly one side of the origin -- and the SDF backend's whole selling point is that
+#: it knows that box exactly, without meshing (SPEC PAR-5).
+SDF_HALVES = [
+    ("left_half", [-5.0, -5.0, -5.0], [0.0, 5.0, 5.0]),
+    ("right_half", [0.0, -5.0, -5.0], [5.0, 5.0, 5.0]),
+    ("front_half", [-5.0, -5.0, -5.0], [5.0, 0.0, 5.0]),
+    ("back_half", [-5.0, 0.0, -5.0], [5.0, 5.0, 5.0]),
+    ("bottom_half", [-5.0, -5.0, -5.0], [5.0, 5.0, 0.0]),
+    ("top_half", [-5.0, -5.0, 0.0], [5.0, 5.0, 5.0]),
+]
+
+
 class TestHalfOf:
-    """half_of() and direction variants on SDF."""
+    """half_of() and direction variants on SDF.
 
-    def test_right_half(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        half = s.right_half()
-        _center, size = half.bounds()
-        assert size[0] < 12
+    These all used to be `assert half is not None`, and every one of them was broken: the mask was
+    shifted on all three axes instead of along the cut normal, so each "half" kept an *eighth* of
+    the solid -- and `right_half()` and `back_half()` kept the same eighth as each other.
+    """
 
-    def test_top_half(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        half = s.top_half()
-        _center, size = half.bounds()
-        assert size[2] < 12
+    @pytest.mark.parametrize(("method", "low", "high"), SDF_HALVES, ids=[row[0] for row in SDF_HALVES])
+    def test_each_half_keeps_its_own_side(self, method: str, low: list[float], high: list[float]) -> None:
+        half = getattr(sdf_s3d.cuboid([10, 10, 10]), method)()
+        assert [float(v) for v in half.mn] == pytest.approx(low, abs=1e-6), method
+        assert [float(v) for v in half.mx] == pytest.approx(high, abs=1e-6), method
 
-    def test_left_half_alias(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        half = s.left_half(x=2)
-        assert half is not None
+    @pytest.mark.parametrize(("method", "low", "high"), SDF_HALVES, ids=[row[0] for row in SDF_HALVES])
+    def test_each_half_is_half_the_volume(self, method: str, low: list[float], high: list[float]) -> None:  # noqa: ARG002 - shared table
+        """...and it is a half, not an eighth: the box is 5 x 10 x 10, whichever axis was cut."""
+        _centre, size = getattr(sdf_s3d.cuboid([10, 10, 10]), method)().bounds()
+        assert sorted(round(float(v), 6) for v in size) == [5.0, 10.0, 10.0], method
 
-    def test_front_half(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        half = s.front_half()
-        assert half is not None
+    def test_the_cut_plane_can_be_moved_along_its_axis(self) -> None:
+        half = sdf_s3d.cuboid([10, 10, 10]).left_half(x=2)
+        assert [float(v) for v in half.mx] == pytest.approx([2.0, 5.0, 5.0], abs=1e-6)
+        assert [float(v) for v in half.mn] == pytest.approx([-5.0, -5.0, -5.0], abs=1e-6)
 
-    def test_back_half(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        half = s.back_half()
-        assert half is not None
-
-    def test_bottom_half(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        half = s.bottom_half()
-        assert half is not None
+    def test_half_of_takes_an_arbitrary_normal(self) -> None:
+        """An off-axis cut keeps the side its normal points to; the box cannot shrink for it."""
+        cube = sdf_s3d.cuboid([10, 10, 10])
+        diagonal = cube.half_of([1, 1, 0])
+        assert [float(v) for v in diagonal.mx] == pytest.approx([5.0, 5.0, 5.0], abs=1e-6)
+        assert diagonal.backend == "sdf"
 
 
 class TestProjection:
@@ -967,36 +998,39 @@ class TestDistributeOnPath:
         assert result.backend == "sdf"
 
     def test_spaced_distribution(self) -> None:
+        """Copies every 10mm along a 30mm path: the union spans from the first to the last."""
         from pybosl2.path3d import Path3D
 
-        s = sdf_s3d.sphere(radius=2)
-        path = Path3D([[0, 0, 0], [30, 0, 0]])
-        result = s.distribute_on_path(path, spacing=10)
-        assert result is not None
+        spread = sdf_s3d.sphere(radius=2).distribute_on_path(Path3D([[0, 0, 0], [30, 0, 0]]), spacing=10)
+        assert [float(v) for v in spread.mn] == pytest.approx([-2.0, -2.0, -2.0], abs=1e-6)
+        assert [float(v) for v in spread.mx] == pytest.approx([32.0, 2.0, 2.0], abs=1e-6)
 
     def test_dist_parameter(self) -> None:
+        """`dist=` names the distances outright, so the copies sit at 0 and 10 along the path."""
         from pybosl2.path3d import Path3D
 
-        s = sdf_s3d.sphere(radius=2)
         path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
-        result = s.distribute_on_path(path, dist=[0, 10])
-        assert result is not None
+        spread = sdf_s3d.sphere(radius=2).distribute_on_path(path, dist=[0, 10])
+        assert [float(v) for v in spread.mn] == pytest.approx([-2.0, -2.0, -2.0], abs=1e-6)
+        assert [float(v) for v in spread.mx] == pytest.approx([12.0, 2.0, 2.0], abs=1e-6)
 
     def test_start_pos_with_num_copies(self) -> None:
+        """Three copies from 5mm along the 20mm path: the first at 5, the last at the end."""
         from pybosl2.path3d import Path3D
 
-        s = sdf_s3d.sphere(radius=2)
         path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
-        result = s.distribute_on_path(path, start_pos=5, num_copies=3)
-        assert result is not None
+        spread = sdf_s3d.sphere(radius=2).distribute_on_path(path, start_pos=5, num_copies=3)
+        assert [float(v) for v in spread.mn] == pytest.approx([3.0, -2.0, -2.0], abs=1e-6)
+        assert [float(v) for v in spread.mx] == pytest.approx([22.0, 2.0, 2.0], abs=1e-6)
 
     def test_start_pos_with_spacing(self) -> None:
+        """From 2mm along, every 5mm: the last copy that still fits sits at 17."""
         from pybosl2.path3d import Path3D
 
-        s = sdf_s3d.sphere(radius=2)
         path = Path3D([[0, 0, 0], [10, 0, 0], [20, 0, 0]])
-        result = s.distribute_on_path(path, start_pos=2, spacing=5)
-        assert result is not None
+        spread = sdf_s3d.sphere(radius=2).distribute_on_path(path, start_pos=2, spacing=5)
+        assert [float(v) for v in spread.mn] == pytest.approx([0.0, -2.0, -2.0], abs=1e-6)
+        assert [float(v) for v in spread.mx] == pytest.approx([19.0, 2.0, 2.0], abs=1e-6)
 
 
 class TestPassthroughMethods:
@@ -1010,9 +1044,10 @@ class TestPassthroughMethods:
         assert result.backend == "sdf"
 
     def test_repair_delegates_to_csg(self) -> None:
-        s = sdf_s3d.cuboid([4, 4, 4])
-        result = s.repair()
-        assert result is not None
+        """repair() has no field form, so it meshes and hands back a CSG solid of the same size."""
+        repaired = sdf_s3d.cuboid([4, 4, 4]).repair()
+        assert repaired.backend == "csg"
+        assert [float(v) for v in repaired.bounds()[1]] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
 
     def test_render_is_noop(self) -> None:
         s = sdf_s3d.sphere(radius=5)
@@ -1038,37 +1073,36 @@ class TestPassthroughMethods:
         assert len(parts) >= 1
 
     def test_wrap_delegates_to_csg(self) -> None:
-        s = sdf_s3d.cuboid([4, 20, 4])
-        result = s.wrap(radius=10)
-        assert result is not None
+        """wrap() bends the meshed solid round a cylinder, so the wrapped axis changes length."""
+        flat = sdf_s3d.cuboid([4, 20, 4])
+        wrapped = flat.wrap(radius=10)
+        assert wrapped.backend == "csg"
+        assert float(wrapped.bounds()[1][1]) != pytest.approx(float(flat.bounds()[1][1]), abs=0.2)
 
     def test_pull_delegates_to_csg(self) -> None:
-        s = sdf_s3d.cuboid([4, 4, 4])
-        result = s.pull([1, 0, 0], distance=2)
-        assert result is not None
+        """pull() is a mesh deformation, so it comes back as CSG, still the same order of size."""
+        pulled = sdf_s3d.cuboid([4, 4, 4]).pull([1, 0, 0], distance=2)
+        assert pulled.backend == "csg"
+        assert float(pulled.bounds()[1][0]) >= 4.0 - 0.1
 
+    @needs_csg_operable_mesh
     def test_minkowski_difference_delegates(self) -> None:
-        s = sdf_s3d.cuboid([10, 10, 10])
-        d = sdf_s3d.sphere(radius=2)
-        try:
-            result = s.minkowski_difference(d)
-            assert result is not None
-        except (AttributeError, ValueError, TypeError):
-            pass  # mock minkowski ops are incomplete
+        """Carving with a radius-2 sphere insets the meshed cube by 2 on every side."""
+        carved = sdf_s3d.cuboid([10, 10, 10]).minkowski_difference(sdf_s3d.sphere(radius=2))
+        assert [float(v) for v in carved.bounds()[1]] == pytest.approx([6.0, 6.0, 6.0], abs=0.5)
 
     def test_oversample_delegates_to_csg(self) -> None:
-        s = sdf_s3d.cuboid([4, 4, 4])
-        result = s.oversample(8)
-        assert result is not None
+        """oversample() subdivides the meshed solid: same shape, more triangles."""
+        dense = sdf_s3d.cuboid([4, 4, 4]).oversample(8)
+        assert dense.backend == "csg"
+        assert [float(v) for v in dense.bounds()[1]] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
 
+    @needs_csg_operable_mesh
     def test_partition_returns_two_parts(self) -> None:
-        s = sdf_s3d.cuboid([20, 20, 10])
-        try:
-            a, b = s.partition(spread=10, cutsize=10)
-            assert a is not None
-            assert b is not None
-        except (AttributeError, ValueError, TypeError):
-            pass  # mock doesn't fully support partition yet
+        """The two interlocking halves come back separated by the spread."""
+        first, second = sdf_s3d.cuboid([20, 20, 10]).partition(spread=10, cutsize=10)
+        gap = abs(float(first.bounds()[0][1]) - float(second.bounds()[0][1]))
+        assert gap > 10.0  # each half's own depth, plus the 10mm spread
 
     def test_regular_prism_rounding_and_chamfer(self) -> None:
         s_round = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, rounding=2)

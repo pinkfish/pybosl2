@@ -1055,7 +1055,11 @@ class SdfSolid(Colorable, Distributable):
             diag = [self.mx[i] - self.mn[i] for i in range(3)]
             s = 2.2 * math.sqrt(sum(d * d for d in diag)) + 2.0
 
-        half_mask = cuboid([s] * 3).translate([-s / 2 + float(center[i]) for i in range(3)])
+        # A cube sitting entirely on the +Z side of the origin plane: rotating +Z onto *v* then
+        # moving it to *center* gives the half-space that keeps the side *v* points to. (Shifting
+        # it on all three axes instead, as this used to, leaves an octant -- so every half-cut
+        # kept an eighth of the solid, and `right_half()` and `back_half()` kept the same one.)
+        half_mask = cuboid([s] * 3).translate([0.0, 0.0, s / 2])
         # Align mask normal with the plane
         v3 = np.asarray(v, dtype=float)
         vn = float(np.linalg.norm(v3))

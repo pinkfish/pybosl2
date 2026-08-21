@@ -26,27 +26,49 @@ PATH3 = Path3D([[0, 0, 0], [20, 0, 10], [20, 20, 20]], closed=False)
 
 
 def test_path_extrude2d_returns_solid() -> None:
-    assert isinstance(L_PATH.path_extrude2d(s2.square([4, 8], center=True)), Bosl2Solid)
+    """The profile is swept along the path, so the solid covers the path plus half the profile."""
+    swept = L_PATH.path_extrude2d(s2.square([4, 8], center=True))
+    assert isinstance(swept, Bosl2Solid)
+    centre, size = swept.bounds()
+    # the 40x40 L, widened by the profile's 4mm width; the 8mm height becomes the Z extent
+    assert [float(v) for v in size] == pytest.approx([42.0, 42.0, 8.0], abs=0.01)
+    assert float(centre[2]) == pytest.approx(0.0)
 
 
 def test_path_extrude2d_accepts_various_profiles() -> None:
-    # native shape, a Path2D, a Region, a Bosl2Solid, and a factory all work as the profile
-    assert isinstance(L_PATH.path_extrude2d(s2.circle(radius=3)), Bosl2Solid)
-    assert isinstance(L_PATH.path_extrude2d(Path2D([[-2, -4], [2, -4], [2, 4], [-2, 4]])), Bosl2Solid)
+    """A shape, a Path2D, a Region and a factory are four spellings of the same 4x8 profile.
+
+    They must sweep to the same solid -- a form that is quietly ignored would not.
+    """
     from pybosl2.regions import Region
 
-    assert isinstance(
-        L_PATH.path_extrude2d(Region([[[-2, -4], [2, -4], [2, 4], [-2, 4]]])),
-        Bosl2Solid,
-    )
-    assert isinstance(L_PATH.path_extrude2d(lambda: s2.square([4, 8], center=True)), Bosl2Solid)
+    rectangle = [[-2, -4], [2, -4], [2, 4], [-2, 4]]
+    by_shape = L_PATH.path_extrude2d(s2.square([4, 8], center=True))
+    expected = [float(v) for v in by_shape.bounds()[1]]
+    for name, profile in (
+        ("path2d", Path2D(rectangle)),
+        ("region", Region([rectangle])),
+        ("factory", lambda: s2.square([4, 8], center=True)),
+    ):
+        swept = L_PATH.path_extrude2d(profile)
+        assert isinstance(swept, Bosl2Solid), name
+        assert [float(v) for v in swept.bounds()[1]] == pytest.approx(expected, abs=0.01), name
+
+    # a round profile sweeps the same path but tapers the corners, so it reaches a little further
+    round_swept = L_PATH.path_extrude2d(s2.circle(radius=3))
+    assert float(round_swept.bounds()[1][0]) > expected[0]
 
 
 def test_path_extrude2d_closed_and_caps() -> None:
+    """A closed sweep is a ring around the whole loop; an open one is capped at its ends."""
     loop = Path2D([[0, 0], [40, 0], [40, 40], [0, 40]], closed=True)
-    assert isinstance(loop.path_extrude2d(s2.square([4, 6], center=True), closed=True), Bosl2Solid)
+    ring = loop.path_extrude2d(s2.square([4, 6], center=True), closed=True)
+    assert [float(v) for v in ring.bounds()[1]] == pytest.approx([44.0, 44.0, 6.0], abs=0.01)
+
     straight = Path2D([[0, 0], [40, 0]], closed=False)
-    assert isinstance(straight.path_extrude2d(s2.square([6, 8], center=True), caps=CapType.BUTT), Bosl2Solid)  # type: ignore[arg-type]
+    bar = straight.path_extrude2d(s2.square([6, 8], center=True), caps=CapType.BUTT)
+    assert float(bar.bounds()[1][2]) == pytest.approx(8.0, abs=0.01)  # the profile's height
+    assert float(bar.bounds()[1][1]) == pytest.approx(6.0, abs=0.01)  # ...and its width  # type: ignore[arg-type]
 
 
 def test_path_extrude2d_caps_on_closed_raises() -> None:
@@ -64,26 +86,43 @@ def test_path_extrude2d_requires_2d_path() -> None:
 
 
 def test_path_extrude_on_2d_path() -> None:
-    assert isinstance(L_PATH.path_extrude(s2.circle(radius=3)), Bosl2Solid)
+    """A 2-D spine sweeps in the XY plane, so the profile's diameter sets the Z extent."""
+    tube = L_PATH.path_extrude(s2.circle(radius=3))
+    assert isinstance(tube, Bosl2Solid)
+    assert float(tube.bounds()[1][2]) == pytest.approx(6.0, abs=0.3)  # the radius-3 profile
 
 
 def test_path_extrude_on_3d_path() -> None:
-    assert isinstance(PATH3.path_extrude(s2.circle(radius=3)), Bosl2Solid)
+    """A 3-D spine climbs, so the sweep spans the path's own extent in every axis."""
+    tube = PATH3.path_extrude(s2.circle(radius=3))
+    assert isinstance(tube, Bosl2Solid)
+    centre, size = tube.bounds()
+    assert float(size[2]) > 10.0  # the spine rises from z=0 to z=20
+    assert float(centre[2]) > 0.0
 
 
 def test_path_extrude_factory_profile() -> None:
-    assert isinstance(PATH3.path_extrude(lambda: s2.circle(radius=3)), Bosl2Solid)
+    """A callable profile is called once and swept exactly like the shape it returns."""
+    direct = PATH3.path_extrude(s2.circle(radius=3))
+    from_factory = PATH3.path_extrude(lambda: s2.circle(radius=3))
+    assert isinstance(from_factory, Bosl2Solid)
+    assert [float(v) for v in from_factory.bounds()[1]] == pytest.approx(
+        [float(v) for v in direct.bounds()[1]], abs=0.01
+    )
 
 
 # -- free functions -----------------------------------------------------------------------
 
 
 def test_extrude_from_to() -> None:
-    assert isinstance(m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30]), Bosl2Solid)
-    assert isinstance(
-        m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2),
-        Bosl2Solid,
-    )
+    """The profile is extruded between the two points, so the solid is centred on their midpoint."""
+    slanted = m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [10, 20, 30])
+    assert isinstance(slanted, Bosl2Solid)
+    assert [float(v) for v in slanted.bounds()[0]] == pytest.approx([5.0, 10.0, 15.0], abs=0.1)
+
+    tapered = m.extrude_from_to(s2.circle(radius=4), [0, 0, 0], [0, 0, 20], twist=90, scale=2)
+    assert float(tapered.bounds()[1][2]) == pytest.approx(20.0)  # straight up, 20 tall
+    assert float(tapered.bounds()[1][0]) == pytest.approx(8.0, abs=0.3)  # widened by scale=2
 
 
 def test_extrude_from_to_same_point_raises() -> None:
@@ -92,14 +131,15 @@ def test_extrude_from_to_same_point_raises() -> None:
 
 
 def test_cylindrical_extrude() -> None:
-    assert isinstance(
-        m.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30),
-        Bosl2Solid,
-    )
-    assert isinstance(
-        m.cylindrical_extrude(s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45),
-        Bosl2Solid,
-    )
+    """The flat shape is wrapped round a cylinder, so its height becomes the Z extent."""
+    wrapped = m.cylindrical_extrude(s2.square([20, 8]), inner_radius=25, outer_radius=30)
+    assert isinstance(wrapped, Bosl2Solid)
+    assert float(wrapped.bounds()[1][2]) == pytest.approx(8.0, abs=0.01)  # the shape's own height
+
+    # the diameter spelling names the same cylinder, and spin turns the wrapped patch around it
+    by_diameter = m.cylindrical_extrude(s2.square([20, 8]), inner_diameter=50, outer_diameter=60, spin=45)
+    assert float(by_diameter.bounds()[1][2]) == pytest.approx(8.0, abs=0.01)
+    assert float(by_diameter.bounds()[0][0]) != pytest.approx(float(wrapped.bounds()[0][0]))
 
 
 def test_cylindrical_extrude_needs_radii() -> None:
@@ -108,17 +148,23 @@ def test_cylindrical_extrude_needs_radii() -> None:
 
 
 def test_chain_hull() -> None:
-    assert isinstance(m.chain_hull(cuboid([5, 5, 5]), sphere(radius=4).right(20)), Bosl2Solid)
-    assert isinstance(
-        m.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])]),
-        Bosl2Solid,
-    )
-    # single object passes through
-    assert isinstance(m.chain_hull(cuboid([5, 5, 5])), Bosl2Solid)
+    """Consecutive pairs are hulled, so the result spans from the first child to the last."""
+    bridged = m.chain_hull(cuboid([5, 5, 5]), sphere(radius=4).right(20))
+    assert isinstance(bridged, Bosl2Solid)
+    assert float(bridged.bounds()[1][0]) == pytest.approx(26.5, abs=0.5)  # -2.5 out to 24
+
+    stacked = m.chain_hull([cuboid([5, 5, 5]), sphere(radius=4), cuboid([3, 3, 3])])
+    assert float(stacked.bounds()[1][0]) == pytest.approx(8.0, abs=0.3)  # all three at the origin
+
+    alone = m.chain_hull(cuboid([5, 5, 5]))  # a single object passes straight through
+    assert [float(v) for v in alone.bounds()[1]] == pytest.approx([5.0, 5.0, 5.0])
 
 
 def test_minkowski_difference() -> None:
-    assert isinstance(m.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8)), Bosl2Solid)
+    """Carving with a radius-8 sphere shrinks the cube by 8 on every side."""
+    carved = m.minkowski_difference(cuboid([40, 40, 40]), sphere(radius=8))
+    assert isinstance(carved, Bosl2Solid)
+    assert [float(v) for v in carved.bounds()[1]] == pytest.approx([24.0, 24.0, 24.0], abs=0.3)
 
 
 # -- Minkowski SUM (BaseShape.minkowski) ---------------------------------------------------
@@ -140,7 +186,10 @@ def test_minkowski_lives_on_the_shared_base_class() -> None:
 
 
 def test_minkowski_sum_returns_a_solid() -> None:
-    assert isinstance(cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=12)), Bosl2Solid)
+    """Summing with a radius-2 sphere rounds the box and grows it by 2 on every side."""
+    grown = cuboid([20, 30, 5]).minkowski(sphere(radius=2, fn=12))
+    assert isinstance(grown, Bosl2Solid)
+    assert [float(v) for v in grown.bounds()[1]] == pytest.approx([24.0, 34.0, 9.0], abs=0.3)
 
 
 def test_minkowski_sum_keeps_2d_shapes_2d() -> None:
@@ -149,6 +198,8 @@ def test_minkowski_sum_keeps_2d_shapes_2d() -> None:
 
     grown = s2.square([10, 10], center=True).minkowski(s2.circle(radius=3, fn=24))
     assert isinstance(grown, Bosl2Shape2D)
+    if grown.shape.size is not None:  # needs the native 2-D bbox
+        assert [float(v) for v in grown.bounds()[1]] == pytest.approx([16.0, 16.0], abs=0.1)
 
 
 def test_minkowski_sum_grows_the_solid_by_the_swept_shape() -> None:
@@ -189,8 +240,12 @@ BOX = cuboid([40, 30, 20])
 
 
 def test_bounding_box() -> None:
-    assert isinstance(BOX.bounding_box(), Bosl2Solid)
-    assert isinstance(BOX.bounding_box(excess=3), Bosl2Solid)
+    """The box is the solid's own extent; excess= grows it by that much on each side."""
+    tight = BOX.bounding_box()
+    assert isinstance(tight, Bosl2Solid)
+    assert [float(v) for v in tight.bounds()[1]] == pytest.approx([float(v) for v in BOX.bounds()[1]])
+    loose = BOX.bounding_box(excess=3)
+    assert [float(v) for v in loose.bounds()[1]] == pytest.approx([v + 6 for v in [float(x) for x in BOX.bounds()[1]]])
 
 
 def test_offset3d_zero_is_noop() -> None:
@@ -198,28 +253,45 @@ def test_offset3d_zero_is_noop() -> None:
 
 
 def test_offset3d_and_round3d() -> None:
-    assert isinstance(BOX.offset3d(2), Bosl2Solid)
-    assert isinstance(BOX.offset3d(-2), Bosl2Solid)
-    assert isinstance(BOX.round3d(3), Bosl2Solid)
+    """offset3d grows or shrinks in every direction; round3d rounds without changing the size much."""
+    before = [float(v) for v in BOX.bounds()[1]]
+    grown = [float(v) for v in BOX.offset3d(2).bounds()[1]]
+    shrunk = [float(v) for v in BOX.offset3d(-2).bounds()[1]]
+    assert all(g > b for g, b in zip(grown, before, strict=True))
+    assert all(s < b for s, b in zip(shrunk, before, strict=True))
+    assert grown == pytest.approx([v + 4 for v in before], abs=0.4)
+    assert shrunk == pytest.approx([v - 4 for v in before], abs=0.4)
+
+    rounded = [float(v) for v in BOX.round3d(3).bounds()[1]]
+    assert rounded == pytest.approx(before, abs=0.4)  # the corners go, the extent stays
     assert isinstance(BOX.round3d(outer_radius=2, inner_radius=1), Bosl2Solid)
 
 
 def test_chain_hull_and_minkowski_diff_methods() -> None:
-    assert isinstance(BOX.chain_hull(sphere(radius=5).right(30)), Bosl2Solid)
-    assert isinstance(BOX.minkowski_difference(sphere(radius=4)), Bosl2Solid)
+    """Both are also methods on the solid, doing the same as the module-level functions."""
+    bridged = BOX.chain_hull(sphere(radius=5).right(30))
+    # the 40mm box reaches x=20; the sphere at x=30 reaches x=35, so the hull spans -20..35
+    assert float(bridged.bounds()[1][0]) == pytest.approx(55.0, abs=0.5)
+
+    carved = BOX.minkowski_difference(sphere(radius=4))
+    before = [float(v) for v in BOX.bounds()[1]]
+    assert [float(v) for v in carved.bounds()[1]] == pytest.approx([v - 8 for v in before], abs=0.3)
 
 
 # ── multi-diff minkowski ────────────────────────────────────────────────
 
 
 def test_minkowski_difference_multiple_diffs() -> None:
+    """Each tool is carved in turn, so the total inset is the sum of their radii."""
     result = m.minkowski_difference(cuboid([20, 20, 20]), sphere(radius=3), sphere(radius=4))
     assert isinstance(result, Bosl2Solid)
+    assert [float(v) for v in result.bounds()[1]] == pytest.approx([12.0, 12.0, 12.0], abs=0.3)
 
 
 def test_cylindrical_extrude_default_size() -> None:
+    """With no size= the shape's own extent is wrapped, so a d=20 circle spans 20 in Z."""
     from pybosl2.miscellaneous import cylindrical_extrude
 
-    circle = s2.circle(10)
-    result = cylindrical_extrude(circle, outer_radius=50, inner_radius=40)
+    result = cylindrical_extrude(s2.circle(10), outer_radius=50, inner_radius=40)
     assert isinstance(result, Bosl2Solid)
+    assert float(result.bounds()[1][2]) == pytest.approx(20.0, abs=0.2)

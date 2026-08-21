@@ -84,7 +84,13 @@ def test_low_tooth_gear_has_undercut_shift() -> None:
 
 
 def test_spur_gear2d_builds() -> None:
-    assert isinstance(SpurGear2d(pitch=5, teeth=20).shape, Bosl2Shape2D)
+    """A gear's outside diameter is the pitch diameter plus one module of addendum each side."""
+    gear = SpurGear2d(pitch=5, teeth=20)
+    assert isinstance(gear.shape, Bosl2Shape2D)
+    width, length, _ = _size2d(gear.shape)
+    expect = 2 * GearSpec(pitch=5, teeth=20).outer_radius
+    assert float(width) == pytest.approx(expect, abs=0.5)
+    assert float(length) == pytest.approx(expect, abs=0.5)
 
 
 @pytest.mark.parametrize(
@@ -97,7 +103,13 @@ def test_spur_gear2d_builds() -> None:
     ],
 )
 def test_spur_gear_builds(kw) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(SpurGear(**kw, fn=None, fa=None, fs=None).shape, Bosl2Solid)
+    """Whatever the options, the gear is its own outside diameter across and `thickness` tall."""
+    solid = SpurGear(**kw, fn=None, fa=None, fs=None).shape
+    assert isinstance(solid, Bosl2Solid)
+    width, _length, height = _size(solid)
+    spec = GearSpec(**{k: v for k, v in kw.items() if k in ("pitch", "mod", "teeth", "helical")})
+    assert float(width) == pytest.approx(2 * spec.outer_radius, abs=0.5)
+    assert float(height) == pytest.approx(kw["thickness"], abs=0.01)
 
 
 def test_spur_gear_envelope_matches_outer_radius() -> None:
@@ -116,7 +128,12 @@ def test_teeth_count_scales_radius() -> None:
 
 
 def test_rack2d_builds() -> None:
-    assert isinstance(Rack2d(pitch=5, teeth=10, height=6).shape, Bosl2Shape2D)
+    """A rack is as long as its teeth times their pitch, and as deep as `height`."""
+    rack = Rack2d(pitch=5, teeth=10, height=6)
+    assert isinstance(rack.shape, Bosl2Shape2D)
+    length, depth, _ = _size2d(rack.shape)
+    assert float(length) == pytest.approx(10 * 5, abs=0.5)
+    assert float(depth) == pytest.approx(6, abs=0.5)
 
 
 def test_rack_length_and_thickness() -> None:
@@ -176,7 +193,13 @@ def test_ring_gear_builds_as_annulus() -> None:
     ],
 )
 def test_bevel_gear_builds(kw) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(BevelGear(**kw, fn=None, fa=None, fs=None).shape, Bosl2Solid)
+    """Whatever the cone options, the gear is about its pitch diameter across and has depth."""
+    solid = BevelGear(**kw, fn=None, fa=None, fs=None).shape
+    assert isinstance(solid, Bosl2Solid)
+    width, _length, height = _size(solid)
+    spec = GearSpec(pitch=kw["pitch"], teeth=kw["teeth"])
+    assert float(width) == pytest.approx(2 * spec.pitch_radius, abs=4)
+    assert float(height) > 1
 
 
 def test_bevel_gear_envelope() -> None:
@@ -208,7 +231,13 @@ def test_bevel_mate_teeth_sets_pitch_angle() -> None:
     ],
 )
 def test_worm_builds(kw) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(Worm(**kw).shape, Bosl2Solid)
+    """A worm is a screw: `length` along its axis, and one module of thread proud of its diameter."""
+    solid = Worm(**kw).shape
+    assert isinstance(solid, Bosl2Solid)
+    width, _length, height = _size(solid)
+    assert float(height) == pytest.approx(kw["length"], abs=1.0)
+    module = kw["pitch"] / math.pi
+    assert float(width) == pytest.approx(kw["diameter"] + 2 * module, abs=0.2)
 
 
 def test_worm_length() -> None:
@@ -225,7 +254,12 @@ def test_worm_length() -> None:
     ],
 )
 def test_worm_gear_builds(kw) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(WormGear(**kw, fn=None, fa=None, fs=None).shape, Bosl2Solid)
+    """The mating gear is round in plan and its face width sets how thick it is."""
+    solid = WormGear(**kw, fn=None, fa=None, fs=None).shape
+    assert isinstance(solid, Bosl2Solid)
+    width, length, height = _size(solid)
+    assert float(width) == pytest.approx(float(length), abs=1.0)  # round in plan
+    assert float(height) > 0
 
 
 def test_worm_gear_thickness_matches_helper() -> None:
@@ -252,7 +286,12 @@ def test_worm_arc_out_of_range_raises() -> None:
     ],
 )
 def test_herringbone_builds(kw) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(HerringboneGear(**kw, fn=None, fa=None, fs=None).shape, Bosl2Solid)
+    """Two mirrored helical halves, so it is still `thickness` tall overall."""
+    solid = HerringboneGear(**kw, fn=None, fa=None, fs=None).shape
+    assert isinstance(solid, Bosl2Solid)
+    width, _length, height = _size(solid)
+    assert float(height) == pytest.approx(kw["thickness"], abs=0.01)
+    assert float(width) > 0
 
 
 def test_herringbone_envelope_matches_spur() -> None:
@@ -307,15 +346,18 @@ def test_gear_dist_rack_uses_pitch_radius() -> None:
 
 
 def test_spur_gear_new_api_builds() -> None:
-    assert isinstance(
-        SpurGear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15, fn=None, fa=None, fs=None).shape,
-        Bosl2Solid,
-    )
-    assert isinstance(
-        SpurGear(mod=5, teeth=16, thickness=35, helical=-20, herringbone=True, fn=None, fa=None, fs=None).shape,
-        Bosl2Solid,
-    )
-    assert isinstance(SpurGear2d(mod=5, teeth=30, gear_spin=45).shape, Bosl2Shape2D)
+    """`mod=` sizes the teeth directly, so the outside diameter is mod * (teeth + 2)."""
+    helical = SpurGear(mod=5, teeth=18, thickness=25, helical=-29, shaft_diam=15, fn=None, fa=None, fs=None).shape
+    assert float(_size(helical)[2]) == pytest.approx(25, abs=0.01)
+
+    herringbone = SpurGear(
+        mod=5, teeth=16, thickness=35, helical=-20, herringbone=True, fn=None, fa=None, fs=None
+    ).shape
+    assert float(_size(herringbone)[2]) == pytest.approx(35, abs=0.01)
+
+    spun = SpurGear2d(mod=5, teeth=30, gear_spin=45).shape
+    assert isinstance(spun, Bosl2Shape2D)
+    assert float(_size2d(spun)[0]) == pytest.approx(5 * (30 + 2), abs=1.0)
 
 
 # -- coverage gaps surfaced by the QA review ----------------------------------
@@ -346,9 +388,13 @@ def test_hide_removes_teeth() -> None:
 
 
 def test_backlash_clearance_shorten_build() -> None:
-    assert isinstance(SpurGear2d(mod=5, teeth=20, backlash=0.2).shape, Bosl2Shape2D)
-    assert isinstance(SpurGear2d(mod=5, teeth=20, clearance=1.0).shape, Bosl2Shape2D)
-    assert isinstance(SpurGear2d(mod=5, teeth=20, shorten=0.1).shape, Bosl2Shape2D)
+    """Backlash and clearance work on the flanks and the root; only `shorten` takes off the tip."""
+    plain = float(_size2d(SpurGear2d(mod=5, teeth=20).shape)[0])
+    assert float(_size2d(SpurGear2d(mod=5, teeth=20, backlash=0.2).shape)[0]) == pytest.approx(plain, abs=0.05)
+    assert float(_size2d(SpurGear2d(mod=5, teeth=20, clearance=1.0).shape)[0]) == pytest.approx(plain, abs=0.05)
+    # shorten=0.1 modules takes 0.1 * mod off each tip, so the diameter loses twice that
+    shortened = float(_size2d(SpurGear2d(mod=5, teeth=20, shorten=0.1).shape)[0])
+    assert shortened == pytest.approx(plain - 2 * 0.1 * 5, abs=0.05)
 
 
 def _size2d(shape):  # type: ignore[no-untyped-def]
@@ -359,11 +405,15 @@ def _size2d(shape):  # type: ignore[no-untyped-def]
 
 @pytest.mark.parametrize("ps", [0.4, "auto"])
 def test_profile_shift_gears_build(ps) -> None:  # type: ignore[no-untyped-def]
-    assert isinstance(
-        SpurGear(pitch=5, teeth=8, thickness=6, profile_shift=ps, fn=None, fa=None, fs=None).shape, Bosl2Solid
-    )
-    assert isinstance(SpurGear2d(pitch=5, teeth=8, profile_shift=ps).shape, Bosl2Shape2D)
-    assert isinstance(
-        HerringboneGear(pitch=5, teeth=8, thickness=6, helical=20, profile_shift=ps, fn=None, fa=None, fs=None).shape,
-        Bosl2Solid,
-    )
+    """A profile shift moves the teeth outward, so a shifted gear is bigger than an unshifted one."""
+    solid = SpurGear(pitch=5, teeth=8, thickness=6, profile_shift=ps, fn=None, fa=None, fs=None).shape
+    assert float(_size(solid)[2]) == pytest.approx(6, abs=0.01)
+
+    shifted = float(_size2d(SpurGear2d(pitch=5, teeth=8, profile_shift=ps).shape)[0])
+    unshifted = float(_size2d(SpurGear2d(pitch=5, teeth=8, profile_shift=0).shape)[0])
+    assert shifted > unshifted
+
+    herringbone = HerringboneGear(
+        pitch=5, teeth=8, thickness=6, helical=20, profile_shift=ps, fn=None, fa=None, fs=None
+    ).shape
+    assert float(_size(herringbone)[2]) == pytest.approx(6, abs=0.01)
