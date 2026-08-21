@@ -674,9 +674,16 @@ claimed to cover was never executed, and two of its features were outright broke
 | `tests/test_gears.py` | 10 | 0 |
 | `tests/test_svg.py` | 10 | 7 |
 
-`test_color.py` (9 → 0), `test_rounding.py` (8 → 0) and `test_profiles.py` (7 → 0) followed;
-**303 → 132**. Next by size: `test_tripod_mounts.py` (8), `test_screws.py` (7),
-`test_skin.py` (7), `turtle/test_turtle3d.py` (7), `test_svg.py` (7), `test_sdf_skin.py` (6).
+`test_color.py` (9 → 0), `test_rounding.py` (8 → 0), `test_profiles.py` (7 → 0),
+`test_tripod_mounts.py` (8 → 0), `test_screws.py` (7 → 0) and `test_skin.py` (7 → 0) followed;
+**303 → 110**. Next by size: `turtle/test_turtle3d.py` (7), `test_svg.py` (7),
+`test_sdf_skin.py` (6), `test_shapes2d.py` (6).
+
+Parts get catalogue arithmetic rather than magic numbers: an M6 nut measures 10mm across the
+flats and `10 * 2/sqrt(3)` across the hex points, a tapped hole is cut at the thread diameter
+while a clearance hole is wider, and `close < normal < loose` fits are ordered. Sweeps and prisms
+that return a **VNF** are measured through `vertices` / `faces` / `volume()`: a rim treatment must
+take material off (`volume` down) and add points to the rim, without moving the prism's envelope.
 
 The masking family (`corner_profile`, `face_profile`, `edge_profile`, `edge_mask`) is measured by
 `realize()`ing the lazy attachment and probing with `inside()`: assert the treated edge or corner
