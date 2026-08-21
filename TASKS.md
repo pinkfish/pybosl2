@@ -35,6 +35,8 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage-) ✅ | M |
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
+| — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
+| — | test quality | [T13](#t13--replace-the-existence-only-tests-) 🔶 | L |
 
 ## Order and why
 
@@ -611,6 +613,73 @@ rather than forcing everything into `ValueError`.
 The ratchet in `tests/test_defaults.py` was also sharpened: it now flags an `assert` whose message
 names any parameter of its enclosing function, not just one containing `()` or `=`. That found 13
 more validating asserts, all converted.
+
+---
+
+## T12 — Partitions: cover it, and find out why it was not covered ✅
+
+**Serves:** E-4, P-8 · **Implements:** PLAN O-1c, X-7 · **Size:** M
+
+`pybosl2/partitions.py` sat at **60%**. The reason was not missing tests: `shapes3d/base.py`
+carried its own copy of all nine cut operators (`_half_mask`, `half_of`, the six axis halves,
+`partition`), and `CsgSolid` did not inherit `Partitionable` at all. The mixin — documented in the
+module header, published in `__all__`, referenced by the docs page, and named in the test file —
+**was never executed**. The two copies had already drifted: the mixin pads a 2-D `center=` to 3-D,
+the duplicate did not.
+
+Deleting the duplicate (236 lines) and inheriting the mixin took partitions from 60% to 78% with
+no new tests, and the STL-render suite confirms the swap changed no geometry. `PLAN O-1c` now
+states the rule, and `test_bosl2_solid_gets_its_cuts_from_the_partitions_mixin` asserts the
+identity of each method so a second copy cannot come back quietly.
+
+New tests then took it to **100%**: every cut profile (span, amplitude, vertex counts, the
+dovetail's undercut, facet response), the whole modifier grammar (`xflip`, `addflip`/`wave`,
+`pinch:` in percent and degrees, `skew:`, `flat N`, `invert`, left-to-right ordering), the unit
+tiles the mask builders repeat, the cut row's gap and centring behaviour, `partition_path`'s
+assembly, and the `Partitionable` operators.
+
+Two live bugs surfaced, both in code that had never run:
+
+* **`altpath=` crashed.** `_ptn_path_redirect` added a 3-vector normal to a 2-D point —
+  `operands could not be broadcast together with shapes (2,) (3,)`. So bending a cut pattern along
+  another path, a documented BOSL2 feature, did not work at all.
+* **`half_of(offset=...)` crashed.** It called the *native* `offset()` with pybosl2's own
+  `radius=` spelling, which that API does not take.
+
+One upstream quirk is now pinned rather than smoothed over: BOSL2 documents cutpath tiles as
+``Y between -0.5 and 0.5``, but its own `sawtooth` reaches 1. We reproduce it (B2-1), and the test
+says why.
+
+---
+
+## T13 — Replace the existence-only tests 🔶
+
+**Serves:** PLAN X-8 · **Size:** L, batchable per module
+
+`assert isinstance(result, Bosl2Solid)` passes for every wrong answer that is still a solid, and
+proves only that the call returned — which the absence of an exception already proved. T12 showed
+what that costs: `partitions.py` had a suite of such checks that all passed while the code they
+claimed to cover was never executed, and two of its features were outright broken.
+
+**303 tests** currently assert nothing but the type (or `is not None`). By file, the largest:
+
+| Tests | File |
+|---:|---|
+| 50 | `tests/test_shapes2d_object.py` |
+| 25 | `tests/test_regions.py` |
+| 22 | `tests/test_shapes3d.py` |
+| 21 | `tests/test_drawing.py` |
+| 17 | `tests/test_miscellaneous.py` |
+| 15 | `tests/test_sdf_shapes3d.py` |
+| 10 | `tests/test_gears.py`, `tests/test_svg.py` |
+
+Convert them per X-8, module by module — bounds for solids, point counts and spans for paths,
+vertex counts and volume for meshes. `tests/test_partitions.py` is the worked example: every
+`isinstance` there is now a measurement, including the ones whose subject carries no tracked size
+(the mask builders), where the assertion reads the emitted OpenSCAD outline back instead.
+
+Keep the type assertion where the *type* is the claim — "the façade returns the active backend's
+class", "a part refuses on the SDF backend" — and say so in the test name.
 
 ---
 

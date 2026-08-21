@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -34,9 +34,9 @@ from pybosl2._helpers import anchor_vector, unwrap
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._shape import BaseShape as BaseShape
-from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.defaults import resolve_facets as _resolve_facets
 from pybosl2.enums import AttachTag
+from pybosl2.partitions import Partitionable
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 from pybosl2.vectors import unit
@@ -188,7 +188,7 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
 # ---------------------------------------------------------------------------
 
 
-class CsgSolid(BaseShape):
+class CsgSolid(BaseShape, Partitionable):
     """Wraps a PyOpenSCAD solid together with geometry metadata for BOSL2-style attachment.
 
     Tracks nominal `size` and `anchor` that BOSL2's $parent_geom attachment system would
@@ -1213,236 +1213,6 @@ class CsgSolid(BaseShape):
         from pybosl2.miscellaneous import minkowski_difference as _minkowski_difference
 
         return _minkowski_difference(self, *diffs, size=size)
-
-    # ---- partition / planar cut operators (from pybosl2/partitions.py) ----
-
-    def _half_mask(
-        self,
-        v: Any,
-        cpv: Any,
-        s: float,
-        cut_path: "Sequence[Sequence[float]] | Path2D | None",
-        cut_angle: float,
-        offset: float,
-    ) -> Any:
-        from pythonscad import polygon as _polygon
-
-        from pybosl2._helpers import unit as _unit_vec
-        from pybosl2.transforms import axis_angle_matrix
-        from pybosl2.transforms import rot_from_to as _rot_from_to_fn
-
-        v3 = np.asarray(v, dtype=float)
-        if v3.shape[0] == 2:
-            v3 = np.array([v3[0], v3[1], 0.0])
-        vu = _unit_vec(v3)
-        if cut_path is None:
-            ppath = [[-s / 2, 0.0], [s / 2, 0.0]]
-        else:
-            ppath = [[float(a), float(b)] for a, b in cut_path]
-            if ppath[0][0] > ppath[-1][0]:
-                ppath = ppath[::-1]
-        poly_pts = (
-            [[min(-s / 2, ppath[0][0]), s]]
-            + [[min(-s / 2, ppath[0][0]), ppath[0][1]]]
-            + ppath
-            + [[max(s / 2, ppath[-1][0]), ppath[-1][1]]]
-            + [[max(s / 2, ppath[-1][0]), s]]
-        )
-        poly = _polygon([[float(x), float(y)] for x, y in poly_pts])
-        if offset:
-            poly = poly.offset(radius=offset)
-        mask = poly.linear_extrude(height=s, center=True)
-        if bool(np.allclose(vu, UP.vector)):
-            xyv = np.asarray(FRONT.vector, dtype=float)
-        elif bool(np.allclose(vu, DOWN.vector)):
-            xyv = np.asarray(BACK.vector, dtype=float)
-        else:
-            xyv = np.array([v3[0], v3[1], 0.0])
-        angle = math.degrees(math.atan2(xyv[1], xyv[0])) - 90
-        rtf_angle, rtf_axis = _rot_from_to_fn(xyv, v3)
-        m_rot = np.eye(4)
-        m_rot[:3, :3] = axis_angle_matrix(rtf_angle, rtf_axis)
-        cut_m = np.eye(4)
-        cut_m[:3, :3] = axis_angle_matrix(cut_angle, v3)
-        zrot_m = np.eye(4)
-        zrot_m[:3, :3] = axis_angle_matrix(angle, [0, 0, 1])
-        m = (cut_m @ m_rot @ zrot_m).tolist()
-        mask = mask.multmatrix(m)
-        if not np.allclose(cpv, 0):
-            mask = mask.translate([float(c) for c in cpv])
-        return mask
-
-    def half_of(
-        self,
-        v: Any = UP,
-        center: bool | list[float] | None = None,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Keep the half of this solid on the side the normal *v* points to.
-
-        *center* is a point on the cut plane, or a scalar distance to shift the plane along *v*. *s*
-        (the mask size) defaults to twice the object's bounding-box reach, so it rarely needs
-        setting. *cut_path* follows a 2-D :func:`~pybosl2.partitions.partition_path` for an
-        interlocking cut face; *cut_angle* spins that face about *v*; *offset* grows the mask.
-
-        Examples:
-            Cut a cube in half along a jigsaw pattern:
-
-        .. pythonscad-example::
-
-            from pybosl2.solid import cuboid
-            from pybosl2 import partition_path, UP
-
-            path = partition_path(["finger", "10x15", "finger"], seglen=25)
-            cuboid([60, 60, 20]).half_of(v=UP, cut_path=path).show()
-
-        """
-        v3 = np.asarray(v, dtype=float)
-        if v3.shape[0] == 2:
-            v3 = np.array([v3[0], v3[1], 0.0])
-        vu = unit(v3)
-        if center is None:
-            cpv = np.zeros(3)
-        elif isinstance(center, (int, float, np.integer, np.floating)) and not isinstance(center, bool):
-            cpv = float(center) * vu
-        else:
-            cpv = np.asarray(center, dtype=float)
-        if s is None:
-            center_pt, size = self.bounds()
-            reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center_pt)))
-            s = 2.2 * reach + 2.0
-        return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))
-
-    def left_half(
-        self,
-        x: float = 0,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Return the left half of the solid."""
-        return self.half_of(LEFT, center=[x, 0, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
-
-    def right_half(
-        self,
-        x: float = 0,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Return the right half of the solid."""
-        return self.half_of(RIGHT, center=[x, 0, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
-
-    def front_half(
-        self,
-        y: float = 0,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Return the front half of the solid."""
-        return self.half_of(FRONT, center=[0, y, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
-
-    def back_half(
-        self,
-        y: float = 0,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Return the back half of the solid."""
-        return self.half_of(BACK, center=[0, y, 0], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
-
-    def bottom_half(
-        self,
-        z: float = 0,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Return the bottom half of the solid."""
-        return self.half_of(DOWN, center=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
-
-    def top_half(
-        self,
-        z: float = 0,
-        s: float | None = None,
-        cut_path: "Path2D | None" = None,
-        cut_angle: float = 0,
-        offset: float = 0,
-    ) -> "Bosl2Solid":
-        """Return the top half of the solid."""
-        return self.half_of(UP, center=[0, 0, z], s=s, cut_path=cut_path, cut_angle=cut_angle, offset=offset)
-
-    def partition(
-        self,
-        spread: float = 10,
-        cutsize: float | Sequence[float] = 10,
-        cutpath: str | "Path2D" = "jigsaw",
-        gap: float = 0,
-        cutpath_centered: bool = True,
-        spin: float = 0,
-        slop: float = 0.0,
-        fn: int | None = None,
-        fa: float | None = None,
-        fs: float | None = None,
-    ) -> "list[Bosl2Solid]":
-        """Cut this solid into two interlocking pieces, spread apart.
-
-        Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved
-        *spread* apart along the (spun) Y axis so they print separately and snap back together.
-        The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*
-        rotates the cut direction; *slop* leaves a printer-fit clearance.
-
-        Examples:
-            Split a block into two dovetailed halves:
-
-        .. pythonscad-example::
-
-            from pybosl2.solid import cuboid
-
-            halves = cuboid([60, 60, 20]).partition(spread=15, cutpath="dovetail", slop=0.15)
-            halves[0].show()
-
-        """
-        from pybosl2.partitions import _partition_mask_shape
-
-        center_pt, size = self.bounds()
-        cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
-        sp = math.radians(spin)
-        c, sn = math.cos(sp), math.sin(sp)
-        rsx = abs(size[0] * c - size[1] * sn)
-        rsy = abs(size[0] * sn + size[1] * c)
-        rsz = abs(size[2])
-        vec = np.array([-sn, c, 0.0]) * (spread / 2)
-        pieces: list[Bosl2Solid] = []
-        for idx, inverse in ((0, False), (1, True)):
-            mask = _partition_mask_shape(
-                rsx,
-                rsy,
-                rsz,
-                cs,
-                cutpath,
-                gap,
-                cutpath_centered,
-                inverse,
-                slop,
-                fn,
-                fa,
-                fs,
-            )
-            mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center_pt])
-            move = vec if idx == 0 else -vec
-            pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))
-        return pieces
 
 
 # ---------------------------------------------------------------------------
