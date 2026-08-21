@@ -862,6 +862,10 @@ def regular_prism(
     inner_diameter: float | None = None,
     side: float | None = None,
     length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
+    shift: Sequence[float] | None = None,
+    circumscribe: bool | None = None,
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
@@ -894,6 +898,11 @@ def regular_prism(
         inner_diameter: Overall size (see above)
         side: Overall size (see above)
         length: Prism height (default 1)
+        radius1: Bottom radius, for a tapered prism (CSG backend).
+        radius2: Top radius, for a tapered prism (CSG backend).
+        shift: ``[x, y]`` offset of the top face from the bottom (CSG backend).
+        circumscribe: If True the polygon encloses the given radius instead of being inscribed in
+            it (CSG backend).
         rounding: End rounding radius (overall/bottom/top)
         rounding1: End rounding radius (overall/bottom/top)
         rounding2: End rounding radius (overall/bottom/top)
@@ -942,6 +951,10 @@ def regular_prism(
                 "inner_diameter": inner_diameter,
                 "side": side,
                 "length": length,
+                "radius1": radius1,
+                "radius2": radius2,
+                "shift": shift,
+                "circumscribe": circumscribe,
                 "rounding": rounding,
                 "rounding1": rounding1,
                 "rounding2": rounding2,

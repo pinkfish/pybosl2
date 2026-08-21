@@ -420,3 +420,83 @@ def test_one_shape_contract_with_two_specialisations() -> None:
     own = set(vars(Flat)) - set(vars(Shape))
     assert {"linear_extrude"} <= own
     assert not {"translate", "scale", "mirror", "bounds", "show", "__or__"} & own
+
+
+# ---------------------------------------------------------------------------
+# B-9: the façade exposes the union, and refuses what a backend cannot honour
+# ---------------------------------------------------------------------------
+
+
+def test_an_argument_the_backend_cannot_honour_is_refused_not_dropped() -> None:
+    """SPEC B-9. `spin=` is CSG-only, and the SDF backend used to silently ignore it.
+
+    `for_backend()` filters the façade's arguments down to what the target constructor declares,
+    which is right for a default the façade forwards on the caller's behalf and wrong for a value
+    the caller asked for: `cube(10, spin=45)` came back unrotated on the SDF backend, with no
+    error. Silence is the one outcome B-9 does not allow.
+    """
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("csg"):
+        assert solid.cube(10, spin=45).backend == "csg"  # type: ignore[attr-defined]
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="spin") as excinfo:
+        solid.cube(10, spin=45)  # type: ignore[attr-defined]
+    assert "use_backend" in str(excinfo.value)  # the message names the way forward
+
+
+def test_a_facade_default_is_still_filtered_quietly() -> None:
+    """B-3 still holds for the defaults the façade owns: only what was *asked for* is refused."""
+    with use_backend("sdf"):
+        # `spin` defaults to 0 in the façade and is forwarded to every backend; the SDF
+        # constructors do not declare it, and that must stay silent.
+        assert solid.cube(10).backend == "sdf"  # type: ignore[attr-defined]
+        assert solid.cube(10, spin=0).backend == "sdf"  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize("kwargs", [{"fn": 64}, {"fa": 6}, {"fs": 0.5}])
+def test_tessellation_arguments_are_accepted_and_ignored(kwargs: dict[str, object]) -> None:
+    """B-9's carve-out: a backend with no facets is not missing a feature, so these stay silent.
+
+    `realign` is on the same list but cannot be reached here yet: the façade does not carry it on
+    `cyl` (one of the 146 parameters T14 phase 1 is widening), and where it does carry it -- on
+    `regular_prism`, whose sides are exact either way -- the SDF constructor declares it, so it is
+    honoured rather than ignored.
+    """
+    with use_backend("sdf"):
+        shape = solid.cyl(height=10, radius=5, **kwargs)  # type: ignore[attr-defined]
+    assert shape.backend == "sdf"
+    for got, want in zip(shape.bounds()[1], [10, 10, 10], strict=False):
+        assert abs(got - want) < TOL
+
+
+def test_the_facade_carries_the_csg_only_taper_and_refuses_it_on_sdf() -> None:
+    """The first widening under B-9: `regular_prism`'s taper, which cubetruss's feet need.
+
+    The façade used to omit `radius1`/`radius2` entirely, so a part that tapers a prism could not
+    be written against the façade at all -- it had to import the CSG constructor directly, which
+    is what stops it building on either backend (TASKS T14).
+    """
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("csg"):
+        tapered = solid.regular_prism(6, height=10, radius1=8, radius2=4)  # type: ignore[attr-defined]
+    _centre, size = tapered.bounds()
+    assert size[0] == pytest.approx(16.0, abs=0.01)  # the wide end sets the envelope
+    assert size[2] == pytest.approx(10.0, abs=0.01)
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="radius1"):
+        solid.regular_prism(6, height=10, radius1=8, radius2=4)  # type: ignore[attr-defined]
+
+
+def test_circumscribe_is_geometry_not_tessellation() -> None:
+    """It decides whether the polygon encloses the circle, so it must not be quietly ignored."""
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("csg"):
+        inscribed = solid.regular_prism(6, height=10, radius=8).bounds()[1]  # type: ignore[attr-defined]
+        enclosing = solid.regular_prism(6, height=10, radius=8, circumscribe=True).bounds()[1]  # type: ignore[attr-defined]
+    assert enclosing[1] > inscribed[1], "circumscribe changes the shape, so it is not tessellation"
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="circumscribe"):
+        solid.regular_prism(6, height=10, radius=8, circumscribe=True)  # type: ignore[attr-defined]

@@ -674,9 +674,9 @@ says why.
 
 ---
 
-## T14 — Give parts an SDF form where they have one
+## T14 — Give parts an SDF form where they have one 🔶
 
-**Serves:** S-46a, PAR-1 · **Size:** XL, phased · **Status:** planned
+**Serves:** S-46a, PAR-1, B-9 · **Size:** XL, phased · **Status:** phase 1 in progress
 
 All 53 parts refuse on the SDF backend (`@csg_part`). The refusal is honest — every part builds
 CSG geometry today — but it is blanket, and closing it properly means closing the gap between the
@@ -712,11 +712,25 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
 
 ### Phases
 
-1. **Make the façade refuse rather than drop.** Thread the caller-supplied set through
-   `construct()` and fail on any of them the backend's constructor does not declare. Then widen the
-   façade signatures constructor by constructor toward the CSG surface, starting with what parts
-   actually need (`regular_prism` taper, `prismoid` chamfer/rounding, `tube` per-end radii).
-   Each widening is covered by a pair of tests: it builds on CSG, it refuses by name on SDF.
+1. **Make the façade refuse rather than drop.** 🔶 *Mechanism landed; the widening is the
+   remaining work.* `refuse_unhonoured()` in `pybosl2/_backend.py` runs at the top of both
+   backends' `construct()` and raises `UnsupportedByBackendError` naming every caller-supplied
+   argument the target constructor cannot take. It needs no sentinel and no call-site churn: a
+   value counts as asked-for when it **differs from the façade's own default** for that parameter,
+   which is exactly what separates it from a default the façade forwards on the caller's behalf.
+   Tessellation parameters (`fn`/`fa`/`fs`/`res`/`realign`) stay silent per B-9's carve-out;
+   `circumscribe` deliberately does not, because on `regular_prism` it decides whether the polygon
+   encloses the circle or is inscribed in it, which is real geometry.
+
+   **It found a bug on the first run: `solid.cube(10, spin=45)` came back unrotated on the SDF
+   backend**, with no error — `spin` is CSG-only, and `for_backend()` dropped it. Every façade
+   argument that only one backend understands had the same hole.
+
+   The first widening is done — `regular_prism` gained `radius1`/`radius2`/`shift`/`circumscribe`,
+   which is what `TrussFoot` and `TrussJoiner` need — taking the gap from 146 to 142. The rest go
+   constructor by constructor toward what parts actually use (`prismoid` chamfer/rounding, `tube`
+   per-end radii, then the `cyl` family's 19 apiece). Each widening carries the same pair of tests:
+   it builds on CSG, it refuses by name on SDF.
 2. **Give the Shape contract a backend-neutral nominal box.** The 28 re-wraps exist to attach a
    nominal anchor box (SPEC S-2a) to a solid built from something else. `Bosl2Solid(x.shape, size=)`
    cannot do that on SDF; a `with_nominal_size()` on the `Shape` protocol, implemented on both
