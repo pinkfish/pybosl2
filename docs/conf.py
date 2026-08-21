@@ -185,11 +185,13 @@ def setup(app):
     """Regenerate docs artifacts from the live module structure before each build.
 
     ``_specgen.py`` rebuilds the visual spec-sheet pages (``_extra/specs/*.html``)
-    from committed STL caches. ``_rstgen.py`` regenerates ``index.rst``, creates
+    from committed STL caches. ``_covgen.py`` rebuilds the BOSL2 coverage table
+    (``bosl2_coverage.rst``). ``_rstgen.py`` regenerates ``index.rst``, creates
     stub ``.rst`` files for new modules, and validates all cross-references against
     the current package layout — so module moves/renames are caught automatically.
     """
     _regenerate_specs_patched(app)
+    _regenerate_coverage_patched(app)
     _regenerate_rsts_patched(app)
 
     _patch_typehints_self_leak(app)
@@ -233,6 +235,15 @@ def _regenerate_specs_patched(app):
         _specgen.main()
 
     app.connect("builder-inited", _regenerate_specs)
+
+
+def _regenerate_coverage_patched(app):
+    def _regenerate_coverage(_app):
+        import _covgen
+
+        _covgen.main()
+
+    app.connect("builder-inited", _regenerate_coverage)
 
 
 def _regenerate_rsts_patched(app):

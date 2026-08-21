@@ -389,6 +389,9 @@ The modules are grouped by role, mirroring BOSL2's own organisation. **Foundatio
 primitives and transforms most models start from; **Paths, regions & surfaces** the advanced
 2-D/3-D modelling toolkit; **Math & geometry** the numeric helpers; and **Parts library** the
 ready-made mechanical parts — each with a visual spec sheet in the catalog linked above.
+
+For how far the port goes, see the :doc:`BOSL2 coverage table <bosl2_coverage>`: every upstream
+``.scad`` file against the pybosl2 module that ports it (SPEC B2-1).
 """
 
 
@@ -437,6 +440,12 @@ def _generate_index() -> None:
    :glob:
 
    extras/*
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Coverage
+
+   bosl2_coverage
 """
     lines: list[str] = [_INDEX_PROLOGUE] + toctree.split("\n")
 
@@ -601,7 +610,9 @@ def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
     return created
 
 
-_HANDWRITTEN_PAGES = frozenset({"index", "drawing", "native_ops", "shapes2d", "shapes3d", "backends"})
+#: Pages that are not module stubs, so the stale-stub sweep must leave them alone: hand-written
+#: prose, and pages written by another generator (`bosl2_coverage` comes from _covgen.py).
+_HANDWRITTEN_PAGES = frozenset({"index", "drawing", "native_ops", "shapes2d", "shapes3d", "backends", "bosl2_coverage"})
 
 
 def _cleanup_stale_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:

@@ -144,6 +144,9 @@ primitives and transforms most models start from; **Paths, regions & surfaces** 
 2-D/3-D modelling toolkit; **Math & geometry** the numeric helpers; and **Parts library** the
 ready-made mechanical parts — each with a visual spec sheet in the catalog linked above.
 
+For how far the port goes, see the :doc:`BOSL2 coverage table <bosl2_coverage>`: every upstream
+``.scad`` file against the pybosl2 module that ports it (SPEC B2-1).
+
 
 
 .. toctree::
@@ -187,6 +190,12 @@ ready-made mechanical parts — each with a visual spec sheet in the catalog lin
    :glob:
 
    extras/*
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Coverage
+
+   bosl2_coverage
 
 
 .. toctree::
