@@ -167,4 +167,3 @@ polyhedra
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
     setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
     </script>
-

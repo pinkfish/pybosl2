@@ -35,7 +35,7 @@ tripod mounts
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
           <div class="spec-code" id="code">&gt;&gt;&gt; ManfrottoRC2Plate().shape</div>
         </div>
-        
+
         <div class="spec-tests">1 tests</div>
       </div>
     </div>
@@ -167,4 +167,3 @@ tripod mounts
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
     setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
     </script>
-

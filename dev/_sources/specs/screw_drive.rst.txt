@@ -35,7 +35,7 @@ screw drive
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
           <div class="spec-code" id="code">&gt;&gt;&gt; PhillipsMask(size="#2", l=10).shape</div>
         </div>
-        
+
         <div class="spec-tests">19 tests</div>
       </div>
     </div>
@@ -167,4 +167,3 @@ screw drive
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
     setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
     </script>
-

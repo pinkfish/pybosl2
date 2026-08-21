@@ -35,7 +35,7 @@ threading
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
           <div class="spec-code" id="code">&gt;&gt;&gt; iso_threaded_rod(d=20, l=30, pitch=2.5, fa=6, fs=1).shape</div>
         </div>
-        
+
         <div class="spec-tests">25 tests</div>
       </div>
     </div>
@@ -167,4 +167,3 @@ threading
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
     setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
     </script>
-
