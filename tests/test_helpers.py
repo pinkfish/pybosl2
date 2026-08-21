@@ -86,8 +86,15 @@ class TestVec3:
         result = vec3(3.5)
         np.testing.assert_allclose(result, [3.5, 3.5, 3.5])
 
-    def test_vec3_returns_ndarray(self) -> None:
-        assert isinstance(vec3([1, 2, 3]), np.ndarray)
+    def test_vec3_returns_fresh_float_array(self) -> None:
+        # Callers slice and mutate the result (e.g. partitions' `unit(...)[:2]`), so it has to be
+        # a float64 array of its own, never a view onto the caller's data.
+        src = np.array([1, 2, 3])
+        result = vec3(src)
+        assert result.dtype == np.float64
+        assert not np.shares_memory(result, src)
+        result[0] = 99
+        np.testing.assert_allclose(src, [1, 2, 3])
 
     def test_vec3_shape(self) -> None:
         assert vec3([1, 2, 3]).shape == (3,)
@@ -117,8 +124,13 @@ class TestScalarVec3:
         result = scalar_vec3([1, 2, 3])
         np.testing.assert_allclose(result, [1, 2, 3])
 
-    def test_scalar_vec3_returns_ndarray(self) -> None:
-        assert isinstance(scalar_vec3(5), np.ndarray)
+    def test_scalar_vec3_returns_fresh_float_array(self) -> None:
+        src = np.array([1, 2, 3])
+        result = scalar_vec3(src)
+        assert result.dtype == np.float64
+        assert not np.shares_memory(result, src)
+        np.testing.assert_allclose(result, [1, 2, 3])
+        assert scalar_vec3(5).dtype == np.float64  # int scalars are widened too
 
     def test_scalar_vec3_shape(self) -> None:
         assert scalar_vec3(5).shape == (3,)
@@ -152,8 +164,13 @@ class TestUnit:
         result = unit([3, 4, 0])
         assert pytest.approx(float(np.linalg.norm(result))) == 1.0
 
-    def test_unit_returns_ndarray(self) -> None:
-        assert isinstance(unit([1, 2, 3]), np.ndarray)
+    def test_unit_returns_fresh_float_array(self) -> None:
+        src = np.array([1.0, 2.0, 3.0])
+        result = unit(src)
+        assert result.dtype == np.float64
+        assert not np.shares_memory(result, src)
+        np.testing.assert_allclose(src, [1.0, 2.0, 3.0])  # input left unnormalised
+        np.testing.assert_allclose(result, src / np.linalg.norm(src))
 
 
 # ---------------------------------------------------------------------------

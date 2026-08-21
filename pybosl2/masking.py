@@ -358,6 +358,37 @@ def _corner_cutter(
     return block - sph
 
 
+def _corner_chamfer_cutter(
+    size: tuple[float, float, float],
+    corner_vec: list[float],
+    chamfer: float,
+) -> "Bosl2Solid":
+    """Return the material a corner chamfer of size *chamfer* removes from a *size* box.
+
+    The kept surface is the one ``cuboid(size, chamfer=chamfer)`` produces: each of the three
+    edges meeting at this corner is cut by its own 45 degree plane, and the three planes meet at
+    a point. So the cutter is the corner block intersected with the union of the three edge
+    chamfer bars -- everything inside the block that at least one of the three planes shaves off.
+    """
+    if chamfer <= 0:
+        raise ValueError(f"Mask3D.chamfer(): chamfer must be positive, got {chamfer}.")
+    from pybosl2.shapes3d import cuboid
+
+    corner_pt = [size[i] / 2 * corner_vec[i] for i in range(3)]
+    inner_pt = [corner_pt[i] - corner_vec[i] * chamfer for i in range(3)]
+    block = cuboid([chamfer, chamfer, chamfer]).translate(Point([(corner_pt[i] + inner_pt[i]) / 2 for i in range(3)]))
+
+    wedges: "Bosl2Solid | None" = None
+    for run_axis in range(3):
+        edge_vec = list(corner_vec)
+        edge_vec[run_axis] = 0.0
+        bar = chamfer_edge_mask(length=size[run_axis], chamfer=chamfer)
+        bar = _orient_mask_along_edge(bar, size, Point(edge_vec))
+        wedges = bar if wedges is None else (wedges | bar)
+    assert wedges is not None, "three edges meet at every corner"
+    return block & wedges
+
+
 def corner_profile(
     body: "Bosl2Solid",
     corners: Anchor = Anchor.ALL,
@@ -802,18 +833,13 @@ class Mask3D:
             corners: Corners to select.
 
         """
-        from pybosl2.shapes3d import cuboid
-
-        body = cuboid(size)
-        mask = mask2d_chamfer(chamfer)
-        cutter = corner_profile(
-            body,
-            corners=corners,
-            radius=chamfer,
-            size=size,
-            children=mask,
-            return_cutter=True,
-        )
+        # NOT corner_profile(children=mask2d_chamfer(...)): corner_profile ignores children= and
+        # always rounds, which used to make this factory return the roundover cutter verbatim.
+        cutter: "Bosl2Solid | None" = None
+        for idx, sel in enumerate(_corners(corners, [])):
+            if sel:
+                piece = _corner_chamfer_cutter(size, CORNER_OFFSETS[idx], chamfer)
+                cutter = piece if cutter is None else (cutter | piece)
         if cutter is None:
             raise ValueError(
                 "Mask3D.chamfer(): corners= selected no corners, so there is nothing to chamfer; "

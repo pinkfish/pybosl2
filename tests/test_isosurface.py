@@ -61,10 +61,28 @@ def test_capsule_field_straight_section() -> None:
     assert math.isclose(f([4, 0, 5]), 1.0, abs_tol=1e-9)  # type: ignore  # still on the straight part (|z|<=8)
 
 
-def test_cuboid_and_octahedron_build() -> None:
-    assert isinstance(mb_cuboid(20)([10, 0, 0]), float)  # type: ignore[arg-type]
-    assert isinstance(mb_cuboid((16, 20, 24), 0.9)([8, 0, 0]), float)  # type: ignore[arg-type]
-    assert isinstance(mb_octahedron(20)([10, 0, 0]), float)  # type: ignore[arg-type]
+def test_cuboid_field_sits_on_the_size_box() -> None:
+    """A cuboid metaball reads exactly 1.0 on each face centre of its `size` box."""
+    f = mb_cuboid(20)
+    assert math.isclose(f([10, 0, 0]), 1.0, abs_tol=1e-9)  # type: ignore[arg-type]  # +X face
+    assert f([5, 0, 0]) > 1.0  # type: ignore[arg-type]  # inside
+    assert f([15, 0, 0]) < 1.0  # type: ignore[arg-type]  # outside
+    # squareness defaults to 0.5, so the corner falls short of the isosurface: it is rounded off.
+    assert f([10, 10, 10]) < 1.0  # type: ignore[arg-type]
+
+    g = mb_cuboid((16, 20, 24), 0.9)  # a size per axis: each face centre is its own half-size
+    for point in ([8, 0, 0], [0, 10, 0], [0, 0, 12]):
+        assert math.isclose(g(point), 1.0, abs_tol=1e-9)  # type: ignore[arg-type]
+
+
+def test_octahedron_field_sits_on_the_diagonal_plane() -> None:
+    """An octahedron metaball's isosurface is the plane |x|+|y|+|z| = size/2."""
+    f = mb_octahedron(20)
+    assert math.isclose(f([10 / 3, 10 / 3, 10 / 3]), 1.0, abs_tol=1e-9)  # type: ignore[arg-type]
+    # The three axis vertices are equivalent by symmetry, and squareness 0.5 rounds them off.
+    on_axis = [f([10, 0, 0]), f([0, 10, 0]), f([0, 0, 10])]  # type: ignore[arg-type]
+    assert math.isclose(min(on_axis), max(on_axis), abs_tol=1e-9)
+    assert on_axis[0] < 1.0
 
 
 def test_connector_is_symmetric_capsule() -> None:
@@ -164,12 +182,18 @@ def test_metaballs_scalar_bounding_box() -> None:
     assert len(vnf.faces) > 0
 
 
-def test_mb_disk_produces_field() -> None:
-    """mb_disk() creates a metaball field."""
+def test_mb_disk_field_follows_height_and_radius() -> None:
+    """mb_disk() reads 1.0 on its rim and on its flat faces, and falls off outside."""
     from pybosl2.isosurface import mb_disk
 
     mb = mb_disk(height=2, radius=10)
-    assert mb.field(np.array([[0, 0, 0]]).reshape(1, 3)) is not None
+
+    def at(*point: float) -> float:
+        return float(mb.field(np.array([point], dtype=float))[0])
+
+    assert math.isclose(at(10, 0, 0), 1.0, abs_tol=1e-9)  # rim, at radius
+    assert math.isclose(at(0, 0, 1), 1.0, abs_tol=1e-9)  # face, at half-height
+    assert at(20, 0, 0) < 1.0 < at(5, 0, 0)
 
 
 def test_isovalue_float_works() -> None:
@@ -205,12 +229,15 @@ def test_marching_cubes_closed() -> None:
     assert len(vnf.vertices) > 0
 
 
-def test_mb_sphere_diameter() -> None:
-    """mb_sphere with diameter kwarg."""
+def test_mb_sphere_diameter_is_twice_the_radius() -> None:
+    """mb_sphere(diameter=10) is the same field as mb_sphere(radius=5)."""
     from pybosl2.isosurface import mb_sphere
 
-    mb = mb_sphere(diameter=10)
-    assert mb.field(np.array([[0, 0, 0]]).reshape(1, 3)) is not None
+    probe = np.array([[5.0, 0, 0], [10.0, 0, 0], [2.5, 0, 0]])
+    by_diameter = mb_sphere(diameter=10).field(probe)
+    np.testing.assert_allclose(by_diameter, mb_sphere(radius=5).field(probe))
+    # 1/r falloff, normalised to 1.0 on the surface.
+    np.testing.assert_allclose(by_diameter, [1.0, 0.5, 2.0])
 
 
 def test_mb_negative_sphere() -> None:

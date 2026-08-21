@@ -389,6 +389,44 @@ def test_fillet_subtracts_a_concave_edge(tmp_path):
     assert m.watertight
 
 
+def test_corner_masks_cut_the_corners_they_claim(tmp_path):
+    """Mask3D.chamfer/.roundover remove exactly the corner blocks, and remove different amounts.
+
+    Both cutters fill the same eight r-sided corner blocks, so `bounds()` cannot tell them apart
+    -- and for a while they were literally the same solid, because Mask3D.chamfer routed through
+    corner_profile(children=...), which discards children= and always rounds. Only a render
+    catches that, so this measures the volume each one takes off a 20mm cube with r=4.
+
+    Chamfering a corner cuts it with the three 45 degree edge planes; what survives inside a
+    corner block is {p+q >= c, q+r >= c, p+r >= c} measured inward from the three faces, which
+    integrates to c^3/4 = 16 per corner, so 8*(64-16) = 384 comes off. Rounding leaves a sphere
+    octant instead, 4/3*pi*4^3/8 = 33.5 per corner, so ~244 comes off -- less, because a sphere
+    octant is fatter than that chamfer wedge.
+    """
+    setup = "from pybosl2.masking import Mask3D\n"
+    chamfered = _render(
+        tmp_path,
+        "s3.cuboid([20, 20, 20]) - Mask3D.chamfer(4, size=(20, 20, 20))",
+        setup=setup,
+        name="mask3d_chamfer",
+    )
+    rounded = _render(
+        tmp_path,
+        "s3.cuboid([20, 20, 20]) - Mask3D.roundover(4, size=(20, 20, 20))",
+        setup=setup,
+        name="mask3d_roundover",
+    )
+
+    for m in (chamfered, rounded):
+        np.testing.assert_allclose(m.size, [20, 20, 20], atol=1e-3)  # corners only: bbox intact
+        assert m.watertight
+
+    assert math.isclose(chamfered.volume, 8000 - 384, rel_tol=1e-4)
+    # The sphere is faceted, so a little more than the ideal 243.9 comes off.
+    assert 8000 - 290 < rounded.volume < 8000 - 240
+    assert chamfered.volume < rounded.volume
+
+
 def test_plot_revolution_makes_a_revolved_solid(tmp_path):
     setup = (
         "f = lambda a, z: 3 * math.sin(math.radians(4 * a)) * (z / 30)\n"
