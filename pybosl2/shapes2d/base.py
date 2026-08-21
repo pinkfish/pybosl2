@@ -590,7 +590,9 @@ class CsgShape2D(BaseShape):
             "height": height,
             "center": center,
             "twist": twist,
-            "scale": scale,
+            # the native drops a *scalar* scale= silently (a vector is honoured), so a uniform
+            # taper would come out as a plain prism; hand it the vector form it acts on
+            "scale": [float(scale), float(scale)] if isinstance(scale, (int, float)) else list(scale),
         }
         for name, value in (("slices", slices), ("convexity", convexity), ("fn", fn), ("fa", fa), ("fs", fs)):
             if value is not None:

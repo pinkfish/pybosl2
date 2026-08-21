@@ -6,6 +6,8 @@
 
 """Tests for pybosl2/regions.py: the Region (outline + holes) list subclass."""
 
+import math
+
 import numpy as np
 import pytest
 
@@ -15,6 +17,11 @@ from pybosl2.regions import Region
 
 SQUARE = [[0, 0], [80, 0], [80, 60], [0, 60]]
 HOLE = [[20, 20], [60, 20], [60, 40], [20, 40]]
+
+
+def area(region: Region) -> float:
+    """The region's covered area -- what a boolean operation actually changed (PLAN X-8)."""
+    return float(region.to_shapely().area)
 
 
 def test_single_outline_is_one_path() -> None:
@@ -66,14 +73,29 @@ def test_bounds() -> None:
 
 
 def test_round_corners_returns_region() -> None:
-    radius = Region(SQUARE).round_corners(radius=2)
-    assert isinstance(radius, Region)
+    rounded = Region(SQUARE).round_corners(radius=2, fn=128)
+    assert isinstance(rounded, Region)
+    # each 2mm corner loses the square-minus-quarter-circle it used to fill: r^2 - pi*r^2/4
+    corner_loss = 4 * (2**2 - math.pi * 2**2 / 4)
+    assert area(rounded) == pytest.approx(area(Region(SQUARE)) - corner_loss, abs=0.05)
+    assert len(rounded[0]) > len(Region(SQUARE)[0])  # ...and the corners are arcs now
+
+
+def test_round_corners_follows_the_facet_count() -> None:
+    """A coarse arc cuts the corner straighter, so it removes more than the true fillet (SPEC R-1)."""
+    coarse = area(Region(SQUARE).round_corners(radius=2, fn=8))
+    fine = area(Region(SQUARE).round_corners(radius=2, fn=128))
+    assert coarse < fine < area(Region(SQUARE))
 
 
 def test_geometry_returns_a_solid() -> None:
-    # under the mock, polygon() and subtraction return stand-in solids
-    g = Region.with_holes(SQUARE, HOLE).geometry()  # type: ignore[arg-type]
-    assert g is not None
+    """The region becomes 2-D geometry with its hole cut, not just its outline."""
+    region = Region.with_holes(SQUARE, HOLE)  # type: ignore[arg-type]
+    assert area(region) == pytest.approx(80 * 60 - 40 * 20)  # the hole is really missing
+    geometry = region.geometry()
+    assert geometry is not None
+    if geometry.shape.size is not None:  # needs the native 2-D bbox
+        assert [float(v) for v in geometry.bounds()[1]] == pytest.approx([80.0, 60.0], abs=0.01)
 
 
 def test_intersection_overlapping_squares() -> None:
@@ -95,7 +117,8 @@ def test_intersection_operator() -> None:
     """The & operator should be equivalent to .intersection()."""
     a = Region([[0, 0], [80, 0], [80, 60], [0, 60]])
     b = Region([[60, 0], [120, 0], [120, 60], [60, 60]])
-    assert (a & b).outline is not None
+    assert area(a & b) == pytest.approx(area(a.intersection(b)))
+    assert area(a & b) == pytest.approx(20 * 60)  # the 20mm-wide overlap, full height
 
 
 def test_intersection_non_overlapping_returns_empty() -> None:
@@ -151,6 +174,9 @@ def test_difference_operator() -> None:
     notch = Region([[20, 10], [40, 10], [40, 30], [20, 30]])
     result = plate - notch
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(area(plate.difference(notch)))
+    assert area(result) == pytest.approx(area(plate) - area(notch))  # the notch is wholly inside
+    assert len(result.holes) == 1
 
 
 def test_difference_fully_contained_punches_hole() -> None:
@@ -196,6 +222,9 @@ def test_xor_operator_region_to_region() -> None:
     b = Region([[20, 0], [60, 0], [60, 30], [20, 30]])
     result = a ^ b
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(area(a.symmetric_difference(b)))
+    # everything but the 20x30 overlap the two squares share
+    assert area(result) == pytest.approx(area(a) + area(b) - 2 * (20 * 30))
 
 
 # -- Boolean operations with closed Path2D objects ------------------------------------------------
@@ -231,10 +260,12 @@ def test_difference_with_path() -> None:
 
 
 def test_operator_or_with_path() -> None:
+    """A Path2D is accepted as the right operand, and covers what its own outline covers."""
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a | b
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(50 * 30)  # the two squares, overlapping by 10mm
 
 
 def test_operator_and_with_path() -> None:
@@ -242,6 +273,7 @@ def test_operator_and_with_path() -> None:
     b = Path2D([[20, 0], [50, 0], [50, 30], [20, 30]])
     result = a & b
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(10 * 30)  # only the overlap survives
 
 
 def test_operator_sub_with_path() -> None:
@@ -249,6 +281,8 @@ def test_operator_sub_with_path() -> None:
     b = Path2D([[20, 10], [30, 10], [30, 30], [20, 30]])
     result = a - b
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(50 * 40 - 10 * 20)  # the path punched a hole
+    assert len(result.holes) == 1
 
 
 def test_symmetric_difference_with_path() -> None:
@@ -256,13 +290,15 @@ def test_symmetric_difference_with_path() -> None:
     b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
     result = a.symmetric_difference(b)
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(2 * (20 * 30))  # each square's half that the other misses
 
 
 def test_operator_xor_with_path() -> None:
+    """`^` is the operator spelling of symmetric_difference(), including for a Path2D operand."""
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
     b = Path2D([[20, 0], [60, 0], [60, 30], [20, 30]])
-    result = a ^ b
-    assert isinstance(result, Region)
+    assert area(a ^ b) == pytest.approx(area(a.symmetric_difference(b)))
+    assert area(a ^ b) == pytest.approx(2 * (20 * 30))
 
 
 # -- convex_hull ------------------------------------------------------------------------------
@@ -277,23 +313,33 @@ def test_region_hull_two_squares() -> None:
 
 
 def test_region_hull_with_path() -> None:
+    """The hull wraps both children, so it spans from one's corner to the other's."""
     a = Region([[0, 0], [30, 0], [30, 30], [0, 30]])
     b = Path2D([[40, 0], [70, 0], [70, 50], [40, 50]])
     result = Region.hull(a, b)
     assert isinstance(result, Region)
+    corners = result.bounds()
+    assert [float(v) for v in corners[0]] == pytest.approx([0.0, 0.0])
+    assert [float(v) for v in corners[1]] == pytest.approx([70.0, 50.0])
+    assert area(result) > area(a) + area(Region([[40, 0], [70, 0], [70, 50], [40, 50]]))  # bridged
 
 
 def test_region_hull_list_arg() -> None:
+    """One list of regions hulls them together, exactly as passing them separately would."""
     a = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
     b = Region([[30, 0], [50, 0], [50, 20], [30, 20]])
     result = Region.hull([a, b])  # type: ignore[arg-type]
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(area(Region.hull(a, b)))
+    assert area(result) == pytest.approx(50 * 20)  # the gap between them is bridged
 
 
 def test_region_hull_single() -> None:
+    """Hulling one convex region gives it straight back."""
     a = Region([[0, 0], [40, 0], [40, 30], [0, 30]])
     result = Region.hull(a)
     assert isinstance(result, Region)
+    assert area(result) == pytest.approx(area(a))
 
 
 def test_region_hull_empty() -> None:
@@ -324,6 +370,9 @@ def test_path_hull_list_arg() -> None:
     b = Path2D([[30, 0], [50, 0], [50, 20], [30, 20]])
     result = Path2D.hull([a, b])  # type: ignore[arg-type]
     assert isinstance(result, Path2D)
+    assert len(result) == 4  # the two squares hull to one rectangle
+    box = result.bounds()
+    assert (box.min_x, box.max_x, box.min_y, box.max_y) == pytest.approx((0.0, 50.0, 0.0, 20.0))
 
 
 # ── uncovered Region methods ─────────────────────────────────────────────
@@ -348,6 +397,8 @@ def test_region_fill() -> None:
     from pybosl2.shapes2d import Bosl2Shape2D
 
     assert isinstance(result, Bosl2Shape2D)
+    if result.shape.size is not None:  # needs the native 2-D bbox
+        assert [float(v) for v in result.bounds()[1]] == pytest.approx([20.0, 20.0], abs=0.01)
 
 
 def test_region_linear_extrude() -> None:
@@ -356,6 +407,7 @@ def test_region_linear_extrude() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
+    assert [float(v) for v in result.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
 
 
 def test_linear_extrude_color_heights() -> None:
@@ -367,6 +419,9 @@ def test_linear_extrude_color_heights() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
+    size = [float(v) for v in result.bounds()[1]]
+    assert size[0] == pytest.approx(45.0, abs=0.01)  # both squares, 25 apart
+    assert size[2] == pytest.approx(10.0, abs=0.01)  # the tallest colour wins the bounding box
 
 
 def test_linear_extrude_color_heights_missing_color_uses_default() -> None:
@@ -378,6 +433,8 @@ def test_linear_extrude_color_heights_missing_color_uses_default() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
+    # red got its 10; green fell back to the default 5, so the tallest is still 10
+    assert float(result.bounds()[1][2]) == pytest.approx(10.0, abs=0.01)
 
 
 def test_linear_extrude_color_heights_single_piece() -> None:
@@ -387,6 +444,8 @@ def test_linear_extrude_color_heights_single_piece() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
+    # the mapping wins over the height= default, even with nothing to compare against
+    assert [float(v) for v in result.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
 
 
 def test_region_rotate_extrude() -> None:
@@ -395,18 +454,34 @@ def test_region_rotate_extrude() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
+    # a 20x20 profile against the axis sweeps a 40mm-wide disc, 20 tall
+    size = [float(v) for v in result.bounds()[1]]
+    assert size[0] == pytest.approx(40.0, abs=0.3)
+    assert size[2] == pytest.approx(20.0, abs=0.01)
 
 
 def test_region_stroke() -> None:
+    """The ribbon straddles the outline, so it reaches half its width beyond the square."""
     r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
     result = r.stroke(width=2)
     assert isinstance(result, Region)
+    corners = result.bounds()
+    assert [float(v) for v in corners[0]] == pytest.approx([-1.0, -1.0], abs=0.01)
+    assert [float(v) for v in corners[1]] == pytest.approx([21.0, 21.0], abs=0.01)
+    assert len(result.paths[0]) > len(r.paths[0])  # rounded joints, not four corners
 
 
 def test_region_dashed_stroke() -> None:
+    """A dashed stroke is the same ribbon cut into pieces: many paths, much less area."""
     r = Region([[0, 0], [20, 0], [20, 20], [0, 20]])
-    result = r.dashed_stroke()
-    assert isinstance(result, Region)
+    dashed = r.dashed_stroke()
+    assert isinstance(dashed, Region)
+    assert len(dashed.paths) > 1  # one path per dash, where the solid stroke is one ribbon
+    assert len(r.stroke(width=2).paths) == 1
+    # the dashes stay on the outline they were cut from
+    corners = dashed.bounds()
+    assert float(corners[0][0]) >= -1.01
+    assert float(corners[1][0]) <= 21.01
 
 
 def test_region_hull_type_error() -> None:
@@ -626,19 +701,24 @@ def test_geometry_with_hole_region() -> None:
 
 
 def test_empty_region_geometry_is_chainable() -> None:
-    """Empty region must still return something that .translate() etc don't crash on."""
-    geom = Region([]).geometry()
-    assert geom is not None
-    # Chaining operations on empty geometry should not raise.
-    translated = geom.translate([10, 0])
+    """An empty region still yields geometry the operators accept, so a fold over regions works."""
+    empty = Region([])
+    assert area(empty) == 0.0
+    assert len(empty.paths) == 0
+    geometry = empty.geometry()
+    assert geometry is not None
+    translated = geometry.translate([10, 0])  # chaining must not raise on empty geometry
     assert translated is not None
+    assert type(translated) is type(geometry)
 
 
 def test_geometry_preserves_color() -> None:
-    """Color set on the region should propagate to the geometry."""
-    r = Region(SQUARE).color(Color("red"))
-    geom = r.geometry()
-    assert geom is not None
+    """Colour set on the region rides through to the geometry it builds (SPEC C-19)."""
+    coloured = Region(SQUARE).color(Color("red"))
+    geometry = coloured.geometry()
+    assert geometry is not None
+    assert "color" in repr(geometry.shape)  # the colour reached the emitted program
+    assert "color" not in repr(Region(SQUARE).geometry().shape)
 
 
 # -- even_odd with difficult geometry --------------------------------------------------------
@@ -710,6 +790,10 @@ def test_from_svg_no_ribext(tmp_path) -> None:
     )
     result = Region.from_svg(str(f), fn=24)
     assert isinstance(result, Region)
+    # the r=20 circle the SVG declares, as a 24-sided polygon
+    assert area(result) == pytest.approx(math.pi * 20**2, rel=0.03)
+    corners = result.bounds()
+    assert float(corners[1][0]) - float(corners[0][0]) == pytest.approx(40.0, abs=0.5)
 
 
 # -- per-polygon colors (even_odd with colors parameter) ---------------------------------------
