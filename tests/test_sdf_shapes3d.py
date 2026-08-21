@@ -574,6 +574,47 @@ class TestPieSlice:
         center, size = sdf_s3d.pie_slice(height=10, radius=5, angle=270).bounds()
         assert size[2] == pytest.approx(10, abs=0.01)
 
+    @pytest.mark.parametrize(
+        ("angle", "expected_mn", "expected_mx"),
+        [
+            # The sector sweeps 0..angle, so its box is the apex, the two arc ends, and whichever
+            # axis directions the sweep passes through -- not the whole disc's box (PAR-5).
+            (30, [0.0, 0.0], [10.0, 5.0]),  # 10*sin(30) = 5
+            (90, [0.0, 0.0], [10.0, 10.0]),  # +Y reached exactly
+            (180, [-10.0, 0.0], [10.0, 10.0]),  # a half disc, sitting on y=0
+            (200, [-10.0, -3.4202], [10.0, 10.0]),  # past -X, dipping below y=0
+            (270, [-10.0, -10.0], [10.0, 10.0]),  # -Y reached: three quadrants
+            (359, [-10.0, -10.0], [10.0, 10.0]),  # all four axes swept
+            (360, [-10.0, -10.0], [10.0, 10.0]),  # a full disc, no sector cut at all
+            (0, [-10.0, -10.0], [10.0, 10.0]),  # likewise: 0 means "no wedge", not "empty"
+        ],
+    )
+    def test_bounds_are_the_wedge_not_the_disc(
+        self,
+        angle: float,
+        expected_mn: list[float],
+        expected_mx: list[float],
+    ) -> None:
+        """PAR-5: an exact backend must report the wedge's own box, tight on every side."""
+        shape = sdf_s3d.pie_slice(height=10, radius=10, angle=angle)
+        assert shape.mn[:2] == pytest.approx(expected_mn, abs=1e-4)
+        assert shape.mx[:2] == pytest.approx(expected_mx, abs=1e-4)
+        assert (shape.mn[2], shape.mx[2]) == pytest.approx((-5.0, 5.0))
+
+        # ... and tight is only correct if nothing is left outside it: sample the field around the
+        # box and check every point it calls solid really is inside.
+        field = shape.mesh()
+        for x, y in ((11.0, 0.0), (0.0, 11.0), (-11.0, 0.0), (0.0, -11.0), (8.0, 8.0), (-8.0, -8.0)):
+            if field.sample(x, y, 0) < 0:
+                assert shape.mn[0] <= x <= shape.mx[0], f"solid at x={x}, outside the reported box"
+                assert shape.mn[1] <= y <= shape.mx[1], f"solid at y={y}, outside the reported box"
+
+    def test_a_narrow_wedge_reports_a_narrow_box(self) -> None:
+        """The regression in one line: a 30 degree slice claimed four times the area it occupies."""
+        wedge = sdf_s3d.pie_slice(height=10, radius=10, angle=30)
+        _centre, size = wedge.bounds()
+        assert size[:2] == pytest.approx([10.0, 5.0])  # not the disc's [20, 20]
+
 
 class TestPrismoid:
     def test_non_tapered_matches_plain_box(self) -> None:

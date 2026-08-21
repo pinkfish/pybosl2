@@ -2181,6 +2181,29 @@ def tube(
     return shape
 
 
+def _sector_xy_bounds(radius: float, angle: float) -> tuple[float, float, float, float]:
+    """Exact ``(xmin, ymin, xmax, ymax)`` of the circular sector sweeping 0..*angle* degrees.
+
+    The sector is the arc plus the apex at the origin, so its extremes are the origin, the two arc
+    endpoints, and whichever of the four axis directions the sweep passes through. Taking the whole
+    disc's box instead is what PAR-5 was about: at 30 degrees that over-reports by four times the
+    area, on the backend whose selling point is exact bounds.
+    """
+    if angle <= 0 or angle >= 360:
+        return (-radius, -radius, radius, radius)
+    end_x = radius * math.cos(math.radians(angle))
+    end_y = radius * math.sin(math.radians(angle))
+    xs = [0.0, radius, end_x]  # 0 degrees is always swept, so +X always reaches the radius
+    ys = [0.0, 0.0, end_y]
+    if angle >= 90:
+        ys.append(radius)
+    if angle >= 180:
+        xs.append(-radius)
+    if angle >= 270:
+        ys.append(-radius)
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
 def pie_slice(
     height: float | None = None,
     radius: float | None = None,
@@ -2217,8 +2240,12 @@ def pie_slice(
         sector = lv.max(sdf1, sdf2) if ang_v <= 180 else lv.min(sdf1, sdf2)
         return lv.max(body, sector)
 
-    maxr = max(rad1, rad2)
-    shape = PyShape(sdf_fn, [-maxr, -maxr, -length / 2], [maxr, maxr, length / 2], res)
+    # The wedge's own box, not the disc's (PAR-5). Every cross-section is the same sector scaled
+    # about the apex, so the widest one -- at max(rad1, rad2) -- sets the box for the whole solid.
+    xmn, ymn, xmx, ymx = _sector_xy_bounds(max(rad1, rad2), ang_v)
+    shape = PyShape(sdf_fn, [xmn, ymn, -length / 2], [xmx, ymx, length / 2], res)
+    # Anchoring stays on the full cylinder, as the CSG pie_slice does: `anchor` names a point on
+    # the cylinder the slice was cut from, so the two backends place an anchored slice alike.
     offset = _anchor_offset_cyl(rad1, rad2, length, anchor)
     if any(offset):
         shape = shape.translate(offset)
