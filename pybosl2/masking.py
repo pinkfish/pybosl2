@@ -341,26 +341,21 @@ def _corner_cutter(
 ) -> "Bosl2Solid":
     if radius <= 0:
         raise ValueError(f"corner_profile(): radius/diameter must be positive, got {radius}.")
-    # Standard cutter: box-shaped negative roundover. Built by placing a negative sphere
-    # (or rather, the positive chunk to subtract) in the corner of a size-sized box.
-    # We do this by taking a box at the corner, and subtracting a sphere.
+    # The cutter is the material a fillet leaves behind: the radius-sided block filling the very
+    # corner, minus the sphere the rounded surface follows. The sphere sits at the *inner* point,
+    # one radius in from the corner along each axis.
+    #
+    # This used to build a 2*radius block and put the sphere on the body's corner instead, which
+    # inverted the cut: subtracting it scooped out the inside of the solid and left the corner
+    # standing. Nothing caught it because the only tests asserted `result is not None`.
     from pybosl2.shapes3d import cuboid, sphere
 
-    # Create the block representing the corner volume: size is 2*radius
-    block = cuboid([2 * radius, 2 * radius, 2 * radius])
-    # And a sphere at the inner corner
-    sph = sphere(radius=radius, fn=fn, fa=fa, fs=fs)
-    # The cutter is block - sphere, placed so the sphere's center is at the inner corner
-    # (i.e. at distance `radius` from the corner along each axis, moving inward).
-    # If the corner vector is `c` (elements ±1): the box's outer corner is at `[c[0]*r, c[1]*r, c[2]*r]`
-    # and the sphere is at `[0, 0, 0]`.
-    # Shift block to `[-c[0]*r, -c[1]*r, -c[2]*r]`.
-    # Standard way in pybosl2/BOSL2: cutter's outer corner matches the body's corner.
-    offset = Point([-corner_vec[0] * radius, -corner_vec[1] * radius, -corner_vec[2] * radius])
-    cutter = block.translate(offset) - sph
-    # Translate to the actual corner of the size-sized body (which is at `size/2 * corner_vec`)
-    corner_pt = Point([size[i] / 2 * corner_vec[i] for i in range(3)])
-    return cutter.translate(corner_pt)
+    corner_pt = [size[i] / 2 * corner_vec[i] for i in range(3)]
+    inner_pt = [corner_pt[i] - corner_vec[i] * radius for i in range(3)]
+
+    block = cuboid([radius, radius, radius]).translate(Point([(corner_pt[i] + inner_pt[i]) / 2 for i in range(3)]))
+    sph = sphere(radius=radius, fn=fn, fa=fa, fs=fs).translate(Point(inner_pt))
+    return block - sph
 
 
 def corner_profile(

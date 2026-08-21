@@ -12,15 +12,24 @@ from pybosl2.shapes3d import cuboid, sphere
 
 
 def test_corner_profile_rounds_all_corners() -> None:
-    """cuboid with corner_profile applies rounding to corners."""
-    result = cuboid([20, 20, 20]).corner_profile(radius=3)
-    assert result is not None
+    """The corner is taken off and nothing else is: the faces, edges and interior all survive.
+
+    The cutter used to be inverted -- it scooped out the body and left the corner standing -- and
+    `assert result is not None` could not see it (PLAN X-8).
+    """
+    rounded = cuboid([20, 20, 20]).corner_profile(radius=3).realize()
+    assert not rounded.inside([9.5, 9.5, 9.5])  # the corner itself is gone
+    assert rounded.inside([8.0, 8.0, 8.0])  # ...up to the fillet's own sphere
+    assert rounded.inside([0.0, 0.0, 0.0])  # the middle is untouched
+    assert rounded.inside([9.9, 9.9, 0.0])  # so is the vertical edge between two corners
+    assert rounded.inside([0.0, 0.0, 9.9])  # ...and the middle of the top face
 
 
 def test_corner_profile_specific_corners() -> None:
-    """corner_profile with specific corner selection."""
-    result = cuboid([20, 20, 20]).corner_profile(radius=3, corners=[0, 0, 1])
-    assert result is not None
+    """A corner selection treats only the corners it names, leaving the rest sharp."""
+    selected = cuboid([20, 20, 20]).corner_profile(radius=3, corners=[0, 0, 1]).realize()
+    assert not selected.inside([9.5, 9.5, 9.5])  # a +Z corner, selected
+    assert selected.inside([9.5, 9.5, -9.5])  # the -Z corner below it, untouched
 
 
 def test_face_profile_rounds_faces() -> None:
