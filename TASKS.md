@@ -36,7 +36,7 @@ conformance tables are updated. Run with `TMPDIR` pointed at a volume with room 
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 | — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
-| — | test quality | [T13](#t13--replace-the-existence-only-tests-) 🔶 | L |
+| — | test quality | [T13](#t13--replace-the-existence-only-tests-) ✅ | L |
 
 ## Order and why
 
@@ -652,7 +652,7 @@ says why.
 
 ---
 
-## T13 — Replace the existence-only tests 🔶
+## T13 — Replace the existence-only tests ✅
 
 **Serves:** PLAN X-8 · **Size:** L, batchable per module
 
@@ -661,7 +661,7 @@ proves only that the call returned — which the absence of an exception already
 what that costs: `partitions.py` had a suite of such checks that all passed while the code they
 claimed to cover was never executed, and two of its features were outright broken.
 
-**Progress: 303 → 156.** The eight biggest files are done:
+**Done: 303 → 13 exempt, with a ratchet holding the line.** The eight biggest files went first:
 
 | File | Before | After |
 |---|---:|---:|
@@ -672,7 +672,7 @@ claimed to cover was never executed, and two of its features were outright broke
 | `tests/test_miscellaneous.py` | 17 | 0 |
 | `tests/test_sdf_shapes3d.py` | 15 | 0 |
 | `tests/test_gears.py` | 10 | 0 |
-| `tests/test_svg.py` | 10 | 7 |
+| `tests/test_svg.py` | 10 | 0 |
 
 `test_color.py`, `test_rounding.py`, `test_profiles.py`, `test_tripod_mounts.py`,
 `test_screws.py`, `test_skin.py`, `turtle/test_turtle3d.py`, `test_sdf_skin.py`,
@@ -680,8 +680,33 @@ claimed to cover was never executed, and two of its features were outright broke
 `test_helpers.py`, `test_isosurface.py`, `test_masking_primitives.py` and `test_screw_drive.py`
 followed — all to 0, then `test_hinges.py`, `test_hooks.py`, `test_joiners.py`,
 `test_linear_bearings.py`, `test_nema_steppers.py`, `test_nurbs.py`, `test_polyhedra.py`,
-`test_texture.py`, `test_walls.py` and `test_backend_matrix.py`. **303 → 34**, and what is left is
-one per file plus the 12 deliberate type contracts in `test_shapes2d_object.py`.
+`test_texture.py`, `test_walls.py`, `test_backend_matrix.py`, and then the whole tail —
+`test_transforms.py`, `test_ball_bearings.py`, `test_bottlecaps.py`, `test_comparisons.py`,
+`test_constants.py`, `test_cubetruss.py`, `test_defaults.py`, `test_init_stub.py`, `test_math.py`,
+`test_modular_hose.py`, `test_part_show.py`, `test_paths.py`, `test_sliders.py`, `test_wiring.py`,
+`test_backend_parity.py`, `test_backend_sdf.py` and `test_sdf_shapes2d.py`.
+
+**303 → 13, and the rule now enforces itself.** `tests/test_assertion_quality.py` walks every test
+in the suite and fails on any whose assertions are all `isinstance(...)` or `is not None`, unless
+the test is named in its `_ALLOWED` table with a reason. A second test checks the table for stale
+entries, so the exemption list can only shrink; a third feeds the detector the shapes it must
+catch, since a ratchet that cannot fire is worth nothing (the same pattern as the polyline ratchet
+in `test_exports.py`).
+
+The 13 exemptions are the honest ones. Twelve are in `test_shapes2d_object.py`, where every 2-D
+constructor and operator must hand back the `Bosl2Shape2D` wrapper rather than a bare native
+object — and a bare native has a bounding box too, so no measurement can tell them apart; the
+geometry is measured by the sibling test sharing each table. The thirteenth is `wrap()`, whose
+bounds re-enter the native op and never return; `test_stl_render.py` measures it against the
+real app instead.
+
+**Nine bugs came out of the sweep**, every one behind a test that could not fail: all eight
+`# pragma: no cover` markers were inert (comment-line placement); `Partitionable` was dead code
+duplicated in `shapes3d/base.py`; `altpath=` and `half_of(offset=)` both crashed;
+`right_triangle(chamfer=)` was a no-op and `rounding=` grew the triangle; `linear_extrude(scale=2)`
+silently dropped a scalar; `cone(chamfer=)` produced invalid geometry; every SDF half-cut kept an
+octant rather than a half; `corner_profile()` cut inside out; and `Mask3D.chamfer()` returned the
+roundover cutter verbatim.
 
 Two measuring techniques came out of the parts files and are worth reusing. **Slice to see a
 taper**: `solid & cuboid([100, 0.2, 100]).translate([0, y, 0])` gives the local width at *y*, so

@@ -178,11 +178,20 @@ def test_realizing_an_sdf_shape_applies_its_appearance() -> None:
 def test_a_mesh_operation_is_forwarded_to_the_meshed_solid() -> None:
     """Operations that genuinely need mesh topology mesh the field; that is not a silent conversion."""
     from pybosl2._backend import use_backend
+    from pybosl2.sdf.shapes3d import _MESH_OPERATIONS
     from pybosl2.solid import cuboid
 
     with use_backend("sdf"):
         shape = cuboid([10, 10, 10])
-        assert shape.background() is not None  # forwarded to the meshed solid, not refused
+        assert "background" in _MESH_OPERATIONS  # it is on the list *because* it needs topology
+
+        meshed = shape.background()  # forwarded to the meshed solid, not refused
+        assert meshed is not None
+        # Forwarded to the field's own mesh -- realized once and reused, not meshed afresh.
+        assert meshed is shape.mesh()
+        # ... and the solid it was called on is still an SDF solid: nothing was converted in place.
+        assert shape.backend == "sdf"
+        assert type(shape).__name__ == "SdfSolid"
 
 
 def test_the_mesh_operation_list_only_holds_names_that_reach_the_fallback() -> None:

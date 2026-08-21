@@ -88,10 +88,20 @@ def test_deriv_closed_wraps() -> None:
     assert diameter.shape == (4, 2)
 
 
-@pytest.mark.parametrize("fn", [deriv, deriv2, deriv3])
-def test_deriv_returns_ndarray(fn: object) -> None:
+@pytest.mark.parametrize(("fn", "expected"), [(deriv, [1.0, 0.0]), (deriv2, [0.0, 2.0]), (deriv3, [0.0, 0.0])])
+def test_deriv_returns_a_float_array_the_length_of_the_path(fn: object, expected: list[float]) -> None:
+    """Each derivative is a fresh float64 array with one row per input point.
+
+    The path is y = x^2 sampled at unit steps, so dx/dt is 1, d2y/dt2 is 2, and the third
+    derivative is flat zero.
+    """
     path = [[float(i), float(i * i)] for i in range(6)]
-    assert isinstance(fn(path), np.ndarray)  # type: ignore[operator]
+    result = fn(path)  # type: ignore[operator]
+    assert isinstance(result, np.ndarray)
+    assert result.shape == (6, 2)
+    assert result.dtype == np.float64
+    assert not np.shares_memory(result, np.asarray(path))
+    np.testing.assert_allclose(result[0], expected)
 
 
 # ── deriv edge cases ─────────────────────────────────────────────────────

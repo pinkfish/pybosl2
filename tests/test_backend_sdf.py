@@ -9,6 +9,8 @@
 Building an SDF shape is FFI-free (only ``.sdf()``/``.mesh()`` touch libfive), so the build/bounds/
 tag tests run anywhere; the mesh-pipeline test uses the numeric mock (as pysolidfive's own tests do)."""
 
+import pytest
+
 from pybosl2._backend import Solid, current_backend, get_backend, use_backend
 
 
@@ -45,12 +47,24 @@ def test_default_is_csg_and_context_selects_sdf() -> None:
 
 
 def test_sdf_mesh_pipeline_runs() -> None:
-    # Build -> symbolic SDF field -> frep() mesh, end to end. This runs under the numeric mock too:
-    # it only asks that each stage hands something on, which the mock's marker frep() result does.
+    """Build -> symbolic SDF field -> frep() mesh, end to end, measured at each stage.
+
+    This runs under the numeric mock as well as real libfive, so the check is the field itself:
+    a radius-10 sphere reads -10 at its centre, 0 on its surface and +10 ten past it, and the
+    meshing box is the sphere's own bounds plus a small margin.
+    """
     with use_backend("sdf"):
         s = get_backend().construct("sphere", {"radius": 10})
         assert s.sdf() is not None  # type: ignore[attr-defined]  # libfive field
-        assert s.mesh() is not None  # type: ignore[attr-defined]  # frep() realized it
+        assert s.mn == pytest.approx([-10.0] * 3)  # type: ignore[attr-defined]
+        assert s.mx == pytest.approx([10.0] * 3)  # type: ignore[attr-defined]
+
+        mesh = s.mesh()  # type: ignore[attr-defined]  # frep() realized it
+        assert mesh is s.mesh(), "the mesh is cached, not rebuilt on every call"  # type: ignore[attr-defined]
+        assert mesh.sample(0, 0, 0) == pytest.approx(-10.0)  # inside, one radius from the surface
+        assert mesh.sample(10, 0, 0) == pytest.approx(0.0)  # on the surface
+        assert mesh.sample(0, 10, 0) == pytest.approx(0.0)  # ... in every direction
+        assert mesh.sample(20, 0, 0) == pytest.approx(10.0)  # outside, and signed positive
 
 
 def test_sdf_backend_does_not_import_the_csg_god_module() -> None:

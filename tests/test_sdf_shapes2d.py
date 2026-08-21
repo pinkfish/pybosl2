@@ -533,6 +533,10 @@ class TestFill:
         shape = sdf_s2d.rect2d([10, 10])
         filled = shape.fill()
         assert filled is not None
+        assert filled.backend == "sdf"  # a filled 2-D shape is still a field, not a mesh
+        # fill() closes the outline in place: the same 10x10 extent, plus the meshing margin.
+        assert filled.mn == pytest.approx([-5.1, -5.1])
+        assert filled.mx == pytest.approx([5.1, 5.1])
 
 
 class TestFlip:

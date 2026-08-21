@@ -17,6 +17,11 @@ def _size(s: Bosl2Solid) -> list[float]:
     return size
 
 
+def _bounds(s: Bosl2Solid) -> tuple[list[float], list[float]]:
+    """The (low corner, extents) pair, so a test can say where a part sits as well as how big it is."""
+    return s._native_bounds()  # type: ignore[return-value]
+
+
 @pytest.mark.parametrize(
     ("size", "bore", "outer"),
     [(0.25, 3.268, 4.864), (0.5, 6.422, 8.096), (0.75, 9.902, 11.989)],
@@ -37,9 +42,31 @@ def test_bad_type_raises() -> None:
 
 
 @pytest.mark.parametrize("size", [0.25, 0.5, 0.75])
-@pytest.mark.parametrize("hosetype", [HoseType.SEGMENT, HoseType.BALL, HoseType.SOCKET])
-def test_builds(size: float, hosetype: HoseType) -> None:
-    assert isinstance(HoseSegment(size, hosetype).shape, Bosl2Solid)
+def test_ball_socket_and_segment_fit_together(size: float) -> None:
+    """A socket has to swallow a ball, and a segment is one of each back to back."""
+    ball = _bounds(HoseSegment(size, HoseType.BALL).shape)
+    socket = _bounds(HoseSegment(size, HoseType.SOCKET).shape)
+    segment = _bounds(HoseSegment(size, HoseType.SEGMENT).shape)
+
+    for lo, extents in (ball, socket, segment):
+        assert extents[0] == pytest.approx(extents[1], rel=0.01)  # round in plan
+        assert lo == pytest.approx([-e / 2 for e in extents], abs=0.01)  # centred on the origin
+
+    # The socket is the receiving end, so it is bigger than the ball in every direction.
+    for axis in range(3):
+        assert socket[1][axis] > ball[1][axis]
+
+    # A segment carries a ball on one end and a socket on the other: as wide as the socket, and
+    # longer than either end alone.
+    assert segment[1][:2] == pytest.approx(socket[1][:2])
+    assert segment[1][2] > socket[1][2] + ball[1][2] * 0.5
+
+
+@pytest.mark.parametrize("size", [0.25, 0.5, 0.75])
+@pytest.mark.parametrize(("alias", "canonical"), [(HoseType.SMALL, HoseType.BALL), (HoseType.BIG, HoseType.SOCKET)])
+def test_type_aliases_build_the_same_part(size: float, alias: HoseType, canonical: HoseType) -> None:
+    """SMALL and BIG are the BOSL2 spellings of BALL and SOCKET, not separate shapes."""
+    assert repr(HoseSegment(size, alias).shape) == repr(HoseSegment(size, canonical).shape)
 
 
 def test_bigger_size_bigger_hose() -> None:

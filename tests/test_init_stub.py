@@ -46,5 +46,18 @@ def test_stub_declares_nothing_extra() -> None:
 
 
 def test_every_lazy_export_resolves() -> None:
+    """Each name in __all__ resolves to a real pybosl2 object, and to the *same* one every time.
+
+    The lazy __getattr__ builds these on first touch, so "is not None" would pass even if a name
+    resolved to a fresh object per lookup (breaking `is` checks and identity-keyed caches) or to
+    something re-exported from a third-party module.
+    """
+    import inspect
+
     for name in pybosl2.__all__:
-        assert getattr(pybosl2, name) is not None, name
+        obj = getattr(pybosl2, name)
+        assert obj is not None, name
+        assert getattr(pybosl2, name) is obj, f"{name} resolves to a new object each lookup"
+        if inspect.isclass(obj) or inspect.isfunction(obj):
+            module = getattr(obj, "__module__", "")
+            assert module.startswith("pybosl2"), f"{name} comes from {module}, not pybosl2"

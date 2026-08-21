@@ -585,11 +585,19 @@ def test_to_region() -> None:
     assert len(radius) == 1
 
 
-def test_polygon_and_geometry_use_mock() -> None:
+def test_polygon_and_geometry_carry_the_path_through() -> None:
+    """Both hand the path to the native as one polygon, keeping SQUARE's 80x60 outline."""
     poly = Path2D(SQUARE).polygon()
     geom = Path2D(SQUARE).geometry()
-    assert poly is not None
-    assert geom is not None
+
+    for shape in (poly, geom):
+        centre, size = shape.bounds()
+        assert size == pytest.approx([80.0, 60.0])
+        assert centre == pytest.approx([40.0, 30.0])
+        assert repr(shape).count("polygon(") == 1
+
+    # geometry() is polygon() under another name, so the two emit the same model.
+    assert repr(geom) == repr(poly)
 
 
 # -- splitting ----------------------------------------------------------------------------

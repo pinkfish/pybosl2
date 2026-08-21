@@ -37,5 +37,11 @@ def test_accepts_ndarrays() -> None:
 
 
 def test_returns_plain_bool() -> None:
-    assert isinstance(math.isclose(1, 2, rel_tol=0, abs_tol=1e-9), bool)
-    assert isinstance(bool(np.allclose([1, 2], [1, 2], rtol=0, atol=1e-9)), bool)
+    """Both comparisons hand back a real `bool`, not a numpy scalar that only looks like one."""
+    scalar = math.isclose(1, 2, rel_tol=0, abs_tol=1e-9)
+    assert scalar is False
+    assert type(scalar) is bool
+
+    vector = bool(np.allclose([1, 2], [1, 2], rtol=0, atol=1e-9))
+    assert vector is True
+    assert type(vector) is bool

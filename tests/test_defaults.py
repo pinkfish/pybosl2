@@ -297,6 +297,11 @@ def test_parts_build_from_their_catalogue_name_alone() -> None:
         except (AssertionError, TypeError) as exc:  # pragma: no cover - the failure we guard against
             pytest.fail(f"{name}({', '.join(map(repr, args))}) raised {type(exc).__name__}: {exc}")
         assert part.shape is not None, name
+        # A part built from its name alone must still be a real solid, not an empty one: every
+        # extent positive, and the size sane for the catalogue entry it came from.
+        _lo, size = part.shape._native_bounds()  # type: ignore[misc]
+        assert all(extent > 0 for extent in size), f"{name} built an empty solid: {size}"
+        assert all(extent < 1000 for extent in size), f"{name} built a runaway solid: {size}"
 
 
 def test_size_only_rect_tube_gets_a_wall() -> None:
