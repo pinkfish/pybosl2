@@ -94,3 +94,26 @@ def test_octahedron_inradius() -> None:
 def test_unknown_name_raises() -> None:
     with pytest.raises(KeyError):
         RegularPolyhedron("prism")
+
+
+@pytest.mark.parametrize("name", list(_COUNTS))
+def test_a_platonic_solid_builds_on_either_backend(name: PlatonicSolid) -> None:
+    """Convexity is what lets these cross over (TASKS T14).
+
+    An SDF polyhedron is the intersection of its face half-spaces, so it can only describe a
+    convex solid -- and a Platonic solid is convex by definition, which makes it one of the few
+    meshes in the library that has an exact distance-field form. The nine that stay CSG-only are
+    refused by the convexity check, not by a blanket guard.
+    """
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+
+    built = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            shape = RegularPolyhedron(name, side=10).shape
+        assert shape.backend == backend
+        built[backend] = [float(v) for v in shape.bounds()[1]]
+
+    assert built["sdf"] == pytest.approx(built["csg"], abs=1e-6)
+    assert built["csg"] == pytest.approx([10 * _SIDE_BOXES[name]] * 3, abs=1e-9)

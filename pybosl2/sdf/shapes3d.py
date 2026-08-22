@@ -1792,6 +1792,66 @@ def rotate_extrude(
     return PyShape(sdf_fn, [xmn, ymn, z_low], [xmx, ymx, z_high], res)
 
 
+def tapered_polygon_prism(
+    paths: "PathLike | Sequence[PathLike]",
+    height: float,
+    scale_bottom: float = 1.0,
+    scale_top: float = 1.0,
+    res: int = 10,
+) -> PyShape:
+    """Extrude a polygon whose cross-section scales linearly from bottom to top, as an SDF.
+
+    The same construction the box `prismoid()` uses for its taper, with a polygon in place of the
+    rectangle: at each height the local scale is interpolated (clamped outside the ends, so no
+    per-point branch is needed) and the profile's own 2-D field is read in that scaled frame.
+    Dividing the sample point by the scale and multiplying the distance back is the standard rule
+    for a uniform scale, so the result is exact on the faces and carries the same documented
+    underestimate past edges and vertices that `polygon_prism()` does.
+
+    Sits on z=0, like `polygon_prism()`.
+
+    Args:
+        paths: The base outline as ``[[x, y], ...]``, or several disjoint outlines.
+        height: Extrusion height along +Z.
+        scale_bottom: Cross-section scale at z=0.
+        scale_top: Cross-section scale at z=height.
+        res: libfive meshing resolution passed to frep().
+
+    Returns:
+        The tapered prism.
+
+    Raises:
+        ValueError: If a scale is not positive, or the height is not positive.
+
+    """
+    if height <= 0:
+        raise ValueError(f"tapered_polygon_prism(): height must be positive, got {height}")
+    if scale_bottom <= 0 or scale_top <= 0:
+        raise ValueError(f"tapered_polygon_prism(): scales must be positive, got {scale_bottom} and {scale_top}")
+    path_list = as_path_list(paths)
+    if not path_list:
+        raise ValueError("tapered_polygon_prism(): needs at least one outline")
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        t = lv.min(lv.max(z / height, 0), 1)
+        scale = scale_bottom + (scale_top - scale_bottom) * t
+        profile = None
+        for outline in path_list:
+            d = _polygon_sdf_xy(x / scale, y / scale, outline) * scale
+            profile = d if profile is None else lv.min(profile, d)
+        assert profile is not None, "the path list was checked non-empty above"
+        return lv.max(profile, lv.max(z - height, -z))
+
+    widest = max(scale_bottom, scale_top)
+    corners = np.vstack([np.asarray(outline, dtype=float) for outline in path_list]) * widest
+    return PyShape(
+        sdf_fn,
+        [float(corners[:, 0].min()), float(corners[:, 1].min()), 0.0],
+        [float(corners[:, 0].max()), float(corners[:, 1].max()), height],
+        res,
+    )
+
+
 def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
     """Return the convex hull of `points` as a libfive SDF.
 
@@ -3013,6 +3073,8 @@ def regular_prism(
     inner_diameter: float | None = None,
     side: float | None = None,
     length: float | None = None,
+    radius1: float | None = None,
+    radius2: float | None = None,
     rounding: float | None = None,
     rounding1: float | None = None,
     rounding2: float | None = None,
@@ -3063,6 +3125,9 @@ def regular_prism(
         diameter=diameter,
         dflt=side_s,
     )
+    if rad is None and (radius1 is not None or radius2 is not None):
+        # A tapered prism is sized by its ends, so the wider one stands in for the overall radius.
+        rad = max(v for v in (radius1, radius2) if v is not None)
     if rad is None:
         raise ValueError(
             "regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
@@ -3083,23 +3148,39 @@ def regular_prism(
             for p in pts
         ]
 
-    prism = polygon_prism(
-        pts,
-        length,
-        rounding_top=r2v,
-        rounding_bottom=r1v,
-        chamfer_top=c2v,
-        chamfer_bottom=c1v,
-        res=res,
-    )
+    if radius1 is not None or radius2 is not None:
+        # A tapered prism: the cross-section scales with height, the way the box prismoid tapers.
+        bottom = radius1 if radius1 is not None else rad
+        top = radius2 if radius2 is not None else rad
+        if any(v for v in (r1v, r2v, c1v, c2v)):
+            raise ValueError(
+                "regular_prism(): a tapered prism (radius1=/radius2=) cannot also take rim "
+                "rounding or chamfer here; build it on the csg backend for that."
+            )
+        base = [[p[0] / rad * bottom, p[1] / rad * bottom] for p in pts]
+        prism = tapered_polygon_prism(base, length, 1.0, top / bottom, res=res)
+    else:
+        prism = polygon_prism(
+            pts,
+            length,
+            rounding_top=r2v,
+            rounding_bottom=r1v,
+            chamfer_top=c2v,
+            chamfer_bottom=c1v,
+            res=res,
+        )
     # polygon_prism() sits on z=0, but the anchor offset below is computed from a hull centred on
     # it, so the prism has to be centred first. Without this every anchor came out half a height
     # too high -- anchor=CENTER put the prism entirely above the origin, and anchor=TOP put it
     # where CENTER belonged. The CSG twin anchors correctly, so the same call placed the shape
     # differently on the two backends (SPEC B-3).
     prism = prism.translate([0.0, 0.0, -length / 2])
+    # `pts` is the cross-section at `rad`; a taper's widest end may differ, and the anchor has to
+    # be measured against the box the solid actually fills.
+    widest = max(radius1 if radius1 is not None else rad, radius2 if radius2 is not None else rad) / rad
+    hull = [[p[0] * widest, p[1] * widest] for p in pts]
     offset = _anchor_offset_hull3(
-        [[p[0], p[1], -length / 2] for p in pts] + [[p[0], p[1], length / 2] for p in pts],
+        [[p[0], p[1], -length / 2] for p in hull] + [[p[0], p[1], length / 2] for p in hull],
         anchor,
     )
     if any(offset):
