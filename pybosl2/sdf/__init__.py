@@ -157,6 +157,18 @@ class SdfBackend:
             )
         return _s.convex_polyhedron(points)
 
+    def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> _s.PyShape:
+        """Revolve *paths* about the Z axis via :func:`~pybosl2.sdf.shapes3d.rotate_extrude`.
+
+        The CSG-only rendering options (``convexity``, ``fn``/``fa``/``fs``) describe tessellation
+        and are ignored here, as B-9's carve-out allows; there are no facets in a field.
+        """
+        options = dict(arguments)
+        res = int(options.pop("res", 10) or 10)
+        for name in ("convexity", "fn", "fa", "fs"):
+            options.pop(name, None)
+        return _s.rotate_extrude(paths, angle=angle, res=res)
+
     def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> _s.PyShape:
         """Extrude *paths* into an SDF prism via :func:`~pybosl2.sdf.shapes3d.polygon_prism`.
 

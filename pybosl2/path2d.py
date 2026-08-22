@@ -36,7 +36,6 @@ if TYPE_CHECKING:
     from pybosl2.paths import PathLike
     from pybosl2.regions import Region
     from pybosl2.shapes2d import Bosl2Shape2D
-    from pybosl2.shapes3d import Bosl2Solid
 
 import shapely
 from shapely.geometry import LineString, Polygon
@@ -1936,7 +1935,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> "Bosl2Solid":
+    ) -> "Solid":
         """Revolve this path about the Y axis into a 3-D solid.
 
         See :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.
@@ -1951,14 +1950,16 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         Returns:
             A :class:`~pybosl2.shapes3d.Bosl2Solid`.
 
-        Raises:
-            pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --
-            the SDF backend has no revolve; sweep the profile instead via
-            ``pybosl2.sdf.shapes3d.path_sweep()``.
+        Returns:
+            The revolved solid, built by whichever backend is active. A revolve is exact in a
+            distance field -- the solid's field is this profile's own field read at
+            ``(hypot(x, y), z)`` -- so unlike most 2-D work it is not CSG-only.
 
         """
-        self._require_csg("rotate_extrude")
-        result = self.polygon().rotate_extrude(angle, convexity=convexity, fn=fn, fa=fa, fs=fs)
+        from pybosl2._backend import get_backend, given_arguments
+
+        arguments = given_arguments({"convexity": convexity, "fn": fn, "fa": fa, "fs": fs})
+        result = get_backend().rotate_extrude([self], angle, arguments)
         if self._color is not None and hasattr(result, "color"):
             result = result.color(self._color)
         return result

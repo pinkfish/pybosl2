@@ -61,6 +61,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
+    from pybosl2.paths import PathLike
 
 
 def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
@@ -1719,6 +1720,76 @@ def _box_after_cutting(base: PyShape, tools: "list[PyShape]") -> "tuple[list[flo
     if any(mx[i] - mn[i] <= epsilon for i in range(3)):
         return list(base.mn), list(base.mx)  # the cuts leave nothing to measure; say nothing
     return mn, mx
+
+
+def rotate_extrude(
+    paths: "PathLike | Sequence[PathLike]",
+    angle: float = 360.0,
+    res: int = 10,
+) -> PyShape:
+    """Revolve a 2-D profile about the Z axis, as a libfive SDF.
+
+    A revolve is the one 2-D -> 3-D operation that is *natural* in a distance field: the solid's
+    field at ``(x, y, z)`` is the profile's own 2-D field read at ``(hypot(x, y), z)``, because
+    every point's distance to a surface of revolution is its distance in the half-plane it lies
+    in. So this is exact wherever `_polygon_sdf_xy` is, with no meshing and no approximation of
+    the revolve itself.
+
+    The profile is taken in the same frame OpenSCAD's ``rotate_extrude()`` uses: X is the radius
+    from the Z axis, Y becomes Z. A profile crossing the axis is rejected -- the revolved solid
+    would be self-intersecting, which OpenSCAD refuses too.
+
+    Args:
+        paths: The profile outline as ``[[x, y], ...]``, or several disjoint outlines.
+        angle: Sweep in degrees (default 360, a full revolution).
+        res: libfive meshing resolution passed to frep().
+
+    Returns:
+        The revolved solid.
+
+    Raises:
+        ValueError: If a profile is empty, has fewer than 3 points, or crosses the Z axis.
+
+    """
+    if paths is None or len(paths) == 0:
+        raise ValueError("rotate_extrude(): needs at least one profile outline")
+    path_list = as_path_list(paths)
+    if not path_list:  # pragma: no cover - as_path_list never empties a non-empty input
+        raise ValueError("rotate_extrude(): needs at least one profile outline")
+    for outline in path_list:
+        points = np.asarray(outline, dtype=float)
+        if len(points) < 3:
+            raise ValueError(f"rotate_extrude(): a profile needs at least 3 points, got {len(points)}")
+        if float(points[:, 0].min()) < -1e-9:
+            raise ValueError(
+                "rotate_extrude(): the profile crosses the Z axis (a negative X), so the revolved "
+                "solid would intersect itself; keep every profile point at x >= 0."
+            )
+
+    swept = angle % 360 if (angle > 360 or angle < 0) else angle
+    sin_a, cos_a = math.sin(math.radians(swept)), math.cos(math.radians(swept))
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        radius = _lv_hypot(x, y)
+        profile = None
+        for outline in path_list:
+            d = _polygon_sdf_xy(radius, z, outline)
+            profile = d if profile is None else lv.min(profile, d)
+        assert profile is not None, "the path list was checked non-empty above"
+        if swept <= 0 or swept >= 360:
+            return profile
+        # The same angular sector pie_slice() cuts: two half-planes, intersected below 180
+        # degrees and unioned above it.
+        first = -y
+        second = y * cos_a - x * sin_a
+        sector = lv.max(first, second) if swept <= 180 else lv.min(first, second)
+        return lv.max(profile, sector)
+
+    corners = np.vstack([np.asarray(outline, dtype=float) for outline in path_list])
+    radius = float(np.abs(corners[:, 0]).max())
+    z_low, z_high = float(corners[:, 1].min()), float(corners[:, 1].max())
+    xmn, ymn, xmx, ymx = _sector_xy_bounds(radius, swept)
+    return PyShape(sdf_fn, [xmn, ymn, z_low], [xmx, ymx, z_high], res)
 
 
 def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:

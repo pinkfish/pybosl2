@@ -71,6 +71,21 @@ class CsgBackend:
             return Bosl2Solid(native("polyhedron")(points, faces))
         return Bosl2Solid(native("polyhedron")(points, faces, convexity=convexity))
 
+    def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> Any:
+        """Revolve *paths* about the Z axis with the native ``rotate_extrude()``."""
+        from pybosl2._helpers import unwrap
+        from pybosl2._native import native
+        from pybosl2.shapes3d import Bosl2Solid
+
+        options = {name: value for name, value in arguments.items() if value is not None}
+        outlines = paths if isinstance(paths, (list, tuple)) else [paths]
+        profile = native("polygon")([[float(v) for v in point] for point in outlines[0]])
+        for extra in outlines[1:]:
+            profile = profile | native("polygon")([[float(v) for v in point] for point in extra])
+        # `angle` goes by keyword: the native rejects a float positionally ("error during
+        # parsing") while accepting one as `angle=`.
+        return Bosl2Solid(unwrap(profile.rotate_extrude(angle=float(angle), **options)))
+
     def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> Any:
         """Extrude *paths* into an exact-CSG solid: the first outline, the rest cut out as holes.
 
