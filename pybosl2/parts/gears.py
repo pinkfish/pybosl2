@@ -1063,7 +1063,7 @@ class SpurGear2d:
         return self._teeth
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Shape2D:
         """Return the 2-D gear outline."""
         return self._shape
@@ -1224,7 +1224,7 @@ class SpurGear:
         return self._teeth
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Solid:
         """Return the spur gear geometry."""
         return self._solid
@@ -1401,7 +1401,7 @@ class RingGear:
         return self._teeth
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Solid:
         """Return the ring gear geometry."""
         return self._solid
@@ -1464,7 +1464,7 @@ class Rack2d:
         self._shape: Bosl2Shape2D = Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Shape2D:
         """Return the 2-D rack outline."""
         return self._shape
@@ -1548,7 +1548,7 @@ class Rack:
         return self._teeth
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Solid:
         """Return the rack geometry."""
         return self._solid
@@ -1705,7 +1705,7 @@ class BevelGear:
         return self._teeth
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Solid:
         """Return the bevel gear geometry."""
         return self._solid
@@ -1793,7 +1793,7 @@ class Worm:
         self._solid: Bosl2Solid = Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Solid:
         """Return the worm geometry."""
         return self._solid
@@ -1927,7 +1927,7 @@ class WormGear:
         return self._teeth
 
     @property
-    @csg_part
+    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
     def shape(self) -> Bosl2Solid:
         """Return the worm gear geometry."""
         return self._solid

@@ -177,7 +177,7 @@ class NarrowingStrut:
         return self._angle
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the strut geometry."""
         return self._solid
@@ -256,7 +256,7 @@ class SparseWall:
         return self._thick
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
@@ -325,7 +325,7 @@ class SparseCuboid:
         return self._size
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the cuboid geometry."""
         return self._solid
@@ -409,7 +409,7 @@ class CorrugatedWall:
         return self._thick
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
@@ -590,7 +590,7 @@ class ThinningWall:
         return self._thick
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the wall geometry."""
         return self._solid
@@ -691,7 +691,7 @@ class ThinningTriangle:
         return self._thick
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the triangle geometry."""
         return self._solid

@@ -1778,13 +1778,20 @@ def polyhedron(points: Any, faces: Any = None, convexity: int | None = None) -> 
     """Return a polyhedron on the active backend.
 
     Backends differ on what a polyhedron means (this is not part of the shared primitive surface):
-    the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF backend
-    ignores *faces* and builds the convex hull of *points* as a distance field.
+    the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF
+    backend builds the intersection of the face half-spaces, which can only describe a **convex**
+    solid. For convex input the two agree. For anything else the SDF backend refuses rather than
+    handing back the hull -- which would fill the concavities, report the same bounding box, and
+    give no sign that it was not what you asked for (SPEC B-4, B-9).
 
     Args:
         points: The vertices, as ``[x, y, z]`` triples.
-        faces: Vertex indices per face (CSG backend; ignored by the SDF backend).
+        faces: Vertex indices per face. Required by the CSG backend; on the SDF backend they must
+            bound a convex solid.
         convexity: Convexity hint for preview rendering (CSG backend).
+
+    Raises:
+        UnsupportedByBackendError: On the SDF backend, if *faces* bound a non-convex solid.
 
     Returns:
         The solid, built by whichever backend is active.

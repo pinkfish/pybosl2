@@ -179,7 +179,7 @@ class WireBundle:
         return self._wirediam
 
     @property
-    @csg_part
+    @csg_part("sweeps the bundle along its route with path_sweep(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the wire bundle geometry."""
         return self._solid

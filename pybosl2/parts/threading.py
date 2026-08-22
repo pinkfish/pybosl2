@@ -352,7 +352,7 @@ class ThreadedRod:
         return self._left_handed
 
     @property
-    @csg_part
+    @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Build and return the threaded rod geometry (cached)."""
         if self._solid is not None:
@@ -478,7 +478,7 @@ class ThreadedNut:
         return self._left_handed
 
     @property
-    @csg_part
+    @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Build and return the nut geometry (cached)."""
         if self._solid is not None:
@@ -623,7 +623,7 @@ class ThreadHelix:
         return self._left_handed
 
     @property
-    @csg_part
+    @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the helix geometry."""
         return self._solid

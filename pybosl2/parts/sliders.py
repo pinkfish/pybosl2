@@ -326,7 +326,7 @@ class Rail:
         return self._height
 
     @property
-    @csg_part  # Rail builds from a VNF polyhedron, which the SDF backend has no form for
+    @csg_part("builds from a VNF handed over vertex by vertex, which has no distance-field form")
     def shape(self) -> Bosl2Solid:
         """Return the rail geometry."""
         return self._solid

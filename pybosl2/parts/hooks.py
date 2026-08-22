@@ -221,7 +221,7 @@ class RingHook:
         return self._inner_radius
 
     @property
-    @csg_part
+    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the ring hook geometry."""
         return self._solid
