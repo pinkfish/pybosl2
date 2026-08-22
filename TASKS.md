@@ -888,7 +888,28 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   both. `RingHook` still refuses, but on `prismoid(rounding=)` now: the SDF prismoid has no
   vertical-edge rounding, which is a named gap in a constructor rather than a blanket part guard.
 
-**23 part classes** build on either backend, with no CSG leaks.
+* **`SpurGear2d.shape` returns a `Path2D`.** It was a `Bosl2Shape2D` -- 2-D *geometry*, which is
+  a CSG notion -- and that single return type was what kept all five gears CSG-only, since every
+  3-D gear extrudes it. A gear perimeter is a closed outline, so a path is the more honest type
+  anyway, and `Path2D.linear_extrude()` dispatches.
+
+  A bore cannot ride along: one path cannot describe an outline with a hole in it. So `shape` is
+  the perimeter, `bore` reports the diameter asked for, `region()` gives the outline-plus-hole as
+  a `Region` for when 2-D geometry really is wanted, and `SpurGear` subtracts the bore as a
+  cylinder -- the same solid the 2-D difference produced. `show()` renders the region's geometry
+  and returns the path, so S-51 still holds.
+
+  Two smaller things had to move with it. `convexity` was being *refused* by the SDF
+  `linear_extrude` -- it is a preview hint for the CSG renderer, not geometry, so it now falls
+  under B-9's tessellation carve-off; refusing it was keeping a plain spur gear off the backend
+  over a rendering flag. And `HerringboneGear` mirrored its lower half with `scale([1, 1, -1])`,
+  which the SDF `scale()` rejects as a non-positive factor; it uses `mirror([0, 0, 1])` now, which
+  is what it meant and which both backends have.
+
+  `SpurGear` and `HerringboneGear` build on either backend; a *helical* gear still refuses, on
+  `linear_extrude(twist=)`, which a constant-cross-section prism genuinely cannot express.
+
+**25 part classes** build on either backend, with no CSG leaks.
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one

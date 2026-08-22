@@ -24,6 +24,7 @@ from pybosl2.parts.gears import (
     Worm,
     WormGear,
 )
+from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -80,13 +81,13 @@ def test_tooth_profile_shape() -> None:
 def test_low_tooth_gear_has_undercut_shift() -> None:
     # a low-tooth gear picks up an auto profile shift (undercut avoidance)
     assert GearSpec.auto_profile_shift(8) > 0.4
-    assert isinstance(SpurGear2d(mod=5, teeth=8).shape, Bosl2Shape2D)
+    assert isinstance(SpurGear2d(mod=5, teeth=8).shape, Path2D)
 
 
 def test_spur_gear2d_builds() -> None:
     """A gear's outside diameter is the pitch diameter plus one module of addendum each side."""
     gear = SpurGear2d(pitch=5, teeth=20)
-    assert isinstance(gear.shape, Bosl2Shape2D)
+    assert isinstance(gear.shape, Path2D)
     width, length, _ = _size2d(gear.shape)
     expect = 2 * GearSpec(pitch=5, teeth=20).outer_radius
     assert float(width) == pytest.approx(expect, abs=0.5)
@@ -356,7 +357,7 @@ def test_spur_gear_new_api_builds() -> None:
     assert float(_size(herringbone)[2]) == pytest.approx(35, abs=0.01)
 
     spun = SpurGear2d(mod=5, teeth=30, gear_spin=45).shape
-    assert isinstance(spun, Bosl2Shape2D)
+    assert isinstance(spun, Path2D)
     assert float(_size2d(spun)[0]) == pytest.approx(5 * (30 + 2), abs=1.0)
 
 
@@ -369,7 +370,7 @@ def test_internal_spur_gear_teeth_point_inward() -> None:
     pr = GearSpec(mod=5, teeth=30).pitch_radius
     r_outer = GearSpec(mod=5, teeth=30, internal=True).outer_radius
     assert GearSpec(mod=5, teeth=30, internal=True).root_radius < pr < r_outer
-    assert isinstance(SpurGear2d(mod=5, teeth=30, internal=True).shape, Bosl2Shape2D)
+    assert isinstance(SpurGear2d(mod=5, teeth=30, internal=True).shape, Path2D)
 
 
 def test_gear_dist_with_profile_shift_increases_spacing() -> None:
@@ -382,7 +383,7 @@ def test_gear_dist_with_profile_shift_increases_spacing() -> None:
 def test_hide_removes_teeth() -> None:
     full = SpurGear2d(mod=5, teeth=20).shape
     hidden = SpurGear2d(mod=5, teeth=20, hide=5).shape
-    assert isinstance(hidden, Bosl2Shape2D)
+    assert isinstance(hidden, Path2D)
     # hiding teeth removes area, so the hidden gear's bbox is no larger
     assert _size2d(hidden)[0] <= _size2d(full)[0] + 0.1  # type: ignore[no-untyped-call]
 
@@ -398,7 +399,7 @@ def test_backlash_clearance_shorten_build() -> None:
 
 
 def _size2d(shape):  # type: ignore[no-untyped-def]
-    # 2-D shapes have no z-bounds; measure via a thin extrude, which carries the tracked size
+    # 2-D outlines have no z-bounds; measure via a thin extrude, which carries the tracked size
     _center, size = shape.linear_extrude(height=0.1).bounds()
     return size
 
