@@ -106,3 +106,69 @@ def test_every_part_refuses_on_another_backend() -> None:
                 leaked.append(name)
     assert not leaked, f"parts that built CSG geometry inside an sdf block: {leaked}"
     assert not unhelpful, f"parts whose refusal does not name the way forward: {unhelpful}"
+
+
+#: Parts that build on BOTH backends, not just CSG (SPEC S-46a, TASKS T14 phase 3). The list only
+#: grows: a part converted to the façade goes in, and a part that stops building on SDF is a
+#: regression, not a bookkeeping change.
+BACKEND_NEUTRAL_PARTS = frozenset(
+    {
+        "KnuckleHinge",
+        "KnuckleHingePair",
+        "LivingHingeMask",
+        "SnapLock",
+        "SnapSocket",
+    }
+)
+
+
+@pytest.mark.parametrize("name", sorted(BACKEND_NEUTRAL_PARTS))
+def test_a_converted_part_builds_the_same_shape_on_either_backend(name: str) -> None:
+    """The point of the conversion: one source, either backend, the same geometry.
+
+    Sizes are compared with a tolerance because a CSG solid is faceted and its SDF twin is exact --
+    a cylinder's faceted hull sits just inside the true one -- so they agree to within the facet
+    error, not to the bit.
+    """
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+
+    built = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            shape = getattr(parts, name)(*ARGUMENTS.get(name, ()), **KEYWORDS.get(name, {})).shape
+        assert shape.backend == backend, f"{name} built {shape.backend} geometry inside a {backend} block"
+        built[backend] = shape.bounds()
+
+    csg_centre, csg_size = built["csg"]
+    sdf_centre, sdf_size = built["sdf"]
+    for axis in range(3):
+        assert abs(float(csg_size[axis]) - float(sdf_size[axis])) < 0.5, (
+            f"{name}: backends disagree on size, csg={list(csg_size)} sdf={list(sdf_size)}"
+        )
+        assert abs(float(csg_centre[axis]) - float(sdf_centre[axis])) < 0.5, (
+            f"{name}: backends disagree on placement, csg={list(csg_centre)} sdf={list(sdf_centre)}"
+        )
+
+
+def test_the_converted_list_matches_what_actually_builds() -> None:
+    """Stops the list drifting from the code in either direction."""
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    builds = set()
+    with use_backend("sdf"):
+        for name in _part_classes():
+            try:
+                shape = getattr(parts, name)(*ARGUMENTS.get(name, ()), **KEYWORDS.get(name, {})).shape
+            except UnsupportedByBackendError:
+                continue
+            if getattr(shape, "backend", None) == "sdf":
+                builds.add(name)
+
+    assert builds == set(BACKEND_NEUTRAL_PARTS), (
+        "parts that build on the SDF backend have changed (SPEC S-46a):\n"
+        f"  newly building: {sorted(builds - BACKEND_NEUTRAL_PARTS)}\n"
+        f"  no longer building: {sorted(BACKEND_NEUTRAL_PARTS - builds)}"
+    )
