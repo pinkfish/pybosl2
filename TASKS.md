@@ -883,7 +883,12 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   during parsing`, while `rotate_extrude(angle=360.0)` is fine. The CSG backend passes it by
   keyword.
 
-**22 part classes** build on either backend.
+  With both extruders dispatching, `hooks` and `screw_drive`'s `PhillipsMask` converted too --
+  the Phillips recess is a revolved profile with four extruded wings cut out of it, so it needed
+  both. `RingHook` still refuses, but on `prismoid(rounding=)` now: the SDF prismoid has no
+  vertical-edge rounding, which is a named gap in a constructor rather than a blanket part guard.
+
+**23 part classes** build on either backend, with no CSG leaks.
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one
