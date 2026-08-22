@@ -24,15 +24,20 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
 from pybosl2._native import native
-from pybosl2.shapes3d import Bosl2Solid, cuboid
+from pybosl2.path2d import Path2D
+from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.solid import cuboid
 from pybosl2.vnf import VNF
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 _opolygon = native("polygon")
 
@@ -153,8 +158,10 @@ class NarrowingStrut:
 
         height = wall + w / 2 / math.tan(math.radians(angle))
         profile = [[-w / 2, 0], [w / 2, 0], [w / 2, wall], [0, height], [-w / 2, wall]]
-        shape = _opolygon(profile).linear_extrude(height=length, center=True).rotate([90, 0, 0])
-        self._solid: Bosl2Solid = Bosl2Solid(shape, size=[w, length, height])
+        # Path2D.linear_extrude() dispatches through the backend, where the native
+        # polygon().linear_extrude() pair is CSG-only (TASKS T14).
+        shape = Path2D(profile).linear_extrude(height=length, center=True).rotate([90, 0, 0])
+        self._solid: "Solid" = shape.with_nominal_size([w, length, height])
 
     @property
     def width(self) -> float:
@@ -177,8 +184,7 @@ class NarrowingStrut:
         return self._angle
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the strut geometry."""
         return self._solid
 
@@ -238,7 +244,7 @@ class SparseWall:
 
         region = _sparse_wall2d(height, length, maxang, strut, max_bridge)
         shape = region.linear_extrude(height=thick, center=True).rotate([0, 90, 0])
-        self._solid: Bosl2Solid = Bosl2Solid(shape, size=[thick, length, height])
+        self._solid: "Solid" = Bosl2Solid(shape, size=[thick, length, height])
 
     @property
     def height(self) -> float:
@@ -256,8 +262,8 @@ class SparseWall:
         return self._thick
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    @csg_part("builds its lattice as a union of 2-D polygons and extrudes the region, and a 2-D region is a CSG notion")
+    def shape(self) -> "Solid":
         """Return the wall geometry."""
         return self._solid
 
@@ -317,7 +323,7 @@ class SparseCuboid:
             braced = SparseWall(sx, sy, sz, maxang, strut, max_bridge).shape.rotate([0, 90, 0])
         else:
             raise ValueError("sparse_cuboid(): dir must be a SparseAxis value.")
-        self._solid: Bosl2Solid = Bosl2Solid((braced & cuboid([sx, sy, sz])).shape, size=[sx, sy, sz])
+        self._solid: "Solid" = (braced & cuboid([sx, sy, sz])).with_nominal_size([sx, sy, sz])
 
     @property
     def size(self) -> list[float]:
@@ -325,8 +331,8 @@ class SparseCuboid:
         return self._size
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    @csg_part("is a SparseWall clipped to a box, so it inherits that wall's CSG-only 2-D region")
+    def shape(self) -> "Solid":
         """Return the cuboid geometry."""
         return self._solid
 
@@ -389,9 +395,9 @@ class CorrugatedWall:
         ys = [-il / 2 + i * step for i in range(int(il / step) + 1)]
         pts = [[amplitude * math.sin(math.radians(y / period * 360)) - wall / 2, y] for y in ys]
         pts += [[amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y] for y in reversed(ys)]
-        sheet = _opolygon(pts).linear_extrude(height=height - 2 * strut + 0.1, center=True)
+        sheet = Path2D(pts).linear_extrude(height=height - 2 * strut + 0.1, center=True)
         frame = cuboid([thick, length, height]) - cuboid([thick + 0.5, length - 2 * strut, height - 2 * strut])
-        self._solid: Bosl2Solid = Bosl2Solid((Bosl2Solid(sheet) | frame).shape, size=[thick, length, height])
+        self._solid: "Solid" = (sheet | frame).with_nominal_size([thick, length, height])
 
     @property
     def height(self) -> float:
@@ -409,8 +415,7 @@ class CorrugatedWall:
         return self._thick
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the wall geometry."""
         return self._solid
 
@@ -572,7 +577,7 @@ class ThinningWall:
         ]
         pts = [[-y, x, z] for x, y, z in pts]
         shape = VNF(pts, faces).polyhedron()
-        self._solid: Bosl2Solid = Bosl2Solid(shape, size=[thick, l1, height])
+        self._solid: "Solid" = Bosl2Solid(shape, size=[thick, l1, height])
 
     @property
     def height(self) -> float:
@@ -590,8 +595,8 @@ class ThinningWall:
         return self._thick
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    @csg_part("builds its braced sheet from a VNF handed over vertex by vertex, which has no distance-field form")
+    def shape(self) -> "Solid":
         """Return the wall geometry."""
         return self._solid
 
@@ -673,7 +678,7 @@ class ThinningTriangle:
         body = body - cutter
         if center is False:
             body = body.up(height / 2).back(length / 2)
-        self._solid: Bosl2Solid = Bosl2Solid(body.shape, size=[thick, length, height])
+        self._solid: "Solid" = body.with_nominal_size([thick, length, height])
 
     @property
     def height(self) -> float:
@@ -691,8 +696,7 @@ class ThinningTriangle:
         return self._thick
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the triangle geometry."""
         return self._solid
 
