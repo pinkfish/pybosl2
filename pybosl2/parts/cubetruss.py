@@ -29,7 +29,6 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
@@ -632,11 +631,6 @@ class TrussClip:
         self._solid: "Solid" = pair.with_nominal_size(s_arr)
 
     @property
-    @csg_part(
-        "is 6mm taller on the SDF backend than on CSG and nobody has found out why yet -- the "
-        "chamfer mask and the rotated prismoid it is built from were each checked and agree "
-        "exactly, so the discrepancy is somewhere else in the clip (TASKS T14)"
-    )
     def shape(self) -> "Solid":
         """Return the clip geometry."""
         return self._solid
