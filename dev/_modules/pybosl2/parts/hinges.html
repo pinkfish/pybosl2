@@ -2051,12 +2051,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">csg_part</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">prismoid</span><span class="p">,</span> <span class="n">sphere</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">prismoid</span><span class="p">,</span> <span class="n">sphere</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"KnuckleHinge"</span><span class="p">,</span>
@@ -2111,7 +2113,7 @@
 <span class="sd">        """</span>
         <span class="n">hg</span> <span class="o">=</span> <span class="p">(</span><span class="n">layerheight</span> <span class="k">if</span> <span class="n">hingegap</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">hingegap</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
         <span class="n">top</span> <span class="o">=</span> <span class="n">hg</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">foldangle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">hg</span><span class="p">],</span> <span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">top</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">layerheight</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">hg</span><span class="p">],</span> <span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">top</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">thick</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">layerheight</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">thick</span>
 
@@ -2126,8 +2128,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hinge mask geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
@@ -2206,7 +2207,7 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">knuckle_x</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
             <span class="k">return</span> <span class="o">-</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">seglen</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">index</span> <span class="o">*</span> <span class="p">(</span><span class="n">seglen</span> <span class="o">+</span> <span class="n">gap</span><span class="p">)</span>
 
-        <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Bosl2Solid</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Solid"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">segs</span><span class="p">):</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">!=</span> <span class="n">mine</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -2241,7 +2242,7 @@
         <span class="k">if</span> <span class="n">keep</span><span class="p">:</span>
             <span class="n">clearance</span> <span class="o">=</span> <span class="n">clearance</span> <span class="o">-</span> <span class="n">union</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
         <span class="n">leaf</span> <span class="o">=</span> <span class="n">leaf</span> <span class="o">-</span> <span class="n">clearance</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">leaf</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="n">plate_w</span> <span class="o">+</span> <span class="n">knuckle_diam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">knuckle_diam</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">leaf</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">plate_w</span> <span class="o">+</span> <span class="n">knuckle_diam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">knuckle_diam</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">arm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inner</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">inner</span>
@@ -2262,8 +2263,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inner</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the knuckle hinge leaf geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
@@ -2365,10 +2365,7 @@
         <span class="n">hinge</span> <span class="o">=</span> <span class="n">outer</span> <span class="o">|</span> <span class="n">inner</span>
         <span class="k">if</span> <span class="n">pin</span><span class="p">:</span>
             <span class="n">hinge</span> <span class="o">=</span> <span class="n">hinge</span> <span class="o">|</span> <span class="n">cyl</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span> <span class="o">-</span> <span class="n">gap</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">pin_diam</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
-            <span class="n">hinge</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">length</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">arm</span> <span class="o">+</span> <span class="n">knuckle_diam</span><span class="p">,</span> <span class="n">knuckle_diam</span><span class="p">],</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">hinge</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">arm</span> <span class="o">+</span> <span class="n">knuckle_diam</span><span class="p">,</span> <span class="n">knuckle_diam</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">fold</span>
 
@@ -2383,8 +2380,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fold</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hinge pair geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
@@ -2454,7 +2450,7 @@
         <span class="n">ridge</span> <span class="o">=</span> <span class="n">cyl</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">snapdiam</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">snapdiam</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">thick</span><span class="p">)</span>
         <span class="c1"># Nominal anchor box: the plate the snap is mounted on, so a lock and its socket anchor to</span>
         <span class="c1"># the same frame. The snap head stands above it, making bounds() taller.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">((</span><span class="n">post</span> <span class="o">|</span> <span class="n">ridge</span><span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">(</span><span class="n">snap_x</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">snapdiam</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="p">(</span><span class="n">post</span> <span class="o">|</span> <span class="n">ridge</span><span class="p">)</span><span class="o">.</span><span class="n">back</span><span class="p">(</span><span class="n">snap_x</span><span class="p">)</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">snapdiam</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">thick</span>
 
     <span class="nd">@property</span>
@@ -2463,8 +2459,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the snap-lock tab geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
@@ -2540,9 +2535,8 @@
         <span class="p">)</span>
         <span class="c1"># Nominal anchor box: the plate, as SnapLock uses, so the two halves anchor to the same</span>
         <span class="c1"># frame. The socket's ridge stands above the plate, so bounds() is taller.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
-            <span class="p">((</span><span class="n">post</span> <span class="o">|</span> <span class="n">ridge</span><span class="p">)</span> <span class="o">-</span> <span class="n">divot</span><span class="p">)</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">snap_x</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">snapdiam</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">((</span><span class="n">post</span> <span class="o">|</span> <span class="n">ridge</span><span class="p">)</span> <span class="o">-</span> <span class="n">divot</span><span class="p">)</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">snap_x</span><span class="p">)</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">snaplen</span><span class="p">,</span> <span class="n">snapdiam</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">thick</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">thick</span>
 
@@ -2552,8 +2546,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thick</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the snap socket geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
