@@ -23,12 +23,14 @@
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM
-from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
+from pybosl2.solid import cuboid, cyl, prismoid, sphere
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = [
     "KnuckleHinge",
@@ -81,7 +83,7 @@ class LivingHingeMask:
         """
         hg = (layerheight if hingegap is None else hingegap) + 2 * slop
         top = hg + 2 * thick / math.tan(math.radians(foldangle / 2))
-        self._solid: Bosl2Solid = prismoid([length, hg], [length, top], height=thick, anchor=BOTTOM).up(layerheight * 2)
+        self._solid: "Solid" = prismoid([length, hg], [length, top], height=thick, anchor=BOTTOM).up(layerheight * 2)
         self._length: float = length
         self._thick: float = thick
 
@@ -96,8 +98,7 @@ class LivingHingeMask:
         return self._thick
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the hinge mask geometry."""
         return self._solid
 
@@ -170,7 +171,7 @@ class KnuckleHinge:
         def knuckle_x(index: int) -> float:
             return -length / 2 + seglen / 2 + index * (seglen + gap)
 
-        parts: list[Bosl2Solid] = []
+        parts: list["Solid"] = []
         for i in range(segs):
             if (i % 2) != mine:
                 continue
@@ -205,7 +206,7 @@ class KnuckleHinge:
         if keep:
             clearance = clearance - union(keep)
         leaf = leaf - clearance
-        self._solid: Bosl2Solid = Bosl2Solid(leaf.shape, size=[length, plate_w + knuckle_diam / 2, knuckle_diam])
+        self._solid: "Solid" = leaf.with_nominal_size([length, plate_w + knuckle_diam / 2, knuckle_diam])
         self._length: float = length
         self._arm: float = arm
         self._inner: bool = inner
@@ -226,8 +227,7 @@ class KnuckleHinge:
         return self._inner
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the knuckle hinge leaf geometry."""
         return self._solid
 
@@ -323,10 +323,7 @@ class KnuckleHingePair:
         hinge = outer | inner
         if pin:
             hinge = hinge | cyl(height=length - gap, diameter=pin_diam - 0.1, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])
-        self._solid: Bosl2Solid = Bosl2Solid(
-            hinge.shape,
-            size=[length, 2 * arm + knuckle_diam, knuckle_diam],
-        )
+        self._solid: "Solid" = hinge.with_nominal_size([length, 2 * arm + knuckle_diam, knuckle_diam])
         self._length: float = length
         self._fold: float = fold
 
@@ -341,8 +338,7 @@ class KnuckleHingePair:
         return self._fold
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the hinge pair geometry."""
         return self._solid
 
@@ -406,7 +402,7 @@ class SnapLock:
         ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
         # Nominal anchor box: the plate the snap is mounted on, so a lock and its socket anchor to
         # the same frame. The snap head stands above it, making bounds() taller.
-        self._solid: Bosl2Solid = Bosl2Solid((post | ridge).back(snap_x).shape, size=[snaplen, snapdiam, 2 * thick])
+        self._solid: "Solid" = (post | ridge).back(snap_x).with_nominal_size([snaplen, snapdiam, 2 * thick])
         self._thick: float = thick
 
     @property
@@ -415,8 +411,7 @@ class SnapLock:
         return self._thick
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the snap-lock tab geometry."""
         return self._solid
 
@@ -486,9 +481,8 @@ class SnapSocket:
         )
         # Nominal anchor box: the plate, as SnapLock uses, so the two halves anchor to the same
         # frame. The socket's ridge stands above the plate, so bounds() is taller.
-        self._solid: Bosl2Solid = Bosl2Solid(
-            ((post | ridge) - divot).forward(snap_x).shape,
-            size=[snaplen, snapdiam, 2 * thick],
+        self._solid: "Solid" = (
+            ((post | ridge) - divot).forward(snap_x).with_nominal_size([snaplen, snapdiam, 2 * thick])
         )
         self._thick: float = thick
 
@@ -498,8 +492,7 @@ class SnapSocket:
         return self._thick
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the snap socket geometry."""
         return self._solid
 

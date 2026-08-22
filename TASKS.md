@@ -746,10 +746,25 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
    15 parts modules. That idiom reads `.shape` off the solid, which an SDF solid does not have —
    asking raises rather than returning a handle — so a part written that way is CSG-only whatever
    else it does. The 28 call sites are converted in phase 3, with the parts that use them.
-3. **Convert parts, module by module.** `hinges` or `joiners` first — same re-wrap pattern, no
-   tapered prisms in the way — to settle whether `@csg_part` becomes per-part or gives way to
-   letting the primitives refuse on their own, and what a converted part's `backend` tag says.
-   Then the rest of the façade-routable modules.
+3. **Convert parts, module by module.** 🔶 **`hinges` is done — all five parts build on either
+   backend**, and `tests/test_part_show.py::BACKEND_NEUTRAL_PARTS` records them, with a companion
+   test that the list matches what actually builds so it cannot drift in either direction.
+
+   The conversion is three mechanical changes per module: import the primitives from
+   `pybosl2.solid` instead of `pybosl2.shapes3d`; swap `Bosl2Solid(x.shape, size=...)` for
+   `x.with_nominal_size(...)`; annotate against the `Solid` protocol. `@csg_part` then simply
+   comes off — **the question of per-part guard versus letting the primitives refuse answers
+   itself**: a converted part needs no guard, because everything it calls already refuses
+   correctly on its own, and an unconverted one is still caught by the primitives it imports.
+   The blanket decorator is only needed while a module is unconverted.
+
+   One protocol gap turned up: `Solid` declared none of the directional moves (`up`, `down`,
+   `left`, `right`, `forward`, `back`), though both backends have had them all along. Code written
+   against the contract — which is what a backend-neutral part is — could not use them without the
+   checker objecting. They are on `Solid` now, with `multmatrix` and the anchoring methods.
+
+   Next: `joiners`, `nema_steppers`, `sliders`, `ball_bearings`, `linear_bearings`, `bottlecaps`,
+   `modular_hose`. None of them uses attachment children, so none waits on phase 5a's second half.
 4. **Re-word the refusal on the parts that keep it**, so it names *this* part and what it needs,
    not "the parts library builds exact CSG geometry".
 
