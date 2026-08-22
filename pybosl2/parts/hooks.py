@@ -20,13 +20,16 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from pybosl2._backend import csg_part
 from pybosl2._native import native
-from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid
+from pybosl2.path2d import Path2D
+from pybosl2.solid import cuboid, cyl, prismoid
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 _opolygon = native("polygon")
 
@@ -194,7 +197,7 @@ class RingHook:
 
         if ri > 0 or custom:
             body = body - _hole_cutter(hole, ri, w, hole_z, hole_rounding, fn, fa, fs)
-        self._solid: Bosl2Solid = Bosl2Solid(body.shape, size=[bx, w, hole_z + ro])
+        self._solid: "Solid" = body.with_nominal_size([bx, w, hole_z + ro])
         self._base_size: list[float] = base_size
         self._hole_z: float = hole_z
         self._outer_radius: float = ro
@@ -221,8 +224,7 @@ class RingHook:
         return self._inner_radius
 
     @property
-    @csg_part("extrudes a 2-D outline with linear_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the ring hook geometry."""
         return self._solid
 
@@ -245,13 +247,13 @@ def _hole_cutter(
     fn: int | None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
+) -> "Solid":
     """Return the solid to subtract for the through-hole, laid along Y and centred at z=hole_z."""
     length_ = w + 2
     if isinstance(hole, list):
         pts = [[float(p[0]), float(p[1])] for p in hole]
-        cut = _opolygon(pts).linear_extrude(height=length_, center=True)
-        return Bosl2Solid(cut).rotate([90, 0, 0]).up(hole_z)
+        cut = Path2D(pts).linear_extrude(height=length_, center=True)
+        return cut.rotate([90, 0, 0]).up(hole_z)
     rnd = hole_rounding if hole_rounding else None
     bore = cyl(height=length_, radius=ri, rounding=rnd, fn=fn, fa=fa, fs=fs).rotate([90, 0, 0]).up(hole_z)
     if hole == HoleType.D:

@@ -36,6 +36,7 @@ from pybosl2._helpers import quantup, union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, INCH
 from pybosl2.distributors import DistributableMatrix
+from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import circle, hexagon
 from pybosl2.shapes2d import hull as _hull2d
 from pybosl2.shapes3d import cyl, prismoid
@@ -44,6 +45,8 @@ from pybosl2.shapes3d.base import Bosl2Solid
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
     from pythonscad import rotate_extrude as _orotate_extrude
+
+    from pybosl2._backend import Solid
 else:
     _opolygon = native("polygon")
     _orotate_extrude = native("rotate_extrude")
@@ -396,21 +399,18 @@ class PhillipsMask:
         ]
         cut_path = [p0, p1, p2, [p2[0], -p2[1]], [p1[0], -p1[1]]]
 
-        wing = _opolygon(cut_path).linear_extrude(height=length + 2)
+        # Path2D's extruders dispatch through the backend; the native polygon()/linear_extrude()
+        # and rotate_extrude() pairs this used are CSG-only (TASKS T14).
+        wing = Path2D(cut_path).linear_extrude(height=length + 2)
         wing = wing.translate([0, 0, -1]).rotate([0, beta, 0]).translate([0, 0, h3])
         cutter = _union(
             wing.multmatrix(m.tolist()) for m in DistributableMatrix.zrot_copies(num_copies=4, radius=b / 2)
         )
         cutter = cutter.rotate([0, 0, 45])
 
-        body = _orotate_extrude(
-            _opolygon([[0, 0], [g / 2, h1], [shaft / 2, length], [0, length]]),
-            fn=_fn,
-            fa=fa,
-            fs=fs,
-        )
-        mask = Bosl2Solid(body - cutter, size=[shaft, shaft, length])
-        self._solid: Bosl2Solid = mask.down(length / 2) if center else mask
+        body = Path2D([[0, 0], [g / 2, h1], [shaft / 2, length], [0, length]]).rotate_extrude(fn=_fn, fa=fa, fs=fs)
+        mask = (body - cutter).with_nominal_size([shaft, shaft, length])
+        self._solid: "Solid" = mask.down(length / 2) if center else mask
         self._shaft: float = shaft
         self._length: float = length
 
@@ -455,8 +455,7 @@ class PhillipsMask:
         return self._length
 
     @property
-    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the Phillips driver-recess mask geometry.
 
         Examples:
