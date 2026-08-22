@@ -926,7 +926,23 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   all -- the second only after the first had been declared clean, which is the argument for
   running the whole suite rather than the touched files.
 
-**25 part classes** build on either backend, with no CSG leaks.
+* **The SDF `regular_prism` anchored half a height too high — on every anchor, since it was
+  written.** Found while converting `HexDriveMask`, whose hex recess is a hexagonal prism rather
+  than an extruded hexagon: `regular_prism(6, radius=5, height=10, anchor=CENTER)` put the prism
+  entirely *above* the origin on SDF and straddling it on CSG, so the same call placed the shape
+  differently on the two backends. `polygon_prism()` builds sitting on z=0, and the anchor offset
+  was applied to it as though it were already centred; it is centred first now.
+
+  **The convergence test should have caught this and could not**: it skipped any façade
+  constructor with a required argument, and `regular_prism` takes `sides`. It supplies arguments
+  from a small table now instead of skipping, and I checked the widened test *does* fail with the
+  bug put back before fixing it again.
+
+  Three SDF tests had encoded the wrong placement -- they sampled at `z = height/2` for
+  "interior", which is the top face once the prism is centred. They sample the centre now, and a
+  new test pins the placement itself.
+
+**27 part classes** build on either backend, with no CSG leaks.
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one

@@ -222,6 +222,14 @@ def test_a_private_name_is_answered_without_meshing() -> None:
 BOUNDS_NOT_YET_EXACT: frozenset[str] = frozenset()
 
 
+#: Arguments for the façade constructors that cannot be called bare, so the convergence check
+#: below exercises them rather than skipping them. A bare call is used for everything else.
+CONSTRUCTOR_ARGUMENTS: dict[str, dict[str, object]] = {
+    "regular_prism": {"sides": 6, "radius": 5, "height": 10},
+    "prismoid": {"size1": [10, 10], "size2": [6, 6], "height": 8},
+}
+
+
 def test_the_same_call_builds_the_same_geometry_on_both_backends() -> None:
     """PAR-5: an identical call differs only in tessellation, so both converge at high resolution."""
     import inspect
@@ -239,13 +247,20 @@ def test_the_same_call_builds_the_same_geometry_on_both_backends() -> None:
             if name in {"current_backend", "known_backends", "effective_defaults", "given_arguments"}:
                 continue  # not shape constructors
             parameters = inspect.signature(function).parameters.values()
-            if any(p.default is inspect.Parameter.empty and p.kind is not p.VAR_POSITIONAL for p in parameters):
+            arguments = CONSTRUCTOR_ARGUMENTS.get(name, {})
+            required = [
+                p for p in parameters if p.default is inspect.Parameter.empty and p.kind is not p.VAR_POSITIONAL
+            ]
+            if required and not arguments:
                 continue
+            # A constructor that cannot be called bare used to be skipped outright, which left
+            # `regular_prism` unchecked -- and its SDF form anchored half a height too high on
+            # every anchor, for as long as it had existed. Give it arguments instead of skipping.
             built = {}
             for backend in ("csg", "sdf"):
                 with use_backend(backend):
                     try:
-                        built[backend] = function().bounds()
+                        built[backend] = function(**arguments).bounds()
                     except (ValueError, UnsupportedByBackendError):
                         built = {}
                         break

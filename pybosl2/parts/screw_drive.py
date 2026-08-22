@@ -34,13 +34,13 @@ from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import quantup, union
 from pybosl2._native import native
-from pybosl2.constants import BOTTOM, INCH
+from pybosl2.constants import BOTTOM, CENTER, INCH
 from pybosl2.distributors import DistributableMatrix
 from pybosl2.path2d import Path2D
-from pybosl2.shapes2d import circle, hexagon
+from pybosl2.shapes2d import circle
 from pybosl2.shapes2d import hull as _hull2d
-from pybosl2.shapes3d import cyl, prismoid
 from pybosl2.shapes3d.base import Bosl2Solid
+from pybosl2.solid import cyl, prismoid, regular_prism
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
@@ -514,10 +514,17 @@ class HexDriveMask:
         self._center: bool = center
 
         realsize = 1.0072 * size + 0.0341 + 2 * slop
-        solid = hexagon(inner_diameter=realsize).linear_extrude(height=l, center=center)
+        # A hexagonal prism, not a hexagon extruded: regular_prism() builds on either backend
+        # where the 2-D hexagon is CSG geometry. The two were checked to give the same solid.
+        solid = regular_prism(
+            6,
+            inner_diameter=realsize,
+            height=l,
+            anchor=CENTER if center else BOTTOM,
+        )
         # Nominal anchor box: the hex key's across-flats size, which is what the fastener is named
         # for. The recess measures 2/sqrt(3) of that across the corners, so bounds() is wider in X.
-        self._solid: Bosl2Solid = Bosl2Solid(solid.shape, size=[realsize, realsize, l])
+        self._solid: "Solid" = solid.with_nominal_size([realsize, realsize, l])
         self._realsize: float = realsize
 
     @property
@@ -546,8 +553,7 @@ class HexDriveMask:
         return self._realsize
 
     @property
-    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the hex drive mask geometry."""
         return self._solid
 
@@ -759,7 +765,7 @@ class RobertsonMask:
         self._l: float | None = l
         self._angle: float = angle
         self._slop: float = slop
-        self._solid: Bosl2Solid = (tapered & cone).down(robertson_depth)
+        self._solid: "Solid" = (tapered & cone).down(robertson_depth)
 
     @property
     def size(self) -> int:
@@ -783,7 +789,7 @@ class RobertsonMask:
 
     @property
     @csg_part("builds its recess from a 2-D profile, extruded and revolved")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the Robertson driver-recess mask geometry.
 
         Examples:

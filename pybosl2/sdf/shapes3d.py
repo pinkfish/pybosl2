@@ -3092,6 +3092,12 @@ def regular_prism(
         chamfer_bottom=c1v,
         res=res,
     )
+    # polygon_prism() sits on z=0, but the anchor offset below is computed from a hull centred on
+    # it, so the prism has to be centred first. Without this every anchor came out half a height
+    # too high -- anchor=CENTER put the prism entirely above the origin, and anchor=TOP put it
+    # where CENTER belonged. The CSG twin anchors correctly, so the same call placed the shape
+    # differently on the two backends (SPEC B-3).
+    prism = prism.translate([0.0, 0.0, -length / 2])
     offset = _anchor_offset_hull3(
         [[p[0], p[1], -length / 2] for p in pts] + [[p[0], p[1], length / 2] for p in pts],
         anchor,
