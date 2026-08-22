@@ -617,6 +617,17 @@ class SolidBackend(Protocol):
         """
         ...
 
+    def rotate_extrude(self, paths: Any, angle: float, arguments: Mapping[str, Any]) -> Solid:
+        """Revolve 2-D outlines about the Z axis.
+
+        The second 2-D -> 3-D entry point both backends can express, and the one that suits a
+        distance field best: a surface of revolution's field is the profile's own field read at
+        ``(hypot(x, y), z)``, so the SDF backend needs no meshing and no approximation for it.
+        Like :meth:`linear_extrude` it takes raw point paths rather than a 2-D shape object,
+        because 2-D *geometry* is a CSG notion while a path is backend-neutral.
+        """
+        ...
+
     def stroke(
         self,
         path: Path3D,

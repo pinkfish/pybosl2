@@ -21,16 +21,15 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
-from pybosl2._native import native
-from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.path2d import Path2D
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
-_opolygon = native("polygon")
-_orotate_extrude = native("rotate_extrude")
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
+
 
 __all__ = ["HoseSegment", "HoseType", "modular_hose_radius"]
 
@@ -267,9 +266,10 @@ class HoseSegment:
         (_mnx, mny), (mxx, mxy) = _bounds(shape)
         cy = (mny + mxy) / 2
         poly = [[x, y - cy] for x, y in shape]
-        self._solid: Bosl2Solid = Bosl2Solid(
-            _orotate_extrude(_opolygon(poly), fn=fn, fa=fa, fs=fs),
-            size=[2 * mxx, 2 * mxx, mxy - mny],
+        # Path2D.rotate_extrude() dispatches through the backend; the native
+        # polygon()/rotate_extrude() pair this used is CSG-only (TASKS T14).
+        self._solid: "Solid" = (
+            Path2D(poly).rotate_extrude(fn=fn, fa=fa, fs=fs).with_nominal_size([2 * mxx, 2 * mxx, mxy - mny])
         )
         self._size: float = size
         self._type: HoseType = type
@@ -285,8 +285,7 @@ class HoseSegment:
         return self._type
 
     @property
-    @csg_part("revolves its profile with rotate_extrude(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the hose segment geometry."""
         return self._solid
 

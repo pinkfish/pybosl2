@@ -39,13 +39,16 @@ from pybosl2._native import native
 from pybosl2.constants import BOTTOM, RIGHT
 from pybosl2.distributors import DistributableMatrix
 from pybosl2.parts.threading import ThreadHelix
-from pybosl2.shapes3d import Bosl2Solid, cyl, prismoid
+from pybosl2.path2d import Path2D
+from pybosl2.solid import cyl, prismoid
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
     from pythonscad import rotate_extrude as _orotate_extrude
+
+    from pybosl2._backend import Solid
 else:
     _opolygon = native("polygon")
     _orotate_extrude = native("rotate_extrude")
@@ -249,7 +252,7 @@ def _pco1881_profile(diameter: BottleThreadSpec) -> Any:
 
 def _neck_thread(
     diameter: BottleThreadSpec, fn: int | None = None, fa: float | None = None, fs: float | None = None
-) -> Bosl2Solid:
+) -> "Solid":
     """Return the neck's external thread ridge with its two thread breaks (BOSL2 thread_helix + prismoids).
 
     The lead-in ``taper`` BOSL2 applies is not reproduced (this port's thread_helix has no taper).
@@ -289,17 +292,18 @@ def _build_neck(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
+) -> "Solid":
     height = diameter.support_h + diameter.neck_h
-    body = Bosl2Solid(
-        _orotate_extrude(_opolygon([[float(x), float(y)] for x, y in profile]), fn=fn),
-        size=[diameter.support_d, diameter.support_d, height],
+    body = (
+        Path2D([[float(x), float(y)] for x, y in profile])
+        .rotate_extrude(fn=fn)
+        .with_nominal_size([diameter.support_d, diameter.support_d, height])
     )
     thread = _neck_thread(diameter, fn=fn, fa=fa, fs=fs)
     if bottom_half:
         thread = thread.bottom_half()
     thread = thread.up(height - diameter.lip_h)
-    return Bosl2Solid((body | thread).shape, size=[diameter.support_d, diameter.support_d, height])
+    return (body | thread).with_nominal_size([diameter.support_d, diameter.support_d, height])
 
 
 class BottleCapTexture(Enum):
@@ -317,7 +321,7 @@ def _build_cap(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
+) -> "Solid":
     _ = texture.value if isinstance(texture, BottleCapTexture) else texture
     w = diameter.cap_id + 2 * wall
     height = diameter.cap_tamper_ring_h + wall
@@ -336,7 +340,7 @@ def _build_cap(
     )
     thread_solid = cap_thread.shape.up(thread_height / 2 + wall + 2)
     cap = (shell | thread_solid).rotate([0, 0, 45])
-    return Bosl2Solid(cap.shape, size=[w, w, height])
+    return cap.with_nominal_size([w, w, height])
 
 
 class BottleCaps:
@@ -352,7 +356,7 @@ class BottleCaps:
     """
 
     @staticmethod
-    def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
+    def pco1810_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> "Solid":
         """Return a PCO-1810 threaded beverage-bottle neck.
 
         Args:
@@ -381,7 +385,7 @@ class BottleCaps:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Return a cap for a PCO-1810 bottle. ``texture`` other than ``"none"`` falls.
 
         back to a plain wall (surface texturing is not in this port).
@@ -408,7 +412,7 @@ class BottleCaps:
         return _build_cap(_PCO1810, wall, texture, fn=fn, fa=fa, fs=fs)
 
     @staticmethod
-    def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> Bosl2Solid:
+    def pco1881_neck(fn: int | None = None, fa: float | None = None, fs: float | None = None) -> "Solid":
         """Return a PCO-1881 threaded beverage-bottle neck.
 
         Args:
@@ -437,7 +441,7 @@ class BottleCaps:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Return a cap for a PCO-1881 bottle. ``texture`` other than ``"none"`` falls.
 
         back to a plain wall (surface texturing is not in this port).

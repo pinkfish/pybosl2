@@ -170,13 +170,32 @@ def test_sdf_extrude_takes_the_rim_roundings() -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("call", ["polygon", "geometry", "fill", "rotate_extrude"])
+@pytest.mark.parametrize("call", ["polygon", "geometry", "fill"])
 def test_path_2d_geometry_is_csg_only(call) -> None:  # type: ignore[no-untyped-def]
+    """These hand back 2-D *geometry*, which is a CSG notion; a path itself is backend-neutral."""
     from pybosl2.exceptions import UnsupportedByBackendError
     from pybosl2.path2d import Path2D
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         getattr(Path2D(SQUARE), call)()
+
+
+@pytest.mark.parametrize("call", ["linear_extrude", "rotate_extrude"])
+def test_the_2d_to_3d_operators_build_on_either_backend(call) -> None:  # type: ignore[no-untyped-def]
+    """They take a *path*, not 2-D geometry, so both backends can express them.
+
+    `rotate_extrude` used to refuse on SDF, naming `path_sweep()` instead -- but a surface of
+    revolution is the operation a distance field handles best: its field is the profile's own
+    field read at `(hypot(x, y), z)`. It is the last thing keeping `bottlecaps` and
+    `modular_hose` CSG-only.
+    """
+    from pybosl2.path2d import Path2D
+
+    profile = [[6, -1], [10, -1], [10, 1], [6, 1]]
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            built = getattr(Path2D(profile), call)(**({"height": 5} if call == "linear_extrude" else {}))
+        assert built.backend == backend
 
 
 def test_2d_shape_constructors_refuse_on_another_backend() -> None:

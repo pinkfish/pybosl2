@@ -853,6 +853,38 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   `TrussClip` agrees exactly on both backends now (33.18 x 7.8 x 19.6) and is in
   `BACKEND_NEUTRAL_PARTS`; **6 of cubetruss's 8 parts** build on either backend.
 
+* **`walls`: 3 of 6 converted, via `Path2D.linear_extrude()`.** After the census put 2-D profile
+  extrusion at the top of the remaining blockers, it turned out the SDF backend already implements
+  the `linear_extrude` backend hook (`polygon_prism`) -- so `Path2D(profile).linear_extrude()`
+  dispatches, where the native `polygon().linear_extrude()` pair the parts used is CSG-only.
+  `NarrowingStrut`, `CorrugatedWall` and `ThinningTriangle` build on either backend now.
+
+  **Checking the backend *tag*, not just that it built, caught two silent leaks.** Lifting the
+  guards made `SparseWall` and `ThinningWall` "succeed" on the SDF backend while handing back
+  `CsgSolid` geometry tagged `csg` -- precisely what S-46a exists to stop, and invisible to a
+  bounds check. `SparseWall` unions 2-D polygons into a region before extruding (a region is a CSG
+  notion) and `ThinningWall` builds from a VNF; both keep a guard, now naming those reasons, and
+  `SparseCuboid` keeps one because it is a `SparseWall` clipped to a box.
+
+* **`rotate_extrude()` on the SDF backend.** A revolve is the 2-D -> 3-D operation a distance
+  field handles *best*: the solid's field at `(x, y, z)` is the profile's own 2-D field read at
+  `(hypot(x, y), z)`, because every point's distance to a surface of revolution is its distance
+  within the half-plane it lies in. So it is exact wherever `_polygon_sdf_xy` is -- no meshing, no
+  approximation of the revolve -- and it handles concave profiles for the same reason. Partial
+  angles reuse the sector cut and the exact sector bounds written for PAR-5's `pie_slice`.
+
+  It is a backend hook now (`SolidBackend.rotate_extrude`), implemented on both, and
+  `Path2D.rotate_extrude()` dispatches instead of calling `_require_csg`. `modular_hose` and
+  `bottlecaps` are converted onto it; `HoseSegment` builds on either backend, while the bottle
+  necks and caps still refuse -- their threads reach `spiral_sweep`, and the refusal now comes
+  from the primitive that is actually missing rather than from a blanket part guard.
+
+  One native quirk found on the way: `rotate_extrude(360.0)` positionally raises `TypeError: error
+  during parsing`, while `rotate_extrude(angle=360.0)` is fine. The CSG backend passes it by
+  keyword.
+
+**22 part classes** build on either backend.
+
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one
   documents and supports it ("a scalar distance to shift the plane along *v*"), so the same call
