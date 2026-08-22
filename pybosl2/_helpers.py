@@ -18,13 +18,13 @@ import math
 import operator
 from enum import Enum
 from functools import reduce
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pybosl2._edges_lang import Anchor
 from pybosl2.defaults import resolve_facets
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
     from pybosl2.paths import PathLike
     from pybosl2.shapes2d import Bosl2Shape2D
@@ -165,8 +165,16 @@ def frame_map4_yz(y_axis: Any, z_axis: Any) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 
-def union(shapes: Any) -> Any:
-    """Boolean union of an iterable of native PythonSCAD shapes (``reduce(operator.or_, shapes)``)."""
+_Unionable = TypeVar("_Unionable")
+
+
+def union(shapes: "Iterable[_Unionable]") -> _Unionable:
+    """Boolean union of an iterable of shapes (``reduce(operator.or_, shapes)``).
+
+    Generic in the shape type, so unioning solids gives a solid back rather than `Any` -- which
+    otherwise spreads through every part that builds by unioning a list of pieces, and hides
+    exactly the mistakes the `Solid` contract exists to catch.
+    """
     return reduce(operator.or_, shapes)
 
 

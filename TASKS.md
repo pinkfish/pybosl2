@@ -763,8 +763,23 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
    against the contract — which is what a backend-neutral part is — could not use them without the
    checker objecting. They are on `Solid` now, with `multmatrix` and the anchoring methods.
 
-   Next: `joiners`, `nema_steppers`, `sliders`, `ball_bearings`, `linear_bearings`, `bottlecaps`,
-   `modular_hose`. None of them uses attachment children, so none waits on phase 5a's second half.
+   **Six modules converted; the façade-routable set is now exhausted.** `hinges`, `joiners`,
+   `nema_steppers`, `sliders`, `screws` and both bearing modules, giving **12 part classes plus
+   the bearing factories** that build on either backend, all pinned by `BACKEND_NEUTRAL_PARTS` and
+   a per-part geometry-parity test.
+
+   The rest are genuinely CSG-only, and it is worth recording why so nobody re-derives it: `walls`,
+   `hooks` and `gears` build from `polygon().linear_extrude()`; `bottlecaps` and `modular_hose`
+   from native `rotate_extrude`; `sliders`' `Rail` and `walls` from `VNF.polyhedron()`, which hands
+   back a bare native; `cubetruss` and `tripod_mounts` through `chamfer_edge_mask`/`edge_mask`;
+   `threading` through `spiral_sweep`; `wiring` through `path_sweep`. Each needs its 2-D or
+   sweeping operation to gain an SDF form — phase 5's profile/mask work, not phase 3's.
+
+   **Two constructor arguments turned out to be avoidable rather than blocking.** `Slider` passed
+   `orient=` to `prismoid`, which is CSG-only — but `reorient()` is now on both backends and does
+   the same thing; the construction and method forms were verified to give identical bounds before
+   the swap. `Dovetail` called the native `hull()` on `.shape` handles, which the façade's `hull()`
+   does on either backend. Prefer the method form in a part: it is what makes the part portable.
 4. **Re-word the refusal on the parts that keep it**, so it names *this* part and what it needs,
    not "the parts library builds exact CSG geometry".
 

@@ -18,14 +18,18 @@
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, LEFT
 from pybosl2.distributors import DistributableMatrix
-from pybosl2.shapes3d import Bosl2Solid, cuboid, prismoid
+from pybosl2.shapes3d import Bosl2Solid
+from pybosl2.solid import cuboid, prismoid
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 from pybosl2.vnf import VNF
 
 __all__ = ["Slider", "Rail"]
@@ -112,21 +116,22 @@ class Slider:
             parts.append(wallcube.multmatrix(m.tolist()))
         bev_h = h / 2 * math.tan(math.radians(angle))
         for m in DistributableMatrix.xflip_copy(offset=w / 2 + slop + 0.02):
+            # anchor + orient as two steps rather than construction arguments: `orient=` is a
+            # CSG-only constructor argument, while reorient() is the same transform on either
+            # backend (verified identical to the construction form). TASKS T14 phase 3.
             slid = prismoid(
                 [h, l],
                 [0, l - w],
                 height=bev_h + 0.01,
-                orient=LEFT,
                 anchor=BOTTOM,
                 fn=fn,
                 fa=fa,
                 fs=fs,
-            )
+            ).reorient(anchor=BOTTOM, orient=LEFT)
             parts.append(slid.up(base + h / 2).multmatrix(m.tolist()))
         result = _union(parts).down(base + h / 2).rotate([0, 0, 90])
-        nb = result._native_bounds()
-        size = nb[1] if nb else [l, full_width, h + 2 * base]
-        self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=size)
+        size = list(result.bounds()[1])
+        self._solid: "Solid" = result.with_nominal_size(size)
 
     @property
     def length(self) -> float:
@@ -144,8 +149,7 @@ class Slider:
         return self._height
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the slider geometry."""
         return self._solid
 
@@ -322,7 +326,7 @@ class Rail:
         return self._height
 
     @property
-    @csg_part
+    @csg_part  # Rail builds from a VNF polyhedron, which the SDF backend has no form for
     def shape(self) -> Bosl2Solid:
         """Return the rail geometry."""
         return self._solid

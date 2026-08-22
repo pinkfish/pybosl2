@@ -24,15 +24,11 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
-from pybosl2._native import native
 from pybosl2.parts.enums import Gender
-from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, prismoid, sphere
+from pybosl2.solid import cuboid, cyl, prismoid, sphere
 
-if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
-    from pythonscad import hull as _ohull
-else:
-    _ohull = native("hull")
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = ["Dovetail", "SnapPin", "SnapPinSocket"]
 
@@ -105,11 +101,11 @@ class Dovetail:
             wb = back_width + 2 * hslop
             front = prismoid([w, 0.02], [w + flare, 0.02], height=h, fn=fn, fa=fa, fs=fs).back(slide / 2)
             back = prismoid([wb, 0.02], [wb + flare, 0.02], height=h, fn=fn, fa=fa, fs=fs).forward(slide / 2)
-            body = Bosl2Solid(_ohull(front.shape, back.shape))
+            body = front.hull(back)
         else:
             body = prismoid([w, slide], [w + flare, slide], height=h, fn=fn, fa=fa, fs=fs)
 
-        self._solid: Bosl2Solid = Bosl2Solid(body.shape, size=[w + flare, slide, h])
+        self._solid: "Solid" = body.with_nominal_size([w + flare, slide, h])
         self._gender: Gender = gender
         self._width: float = width
         self._height: float = height
@@ -136,8 +132,7 @@ class Dovetail:
         return self._slide
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the dovetail geometry."""
         return self._solid
 
@@ -213,10 +208,7 @@ class SnapPin:
         # Nominal anchor box: the pin's nominal envelope -- shaft diameter plus the barbs, and the
         # length plus a nominal tip. The moulded barb and rounded tip do not fill it exactly, so
         # bounds() differs slightly; anchoring follows the stated size a socket is cut for.
-        self._solid: Bosl2Solid = Bosl2Solid(
-            pin.shape,
-            size=[diameter + 2 * nub_depth, diameter, length + diameter / 2],
-        )
+        self._solid: "Solid" = pin.with_nominal_size([diameter + 2 * nub_depth, diameter, length + diameter / 2])
         self._diameter: float = diameter
         self._length: float = length
 
@@ -231,8 +223,7 @@ class SnapPin:
         return self._length
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the snap pin geometry."""
         return self._solid
 
@@ -298,9 +289,8 @@ class SnapPinSocket:
         ).up(length / 2 - snap / 2)
         # Nominal anchor box: the matching pin's envelope plus the clearance, so a pin and its
         # socket anchor alike (see SnapPin). The relief cut makes the real solid a little different.
-        self._solid: Bosl2Solid = Bosl2Solid(
-            (bore | relief).shape,
-            size=[diameter + 2 * nub_depth + 2 * clearance, diameter + 2 * clearance, length],
+        self._solid: "Solid" = (bore | relief).with_nominal_size(
+            [diameter + 2 * nub_depth + 2 * clearance, diameter + 2 * clearance, length]
         )
         self._diameter: float = diameter
         self._length: float = length
@@ -316,8 +306,7 @@ class SnapPinSocket:
         return self._length
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the socket geometry."""
         return self._solid
 

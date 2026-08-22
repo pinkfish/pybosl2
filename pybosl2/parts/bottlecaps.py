@@ -279,7 +279,7 @@ def _neck_thread(
                 fs=fs,
             )
             cuts.append(block.multmatrix((m_out @ m_in).tolist()))
-    return thread - union(cuts)  # type: ignore[no-any-return]
+    return thread - union(cuts)
 
 
 def _build_neck(
