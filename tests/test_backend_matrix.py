@@ -500,3 +500,61 @@ def test_circumscribe_is_geometry_not_tessellation() -> None:
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="circumscribe"):
         solid.regular_prism(6, height=10, radius=8, circumscribe=True)  # type: ignore[attr-defined]
+
+
+def test_the_facade_carries_prismoid_edge_treatments_and_refuses_them_on_sdf() -> None:
+    """The SDF prismoid has no exact form for a tapered box's radiused vertical edges."""
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("csg"):
+        rounded = solid.prismoid([40, 40], [20, 20], height=30, rounding=5)  # type: ignore[attr-defined]
+    assert rounded.bounds()[1] == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
+
+    for kwargs in ({"rounding": 5}, {"chamfer": 5}, {"rounding1": 5}, {"chamfer2": 5}):
+        with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
+            solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
+
+
+def test_no_part_needs_a_shape_argument_the_facade_cannot_carry() -> None:
+    """The ratchet for T14 phase 1: a part must be writable against the façade.
+
+    A part that reaches for a constructor argument `pybosl2.solid` does not expose has to import
+    the CSG constructor directly, and that is what stops it building on either backend. Widening
+    the façade closed the last of these (`regular_prism`'s taper, `prismoid`'s rounding); this
+    keeps a new one from creeping back in.
+    """
+    import ast
+    import inspect
+    import pathlib
+
+    import pybosl2.sdf.shapes3d as sdf_shapes
+    import pybosl2.shapes3d as csg_shapes
+
+    unreachable = {}
+    for name in sorted(solid._SHARED_3D):  # type: ignore[attr-defined]
+        functions = [getattr(module, name, None) for module in (solid, csg_shapes, sdf_shapes)]
+        if not all(callable(f) for f in functions):
+            continue
+        facade_params, csg_params, sdf_params = (set(inspect.signature(f).parameters) for f in functions)
+        gap = (csg_params - sdf_params) - facade_params
+        if gap:
+            unreachable[name] = gap
+
+    offenders = []
+    parts_dir = pathlib.Path(inspect.getfile(solid)).parent / "parts"
+    for path in sorted(parts_dir.glob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            called = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", None)
+            if called not in unreachable:
+                continue
+            for keyword in node.keywords:
+                if keyword.arg in unreachable[called]:
+                    offenders.append(f"{path.name}: {called}({keyword.arg}=...)")
+
+    assert not offenders, (
+        "parts passing a constructor argument the façade cannot carry, so they cannot be written "
+        "backend-neutrally (SPEC B-9, TASKS T14):\n  " + "\n  ".join(sorted(set(offenders)))
+    )

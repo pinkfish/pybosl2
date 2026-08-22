@@ -165,6 +165,42 @@ class BaseShape(Colorable, Distributable):
             out._dont_propagate = self._dont_propagate
         return out
 
+    def with_nominal_size(
+        self,
+        size: Sequence[float],
+        anchor: Any = None,
+    ) -> Self:
+        """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
+
+        The box `anchor=` is measured against, which is deliberately allowed to differ from the
+        geometry: a part may anchor to the frame it is designed around -- a gear's pitch circle,
+        a snap fitting's mounting plate -- while its geometry sits inside that box or stands
+        outside it. `bounds()` still reports the geometry.
+
+        This is the backend-neutral replacement for `Bosl2Solid(other.shape, size=...)`, which
+        reaches for a native handle only the CSG backend has and so cannot be written in a part
+        that is meant to build on either backend (TASKS T14).
+
+        Args:
+            size: The nominal box, as ``[x, y, z]``.
+            anchor: Which point of that box the shape is positioned by; keeps the current one when
+                omitted.
+
+        Returns:
+            A new shape around the same geometry, with the nominal box attached.
+
+        """
+        out = self._wrap(self.shape)  # type: ignore[attr-defined]
+        out.size = [float(v) for v in size]
+        if anchor is not None:
+            out.anchor = type(self)(self.shape, out.size, anchor).anchor  # type: ignore[call-arg]
+        return out
+
+    @property
+    def nominal_size(self) -> "list[float] | None":
+        """The nominal anchor box, or None if this shape never had one attached (SPEC S-2a)."""
+        return None if self.size is None else [float(v) for v in self.size]
+
     def __scad__(self) -> Any:
         """Auto-unwrap conversion hook for the PythonSCAD C++ layer interop."""
         return self._unwrap(self)

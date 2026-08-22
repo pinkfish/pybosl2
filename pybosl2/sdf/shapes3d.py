@@ -247,6 +247,10 @@ class SdfSolid(Colorable, Distributable):
         # appearance travels with the field and is applied when it is realized (SPEC C-19)
         self._colour: tuple[Any, float | None] | None = None
         self._modifier: str | None = None
+        # the nominal anchor box (SPEC S-2a), if one was attached; metadata, like colour, so it
+        # survives every exact transform rather than forcing a mesh
+        self._nominal_size: list[float] | None = None
+        self._nominal_anchor: Any = None
 
     def _wrap(
         self,
@@ -271,7 +275,45 @@ class SdfSolid(Colorable, Distributable):
         # colour is metadata, so it survives every exact transform rather than forcing a mesh
         out._colour = self._colour
         out._modifier = self._modifier
+        out._nominal_size = None if self._nominal_size is None else list(self._nominal_size)
+        out._nominal_anchor = self._nominal_anchor
         return out
+
+    def with_nominal_size(self, size: Sequence[float], anchor: Any = None) -> PyShape:
+        """Return this field carrying *size* as its nominal anchor box (SPEC S-2a).
+
+        The SDF twin of :meth:`pybosl2.shapes3d.Bosl2Solid.with_nominal_size`, so a part can name
+        the frame it anchors to without reaching for a native handle -- the thing that made the
+        parts library CSG-only (TASKS T14). Like colour, the box rides the field as metadata and
+        survives every exact transform; `bounds()` still reports the field's own exact extents.
+
+        Args:
+            size: The nominal box, as ``[x, y, z]``.
+            anchor: Which point of that box the shape is positioned by; keeps the current one when
+                omitted.
+
+        Returns:
+            A new shape around the same field, with the nominal box attached.
+
+        """
+        out = self._wrap(
+            self._sdf_fn,
+            self.mn,
+            self.mx,
+            self.cuboid_size,
+            self.cuboid_center,
+            self.cuboid_edge_amounts,
+            self.cuboid_edge_modes,
+        )
+        out._nominal_size = [float(v) for v in size]
+        if anchor is not None:
+            out._nominal_anchor = anchor
+        return out
+
+    @property
+    def nominal_size(self) -> "list[float] | None":
+        """The nominal anchor box, or None if this shape never had one attached (SPEC S-2a)."""
+        return None if self._nominal_size is None else list(self._nominal_size)
 
     # ---- colour: recorded on the field, applied when it is realized (SPEC C-19) -------------
 
