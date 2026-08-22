@@ -40,11 +40,11 @@ if TYPE_CHECKING:
 
     from numpy.typing import NDArray
 
+    from pybosl2._backend import Solid
     from pybosl2.caps import CapSpec, CapsSpec
     from pybosl2.isosurface import MetaballSpec
     from pybosl2.path3d import Path3D
     from pybosl2.paths import PathLike
-    from pybosl2.shapes3d import Bosl2Solid
 
 _EPS = 1e-9
 
@@ -1228,16 +1228,28 @@ class VNF:
         verts = [p for row in st for p in row]
         return cls(verts, faces)
 
-    def polyhedron(self) -> Any:
-        """Native geometry for this VNF via PythonSCAD's ``polyhedron(points=, faces=)``.
+    def polyhedron(self) -> "Solid":
+        """Build this VNF on the active backend.
 
         A VNF winds its faces counter-clockwise seen from outside (so :meth:`volume` is positive
-        for a solid); ``polyhedron()`` wants them the other way round, so each face is reversed
-        on the way out. Handing them over as-is builds the solid inside out -- it still looks
-        right on its own, but every union or difference with it then does the opposite of what
-        it should.
+        for a solid); the native ``polyhedron()`` wants them the other way round, so each face is
+        reversed on the way out. Handing them over as-is builds the solid inside out -- it still
+        looks right on its own, but every union or difference with it then does the opposite of
+        what it should.
+
+        This dispatches through the backend rather than calling the native directly, so a **convex**
+        mesh builds on either. The SDF backend's polyhedron is the intersection of its face
+        half-spaces, which can only be convex, and it refuses a mesh that is not -- so a concave
+        VNF says so here instead of quietly coming back as its own hull (SPEC B-4, B-9).
+
+        Returns:
+            The solid, built by whichever backend is active.
+
+        Raises:
+            ValueError: If this VNF has no vertices or no faces.
+
         """
-        from pythonscad import polyhedron as _polyhedron
+        from pybosl2._backend import get_backend
 
         # The native polyhedron() rejects an empty point list with a bare "There must at least be
         # one point in the polyhedron"; say which VNF that came from instead.
@@ -1246,7 +1258,7 @@ class VNF:
                 f"polyhedron(): this VNF has no geometry to build "
                 f"({len(self.vertices)} vertices, {len(self.faces)} faces)."
             )
-        return _polyhedron(points=self.vertices, faces=[f[::-1] for f in self.faces], convexity=10)
+        return get_backend().polyhedron(self.vertices, [f[::-1] for f in self.faces], convexity=10)
 
     def geometry(self) -> Any:
         """Return the VNF as native polyhedron geometry."""
@@ -1507,7 +1519,7 @@ class VNF:
         closed: bool = False,
         style: VNFStyle = VNFStyle.MIN_EDGE,
         z: Sequence[float] | None = None,
-    ) -> "VNF | Bosl2Solid":
+    ) -> "VNF | Solid":
         """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.
 
         Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are

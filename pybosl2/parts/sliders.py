@@ -25,7 +25,6 @@ from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, LEFT
 from pybosl2.distributors import DistributableMatrix
-from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.solid import cuboid, prismoid
 
 if TYPE_CHECKING:
@@ -308,7 +307,7 @@ class Rail:
             [13, 22, 21],
             [13, 21, 6],
         ]
-        self._solid: Bosl2Solid = Bosl2Solid(VNF(pts, faces).polyhedron(), size=[w, l, h])
+        self._solid: "Solid" = VNF(pts, faces).polyhedron().with_nominal_size([w, l, h])
 
     @property
     def length(self) -> float:
@@ -326,8 +325,8 @@ class Rail:
         return self._height
 
     @property
-    @csg_part("builds from a VNF handed over vertex by vertex, which has no distance-field form")
-    def shape(self) -> Bosl2Solid:
+    @csg_part("builds from a VNF whose faces are not convex, so it has no distance-field form")
+    def shape(self) -> "Solid":
         """Return the rail geometry."""
         return self._solid
 

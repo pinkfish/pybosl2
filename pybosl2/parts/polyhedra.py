@@ -23,13 +23,15 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from pybosl2._backend import csg_part
-from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.vnf import VNF
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = ["RegularPolyhedron", "PolyhedronInfo", "PlatonicSolid"]
 
@@ -263,7 +265,7 @@ class RegularPolyhedron:
         self._diameter: float | None = diameter
         self._inner_radius: float | None = inner_radius
         self._side: float | None = side
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid" | None = None
 
     @property
     def name(self) -> PlatonicSolid:
@@ -281,7 +283,7 @@ class RegularPolyhedron:
 
     @property
     @csg_part("builds from a VNF handed over vertex by vertex, which has no distance-field form")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the polyhedron geometry (cached)."""
         if self._solid is not None:
             return self._solid
@@ -301,7 +303,7 @@ class RegularPolyhedron:
         # Nominal anchor box: the circumsphere, as BOSL2's regular_polyhedron() anchors. Every
         # Platonic solid sits strictly inside its circumsphere except at the vertices, so this is
         # larger than bounds() -- a cube of circumradius 1 measures 2/sqrt(3) across.
-        self._solid = Bosl2Solid(solid, size=[2 * scale, 2 * scale, 2 * scale])
+        self._solid = solid.with_nominal_size([2 * scale, 2 * scale, 2 * scale])
         return self._solid
 
     def show(self) -> Any:

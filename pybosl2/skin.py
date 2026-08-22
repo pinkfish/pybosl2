@@ -44,10 +44,10 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
+    from pybosl2._backend import Solid
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.paths import Path, PathLike
-    from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
 
@@ -89,7 +89,7 @@ class Sweepable:
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
         transforms: bool = False,
-    ) -> VNF | Bosl2Solid | list[list[list[float]]]:
+    ) -> VNF | "Solid" | list[list[list[float]]]:
         """Sweep *shape* along this path.
 
         *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
@@ -137,7 +137,7 @@ class Sweepable:
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> VNF | Bosl2Solid:
+    ) -> VNF | "Solid":
         """Sweep 2-D *shape* along this 2-D path.
 
         For each point on the profile, the path is offset by its X coordinate and lifted to Z = Y,
@@ -169,7 +169,7 @@ class Sweepable:
         center: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> VNF | Bosl2Solid:
+    ) -> VNF | "Solid":
         """Extrude this 2-D profile linearly with optional twist/scale/shift.
 
         The profile is duplicated at *slices* positions along the Z axis; at each level the points
@@ -206,7 +206,7 @@ class Sweepable:
         _closed: bool | None = None,
         style: VNFStyle = VNFStyle.MIN_EDGE,
         start: float = 0.0,
-    ) -> VNF | Bosl2Solid:
+    ) -> VNF | "Solid":
         """Revolve this 2-D profile around the Z axis.
 
         The profile is swept through *angle* degrees (default 360) around Z, starting at
@@ -246,7 +246,7 @@ class Sweepable:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> VNF | Bosl2Solid:
+    ) -> VNF | "Solid":
         """Sweep this 2-D profile along a helix.
 
         The profile follows a helical path of *height* and *radius* (or separate start/end radii)
@@ -305,7 +305,7 @@ class Sweepable:
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> VNF | Bosl2Solid:
+    ) -> VNF | "Solid":
         """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.
 
         or Bosl2Solid (BOSL2 sweep()).
@@ -386,7 +386,7 @@ def _sweep(
     closed: bool = False,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Apply each 4x4 transform to the 2-D *shape* and skin the resulting profiles into a VNF or Bosl2Solid.
 
     Decorative cap types (ARROW, DIAMOND, DOT, etc.) produce a :class:`~pybosl2.shapes3d.Bosl2Solid`
@@ -448,7 +448,7 @@ def _path_sweep(
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
     transforms: bool = False,
-) -> VNF | Bosl2Solid | list[list[list[float]]]:
+) -> VNF | "Solid" | list[list[list[float]]]:
     """Sweep the 2-D *shape* along the 2-D/3-D *path* (internal implementation).
 
     Public API: use :meth:`Sweepable.path_sweep` instead of calling this directly.
@@ -629,7 +629,7 @@ def _skin(
     closed: bool = False,
     style: VNFStyle = VNFStyle.MIN_EDGE,
     z: Sequence[float] | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Blend a stack of 2-D/3-D profiles into a skinned surface (internal implementation).
 
     Public API: use :meth:`VNF.from_skin` instead of calling this directly.
@@ -704,7 +704,7 @@ def _linear_sweep(
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.DEFAULT,
     center: bool | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Extrude a 2-D outline to *height* with optional twist / scale / shift (internal implementation).
 
     Public API: use :meth:`Sweepable.linear_sweep` instead of calling this directly.
@@ -754,7 +754,7 @@ def _rotate_sweep(
     _closed: bool | None = None,
     style: VNFStyle = VNFStyle.MIN_EDGE,
     start: float = 0.0,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Revolve a 2-D *shape* around the Z axis (internal implementation).
 
     Public API: use :meth:`Sweepable.rotate_sweep` instead of calling this directly.
@@ -802,7 +802,7 @@ def _spiral_sweep(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Sweep a 2-D cross-section *poly* along a helix (internal implementation).
 
     Public API: use :meth:`Sweepable.spiral_sweep` instead of calling this directly.
@@ -1126,7 +1126,7 @@ def _offset_sweep(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Extrude a 2-D outline to *height* with optional edge treatments on each rim (BOSL2 ``offset_sweep()``).
 
     Stacks a sequence of radially-offset outlines along the Z axis. The transition
@@ -1362,7 +1362,7 @@ def _convex_offset_extrude(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Offset sweep/extrusion of a 2-D shape (BOSL2 convex_offset_extrude()).
 
     An alias for :func:`_offset_sweep` to match BOSL2's geometry-oriented name.
@@ -1383,7 +1383,7 @@ def _rounded_prism(
     style: VNFStyle = VNFStyle.MIN_EDGE,
     joint_bot: float | dict[str, object] | None = None,
     k_sides: float | list[float] | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Loft/extrusion between two polygons with top, bottom, and side rounding (BOSL2 rounded_prism()).
 
     Args:
@@ -1617,7 +1617,7 @@ def _join_prism(
     steps: int = 16,
     caps: CapsSpec = CapType.BUTT,
     style: VNFStyle = VNFStyle.MIN_EDGE,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Join an arbitrary prism to a base plane with a filleted transition (BOSL2 join_prism()).
 
     Uses :func:`_offset_sweep` with an outward bottom flare (os_circle(radius=-fillet))
@@ -1639,7 +1639,7 @@ def _prism_connector(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Construct a filleted prism connecting two objects (BOSL2 prism_connector()).
 
     Uses :func:`_offset_sweep` with outward flares at both ends (os_circle(radius=-fillet))
@@ -1674,7 +1674,7 @@ def _attach_prism(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Attach a filleted prism with optional rounded end (BOSL2 attach_prism()).
 
     Uses :func:`_offset_sweep` with a bottom flare (os_circle(radius=-fillet)) and top
@@ -1750,7 +1750,7 @@ def _path_sweep2d(
     caps: CapsSpec = CapType.BUTT,
     quality: int = 1,
     style: VNFStyle = VNFStyle.MIN_EDGE,
-) -> VNF | Bosl2Solid:
+) -> VNF | "Solid":
     """Sweep a 2-D *shape* along a 2-D *path* (internal implementation).
 
     Public API: use :meth:`Sweepable.path_sweep2d` instead of calling this directly.

@@ -48,6 +48,7 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
+    from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
     from pybosl2.paths import PathLike
 
@@ -578,7 +579,7 @@ def plot3d(
     zspan: Sequence[float] | None = None,
     base: float = 1,
     style: VNFStyle = VNFStyle.DEFAULT,
-) -> Bosl2Solid:
+) -> "Solid":
     """Return a surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values.
 
     Args:
@@ -626,7 +627,7 @@ def plot3d(
         vnf = VNF.vertex_array(tdata, caps=CapType.BUTT, col_wrap=True, style=style, reverse=True)
         if vnf.volume() < 0:  # ensure outward winding for a valid manifold solid
             vnf = vnf.reverse()
-    return Bosl2Solid(vnf.polyhedron())
+    return vnf.polyhedron()
 
 
 @backend_only("csg")
@@ -645,7 +646,7 @@ def plot_revolution(
     rspan: Sequence[float] | None = None,
     horiz: bool = False,
     style: VNFStyle = VNFStyle.MIN_EDGE,
-) -> Bosl2Solid:
+) -> "Solid":
     """Return a surface of revolution whose radius is modulated by ``radius = f(angle, z)``.
 
     The profile is either a straight taper (*z* plus *radius1*/*radius2*) or an explicit 2-D *path* of
@@ -736,7 +737,7 @@ def plot_revolution(
     vnf = VNF.vertex_array(grid, caps=CapType.BUTT, col_wrap=True, style=style)
     if vnf.volume() < 0:
         vnf = vnf.reverse()
-    return Bosl2Solid(vnf.polyhedron())
+    return vnf.polyhedron()
 
 
 @backend_only("csg")
@@ -813,7 +814,7 @@ def textured_tile(
     gap: float | None = None,
     roughness: Any = None,
     fn: int | None = None,
-) -> Bosl2Solid:
+) -> "Solid":
     """Return a rectangular tile carrying a repeated *texture*.
 
     *texture* is either a **name** from the ported :func:`~pybosl2.texture.texture` engine (e.g.
@@ -893,7 +894,7 @@ def textured_tile(
         reps = resolve_reps(1)
         v, f = vnf_tile_to_solid(verts, faces, sz, reps, tex_depth=tex_depth, inset=inset)
         if is_watertight_topology(v, f):  # sharp VNF tiling closed cleanly
-            return Bosl2Solid(VNF(v, f).polyhedron(), size=[sz[0], sz[1], abs(tex_depth) + 0.1])
+            return VNF(v, f).polyhedron().with_nominal_size([sz[0], sz[1], abs(tex_depth) + 0.1])
         texture = rasterize_vnf_texture(verts, faces)  # else fall back to a sampled height-field
 
     rows, cols = len(texture), len(texture[0])

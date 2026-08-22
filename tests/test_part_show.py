@@ -222,13 +222,32 @@ def test_a_refusal_names_what_the_part_needs() -> None:
 
 
 def test_the_named_reason_reaches_the_message() -> None:
-    """The decorator is only worth its argument if the argument is what the caller reads."""
+    """The decorator is only worth its argument if the argument is what the caller reads.
+
+    `SparseWall` is the subject because its guard is what actually fires: it builds a native 2-D
+    region in its constructor, which no backend dispatch sees, so the refusal comes from `shape`.
+    Where a part reaches a *dispatched* operation first -- `WireBundle` hits `polyhedron()`'s
+    convexity check -- the primitive refuses before the guard is ever consulted, which is the more
+    precise message anyway.
+    """
     import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
     from pybosl2._backend import use_backend
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
-        _ = parts.WireBundle([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]], 3).shape
+        _ = parts.SparseWall(height=50, length=100, thick=4).shape
     message = str(excinfo.value)
-    assert "WireBundle" in message
-    assert "path_sweep()" in message  # the operation that is actually in the way
+    assert "SparseWall" in message
+    assert "2-D polygons" in message  # the operation that is actually in the way
+
+
+def test_a_dispatched_operation_refuses_before_the_part_guard() -> None:
+    """A part that reaches a dispatched op gets the primitive's reason, which is more specific."""
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    route = [[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]]
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="non-convex") as excinfo:
+        _ = parts.WireBundle(route, 3).shape
+    assert ".to_csg()" in str(excinfo.value)

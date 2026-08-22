@@ -577,7 +577,7 @@ class ThinningWall:
         ]
         pts = [[-y, x, z] for x, y, z in pts]
         shape = VNF(pts, faces).polyhedron()
-        self._solid: "Solid" = Bosl2Solid(shape, size=[thick, l1, height])
+        self._solid: "Solid" = shape.with_nominal_size([thick, l1, height])
 
     @property
     def height(self) -> float:

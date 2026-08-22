@@ -33,6 +33,8 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from pybosl2._backend import Solid
+
 from pybosl2._backend import csg_part
 from pybosl2.enums import VNFStyle
 from pybosl2.parts.enums import NutShape
@@ -185,7 +187,7 @@ def _rod_solid(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
+) -> "Solid":
     """Return the external threaded-rod solid, built as a direct manifold polyhedron, trimmed to length.
 
     Each of the *starts* thread starts is one angular sector's vertex-array surface; the sectors are
@@ -209,7 +211,7 @@ def _rod_solid(
     # the helical surface comes out wound inwards, so the merged VNF is flipped back before it
     # becomes a solid -- an inside-out thread inverts every cut it is used for
     surface = VNF(verts, faces)
-    thread = Bosl2Solid((surface if surface.volume() >= 0 else surface.reverse()).polyhedron())
+    thread = (surface if surface.volume() >= 0 else surface.reverse()).polyhedron()
     return thread & cyl(height=length, radius=radius + 1, fn=fn, fa=fa, fs=fs)
 
 
@@ -324,7 +326,7 @@ class ThreadedRod:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid | None" = None
 
     @property
     def diameter(self) -> float:
@@ -353,7 +355,7 @@ class ThreadedRod:
 
     @property
     @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the threaded rod geometry (cached)."""
         if self._solid is not None:
             return self._solid
@@ -440,7 +442,7 @@ class ThreadedNut:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid | None" = None
 
     @property
     def nutwidth(self) -> float:
@@ -479,7 +481,7 @@ class ThreadedNut:
 
     @property
     @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the nut geometry (cached)."""
         if self._solid is not None:
             return self._solid
@@ -578,10 +580,10 @@ class ThreadHelix:
         section = [[(py - pmax) * pitch, px * pitch] for px, py in prof]
         lead = starts * pitch
         height = turns * lead
-        thread: Bosl2Solid | None = None
+        thread: "Solid | None" = None
         for k in range(starts):
             sec = [[x, y + k * pitch] for x, y in section]
-            piece = Bosl2Solid(
+            piece = (
                 Path2D(sec)
                 .spiral_sweep(
                     height=height,
@@ -595,7 +597,7 @@ class ThreadHelix:
                 piece = piece.rotate([0, 0, k * 360 / starts])
             thread = piece if thread is None else (thread | piece)
         assert thread is not None
-        self._solid: Bosl2Solid = thread
+        self._solid: "Solid" = thread
 
     @property
     def diameter(self) -> float:
@@ -624,7 +626,7 @@ class ThreadHelix:
 
     @property
     @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the helix geometry."""
         return self._solid
 
