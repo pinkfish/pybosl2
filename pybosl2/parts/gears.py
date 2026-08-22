@@ -1732,10 +1732,10 @@ class BevelGear:
         # Nominal anchor box: the pitch circle and the nominal face width. A bevel gear's teeth
         # stand outside it and its cone runs past the face width, so this is deliberately
         # smaller than bounds() -- anchor to the gear's design circle, not to its tooth tips.
-        solid = Bosl2Solid(vnf.polyhedron(), size=[2 * pr, 2 * pr, thickness])
+        solid = vnf.polyhedron().with_nominal_size([2 * pr, 2 * pr, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
-        self._solid: Bosl2Solid = solid
+        self._solid: "Solid" = solid
         self._teeth: int = teeth
 
     @property
@@ -1745,7 +1745,7 @@ class BevelGear:
 
     @property
     @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the bevel gear geometry."""
         return self._solid
 
@@ -1829,11 +1829,11 @@ class Worm:
             vnf = _vnf_xflip(vnf)
         # Nominal anchor box: the worm's pitch diameter. The thread crests stand proud of it, so
         # bounds() reports a wider solid -- mating parts line up on the pitch cylinder.
-        self._solid: Bosl2Solid = Bosl2Solid(vnf.polyhedron(), size=[diameter, diameter, length])
+        self._solid: "Solid" = vnf.polyhedron().with_nominal_size([diameter, diameter, length])
 
     @property
     @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the worm geometry."""
         return self._solid
 
@@ -1954,10 +1954,10 @@ class WormGear:
         if left_handed:
             vnf = _vnf_xflip(vnf)
         # Nominal anchor box: the pitch circle, which the teeth stand outside of (see BevelGear).
-        solid = Bosl2Solid(vnf.polyhedron(), size=[2 * p, 2 * p, thickness])
+        solid = vnf.polyhedron().with_nominal_size([2 * p, 2 * p, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=worm_diam, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
-        self._solid: Bosl2Solid = solid
+        self._solid: "Solid" = solid
         self._teeth: int = teeth
 
     @property
@@ -1967,7 +1967,7 @@ class WormGear:
 
     @property
     @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the worm gear geometry."""
         return self._solid
 

@@ -213,6 +213,12 @@ def test_polyhedron_hands_over_faces_the_other_way_round(monkeypatch: pytest.Mon
         captured["points"], captured["faces"] = points, faces
         return object()
 
+    # VNF.polyhedron() goes through the backend now, and the CSG backend reaches the native via
+    # pybosl2._native.native(), which caches the resolved function on first use -- so the cache
+    # entry has to go for the patch to be seen.
+    from pybosl2 import _native
+
+    monkeypatch.delitem(_native._cache, "polyhedron", raising=False)
     monkeypatch.setattr(pythonscad, "polyhedron", fake_polyhedron)
     cube = VNF(
         [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]],

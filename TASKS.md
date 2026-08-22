@@ -909,6 +909,23 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   `SpurGear` and `HerringboneGear` build on either backend; a *helical* gear still refuses, on
   `linear_extrude(twist=)`, which a constant-cross-section prism genuinely cannot express.
 
+* **`VNF.polyhedron()` dispatches through the backend.** It called `pythonscad.polyhedron`
+  directly and handed back a bare native -- the same wart `chamfer_edge_mask` had -- so every mesh
+  in the library was CSG-only by construction. It goes through `get_backend().polyhedron()` now,
+  which means a **convex** mesh builds on either backend and a concave one is refused by the
+  convexity check rather than quietly coming back as its own hull.
+
+  The refusal turns out to be load-bearing: `WireBundle`'s swept tube and `Rail`'s V-groove are
+  both non-convex, and both now say so precisely, at the operation that cannot do it, instead of
+  through a part-level guard. `RegularPolyhedron` is the case that crosses over -- a Platonic
+  solid is convex by definition.
+
+  The change rippled: 14 sites wrapped the result again (`Bosl2Solid(vnf.polyhedron(), size=...)`),
+  which double-wrapped once the call returned a wrapper, and about 30 signatures carried
+  `Bosl2Solid` where a backend-neutral solid now flows. Two rounds of full-suite runs caught them
+  all -- the second only after the first had been declared clean, which is the argument for
+  running the whole suite rather than the touched files.
+
 **25 part classes** build on either backend, with no CSG leaks.
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the

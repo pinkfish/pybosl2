@@ -37,8 +37,8 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, Union
 
 if TYPE_CHECKING:
+    from pybosl2._backend import Solid
     from pybosl2.paths import PathLike
-    from pybosl2.shapes3d import Bosl2Solid
     from pybosl2.vnf import VNF
 
 __all__ = [
@@ -252,7 +252,7 @@ def vnf_with_decorative_caps(
     profile_centers: list[Sequence[float]],
     profile_outdirs: list[Sequence[float]],
     profile_radius: float,
-) -> Bosl2Solid:
+) -> "Solid":
     """Convert VNF to CSG polyhedron, add decorative endcaps, return Bosl2Solid.
 
     Args:
@@ -268,12 +268,11 @@ def vnf_with_decorative_caps(
 
     """
     from pybosl2._stroke3d import endcap_geometry_3d
-    from pybosl2.shapes3d import Bosl2Solid
 
     if closed or not cap_specs:
-        return Bosl2Solid(vnf.polyhedron())
+        return vnf.polyhedron()
 
-    body = Bosl2Solid(vnf.polyhedron())
+    body = vnf.polyhedron()
     width = profile_radius * 2
 
     for spec, center, outdir in [

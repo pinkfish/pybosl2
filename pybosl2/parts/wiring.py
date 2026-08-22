@@ -160,7 +160,7 @@ class WireBundle:
         for i in range(wires):
             ox, oy = offsets[i]
             prof = [[x + ox, y + oy] for x, y in profile]
-            wire = Bosl2Solid(rounded_path.path_sweep(prof).polyhedron())  # type: ignore[attr-defined]
+            wire = rounded_path.path_sweep(prof).polyhedron()  # type: ignore[attr-defined]
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None
