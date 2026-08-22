@@ -2265,7 +2265,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chamfer</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge"</span><span class="p">)</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its body by sweeping a 2-D outline into a mesh with linear_sweep().polyhedron()"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the RC2 plate geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>

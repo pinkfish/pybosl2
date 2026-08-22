@@ -2057,6 +2057,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -2163,10 +2164,16 @@
 
 <div class="viewcode-block" id="chamfer_edge_mask">
 <a class="viewcode-back" href="../../foundational/masking.html#pybosl2.masking.chamfer_edge_mask">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">chamfer_edge_mask</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return a standalone 3-D edge-chamfer cutter of length *length*.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">chamfer_edge_mask</span><span class="p">(</span><span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">excess</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a standalone 3-D edge-chamfer cutter of length *length*, on the active backend.</span>
 
-<span class="sd">    A diamond bar (square prism rotated 45°) centered on its own Z axis.</span>
+<span class="sd">    A diamond bar centred on its own Z axis: a square prism of side ``chamfer * sqrt(2)``, turned</span>
+<span class="sd">    45 degrees, so it reaches *chamfer* along each axis.</span>
+
+<span class="sd">    It is built as a turned prism rather than an extruded diamond polygon so that it works on</span>
+<span class="sd">    either backend -- ``polygon().linear_extrude()`` is a CSG-only construction, and this cutter is</span>
+<span class="sd">    what `cubetruss` and `tripod_mounts` chamfer with, so it was the thing keeping them CSG-only</span>
+<span class="sd">    (TASKS T14). The two forms were checked to give the same solid and the same cut.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        length: Length of the cutter along its axis (default 1).</span>
@@ -2174,13 +2181,13 @@
 <span class="sd">        excess: Extra length past *length* so the cut clears the surface (default 0.1).</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.</span>
+<span class="sd">        The cutter, built by whichever backend is active.</span>
 
 <span class="sd">    """</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span>
 
-    <span class="n">diamond</span> <span class="o">=</span> <span class="p">[[</span><span class="n">chamfer</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">chamfer</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">chamfer</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">diamond</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">length</span> <span class="o">+</span> <span class="n">excess</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span></div>
+    <span class="n">side</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">side</span><span class="p">,</span> <span class="n">side</span><span class="p">,</span> <span class="n">length</span> <span class="o">+</span> <span class="n">excess</span><span class="p">])</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span></div>
 
 
 
@@ -2193,10 +2200,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_orient_mask_along_edge</span><span class="p">(</span>
-    <span class="n">shape</span><span class="p">:</span> <span class="s2">"Bosl2Solid"</span><span class="p">,</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="s2">"Solid"</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Reorient an already-built edge cutter onto the cuboid edge given by *vec*."""</span>
     <span class="n">run_axis</span><span class="p">,</span> <span class="n">a1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">s1</span><span class="p">,</span> <span class="n">s2</span> <span class="o">=</span> <span class="n">_pick_axes</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
     <span class="n">lx</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
@@ -2222,7 +2229,7 @@
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
     <span class="n">vec</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
     <span class="c1"># Wrapped, not the bare native handle the native polygon()/linear_extrude() pair hands back:</span>
@@ -2238,12 +2245,12 @@
     <span class="n">body</span><span class="p">:</span> <span class="s2">"Bosl2Solid"</span><span class="p">,</span>
     <span class="n">edges</span><span class="p">:</span> <span class="n">EdgeAtom</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">EdgeAtom</span><span class="p">]</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
     <span class="n">except_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EdgeAtom</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">children</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">children</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_cutter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid | None"</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid | None"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.</span>
 
 <span class="sd">    Args:</span>
@@ -2262,7 +2269,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"children= (the edge cutter) must be given"</span><span class="p">)</span>
     <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
-    <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">edge_set</span><span class="p">[</span><span class="n">axis</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -2289,7 +2296,7 @@
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Point</span> <span class="o">=</span> <span class="n">CENTER</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_cutter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid | None"</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid | None"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Cut a 2-D mask profile extruded along each selected edge of the box-shaped *body*.</span>
 
 <span class="sd">    Args:</span>
@@ -2310,7 +2317,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">children</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"children= (the 2-D mask path) must be given"</span><span class="p">)</span>
     <span class="n">edge_set</span> <span class="o">=</span> <span class="n">resolve_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">,</span> <span class="n">except_edges</span> <span class="ow">or</span> <span class="p">[])</span>
-    <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">edge_set</span><span class="p">[</span><span class="n">axis</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -2425,7 +2432,7 @@
     <span class="n">inner_pt</span> <span class="o">=</span> <span class="p">[</span><span class="n">corner_pt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">corner_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">chamfer</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
     <span class="n">block</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">chamfer</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">,</span> <span class="n">chamfer</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">Point</span><span class="p">([(</span><span class="n">corner_pt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">inner_pt</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]))</span>
 
-    <span class="n">wedges</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">wedges</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">run_axis</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
         <span class="n">edge_vec</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">corner_vec</span><span class="p">)</span>
         <span class="n">edge_vec</span><span class="p">[</span><span class="n">run_axis</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -2453,7 +2460,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_cutter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid | None"</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid | None"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Round each selected corner of the box-shaped *body* to radius *radius*.</span>
 
 <span class="sd">    Args:</span>
@@ -2482,7 +2489,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"size= (the box's size) must be given"</span><span class="p">)</span>
     <span class="n">corner_set</span> <span class="o">=</span> <span class="n">_corners</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="n">except_corners</span> <span class="ow">or</span> <span class="p">[])</span>
-    <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">corner_set</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">sel</span><span class="p">:</span>
             <span class="n">piece</span> <span class="o">=</span> <span class="n">_corner_cutter</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">CORNER_OFFSETS</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">rad</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
@@ -2512,7 +2519,7 @@
     <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">return_cutter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid | None"</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid | None"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Round all edges and corners bounding the given face(s) of the box-shaped *body*.</span>
 
 <span class="sd">    Args:</span>
@@ -2865,7 +2872,7 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""3-D cutter shape for rounding corners and edges of a box of the given size.</span>
 
 <span class="sd">        Args:</span>
@@ -2905,7 +2912,7 @@
         <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
         <span class="n">corners</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""3-D cutter shape for chamfering corners and edges of a box of the given size.</span>
 
 <span class="sd">        Args:</span>
@@ -2916,7 +2923,7 @@
 <span class="sd">        """</span>
         <span class="c1"># NOT corner_profile(children=mask2d_chamfer(...)): corner_profile ignores children= and</span>
         <span class="c1"># always rounds, which used to make this factory return the roundover cutter verbatim.</span>
-        <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Bosl2Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cutter</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sel</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_corners</span><span class="p">(</span><span class="n">corners</span><span class="p">,</span> <span class="p">[])):</span>
             <span class="k">if</span> <span class="n">sel</span><span class="p">:</span>
                 <span class="n">piece</span> <span class="o">=</span> <span class="n">_corner_chamfer_cutter</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">CORNER_OFFSETS</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">chamfer</span><span class="p">)</span>

@@ -2608,7 +2608,39 @@
 
 <div class="viewcode-block" id="Solid.hull">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.hull">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span> <span class="o">...</span></div>
+
+
+    <span class="c1"># Partitioning. Both backends implement the whole family; it was simply never declared.</span>
+    <span class="c1"># The parameters are `Any` because the two spell their accepted forms differently (a list on</span>
+    <span class="c1"># one, a Sequence on the other) while accepting the same values.</span>
+<div class="viewcode-block" id="Solid.half_of">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.half_of">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">half_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.left_half">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.left_half">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">left_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.right_half">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.right_half">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">right_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.front_half">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.front_half">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">front_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.back_half">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.back_half">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">back_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.top_half">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.top_half">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">top_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.bottom_half">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.bottom_half">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bottom_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="Solid.anchor_point">

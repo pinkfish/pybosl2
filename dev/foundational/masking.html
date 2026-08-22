@@ -992,7 +992,7 @@
       <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.masking.chamfer_edge_mask (Python function) — Return a standalone 3-D edge-chamfer cutter of length length."><span>pybosl2.<wbr>masking.<wbr>chamfer_<wbr>edge_<wbr>mask</span></span>
+      <span title="pybosl2.masking.chamfer_edge_mask (Python function) — Return a standalone 3-D edge-chamfer cutter of length length, on the active backend."><span>pybosl2.<wbr>masking.<wbr>chamfer_<wbr>edge_<wbr>mask</span></span>
     </span>
   </a>
   
@@ -3476,7 +3476,7 @@
       <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.masking.chamfer_edge_mask (Python function) — Return a standalone 3-D edge-chamfer cutter of length length."><span>pybosl2.<wbr>masking.<wbr>chamfer_<wbr>edge_<wbr>mask</span></span>
+      <span title="pybosl2.masking.chamfer_edge_mask (Python function) — Return a standalone 3-D edge-chamfer cutter of length length, on the active backend."><span>pybosl2.<wbr>masking.<wbr>chamfer_<wbr>edge_<wbr>mask</span></span>
     </span>
   </a>
   
@@ -4327,7 +4327,7 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.Mask3D.roundover-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.Mask3D.roundover-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4348,7 +4348,7 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.Mask3D.chamfer-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.Mask3D.chamfer-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4381,8 +4381,13 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 <dl class="py function objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.masking.chamfer_edge_mask">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.masking.</span></span><span class="sig-name descname"><span class="pre">chamfer_edge_mask</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.masking.chamfer_edge_mask.length" title="pybosl2.masking.chamfer_edge_mask.length (Python parameter) — Length of the cutter along its axis (default 1)."><span class="n"><span class="pre">length</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">1.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.masking.chamfer_edge_mask.chamfer" title="pybosl2.masking.chamfer_edge_mask.chamfer (Python parameter) — Chamfer size (the diamond's half-diagonal along each axis, default 1)."><span class="n"><span class="pre">chamfer</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">1.0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.masking.chamfer_edge_mask.excess" title="pybosl2.masking.chamfer_edge_mask.excess (Python parameter) — Extra length past length so the cut clears the surface (default 0.1)."><span class="n"><span class="pre">excess</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.1</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/masking.html#chamfer_edge_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.masking.chamfer_edge_mask" title="Link to this definition">¶</a></dt>
-<dd><p>Return a standalone 3-D edge-chamfer cutter of length <em>length</em>.</p>
-<p>A diamond bar (square prism rotated 45°) centered on its own Z axis.</p>
+<dd><p>Return a standalone 3-D edge-chamfer cutter of length <em>length</em>, on the active backend.</p>
+<p>A diamond bar centred on its own Z axis: a square prism of side <code class="docutils literal notranslate"><span class="pre">chamfer</span> <span class="pre">*</span> <span class="pre">sqrt(2)</span></code>, turned
+45 degrees, so it reaches <em>chamfer</em> along each axis.</p>
+<p>It is built as a turned prism rather than an extruded diamond polygon so that it works on
+either backend – <code class="docutils literal notranslate"><span class="pre">polygon().linear_extrude()</span></code> is a CSG-only construction, and this cutter is
+what <cite>cubetruss</cite> and <cite>tripod_mounts</cite> chamfer with, so it was the thing keeping them CSG-only
+(TASKS T14). The two forms were checked to give the same solid and the same cut.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.masking.chamfer_edge_mask-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.chamfer_edge_mask-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
@@ -4395,10 +4400,10 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.chamfer_edge_mask-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.chamfer_edge_mask-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">Bosl2Solid</span></code> cutter.</p>
+<dd class="field-even"><p>The cutter, built by whichever backend is active.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.masking.chamfer_edge_mask-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.chamfer_edge_mask-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>Bosl2Solid</p>
+<dd class="field-odd"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4441,7 +4446,7 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.corner_profile-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.corner_profile-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid | None</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4459,7 +4464,7 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dd>
 <dt id="pybosl2.masking.edge_mask.except_edges"><span class="sig-name descname">except_edges</span><span class="p"> : </span><span class="desctype"><span class="desctype">list[EdgeAtom] | None</span></span><a class="headerlink" href="#pybosl2.masking.edge_mask.except_edges" title="Permalink to this definition">¶</a></dt><dd><p>Edges to explicitly not mask.</p>
 </dd>
-<dt id="pybosl2.masking.edge_mask.children"><span class="sig-name descname">children</span><span class="p"> : </span><span class="desctype"><span class="desctype">Bosl2Solid | None</span></span><a class="headerlink" href="#pybosl2.masking.edge_mask.children" title="Permalink to this definition">¶</a></dt><dd><p>The pre-built 3-D edge cutter.</p>
+<dt id="pybosl2.masking.edge_mask.children"><span class="sig-name descname">children</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a> | None</span></span><a class="headerlink" href="#pybosl2.masking.edge_mask.children" title="Permalink to this definition">¶</a></dt><dd><p>The pre-built 3-D edge cutter.</p>
 </dd>
 <dt id="pybosl2.masking.edge_mask.size"><span class="sig-name descname">size</span><span class="p"> : </span><span class="desctype"><span class="desctype">tuple[float, float, float] | None</span></span><a class="headerlink" href="#pybosl2.masking.edge_mask.size" title="Permalink to this definition">¶</a></dt><dd><p>The box’s <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y,</span> <span class="pre">z)</span></code> size.</p>
 </dd>
@@ -4472,7 +4477,7 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.edge_mask-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.edge_mask-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid | None</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4505,7 +4510,7 @@ selected edge or corner at once. The BOSL2 spellings remain as aliases of these.
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.edge_profile-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.edge_profile-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid | None</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4547,7 +4552,7 @@ defaults to <code class="docutils literal notranslate"><span class="pre">mask2d_
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.face_profile-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.face_profile-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid | None</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a> | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -4723,7 +4728,7 @@ defaults to <code class="docutils literal notranslate"><span class="pre">mask2d_
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.mask3d_chamfer-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.mask3d_chamfer-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -4773,7 +4778,7 @@ defaults to <code class="docutils literal notranslate"><span class="pre">mask2d_
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.masking.mask3d_roundover-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.masking.mask3d_roundover-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Bosl2Solid</p>
+<dd class="field-even"><p><a class="reference internal" href="solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol">Solid</a></p>
 </dd>
 </dl>
 </dd></dl>
