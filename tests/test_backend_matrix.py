@@ -489,23 +489,36 @@ def test_tessellation_arguments_are_accepted_and_ignored(kwargs: dict[str, objec
         assert abs(got - want) < TOL
 
 
-def test_the_facade_carries_the_csg_only_taper_and_refuses_it_on_sdf() -> None:
-    """The first widening under B-9: `regular_prism`'s taper, which cubetruss's feet need.
+@pytest.mark.parametrize(("radius1", "radius2"), [(8, 4), (4, 8)])
+def test_a_tapered_prism_builds_the_same_way_on_both_backends(radius1: float, radius2: float) -> None:
+    """`regular_prism`'s taper, which cubetruss's feet need (TASKS T14).
 
     The façade used to omit `radius1`/`radius2` entirely, so a part that tapers a prism could not
-    be written against the façade at all -- it had to import the CSG constructor directly, which
-    is what stops it building on either backend (TASKS T14).
+    be written against the façade at all. It carried them but the SDF backend refused; the SDF
+    prism tapers now, the same way the box `prismoid` does -- the cross-section scale is
+    interpolated with height and the profile's field read in that scaled frame.
     """
-    from pybosl2.exceptions import UnsupportedByBackendError
+    built = {}
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            built[backend] = solid.regular_prism(  # type: ignore[attr-defined]
+                6, height=10, radius1=radius1, radius2=radius2
+            ).bounds()
 
-    with use_backend("csg"):
+    for axis in range(3):
+        assert abs(float(built["csg"][1][axis]) - float(built["sdf"][1][axis])) < 0.01
+        assert abs(float(built["csg"][0][axis]) - float(built["sdf"][0][axis])) < 0.01
+    assert float(built["csg"][1][0]) == pytest.approx(2 * max(radius1, radius2), abs=0.01)
+
+
+def test_the_taper_really_narrows_the_prism_on_the_sdf_backend() -> None:
+    """Bounds alone cannot see a taper -- the box is the wide end either way -- so sample it."""
+    with use_backend("sdf"):
         tapered = solid.regular_prism(6, height=10, radius1=8, radius2=4)  # type: ignore[attr-defined]
-    _centre, size = tapered.bounds()
-    assert size[0] == pytest.approx(16.0, abs=0.01)  # the wide end sets the envelope
-    assert size[2] == pytest.approx(10.0, abs=0.01)
-
-    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="radius1"):
-        solid.regular_prism(6, height=10, radius1=8, radius2=4)  # type: ignore[attr-defined]
+    field = tapered.mesh()
+    assert float(field.sample(7.5, 0, -4.5)) < 0  # wide near the bottom ...
+    assert float(field.sample(7.5, 0, 4.5)) > 0  # ... and gone near the top
+    assert float(field.sample(3.5, 0, 4.5)) < 0  # where the narrow end still has material
 
 
 def test_circumscribe_is_geometry_not_tessellation() -> None:

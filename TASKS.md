@@ -956,8 +956,26 @@ work -- every remaining refusal names a specific missing capability:
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
 | `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
 | 2-D geometry (`Bosl2Shape2D`, regions, hulls of circles) | 6 — `RingGear`, `TorxMask`, `TorxMask2d`, `Rack`, `Rack2d`, `SparseWall`/`SparseCuboid` |
-| a tapered `regular_prism` | 2 — `TrussFoot`, `TrussJoiner` |
 | `prismoid(rounding=)` | 1 — `RingHook` |
+
+* **The SDF `regular_prism` tapers now**, which was the last two parts' blocker.
+  `tapered_polygon_prism()` applies the same construction the box `prismoid` uses -- interpolate
+  the cross-section scale with height (clamped at the ends, so no per-point branch) and read the
+  profile's own 2-D field in that scaled frame, dividing the sample point by the scale and
+  multiplying the distance back, which is the standard rule for a uniform scale. Verified against
+  CSG by sampling: wide at the bottom, gone at the top, with the same envelope.
+
+* **Open: a rotated non-box shape reports a conservative SDF box.** `TrussFoot` and `TrussJoiner`
+  turn their octagonal plugs half a facet, and the SDF `rotate()` computes the new box by
+  transforming the old box's *corners* -- exact for a shape that fills its box (a cuboid does; a
+  rotated cube agrees with CSG to the digit) and loose for one that does not. The octagonal prism
+  comes out 31.36 across where CSG measures 22.17.
+
+  The geometry is right and the box is a superset, so nothing is clipped -- `test_a_conservative_
+  bounds_part_still_builds_the_right_solid` asserts exactly that, since **under**-reporting would
+  clip the mesh. Closing it properly means carrying the profile outline on the shape, the way
+  `cuboid_size` is carried, so a rotation can recompute the box from the outline rather than from
+  the box.
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one
