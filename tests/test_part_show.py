@@ -115,6 +115,7 @@ BACKEND_NEUTRAL_PARTS = frozenset(
     {
         "CorrugatedWall",
         "Dovetail",
+        "HerringboneGear",
         "HoseSegment",
         "KnuckleHinge",
         "KnuckleHingePair",
@@ -129,6 +130,7 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "SnapPin",
         "SnapPinSocket",
         "SnapSocket",
+        "SpurGear",
         "ThinningTriangle",
         "Truss",
         "TrussClip",

@@ -186,7 +186,14 @@ class SdfBackend:
         rounding_top = float(options.pop("rounding_top", 0))
         rounding_bottom = float(options.pop("rounding_bottom", 0))
         res = int(options.pop("res", 10))
-        for name in ("twist", "scale", "slices", "convexity", "fa", "fn", "fs"):
+        # `convexity` is a preview hint for the CSG renderer and `fn`/`fa`/`fs` describe
+        # tessellation; a field has neither, so they are accepted and ignored (SPEC B-9's
+        # carve-out) rather than refused. Refusing `convexity` was keeping a plain spur gear off
+        # this backend over a rendering hint.
+        for name in ("convexity", "fa", "fn", "fs"):
+            options.pop(name, None)
+        # These three shear the profile as it rises, which polygon_prism cannot express at all.
+        for name in ("twist", "scale", "slices"):
             if options.pop(name, None) not in (None, 0, 1, False):
                 raise UnsupportedByBackendError(
                     f"linear_extrude({name}=)",

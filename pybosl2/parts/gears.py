@@ -48,11 +48,15 @@ from pybosl2.math import lerp as _math_lerp
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid, cylinder
+from pybosl2.solid import cyl
 from pybosl2.vectors import v_theta as _v_theta
 from pybosl2.vnf import VNF
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import polygon as _opolygon
+
+    from pybosl2._backend import Solid
+    from pybosl2.regions import Region
 else:
     _opolygon = native("polygon")
 
@@ -1046,14 +1050,15 @@ class SpurGear2d:
             perim += _zrot_pts(tooth, -i * 360 / teeth + gear_spin)
         if hide > 0:
             perim.append([0, 0])
-        shape = _opolygon(_dedup(perim))
         _or = _outer_radius_basic(center, teeth, None, False, helical, ps, shorten)
-        result = Bosl2Shape2D(shape, size=[2 * _or, 2 * _or])
-        if shaft_diam > 0 and not hide:
-            from pybosl2.flat import circle as _circle2d
-
-            result = result - _circle2d(diameter=shaft_diam)
-        self._shape: Bosl2Shape2D = result
+        # The perimeter as a path, not as 2-D geometry. A path is backend-neutral -- it is what
+        # `Path2D.linear_extrude()` dispatches on -- while a `Bosl2Shape2D` is a CSG notion, and
+        # that was what kept every gear CSG-only (TASKS T14).
+        self._shape: Path2D = Path2D(_dedup(perim), closed=True)
+        # A bore is a hole, and one path cannot describe an outline with a hole in it. It is cut
+        # where the geometry is built instead -- see `bore`, and SpurGear, which subtracts it as a
+        # cylinder for exactly the same result.
+        self._shaft_diam: float = shaft_diam if not hide else 0.0
         self._teeth: int = teeth
         self._mod: float | None = mod
 
@@ -1063,19 +1068,50 @@ class SpurGear2d:
         return self._teeth
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Shape2D:
-        """Return the 2-D gear outline."""
+    def shape(self) -> Path2D:
+        """Return the gear's perimeter as a closed path.
+
+        A path, not 2-D geometry: `Path2D.linear_extrude()` dispatches through the backend, so a
+        gear built from this outline is not tied to CSG. It carries the teeth only -- a bore is a
+        hole, which one path cannot describe; see :attr:`bore`.
+        """
         return self._shape
 
+    @property
+    def bore(self) -> float:
+        """The shaft bore diameter this gear was asked for, or 0 for none.
+
+        The bore is not part of :attr:`shape`, which is a single closed path. Cut it where the
+        geometry is built -- :class:`SpurGear` subtracts it as a cylinder, which is the same solid
+        the old 2-D difference produced.
+        """
+        return self._shaft_diam
+
+    def region(self) -> "Region":
+        """Return the gear as a :class:`~pybosl2.regions.Region`: the perimeter, less the bore.
+
+        The form to use when the 2-D geometry itself is wanted, hole and all. It is CSG-only, as
+        every region is -- an SDF prism has no way to express a hole.
+        """
+        from pybosl2.regions import Region
+
+        if self._shaft_diam <= 0:
+            return Region([self._shape])
+        return Region.with_holes(self._shape, Path2D.circle2d(radius=self._shaft_diam / 2))
+
     def show(self) -> Any:
-        """Display the gear in the viewer, and return it.
+        """Display the gear outline in the viewer, and return it.
+
+        A path has no geometry to render on its own, so what is displayed is the region's
+        geometry -- the outline with its bore, which is what the gear looks like in 2-D. Rendering
+        is therefore CSG-only even though :attr:`shape` is not; 2-D geometry always is.
 
         Returns:
-            The shape, so the call can be chained or assigned.
+            The path, so the call can be chained or assigned (SPEC S-51).
 
         """
-        return self._shape.show()
+        self.region().geometry().show()
+        return self._shape
 
 
 class SpurGear:
@@ -1199,7 +1235,7 @@ class SpurGear:
                 fn=fn,
                 fa=fa,
                 fs=fs,
-            ).scale([1, 1, -1])
+            ).mirror([0, 0, 1])
             solid = top | bot
         else:
             solid = shape2d.linear_extrude(
@@ -1212,10 +1248,14 @@ class SpurGear:
                 fa=fa,
                 fs=fs,
             )
-        result = Bosl2Solid(solid.shape, size=[2 * _or, 2 * _or, thickness])
+        # The bore is cut here rather than in the 2-D outline: one path cannot describe a hole,
+        # and a cylinder through the blank leaves the same solid (TASKS T14).
+        if shaft_diam > 0 and not hide:
+            solid = solid - cyl(diameter=shaft_diam, height=thickness + 1, fn=fn, fa=fa, fs=fs)
+        result = solid.with_nominal_size([2 * _or, 2 * _or, thickness])
         if gear_spin:
             result = result.rotate([0, 0, gear_spin])
-        self._solid: Bosl2Solid = result
+        self._solid: "Solid" = result
         self._teeth: int = teeth
 
     @property
@@ -1224,8 +1264,7 @@ class SpurGear:
         return self._teeth
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the spur gear geometry."""
         return self._solid
 
