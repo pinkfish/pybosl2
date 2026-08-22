@@ -2064,7 +2064,6 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span>
@@ -4148,7 +4147,7 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bosl2Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Revolve this path about the Y axis into a 3-D solid.</span>
 
 <span class="sd">        See :meth:`~pybosl2.shapes2d.Bosl2Shape2D.rotate_extrude`.</span>
@@ -4163,14 +4162,16 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
 
-<span class="sd">        Raises:</span>
-<span class="sd">            pybosl2.exceptions.UnsupportedByBackendError: under ``use_backend("sdf")`` --</span>
-<span class="sd">            the SDF backend has no revolve; sweep the profile instead via</span>
-<span class="sd">            ``pybosl2.sdf.shapes3d.path_sweep()``.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The revolved solid, built by whichever backend is active. A revolve is exact in a</span>
+<span class="sd">            distance field -- the solid's field is this profile's own field read at</span>
+<span class="sd">            ``(hypot(x, y), z)`` -- so unlike most 2-D work it is not CSG-only.</span>
 
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_require_csg</span><span class="p">(</span><span class="s2">"rotate_extrude"</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygon</span><span class="p">()</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">convexity</span><span class="o">=</span><span class="n">convexity</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_backend</span><span class="p">,</span> <span class="n">given_arguments</span>
+
+        <span class="n">arguments</span> <span class="o">=</span> <span class="n">given_arguments</span><span class="p">({</span><span class="s2">"convexity"</span><span class="p">:</span> <span class="n">convexity</span><span class="p">,</span> <span class="s2">"fn"</span><span class="p">:</span> <span class="n">fn</span><span class="p">,</span> <span class="s2">"fa"</span><span class="p">:</span> <span class="n">fa</span><span class="p">,</span> <span class="s2">"fs"</span><span class="p">:</span> <span class="n">fs</span><span class="p">})</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">([</span><span class="bp">self</span><span class="p">],</span> <span class="n">angle</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_color</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span></div>

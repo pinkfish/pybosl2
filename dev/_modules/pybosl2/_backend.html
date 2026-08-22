@@ -2723,6 +2723,17 @@
 <span class="sd">        """</span>
         <span class="o">...</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">arguments</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Revolve 2-D outlines about the Z axis.</span>
+
+<span class="sd">        The second 2-D -&gt; 3-D entry point both backends can express, and the one that suits a</span>
+<span class="sd">        distance field best: a surface of revolution's field is the profile's own field read at</span>
+<span class="sd">        ``(hypot(x, y), z)``, so the SDF backend needs no meshing and no approximation for it.</span>
+<span class="sd">        Like :meth:`linear_extrude` it takes raw point paths rather than a 2-D shape object,</span>
+<span class="sd">        because 2-D *geometry* is a CSG notion while a path is backend-neutral.</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">stroke</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="n">Path3D</span><span class="p">,</span>

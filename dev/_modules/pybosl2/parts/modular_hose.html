@@ -2049,16 +2049,15 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">csg_part</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">Turtle2DState</span><span class="p">,</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">turtle2d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommandType</span> <span class="k">as</span> <span class="n">TCT</span>  <span class="c1"># noqa: N817</span>
 
-<span class="n">_opolygon</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"polygon"</span><span class="p">)</span>
-<span class="n">_orotate_extrude</span> <span class="o">=</span> <span class="n">native</span><span class="p">(</span><span class="s2">"rotate_extrude"</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
+
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"HoseSegment"</span><span class="p">,</span> <span class="s2">"HoseType"</span><span class="p">,</span> <span class="s2">"modular_hose_radius"</span><span class="p">]</span>
 
@@ -2297,9 +2296,10 @@
         <span class="p">(</span><span class="n">_mnx</span><span class="p">,</span> <span class="n">mny</span><span class="p">),</span> <span class="p">(</span><span class="n">mxx</span><span class="p">,</span> <span class="n">mxy</span><span class="p">)</span> <span class="o">=</span> <span class="n">_bounds</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">cy</span> <span class="o">=</span> <span class="p">(</span><span class="n">mny</span> <span class="o">+</span> <span class="n">mxy</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="n">cy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span>
-            <span class="n">_orotate_extrude</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">poly</span><span class="p">),</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">),</span>
-            <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mxx</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mxx</span><span class="p">,</span> <span class="n">mxy</span> <span class="o">-</span> <span class="n">mny</span><span class="p">],</span>
+        <span class="c1"># Path2D.rotate_extrude() dispatches through the backend; the native</span>
+        <span class="c1"># polygon()/rotate_extrude() pair this used is CSG-only (TASKS T14).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">Path2D</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span><span class="o">.</span><span class="n">rotate_extrude</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mxx</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">mxx</span><span class="p">,</span> <span class="n">mxy</span> <span class="o">-</span> <span class="n">mny</span><span class="p">])</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="p">:</span> <span class="n">HoseType</span> <span class="o">=</span> <span class="nb">type</span>
@@ -2315,8 +2315,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"revolves its profile with rotate_extrude(), which a distance field cannot express"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hose segment geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
