@@ -2053,7 +2053,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">LEFT</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistributableMatrix</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">prismoid</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -2344,7 +2343,7 @@
             <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">21</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">VNF</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">w</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">VNF</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2362,8 +2361,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_height</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds from a VNF handed over vertex by vertex, which has no distance-field form"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds from a VNF whose faces are not convex, so it has no distance-field form"</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the rail geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 

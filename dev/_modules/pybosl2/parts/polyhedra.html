@@ -2051,13 +2051,15 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">csg_part</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"RegularPolyhedron"</span><span class="p">,</span> <span class="s2">"PolyhedronInfo"</span><span class="p">,</span> <span class="s2">"PlatonicSolid"</span><span class="p">]</span>
 
@@ -2296,7 +2298,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">diameter</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">inner_radius</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_side</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">side</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PlatonicSolid</span><span class="p">:</span>
@@ -2317,7 +2319,7 @@
 
     <span class="nd">@property</span>
     <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds from a VNF handed over vertex by vertex, which has no distance-field form"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build and return the polyhedron geometry (cached)."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
@@ -2337,7 +2339,7 @@
         <span class="c1"># Nominal anchor box: the circumsphere, as BOSL2's regular_polyhedron() anchors. Every</span>
         <span class="c1"># Platonic solid sits strictly inside its circumsphere except at the vertices, so this is</span>
         <span class="c1"># larger than bounds() -- a cube of circumradius 1 measures 2/sqrt(3) across.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">solid</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="n">solid</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
 
 <div class="viewcode-block" id="RegularPolyhedron.show">

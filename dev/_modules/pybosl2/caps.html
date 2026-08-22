@@ -2065,8 +2065,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -2294,7 +2294,7 @@
     <span class="n">profile_centers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
     <span class="n">profile_outdirs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
     <span class="n">profile_radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Convert VNF to CSG polyhedron, add decorative endcaps, return Bosl2Solid.</span>
 
 <span class="sd">    Args:</span>
@@ -2310,12 +2310,11 @@
 
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">endcap_geometry_3d</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
     <span class="k">if</span> <span class="n">closed</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">cap_specs</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
 
-    <span class="n">body</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
     <span class="n">width</span> <span class="o">=</span> <span class="n">profile_radius</span> <span class="o">*</span> <span class="mi">2</span>
 
     <span class="k">for</span> <span class="n">spec</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">outdir</span> <span class="ow">in</span> <span class="p">[</span>

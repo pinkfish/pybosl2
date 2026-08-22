@@ -2076,6 +2076,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">openscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyOpenSCAD</span>
 
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
@@ -2617,7 +2618,7 @@
     <span class="n">zspan</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">base</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a surface plot of ``z = f(x, y)`` over a grid of *x*, *y* values.</span>
 
 <span class="sd">    Args:</span>
@@ -2665,7 +2666,7 @@
         <span class="n">vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span><span class="n">tdata</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">col_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vnf</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># ensure outward winding for a valid manifold solid</span>
             <span class="n">vnf</span> <span class="o">=</span> <span class="n">vnf</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span></div>
 
 
 
@@ -2687,7 +2688,7 @@
     <span class="n">rspan</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">horiz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a surface of revolution whose radius is modulated by ``radius = f(angle, z)``.</span>
 
 <span class="sd">    The profile is either a straight taper (*z* plus *radius1*/*radius2*) or an explicit 2-D *path* of</span>
@@ -2778,7 +2779,7 @@
     <span class="n">vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span> <span class="n">col_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vnf</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">vnf</span> <span class="o">=</span> <span class="n">vnf</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span></div>
+    <span class="k">return</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span></div>
 
 
 
@@ -2861,7 +2862,7 @@
     <span class="n">gap</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">roughness</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Return a rectangular tile carrying a repeated *texture*.</span>
 
 <span class="sd">    *texture* is either a **name** from the ported :func:`~pybosl2.texture.texture` engine (e.g.</span>
@@ -2941,7 +2942,7 @@
         <span class="n">reps</span> <span class="o">=</span> <span class="n">resolve_reps</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">v</span><span class="p">,</span> <span class="n">f</span> <span class="o">=</span> <span class="n">vnf_tile_to_solid</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">reps</span><span class="p">,</span> <span class="n">tex_depth</span><span class="o">=</span><span class="n">tex_depth</span><span class="p">,</span> <span class="n">inset</span><span class="o">=</span><span class="n">inset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_watertight_topology</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>  <span class="c1"># sharp VNF tiling closed cleanly</span>
-            <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">VNF</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tex_depth</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">VNF</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tex_depth</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">])</span>
         <span class="n">texture</span> <span class="o">=</span> <span class="n">rasterize_vnf_texture</span><span class="p">(</span><span class="n">verts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span>  <span class="c1"># else fall back to a sampled height-field</span>
 
     <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">texture</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">texture</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
