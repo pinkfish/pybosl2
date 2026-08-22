@@ -3868,13 +3868,20 @@
 <span class="w">    </span><span class="sd">"""Return a polyhedron on the active backend.</span>
 
 <span class="sd">    Backends differ on what a polyhedron means (this is not part of the shared primitive surface):</span>
-<span class="sd">    the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF backend</span>
-<span class="sd">    ignores *faces* and builds the convex hull of *points* as a distance field.</span>
+<span class="sd">    the CSG backend builds the exact mesh from *points* and *faces* (both required); the SDF</span>
+<span class="sd">    backend builds the intersection of the face half-spaces, which can only describe a **convex**</span>
+<span class="sd">    solid. For convex input the two agree. For anything else the SDF backend refuses rather than</span>
+<span class="sd">    handing back the hull -- which would fill the concavities, report the same bounding box, and</span>
+<span class="sd">    give no sign that it was not what you asked for (SPEC B-4, B-9).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        points: The vertices, as ``[x, y, z]`` triples.</span>
-<span class="sd">        faces: Vertex indices per face (CSG backend; ignored by the SDF backend).</span>
+<span class="sd">        faces: Vertex indices per face. Required by the CSG backend; on the SDF backend they must</span>
+<span class="sd">            bound a convex solid.</span>
 <span class="sd">        convexity: Convexity hint for preview rendering (CSG backend).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        UnsupportedByBackendError: On the SDF backend, if *faces* bound a non-convex solid.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The solid, built by whichever backend is active.</span>

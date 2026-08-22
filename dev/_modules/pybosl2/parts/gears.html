@@ -3123,7 +3123,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the 2-D gear outline."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
@@ -3290,7 +3290,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the spur gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
@@ -3476,7 +3476,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the ring gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
@@ -3545,7 +3545,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="n">Bosl2Shape2D</span> <span class="o">=</span> <span class="n">Bosl2Shape2D</span><span class="p">(</span><span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">teeth</span> <span class="o">*</span> <span class="n">center</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">height</span><span class="p">)])</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Shape2D</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the 2-D rack outline."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
@@ -3635,7 +3635,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the rack geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
@@ -3798,7 +3798,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the bevel gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
@@ -3892,7 +3892,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">diameter</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">length</span><span class="p">])</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the worm geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
@@ -4032,7 +4032,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the worm gear geometry."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>

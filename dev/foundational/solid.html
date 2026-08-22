@@ -1711,6 +1711,16 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pybosl2.solid.polyhedron-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.solid.polyhedron-returns" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -5005,6 +5015,16 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pybosl2.solid.polyhedron-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.solid.polyhedron-returns" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -7268,27 +7288,34 @@ fa/fs” (CSG backend).</p>
 
 <dl class="py function objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.solid.polyhedron">
-<span class="sig-prename descclassname"><span class="pre">pybosl2.solid.</span></span><span class="sig-name descname"><span class="pre">polyhedron</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.polyhedron.points" title="pybosl2.solid.polyhedron.points (Python parameter) — The vertices, as [x, y, z] triples."><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.polyhedron.faces" title="pybosl2.solid.polyhedron.faces (Python parameter) — Vertex indices per face (CSG backend; ignored by the SDF backend)."><span class="n"><span class="pre">faces</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.polyhedron.convexity" title="pybosl2.solid.polyhedron.convexity (Python parameter) — Convexity hint for preview rendering (CSG backend)."><span class="n"><span class="pre">convexity</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/solid.html#polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.solid.polyhedron" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pybosl2.solid.</span></span><span class="sig-name descname"><span class="pre">polyhedron</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.polyhedron.points" title="pybosl2.solid.polyhedron.points (Python parameter) — The vertices, as [x, y, z] triples."><span class="n"><span class="pre">points</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.polyhedron.faces" title="pybosl2.solid.polyhedron.faces (Python parameter) — Vertex indices per face."><span class="n"><span class="pre">faces</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.solid.polyhedron.convexity" title="pybosl2.solid.polyhedron.convexity (Python parameter) — Convexity hint for preview rendering (CSG backend)."><span class="n"><span class="pre">convexity</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/solid.html#polyhedron"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.solid.polyhedron" title="Link to this definition">¶</a></dt>
 <dd><p>Return a polyhedron on the active backend.</p>
 <p>Backends differ on what a polyhedron means (this is not part of the shared primitive surface):
-the CSG backend builds the exact mesh from <em>points</em> and <em>faces</em> (both required); the SDF backend
-ignores <em>faces</em> and builds the convex hull of <em>points</em> as a distance field.</p>
+the CSG backend builds the exact mesh from <em>points</em> and <em>faces</em> (both required); the SDF
+backend builds the intersection of the face half-spaces, which can only describe a <strong>convex</strong>
+solid. For convex input the two agree. For anything else the SDF backend refuses rather than
+handing back the hull – which would fill the concavities, report the same bounding box, and
+give no sign that it was not what you asked for (SPEC B-4, B-9).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.solid.polyhedron-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.polyhedron-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt id="pybosl2.solid.polyhedron.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">Any</span></span><a class="headerlink" href="#pybosl2.solid.polyhedron.points" title="Permalink to this definition">¶</a></dt><dd><p>The vertices, as <code class="docutils literal notranslate"><span class="pre">[x,</span> <span class="pre">y,</span> <span class="pre">z]</span></code> triples.</p>
 </dd>
-<dt id="pybosl2.solid.polyhedron.faces"><span class="sig-name descname">faces</span><span class="p"> : </span><span class="desctype"><span class="desctype">Any</span></span><a class="headerlink" href="#pybosl2.solid.polyhedron.faces" title="Permalink to this definition">¶</a></dt><dd><p>Vertex indices per face (CSG backend; ignored by the SDF backend).</p>
+<dt id="pybosl2.solid.polyhedron.faces"><span class="sig-name descname">faces</span><span class="p"> : </span><span class="desctype"><span class="desctype">Any</span></span><a class="headerlink" href="#pybosl2.solid.polyhedron.faces" title="Permalink to this definition">¶</a></dt><dd><p>Vertex indices per face. Required by the CSG backend; on the SDF backend they must
+bound a convex solid.</p>
 </dd>
 <dt id="pybosl2.solid.polyhedron.convexity"><span class="sig-name descname">convexity</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.solid.polyhedron.convexity" title="Permalink to this definition">¶</a></dt><dd><p>Convexity hint for preview rendering (CSG backend).</p>
 </dd>
 </dl>
 </dd>
-<dt class="field-even" id="pybosl2.solid.polyhedron-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.polyhedron-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>The solid, built by whichever backend is active.</p>
+<dt class="field-even" id="pybosl2.solid.polyhedron-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.polyhedron-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.solid.UnsupportedByBackendError" title="pybosl2.solid.UnsupportedByBackendError (Python exception) — Bases: Bosl2Error"><strong>UnsupportedByBackendError</strong></a> – On the SDF backend, if <em>faces</em> bound a non-convex solid.</p>
 </dd>
-<dt class="field-odd" id="pybosl2.solid.polyhedron-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.polyhedron-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pybosl2.solid.Solid" title="pybosl2._backend.Solid (Python class)"><em>Solid</em></a></p>
+<dt class="field-odd" id="pybosl2.solid.polyhedron-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.polyhedron-returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>The solid, built by whichever backend is active.</p>
+</dd>
+<dt class="field-even" id="pybosl2.solid.polyhedron-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.solid.polyhedron-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference internal" href="#pybosl2.solid.Solid" title="pybosl2._backend.Solid (Python class)"><em>Solid</em></a></p>
 </dd>
 </dl>
 <p class="example rubric">Examples</p>

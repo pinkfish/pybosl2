@@ -2346,36 +2346,45 @@
         <span class="k">return</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">value</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">csg_part</span><span class="p">(</span><span class="n">getter</span><span class="p">:</span> <span class="s2">"_F"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"_F"</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Guard a part's ``shape`` property: the parts library builds exact CSG geometry.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">csg_part</span><span class="p">(</span><span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Callable[[_F], _F]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Guard a part's ``shape`` property: this part needs CSG-only machinery.</span>
 
-<span class="sd">    Every part is composed from CSG primitives, meshes and native operations, so none of them has</span>
-<span class="sd">    an SDF form yet. Rather than letting whichever internal path happens to be unguarded hand back</span>
-<span class="sd">    a CSG solid inside a ``use_backend("sdf")`` block -- which cannot combine with the surrounding</span>
-<span class="sd">    SDF geometry, and only fails much later -- the part says so at the point of use (SPEC S-46a).</span>
+<span class="sd">    Most of the parts library is composed from primitives both backends have, and those parts are</span>
+<span class="sd">    written against the façade and build on either (TASKS T14). The ones that keep this guard need</span>
+<span class="sd">    something the SDF backend has no form for -- a 2-D profile extruded or revolved, a sweep along</span>
+<span class="sd">    a path, a mesh handed over vertex by vertex. Rather than letting whichever internal path</span>
+<span class="sd">    happens to be unguarded hand back a CSG solid inside a ``use_backend("sdf")`` block -- which</span>
+<span class="sd">    cannot combine with the surrounding SDF geometry, and only fails much later -- the part says so</span>
+<span class="sd">    at the point of use, and says *what* it needs (SPEC S-46a, E-4).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        getter: The property getter to guard.</span>
+<span class="sd">        reason: What this part does that the SDF backend cannot, as a clause completing</span>
+<span class="sd">            "&lt;Part&gt;.shape needs the csg backend because ...".</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The getter, wrapped so it refuses on any backend but ``"csg"``.</span>
+<span class="sd">        A decorator that wraps the getter so it refuses on any backend but ``"csg"``.</span>
 
 <span class="sd">    """</span>
 
-    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">guarded</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-        <span class="n">active</span> <span class="o">=</span> <span class="n">current_backend</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">active</span> <span class="o">!=</span> <span class="s2">"csg"</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.shape"</span><span class="p">,</span>
-                <span class="n">active</span><span class="p">,</span>
-                <span class="n">hint</span><span class="o">=</span><span class="s2">"the parts library builds exact CSG geometry, so build the part inside "</span>
-                <span class="s1">'`with use_backend("csg")` and bring the surrounding SDF work over with '</span>
-                <span class="s2">".to_csg() to combine them."</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorate</span><span class="p">(</span><span class="n">getter</span><span class="p">:</span> <span class="s2">"_F"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"_F"</span><span class="p">:</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">guarded</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+            <span class="n">active</span> <span class="o">=</span> <span class="n">current_backend</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">active</span> <span class="o">!=</span> <span class="s2">"csg"</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.shape"</span><span class="p">,</span>
+                    <span class="n">active</span><span class="p">,</span>
+                    <span class="n">hint</span><span class="o">=</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">. Build it inside "</span>
+                        <span class="s1">'`with use_backend("csg")` and bring the surrounding SDF work over with '</span>
+                        <span class="s2">".to_csg() to combine them."</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"_F"</span><span class="p">,</span> <span class="n">guarded</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"_F"</span><span class="p">,</span> <span class="n">guarded</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decorate</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">supports</span><span class="p">(</span><span class="n">backend</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
