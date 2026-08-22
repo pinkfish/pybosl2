@@ -942,7 +942,22 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   "interior", which is the top face once the prism is centred. They sample the centre now, and a
   new test pins the placement itself.
 
-**27 part classes** build on either backend, with no CSG leaks.
+* **`RegularPolyhedron` crosses over**, and it is the case that shows why the convexity check was
+  worth writing: a Platonic solid is convex by definition, so it is one of the few meshes in the
+  library with an exact distance-field form. All five agree to 1e-6 on both backends. The nine
+  meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
+  rather than by a blanket part guard.
+
+**28 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+work -- every remaining refusal names a specific missing capability:
+
+| missing capability | parts |
+|---|---|
+| a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
+| `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
+| 2-D geometry (`Bosl2Shape2D`, regions, hulls of circles) | 6 — `RingGear`, `TorxMask`, `TorxMask2d`, `Rack`, `Rack2d`, `SparseWall`/`SparseCuboid` |
+| a tapered `regular_prism` | 2 — `TrussFoot`, `TrussJoiner` |
+| `prismoid(rounding=)` | 1 — `RingHook` |
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one
