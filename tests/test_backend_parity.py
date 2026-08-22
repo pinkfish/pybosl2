@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import inspect
 
+import pytest
+
 import pybosl2.sdf  # noqa: F401  -- registers the "sdf" backend
 from pybosl2._backend import CSG_ONLY_FEATURES, SDF_ONLY_FEATURES
 from pybosl2.exceptions import UnsupportedByBackendError
@@ -265,3 +267,79 @@ def test_the_same_call_builds_the_same_geometry_on_both_backends() -> None:
                     f"{name}() is a different size per backend: csg={csg_size} sdf={sdf_size}"
                 )
     assert checked >= 8, f"only {checked} shapes compared across backends"
+
+
+# ---------------------------------------------------------------------------
+# PAR-5: a difference reports the bounds of what is left, not of what it started with
+# ---------------------------------------------------------------------------
+
+
+def test_a_cut_that_trims_an_end_tightens_the_bounds() -> None:
+    """SPEC PAR-5. An SDF difference used to keep the base's box verbatim.
+
+    Safe, but not exact -- and exact bounds are what this backend is for. It cost a real bug:
+    `TrussClip` squares off its ends with two box cuts and reported the untrimmed height, 6mm
+    taller than the CSG twin of the same source. The field was right the whole time; only the
+    box it advertised was stale.
+    """
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid
+
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            trimmed = cuboid([10, 10, 20]) - cuboid([12, 12, 6]).up(10)  # type: ignore[operator]
+        _centre, size = trimmed.bounds()
+        assert [float(v) for v in size] == pytest.approx([10.0, 10.0, 17.0], abs=0.01), (
+            f"{backend} reported {list(size)} for a solid cut down to 17 tall"
+        )
+
+
+def test_the_tightened_bounds_still_contain_the_solid() -> None:
+    """Under-reporting is worse than over-reporting: `mn`/`mx` is the meshing domain."""
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid
+
+    with use_backend("sdf"):
+        trimmed = cuboid([10, 10, 20]) - cuboid([12, 12, 6]).up(10)  # type: ignore[operator]
+        field = trimmed.mesh()
+        assert float(field.sample(0, 0, 6.9)) < 0  # solid just below the cut ...
+        assert float(field.sample(0, 0, 7.5)) > 0  # ... and gone just above it
+        assert trimmed.mx[2] == pytest.approx(7.0)  # so the box ends exactly where the solid does
+
+
+def test_a_cut_that_cannot_be_proved_leaves_the_bounds_alone() -> None:
+    """Only a provable trim is applied; anything else keeps the conservative box.
+
+    A hole through the middle removes nothing from any face, a cut that misses the cross-section
+    trims nothing, and a rotated cutter is no longer a box this can reason about.
+    """
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid, cyl
+
+    with use_backend("sdf"):
+        base = cuboid([10, 10, 20])  # type: ignore[operator]
+        through_hole = base - cyl(height=30, radius=2)  # type: ignore[operator]
+        assert [float(v) for v in through_hole.bounds()[1]] == pytest.approx([10, 10, 20])
+
+        partial = base - cuboid([4, 4, 6]).up(10)  # type: ignore[operator]  # too narrow to trim the end
+        assert [float(v) for v in partial.bounds()[1]] == pytest.approx([10, 10, 20])
+
+        turned = base - cuboid([12, 12, 6]).up(10).rotate(30, [0, 0, 1])  # type: ignore[operator]
+        assert [float(v) for v in turned.bounds()[1]] == pytest.approx([10, 10, 20])
+
+
+def test_a_rounded_cutter_does_not_count_as_a_box() -> None:
+    """An edge treatment rounds the corners away, so the cutter no longer fills its own box."""
+    from pybosl2.sdf.shapes3d import _axis_aligned_box
+    from pybosl2.sdf.shapes3d import cuboid as sdf_cuboid
+
+    assert _axis_aligned_box(sdf_cuboid([10, 10, 10])) is not None
+    assert _axis_aligned_box(sdf_cuboid([10, 10, 10]).round(2)) is None
+    assert _axis_aligned_box(sdf_cuboid([10, 10, 10]).rotate(30, [0, 0, 1])) is None
+    # ... but a plain move keeps it a box, including when the move is spelt as a matrix
+    assert _axis_aligned_box(sdf_cuboid([10, 10, 10]).up(5)) is not None
+    translation = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 5], [0, 0, 0, 1]]
+    moved = _axis_aligned_box(sdf_cuboid([10, 10, 10]).multmatrix(translation))
+    assert moved is not None
+    assert moved[0][2] == pytest.approx(0.0)
+    assert moved[1][2] == pytest.approx(10.0)

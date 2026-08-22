@@ -831,10 +831,27 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   notion; `edge_profile`'s named roundover maps onto the SDF's own `round()`/`chamfer()` and is
   the next easy piece.
 
-* **Open: `TrussClip` is 6mm taller on SDF than on CSG.** Its chamfer mask and its rotated
-  prismoid were each measured on both backends and agree exactly, so the discrepancy is elsewhere
-  in the clip. It carries a `@csg_part` naming the problem rather than silently building the wrong
-  solid, and it is not in `BACKEND_NEUTRAL_PARTS`.
+* **`TrussClip`'s 6mm discrepancy: found, and it was PAR-5 again.** Bisecting the clip stage by
+  stage on both backends put the divergence on one line -- the two box cuts that square off its
+  ends. The field was right the whole time; `bounds()` was stale. `SdfSolid.difference()` returned
+  `PyShape(sdf_fn, shape.mn, shape.mx, ...)`, keeping the base's box verbatim, so a cut that trims
+  an end never showed up in the bounds.
+
+  Trimming an arbitrary cut is not possible without the geometry, but one case is provable: a
+  cutter that is a plain axis-aligned box, spanning the base's full cross-section on two axes and
+  overhanging one end on the third, removes everything past that end. `_box_after_cutting()` does
+  exactly that and nothing more -- a through-hole, a too-narrow cut, or a rotated cutter all leave
+  the conservative box alone, and the tests check each of those, because **under**-reporting is
+  worse than over-reporting: `mn`/`mx` is the meshing domain, so too small a box clips geometry.
+
+  What makes the cutter recognisable is `cuboid_size`/`cuboid_center`, which only `cuboid()` sets
+  and which rotate/scale/booleans all drop -- so a shape still carrying them is axis-aligned. One
+  gap had to be closed for the clip: `multmatrix()` dropped the metadata even for a pure
+  translation, which is just `translate()` spelt as a matrix. It keeps it now when the upper-left
+  3x3 is the identity, and drops it for anything else.
+
+  `TrussClip` agrees exactly on both backends now (33.18 x 7.8 x 19.6) and is in
+  `BACKEND_NEUTRAL_PARTS`; **6 of cubetruss's 8 parts** build on either backend.
 
 * **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
   scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one

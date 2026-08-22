@@ -647,6 +647,21 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         new_mn = [min(c[i] for c in transformed) for i in range(3)]
         new_mx = [max(c[i] for c in transformed) for i in range(3)]
+        # A pure translation is a translate() spelt as a matrix, so the cuboid metadata is still
+        # true of the result -- and it is what tells a later difference() that this shape is a
+        # plain axis-aligned box it can trim against. Any rotation or scale in the matrix turns
+        # the box into something else, so the metadata is dropped as before.
+        if self.cuboid_size is not None and np.allclose(m[:3, :3], np.eye(3)):
+            centre = [self.cuboid_center[i] + float(m[i, 3]) for i in range(3)]
+            return self._wrap(
+                new_fn,
+                new_mn,
+                new_mx,
+                self.cuboid_size,
+                centre,
+                self.cuboid_edge_amounts,
+                self.cuboid_edge_modes,
+            )
         return self._wrap(new_fn, new_mn, new_mx)
 
     def _distribute(self, mats: list[np.ndarray]) -> list:  # type: ignore[type-arg]
@@ -958,7 +973,8 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         def sdf_fn(x, y, z):  # type: ignore[no-untyped-def]
             return lv.max(fa(x, y, z), -_balanced(lv.min, [f(x, y, z) for f in fns]))
 
-        return PyShape(sdf_fn, list(shape.mn), list(shape.mx), shape.res)
+        mn, mx = _box_after_cutting(shape, tls)
+        return PyShape(sdf_fn, mn, mx, shape.res)
 
     # ---- cuboid-only edge treatments ----
 
@@ -1639,6 +1655,70 @@ def octahedron(size: float = 1, anchor: "Sequence[float]" = CENTER, res: int = 1
     if any(offset):
         shape = shape.translate(offset)
     return shape
+
+
+def _axis_aligned_box(shape: PyShape) -> "tuple[list[float], list[float]] | None":
+    """Return the exact box *shape* fills, or None if it is not a plain axis-aligned box.
+
+    `cuboid_size`/`cuboid_center` are only ever set by `cuboid()` and survive translation alone --
+    rotate(), scale() and every boolean drop them -- so a shape that still carries them is
+    axis-aligned. An edge treatment rounds the corners away, so a treated cuboid no longer fills
+    its box and is excluded.
+    """
+    if shape.cuboid_size is None:
+        return None
+    treatments = shape.cuboid_edge_amounts
+    if treatments is not None and any(any(amount for amount in row) for row in treatments):
+        return None
+    half = [float(s) / 2 for s in shape.cuboid_size]
+    centre = [float(c) for c in shape.cuboid_center]
+    return ([centre[i] - half[i] for i in range(3)], [centre[i] + half[i] for i in range(3)])
+
+
+def _box_after_cutting(base: PyShape, tools: "list[PyShape]") -> "tuple[list[float], list[float]]":
+    """Return the bounds of *base* minus *tools*, tightened where a cut provably trims an end.
+
+    A difference kept the base's box verbatim, which is safe but not exact -- and exact bounds are
+    the whole point of this backend (PAR-5). Trimming an *arbitrary* cut is not possible without
+    the geometry, but one case is both common and provable: a cut that is a plain axis-aligned box
+    spanning the base's full cross-section on two axes and overhanging one end on the third
+    removes everything past that end, so the base's extent there ends at the cut's near face.
+
+    This is what a part does to square off a moulding: `TrussClip` trimmed its ends this way and
+    kept reporting the untrimmed height, 6mm taller than the CSG twin of the same code.
+
+    Args:
+        base: The solid being cut.
+        tools: The solids being removed from it.
+
+    Returns:
+        The tightened ``(mn, mx)``; the base's own box where nothing could be proved.
+
+    """
+    mn, mx = list(base.mn), list(base.mx)
+    span = [float(base.mx[i]) - float(base.mn[i]) for i in range(3)]
+    epsilon = 1e-9 * (max(span) or 1.0)
+    for tool in tools:
+        box = _axis_aligned_box(tool)
+        if box is None:
+            continue
+        cut_mn, cut_mx = box
+        for axis in range(3):
+            across = [i for i in range(3) if i != axis]
+            covers_cross_section = all(
+                cut_mn[i] <= float(base.mn[i]) + epsilon and cut_mx[i] >= float(base.mx[i]) - epsilon for i in across
+            )
+            if not covers_cross_section:
+                continue
+            reaches_low = cut_mn[axis] <= float(base.mn[axis]) + epsilon
+            reaches_high = cut_mx[axis] >= float(base.mx[axis]) - epsilon
+            if reaches_low and not reaches_high:
+                mn[axis] = max(mn[axis], cut_mx[axis])
+            elif reaches_high and not reaches_low:
+                mx[axis] = min(mx[axis], cut_mn[axis])
+    if any(mx[i] - mn[i] <= epsilon for i in range(3)):
+        return list(base.mn), list(base.mx)  # the cuts leave nothing to measure; say nothing
+    return mn, mx
 
 
 def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
