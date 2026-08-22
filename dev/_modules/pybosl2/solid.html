@@ -2759,6 +2759,12 @@
     <span class="n">height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">shift</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
     <span class="n">length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">rounding2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chamfer2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">anchor</span><span class="p">:</span> <span class="n">Anchor</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Anchor</span><span class="o">.</span><span class="n">BOTTOM</span><span class="p">,</span>
     <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">spin</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
@@ -2781,6 +2787,14 @@
 <span class="sd">        height: Height of the prism.</span>
 <span class="sd">        shift: [X,Y] shift of the top center relative to the bottom center.</span>
 <span class="sd">        length: Height of the prism.</span>
+<span class="sd">        rounding: Radius of the vertical edge rounding, or one radius per edge (CSG backend --</span>
+<span class="sd">            the SDF prismoid has no exact form for a tapered box's independently-radiused vertical</span>
+<span class="sd">            edges; see :func:`pybosl2.sdf.shapes3d.prismoid`).</span>
+<span class="sd">        rounding1: Vertical edge rounding at the bottom end (CSG backend).</span>
+<span class="sd">        rounding2: Vertical edge rounding at the top end (CSG backend).</span>
+<span class="sd">        chamfer: Size of the vertical edge chamfer, or one size per edge (CSG backend).</span>
+<span class="sd">        chamfer1: Vertical edge chamfer at the bottom end (CSG backend).</span>
+<span class="sd">        chamfer2: Vertical edge chamfer at the top end (CSG backend).</span>
 <span class="sd">        anchor: Anchor point (default BOTTOM)</span>
 <span class="sd">        center: If given, overrides anchor.</span>
 <span class="sd">        spin: Z-axis rotation in degrees after anchor (default 0)</span>
@@ -2812,6 +2826,12 @@
                 <span class="s2">"height"</span><span class="p">:</span> <span class="n">height</span><span class="p">,</span>
                 <span class="s2">"shift"</span><span class="p">:</span> <span class="n">shift</span><span class="p">,</span>
                 <span class="s2">"length"</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span>
+                <span class="s2">"rounding"</span><span class="p">:</span> <span class="n">rounding</span><span class="p">,</span>
+                <span class="s2">"rounding1"</span><span class="p">:</span> <span class="n">rounding1</span><span class="p">,</span>
+                <span class="s2">"rounding2"</span><span class="p">:</span> <span class="n">rounding2</span><span class="p">,</span>
+                <span class="s2">"chamfer"</span><span class="p">:</span> <span class="n">chamfer</span><span class="p">,</span>
+                <span class="s2">"chamfer1"</span><span class="p">:</span> <span class="n">chamfer1</span><span class="p">,</span>
+                <span class="s2">"chamfer2"</span><span class="p">:</span> <span class="n">chamfer2</span><span class="p">,</span>
                 <span class="s2">"anchor"</span><span class="p">:</span> <span class="n">anchor</span><span class="p">,</span>
                 <span class="s2">"center"</span><span class="p">:</span> <span class="n">center</span><span class="p">,</span>
                 <span class="s2">"spin"</span><span class="p">:</span> <span class="n">spin</span><span class="p">,</span>

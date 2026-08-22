@@ -2529,6 +2529,19 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"tuple[list[float], list[float]]"</span><span class="p">:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">with_nominal_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).</span>
+
+<span class="sd">        Backend-neutral, so a shape can name the frame it anchors to without reaching for a native</span>
+<span class="sd">        handle. `bounds()` keeps reporting the geometry.</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">nominal_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[float] | None"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The nominal anchor box, or None if none was attached (SPEC S-2a)."""</span>
+        <span class="o">...</span>
+
 
 <div class="viewcode-block" id="Solid">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid">[docs]</a>
