@@ -21,12 +21,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
-from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl
+from pybosl2.solid import cuboid, cyl
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = ["NemaMotor", "NemaMountMask", "NemaMaskType", "NemaSpec"]
 
@@ -155,7 +157,7 @@ class NemaMotor:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid" | None = None
 
     @property
     def spec(self) -> NemaSpec:
@@ -178,8 +180,7 @@ class NemaMotor:
         return self._shaft_len
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the motor geometry (cached)."""
         if self._solid is not None:
             return self._solid
@@ -221,9 +222,8 @@ class NemaMotor:
             fs=fs,
         )
         shaft = cyl(height=self._shaft_len, diameter=s.shaft_diam, fn=fn, fa=fa, fs=fs).up(self._shaft_len / 2)
-        self._solid = Bosl2Solid(
-            (body | plinth | shaft).shape,
-            size=[s.motor_width, s.motor_width, self._height + self._shaft_len],
+        self._solid = (body | plinth | shaft).with_nominal_size(
+            [s.motor_width, s.motor_width, self._height + self._shaft_len]
         )
         return self._solid
 
@@ -295,7 +295,7 @@ class NemaMountMask:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid" | None = None
 
     @property
     def spec(self) -> NemaSpec:
@@ -313,8 +313,7 @@ class NemaMountMask:
         return self._atype
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the mount mask geometry (cached)."""
         if self._solid is not None:
             return self._solid
@@ -324,7 +323,7 @@ class NemaMountMask:
         sz = s.screw_size + self._slop
         ss = s.screw_spacing
 
-        def slotted(d: float, cx: float = 0.0, cy: float = 0.0) -> list[Bosl2Solid]:
+        def slotted(d: float, cx: float = 0.0, cy: float = 0.0) -> list["Solid"]:
             if self._length > 0:
                 return [
                     cyl(height=self._depth, diameter=d, fn=fn, fa=fa, fs=fs).back(self._length / 2).right(cx).back(cy),
@@ -336,7 +335,7 @@ class NemaMountMask:
                 ]
             return [cyl(height=self._depth, diameter=d, fn=fn, fa=fa, fs=fs).right(cx).back(cy)]
 
-        parts: list[Bosl2Solid] = []
+        parts: list["Solid"] = []
         for sx in (-1, 1):
             for sy in (-1, 1):
                 parts += slotted(sz, sx * ss / 2, sy * ss / 2)
@@ -347,7 +346,7 @@ class NemaMountMask:
             # reassigned, so by here it is always one of the two.
             raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {self._atype!r}")
         w = ss + sz + (self._length if self._length > 0 else 0)
-        self._solid = Bosl2Solid(_union(parts).shape, size=[ss + sz, w, self._depth])
+        self._solid = _union(parts).with_nominal_size([ss + sz, w, self._depth])
         return self._solid
 
     def show(self) -> Any:

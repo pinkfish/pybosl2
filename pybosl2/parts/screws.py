@@ -32,11 +32,13 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
 from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
-from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
+from pybosl2.solid import cuboid, cyl, regular_prism
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = [
     "Nut",
@@ -414,7 +416,7 @@ def _lookup_pitch(diam: float, thread: ThreadPitchClass) -> float:
     return float(_ISO_THREAD[diam].pitch(thread))
 
 
-def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | None) -> Bosl2Solid | None:
+def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | None) -> "Solid" | None:
     """Build the screw head from resolved dimensions."""
     head = info.head
     if head in (None, ScrewHeadType.NONE):
@@ -441,7 +443,7 @@ def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | No
 
 def _make_recess(
     info: ScrewSpec, head_top: float, fn: int | None, fa: float | None, fs: float | None
-) -> Bosl2Solid | None:
+) -> "Solid" | None:
     """Build the drive recess from resolved dimensions."""
     drive = info.drive
     size = info.drive_size
@@ -518,7 +520,7 @@ class Screw:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid" | None = None
 
     @property
     def spec(self) -> ScrewSpec:
@@ -561,8 +563,7 @@ class Screw:
         return self._length
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the screw geometry (result is cached)."""
         if self._solid is not None:
             return self._solid
@@ -574,14 +575,16 @@ class Screw:
             tp = ScrewSpec(self._spec.diameter, thread=self._thread, pitch=self._spec.pitch).pitch
             tl = self._length if (self._thread_len is None or self._thread_len >= self._length) else self._thread_len
             shank_len = self._length - tl
-            shaft = iso_threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).shape.down(shank_len + tl / 2)
+            shaft: "Solid" = iso_threaded_rod(d, tl, tp, fn=self._fn, fa=self._fa, fs=self._fs).shape.down(
+                shank_len + tl / 2
+            )
             if shank_len > 1e-9:
                 shank = cyl(diameter=d, height=shank_len, fn=self._fn, fa=self._fa, fs=self._fs).down(shank_len / 2)
                 shaft = shaft | shank
         else:
             shaft = cyl(diameter=d, height=self._length, fn=self._fn, fa=self._fa, fs=self._fs).down(self._length / 2)
 
-        result = shaft
+        result: "Solid" = shaft
         head_top = self._spec.head_height
         headobj = _make_head(self._spec, self._fn, self._fa, self._fs)
         if headobj is not None:
@@ -656,7 +659,7 @@ class Nut:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid" | None = None
 
     @property
     def spec(self) -> ScrewSpec:
@@ -679,8 +682,7 @@ class Nut:
         return self._shape
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the nut geometry (result is cached)."""
         if self._solid is not None:
             return self._solid
@@ -772,7 +774,7 @@ class ScrewHole:
         self._fn: int | None = fn
         self._fa: float | None = fa
         self._fs: float | None = fs
-        self._solid: Bosl2Solid | None = None
+        self._solid: "Solid" | None = None
 
     @property
     def fit(self) -> str:
@@ -785,8 +787,7 @@ class ScrewHole:
         return self._length
 
     @property
-    @csg_part
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Build and return the hole cutter geometry (result is cached)."""
         if self._solid is not None:
             return self._solid
@@ -801,9 +802,8 @@ class ScrewHole:
         if use_thread:
             from pybosl2.parts.threading import iso_threaded_rod
 
-            cutter = iso_threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs).shape.down(
-                self._length / 2
-            )
+            rod = iso_threaded_rod(d + 0.0, self._length, p, fn=self._fn, fa=self._fa, fs=self._fs)
+            cutter: "Solid" = rod.shape.down(self._length / 2)
         else:
             gap = _CLEARANCE.get(str(self._fit).lower(), 0.5)
             cutter = cyl(diameter=d + 2 * gap, height=self._length, fn=self._fn, fa=self._fa, fs=self._fs).down(

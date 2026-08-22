@@ -113,10 +113,17 @@ def test_every_part_refuses_on_another_backend() -> None:
 #: regression, not a bookkeeping change.
 BACKEND_NEUTRAL_PARTS = frozenset(
     {
+        "Dovetail",
         "KnuckleHinge",
         "KnuckleHingePair",
         "LivingHingeMask",
+        "NemaMotor",
+        "NemaMountMask",
+        "ScrewHole",
+        "Slider",
         "SnapLock",
+        "SnapPin",
+        "SnapPinSocket",
         "SnapSocket",
     }
 )

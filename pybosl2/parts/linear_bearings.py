@@ -21,10 +21,14 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from pybosl2._helpers import union
 from pybosl2.color import Color
-from pybosl2.shapes3d import Bosl2Solid, cuboid, teardrop, tube
+from pybosl2.solid import cuboid, teardrop, tube
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = ["LinearBearings", "LinearBearingSpec"]
 
@@ -91,7 +95,7 @@ class LinearBearings:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Return a generic linear ball-bearing cartridge, bore.
 
         *inner_diameter* / outer *outer_diameter* / length *length*
@@ -142,12 +146,12 @@ class LinearBearings:
                 ),
             ]
         )
-        result = Bosl2Solid(body.shape, size=[outer_diameter, outer_diameter, length])
+        result = body.with_nominal_size([outer_diameter, outer_diameter, length])
         color = color if color is not None else Color("silver")
         return result.color(color)
 
     @staticmethod
-    def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> Bosl2Solid:
+    def lmxuu_bearing(size: int = 8, color: str | None = "silver") -> "Solid":
         """Return a standard LMxUU linear bearing for a *size* mm rod."""
         spec = LinearBearings.lmxuu_info(size)
         color_val = Color(color) if color else None
@@ -167,7 +171,7 @@ class LinearBearings:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Return a pillow-block housing that clamps a linear bearing (bore.
 
         *diameter*, length *length*) to a plate (BOSL2 linear_bearing_housing()).
@@ -188,7 +192,7 @@ class LinearBearings:
             fs: Minimum fragment size. Passed to the geometry primitives.
 
         Returns:
-            A pillow-block housing as a :class:`~pybosl2.shapes3d.Bosl2Solid`.
+            A pillow-block housing as a :class:`~pybosl2.shapes3d."Solid"`.
 
         Examples:
             An LM8UU-sized housing:
@@ -228,7 +232,7 @@ class LinearBearings:
             ScrewHole(f"M{screwsize:g}", length=ogap + 1, fn=fn or 16, fa=fa, fs=fs).shape.rotate([90, 0, 0]).up(tabh)
         )
         body = body - screw
-        return Bosl2Solid(body.shape, size=[length, outer_diameter, outer_diameter + tab / 2])
+        return body.with_nominal_size([length, outer_diameter, outer_diameter + tab / 2])
 
     @staticmethod
     def lmxuu_housing(
@@ -241,7 +245,7 @@ class LinearBearings:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Return a pillow-block housing sized for a standard LMxUU bearing."""
         spec = LinearBearings.lmxuu_info(size)
         return LinearBearings.linear_bearing_housing(

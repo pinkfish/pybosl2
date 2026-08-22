@@ -27,10 +27,14 @@ import operator
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import reduce
+from typing import TYPE_CHECKING
 
 from pybosl2.color import Color
 from pybosl2.constants import INCH
-from pybosl2.shapes3d import Bosl2Solid, sphere, torus, tube
+from pybosl2.solid import sphere, torus, tube
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 __all__ = ["BallBearings", "BearingSpec", "BearingType"]
 
@@ -887,12 +891,12 @@ class BallBearings:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> Bosl2Solid:
+    ) -> "Solid":
         """Build a standard ball-bearing cartridge model.
 
         Give a *trade_size* name (or :class:`BearingType`), or explicit
         *inner_diameter*/*outer_diameter*/*width* (with *shield*). Returns a
-        :class:`~pybosl2.shapes3d.Bosl2Solid` centered on the origin.
+        :class:`~pybosl2.shapes3d."Solid"` centered on the origin.
 
         Args:
             trade_size: The bearing trade size as a string or :class:`BearingType`.
@@ -907,7 +911,7 @@ class BallBearings:
             fs: Minimum fragment size. Passed to the geometry primitives.
 
         Returns:
-            A ball-bearing cartridge as a :class:`~pybosl2.shapes3d.Bosl2Solid`.
+            A ball-bearing cartridge as a :class:`~pybosl2.shapes3d."Solid"`.
 
         Raises:
             ValueError: If inner_diameter, outer_diameter, or width are not provided and trade_size is not given.
@@ -993,6 +997,6 @@ class BallBearings:
                 ),
             )
             result = races | balls
-        result = Bosl2Solid(result.shape, size=[outer_diameter, outer_diameter, width])
+        result = result.with_nominal_size([outer_diameter, outer_diameter, width])
         color = color if color is not None else Color("silver")
         return result.color(color)
