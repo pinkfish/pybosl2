@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, Any, Callable, cast
 
 import numpy as np
 
+from pybosl2._anchoring import Anchorable
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor
@@ -183,7 +184,7 @@ _MESH_OPERATIONS = frozenset(
 )
 
 
-class SdfSolid(Colorable, Distributable):
+class SdfSolid(Colorable, Anchorable, Distributable):
     """Wrap a libfive SDF kept as a *symbolic* function of (x, y, z).
 
     Rather than an already-evaluated tree or an already-meshed solid, plus the bounding box
@@ -314,6 +315,11 @@ class SdfSolid(Colorable, Distributable):
     def nominal_size(self) -> "list[float] | None":
         """The nominal anchor box, or None if this shape never had one attached (SPEC S-2a)."""
         return None if self._nominal_size is None else list(self._nominal_size)
+
+    def _record_anchor(self, anchor: Any) -> None:
+        """Note that `reanchor()` moved this field onto *anchor* (see `Anchorable`)."""
+        if self._nominal_size is not None:
+            self._nominal_anchor = anchor
 
     # ---- colour: recorded on the field, applied when it is realized (SPEC C-19) -------------
 

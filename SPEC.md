@@ -692,7 +692,7 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. The gap is measured in [TASKS.md](TASKS.md) T14 — 146 façade parameters, 21 CSG-only solid methods, and 28 hand re-wraps in the parts themselves — with a phased plan. Attachments are the pivot: they are bookkeeping over bounds and anchor, not CSG topology, so the SDF backend's exact bounds carry them unchanged, and most non-primitive parts are attachment chains. |
+| 1 | **S-46a / PAR-1** | Parts refuse on the SDF backend rather than building: none of the 53 has an SDF form. [TASKS.md](TASKS.md) T14 has the measured gap and a phased plan; the façade widening that blocked it is done, `with_nominal_size()` replaces the CSG-only re-wrap idiom, and anchoring (`anchor_point`/`reanchor`/`reorient`/`orient`) now works on both backends from one shared mixin. **17** CSG-only solid members remain, led by the half of the attachment system that holds children. |
 | 2 | **B-9** | The refusal mechanism is in (`refuse_unhonoured()`, run by both backends' `construct()`), and it immediately caught `cube(spin=45)` being silently ignored on SDF. The widening that blocks T14 is done — no part now passes a shape argument the façade cannot carry — leaving **136** CSG parameters unreachable through `pybosl2.solid` as a completeness backlog (the `cyl` family, `rect_tube`, the texture family). T14 phase 1. |
 
 

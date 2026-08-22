@@ -15,14 +15,29 @@ from pybosl2._backend import supports, use_backend
 from pybosl2.exceptions import UnsupportedByBackendError
 
 
-@pytest.mark.parametrize("feature", ["attach", "anchor_point", "align", "edge_mask", "face_profile"])
+@pytest.mark.parametrize("feature", ["attach", "align", "position", "edge_mask", "face_profile"])
 def test_csg_attachment_features_unsupported_on_sdf(feature: str) -> None:
+    """The half of the attachment system that holds children is still CSG-only (T14 phase 5a)."""
     with use_backend("sdf"):
         s = solid.sphere(radius=10)  # type: ignore[attr-defined]
         with pytest.raises(UnsupportedByBackendError) as ei:
             getattr(s, feature)
         assert ei.value.backend == "sdf"
         assert ei.value.feature == feature
+
+
+@pytest.mark.parametrize("feature", ["anchor_point", "reanchor", "reorient", "orient"])
+def test_anchor_arithmetic_works_on_both_backends(feature: str) -> None:
+    """It only ever needed the bounding box, and an SDF shape knows its own exactly.
+
+    These were listed CSG-only on the stated grounds that anchoring "needs a shape's face and edge
+    structure, which a distance field does not retain". That was wrong, and it is a large part of
+    why the parts library is CSG-only -- the parts that are not primitives are anchor chains.
+    """
+    for backend in ("csg", "sdf"):
+        with use_backend(backend):
+            s = solid.sphere(radius=10)  # type: ignore[attr-defined]
+            assert callable(getattr(s, feature))
 
 
 @pytest.mark.parametrize("feature", ["round", "chamfer"])
