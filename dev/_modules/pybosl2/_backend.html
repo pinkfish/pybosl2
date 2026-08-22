@@ -2112,15 +2112,18 @@
 <span class="c1"># not left as an excuse -- and a name listed here must genuinely be absent from the other</span>
 <span class="c1"># backend's class, or the refusal never fires (tests/test_backend_parity.py).</span>
 <span class="n">CSG_ONLY_FEATURES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">{</span>  <span class="c1"># BOSL2's attachment/anchor system: anchoring needs a shape's face and edge structure,</span>
-        <span class="c1"># which a distance field does not retain -- there is nothing to anchor TO.</span>
+    <span class="p">{</span>  <span class="c1"># BOSL2's attachment system, the half of it that holds CHILDREN: these record a placed</span>
+        <span class="c1"># child and combine it later, which is native-tree work the SDF backend has no equivalent</span>
+        <span class="c1"># for yet (TASKS T14 phase 5a, second half).</span>
+        <span class="c1">#</span>
+        <span class="c1"># The anchor arithmetic that used to be listed here -- anchor_point, reanchor, reorient,</span>
+        <span class="c1"># orient -- is not exclusive and no longer listed. The reason recorded for it was wrong:</span>
+        <span class="c1"># it said anchoring "needs a shape's face and edge structure, which a distance field does</span>
+        <span class="c1"># not retain". It needs the bounding box, which an SDF shape knows exactly. Both backends</span>
+        <span class="c1"># now share one implementation (pybosl2/_anchoring.py).</span>
         <span class="s2">"attach"</span><span class="p">,</span>
-        <span class="s2">"anchor_point"</span><span class="p">,</span>
-        <span class="s2">"reanchor"</span><span class="p">,</span>
         <span class="s2">"position"</span><span class="p">,</span>
         <span class="s2">"align"</span><span class="p">,</span>
-        <span class="s2">"reorient"</span><span class="p">,</span>
-        <span class="s2">"orient"</span><span class="p">,</span>
         <span class="s2">"edge_mask"</span><span class="p">,</span>
         <span class="s2">"edge_profile"</span><span class="p">,</span>
         <span class="s2">"edge_profile_asym"</span><span class="p">,</span>
