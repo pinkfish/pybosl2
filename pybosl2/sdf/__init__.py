@@ -23,11 +23,61 @@ if TYPE_CHECKING:
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
 
+import numpy as np
+
 from pybosl2._backend import SolidBackend, for_backend, refuse_unhonoured, register_backend
 from pybosl2.defaults import resolve_res
+from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.sdf import shapes3d as _s
 
 __all__: list[str] = []
+
+
+def _describes_a_convex_solid(points: Any, faces: Any) -> bool:
+    """Report whether *faces* over *points* bound a convex solid.
+
+    The SDF backend builds a polyhedron as the max of its faces' signed half-space distances,
+    which can only ever describe a convex solid. For a convex input that is exact and the `faces`
+    list is redundant; for anything else the hull is a different shape, so the caller has to be
+    told rather than handed the hull (SPEC B-4, B-9).
+
+    A solid is convex exactly when every vertex lies on the inner side of every face's plane.
+
+    Args:
+        points: The vertices, as ``[x, y, z]`` triples.
+        faces: Vertex indices per face.
+
+    Returns:
+        True if the faces bound a convex solid, or if the input is too malformed to judge -- in
+        which case the CSG backend's own validation is the right place for the complaint.
+
+    """
+    vertices = np.asarray(points, dtype=float)
+    if vertices.ndim != 2 or vertices.shape[1] != 3 or len(vertices) < 4:
+        return True
+    span = float(np.linalg.norm(vertices.max(axis=0) - vertices.min(axis=0))) or 1.0
+    tolerance = 1e-7 * span
+    centroid = vertices.mean(axis=0)
+
+    for face in faces:
+        index = [int(i) for i in face]
+        if len(index) < 3 or any(i < 0 or i >= len(vertices) for i in index):
+            return True  # malformed: not this backend's complaint to make
+        corner = vertices[index[0]]
+        normal = None
+        for i in range(1, len(index) - 1):
+            candidate = np.cross(vertices[index[i]] - corner, vertices[index[i + 1]] - corner)
+            length = float(np.linalg.norm(candidate))
+            if length > tolerance:
+                normal = candidate / length
+                break
+        if normal is None:
+            continue  # a degenerate face bounds nothing
+        if float(np.dot(normal, corner - centroid)) < 0:
+            normal = -normal  # face planes point outwards
+        if float(np.max(vertices @ normal) - float(np.dot(normal, corner))) > tolerance:
+            return False  # a vertex outside this face's plane: the solid is not convex
+    return True
 
 
 @functools.lru_cache(maxsize=None)
@@ -82,12 +132,29 @@ class SdfBackend:
         return fn(**named)
 
     def polyhedron(self, points: Any, faces: Any = None, convexity: int | None = None) -> _s.PyShape:
-        """Return the convex hull of `points` as an SDF.
+        """Return `points` as an SDF, built from its face half-spaces.
 
-        `faces` is accepted for signature-compatibility with the CSG backend but ignored -- the SDF
-        backend builds only the convex polyhedron.
+        This form can only describe a **convex** solid, so a `faces` list that bounds anything else
+        is refused rather than quietly replaced by the hull: the hull of an L-shaped prism fills
+        the notch, reports the same bounding box, and nothing downstream notices (SPEC B-4, B-9).
+
+        Raises:
+            UnsupportedByBackendError: If *faces* bound a non-convex solid.
+
         """
-        _ = faces, convexity  # neither shapes a distance field
+        _ = convexity  # a preview hint for the CSG renderer; it does not shape a distance field
+        if faces is not None and not _describes_a_convex_solid(points, faces):
+            raise UnsupportedByBackendError(
+                "polyhedron(faces=)",
+                "sdf",
+                hint=(
+                    "these faces bound a non-convex solid, and an SDF polyhedron is the "
+                    "intersection of its face half-spaces, which is always convex -- building it "
+                    "here would silently fill the concavities. Build it inside "
+                    '`with use_backend("csg")` and bring it over with .to_csg(), or compose the '
+                    "shape from SDF primitives and booleans."
+                ),
+            )
         return _s.convex_polyhedron(points)
 
     def linear_extrude(self, paths: Any, height: float, arguments: Mapping[str, Any]) -> _s.PyShape:

@@ -235,7 +235,7 @@ class ManfrottoRC2Plate:
         return self._chamfer
 
     @property
-    @csg_part
+    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
     def shape(self) -> Bosl2Solid:
         """Return the RC2 plate geometry."""
         return self._solid

@@ -280,7 +280,7 @@ class RegularPolyhedron:
         return PolyhedronInfo(self._name)
 
     @property
-    @csg_part
+    @csg_part("builds from a VNF handed over vertex by vertex, which has no distance-field form")
     def shape(self) -> Bosl2Solid:
         """Build and return the polyhedron geometry (cached)."""
         if self._solid is not None:

@@ -179,3 +179,43 @@ def test_the_converted_list_matches_what_actually_builds() -> None:
         f"  newly building: {sorted(builds - BACKEND_NEUTRAL_PARTS)}\n"
         f"  no longer building: {sorted(BACKEND_NEUTRAL_PARTS - builds)}"
     )
+
+
+def test_a_refusal_names_what_the_part_needs() -> None:
+    """SPEC E-4: the message says why *this* part needs CSG, not that the library does.
+
+    It used to say "the parts library builds exact CSG geometry" for all 53. That stopped being
+    true once a third of them were converted, and it never told anyone which operation was the
+    obstacle -- so `@csg_part` now takes the reason and the message carries it.
+    """
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    vague: list[str] = []
+    with use_backend("sdf"):
+        for name in _part_classes():
+            if name in BACKEND_NEUTRAL_PARTS:
+                continue
+            try:
+                _ = getattr(parts, name)(*ARGUMENTS.get(name, ()), **KEYWORDS.get(name, {})).shape
+            except UnsupportedByBackendError as exc:
+                message = str(exc)
+                if "the parts library builds exact CSG geometry" in message:
+                    vague.append(name)
+                assert "use_backend" in message, f"{name}'s refusal does not say what to do: {message}"
+
+    assert not vague, f"parts still refusing with the old library-wide reason: {vague}"
+
+
+def test_the_named_reason_reaches_the_message() -> None:
+    """The decorator is only worth its argument if the argument is what the caller reads."""
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        _ = parts.WireBundle([[0.0, 0.0, 0.0], [20.0, 0.0, 0.0], [20.0, 20.0, 0.0]], 3).shape
+    message = str(excinfo.value)
+    assert "WireBundle" in message
+    assert "path_sweep()" in message  # the operation that is actually in the way

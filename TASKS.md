@@ -780,8 +780,13 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
    the same thing; the construction and method forms were verified to give identical bounds before
    the swap. `Dovetail` called the native `hull()` on `.shape` handles, which the façade's `hull()`
    does on either backend. Prefer the method form in a part: it is what makes the part portable.
-4. **Re-word the refusal on the parts that keep it**, so it names *this* part and what it needs,
-   not "the parts library builds exact CSG geometry".
+4. **Re-word the refusal on the parts that keep it.** ✅ `@csg_part` takes the reason now, and all
+   36 guards across 11 modules carry one, so the message names *this* part and the operation that
+   is in the way — "WireBundle sweeps the bundle along its route with path_sweep(), which a
+   distance field cannot express" rather than "the parts library builds exact CSG geometry", which
+   stopped being true once a third of the library was converted. Two tests hold the line: no
+   refusal may fall back to the library-wide wording, and the named reason has to reach the
+   message the caller reads.
 
 ### Closing the method gap (phase 5, and the larger half)
 
@@ -814,6 +819,13 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   `rounding_edge_mask`, `interior_fillet` and `polygon_extrude`, so the roundover and chamfer
   cases are reachable; an arbitrary caller-supplied `Path2D` mask is not, because 2-D geometry is
   a CSG notion. Ship the named treatments, refuse the arbitrary-profile form naming `.to_csg()`.
+* **A silent-approximation bug came out of this triage, and is fixed.** `SdfBackend.polyhedron()`
+  accepted a `faces` list and ignored it — its docstring said so — building the convex hull
+  instead. Asking for an L-shaped prism gave back a solid with the notch filled, **the same
+  bounding box**, and no sign anything was wrong; a probe in the notch reads solid on SDF and
+  empty on CSG. It now tests convexity (every vertex on the inner side of every face plane) and
+  refuses with `.to_csg()` when the faces bound anything else. For convex input the face
+  half-spaces are exact, so both backends agree and nothing changes.
 * **`projection` — permanently CSG-only.** A 2-D shadow is not derivable from a distance field,
   and meshing to answer it would cross backends silently. Already recorded and already refused
   (PAR-3); it stays a documented exclusion, not a gap.

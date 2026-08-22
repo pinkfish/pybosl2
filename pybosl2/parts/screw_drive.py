@@ -455,7 +455,7 @@ class PhillipsMask:
         return self._length
 
     @property
-    @csg_part
+    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
     def shape(self) -> Bosl2Solid:
         """Return the Phillips driver-recess mask geometry.
 
@@ -547,7 +547,7 @@ class HexDriveMask:
         return self._realsize
 
     @property
-    @csg_part
+    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
     def shape(self) -> Bosl2Solid:
         """Return the hex drive mask geometry."""
         return self._solid
@@ -601,7 +601,7 @@ class TorxMask2d:
         return self._size
 
     @property
-    @csg_part
+    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
     def shape(self) -> Bosl2Solid:
         """Return the 2-D Torx profile.
 
@@ -684,7 +684,7 @@ class TorxMask:
         return self._outer_diameter
 
     @property
-    @csg_part
+    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
     def shape(self) -> Bosl2Solid:
         """Return the Torx driver-recess mask geometry.
 
@@ -783,7 +783,7 @@ class RobertsonMask:
         return self._slop
 
     @property
-    @csg_part
+    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
     def shape(self) -> Bosl2Solid:
         """Return the Robertson driver-recess mask geometry.
 

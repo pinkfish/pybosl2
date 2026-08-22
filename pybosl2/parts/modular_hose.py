@@ -285,7 +285,7 @@ class HoseSegment:
         return self._type
 
     @property
-    @csg_part
+    @csg_part("revolves its profile with rotate_extrude(), which a distance field cannot express")
     def shape(self) -> Bosl2Solid:
         """Return the hose segment geometry."""
         return self._solid
