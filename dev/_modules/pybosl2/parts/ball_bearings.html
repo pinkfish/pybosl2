@@ -2055,10 +2055,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">INCH</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span><span class="p">,</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">tube</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">tube</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"BallBearings"</span><span class="p">,</span> <span class="s2">"BearingSpec"</span><span class="p">,</span> <span class="s2">"BearingType"</span><span class="p">]</span>
 
@@ -2925,12 +2929,12 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Build a standard ball-bearing cartridge model.</span>
 
 <span class="sd">        Give a *trade_size* name (or :class:`BearingType`), or explicit</span>
 <span class="sd">        *inner_diameter*/*outer_diameter*/*width* (with *shield*). Returns a</span>
-<span class="sd">        :class:`~pybosl2.shapes3d.Bosl2Solid` centered on the origin.</span>
+<span class="sd">        :class:`~pybosl2.shapes3d."Solid"` centered on the origin.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            trade_size: The bearing trade size as a string or :class:`BearingType`.</span>
@@ -2945,7 +2949,7 @@
 <span class="sd">            fs: Minimum fragment size. Passed to the geometry primitives.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A ball-bearing cartridge as a :class:`~pybosl2.shapes3d.Bosl2Solid`.</span>
+<span class="sd">            A ball-bearing cartridge as a :class:`~pybosl2.shapes3d."Solid"`.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If inner_diameter, outer_diameter, or width are not provided and trade_size is not given.</span>
@@ -3031,7 +3035,7 @@
                 <span class="p">),</span>
             <span class="p">)</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">races</span> <span class="o">|</span> <span class="n">balls</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">width</span><span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">width</span><span class="p">])</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">color</span> <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Color</span><span class="p">(</span><span class="s2">"silver"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span></div>
 </div>
