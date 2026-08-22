@@ -814,11 +814,34 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
 * **Tagging and diff (6 names) — implementable, lower value.** `tag`/`tag_this`/`tag_name`/`diff`/
   `diff_config`/`intersect` are a naming scheme over the same tree; they need no geometry. Worth
   doing only after attachments, since they exist to serve them.
-* **Profiles and masks (5 names) — partially expressible.** `edge_profile`/`corner_profile`/
-  `face_profile` sweep a 2-D mask along a box's edges. The SDF backend already has
-  `rounding_edge_mask`, `interior_fillet` and `polygon_extrude`, so the roundover and chamfer
-  cases are reachable; an arbitrary caller-supplied `Path2D` mask is not, because 2-D geometry is
-  a CSG notion. Ship the named treatments, refuse the arbitrary-profile form naming `.to_csg()`.
+* **Profiles and masks — the chamfer mask is done** 🔶. The thing actually keeping `cubetruss`
+  CSG-only was `chamfer_edge_mask()`, and it turned out not to need the profile machinery at all:
+  a diamond bar is a square prism turned 45 degrees, so it builds from `cuboid().rotate()` on
+  either backend instead of `polygon().linear_extrude()`. The two forms were checked to give the
+  same solid and the same cut before the swap.
+
+  The masking module's cutter pipeline is typed against the `Solid` contract now, so a mask made
+  on either backend flows through `_orient_mask_along_edge`, `corner_profile(return_cutter=)` and
+  the `Mask3D` factories. **`cubetruss` is converted: 5 of its 8 parts build on either backend**,
+  `TrussFoot`/`TrussJoiner` refuse correctly on the tapered `regular_prism` they need, and
+  `TrussClip` is guarded pending the discrepancy below.
+
+  What is left of this bullet is the profile *family* — `edge_profile`/`corner_profile`/
+  `face_profile` with an arbitrary `Path2D` mask, which stays CSG-only since 2-D geometry is a CSG
+  notion; `edge_profile`'s named roundover maps onto the SDF's own `round()`/`chamfer()` and is
+  the next easy piece.
+
+* **Open: `TrussClip` is 6mm taller on SDF than on CSG.** Its chamfer mask and its rotated
+  prismoid were each measured on both backends and agree exactly, so the discrepancy is elsewhere
+  in the clip. It carries a `@csg_part` naming the problem rather than silently building the wrong
+  solid, and it is not in `BACKEND_NEUTRAL_PARTS`.
+
+* **Two more parity bugs came out of converting cubetruss.** `SdfSolid.half_of()` rejected the
+  scalar `center=` form with `TypeError: 'float' object is not subscriptable` -- the CSG one
+  documents and supports it ("a scalar distance to shift the plane along *v*"), so the same call
+  worked on one backend and crashed on the other. And the `Solid` contract declared none of the
+  partition family (`half_of`, `left_half` … `bottom_half`) though both backends implement all
+  seven.
 * **A silent-approximation bug came out of this triage, and is fixed.** `SdfBackend.polyhedron()`
   accepted a `faces` list and ignored it — its docstring said so — building the convex hull
   instead. Asking for an L-shaped prism gave back a solid with the notch filled, **the same

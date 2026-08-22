@@ -1084,7 +1084,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def half_of(
         self,
         v: Sequence[float] = (1.0, 0.0, 0.0),
-        center: Sequence[float] = (0.0, 0.0, 0.0),
+        center: float | Sequence[float] = (0.0, 0.0, 0.0),
         s: float | None = None,
     ) -> PyShape:
         """Keep the half of this solid on the positive side of the plane through *center* with normal *v*.
@@ -1093,7 +1093,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         Args:
             v: Plane normal direction (default: +X, keeps x ≥ 0 half).
-            center: Point the plane passes through.
+            center: A point the plane passes through, or a scalar distance to shift the plane
+                along *v* -- the same two forms the CSG `half_of()` takes. The scalar form used to
+                raise `TypeError: 'float' object is not subscriptable` here, so a call that worked
+                on one backend crashed on the other.
             s: Half of the mask's side length (auto-sized from bounds if None).
 
         Returns:
@@ -1121,7 +1124,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                 axis = axis / float(np.linalg.norm(axis))
             angle = math.degrees(math.acos(float(np.dot(z_axis, v3))))
             half_mask = half_mask.rotate(angle, axis.tolist())
-        half_mask = half_mask.translate([float(center[i]) for i in range(3)])
+        if isinstance(center, (int, float)) and not isinstance(center, bool):
+            offset = (float(center) * v3).tolist() if vn > 0 else [0.0, 0.0, 0.0]
+        else:
+            offset = [float(value) for value in center]  # type: ignore[union-attr]
+        half_mask = half_mask.translate(offset)
         return self & half_mask
 
     def left_half(self, x: float = 0, s: float | None = None) -> PyShape:

@@ -125,6 +125,11 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "SnapPin",
         "SnapPinSocket",
         "SnapSocket",
+        "Truss",
+        "TrussCorner",
+        "TrussSegment",
+        "TrussSupport",
+        "TrussUClip",
     }
 )
 
