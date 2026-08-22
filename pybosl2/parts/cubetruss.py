@@ -35,7 +35,10 @@ from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
 from pybosl2.distributors import DistributableMatrix
 from pybosl2.masking import chamfer_edge_mask
-from pybosl2.shapes3d import Bosl2Solid, cuboid, prismoid, regular_prism
+from pybosl2.solid import cuboid, prismoid, regular_prism
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -62,7 +65,7 @@ CUBETRUSS_CLIP_THICKNESS = 1.6
 _union = union
 
 
-def _cmask(length: float, chamfer: float, orient: str | None = None) -> Bosl2Solid:
+def _cmask(length: float, chamfer: float, orient: str | None = None) -> "Solid":
     """chamfer_edge_mask, optionally re-oriented (RIGHT -> X axis, BACK -> Y axis)."""
     m = chamfer_edge_mask(length=length, chamfer=chamfer)
     if orient == "RIGHT":
@@ -96,7 +99,7 @@ def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int
 
 def _octagon_tunnel(
     size: float, strut: float, h: float, fn: int | None = None, fa: float | None = None, fs: float | None = None
-) -> Bosl2Solid:
+) -> "Solid":
     """Return a long octagonal-prism cutter for the axial lightening tunnels (BOSL2 cylinder($fn=8))."""
     oct_d = (min(h, size) - 2 * strut) / math.cos(math.radians(180 / 8))
     return regular_prism(8, diameter=oct_d, height=max(h, size) + 1, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
@@ -194,7 +197,7 @@ class TrussSegment:
                     .up(i * voffset)
                 )
                 body = body | (brace - hole).rotate([0, 0, i * 45])
-        self._solid: Bosl2Solid = Bosl2Solid(body.shape, size=[sz, sz, sz])
+        self._solid: "Solid" = body.with_nominal_size([sz, sz, sz])
         self._size: float = sz
         self._strut: float = st
 
@@ -209,8 +212,7 @@ class TrussSegment:
         return self._strut
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the segment geometry."""
         return self._solid
 
@@ -283,7 +285,7 @@ class Truss:
             w, length, hh = int(e[0]), int(e[1]), int(e[2])
 
         step = sz - st
-        segs: list[Bosl2Solid] = []
+        segs: list["Solid"] = []
         for zrow in range(hh):
             for xcol in range(w):
                 for ycol in range(length):
@@ -321,7 +323,7 @@ class Truss:
             truss_dist(length, 1, sz, st),
             truss_dist(hh, 1, sz, st),
         ]
-        self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s)
+        self._solid: "Solid" = result.with_nominal_size(s)
         self._extents: int | tuple[int, ...] = extents if isinstance(extents, int) else tuple(extents)
 
     @property
@@ -330,8 +332,7 @@ class Truss:
         return self._extents
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the truss geometry."""
         return self._solid
 
@@ -396,13 +397,13 @@ class TrussSupport:
         smax = sz * (max(ex, ey, ez) + 1)
         octid = sz - 2 * st
 
-        def octprism(length_: float, rot: list[float] | None) -> Bosl2Solid:
+        def octprism(length_: float, rot: list[float] | None) -> "Solid":
             p = regular_prism(8, inner_diameter=octid, height=length_, anchor=CENTER, fn=fn, fa=fa, fs=fs).rotate(
                 [0, 0, 180 / 8]
             )
             return p.rotate(rot) if rot else p
 
-        def hollow_cell() -> Bosl2Solid:
+        def hollow_cell() -> "Solid":
             return (
                 octprism(sz + 1, [0, 90, 0])
                 | octprism(sz + 1, None)
@@ -425,11 +426,10 @@ class TrussSupport:
                 ]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
-        self._solid: Bosl2Solid = Bosl2Solid(_union(pieces).shape, size=[w, length, height])
+        self._solid: "Solid" = _union(pieces).with_nominal_size([w, length, height])
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the support truss geometry."""
         return self._solid
 
@@ -495,7 +495,7 @@ class TrussCorner:
             exts = [int(x) for x in (list(extents) + [0] * 5)[:5]]
         step = sz - st
 
-        def seg() -> Bosl2Solid:
+        def seg() -> "Solid":
             return TrussSegment(size=sz, strut=st, bracing=bracing, fn=fn, fa=fa, fs=fs).shape
 
         segs = [seg().up(step * zcol) for zcol in range(h)]
@@ -512,7 +512,7 @@ class TrussCorner:
             truss_dist(exts[1] + 1 + exts[3], 1, sz, st),
             truss_dist(h + exts[4], 1, sz, st),
         ]
-        self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s)
+        self._solid: "Solid" = result.with_nominal_size(s)
         self._height: int = h
 
     @property
@@ -521,8 +521,7 @@ class TrussCorner:
         return self._height
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the corner geometry."""
         return self._solid
 
@@ -583,7 +582,7 @@ class TrussClip:
         clipheight = min(sz + st, sz / 3 + 2 * st * 2.6)
         clipsize = 0.5
 
-        def one_clip() -> Bosl2Solid:
+        def one_clip() -> "Solid":
             hook = prismoid(
                 [ct, clipheight],
                 [ct, clipheight - cliplen * 2],
@@ -630,11 +629,15 @@ class TrussClip:
             st * 2,
             clipheight - 2 * st,
         ]
-        self._solid: Bosl2Solid = Bosl2Solid(pair.shape, size=s_arr)
+        self._solid: "Solid" = pair.with_nominal_size(s_arr)
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    @csg_part(
+        "is 6mm taller on the SDF backend than on CSG and nobody has found out why yet -- the "
+        "chamfer mask and the rotated prismoid it is built from were each checked and agree "
+        "exactly, so the discrepancy is somewhere else in the clip (TASKS T14)"
+    )
+    def shape(self) -> "Solid":
         """Return the clip geometry."""
         return self._solid
 
@@ -695,7 +698,7 @@ class TrussFoot:
         wall_h = st + ct * 1.5
         cyld = (sz - 2 * st) / math.cos(math.radians(180 / 8))
         span = w * (sz - st) + st
-        parts: list[Bosl2Solid] = []
+        parts: list["Solid"] = []
         base = cuboid(
             [span + 2 * ct, sz - 2 * st, ct],
             chamfer=st,
@@ -762,11 +765,10 @@ class TrussFoot:
         # Nominal anchor box: the foot's plate. Its plugs stand proud of the plate in Z, so
         # bounds() is taller -- anchoring follows the surface the foot sits on.
         s_arr = [span + 2 * ct, sz - 2 * st, st + ct]
-        self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
+        self._solid: "Solid" = result.with_nominal_size(s_arr)
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the foot geometry."""
         return self._solid
 
@@ -851,11 +853,10 @@ class TrussUClip:
                 for m in DistributableMatrix.xflip_copy(offset=(1 if dual else 0.5) * st + slop / 2)
             ]
         ).back((st + slop) / 2)
-        self._solid: Bosl2Solid = Bosl2Solid((body | clips).shape, size=s_arr)
+        self._solid: "Solid" = (body | clips).with_nominal_size(s_arr)
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the U-clip geometry."""
         return self._solid
 
@@ -916,7 +917,7 @@ class TrussJoiner:
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
         clipsize = 0.5
         span = w * (sz - st) + st
-        parts: list[Bosl2Solid] = [cuboid([span + 2 * ct, sz, ct], fn=fn, fa=fa, fs=fs).up(ct / 2)]
+        parts: list["Solid"] = [cuboid([span + 2 * ct, sz, ct], fn=fn, fa=fa, fs=fs).up(ct / 2)]
         for mx in DistributableMatrix.xcopies(span + ct, num_copies=2):
             parts.append(
                 cuboid([ct, sz, ct + st * 3 / 4], fn=fn, fa=fa, fs=fs).up((ct + st * 3 / 4) / 2).multmatrix(mx.tolist())
@@ -962,11 +963,10 @@ class TrussJoiner:
         # Nominal anchor box: the joiner's plate, as TrussFoot uses. Its wall clips stand well
         # above the plate, so bounds() is several times taller in Z.
         s_arr = [span + 2 * ct, 2 * (sz - st) + st, st + ct]
-        self._solid: Bosl2Solid = Bosl2Solid(result.shape, size=s_arr)
+        self._solid: "Solid" = result.with_nominal_size(s_arr)
 
     @property
-    @csg_part("chamfers with chamfer_edge_mask(), a 2-D profile extruded along each edge")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the joiner geometry."""
         return self._solid
 

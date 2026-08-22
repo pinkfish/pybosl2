@@ -29,6 +29,7 @@ from pybosl2._native import native
 from pybosl2.points import Point
 
 if TYPE_CHECKING:
+    from pybosl2._backend import Solid
     from pybosl2.path2d import Path2D
     from pybosl2.shapes3d.base import Bosl2Solid
 
@@ -130,10 +131,16 @@ def rounding_edge_mask(
     return Bosl2Solid(_opolygon(cross).linear_extrude(height=length, center=True, scale=scale))
 
 
-def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float = 0.1) -> "Bosl2Solid":
-    """Return a standalone 3-D edge-chamfer cutter of length *length*.
+def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float = 0.1) -> "Solid":
+    """Return a standalone 3-D edge-chamfer cutter of length *length*, on the active backend.
 
-    A diamond bar (square prism rotated 45°) centered on its own Z axis.
+    A diamond bar centred on its own Z axis: a square prism of side ``chamfer * sqrt(2)``, turned
+    45 degrees, so it reaches *chamfer* along each axis.
+
+    It is built as a turned prism rather than an extruded diamond polygon so that it works on
+    either backend -- ``polygon().linear_extrude()`` is a CSG-only construction, and this cutter is
+    what `cubetruss` and `tripod_mounts` chamfer with, so it was the thing keeping them CSG-only
+    (TASKS T14). The two forms were checked to give the same solid and the same cut.
 
     Args:
         length: Length of the cutter along its axis (default 1).
@@ -141,13 +148,13 @@ def chamfer_edge_mask(length: float = 1.0, chamfer: float = 1.0, excess: float =
         excess: Extra length past *length* so the cut clears the surface (default 0.1).
 
     Returns:
-        A :class:`~pybosl2.shapes3d.Bosl2Solid` cutter.
+        The cutter, built by whichever backend is active.
 
     """
-    from pybosl2.shapes3d import Bosl2Solid
+    from pybosl2.solid import cuboid
 
-    diamond = [[chamfer, 0.0], [0.0, chamfer], [-chamfer, 0.0], [0.0, -chamfer]]
-    return Bosl2Solid(_opolygon(diamond).linear_extrude(height=length + excess, center=True))
+    side = chamfer * math.sqrt(2)
+    return cuboid([side, side, length + excess]).rotate(45, [0, 0, 1])
 
 
 def _pick_axes(vec: Point) -> tuple[int, int, int, float, float]:
@@ -159,10 +166,10 @@ def _pick_axes(vec: Point) -> tuple[int, int, int, float, float]:
 
 
 def _orient_mask_along_edge(
-    shape: "Bosl2Solid",
+    shape: "Solid",
     size: tuple[float, float, float],
     vec: Point,
-) -> "Bosl2Solid":
+) -> "Solid":
     """Reorient an already-built edge cutter onto the cuboid edge given by *vec*."""
     run_axis, a1, a2, s1, s2 = _pick_axes(vec)
     lx = [0.0, 0.0, 0.0]
@@ -188,7 +195,7 @@ def _extrude_mask_along_edge(
     length: float,
     size: tuple[float, float, float],
     vec: Point,
-) -> "Bosl2Solid":
+) -> "Solid":
     from pybosl2.shapes3d import Bosl2Solid
 
     # Wrapped, not the bare native handle the native polygon()/linear_extrude() pair hands back:
@@ -202,12 +209,12 @@ def edge_mask(
     body: "Bosl2Solid",
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
-    children: "Bosl2Solid | None" = None,
+    children: "Solid | None" = None,
     size: tuple[float, float, float] | None = None,
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
     return_cutter: bool = False,
-) -> "Bosl2Solid | None":
+) -> "Solid | None":
     """Cut a 3-D edge cutter along each selected edge of the box-shaped *body*.
 
     Args:
@@ -226,7 +233,7 @@ def edge_mask(
     if not (children is not None):
         raise ValueError("children= (the edge cutter) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
-    cutter: "Bosl2Solid | None" = None
+    cutter: "Solid | None" = None
     for axis in range(3):
         for i in range(4):
             if edge_set[axis][i] > 0:
@@ -250,7 +257,7 @@ def edge_profile(
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
     return_cutter: bool = False,
-) -> "Bosl2Solid | None":
+) -> "Solid | None":
     """Cut a 2-D mask profile extruded along each selected edge of the box-shaped *body*.
 
     Args:
@@ -271,7 +278,7 @@ def edge_profile(
     if not (children is not None):
         raise ValueError("children= (the 2-D mask path) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
-    cutter: "Bosl2Solid | None" = None
+    cutter: "Solid | None" = None
     for axis in range(3):
         for i in range(4):
             if edge_set[axis][i] > 0:
@@ -385,7 +392,7 @@ def _corner_chamfer_cutter(
     inner_pt = [corner_pt[i] - corner_vec[i] * chamfer for i in range(3)]
     block = cuboid([chamfer, chamfer, chamfer]).translate(Point([(corner_pt[i] + inner_pt[i]) / 2 for i in range(3)]))
 
-    wedges: "Bosl2Solid | None" = None
+    wedges: "Solid | None" = None
     for run_axis in range(3):
         edge_vec = list(corner_vec)
         edge_vec[run_axis] = 0.0
@@ -411,7 +418,7 @@ def corner_profile(
     fa: float | None = None,
     fs: float | None = None,
     return_cutter: bool = False,
-) -> "Bosl2Solid | None":
+) -> "Solid | None":
     """Round each selected corner of the box-shaped *body* to radius *radius*.
 
     Args:
@@ -440,7 +447,7 @@ def corner_profile(
     if not (size is not None):
         raise ValueError("size= (the box's size) must be given")
     corner_set = _corners(corners, except_corners or [])
-    cutter: "Bosl2Solid | None" = None
+    cutter: "Solid | None" = None
     for idx, sel in enumerate(corner_set):
         if sel:
             piece = _corner_cutter(size, CORNER_OFFSETS[idx], rad, fn, fa, fs)
@@ -467,7 +474,7 @@ def face_profile(
     fa: float | None = None,
     fs: float | None = None,
     return_cutter: bool = False,
-) -> "Bosl2Solid | None":
+) -> "Solid | None":
     """Round all edges and corners bounding the given face(s) of the box-shaped *body*.
 
     Args:
@@ -794,7 +801,7 @@ class Mask3D:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> "Bosl2Solid":
+    ) -> "Solid":
         """3-D cutter shape for rounding corners and edges of a box of the given size.
 
         Args:
@@ -831,7 +838,7 @@ class Mask3D:
         chamfer: float,
         size: tuple[float, float, float],
         corners: Anchor = Anchor.ALL,
-    ) -> "Bosl2Solid":
+    ) -> "Solid":
         """3-D cutter shape for chamfering corners and edges of a box of the given size.
 
         Args:
@@ -842,7 +849,7 @@ class Mask3D:
         """
         # NOT corner_profile(children=mask2d_chamfer(...)): corner_profile ignores children= and
         # always rounds, which used to make this factory return the roundover cutter verbatim.
-        cutter: "Bosl2Solid | None" = None
+        cutter: "Solid | None" = None
         for idx, sel in enumerate(_corners(corners, [])):
             if sel:
                 piece = _corner_chamfer_cutter(size, CORNER_OFFSETS[idx], chamfer)
