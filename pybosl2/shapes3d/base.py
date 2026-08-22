@@ -30,9 +30,10 @@ if TYPE_CHECKING:
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
-from pybosl2._helpers import anchor_vector, unwrap
+from pybosl2._anchoring import Anchorable
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
+from pybosl2._helpers import unwrap
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.defaults import resolve_facets as _resolve_facets
 from pybosl2.enums import AttachTag
@@ -188,7 +189,7 @@ def _as_native_3d(obj: object) -> "PyOpenSCAD":
 # ---------------------------------------------------------------------------
 
 
-class CsgSolid(BaseShape, Partitionable):
+class CsgSolid(BaseShape, Anchorable, Partitionable):
     """Wraps a PyOpenSCAD solid together with geometry metadata for BOSL2-style attachment.
 
     Tracks nominal `size` and `anchor` that BOSL2's $parent_geom attachment system would
@@ -569,68 +570,9 @@ class CsgSolid(BaseShape, Partitionable):
             "metadata (are you calling this under the numeric mock on a non-cuboid?)"
         )
 
-    def _resolve_bounds(self, bbox: Sequence[Sequence[float]] | None = None) -> "tuple[list[float], list[float]]":
-        """Return (center, size) for anchoring: from a passed-in *bbox*.
-
-        override if given, else the object's native bounding box
-        (:meth:`bounds`). *bbox* overrides the object's own box -- useful
-        when the native bbox is wrong for the purpose (a shape with an
-        overhang, a mask positioned against a nominal box, or a cheap way
-        to skip the meshing the native bbox needs). It is a min/max corner
-        pair ``[[min_x, min_y, min_z], [max_x, max_y, max_z]]`` (the same
-        shape :meth:`Path2D.bounds` and the native ``obj.bbox`` use).
-        """
-        if bbox is None:
-            return self.bounds()
-        arr = np.asarray(bbox, dtype=float)
-        if not (arr.shape == (2, 3)):
-            raise ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].")
-        lo, hi = arr[0], arr[1]
-        if not (bool(np.all(hi >= lo - 1e-12))):
-            raise ValueError("bbox must be [[min...],[max...]] with max >= min.")
-        return [(lo[i] + hi[i]) / 2 for i in range(3)], [hi[i] - lo[i] for i in range(3)]
-
-    def anchor_point(
-        self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None
-    ) -> list[float]:
-        """Return the [x, y, z] point on this object's bounding box for the.
-
-        given anchor, in the object's current coordinate frame: center +
-        anchor * size / 2. Works on any object.
-
-        Pass *bbox* to anchor against a supplied box instead of the object's own (see
-        :meth:`_resolve_bounds`).
-
-        Args:
-            anchor: An :class:`Anchor` enum or a sequence of three floats.
-            bbox: Optional override bounding box.
-
-        """
-        center, size = self._resolve_bounds(bbox)
-        a = anchor_vector(anchor)
-        return [center[i] + a[i] * size[i] / 2 for i in range(3)]
-
-    def reanchor(self, anchor: Anchor | Sequence[float], bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
-        """Return this object translated so its bounding-box `anchor` point.
-
-        sits at the origin. Re-anchors any object by its bbox after the
-        fact (cube()/cuboid() only do this at construction, and only for
-        cuboids). Pass *bbox* to use a supplied box.
-
-        Examples:
-        .. pythonscad-example::
-
-            from pybosl2.solid import cuboid
-            from pybosl2 import Anchor
-
-            cuboid([10, 20, 30]).reanchor(Anchor.BOTTOM).show()
-
-        """
-        p = self.anchor_point(anchor, bbox=bbox)
-        moved = self.translate([-p[0], -p[1], -p[2]])
-        if moved.size is not None and isinstance(anchor, Anchor):
-            moved.anchor = anchor
-        return moved
+    # _resolve_bounds / anchor_point / reanchor / reorient / orient come from Anchorable
+    # (pybosl2/_anchoring.py): anchor arithmetic is bounds-and-vector maths, not CSG
+    # topology, so both backends share the one implementation (TASKS T14 phase 5a).
 
     def position(self, anchor: Anchor, child: object, bbox: Sequence[Sequence[float]] | None = None) -> "Bosl2Solid":
         """Place `child` so its local origin lands on this object's bounding-box `anchor` point.
@@ -784,55 +726,6 @@ class CsgSolid(BaseShape, Partitionable):
         out.attachments = list(self.attachments)
         out.attachments.append(placed)
         return out
-
-    def reorient(
-        self,
-        anchor: Anchor | Sequence[float] = Anchor.CENTER,
-        spin: float = 0,
-        orient: Anchor | Sequence[float] = Anchor.TOP,
-        bbox: Sequence[Sequence[float]] | None = None,
-    ) -> "Bosl2Solid":
-        """Reorient this already-built object by its bounding box.
-
-        Moves the bounding-box *anchor* point to the origin, spins *spin* degrees about Z, then
-        rotates the object's UP toward *orient*. The size comes from the native bbox, so -- unlike
-        BOSL2's function form -- you never pass it. cube()/cuboid()/etc. take anchor/spin/orient at
-        construction; this applies the same transform to any object after the fact. Pass *bbox* to
-        reorient against a supplied box instead of the object's own.
-
-        Examples:
-        .. pythonscad-example::
-
-            from pybosl2.solid import cuboid
-            from pybosl2 import Anchor
-
-            cuboid([10, 20, 30]).reorient(anchor=Anchor.BOTTOM, orient=Anchor.TOP).show()
-
-        """
-        from pybosl2.transforms import reorient as _reorient_matrix
-
-        center, size = self._resolve_bounds(bbox)
-        a_vec = list(anchor.vector) if isinstance(anchor, Anchor) else list(anchor)
-        o_vec = list(orient.vector) if isinstance(orient, Anchor) else list(orient)
-        m = _reorient_matrix(anchor=a_vec, spin=spin, orient=o_vec, size=size)
-        centered = self.translate([-center[0], -center[1], -center[2]])
-        return centered.multmatrix(np.asarray(m).tolist())
-
-    def orient(
-        self, direction: Anchor = Anchor.TOP, spin: float = 0, bbox: Sequence[Sequence[float]] | None = None
-    ) -> "Bosl2Solid":
-        """Rotate this object so its top (UP) faces *direction*; uses the bbox.
-
-        Examples:
-        .. pythonscad-example::
-
-            from pybosl2.solid import cylinder
-            from pybosl2 import Anchor
-
-            cylinder(height=30, radius=5).orient(Anchor.TOP).show()
-
-        """
-        return self.reorient(anchor=Anchor.CENTER, spin=spin, orient=direction, bbox=bbox)
 
     # ---- edge/corner/face masking (pybosl2/masking.py), box-shaped objects ----
     #

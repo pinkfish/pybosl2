@@ -757,13 +757,25 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
 
 The 21 CSG-only methods are not one problem. Triaged by what they would actually take:
 
-* **Attachments (9 names) — implementable, and worth the most.** `attach`/`align`/`position`/
-  `anchor_point`/`reanchor`/`reorient`/`orient`/`attachments`/`realize` are bookkeeping over
-  *bounds + anchor*, not over CSG topology. The SDF backend has exact bounds — better ones than
-  CSG, which is the whole point of PAR-5 — so the arithmetic carries over unchanged. The work is
-  lifting the attachment state off `CsgSolid` into a mixin the `Shape` protocol declares, and
-  making `realize()` compose fields instead of native children. Doing this alone would move most
-  of the parts library, because the parts that are not primitives are mostly attachment chains.
+* **Attachments — the anchor arithmetic is done** 🔶. `anchor_point`, `reanchor`, `reorient` and
+  `orient` now work on both backends, from one shared `Anchorable` mixin
+  (`pybosl2/_anchoring.py`) rather than a copy per backend — the mistake `partitions.py` made
+  (T12). The CSG implementations were **deleted**, not left alongside it.
+
+  The reason recorded for their being CSG-only was simply wrong. `CSG_ONLY_FEATURES` said
+  anchoring *"needs a shape's face and edge structure, which a distance field does not retain --
+  there is nothing to anchor TO"*. It needs the bounding box, which an SDF shape knows exactly.
+  `tests/test_anchoring_parity.py` runs the same call on both backends and requires the same
+  answer, so they cannot drift.
+
+  Two things fell out of the move. `reanchor()`'s anchor bookkeeping was silently dropped and the
+  **entire suite stayed green** — nothing covered it, and it now has a test. And a ragged `bbox=`
+  used to surface numpy's *"inhomogeneous shape"* message instead of naming what to pass (E-4);
+  the shared guard says it properly.
+
+  What is left of attachments is the half that holds **children** — `attach`/`align`/`position`
+  record a placed child, and `realize()` combines them. That is native-tree work, and it is the
+  next slice. CSG-only members: 21 → **17**.
 * **Tagging and diff (6 names) — implementable, lower value.** `tag`/`tag_this`/`tag_name`/`diff`/
   `diff_config`/`intersect` are a naming scheme over the same tree; they need no geometry. Worth
   doing only after attachments, since they exist to serve them.

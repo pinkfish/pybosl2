@@ -81,15 +81,18 @@ __all__ = [
 # not left as an excuse -- and a name listed here must genuinely be absent from the other
 # backend's class, or the refusal never fires (tests/test_backend_parity.py).
 CSG_ONLY_FEATURES = frozenset(
-    {  # BOSL2's attachment/anchor system: anchoring needs a shape's face and edge structure,
-        # which a distance field does not retain -- there is nothing to anchor TO.
+    {  # BOSL2's attachment system, the half of it that holds CHILDREN: these record a placed
+        # child and combine it later, which is native-tree work the SDF backend has no equivalent
+        # for yet (TASKS T14 phase 5a, second half).
+        #
+        # The anchor arithmetic that used to be listed here -- anchor_point, reanchor, reorient,
+        # orient -- is not exclusive and no longer listed. The reason recorded for it was wrong:
+        # it said anchoring "needs a shape's face and edge structure, which a distance field does
+        # not retain". It needs the bounding box, which an SDF shape knows exactly. Both backends
+        # now share one implementation (pybosl2/_anchoring.py).
         "attach",
-        "anchor_point",
-        "reanchor",
         "position",
         "align",
-        "reorient",
-        "orient",
         "edge_mask",
         "edge_profile",
         "edge_profile_asym",

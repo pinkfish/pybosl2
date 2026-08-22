@@ -201,6 +201,15 @@ class BaseShape(Colorable, Distributable):
         """The nominal anchor box, or None if this shape never had one attached (SPEC S-2a)."""
         return None if self.size is None else [float(v) for v in self.size]
 
+    def _record_anchor(self, anchor: Any) -> None:
+        """Note that `reanchor()` moved this shape onto *anchor* (see `Anchorable`).
+
+        Only meaningful when there is a nominal box for the anchor to be a point of; a shape
+        without one is measured by `bounds()` alone and has nothing to record.
+        """
+        if self.size is not None:
+            self.anchor = anchor
+
     def __scad__(self) -> Any:
         """Auto-unwrap conversion hook for the PythonSCAD C++ layer interop."""
         return self._unwrap(self)
