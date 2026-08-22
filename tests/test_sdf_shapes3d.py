@@ -824,21 +824,38 @@ class TestHeightfield:
 
 
 class TestRegularPrism:
-    """regular_prism (n-gon prism) -- SDF via polygon_prism()."""
+    """regular_prism (n-gon prism) -- SDF via polygon_prism().
+
+    The default anchor is CENTER, so these prisms straddle z=0. They used to sit on [0, height]
+    instead -- polygon_prism() builds on z=0 and the anchor offset was applied to it as though it
+    were already centred, putting every prism half a height too high and disagreeing with the CSG
+    twin of the same call. These tests sampled at z=height/2, which was interior under the old
+    placement and is the top face under the right one, so they encoded the bug.
+    """
 
     def test_hex_prism_builds(self) -> None:
         shape = sdf_s3d.regular_prism(num_sides=6, height=10, radius=8).mesh()
         assert math.isclose(float(shape.sample(8, 0, 0)), float(0), abs_tol=10 ** (-3)), "vertex on surface"
-        assert shape.sample(0, 0, 5) < 0, "interior is inside"
+        assert shape.sample(0, 0, 0) < 0, "interior is inside"
+
+    def test_a_default_anchored_prism_straddles_the_origin(self) -> None:
+        """The placement itself, so it cannot drift back."""
+        prism = sdf_s3d.regular_prism(num_sides=6, height=10, radius=8)
+        assert prism.mn[2] == pytest.approx(-5.0)
+        assert prism.mx[2] == pytest.approx(5.0)
+        field = prism.mesh()
+        assert float(field.sample(0, 0, 0)) < 0  # solid at the centre
+        assert math.isclose(float(field.sample(0, 0, 5)), 0.0, abs_tol=1e-6)  # the top face
+        assert float(field.sample(0, 0, 6)) > 0  # and clear above it
 
     def test_triangle_prism_with_side_length(self) -> None:
         shape = sdf_s3d.regular_prism(num_sides=3, height=6, side=9).mesh()
         assert math.isclose(float(shape.sample(5.196, 0, 0)), float(0), abs_tol=10 ** (-3)), "vertex on surface"
-        assert shape.sample(0, 0, 3) < 0, "interior is inside"
+        assert shape.sample(0, 0, 0) < 0, "interior is inside"
 
     def test_pentagon_with_inner_radius(self) -> None:
         shape = sdf_s3d.regular_prism(num_sides=5, height=5, inner_radius=6).mesh()
-        assert shape.sample(0, 0, 2.5) < 0, "interior is inside"
+        assert shape.sample(0, 0, 0) < 0, "interior is inside"
 
     def test_realign_rotates_half_a_facet(self) -> None:
         shape = sdf_s3d.regular_prism(num_sides=4, height=4, radius=10).mesh()
