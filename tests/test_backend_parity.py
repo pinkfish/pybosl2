@@ -358,3 +358,63 @@ def test_a_rounded_cutter_does_not_count_as_a_box() -> None:
     assert moved is not None
     assert moved[0][2] == pytest.approx(0.0)
     assert moved[1][2] == pytest.approx(10.0)
+
+
+class TestLinearSweepAgreesAcrossBackends:
+    """The two backends must sweep the same solid: same twist direction, same shifted top.
+
+    These compare the SDF field against the CSG sweep's actual meshed vertices rather than
+    against a hand-derived expectation, so they stay honest if either transform is retuned.
+    """
+
+    HEIGHT = 10.0
+
+    @staticmethod
+    def _blob_profile(radius: float = 1.5, offset: float = 5.0, sides: int = 24) -> list[list[float]]:
+        """A small disc pushed out along +X -- off-centre, so a twist's direction shows up."""
+        import math
+
+        return [
+            [offset + radius * math.cos(t), radius * math.sin(t)]
+            for t in [i * 2 * math.pi / sides for i in range(sides)]
+        ]
+
+    def _csg_top_centre(self, **kwargs: object) -> list[float]:
+        import numpy as np
+
+        from pybosl2 import Path2D
+
+        vnf = Path2D(self._blob_profile()).linear_sweep(height=self.HEIGHT, **kwargs)  # type: ignore[arg-type]
+        verts = np.asarray(vnf.vertices, dtype=float)
+        top = verts[np.abs(verts[:, 2] - self.HEIGHT) < 1e-6]
+        return [float(c) for c in top[:, :2].mean(axis=0)]
+
+    def _sdf_solid(self, **kwargs: object) -> object:
+        from pybosl2.sdf import shapes2d as sdf_s2d
+        from pybosl2.sdf import skin as sdf_skin
+
+        profile = sdf_s2d.circle2d(radius=1.5).translate([5, 0])
+        return sdf_skin._linear_sweep_sdf(profile, height=self.HEIGHT, **kwargs)  # type: ignore[arg-type]
+
+    def _sdf_contains(self, solid: object, x: float, y: float) -> bool:
+        d = solid._sdf_fn(x, y, self.HEIGHT - 0.1)  # type: ignore[attr-defined]
+        z = self.HEIGHT - 0.1
+        return (float(d(x, y, z)) if callable(d) else float(d)) <= 1e-6
+
+    @pytest.mark.parametrize("twist", [90.0, -90.0, 45.0])
+    def test_twist_carries_the_profile_the_same_way(self, twist: float) -> None:
+        """Where CSG's mesh puts the top of the blob, the SDF field must also be solid -- and its
+        mirror image about the origin must not be."""
+        cx, cy = self._csg_top_centre(twist=twist)
+        solid = self._sdf_solid(twist=twist)
+        assert self._sdf_contains(solid, cx, cy), f"twist={twist}: SDF is empty where CSG put the blob ({cx}, {cy})"
+        assert not self._sdf_contains(solid, -cx, -cy), f"twist={twist}: SDF twisted the opposite way"
+
+    def test_shift_and_scale_land_the_top_in_the_same_place(self) -> None:
+        """The profile is scaled about the origin and then shifted, so the blob's own centre at
+        x=5 goes to 2*5 + 4 = 14 -- not 2*(5 + 4) = 18, which is where shifting first put it."""
+        cx, cy = self._csg_top_centre(scale=2.0, shift=(4.0, 0.0))
+        assert [round(cx, 6), round(cy, 6)] == [14.0, 0.0]  # the CSG mesh agrees with the argument
+        solid = self._sdf_solid(scale=2.0, shift=(4.0, 0.0))
+        assert self._sdf_contains(solid, cx, cy)
+        assert not self._sdf_contains(solid, 18.0, cy)

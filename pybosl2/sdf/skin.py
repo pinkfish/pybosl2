@@ -14,8 +14,6 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
-import numpy as np  # noqa: TC002
-
 from pybosl2.sdf._libfive import lv
 from pybosl2.sdf.paths import _lv_hypot
 from pybosl2.sdf.shapes3d import PyShape
@@ -23,41 +21,7 @@ from pybosl2.sdf.shapes3d import PyShape
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2.paths import PathLike
     from pybosl2.sdf.shapes2d import PyShape2D
-
-# ---------------------------------------------------------------------------
-#  pure-math helpers (same as pybosl2/skin.py, ported without VNF dependency)
-# ---------------------------------------------------------------------------
-
-
-def path3d(path: PathLike) -> list[list[float]]:
-    """Pad a 2-D (or 3-D) point list to 3-D with z=0."""
-    return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
-
-
-def clockwise_polygon(poly: PathLike) -> list:  # type: ignore[type-arg]
-    """*poly* wound clockwise (reversed if CCW)."""
-    area = 0.0
-    pts = list(poly)
-    n = len(pts)
-    for i in range(n):
-        j = (i + 1) % n
-        area += pts[i][0] * pts[j][1] - pts[j][0] * pts[i][1]
-    return pts if area <= 0 else list(reversed(pts))
-
-
-def _apply_transform(m: np.ndarray, pt: Sequence[float]) -> list[float]:
-    """Apply 4x4 matrix *m* to a homogeneous 3-D point."""
-    w = m[3, 0] * pt[0] + m[3, 1] * pt[1] + m[3, 2] * pt[2] + m[3, 3]
-    if abs(w) < 1e-12:
-        w = 1.0
-    return [
-        (m[0, 0] * pt[0] + m[0, 1] * pt[1] + m[0, 2] * pt[2] + m[0, 3]) / w,
-        (m[1, 0] * pt[0] + m[1, 1] * pt[1] + m[1, 2] * pt[2] + m[1, 3]) / w,
-        (m[2, 0] * pt[0] + m[2, 1] * pt[1] + m[2, 2] * pt[2] + m[2, 3]) / w,
-    ]
-
 
 # ---------------------------------------------------------------------------
 #  SDF sweep / skin / revolve
@@ -131,9 +95,10 @@ def _linear_sweep_sdf(
 
     returning a 3-D PyShape.
 
-    The extrusion is built as a union of thin prismatic slabs, each one using the 2-D
-    shape's SDF at its own twisted/scaled orientation.  For plain extrusions without
-    twist/scale/shift, delegates to the exact ``shape2d.extrude()``.
+    The result is one continuous field: a query point is mapped back through the sweep's own
+    transform at its height and tested against the 2-D profile, so the twist and taper are exact
+    rather than stepped.  A plain extrusion, with no twist/scale/shift, delegates to
+    ``shape2d.extrude()``.
 
     Args:
         shape2d:  the 2-D cross-section to extrude
@@ -142,26 +107,26 @@ def _linear_sweep_sdf(
         scale:    final scale factor or ``[sx, sy]`` at the top (default 1)
         shift:    XY displacement of the top relative to the bottom (default [0, 0])
         center:   centre the extrusion on Z (default: sits on z=0..height)
-        slices:   number of intermediate slabs (auto-chosen if None)
+        slices:   ignored -- the field is continuous, so there is nothing to subdivide
+                  (accepted so the signature matches the CSG sweep)
         res:      meshing resolution (default 10)
 
     """
-    _ = slices
+    _ = slices  # the field is continuous, so there are no slices to choose
     sf = shape2d._sdf_fn
+    sx = float(scale) if isinstance(scale, (int, float)) else float(scale[0])
+    sy = float(scale) if isinstance(scale, (int, float)) else float(scale[1])
+    shx, shy = float(shift[0]), float(shift[1])
+
+    # Compared numerically: `shift != (0.0, 0.0)` read the default *list* [0, 0] as a request and
+    # took the swept path for what is a plain extrusion.
     has_modifiers = (
-        abs(twist) > 1e-9
-        or (isinstance(scale, (int, float)) and abs(scale - 1.0) > 1e-9)
-        or (not isinstance(scale, (int, float)))
-        or shift != (0.0, 0.0)
+        abs(twist) > 1e-9 or abs(sx - 1.0) > 1e-9 or abs(sy - 1.0) > 1e-9 or abs(shx) > 1e-9 or abs(shy) > 1e-9
     )
     if not has_modifiers:
         return shape2d.extrude(height, center=center, res=res)
 
     z0 = -height / 2 if center else 0.0
-    scale_s = float(scale) if isinstance(scale, (int, float)) else scale
-    sx = scale_s if isinstance(scale_s, (int, float)) else scale_s[0]
-    sy = scale_s if isinstance(scale_s, (int, float)) else scale_s[1]
-    shx, shy = float(shift[0]), float(shift[1])
     twist_rad_total = math.radians(twist)
 
     mx_r = max(abs(shape2d.mn[0]), abs(shape2d.mx[0]))
@@ -173,25 +138,38 @@ def _linear_sweep_sdf(
 
         su_s = 1.0 + u * (sx - 1.0)
         su_y = 1.0 + u * (sy - 1.0)
-        dx = u * shx
-        dy = u * shy
 
-        # Twist: rotate the query point back by -twist*r around Z
-        angle = -twist_rad_total * u
-        x_rot = x * lv.cos(angle) - y * lv.sin(angle)
-        y_rot = x * lv.sin(angle) + y * lv.cos(angle)
+        # The CSG sweep (pybosl2/skin.py:_linear_sweep) maps a profile point q to
+        # ``translate(u*shift) @ scale(su) @ zrot(-twist*u) @ q``, so getting back to the profile
+        # means undoing that in reverse: unshift, unscale, then unrotate. Applying them in the
+        # written order instead put the top face at ``scale * shift`` rather than ``shift``, and
+        # turned the twist the opposite way to the CSG backend for the same twist= argument.
+        x_sh = x - u * shx
+        y_sh = y - u * shy
 
-        x_loc = x_rot / lv.max(su_s, 1e-9) - dx
-        y_loc = y_rot / lv.max(su_y, 1e-9) - dy
+        x_sc = x_sh / lv.max(su_s, 1e-9)
+        y_sc = y_sh / lv.max(su_y, 1e-9)
+
+        angle = twist_rad_total * u
+        x_loc = x_sc * lv.cos(angle) - y_sc * lv.sin(angle)
+        y_loc = x_sc * lv.sin(angle) + y_sc * lv.cos(angle)
 
         d2d = sf(x_loc, y_loc)
         d_axis = lv.max(z_local - height, -z_local)
         return lv.max(d2d, d_axis)
 
-    max_scale = max(1.0, abs(sx), abs(sy))
-    bb = max(mx_r, my_r) * max_scale + max(abs(shx), abs(shy))
-    mn = [-bb, -bb, z0]
-    mx = [bb, bb, z0 + height]
+    # A twist turns the profile about Z, so a corner can swing onto either axis: the bound is the
+    # profile's circumscribed radius, not its half-width, or the mesh clips off the swept corners
+    # (a 10x10 square twisted 45 degrees reaches 7.07, well outside the +/-5 this used to claim).
+    if abs(twist) > 1e-9:
+        mx_r = my_r = math.hypot(mx_r, my_r)
+        max_scale_x = max_scale_y = max(1.0, abs(sx), abs(sy))
+    else:
+        max_scale_x, max_scale_y = max(1.0, abs(sx)), max(1.0, abs(sy))
+    bbx = mx_r * max_scale_x + abs(shx)
+    bby = my_r * max_scale_y + abs(shy)
+    mn = [-bbx, -bby, z0]
+    mx = [bbx, bby, z0 + height]
     return PyShape(sdf_fn, mn, mx, res)
 
 
