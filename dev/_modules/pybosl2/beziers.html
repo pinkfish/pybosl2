@@ -3812,10 +3812,18 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a marker ball at *p*, wrapped like _debug_tube()'s output so the two can be unioned.</span>
+
+<span class="sd">    Returning the bare native instead meant ``sphere | tube`` failed ("invalid argument left to</span>
+<span class="sd">    operator") while ``tube | sphere`` worked, so whether a caller's union succeeded came down to</span>
+<span class="sd">    which kind of piece it happened to start with.</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pythonscad</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span>
 
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
+
     <span class="n">p3</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">sphere</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">sphere</span><span class="p">(</span><span class="n">d</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">p3</span><span class="p">))</span>  <span class="c1"># the native takes r/d, not radius/diameter</span>
 
 
 <div class="viewcode-block" id="debug_bezier_patches">
@@ -3851,8 +3859,17 @@
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span> <span class="k">as</span> <span class="n">_Bosl2Solid</span>
 
-    <span class="n">plist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">patches</span><span class="p">]</span> <span class="k">if</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span> <span class="k">else</span> <span class="n">patches</span>  <span class="c1"># type: ignore[assignment]</span>
+    <span class="c1"># is_patch() only recognises a list/tuple, so a BezierPatch or an (R, C, 3) array -- both of</span>
+    <span class="c1"># which the signature accepts -- used to fall through and be iterated as if each row were a</span>
+    <span class="c1"># whole patch, failing with "patch rows must be a 3-D array".</span>
+    <span class="n">single</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">BezierPatch</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">patches</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">patches</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">is_patch</span><span class="p">(</span><span class="n">patches</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">plist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">patches</span><span class="p">]</span> <span class="k">if</span> <span class="n">single</span> <span class="k">else</span> <span class="n">patches</span>  <span class="c1"># type: ignore[assignment]</span>
     <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">surfaces</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">b</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">a</span> <span class="o">|</span> <span class="n">b</span><span class="p">)</span>
@@ -3886,11 +3903,22 @@
         <span class="k">if</span> <span class="n">showpatch</span> <span class="ow">or</span> <span class="n">showdots</span><span class="p">:</span>
             <span class="n">vnf</span> <span class="o">=</span> <span class="n">bp</span><span class="o">.</span><span class="n">vnf</span><span class="p">(</span><span class="n">splinesteps</span><span class="o">=</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">showpatch</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
+                <span class="c1"># A patch surface is open, and CSG cannot union two open meshes -- doing so lost</span>
+                <span class="c1"># the geometry entirely for two or more patches. Collect the meshes and emit them</span>
+                <span class="c1"># as one polyhedron instead, which is a mesh operation and does not care.</span>
+                <span class="n">surfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vnf</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">showdots</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vnf</span><span class="o">.</span><span class="n">vertices</span><span class="p">:</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_sphere_at</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="n">sz</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"blue"</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+    <span class="k">if</span> <span class="n">surfaces</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span> <span class="k">as</span> <span class="n">_VNF</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_VNF</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off."</span><span class="p">)</span>
+    <span class="c1"># Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the</span>
+    <span class="c1"># result with no bounding box of its own.</span>
+    <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
 
 </code></pre></div>
 
