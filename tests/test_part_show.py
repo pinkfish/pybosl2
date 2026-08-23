@@ -126,6 +126,7 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "NemaMountMask",
         "PhillipsMask",
         "RegularPolyhedron",
+        "RingHook",
         "ScrewHole",
         "Slider",
         "SnapLock",

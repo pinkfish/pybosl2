@@ -590,3 +590,26 @@ def test_no_part_needs_a_shape_argument_the_facade_cannot_carry() -> None:
         "parts passing a constructor argument the façade cannot carry, so they cannot be written "
         "backend-neutrally (SPEC B-9, TASKS T14):\n  " + "\n  ".join(sorted(set(offenders)))
     )
+
+
+@pytest.mark.parametrize("kwargs", [{"rounding": 0}, {"chamfer": 0}, {"rounding1": 0, "chamfer2": 0}])
+def test_an_explicit_zero_treatment_is_not_a_request(kwargs: dict[str, object]) -> None:
+    """SPEC B-9. "No rounding" is not something a backend has to be able to do.
+
+    Parts normalise `None` to `0` before forwarding -- `RingHook` passes
+    `rounding=rounding if rounding else 0` -- and B-9 was reading that explicit zero as a request
+    and refusing it, turning the part away from the SDF backend over an option it was declining.
+    """
+    with use_backend("sdf"):
+        built = solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
+    assert built.backend == "sdf"
+    assert built.bounds()[1] == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
+
+
+@pytest.mark.parametrize("kwargs", [{"rounding": 5}, {"chamfer": 3}, {"rounding1": 2}])
+def test_a_real_treatment_is_still_refused(kwargs: dict[str, object]) -> None:
+    """The other half: a non-zero request the SDF prismoid cannot honour still has to be refused."""
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
+        solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]

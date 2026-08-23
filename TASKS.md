@@ -948,7 +948,7 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
   rather than by a blanket part guard.
 
-**32 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+**33 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
 work -- every remaining refusal names a specific missing capability:
 
 | missing capability | parts |
@@ -956,7 +956,18 @@ work -- every remaining refusal names a specific missing capability:
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
 | `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
 | 2-D geometry (`Bosl2Shape2D`, hulls of circles) | 4 — `RingGear`, `TorxMask`, `TorxMask2d`, `Rack`, `Rack2d` |
-| `prismoid(rounding=)` | 1 — `RingHook` |
+| `prismoid(rounding=)` | 0 — see below |
+
+* **An explicit zero was being read as a request.** `RingHook` normalises `None` to `0` before
+  forwarding -- `rounding=rounding if rounding else 0`, which parts do routinely -- and B-9's
+  refusal treated that as an option the backend had to honour, turning the part away over a
+  treatment it was *declining*. `refuse_unhonoured()` now skips a value that asks for nothing
+  (`None`, `False`, or a numeric zero), which is the same no-op set the SDF `linear_extrude` has
+  always used for `twist`/`scale`. A non-zero `rounding=` is still refused, and both halves have
+  a test.
+
+  `RingHook` builds on either backend now, verified by probing 30 points through the hook rather
+  than trusting the envelope.
 
 * **`SparseWall` builds its lattice from outlines, not a 2-D region.** `sparse_wall2d()` unioned
   native 2-D polygons and extruded the region, and a region is a CSG notion. It returns the list
