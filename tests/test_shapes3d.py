@@ -23,6 +23,7 @@ from pybosl2.shapes3d import (
     cyl,
     cylinder,
     fillet,
+    path_text,
     plot3d,
     plot_revolution,
     prismoid,
@@ -889,3 +890,134 @@ def test_regular_prism_combined_options() -> None:
     assert float(size[2]) == pytest.approx(10.0)  # the height is unaffected by the lean
     assert float(centre[0]) == pytest.approx(-1.0, abs=0.01)  # leaned 2mm over its own base
     assert float(size[0]) < 2 * 8  # tapered, so narrower than twice the bottom radius
+
+
+# --- path_text() -------------------------------------------------------------------------
+#
+# A straight 80mm path carrying three 8mm letters: the text is 24mm long, so centring it has
+# exactly 28mm of slack to split. Those numbers are font-independent, unlike the glyph extents.
+
+TEXT_PATH_2D = [[0.0, 0.0], [40.0, 0.0], [80.0, 0.0]]
+TEXT_PATH_3D = [[0.0, 0.0, 0.0], [40.0, 0.0, 0.0], [80.0, 0.0, 0.0]]
+
+
+def test_path_text_2d_path_gives_a_flat_shape() -> None:
+    """A 2-D path lays the letters out flat, so the result is 2-D geometry, not a solid."""
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    flat = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0)
+    assert isinstance(flat, Bosl2Shape2D)
+    # It is real 2-D geometry: extruding it gives a solid exactly as tall as the extrusion.
+    centre, size = flat.linear_extrude(height=2).bounds()
+    assert float(size[2]) == pytest.approx(2.0)
+    assert 0.0 < float(size[0]) <= 24.0  # the letters span at most their own 24mm of text
+    assert float(centre[1]) > 0.0  # sitting on the baseline, so above the path
+
+
+def test_path_text_3d_path_extrudes_the_letters() -> None:
+    """A 3-D path gives a solid whose thickness is the letter depth, across the path."""
+    solid = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3)
+    assert isinstance(solid, Bosl2Solid)
+    thicker = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=5)
+    assert float(solid.bounds()[1][1]) == pytest.approx(3.0)
+    assert float(thicker.bounds()[1][1]) == pytest.approx(5.0)
+    # The extra depth is all that changed: the letters still run the same distance along the path.
+    assert float(thicker.bounds()[1][0]) == pytest.approx(float(solid.bounds()[1][0]))
+
+
+def test_path_text_accepts_a_bare_point_list() -> None:
+    """A point list is accepted wherever a Path is, and places the letters identically."""
+    from pybosl2.path2d import Path2D
+
+    from_list = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0)
+    from_path = path_text(Path2D(TEXT_PATH_2D), "abc", size=8, lettersize=8.0)
+    listed = from_list.linear_extrude(height=2).bounds()
+    pathed = from_path.linear_extrude(height=2).bounds()
+    assert np.allclose(np.asarray(listed[0], dtype=float), np.asarray(pathed[0], dtype=float))
+    assert np.allclose(np.asarray(listed[1], dtype=float), np.asarray(pathed[1], dtype=float))
+
+
+def test_path_text_center_splits_the_slack() -> None:
+    """center=True starts the text half the leftover path length in: (80 - 3*8) / 2 = 28mm."""
+    plain = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0).linear_extrude(height=2)
+    centred = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0, center=True).linear_extrude(height=2)
+    shift = float(centred.bounds()[0][0]) - float(plain.bounds()[0][0])
+    assert shift == pytest.approx(28.0, abs=1e-6)
+    # Only the position moved; the letters themselves are untouched.
+    assert np.allclose(np.asarray(centred.bounds()[1], dtype=float), np.asarray(plain.bounds()[1], dtype=float))
+
+
+def test_path_text_kern_spreads_the_letters() -> None:
+    """kern= adds space between letters, so the text runs further along the path."""
+    tight = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0).linear_extrude(height=2)
+    spread = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0, kern=4.0).linear_extrude(height=2)
+    # Two gaps of 4mm between three letters, and the run is measured between the outer glyph edges.
+    assert float(spread.bounds()[1][0]) - float(tight.bounds()[1][0]) == pytest.approx(8.0, abs=1e-6)
+
+
+def _text_ring(radius: float = 20.0, points: int = 32) -> list[list[float]]:
+    """A closed circular path in the XY plane, for text that curves round."""
+    import math
+
+    ring = [
+        [radius * math.cos(t), radius * math.sin(t), 0.0] for t in np.linspace(0, 2 * math.pi, points, endpoint=False)
+    ]
+    ring.append(list(ring[0]))
+    return ring
+
+
+def test_path_text_normal_turns_the_letters_to_face_it() -> None:
+    """normal= is the direction the reader looks from, so +Z lays the letters flat."""
+    ring = _text_ring()
+    upright = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2)
+    flat = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2, normal=[0, 0, 1])
+    # Read from above, the letters lie in the plane of the ring: only their depth stands up in Z.
+    assert float(flat.bounds()[1][2]) == pytest.approx(2.0)
+    # Read from the side, they stand upright instead, so Z spans a whole glyph height.
+    assert float(upright.bounds()[1][2]) > 6.0
+
+
+def test_path_text_normal_accepts_one_vector_per_path_point() -> None:
+    """A per-point list of normals is interpolated along the path; a constant list matches
+    the same single vector broadcast."""
+    ring = _text_ring()
+    broadcast = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2, normal=[0, 0, 1])
+    per_point = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2, normal=[[0, 0, 1]] * len(ring))
+    assert np.allclose(np.asarray(per_point.bounds()[0], dtype=float), np.asarray(broadcast.bounds()[0], dtype=float))
+    assert np.allclose(np.asarray(per_point.bounds()[1], dtype=float), np.asarray(broadcast.bounds()[1], dtype=float))
+
+
+def test_path_text_normal_list_must_match_the_path() -> None:
+    """A list of normals that is not one-per-path-point is rejected, not silently recycled."""
+    with pytest.raises(ValueError, match="list of 3 such vectors"):
+        path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=2, normal=[[0, 0, 1]] * 2)
+
+
+def test_path_text_reverse_flips_the_letters_across_the_path() -> None:
+    """reverse= reads the text from the other side, mirroring it about the path."""
+    front = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3)
+    back = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3, reverse=True)
+    assert float(back.bounds()[0][2]) == pytest.approx(-float(front.bounds()[0][2]))
+    assert np.allclose(np.asarray(back.bounds()[1], dtype=float), np.asarray(front.bounds()[1], dtype=float))
+
+
+def test_path_text_offset_lifts_the_letters_off_the_path() -> None:
+    """offset= shifts the letters along the normal, towards the reader."""
+    flush = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3)
+    raised = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3, offset=2)
+    moved = np.asarray(raised.bounds()[0], dtype=float) - np.asarray(flush.bounds()[0], dtype=float)
+    assert np.allclose(moved, [0.0, -2.0, 0.0])  # the default normal points at -Y
+
+
+def test_path_text_top_orients_the_letters_on_a_2d_path() -> None:
+    """top= is allowed on a 2-D path, where it is the only orientation control."""
+    from pybosl2.shapes2d import Bosl2Shape2D
+
+    topped = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0, top=[0, 1])
+    assert isinstance(topped, Bosl2Shape2D)
+    plain = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0)
+    # +Y is already "up" for a left-to-right path, so it changes nothing.
+    assert np.allclose(
+        np.asarray(topped.linear_extrude(height=2).bounds()[0], dtype=float),
+        np.asarray(plain.linear_extrude(height=2).bounds()[0], dtype=float),
+    )
