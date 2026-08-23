@@ -140,6 +140,7 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "SparseWall",
         "SpurGear",
         "ThinningTriangle",
+        "TorxMask",
         "ThreadHelix",
         "Truss",
         "TrussClip",

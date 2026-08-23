@@ -1010,15 +1010,21 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
   rather than by a blanket part guard.
 
-**37 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+**38 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
 work -- every remaining refusal names a specific missing capability:
 
 | missing capability | parts |
 |---|---|
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
 | a VNF grid (a non-convex mesh, as above) | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
-| 2-D geometry (hulls of circles) | 2 — `TorxMask`, `TorxMask2d` |
+| *(nothing else)* | — |
 | `prismoid(rounding=)` | 0 — see below |
+
+* **The Torx profile moved from 2-D CSG to shapely.** BOSL2 draws it with 2-D booleans -- a base
+  circle unioned with the hull of three tip circles (twice, half a turn apart), less six rounding
+  circles -- and 2-D geometry is a CSG notion. The identical construction runs on shapely, which
+  is pure Python, so `TorxSpec._profile()` hands back a `Path2D` and `TorxMask`/`TorxMask2d` build
+  on either backend. Same outline to four decimals: T30 measures 5.6 x 4.8497 both ways.
 
 * **`spiral_sweep()` has an exact distance-field form.** A point at radius `r`, angle `theta`,
   height `z` is on turn `k` of the helix exactly when the profile contains

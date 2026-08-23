@@ -30,16 +30,12 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import quantup, union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, CENTER, INCH
 from pybosl2.distributors import DistributableMatrix
 from pybosl2.path2d import Path2D
-from pybosl2.shapes2d import circle
-from pybosl2.shapes2d import hull as _hull2d
-from pybosl2.shapes3d.base import Bosl2Solid
 from pybosl2.solid import cyl, prismoid, regular_prism
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
@@ -189,8 +185,22 @@ class TorxSpec:
         """``(outer_diameter, inner_diameter, depth, tip_rounding, inner_rounding)``."""
         return (self.outer_diameter, self.inner_diameter, self.depth, self.tip_rounding, self.inner_rounding)
 
-    def _profile(self) -> Any:
-        """Return the native 2-D CSG profile for this Torx size."""
+    def _profile(self) -> "Path2D":
+        """Return this Torx size's lobed outline as a closed path.
+
+        BOSL2 draws it with 2-D CSG -- a base circle unioned with the hull of three tip circles
+        (twice, half a turn apart), less six rounding circles. The same construction runs on
+        shapely here, which is pure Python: it hands back a *path*, and a path extrudes on either
+        backend, where 2-D geometry is a CSG notion (TASKS T14).
+        """
+        import math
+
+        from shapely import affinity
+        from shapely.geometry import Polygon as _Polygon
+        from shapely.ops import unary_union as _unary_union
+
+        from pybosl2.path2d import Path2D
+
         outer_diameter = self.outer_diameter
         id_ = self.inner_diameter
         tip = self.tip_rounding
@@ -198,22 +208,24 @@ class TorxSpec:
         base = outer_diameter - 2 * tip
         fn_val = int(quantup(_frag_count(outer_diameter / 2), 12))
 
-        tip_circles = [
-            circle(radius=tip, fn=fn_val // 2).translate([base / 2, 0]).multmatrix(m.tolist())
-            for m in DistributableMatrix.zrot_copies(num_copies=3)
-        ]
-        tri = _hull2d(tip_circles)
-        lobes = _union(tri.multmatrix(m.tolist()) for m in DistributableMatrix.zrot_copies(num_copies=2))
-        solid = circle(diameter=base, fn=fn_val) | lobes
+        def disc(radius: float, sides: int, cx: float = 0.0) -> Any:
+            sides = max(int(sides), 3)
+            return _Polygon(
+                [
+                    [cx + radius * math.cos(2 * math.pi * i / sides), radius * math.sin(2 * math.pi * i / sides)]
+                    for i in range(sides)
+                ]
+            )
 
-        cut = _union(
-            circle(radius=rounding, fn=fn_val)
-            .translate([id_ / 2 + rounding, 0])
-            .rotate([0, 0, 180 / 6])
-            .multmatrix(m.tolist())
-            for m in DistributableMatrix.zrot_copies(num_copies=6)
+        tips = [affinity.rotate(disc(tip, fn_val // 2, base / 2), a, origin=(0, 0)) for a in (0, 120, 240)]
+        tri = _unary_union(tips).convex_hull
+        lobes = _unary_union([tri, affinity.rotate(tri, 180, origin=(0, 0))])
+        solid = _unary_union([disc(base / 2, fn_val), lobes])
+        cut = _unary_union(
+            [affinity.rotate(disc(rounding, fn_val, id_ / 2 + rounding), 30 + k * 60, origin=(0, 0)) for k in range(6)]
         )
-        return solid - cut
+        profile = solid.difference(cut)
+        return Path2D([[float(x), float(y)] for x, y in list(profile.exterior.coords)[:-1]], closed=True)
 
 
 @dataclass(frozen=True)
@@ -598,7 +610,7 @@ class TorxMask2d:
         """
         self._size: int = size
         spec = TorxSpec(size)
-        self._solid: Bosl2Solid = Bosl2Solid(spec._profile())
+        self._shape: "Path2D" = spec._profile()
 
     @property
     def size(self) -> int:
@@ -606,9 +618,10 @@ class TorxMask2d:
         return self._size
 
     @property
-    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
-    def shape(self) -> Bosl2Solid:
-        """Return the 2-D Torx profile.
+    def shape(self) -> "Path2D":
+        """Return the Torx profile as a closed path.
+
+        A path, not 2-D geometry, so it extrudes on either backend (see :class:`SpurGear2d`).
 
         Examples:
             Generate an STL of a T30 Torx 2-D profile extruded 10 mm:
@@ -619,7 +632,7 @@ class TorxMask2d:
                 TorxMask2d(size=30).shape.linear_extrude(height=10).show()
 
         """
-        return self._solid
+        return self._shape
 
     def show(self) -> Any:
         """Display the 2-D Torx profile in the viewer, and return it.
@@ -628,7 +641,8 @@ class TorxMask2d:
             The shape, so the call can be chained or assigned.
 
         """
-        return self._solid.show()
+        self._shape.polygon().show()
+        return self._shape
 
 
 class TorxMask:
@@ -665,7 +679,7 @@ class TorxMask:
         solid = spec._profile().linear_extrude(height=l, center=center)
         # Nominal anchor box: the Torx size's outer diameter. The lobed profile only touches that
         # circle at the six lobes, so bounds() is narrower across the flats between them.
-        self._solid: Bosl2Solid = Bosl2Solid(solid.shape, size=[outer_diameter, outer_diameter, l])
+        self._solid: "Solid" = solid.with_nominal_size([outer_diameter, outer_diameter, l])
         self._outer_diameter: float = outer_diameter
 
     @property
@@ -689,8 +703,7 @@ class TorxMask:
         return self._outer_diameter
 
     @property
-    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the Torx driver-recess mask geometry.
 
         Examples:
