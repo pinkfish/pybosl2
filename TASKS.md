@@ -40,11 +40,14 @@ spec renumbers as items close, and all but S-46a have.
 | — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
 | — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
 | — | test quality | [T13](#t13--replace-the-existence-only-tests-) ✅ | L |
+| — | S-46a / PAR-1 | [T14](#t14--give-parts-an-sdf-form-where-they-have-one-) 🔶 | XL |
+| — | bug | [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-) ✅ | S |
 
 **Everything above is done except T11**, whose last four rejection paths need a real
-libfive install to reach. The only open conformance item is S-46a / PAR-1: parts refuse on
-the SDF backend rather than building — see [T14](#t14--give-parts-an-sdf-form-where-they-have-one)
-for what that would actually take.
+libfive install to reach. The open conformance item is S-46a / PAR-1: parts refuse on
+the SDF backend rather than building — see [T14](#t14--give-parts-an-sdf-form-where-they-have-one-)
+for what that would actually take. [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-)
+was a reported bug in the SVG importer, now fixed.
 
 ## Order and why
 
@@ -671,6 +674,65 @@ Two live bugs surfaced, both in code that had never run:
 One upstream quirk is now pinned rather than smoothed over: BOSL2 documents cutpath tiles as
 ``Y between -0.5 and 0.5``, but its own `sawtooth` reaches 1. We reproduce it (B2-1), and the test
 says why.
+
+---
+
+## T15 — `from_svg` loses even-odd holes when the SVG has a viewBox ✅
+
+**Size:** S · **Status:** fixed · **Reported against:** pybosl2 0.7.10,
+shapely 2.1.2, svgelements 1.9.6, Python 3.14.6
+
+`Region.from_svg` flattens a shape's nested subpaths into a solid blob whenever the SVG declares a
+`viewBox`. A donut's centre, a plate's windows, the gaps in a radar icon's rings — all come back
+solid. `clip_to_viewbox` defaults to True and `Region.from_svg` does not expose it, so every caller
+with a viewBox'd SVG hits this.
+
+**Reproduced.** One `<path>`, an outer square with a nested inner square, inside a `viewBox`:
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M0,0 L100,0 L100,100 L0,100 Z M25,25 L75,25 L75,75 L25,75 Z"/>
+</svg>
+```
+
+| call | holes | area |
+|---|---:|---:|
+| `Region.from_svg(file)` | 0 | 10000.0 |
+| `region_from_svg(file, clip_to_viewbox=False)` | 1 | 7500.0 |
+| *expected* | *1* | *7500.0* |
+
+**Root cause.** `svg_element_groups()` clips each shape's rings to the viewBox before the even-odd
+rule is applied. `_clip_rings()` goes through `_rings_to_shapely()`, which builds every ring as a
+*filled* polygon and merges them with `unary_union` — so a nested ring, which even-odd would read
+as a hole, is absorbed into the outer shape. `Region.even_odd` runs afterwards, by which point the
+hole no longer exists. The function's own docstring says "even-odd", which it does not do; that is
+worth fixing in the same change.
+
+**The fix.** Make `_rings_to_shapely()` honour even-odd nesting rather than unioning filled
+polygons: sort the rings by containment depth (a ring inside an odd number of others is a hole,
+inside an even number is a shell) and build each as `Polygon(shell, holes)`. That carries holes
+through the `intersection(mask)` clip, and the existing `Region.even_odd` pass then does what it
+was meant to. Applying even-odd to the raw rings *before* clipping would also work.
+
+Also expose `clip_to_viewbox` on `Region.from_svg`, which today only the module-level
+`region_from_svg` accepts — that is the only way to opt out, and it should not have to be.
+
+**Fixed.** `_rings_to_shapely()` builds shells-with-holes by even-odd nesting instead of unioning
+filled polygons, so holes survive the `intersection(mask)` clip. `Region.from_svg` takes
+`clip_to_viewbox` now, and clipping a drawing that already sits inside its viewBox is a verified
+no-op rather than a shape change.
+
+The nesting itself is not a second implementation: `Region.even_odd` already had it, including a
+winding-agnostic interior probe with a long comment about the 97 clockwise rings in Wikipedia's
+Flag_of_Portugal that a one-sided probe gets wrong. That logic came out as `inward_probe()` and
+`nesting_depths()`, which both callers now share -- writing a private copy in `svg.py` is how
+`partitions.py` earned T12.
+
+Tests assert the hole count and the area, not that a region came back (PLAN X-8): the donut (1
+hole, 7500), the clip being a no-op, `clip_to_viewbox` being reachable, and a three-deep case
+(shell, hole, island → 2 polygons, 1 hole, 6800) because a containment-depth fix can get two levels
+right and still flatten the third. All three geometry tests were confirmed to fail with the fix
+reverted. The Flag_of_Portugal fixture -- 324 polygons, 60 holes -- is unchanged.
 
 ---
 
