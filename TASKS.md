@@ -37,14 +37,13 @@ spec renumbers as items close, and all but S-46a have.
 | 16 | P-8 | [T8](#t8--class-ify-the-remaining-function-families-) ✅ | M |
 | 17 | B2-1 | [T9](#t9--track-bosl2-feature-coverage-) ✅ | M |
 | — | housekeeping | [T10](#t10--housekeeping-) ✅ | S |
-| — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths--sdf-only-remainder) 🔶 | L |
+| — | E-4 follow-up | [T11](#t11--cover-the-rejection-paths-) ✅ | L |
 | — | P-8 / coverage | [T12](#t12--partitions-cover-it-and-find-out-why-it-was-not-covered-) ✅ | M |
 | — | test quality | [T13](#t13--replace-the-existence-only-tests-) ✅ | L |
 | — | S-46a / PAR-1 | [T14](#t14--give-parts-an-sdf-form-where-they-have-one-) 🔶 | XL |
 | — | bug | [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-) ✅ | S |
 
-**Everything above is done except T11**, whose last four rejection paths need a real
-libfive install to reach. The open conformance item is S-46a / PAR-1: parts refuse on
+**Everything above is done.** The open conformance item is S-46a / PAR-1: parts refuse on
 the SDF backend rather than building — see [T14](#t14--give-parts-an-sdf-form-where-they-have-one-)
 for what that would actually take. [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-)
 was a reported bug in the SVG importer, now fixed.
@@ -569,7 +568,7 @@ and fails if the committed page has drifted from the generator.
 
 ---
 
-## T11 — Cover the rejection paths 🔶 (SDF-only remainder)
+## T11 — Cover the rejection paths ✅
 
 **Serves:** E-4, DOC-2 · **Implements:** PLAN E-P1, E-P2 · **Size:** L, batchable
 
@@ -579,12 +578,24 @@ conversion left **329 uncovered rejection paths**. `tests/test_validation_messag
 module by module, asserting the *message* as well as the type, because E-4 is about the message
 naming the fix.
 
-**Progress: 329 → 4, and every one of those four needs the SDF backend.** Each remaining line is a
-rejection that only the F-Rep path can reach — `flat.regular_ngon(rounding=)` and the two
-`sdf/__init__` backend refusals need `current_backend() == "sdf"`, and `hull()`'s empty-mesh guard
-needs a libfive mesh — so they stay uncovered wherever `libfive` is not installed. They are real
-guards, not dead ones, so they are *not* marked `# pragma: no cover`; cover them from a
-libfive-enabled run instead.
+**Progress: 329 → 0.** The last four were recorded as needing a real libfive install, and on
+re-examination three of them did not: the SDF backend's "no shape constructor named X" and its
+"linear_extrude has no such option" both fire under the numeric mock, which supplies the backend
+without supplying libfive, and the convexity check's malformed-input short-circuit is plain
+Python. They have tests. The fourth pair (`_takes_res`'s signature-less-callable guard) can only
+fire if a builtin were registered as a shape constructor, so it carries a `# pragma: no cover`
+with that reason. `pybosl2/sdf/__init__.py` is at 100%.
+
+Two guards this task once listed had already been marked defensive in the meantime —
+`regular_ngon`'s rounding-and-chamfer combination and `hull()`'s empty-args case — which is why
+the count read 4 rather than 3.
+
+**On libfive itself**: the `libfive` on PyPI is a different library — a Cython binding to the
+native `libfive` C library, exposing `Interval`/`Vector2D`, not the module-level `x()`/`min`/`max`
+this backend calls. The libfive pybosl2 targets ships *inside* the PythonSCAD app
+(`Contents/Frameworks/libfive.dylib`, wrapped by `pylibfive.py`) and is importable only from the
+app's embedded interpreter — which is what `tests/test_stl_render.py` already drives. So there is
+no `pip install` that would have closed this.
 
 Everything else is either exercised by `tests/test_validation_messages.py` (360 cases) or marked
 `# pragma: no cover` with the reason it cannot fire.

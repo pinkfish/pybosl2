@@ -1187,3 +1187,44 @@ WAS_ASSERTION_CASES: list[tuple[Callable[[], object], str]] = [
 def test_former_assertions_now_reject_with_value_error(call: Callable[[], object], expected: str) -> None:
     with pytest.raises(ValueError, match=expected):
         call()
+
+
+# ---------------------------------------------------------------------------
+# The SDF backend's own rejections (TASKS T11)
+# ---------------------------------------------------------------------------
+
+
+def test_the_sdf_backend_names_a_shape_it_cannot_build() -> None:
+    """An unknown shape name says which one, rather than failing on a None later."""
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import get_backend, use_backend
+
+    with use_backend("sdf"), pytest.raises(ValueError, match="no shape constructor 'flibbertigibbet'"):
+        get_backend().constructor("flibbertigibbet")
+
+
+def test_the_sdf_linear_extrude_names_an_option_it_has_no_notion_of() -> None:
+    """Everything it *can* honour is popped first, so whatever is left is genuinely unknown."""
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import get_backend, use_backend
+
+    triangle = [[[0, 0], [10, 0], [10, 10]]]
+    with use_backend("sdf"), pytest.raises(ValueError, match=r"no \['nonsense'\] option"):
+        get_backend().linear_extrude(triangle, 5, {"nonsense": 3})
+
+
+@pytest.mark.parametrize(
+    ("points", "faces"),
+    [
+        ([[0, 0, 0], [1, 0, 0]], [[0, 1, 2]]),  # too few vertices to bound anything
+        ([[0, 0], [1, 0], [1, 1], [0, 1]], [[0, 1, 2, 3]]),  # 2-D points
+    ],
+)
+def test_the_convexity_check_declines_to_judge_a_malformed_mesh(points: list, faces: list) -> None:  # type: ignore[type-arg]
+    """It is a convexity test, not a validator: "malformed" and "non-convex" are different faults.
+
+    Answering "convex" here lets the CSG backend make its own, better complaint about the mesh.
+    """
+    from pybosl2.sdf import _describes_a_convex_solid
+
+    assert _describes_a_convex_solid(points, faces)
