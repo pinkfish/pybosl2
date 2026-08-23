@@ -2545,8 +2545,12 @@
         <span class="n">xvals</span> <span class="o">=</span> <span class="n">_heightfield_range</span><span class="p">(</span><span class="n">xrange</span><span class="p">)</span>
         <span class="n">yvals</span> <span class="o">=</span> <span class="n">_heightfield_range</span><span class="p">(</span><span class="n">yrange</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">xvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span>
-        <span class="n">yvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+        <span class="c1"># transpose= swaps which array axis runs around the cylinder, so the sampled extents have</span>
+        <span class="c1"># to swap with it: without that, the transposed ``data[xi][yi]`` read below indexes the</span>
+        <span class="c1"># rows with a column count and falls off the end of a non-square array.</span>
+        <span class="n">nrows</span><span class="p">,</span> <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">xvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">nrows</span> <span class="k">if</span> <span class="n">transpose</span> <span class="k">else</span> <span class="n">ncols</span><span class="p">))</span>
+        <span class="n">yvals</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">ncols</span> <span class="k">if</span> <span class="n">transpose</span> <span class="k">else</span> <span class="n">nrows</span><span class="p">))</span>
     <span class="n">xlen</span><span class="p">,</span> <span class="n">ylen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xvals</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">yvals</span><span class="p">)</span>
 
     <span class="n">stepy</span> <span class="o">=</span> <span class="n">l_val</span> <span class="o">/</span> <span class="p">(</span><span class="n">ylen</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
