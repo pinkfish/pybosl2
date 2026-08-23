@@ -109,6 +109,10 @@ abs = _wrap1(__import__("builtins").abs)  # noqa: A001
 max = _wrap2(__import__("builtins").max)  # noqa: A001
 min = _wrap2(__import__("builtins").min)  # noqa: A001
 atan2 = _wrap2(math.atan2)
+# The twist branch of _linear_sweep_sdf() rotates by an angle that varies with z, so it needs
+# these as symbolic ops rather than plain math.sin/cos on a float.
+sin = _wrap1(math.sin)
+cos = _wrap1(math.cos)
 
 
 class _FrepResult:
@@ -708,7 +712,7 @@ def install():
     if not _is_real("libfive"):
         libfive_mock = types.ModuleType("libfive")
         libfive_mock._pybosl2_mock = True
-        for name in ["Tree", "x", "y", "z", "sqrt", "square", "abs", "max", "min", "atan2"]:
+        for name in ["Tree", "x", "y", "z", "sqrt", "square", "abs", "max", "min", "atan2", "sin", "cos"]:
             setattr(libfive_mock, name, globals()[name])
         sys.modules["libfive"] = libfive_mock
         # frep() is handed the Tree objects libfive just built, so the two have to come from the

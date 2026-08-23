@@ -16,7 +16,7 @@ What a copier returns depends on the object it is called on:
       cuboid([6, 6, 6]).zrot_copies(rots=6, radius=30)                 # a ring of 6 cubes
       part.right(20).xflip_copy()                              # part + its mirror image
 
-* :class:`~pybosl2.paths` / :class:`~pybosl2.sdf.skin.path3d` -- a plain ``list`` of the transformed
+* :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.path3d.Path3D` -- a plain ``list`` of the transformed
   path copies (BOSL2's function form). A 2-D ``Path`` only supports the in-plane copiers; one that
   would lift it out of the XY plane (``zcopies``, ``xrot_copies``, ``sphere_copies``, ...) raises,
   directing you to ``Path3D``.

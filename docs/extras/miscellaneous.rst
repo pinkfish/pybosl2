@@ -5,7 +5,7 @@ Pure-Python port of BOSL2's ``miscellaneous.scad`` -- the extrusions (``extrude_
 ``path_extrude2d``, ``path_extrude``, ``cylindrical_extrude``), the bounding box, ``chain_hull``,
 and the minkowski-based transforms (``minkowski_difference``, ``offset3d``, ``round3d``).
 
-The two path extrusions are methods on :class:`~pybosl2.paths` / :class:`~pybosl2.sdf.skin.path3d`,
+The two path extrusions are methods on :class:`~pybosl2.path2d.Path2D` / :class:`~pybosl2.path3d.Path3D`,
 and -- unlike BOSL2, which extrudes its *children* -- they take the 2-D cross-section as a
 **profile argument**::
 
