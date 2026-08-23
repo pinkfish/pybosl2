@@ -509,8 +509,12 @@ def cylindrical_heightfield(
         xvals = _heightfield_range(xrange)
         yvals = _heightfield_range(yrange)
     else:
-        xvals = list(range(len(data[0])))
-        yvals = list(range(len(data)))
+        # transpose= swaps which array axis runs around the cylinder, so the sampled extents have
+        # to swap with it: without that, the transposed ``data[xi][yi]`` read below indexes the
+        # rows with a column count and falls off the end of a non-square array.
+        nrows, ncols = len(data), len(data[0])
+        xvals = list(range(nrows if transpose else ncols))
+        yvals = list(range(ncols if transpose else nrows))
     xlen, ylen = len(xvals), len(yvals)
 
     stepy = l_val / (ylen - 1)
