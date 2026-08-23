@@ -3044,12 +3044,15 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 p0 = pts[(i - 1) % sides]
                 p1 = pts[i]
                 p2 = pts[(i + 1) % sides]
+                # The bezier *replaces* the corner: it already runs from a point back along
+                # p0->p1 to one along p1->p2. Emitting the sharp corner as well, and then dropping
+                # the bezier's own first point, left the path running out to the corner and then
+                # jumping back to pick the curve up -- a spike at every corner, which is why a
+                # "rounded" square came out longer than the square it was rounding.
                 if last_end < i:
-                    out.extend(pts[last_end : i + 1])
-                else:
-                    out.append(pts[i])
+                    out.extend(pts[last_end:i])
                 bez_pts = _bezcorner([p0, p1, p2], dk[i], fn=fn, fs=fs)
-                out.extend(bez_pts[1:])
+                out.extend(bez_pts)
                 last_end = i + 1
             elif i == sides - 1 and last_end < sides:
                 out.extend(pts[last_end:])
