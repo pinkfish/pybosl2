@@ -78,6 +78,57 @@ def _flatten_shapely_to_paths(geom: MultiPolygon) -> list[Path2D]:
     return paths
 
 
+def inward_probe(poly: Any) -> Any:
+    """Return a point strictly inside *poly* and on no other polygon's boundary.
+
+    The midpoint of the first edge, nudged inward. WHICH side is inward depends on the winding, so
+    both are tried. Assuming one (this used to take `-dy, +dx` and nothing else) puts the probe
+    OUTSIDE every clockwise ring -- 97 of the 153 rings in Wikipedia's Flag_of_Portugal -- and a
+    probe outside its own polygon fails every containment test, so every nesting depth derived from
+    it is wrong: the flag's green field came out a top-level sibling of the red one instead of
+    sitting on it.
+
+    Args:
+        poly: The polygon to find an interior point of. It must carry no holes -- the probe is only
+            guaranteed inside the shell, which is what nesting is computed from.
+
+    Returns:
+        A point inside *poly*.
+
+    """
+    from shapely.geometry import Point as _Point
+
+    coords = poly.exterior.coords
+    x0, y0 = float(coords[0][0]), float(coords[0][1])
+    x1, y1 = float(coords[1][0]), float(coords[1][1])
+    mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+    dx, dy = x1 - x0, y1 - y0
+    for sx, sy in ((-dy, dx), (dy, -dx)):
+        probe = _Point(mx + sx * 1e-6, my + sy * 1e-6)
+        if poly.contains(probe):
+            return probe
+    # Degenerate first edge (a spike, or a duplicated point): fall back to a point shapely
+    # guarantees is inside.
+    return poly.representative_point()
+
+
+def nesting_depths(polys: "Sequence[Any]", probes: "Sequence[Any]") -> list[int]:
+    """Return how many other polygons contain each one -- the even-odd nesting depth.
+
+    Even depth is a shell, odd depth is a hole in the shell that encloses it. This is the rule SVG
+    and OpenSCAD's multi-path ``polygon()`` use.
+
+    Args:
+        polys: The polygons, each a bare shell.
+        probes: An interior point per polygon, from :func:`inward_probe`.
+
+    Returns:
+        One depth per polygon, in the same order.
+
+    """
+    return [sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))]
+
+
 class Region:
     """A 2-D region backed by :mod:`shapely` (not OpenSCAD/PythonSCAD).
 
@@ -308,6 +359,7 @@ class Region:
         flip_y: bool = True,
         color: str | None = None,
         strokes: str = "polygon",
+        clip_to_viewbox: bool = True,
     ) -> "Region":
         """Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).
 
@@ -324,6 +376,9 @@ class Region:
                 Pass ``None`` (the default) to use the SVG's own colours.
             strokes: ``"polygon"`` (default) converts stroked paths to filled polygons.
                 ``"ignore"`` skips shapes that have only a stroke and no fill.
+            clip_to_viewbox: When True (the default), clip the drawing to the SVG's ``viewBox``.
+                Pass False for a drawing whose content already sits inside its viewBox, which is
+                the usual case for a CAD-style silhouette, to skip the work.
 
         Returns:
             A :class:`Region` of the drawing, nested by the even-odd rule.
@@ -331,7 +386,16 @@ class Region:
         """
         from pybosl2.svg import region_from_svg
 
-        return region_from_svg(file, fn=fn, fa=fa, fs=fs, flip_y=flip_y, color=color, strokes=strokes)
+        return region_from_svg(
+            file,
+            fn=fn,
+            fa=fa,
+            fs=fs,
+            flip_y=flip_y,
+            color=color,
+            strokes=strokes,
+            clip_to_viewbox=clip_to_viewbox,
+        )
 
     @classmethod
     def even_odd(cls, paths: "Sequence[Path2D | Sequence[Sequence[float]]]") -> "Region":
@@ -375,7 +439,6 @@ class Region:
                 Region.even_odd([red, blue]).geometry().linear_extrude(height=3).show()
 
         """
-        from shapely.geometry import Point as _Point
         from shapely.geometry import Polygon as _Polygon
         from shapely.ops import unary_union as _unary_union
 
@@ -403,34 +466,8 @@ class Region:
         if not polys:
             return cls()
 
-        probes = []
-        for poly in polys:
-            coords = poly.exterior.coords
-            # Midpoint of the first edge, shifted slightly inward so the probe is
-            # strictly inside the polygon and on no other polygon's boundary.
-            x0, y0 = float(coords[0][0]), float(coords[0][1])
-            x1, y1 = float(coords[1][0]), float(coords[1][1])
-            mx, my = (x0 + x1) / 2, (y0 + y1) / 2
-            dx, dy = x1 - x0, y1 - y0
-            # WHICH side is inward depends on the winding, so try both. Assuming one
-            # (this used to take `-dy, +dx` and nothing else) puts the probe OUTSIDE every
-            # clockwise ring -- 97 of the 153 rings in Wikipedia's Flag_of_Portugal -- and a
-            # probe outside its own polygon fails every containment test, so the nesting
-            # depth below is wrong for each of them: the flag's green field came out a
-            # top-level sibling of the red one instead of sitting on it.
-            for sx, sy in ((-dy, dx), (dy, -dx)):
-                probe = _Point(mx + sx * 1e-6, my + sy * 1e-6)
-                if poly.contains(probe):
-                    break
-            else:
-                # Degenerate first edge (a spike, or a duplicated point): fall back to a
-                # point shapely guarantees is inside. Safe here because these rings carry no
-                # holes yet -- holes are assigned further down.
-                probe = poly.representative_point()
-            probes.append(probe)
-        depths = [
-            sum(1 for j, other in enumerate(polys) if i != j and other.contains(probes[i])) for i in range(len(polys))
-        ]
+        probes = [inward_probe(poly) for poly in polys]
+        depths = nesting_depths(polys, probes)
 
         color_groups: dict["Color | None", list[_Polygon]] = {}
         group_order: list["Color | None"] = []

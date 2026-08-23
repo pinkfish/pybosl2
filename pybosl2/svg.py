@@ -283,17 +283,55 @@ def _shape_rings(element: object, sign: float, fn: "int | None", fs: float) -> l
 
 
 def _rings_to_shapely(rings: "list[list[list[float]]]") -> Any:
-    """Return the shapely geometry a set of rings describes, even-odd, repaired."""
+    """Return the shapely geometry a set of rings describes, even-odd, repaired.
+
+    Even-odd for real: a ring contained by an odd number of others is a hole in the one enclosing
+    it, and the rest are shells carrying their holes. This used to union the rings as *filled*
+    polygons, which is what SVG's even-odd rule says they are not -- so a donut clipped to its
+    viewBox came back a solid disc, and so did every window in a plate and every gap in a ring
+    icon. `Region.even_odd` ran afterwards and found nothing left to cut (TASKS T15).
+
+    Args:
+        rings: The outlines, each a closed list of ``[x, y]`` points.
+
+    Returns:
+        The shapely geometry, or None if no ring had any area.
+
+    """
     from shapely.geometry import Polygon as _Polygon
     from shapely.ops import unary_union as _unary_union
 
-    polys = []
+    from pybosl2.regions import inward_probe, nesting_depths
+
+    shells = []
     for ring in rings:
         poly = _Polygon(ring)
         if not poly.is_valid:
             poly = poly.buffer(0)
-        if not poly.is_empty:
-            polys.append(poly)
+        # buffer(0) can split a self-intersecting ring into several polygons; each nests in its
+        # own right.
+        for part in getattr(poly, "geoms", [poly]):
+            if not part.is_empty and getattr(part, "exterior", None) is not None:
+                shells.append(_Polygon(part.exterior.coords))
+    if not shells:
+        return None
+
+    probes = [inward_probe(shell) for shell in shells]
+    depths = nesting_depths(shells, probes)
+    polys = []
+    for i, shell in enumerate(shells):
+        if depths[i] % 2:
+            continue  # odd depth: a hole, cut from the shell that encloses it just below
+        holes = [
+            other.exterior.coords
+            for j, other in enumerate(shells)
+            if j != i and depths[j] == depths[i] + 1 and shell.contains(probes[j])
+        ]
+        piece = _Polygon(shell.exterior.coords, holes)
+        if not piece.is_valid:
+            piece = piece.buffer(0)
+        if not piece.is_empty:
+            polys.append(piece)
     if not polys:
         return None
     return _unary_union(polys)

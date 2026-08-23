@@ -952,3 +952,84 @@ class TestSvgClipToViewbox:
         )
         groups = svg_element_groups(str(f))
         assert groups  # path appears as stroke group
+
+
+# ---------------------------------------------------------------------------
+# even-odd holes survive the viewBox clip (TASKS T15)
+# ---------------------------------------------------------------------------
+
+#: A square plate with a square window: one <path>, two subpaths, inside a viewBox.
+DONUT = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M0,0 L100,0 L100,100 L0,100 Z M25,25 L75,25 L75,75 L25,75 Z"/>
+</svg>
+"""
+
+#: Shell, hole, and an island inside the hole -- three levels of nesting.
+NESTED_THREE_DEEP = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M0,0 L100,0 L100,100 L0,100 Z M20,20 L80,20 L80,80 L20,80 Z M40,40 L60,40 L60,60 L40,60 Z"/>
+</svg>
+"""
+
+
+def _holes_and_area(region):  # type: ignore[no-untyped-def]
+    shape = region.to_shapely()
+    parts = list(getattr(shape, "geoms", [shape]))
+    return sum(len(part.interiors) for part in parts), shape.area, len(parts)
+
+
+@pytest.fixture
+def donut(tmp_path):  # type: ignore[no-untyped-def]
+    f = tmp_path / "donut.svg"
+    f.write_text(DONUT)
+    return str(f)
+
+
+def test_a_hole_survives_the_viewbox_clip(donut) -> None:  # type: ignore[no-untyped-def]
+    """TASKS T15. The clip used to union the rings as *filled* polygons, losing the hole.
+
+    Even-odd says a ring nested in another is a hole, and the clip ran before `Region.even_odd`
+    got to say so -- so a donut came back a solid disc: 0 holes, area 10000 instead of 7500. Every
+    window in a plate and every gap in a ring icon went the same way, for any SVG with a viewBox,
+    which is nearly all of them.
+    """
+    from pybosl2.regions import Region
+
+    holes, area, _parts = _holes_and_area(Region.from_svg(donut))
+    assert holes == 1
+    assert area == pytest.approx(100 * 100 - 50 * 50)
+
+
+def test_the_clip_makes_no_difference_to_a_drawing_inside_its_viewbox(donut) -> None:  # type: ignore[no-untyped-def]
+    """Clipping content that is already inside the viewBox must be a no-op, not a shape change."""
+    from pybosl2.regions import Region
+
+    clipped = _holes_and_area(Region.from_svg(donut, clip_to_viewbox=True))
+    unclipped = _holes_and_area(Region.from_svg(donut, clip_to_viewbox=False))
+    assert clipped == unclipped
+
+
+def test_region_from_svg_exposes_the_clip_switch() -> None:
+    """It was reachable only through the module-level function, so callers could not opt out."""
+    import inspect
+
+    from pybosl2.regions import Region
+
+    assert "clip_to_viewbox" in inspect.signature(Region.from_svg).parameters
+
+
+def test_three_levels_of_nesting_alternate_solid_and_hole(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """Depth 0 is a shell, depth 1 a hole, depth 2 an island standing in that hole.
+
+    A containment-depth fix can get two levels right and still flatten the third, so the island is
+    the case worth pinning: the region is two polygons -- the plate and the island -- with one hole
+    between them.
+    """
+    from pybosl2.regions import Region
+
+    f = tmp_path / "nested.svg"
+    f.write_text(NESTED_THREE_DEEP)
+
+    holes, area, parts = _holes_and_area(Region.from_svg(str(f)))
+    assert parts == 2  # the plate, and the island sitting in its window
+    assert holes == 1
+    assert area == pytest.approx(100 * 100 - 60 * 60 + 20 * 20)

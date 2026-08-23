@@ -788,7 +788,6 @@ class RobertsonMask:
         return self._slop
 
     @property
-    @csg_part("builds its recess from a 2-D profile, extruded and revolved")
     def shape(self) -> "Solid":
         """Return the Robertson driver-recess mask geometry.
 

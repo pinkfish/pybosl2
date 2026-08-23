@@ -46,7 +46,6 @@ from pybosl2.constants import INCH
 from pybosl2.enums import VNFStyle
 from pybosl2.math import lerp as _math_lerp
 from pybosl2.path2d import Path2D
-from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid, cylinder
 from pybosl2.solid import cyl
 from pybosl2.vectors import v_theta as _v_theta
@@ -1500,12 +1499,16 @@ class Rack2d:
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
-        self._shape: Bosl2Shape2D = Bosl2Shape2D(_opolygon(path), size=[teeth * center, 2 * abs(a - height)])
+        self._shape: Path2D = Path2D(path, closed=True)
+        self._nominal = [teeth * center, 2 * abs(a - height)]
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Shape2D:
-        """Return the 2-D rack outline."""
+    def shape(self) -> Path2D:
+        """Return the rack's tooth profile as a closed path.
+
+        A path, not 2-D geometry: `Path2D.linear_extrude()` dispatches through the backend, so a
+        rack built from this outline is not tied to CSG (see :class:`SpurGear2d`).
+        """
         return self._shape
 
     def show(self) -> Any:
@@ -1515,7 +1518,8 @@ class Rack2d:
             The shape, so the call can be chained or assigned.
 
         """
-        return self._shape.show()
+        self._shape.polygon().show()
+        return self._shape
 
 
 class Rack:
@@ -1568,7 +1572,7 @@ class Rack:
         a = _adendum(center)
         diameter = _dedendum(center, clearance)
         path = _rack2d_path(center, teeth, height, pressure_angle, backlash, clearance)
-        shape = _opolygon(path).linear_extrude(height=thickness, center=True, convexity=teeth * 2).rotate([90, 0, 0])
+        shape = Path2D(path).linear_extrude(height=thickness, center=True, convexity=teeth * 2).rotate([90, 0, 0])
         if helical:
             sxy = math.tan(math.radians(helical))
             shape = shape.multmatrix([[1, sxy, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
@@ -1578,7 +1582,7 @@ class Rack:
         z_extent = height + diameter - a
         # Nominal anchor box: the rack's nominal tooth height, which the rounded tooth tips sit
         # just inside. Anchoring follows the pitch line rather than the printed profile.
-        self._solid: Bosl2Solid = Bosl2Solid(shape, size=[sheared_length, thickness, z_extent])
+        self._solid: "Solid" = shape.with_nominal_size([sheared_length, thickness, z_extent])
         self._teeth: int = teeth
 
     @property
@@ -1587,8 +1591,7 @@ class Rack:
         return self._teeth
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the rack geometry."""
         return self._solid
 
