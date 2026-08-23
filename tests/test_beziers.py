@@ -11,7 +11,7 @@ import math
 import numpy as np
 import pytest
 
-from pybosl2.beziers import Bezier, BezierPatch
+from pybosl2.beziers import Bezier, BezierPatch, debug_bezier_patches
 from pybosl2.vnf import VNF
 
 CUBIC = [[0, 0], [5, 35], [60, -25], [80, 0]]
@@ -448,3 +448,79 @@ def test_bezier_tangent_list_u() -> None:
     np.testing.assert_allclose(result[0], [0.4472135954999579, 0.8944271909999159], atol=1e-9)
     np.testing.assert_allclose(result[1], [1.0, 0.0], atol=1e-9)
     np.testing.assert_allclose(result[2], [0.4472135954999579, -0.8944271909999159], atol=1e-9)
+
+
+# --- the debug visualisers ----------------------------------------------------------------
+#
+# These build real geometry (marker balls, control-net tubes, the patch surface), so they are
+# checked by what they span, not by whether they returned something.
+
+DEBUG_PATCH = [
+    [[-50, -50, 0], [-16, -50, 20], [16, -50, -20], [50, -50, 0]],
+    [[-50, -16, 20], [-16, -16, 20], [16, -16, -20], [50, -16, 20]],
+    [[-50, 16, 20], [-16, 16, -20], [16, 16, 20], [50, 16, 20]],
+    [[-50, 50, 0], [-16, 50, -20], [16, 50, 20], [50, 50, 0]],
+]
+
+
+def _shifted_patch(dy: float) -> list[list[list[float]]]:
+    return [[[p[0], p[1] + dy, p[2]] for p in row] for row in DEBUG_PATCH]
+
+
+def test_bezier_debug_spans_the_curve_it_draws() -> None:
+    """The tube and its markers cover the control points, so the result spans the curve."""
+    path = Bezier.flatten(
+        [
+            Bezier.begin([0, 0, 0], -20, 0.4),
+            Bezier.tang([5, 8, 2], 45, 0.2),
+            Bezier.end([10, 0, 5], 230, 1),
+        ]
+    )
+    _centre, size = path.debug(width=0.5).bounds()
+    assert float(size[0]) > 10.0  # the curve runs 0..10 in X, plus the marker balls
+    assert float(size[1]) > 8.0
+    assert float(size[2]) > 5.0
+
+
+@pytest.mark.parametrize("form", ["patch", "nested list", "ndarray", "list of one"])
+def test_debug_bezier_patches_accepts_a_single_patch_in_any_form(form: str) -> None:
+    """The signature takes one patch or a list of them, so a lone patch must not be mistaken for
+    a list whose rows are each a patch."""
+    arg: object = {
+        "patch": BezierPatch(DEBUG_PATCH),
+        "nested list": DEBUG_PATCH,
+        "ndarray": np.asarray(DEBUG_PATCH, dtype=float),
+        "list of one": [BezierPatch(DEBUG_PATCH)],
+    }[form]
+    _centre, size = debug_bezier_patches(arg, showcps=False).bounds()  # type: ignore[arg-type]
+    assert [float(size[0]), float(size[1])] == pytest.approx([100.0, 100.0])
+
+
+def test_debug_bezier_patches_draws_every_patch_it_is_given() -> None:
+    """Two patches 120 apart span both, not just one: the surfaces are open meshes, which a CSG
+    union cannot combine, so they have to be merged as meshes instead."""
+    two = [BezierPatch(DEBUG_PATCH), BezierPatch(_shifted_patch(120))]
+    _centre, size = debug_bezier_patches(two, showcps=False).bounds()
+    assert float(size[1]) == pytest.approx(220.0)  # 100 of patch + 120 of offset
+    assert float(size[0]) == pytest.approx(100.0)
+
+
+def test_debug_bezier_patches_control_net_reaches_past_the_surface() -> None:
+    """The control points sit off the surface, so drawing them widens the result."""
+    bare = debug_bezier_patches(BezierPatch(DEBUG_PATCH), showcps=False).bounds()[1]
+    netted = debug_bezier_patches(BezierPatch(DEBUG_PATCH)).bounds()[1]
+    assert float(netted[2]) > float(bare[2])
+
+
+def test_debug_bezier_patches_marker_size_is_honoured() -> None:
+    """An explicit size= sets the marker diameter, so bigger markers reach further out."""
+    small = debug_bezier_patches(BezierPatch(DEBUG_PATCH), size=1).bounds()[1]
+    large = debug_bezier_patches(BezierPatch(DEBUG_PATCH), size=4).bounds()[1]
+    assert float(large[0]) > float(small[0])
+
+
+def test_debug_bezier_patches_with_everything_switched_off_says_so() -> None:
+    """With nothing to draw there is no geometry to return, so it explains rather than failing
+    later on an empty result."""
+    with pytest.raises(ValueError, match="nothing to show"):
+        debug_bezier_patches(BezierPatch(DEBUG_PATCH), showcps=False, showpatch=False, showdots=False)

@@ -1673,10 +1673,18 @@ def _debug_tube(points: np.ndarray, radius: float, sides: int = 8) -> Any:
 
 
 def _sphere_at(p: np.ndarray, diameter: float) -> Any:
+    """Return a marker ball at *p*, wrapped like _debug_tube()'s output so the two can be unioned.
+
+    Returning the bare native instead meant ``sphere | tube`` failed ("invalid argument left to
+    operator") while ``tube | sphere`` worked, so whether a caller's union succeeded came down to
+    which kind of piece it happened to start with.
+    """
     from pythonscad import sphere
 
+    from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
+
     p3 = [float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0]
-    return sphere(diameter=diameter).translate(p3)
+    return _Bosl2Solid(sphere(d=diameter).translate(p3))  # the native takes r/d, not radius/diameter
 
 
 def debug_bezier_patches(
@@ -1710,8 +1718,17 @@ def debug_bezier_patches(
     """
     from pybosl2.shapes3d import Bosl2Solid as _Bosl2Solid
 
-    plist: list[Any] = [patches] if BezierPatch.is_patch(patches) else patches  # type: ignore[assignment]
+    # is_patch() only recognises a list/tuple, so a BezierPatch or an (R, C, 3) array -- both of
+    # which the signature accepts -- used to fall through and be iterated as if each row were a
+    # whole patch, failing with "patch rows must be a 3-D array".
+    single = (
+        isinstance(patches, BezierPatch)
+        or (isinstance(patches, np.ndarray) and patches.ndim == 3)
+        or BezierPatch.is_patch(patches)
+    )
+    plist: list[Any] = [patches] if single else patches  # type: ignore[assignment]
     result = None
+    surfaces: list[Any] = []
 
     def _add(a: Any, b: Any) -> Any:
         return b if a is None else (a | b)
@@ -1745,8 +1762,19 @@ def debug_bezier_patches(
         if showpatch or showdots:
             vnf = bp.vnf(splinesteps=splinesteps, style=style)
             if showpatch:
-                result = _add(result, vnf.polyhedron())
+                # A patch surface is open, and CSG cannot union two open meshes -- doing so lost
+                # the geometry entirely for two or more patches. Collect the meshes and emit them
+                # as one polyhedron instead, which is a mesh operation and does not care.
+                surfaces.append(vnf)
             if showdots:
                 for v in vnf.vertices:
                     result = _add(result, _sphere_at(np.asarray(v), sz).color("blue"))
-    return _Bosl2Solid(result)
+    if surfaces:
+        from pybosl2.vnf import VNF as _VNF
+
+        result = _add(result, _VNF.join(surfaces).polyhedron())
+    if result is None:
+        raise ValueError("debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off.")
+    # Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the
+    # result with no bounding box of its own.
+    return result if isinstance(result, _Bosl2Solid) else _Bosl2Solid(result)
