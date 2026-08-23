@@ -527,6 +527,21 @@ def test_two_intersect_tags_are_unioned_not_chained(tmp_path):
     assert math.isclose(tagged.size[2], 10.0, abs_tol=1e-2)  # ...and full height, not the slab's 2
 
 
+def test_distribute_on_path_places_every_copy(tmp_path):
+    """Four 4mm cubes round a closed loop mesh to four separate cubes' worth of material --
+    proof that none were lost, merged, or piled up on top of each other."""
+    setup = "from pybosl2 import Path3D\n"
+    m = _render(
+        tmp_path,
+        "s3.cuboid([4, 4, 4]).distribute_on_path("
+        "Path3D([[0,0,0],[100,0,0],[100,100,0],[0,100,0]], closed=True), num_copies=4)",
+        setup=setup,
+        name="distribute_loop",
+    )
+    assert m.volume == pytest.approx(4 * 4**3, rel=1e-3)
+    assert math.isclose(m.size[2], 4.0, abs_tol=1e-6)  # still flat in the loop's own plane
+
+
 def test_attach_with_bbox_override(tmp_path):
     # override the parent's bbox so the child attaches to a TOP that is higher than the real box
     m = _render(

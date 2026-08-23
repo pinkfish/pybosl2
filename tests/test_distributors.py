@@ -458,3 +458,75 @@ def test_solid_zflip_copy_instance() -> None:
     result = cuboid([10, 10, 10]).zflip_copy(offset=2, z=0)
     assert len(result) == 2
     assert all(isinstance(c, Bosl2Solid) for c in result)
+
+
+# --- distribute_on_path -------------------------------------------------------------------
+#
+# Copies are placed at measured distances along the path and turned to face along it. A copy
+# that is rotated about the world origin instead of its own still "builds", so these check
+# where the copies actually land.
+
+DIST_LINE = [[0, 0, 0], [100, 0, 0]]  # 100 long
+DIST_LOOP = [[0, 0, 0], [100, 0, 0], [100, 100, 0], [0, 100, 0]]  # closed: 400 round
+DIST_RAMP = [[0, 0, 0], [100, 0, 100]]  # climbs out of the XY plane
+
+
+def _spread(path_pts: list[list[float]], *, closed: bool = False, **kwargs: object) -> tuple[list[float], list[float]]:
+    """Distribute a 4mm cube along the path and return (centre, size) of the union."""
+    from pybosl2.path3d import Path3D
+
+    result = cuboid([4, 4, 4]).distribute_on_path(Path3D(path_pts, closed=closed), **kwargs)  # type: ignore[arg-type]
+    centre, size = result.bounds()
+    return [float(v) for v in centre], [float(v) for v in size]
+
+
+def test_copies_along_a_closed_loop_stay_in_its_plane() -> None:
+    """The loop lies flat in Z, so the copies must too: a rotation applied about the world
+    origin instead of each copy's own threw them a long way out of the plane."""
+    centre, size = _spread(DIST_LOOP, closed=True, num_copies=4)
+    assert centre == pytest.approx([50.0, 50.0, 0.0])  # the square's own centre
+    assert float(size[2]) == pytest.approx(4.0)  # just the cube's thickness, still flat
+
+
+def test_copies_are_turned_to_face_along_the_path() -> None:
+    """At each corner of the loop the cube is turned 45 degrees, so the union reaches out by the
+    cube's diagonal rather than its side."""
+    _c1, turned = _spread(DIST_LOOP, closed=True, num_copies=4)
+    _c2, square_on = _spread(DIST_LOOP, closed=True, num_copies=4, rotate_children=False)
+    assert float(square_on[0]) == pytest.approx(104.0)  # 100 apart + a 4mm cube
+    assert float(turned[0]) == pytest.approx(100.0 + 4 * math.sqrt(2), abs=0.01)
+
+
+def test_copies_follow_a_path_that_climbs() -> None:
+    """A path out of the XY plane is the case a world-origin rotation gets most wrong."""
+    centre, size = _spread(DIST_RAMP, num_copies=3)
+    assert centre == pytest.approx([50.0, 0.0, 50.0])  # the ramp's midpoint
+    assert float(size[1]) == pytest.approx(4.0)  # nothing strays sideways
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected_centre", "expected_span"),
+    [
+        ({"num_copies": 5}, 50.0, 104.0),  # 0, 25, 50, 75, 100
+        ({"spacing": 25}, 50.0, 104.0),  # the same five, spaced instead of counted
+        ({"dist": [0, 50, 100]}, 50.0, 104.0),  # given explicitly
+        ({"start_pos": 10, "num_copies": 3, "spacing": 20}, 30.0, 44.0),  # 10, 30, 50
+        ({"start_pos": 10, "num_copies": 3}, 55.0, 94.0),  # 10, 55, 100: spread to the end
+        ({"start_pos": 10, "spacing": 30}, 40.0, 64.0),  # 10, 40, 70: stepped to the end
+    ],
+)
+def test_the_distribution_modes_place_the_copies_where_they_say(
+    kwargs: dict[str, object], expected_centre: float, expected_span: float
+) -> None:
+    """Each way of asking for positions puts the copies at those positions along the path."""
+    centre, size = _spread(DIST_LINE, **kwargs)
+    assert float(centre[0]) == pytest.approx(expected_centre)
+    assert float(size[0]) == pytest.approx(expected_span)
+
+
+def test_distribute_on_path_needs_to_be_told_where() -> None:
+    """With no count, spacing or distances there is nothing to work from."""
+    from pybosl2.path3d import Path3D
+
+    with pytest.raises(ValueError, match="provide num_copies, spacing, or dist"):
+        cuboid([4, 4, 4]).distribute_on_path(Path3D(DIST_LINE))
