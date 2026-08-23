@@ -1054,3 +1054,103 @@ def test_a_cut_point_reports_whether_it_carries_a_direction() -> None:
     path = Path([[0, 0], [10, 0], [10, 10]])
     assert path.cut_points([5.0], direction=True)[0].is_directed
     assert not path.cut_points([5.0])[0].is_directed
+
+
+# --- to_bezcornerpath --------------------------------------------------------------------
+#
+# The bezier replaces each corner, so the tell-tale of a mis-assembled path is that it gets
+# *longer* than the sharp-cornered one it came from: cutting a corner cannot add length.
+
+BEZ_SQUARE = [[0, 0], [40, 0], [40, 30], [0, 30]]  # perimeter 140
+
+
+def _contains_point(path: Path2D, point: list[float]) -> bool:
+    return any(abs(p[0] - point[0]) < 1e-9 and abs(p[1] - point[1]) < 1e-9 for p in path.array.tolist())
+
+
+def test_bezcornerpath_shortens_the_path_by_cutting_the_corners() -> None:
+    """Rounded corners take the short way round, so the path gets shorter, never longer."""
+    square = Path2D(BEZ_SQUARE, closed=True)
+    rounded = square.to_bezcornerpath(5)
+    assert float(square.perimeter()) == pytest.approx(140.0)
+    assert float(rounded.perimeter()) < 140.0
+    assert float(rounded.perimeter()) > 125.0  # ...but it is still most of the way round
+
+
+def test_bezcornerpath_replaces_the_corner_rather_than_keeping_it() -> None:
+    """No original corner vertex survives, and the curve stays inside the original outline."""
+    rounded = Path2D(BEZ_SQUARE, closed=True).to_bezcornerpath(5)
+    for corner in BEZ_SQUARE:
+        assert not _contains_point(rounded, corner), f"the sharp corner {corner} is still there"
+    assert rounded.array.min(axis=0) == pytest.approx([0.0, 0.0])
+    assert rounded.array.max(axis=0) == pytest.approx([40.0, 30.0])
+
+
+def test_bezcornerpath_facets_converge() -> None:
+    """More facets means more points and a barely-changed length: the corner is a fixed curve
+    being sampled, not a shape that grows with the sampling."""
+    square = Path2D(BEZ_SQUARE, closed=True)
+    coarse = square.to_bezcornerpath(5, fn=4)
+    fine = square.to_bezcornerpath(5, fn=32)
+    assert len(fine.array) > len(coarse.array)
+    assert float(fine.perimeter()) == pytest.approx(float(coarse.perimeter()), abs=0.5)
+
+
+def test_bezcornerpath_leaves_a_corner_alone_when_its_parm_is_zero() -> None:
+    """A per-corner list is honoured corner by corner."""
+    picked = Path2D(BEZ_SQUARE, closed=True).to_bezcornerpath([[5, 1], [0, 1], [10, 1], [5, 1]])
+    assert _contains_point(picked, [40, 0])  # parm 0 -> left sharp
+    assert not _contains_point(picked, [0, 0])  # parm 5 -> rounded away
+
+
+def test_bezcornerpath_without_a_parm_changes_nothing() -> None:
+    """None means no rounding was asked for, so the path comes back as it went in."""
+    square = Path2D(BEZ_SQUARE, closed=True)
+    assert square.to_bezcornerpath(None).array.tolist() == BEZ_SQUARE
+
+
+def test_bezcornerpath_on_an_open_path_keeps_the_ends_sharp() -> None:
+    """The two endpoints are not corners -- there is nothing on the far side to curve into."""
+    opened = Path2D(BEZ_SQUARE, closed=False).to_bezcornerpath(5)
+    assert _contains_point(opened, [0, 0])
+    assert _contains_point(opened, [0, 30])
+    assert not _contains_point(opened, [40, 0])  # the middles are rounded
+    assert not _contains_point(opened, [40, 30])
+
+
+def test_bezcornerpath_needs_three_points_to_have_a_corner() -> None:
+    """A two-point path has no corner to round, so it is returned unchanged."""
+    assert Path2D([[0, 0], [10, 0]]).to_bezcornerpath(5).array.tolist() == [[0.0, 0.0], [10.0, 0.0]]
+
+
+# --- cut_getpaths / cuts_dir -------------------------------------------------------------
+
+
+CUT_L = [[0, 0], [40, 0], [40, 30]]  # 70 long, one right-angled corner
+
+
+def test_cut_getpaths_returns_the_pieces_between_consecutive_cuts() -> None:
+    """N cuts give N-1 pieces, each running from one cut to the next."""
+    path = Path2D(CUT_L)
+    pieces = path.cut_getpaths(path.cut_points([10.0, 30.0, 50.0]))
+    assert len(pieces) == 2
+    assert [float(p.perimeter()) for p in pieces] == pytest.approx([20.0, 20.0])
+    # the piece spanning the corner keeps the corner vertex between its two endpoints
+    assert pieces[1].array.tolist() == [[30.0, 0.0], [40.0, 0.0], [40.0, 10.0]]
+
+
+def test_cut_getpaths_with_fewer_than_two_cuts_returns_the_whole_path() -> None:
+    """There is no span between cuts to take, so the original path comes back."""
+    path = Path2D(CUT_L)
+    whole = path.cut_getpaths(path.cut_points([10.0]))
+    assert len(whole) == 1
+    assert whole[0].array.tolist() == [[0.0, 0.0], [40.0, 0.0], [40.0, 30.0]]
+
+
+def test_cuts_dir_gives_the_unit_tangent_at_each_cut() -> None:
+    """Along the first leg the tangent is +X; past the corner it is +Y."""
+    path = Path2D(CUT_L)
+    dirs = path.cuts_dir(path.cut_points([10.0, 30.0, 50.0]))
+    assert [[round(float(v), 6) for v in d] for d in dirs] == [[1.0, 0.0], [1.0, 0.0], [0.0, 1.0]]
+    for d in dirs:
+        assert float(np.linalg.norm(np.asarray(list(d), dtype=float))) == pytest.approx(1.0)
