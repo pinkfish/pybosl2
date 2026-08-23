@@ -982,3 +982,75 @@ def test_path2d_color_carries_through_round_corners() -> None:
     p = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]]).color(Color("cyan"))
     result = p.round_corners(radius=5)
     assert result._color == Color("cyan")
+
+
+# --- the abstract Path base ---------------------------------------------------------------
+#
+# `Path(points)` is the documented entry point: it picks the 2-D or 3-D subclass from the shape
+# of the points it is handed, so these check which class comes back, not merely that one does.
+
+
+def test_path_dispatches_on_the_point_dimension() -> None:
+    """Two coordinates per point gives a Path2D, three gives a Path3D."""
+    from pybosl2 import Path, Path2D, Path3D
+
+    assert type(Path([[0, 0], [10, 0], [10, 10]])) is Path2D
+    assert type(Path([[0, 0, 0], [10, 0, 0], [10, 10, 5]])) is Path3D
+
+
+@pytest.mark.parametrize(
+    ("points", "message"),
+    [
+        (None, "without points to determine dimension"),
+        ([[0], [1]], "must be 2-D or 3-D"),
+        ([[0, 0, 0, 0]], "must be 2-D or 3-D"),
+    ],
+)
+def test_path_needs_points_it_can_read_a_dimension_from(points: object, message: str) -> None:
+    """Without a dimension there is no subclass to choose, so it says so rather than guessing."""
+    from pybosl2 import Path
+
+    with pytest.raises(ValueError, match=message):
+        Path(points)  # type: ignore[arg-type]
+
+
+def test_indexing_a_path_gives_a_point_and_slicing_gives_an_array() -> None:
+    """A single index is a Point (so .x/.y work); a slice stays a numpy array."""
+    from pybosl2 import Path
+
+    path = Path([[0, 0], [10, 0], [10, 10]])
+    assert isinstance(path[1], Point)
+    assert [float(v) for v in path[1]] == [10.0, 0.0]
+    assert isinstance(path[0:2], np.ndarray)
+    assert path[0:2].shape == (2, 2)
+    assert len(path) == 3
+    assert [list(map(float, p)) for p in path] == [[0.0, 0.0], [10.0, 0.0], [10.0, 10.0]]
+
+
+def test_a_path_converts_to_an_array_without_copying_by_default() -> None:
+    """np.asarray() shares the path's own buffer; asking for a copy gives a separate one."""
+    from pybosl2 import Path
+
+    path = Path([[0, 0], [10, 0], [10, 10]])
+    assert np.asarray(path).shape == (3, 2)
+    assert np.asarray(path) is path.array
+    assert path.__array__(copy=True) is not path.array
+
+
+def test_paths_compare_by_points_and_closure() -> None:
+    """Equality is geometric, and anything that is not a Path is simply not comparable."""
+    from pybosl2 import Path
+
+    square = [[0, 0], [10, 0], [10, 10]]
+    assert Path(square) == Path(square)
+    assert Path(square) != Path(square, closed=True)
+    assert Path(square).__eq__(5) is NotImplemented
+
+
+def test_a_cut_point_reports_whether_it_carries_a_direction() -> None:
+    """direction=True is what fills in the direction/normal, so is_directed follows it."""
+    from pybosl2 import Path
+
+    path = Path([[0, 0], [10, 0], [10, 10]])
+    assert path.cut_points([5.0], direction=True)[0].is_directed
+    assert not path.cut_points([5.0])[0].is_directed

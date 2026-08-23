@@ -6,6 +6,8 @@
 
 """Tests for pybosl2/constants.py: the direction constants and their Anchor enum values."""
 
+import pytest
+
 from pybosl2._edges_lang import Anchor
 from pybosl2.constants import (
     BACK,
@@ -114,3 +116,55 @@ def test_ident_is_4x4_identity() -> None:
     assert len(IDENT) == 4
     for i in range(4):
         assert IDENT[i][i] == 1
+
+
+# --- the SDF backend's direction vectors ---------------------------------------------------
+#
+# These are plain vectors rather than Anchor members, so that the SDF backend can combine them
+# arithmetically. That arithmetic is the whole reason Vec3 exists, so it is what these check.
+
+
+class TestSdfDirectionVectors:
+    """pybosl2.sdf._constants.Vec3: elementwise vector maths on a list subclass."""
+
+    def test_directions_add_elementwise_rather_than_concatenating(self) -> None:
+        """A plain list would make `TOP + LEFT` six items long; the point of Vec3 is that it is
+        the corner between them."""
+        from pybosl2.sdf._constants import LEFT, TOP
+
+        assert list(TOP + LEFT) == [-1, 0, 1]
+        assert list([1, 0, 0] + TOP) == [1, 0, 1]  # and from the left, where list.__add__ tries first
+
+    def test_directions_subtract_and_negate(self) -> None:
+        from pybosl2.sdf._constants import LEFT, TOP
+
+        assert list(TOP - LEFT) == [1, 0, 1]
+        assert list([1, 0, 0] - TOP) == [1, 0, -1]
+        assert list(-TOP) == [0, 0, -1]
+
+    def test_a_scalar_scales_rather_than_repeating(self) -> None:
+        """`TOP * 3` on a plain list would be nine items; here it is three times as long a vector."""
+        from pybosl2.sdf._constants import TOP
+
+        assert list(TOP * 3) == [0, 0, 3]
+        assert list(3 * TOP) == [0, 0, 3]
+        assert list(TOP * 0.5) == [0.0, 0.0, 0.5]  # and a fraction, which list repetition cannot do
+
+    def test_operands_that_are_not_vectors_are_declined(self) -> None:
+        """Returning NotImplemented lets Python raise the usual TypeError, rather than inventing
+        a meaning for `direction + 5`."""
+        from pybosl2.sdf._constants import TOP
+
+        with pytest.raises(TypeError):
+            TOP + 5  # type: ignore[operator]
+        with pytest.raises(TypeError):
+            TOP * "x"  # type: ignore[operator]
+
+    def test_a_direction_is_still_an_ordinary_list(self) -> None:
+        """Indexing, iteration and equality with a plain list all have to keep working: the
+        constants cross the FFI boundary as lists."""
+        from pybosl2.sdf._constants import TOP
+
+        assert TOP == [0, 0, 1]
+        assert list(TOP) == [0, 0, 1]
+        assert TOP[2] == 1

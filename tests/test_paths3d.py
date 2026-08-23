@@ -338,3 +338,66 @@ def test_path3d_color_carries_to_path2d() -> None:
     p = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]]).color(Color("blue"))
     p2d = p.path2d()
     assert p2d._color == Color("blue")
+
+
+# --- cuts_path_normals -------------------------------------------------------------------
+#
+# A normal is only a normal if it is perpendicular to the path where it is taken, so that is
+# what these assert -- an implementation that reads the wrong segment still returns unit vectors.
+
+
+def _dot_with_direction(path: Path3D, dists: list[float], *, closed: bool = False) -> list[float]:
+    """The dot of each cut's normal with the path direction there: zero if truly perpendicular."""
+    cuts = path.cut_points(dists, direction=True)
+    normals = path.cuts_path_normals(cuts, closed=closed)
+    out = []
+    for cut, normal in zip(cuts, normals, strict=False):
+        direction = np.asarray(list(cut.direction), dtype=float)
+        vec = np.asarray(list(normal), dtype=float)
+        out.append(float(np.dot(direction[: len(vec)], vec)))
+    return out
+
+
+def test_normals_are_perpendicular_to_the_path() -> None:
+    """Cuts either side of a right-angled corner: each normal belongs to the segment the cut is
+    on, not the one after it."""
+    path = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]])
+    assert _dot_with_direction(path, [5.0, 15.0]) == pytest.approx([0.0, 0.0], abs=1e-9)
+
+
+def test_normals_are_perpendicular_on_a_closed_path() -> None:
+    """A closed planar path takes the plane-based branch, which must agree just as exactly."""
+    square = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]], closed=True)
+    assert _dot_with_direction(square, [5.0, 15.0, 25.0], closed=True) == pytest.approx([0.0] * 3, abs=1e-9)
+
+
+def test_normals_are_perpendicular_when_the_path_climbs() -> None:
+    """A segment with a Z component is the case a purely XY tangent would get wrong."""
+    climbing = Path3D([[0, 0, 0], [10, 0, 10], [10, 10, 10]])
+    assert _dot_with_direction(climbing, [5.0, 15.0]) == pytest.approx([0.0, 0.0], abs=1e-9)
+
+
+def test_normals_are_unit_length() -> None:
+    path = Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]])
+    cuts = path.cut_points([5.0, 15.0], direction=True)
+    for normal in path.cuts_path_normals(cuts):
+        assert float(np.linalg.norm(np.asarray(list(normal), dtype=float))) == pytest.approx(1.0)
+
+
+def test_a_vertical_path_still_gets_a_normal() -> None:
+    """Straight up there is no XY tangent to turn, so the fallback picks +X rather than dividing
+    by a zero-length vector."""
+    upright = Path3D([[0, 0, 0], [0, 0, 10]])
+    cuts = upright.cut_points([5.0], direction=True)
+    assert [float(v) for v in upright.cuts_path_normals(cuts)[0]] == pytest.approx([1.0, 0.0, 0.0])
+
+
+def test_a_flat_path_gets_the_same_normals_as_the_2d_one() -> None:
+    """The same square in the XY plane must come out the same whichever class holds it."""
+    flat = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    in_2d = Path2D(flat, closed=True)
+    in_3d = Path3D([[x, y, 0] for x, y in flat], closed=True)
+    got_2d = in_2d.cuts_path_normals(in_2d.cut_points([5.0, 15.0], direction=True), closed=True)
+    got_3d = in_3d.cuts_path_normals(in_3d.cut_points([5.0, 15.0], direction=True), closed=True)
+    for a, b in zip(got_2d, got_3d, strict=True):
+        assert [float(v) for v in a] == pytest.approx([float(v) for v in b][:2], abs=1e-9)

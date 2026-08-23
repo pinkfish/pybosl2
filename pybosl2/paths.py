@@ -131,7 +131,7 @@ class Path(ABC):
         """Return the number of items."""
         return len(self._points)
 
-    def __getitem__(self, key: int | slice | tuple[int, ...]) -> np.ndarray | Point:
+    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
         """Return the item at index."""
         result = self._points[key]
         if isinstance(key, int):

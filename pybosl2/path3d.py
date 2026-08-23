@@ -17,7 +17,7 @@ and transforms while omitting inherently 2-D operations (polygon, area, offset).
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Iterator
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -194,21 +194,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 ]
             )
         return cls(out, closed=False)
-
-    def __len__(self) -> int:
-        """Return the number of items."""
-        return len(self._points)
-
-    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
-        """Return the item at index."""
-        result = self._points[key]
-        if isinstance(key, int):
-            return Point.from_seq(result)
-        return result
-
-    def __iter__(self) -> Iterator[np.ndarray]:
-        """Return an iterator."""
-        return iter(self._points)
 
     @property
     def array(self) -> np.ndarray:
@@ -575,9 +560,13 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         pts = self._points
         n_pts = len(pts)
         for cut in cuts:
+            # next_index is the point *after* the cut, so the segment the cut lies on runs
+            # idx-1 -> idx. Taking idx -> idx+1 measured the tangent of the *following* segment,
+            # which at a corner is a different direction entirely -- on a right-angled path it
+            # produced "normals" lying along the path instead of across it.
             idx = cut.next_index
-            a = pts[idx % n_pts]
-            b = pts[(idx + 1) % n_pts]
+            a = pts[(idx - 1) % n_pts]
+            b = pts[idx % n_pts]
             d = np.asarray(b, float) - np.asarray(a, float)
             nd = float(np.linalg.norm(d)) or 1.0
             tx, ty, tz = d[0] / nd, d[1] / nd, d[2] / nd
