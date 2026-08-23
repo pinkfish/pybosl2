@@ -127,6 +127,7 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "PhillipsMask",
         "Rack",
         "RegularPolyhedron",
+        "RingGear",
         "RingHook",
         "RobertsonMask",
         "ScrewHole",

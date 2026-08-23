@@ -1010,15 +1010,19 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
   rather than by a blanket part guard.
 
-**35 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+**36 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
 work -- every remaining refusal names a specific missing capability:
 
 | missing capability | parts |
 |---|---|
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
 | `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
-| 2-D geometry (hulls of circles) | 3 — `RingGear`, `TorxMask`, `TorxMask2d` |
+| 2-D geometry (hulls of circles) | 2 — `TorxMask`, `TorxMask2d` |
 | `prismoid(rounding=)` | 0 — see below |
+
+* **`RingGear` imported the CSG `cylinder` directly**, which is all that stopped it: its cavity is
+  a `SpurGear`, which already built on either backend. Routing the body through the façade was the
+  whole fix.
 
 * **`Rack2d` follows `SpurGear2d` in returning a `Path2D`**, so `Rack` builds on either backend
   too. `RobertsonMask` needed nothing but its guard lifting -- it is a tapered prismoid
