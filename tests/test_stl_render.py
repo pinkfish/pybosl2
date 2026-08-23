@@ -483,6 +483,50 @@ def test_path_text_2d_extrudes_flat_letters(tmp_path):
     assert m.bbmax[1] > 4.0
 
 
+def test_intersect_realization_builds_the_same_solid_as_the_operator(tmp_path):
+    """intersect() on a tagged attachment must mesh to what writing the intersection by hand
+    gives: a cube with its corners shaved off by the ball."""
+    setup = "from pybosl2 import Anchor, AttachTag, intersect\n"
+    tagged = _render(
+        tmp_path,
+        "intersect(s3.cuboid([10, 10, 10]).attach(Anchor.CENTER, "
+        "s3.sphere(radius=6).tag(AttachTag.INTERSECT))).realize()",
+        setup=setup,
+        name="intersect_tagged",
+    )
+    by_hand = _render(tmp_path, "s3.cuboid([10, 10, 10]) & s3.sphere(radius=6)", name="intersect_operator")
+    assert tagged.watertight
+    assert tagged.volume == pytest.approx(by_hand.volume, rel=1e-3)
+    np.testing.assert_allclose(tagged.size, by_hand.size, atol=1e-2)
+    assert tagged.volume < 1000.0  # the corners really were shaved: less than the whole cube
+
+
+def test_two_intersect_tags_are_unioned_not_chained(tmp_path):
+    """Several intersect-tagged children are unioned into one cutter, so the result keeps what
+    *either* covers -- chaining them instead would leave only the sliver they share."""
+    setup = (
+        "from pybosl2 import Anchor, AttachTag, intersect\n"
+        "box = s3.cuboid([10, 10, 10])\n"
+        "ball = s3.sphere(radius=6).tag(AttachTag.INTERSECT)\n"
+        "slab = s3.cuboid([20, 20, 2]).tag(AttachTag.INTERSECT)\n"
+    )
+    tagged = _render(
+        tmp_path,
+        "intersect(box.attach(Anchor.CENTER, ball).attach(Anchor.CENTER, slab)).realize()",
+        setup=setup,
+        name="intersect_two_tags",
+    )
+    unioned = _render(
+        tmp_path, "s3.cuboid([10, 10, 10]) & (s3.sphere(radius=6) | s3.cuboid([20, 20, 2]))", name="intersect_union"
+    )
+    chained = _render(
+        tmp_path, "s3.cuboid([10, 10, 10]) & s3.sphere(radius=6) & s3.cuboid([20, 20, 2])", name="intersect_chain"
+    )
+    assert tagged.volume == pytest.approx(unioned.volume, rel=1e-3)
+    assert tagged.volume > 4 * chained.volume  # nowhere near the chained sliver
+    assert math.isclose(tagged.size[2], 10.0, abs_tol=1e-2)  # ...and full height, not the slab's 2
+
+
 def test_attach_with_bbox_override(tmp_path):
     # override the parent's bbox so the child attaches to a TOP that is higher than the real box
     m = _render(
