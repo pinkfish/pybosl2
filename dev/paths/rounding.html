@@ -3186,7 +3186,7 @@ toolkit’s original <code class="docutils literal notranslate"><span class="pre
 <p>Path-rounding core: round_corners and smooth_path (BOSL2 rounding.scad).</p>
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.rounding.Roundable">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.rounding.</span></span><span class="sig-name descname"><span class="pre">Roundable</span></span><a class="reference internal" href="../_modules/pybosl2/rounding.html#Roundable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.Roundable" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.rounding.</span></span><span class="sig-name descname"><span class="pre">Roundable</span></span><a class="reference internal" href="../_modules/pybosl2/rounding.html#Roundable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.rounding.Roundable" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Mixin adding the rounding.scad path operators as methods on <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code> and.</p>
 <p><code class="xref py py-class docutils literal notranslate"><span class="pre">Path3D</span></code>.</p>
@@ -3346,7 +3346,7 @@ from the straight path (relsize is a fraction of each segment, default 0.1). The
 <dt id="pybosl2.rounding.Roundable.offset_sweep.steps"><span class="sig-name descname">steps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.offset_sweep.steps" title="Permalink to this definition">¶</a></dt><dd><p>Slices per rim treatment; resolved from the rim radius and the ambient facet
 controls when omitted.</p>
 </dd>
-<dt id="pybosl2.rounding.Roundable.offset_sweep.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.offset_sweep.caps" title="Permalink to this definition">¶</a></dt><dd><p>End caps for the extrusion.</p>
+<dt id="pybosl2.rounding.Roundable.offset_sweep.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/caps.html#pybosl2.caps.CapsSpec" title="pybosl2.caps.CapsSpec (Python data) — A cap specification used by sweep/skin entry points. Can be:">CapsSpec</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.offset_sweep.caps" title="Permalink to this definition">¶</a></dt><dd><p>End caps for the extrusion.</p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.offset_sweep.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.offset_sweep.style" title="Permalink to this definition">¶</a></dt><dd><p>Quad-subdivision style for the mesh.</p>
 </dd>
@@ -3382,7 +3382,7 @@ controls when omitted.</p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.convex_offset_extrude.steps"><span class="sig-name descname">steps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.convex_offset_extrude.steps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.rounding.Roundable.convex_offset_extrude.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.convex_offset_extrude.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.rounding.Roundable.convex_offset_extrude.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/caps.html#pybosl2.caps.CapsSpec" title="pybosl2.caps.CapsSpec (Python data) — A cap specification used by sweep/skin entry points. Can be:">CapsSpec</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.convex_offset_extrude.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.convex_offset_extrude.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.convex_offset_extrude.style" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -3415,7 +3415,7 @@ controls when omitted.</p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.rounded_prism.steps"><span class="sig-name descname">steps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.rounded_prism.steps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.rounding.Roundable.rounded_prism.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.rounded_prism.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.rounding.Roundable.rounded_prism.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/caps.html#pybosl2.caps.CapsSpec" title="pybosl2.caps.CapsSpec (Python data) — A cap specification used by sweep/skin entry points. Can be:">CapsSpec</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.rounded_prism.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.rounded_prism.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.rounded_prism.style" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -3444,7 +3444,7 @@ controls when omitted.</p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.join_prism.steps"><span class="sig-name descname">steps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.join_prism.steps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.rounding.Roundable.join_prism.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.join_prism.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.rounding.Roundable.join_prism.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/caps.html#pybosl2.caps.CapsSpec" title="pybosl2.caps.CapsSpec (Python data) — A cap specification used by sweep/skin entry points. Can be:">CapsSpec</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.join_prism.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.join_prism.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.join_prism.style" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -3473,7 +3473,7 @@ controls when omitted.</p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.prism_connector.steps"><span class="sig-name descname">steps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.prism_connector.steps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
-<dt id="pybosl2.rounding.Roundable.prism_connector.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.prism_connector.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.rounding.Roundable.prism_connector.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/caps.html#pybosl2.caps.CapsSpec" title="pybosl2.caps.CapsSpec (Python data) — A cap specification used by sweep/skin entry points. Can be:">CapsSpec</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.prism_connector.caps" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.prism_connector.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.prism_connector.style" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
@@ -3501,7 +3501,7 @@ controls when omitted.</p>
 <dt id="pybosl2.rounding.Roundable.attach_prism.steps"><span class="sig-name descname">steps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int | None</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.attach_prism.steps" title="Permalink to this definition">¶</a></dt><dd><p>Slices per fillet/rounding arc; resolved from the radius and the ambient facet
 controls when omitted.</p>
 </dd>
-<dt id="pybosl2.rounding.Roundable.attach_prism.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype">CapsSpec</span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.attach_prism.caps" title="Permalink to this definition">¶</a></dt><dd><p>End caps for the prism.</p>
+<dt id="pybosl2.rounding.Roundable.attach_prism.caps"><span class="sig-name descname">caps</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../foundational/caps.html#pybosl2.caps.CapsSpec" title="pybosl2.caps.CapsSpec (Python data) — A cap specification used by sweep/skin entry points. Can be:">CapsSpec</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.attach_prism.caps" title="Permalink to this definition">¶</a></dt><dd><p>End caps for the prism.</p>
 </dd>
 <dt id="pybosl2.rounding.Roundable.attach_prism.style"><span class="sig-name descname">style</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../parts/enums.html#pybosl2.enums.VNFStyle" title="pybosl2.enums.VNFStyle (Python class) — Bases: StrEnum">VNFStyle</a></span></span><a class="headerlink" href="#pybosl2.rounding.Roundable.attach_prism.style" title="Permalink to this definition">¶</a></dt><dd><p>Quad-subdivision style for the mesh.</p>
 </dd>
@@ -3667,7 +3667,7 @@ controls when omitted.</p>
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    8.2.3.
+    9.1.0.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   

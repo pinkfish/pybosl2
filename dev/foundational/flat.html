@@ -3180,7 +3180,7 @@
 <p id="module-pybosl2.flat">Statically typed 2D shape constructors and backend-neutral flat shape facade.</p>
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.flat.Flat">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pybosl2.flat.</span></span><span class="sig-name descname"><span class="pre">Flat</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.flat.Flat" title="pybosl2.flat.Flat.__init__.args (Python parameter)"><span class="n"><span class="pre">args</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">**</span></span><a class="n reference internal" href="#pybosl2.flat.Flat" title="pybosl2.flat.Flat.__init__.kwargs (Python parameter)"><span class="n"><span class="pre">kwargs</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/flat.html#Flat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.flat.Flat" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.flat.</span></span><span class="sig-name descname"><span class="pre">Flat</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">*</span></span><a class="n reference internal" href="#pybosl2.flat.Flat" title="pybosl2.flat.Flat.__init__.args (Python parameter)"><span class="n"><span class="pre">args</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">**</span></span><a class="n reference internal" href="#pybosl2.flat.Flat" title="pybosl2.flat.Flat.__init__.kwargs (Python parameter)"><span class="n"><span class="pre">kwargs</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/flat.html#Flat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.flat.Flat" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Shape</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
 <p>A 2-D shape: <code class="xref py py-class docutils literal notranslate"><span class="pre">Shape</span></code> plus what only two dimensions can do.</p>
 <p>Everything shared with solids — the <code class="docutils literal notranslate"><span class="pre">backend</span></code> tag, the boolean operators, the transforms,
@@ -3236,7 +3236,7 @@ here is the way up into three dimensions (SPEC C-17).</p>
 </dd>
 <dt id="pybosl2.flat.circle.diameter"><span class="sig-name descname">diameter</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | None</span></span><a class="headerlink" href="#pybosl2.flat.circle.diameter" title="Permalink to this definition">¶</a></dt><dd><p>Diameter of the circle.</p>
 </dd>
-<dt id="pybosl2.flat.circle.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike | None</span></span><a class="headerlink" href="#pybosl2.flat.circle.points" title="Permalink to this definition">¶</a></dt><dd><p>Three 2-D points the circle should pass through.</p>
+<dt id="pybosl2.flat.circle.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../paths/paths.html#pybosl2.paths.PathLike" title="pybosl2.paths.PathLike (Python data) — a Path (what the library hands back and what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array. Normalise it on the first line -- np.asarray(x, dtype=float) or Path2D(x) -- so the rest of the body works on one shape (PLAN T-4).">PathLike</a> | None</span></span><a class="headerlink" href="#pybosl2.flat.circle.points" title="Permalink to this definition">¶</a></dt><dd><p>Three 2-D points the circle should pass through.</p>
 </dd>
 <dt id="pybosl2.flat.circle.corner"><span class="sig-name descname">corner</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | None</span></span><a class="headerlink" href="#pybosl2.flat.circle.corner" title="Permalink to this definition">¶</a></dt><dd><p>Three 2-D points defining a path the circle should be tangent to.</p>
 </dd>
@@ -3461,7 +3461,7 @@ here is the way up into three dimensions (SPEC C-17).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.flat.polygon-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.flat.polygon-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.flat.polygon.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype">PathLike</span></span><a class="headerlink" href="#pybosl2.flat.polygon.points" title="Permalink to this definition">¶</a></dt><dd><p>Sequence of 2-D points.</p>
+<dt id="pybosl2.flat.polygon.points"><span class="sig-name descname">points</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../paths/paths.html#pybosl2.paths.PathLike" title="pybosl2.paths.PathLike (Python data) — a Path (what the library hands back and what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array. Normalise it on the first line -- np.asarray(x, dtype=float) or Path2D(x) -- so the rest of the body works on one shape (PLAN T-4).">PathLike</a></span></span><a class="headerlink" href="#pybosl2.flat.polygon.points" title="Permalink to this definition">¶</a></dt><dd><p>Sequence of 2-D points.</p>
 </dd>
 <dt id="pybosl2.flat.polygon.anchor"><span class="sig-name descname">anchor</span><span class="p"> : </span><span class="desctype"><span class="desctype">Anchor | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.flat.polygon.anchor" title="Permalink to this definition">¶</a></dt><dd><p>Anchor point.</p>
 </dd>
@@ -3712,7 +3712,7 @@ here is the way up into three dimensions (SPEC C-17).</p>
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    8.2.3.
+    9.1.0.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
