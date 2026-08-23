@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Direction-vector constants (TOP/BOTTOM/LEFT/RIGHT/FRONT/BACK/CENTER/...), needed for
-# anchor=/edges= defaults throughout the SDF backend. Deliberately a copy of the
-# relevant subset of pybosl2/constants.py rather than an import from it, the same way
-# base_bgtk.py and pybosl2/constants.py each carry their own independent copy of this same
-# Vec3/direction-vector idiom instead of sharing one.
+# anchor=/edges= defaults throughout the SDF backend. These are plain vectors, deliberately
+# kept separate from pybosl2/constants.py, whose same-named constants are members of the
+# Anchor enum: the SDF backend works in raw coordinates and combines directions arithmetically
+# (`anchor=TOP+LEFT`), which is what Vec3 below exists to make work.
 #
 
 
@@ -23,7 +23,7 @@ from typing import Any, SupportsIndex
 # reports the decorated operators below as untyped under --strict.
 if sys.version_info >= (3, 12):
     from typing import override
-else:
+else:  # pragma: no cover - only taken on Python < 3.12
     from typing_extensions import override
 
 

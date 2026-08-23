@@ -25,7 +25,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
 
     from numpy.typing import NDArray
 
@@ -409,21 +409,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
     def _shapely(self) -> LineString:
         """The Shapely LineString."""
         return self._geom
-
-    def __len__(self) -> int:
-        """Return the number of items."""
-        return len(self._points)
-
-    def __getitem__(self, key: int | slice | tuple[Any, ...]) -> np.ndarray | Point:
-        """Return the item at index."""
-        result = self._points[key]
-        if isinstance(key, int):
-            return Point.from_seq(result)
-        return result
-
-    def __iter__(self) -> Iterator[np.ndarray]:
-        """Return an iterator."""
-        return iter(self._points)
 
     @property
     def array(self) -> np.ndarray:
