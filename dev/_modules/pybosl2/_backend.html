@@ -2321,6 +2321,7 @@
         <span class="k">if</span> <span class="n">renamed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">accepted</span>
         <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">TESSELLATION_PARAMETERS</span>
         <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_default</span><span class="p">(</span><span class="n">defaults</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_no_op</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">unhonoured</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
@@ -2333,6 +2334,17 @@
                 <span class="s2">"argument out."</span>
             <span class="p">),</span>
         <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_no_op</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Report whether *value* asks for nothing, so dropping it changes no geometry.</span>
+
+<span class="sd">    An explicit zero rounding or chamfer is "no rounding", not a request a backend has to honour --</span>
+<span class="sd">    and parts pass one routinely, normalising `None` to `0` before forwarding. Refusing those was a</span>
+<span class="sd">    false alarm: `RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`.</span>
+<span class="sd">    Matches the same no-op set the SDF `linear_extrude` has always used for `twist`/`scale`.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_default</span><span class="p">(</span><span class="n">defaults</span><span class="p">:</span> <span class="s2">"Mapping[str, Any]"</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
