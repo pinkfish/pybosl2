@@ -290,6 +290,7 @@ def refuse_unhonoured(
         if renamed.get(name, name) not in accepted
         and name not in TESSELLATION_PARAMETERS
         and not _is_default(defaults, name, value)
+        and not _is_no_op(value)
     )
     if unhonoured:
         raise UnsupportedByBackendError(
@@ -302,6 +303,17 @@ def refuse_unhonoured(
                 "argument out."
             ),
         )
+
+
+def _is_no_op(value: Any) -> bool:
+    """Report whether *value* asks for nothing, so dropping it changes no geometry.
+
+    An explicit zero rounding or chamfer is "no rounding", not a request a backend has to honour --
+    and parts pass one routinely, normalising `None` to `0` before forwarding. Refusing those was a
+    false alarm: `RingHook` was turned away from the SDF backend over `prismoid(rounding=0)`.
+    Matches the same no-op set the SDF `linear_extrude` has always used for `twist`/`scale`.
+    """
+    return value is None or value is False or (isinstance(value, (int, float)) and float(value) == 0.0)
 
 
 def _is_default(defaults: "Mapping[str, Any]", name: str, value: Any) -> bool:
