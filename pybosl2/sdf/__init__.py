@@ -85,7 +85,10 @@ def _takes_res(constructor: Callable[..., Any]) -> bool:
     """Return True if *constructor* declares a ``res`` parameter (cached per callable)."""
     try:
         return "res" in inspect.signature(constructor).parameters
-    except (TypeError, ValueError):  # builtins and other signature-less callables
+    except (TypeError, ValueError):  # pragma: no cover
+        # defensive: every constructor reaching this is a plain Python function in
+        # pybosl2.sdf.shapes3d, so `signature()` always succeeds. It would only fire if a builtin
+        # or a C callable were registered as a shape constructor.
         return False
 
 
