@@ -456,6 +456,33 @@ def test_textured_tile_heightfield(tmp_path):
     assert m.watertight
 
 
+def test_path_text_3d_renders_solid_letters(tmp_path):
+    """Letters laid along a 3-D path mesh into one manifold solid, as deep as the thickness."""
+    m = _render(
+        tmp_path,
+        's3.path_text([[0, 0, 0], [40, 0, 0], [80, 0, 0]], "abc", size=8, lettersize=8.0, thickness=3)',
+        name="pathtext3d",
+    )
+    assert m.volume > 0
+    assert m.watertight
+    assert math.isclose(m.size[1], 3.0, abs_tol=1e-6)  # thickness, across the path
+    assert 0 < m.size[0] <= 24.0  # the three 8mm letters, along the path
+
+
+def test_path_text_2d_extrudes_flat_letters(tmp_path):
+    """A 2-D path gives 2-D geometry, so it can be extruded like any other flat shape."""
+    m = _render(
+        tmp_path,
+        's3.path_text([[0, 0], [40, 0], [80, 0]], "abc", size=8, lettersize=8.0).linear_extrude(height=2)',
+        name="pathtext2d",
+    )
+    assert m.volume > 0
+    assert math.isclose(m.size[2], 2.0, abs_tol=1e-6)
+    # Sitting on the baseline the path defines: above it apart from the round letters' overshoot.
+    assert m.bbmin[1] > -1.0
+    assert m.bbmax[1] > 4.0
+
+
 def test_attach_with_bbox_override(tmp_path):
     # override the parent's bbox so the child attaches to a TOP that is higher than the real box
     m = _render(

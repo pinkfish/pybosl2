@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, overload
 
 import numpy as np
 
@@ -260,6 +260,46 @@ def text3d(
     return _finish3(shape, offset, spin, orient, size=None, anchor=av)
 
 
+@overload
+def path_text(
+    path: Path3D,
+    text: str,
+    font: str = "Liberation Sans",
+    size: float = 10,
+    thickness: float | None = None,
+    lettersize: float | Sequence[float] | None = None,
+    offset: float = 0,
+    reverse: bool = False,
+    normal: Sequence[float] | list[list[float]] | None = None,
+    top: Sequence[float] | list[list[float]] | None = None,
+    center: bool = False,
+    textmetrics: bool = False,
+    kern: float | Sequence[float] = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> Bosl2Solid: ...
+@overload
+def path_text(
+    path: Path2D,
+    text: str,
+    font: str = "Liberation Sans",
+    size: float = 10,
+    thickness: float | None = None,
+    lettersize: float | Sequence[float] | None = None,
+    offset: float = 0,
+    reverse: bool = False,
+    normal: Sequence[float] | list[list[float]] | None = None,
+    top: Sequence[float] | list[list[float]] | None = None,
+    center: bool = False,
+    textmetrics: bool = False,
+    kern: float | Sequence[float] = 0,
+    fn: int | None = None,
+    fa: float | None = None,
+    fs: float | None = None,
+) -> "Bosl2Shape2D": ...
+
+
 @backend_only("csg")
 def path_text(
     path: Path2D | Path3D,
@@ -278,11 +318,15 @@ def path_text(
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
-) -> Bosl2Solid:
+) -> "Bosl2Solid | Bosl2Shape2D":
     """Place text characters along a path.
 
+    A 3-D *path* gives extruded letters (a :class:`~pybosl2.shapes3d.Bosl2Solid`); a 2-D *path*
+    gives flat letters (a :class:`~pybosl2.shapes2d.Bosl2Shape2D`), matching BOSL2, where a 2-D
+    path yields a 2-D region.
+
     Args:
-        path:        path to place the text on
+        path:        path to place the text on, a Path2D (flat letters) or Path3D (extruded)
         text:        text to create
         font:        font to use (default "Liberation Sans")
         size:        font size divided by 0.72 (default 10)
@@ -304,6 +348,10 @@ def path_text(
     # free of a numpy dependency -- pybosl2.paths uses numpy internally, and numpy isn't always
     # loadable inside the real PythonSCAD app (e.g. a hardened-runtime-signed build combined
     # with an ad-hoc-signed/unsigned numpy install fails library validation).
+
+    from pybosl2.path2d import Path2D as _Path2D
+    from pybosl2.path3d import Path3D as _Path3D
+    from pybosl2.shapes2d import Bosl2Shape2D as _Bosl2Shape2D
 
     if not (len(text) > 0):
         raise ValueError("path_text(): text must be non-empty.")
@@ -356,6 +404,11 @@ def path_text(
         if i < sides - 1:
             kern_prefix += kern_list[i]
     textlength = prefix + kern_prefix
+
+    # A bare point list is indexable, so it survives every check above and only falls over at
+    # perimeter()/cut_points() below, which are Path methods. Promote it rather than crash.
+    if not isinstance(path, (_Path2D, _Path3D)):
+        path = _Path2D(path) if dim == 2 else _Path3D(path)
 
     plen = path.perimeter()
     if not (textlength <= plen):
@@ -410,12 +463,17 @@ def path_text(
             m = _frame_map(x=_point3d(x_axis), y=_point3d(y_axis))
             letter = glyph
 
-        letters.append(letter.multmatrix(m).translate(pts[i].point))
+        # A cut point on a 2-D path is (x, y), but translate() wants three components.
+        letters.append(letter.multmatrix(m).translate(_point3d(pts[i].point)))
 
     result = letters[0]
     for s in letters[1:]:
         result = result | s
 
+    # A 2-D path lays the letters out flat, so the result is 2-D geometry: wrapping it as a
+    # Bosl2Solid would hand back a "solid" that no 3-D operation can use.
+    if dim == 2:
+        return _Bosl2Shape2D(result, size=None, anchor=CENTER)
     return Bosl2Solid(result, size=None, anchor=CENTER)
 
 
