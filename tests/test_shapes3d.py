@@ -1021,3 +1021,27 @@ def test_path_text_top_orients_the_letters_on_a_2d_path() -> None:
         np.asarray(topped.linear_extrude(height=2).bounds()[0], dtype=float),
         np.asarray(plain.linear_extrude(height=2).bounds()[0], dtype=float),
     )
+
+
+# --- sequence operators -------------------------------------------------------------------
+
+
+def test_adding_a_vector_translates() -> None:
+    """`shape + [x, y, z]` is a translation, and reads the same either way round."""
+    box = cuboid([10, 10, 10])
+    assert [float(v) for v in (box + [5, 0, 0]).bounds()[0]] == pytest.approx([5.0, 0.0, 0.0])
+    assert [float(v) for v in ([5, 0, 0] + box).bounds()[0]] == pytest.approx([5.0, 0.0, 0.0])
+
+
+def test_multiplying_scales() -> None:
+    """`shape * n` scales uniformly; a vector scales per axis."""
+    box = cuboid([10, 10, 10])
+    assert [float(v) for v in (box * 2).bounds()[1]] == pytest.approx([20.0, 20.0, 20.0])
+    assert [float(v) for v in (2 * box).bounds()[1]] == pytest.approx([20.0, 20.0, 20.0])
+    assert [float(v) for v in (box * [2, 1, 1]).bounds()[1]] == pytest.approx([20.0, 10.0, 10.0])
+
+
+def test_adding_a_bare_number_is_rejected() -> None:
+    """A scalar is not a displacement, so `+` declines it rather than guessing an axis."""
+    with pytest.raises(TypeError):
+        cuboid([10, 10, 10]) + 5  # type: ignore[operator]

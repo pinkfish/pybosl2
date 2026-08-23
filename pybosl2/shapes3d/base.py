@@ -711,12 +711,17 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
         cpt = csolid.anchor_point(ca)
         placed = csolid.translate([-cpt[0], -cpt[1], -cpt[2]])
-        angle, axis = _rot_from_to(
-            [float(ca[0]), float(ca[1]), float(ca[2])],
-            [-float(pa[0]), -float(pa[1]), -float(pa[2])],
-        )
-        if angle:
-            placed = placed.rotate(angle, axis)
+        # CENTER has no direction, so there is no pair of faces to bring together and nothing to
+        # rotate -- the child keeps its own orientation. The overlap/spin handling below already
+        # allows for a directionless anchor; without this guard _rot_from_to() got there first and
+        # failed on the zero vector.
+        if any(ca) and any(pa):
+            angle, axis = _rot_from_to(
+                [float(ca[0]), float(ca[1]), float(ca[2])],
+                [-float(pa[0]), -float(pa[1]), -float(pa[2])],
+            )
+            if angle:
+                placed = placed.rotate(angle, axis)
         if spin and any(pa):
             placed = placed.rotate(spin, list(unit(pa)))
         ppt = self.anchor_point(pa, bbox=bbox)
