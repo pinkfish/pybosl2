@@ -124,6 +124,10 @@ def cube(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    edges: Sequence[float] | None = None,
+    except_edges: Sequence[float] | None = None,
+    teardrop: bool | None = None,
+    trimcorners: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -144,6 +148,10 @@ def cube(
         center: If given, overrides anchor (True -> CENTER, False -> FRONT+LEFT+BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default Anchor.TOP)
+        edges: edge specifier — "ALL", "NONE", "X", "Y", "Z", or list of direction vectors (CSG backend).
+        except_edges: edges to exclude from chamfer/rounding (CSG backend).
+        teardrop: limit the overhang angle for FDM printing (default False) (CSG backend).
+        trimcorners: trim corners where 3+ edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -190,6 +198,10 @@ def cube(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "edges": edges,
+                "except_edges": except_edges,
+                "teardrop": teardrop,
+                "trimcorners": trimcorners,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -209,6 +221,10 @@ def cuboid(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    p1: Sequence[float] | None = None,
+    p2: Sequence[float] | None = None,
+    teardrop: bool | None = None,
+    trimcorners: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -230,6 +246,10 @@ def cuboid(
         anchor: Anchor point (default Anchor.CENTER)
         spin: Z-axis rotation in degrees (default 0)
         orient: Direction to rotate the top towards (default Anchor.TOP)
+        p1: align the cuboid's corner at p1, if given (forces anchor=BOTTOM_FRONT_LEFT) (CSG backend).
+        p2: if given with p1, defines the cuboid's opposing cornerpoint (CSG backend).
+        teardrop: enable teardrop rounding (not supported by this pure-Python port) (CSG backend).
+        trimcorners: round/chamfer corners where three treated edges meet (default True) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -267,6 +287,10 @@ def cuboid(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "p1": p1,
+                "p2": p2,
+                "teardrop": teardrop,
+                "trimcorners": trimcorners,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -297,6 +321,24 @@ def cyl(
     anchor: Anchor | Sequence[float] | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    circumscribe: bool | None = None,
+    clip_angle: float | None = None,
+    extra: float | None = None,
+    extra1: float | None = None,
+    extra2: float | None = None,
+    from_end: bool | None = None,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    realign: bool | None = None,
+    teardrop: bool | float | None = None,
+    tex_depth: float | None = None,
+    tex_inset: bool | float | None = None,
+    tex_reps: int | Sequence[int] | None = None,
+    tex_size: float | Sequence[float] | None = None,
+    texture: Any = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -329,6 +371,24 @@ def cyl(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -387,6 +447,24 @@ def cyl(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "chamfer_angle": chamfer_angle,
+                "chamfer_angle1": chamfer_angle1,
+                "chamfer_angle2": chamfer_angle2,
+                "circumscribe": circumscribe,
+                "clip_angle": clip_angle,
+                "extra": extra,
+                "extra1": extra1,
+                "extra2": extra2,
+                "from_end": from_end,
+                "from_end1": from_end1,
+                "from_end2": from_end2,
+                "realign": realign,
+                "teardrop": teardrop,
+                "tex_depth": tex_depth,
+                "tex_inset": tex_inset,
+                "tex_reps": tex_reps,
+                "tex_size": tex_size,
+                "texture": texture,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -416,6 +494,25 @@ def cylinder(
     anchor: Anchor | Sequence[float] | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    circumscribe: bool | None = None,
+    clip_angle: float | None = None,
+    extra: float | None = None,
+    extra1: float | None = None,
+    extra2: float | None = None,
+    from_end: bool | None = None,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    realign: bool | None = None,
+    shift: Sequence[float] | None = None,
+    teardrop: bool | float | None = None,
+    tex_depth: float | None = None,
+    tex_inset: bool | float | None = None,
+    tex_reps: int | Sequence[int] | None = None,
+    tex_size: float | Sequence[float] | None = None,
+    texture: Any = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -447,6 +544,25 @@ def cylinder(
         anchor: Anchor point (default BOTTOM if center=False, otherwise CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -504,6 +620,25 @@ def cylinder(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "chamfer_angle": chamfer_angle,
+                "chamfer_angle1": chamfer_angle1,
+                "chamfer_angle2": chamfer_angle2,
+                "circumscribe": circumscribe,
+                "clip_angle": clip_angle,
+                "extra": extra,
+                "extra1": extra1,
+                "extra2": extra2,
+                "from_end": from_end,
+                "from_end1": from_end1,
+                "from_end2": from_end2,
+                "realign": realign,
+                "shift": shift,
+                "teardrop": teardrop,
+                "tex_depth": tex_depth,
+                "tex_inset": tex_inset,
+                "tex_reps": tex_reps,
+                "tex_size": tex_size,
+                "texture": texture,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -560,6 +695,7 @@ def onion(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    circumscribe: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -580,6 +716,7 @@ def onion(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        circumscribe: circumscribe rather than inscribe the given radius/diameter (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -608,6 +745,7 @@ def onion(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "circumscribe": circumscribe,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -807,6 +945,21 @@ def rect_tube(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    inner_chamfer: float | None = None,
+    inner_chamfer1: float | None = None,
+    inner_chamfer2: float | None = None,
+    inner_rounding1: float | None = None,
+    inner_rounding2: float | None = None,
+    isize1: Sequence[float] | None = None,
+    isize2: Sequence[float] | None = None,
+    rounding1: float | None = None,
+    rounding2: float | None = None,
+    shift: Sequence[float] | None = None,
+    size1: Sequence[float] | None = None,
+    size2: Sequence[float] | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -831,6 +984,21 @@ def rect_tube(
         center: If given, overrides anchor.
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        chamfer: outer edge chamfer size (overall/bottom/top) (CSG backend).
+        chamfer1: outer edge chamfer size (overall/bottom/top) (CSG backend).
+        chamfer2: outer edge chamfer size (overall/bottom/top) (CSG backend).
+        inner_chamfer: inner edge chamfer size (default: same as chamfer) (CSG backend).
+        inner_chamfer1: inner edge chamfer size (default: same as chamfer) (CSG backend).
+        inner_chamfer2: inner edge chamfer size (default: same as chamfer) (CSG backend).
+        inner_rounding1: inner edge rounding radius (default: same as rounding) (CSG backend).
+        inner_rounding2: inner edge rounding radius (default: same as rounding) (CSG backend).
+        isize1: inner [X,Y] size at the bottom/top (CSG backend).
+        isize2: inner [X,Y] size at the bottom/top (CSG backend).
+        rounding1: outer edge rounding radius (overall/bottom/top) (CSG backend).
+        rounding2: outer edge rounding radius (overall/bottom/top) (CSG backend).
+        shift: [X,Y] shift of the top center relative to the bottom center (CSG backend).
+        size1: outer [X,Y] size at the bottom/top (CSG backend).
+        size2: outer [X,Y] size at the bottom/top (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -863,6 +1031,21 @@ def rect_tube(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "inner_chamfer": inner_chamfer,
+                "inner_chamfer1": inner_chamfer1,
+                "inner_chamfer2": inner_chamfer2,
+                "inner_rounding1": inner_rounding1,
+                "inner_rounding2": inner_rounding2,
+                "isize1": isize1,
+                "isize2": isize2,
+                "rounding1": rounding1,
+                "rounding2": rounding2,
+                "shift": shift,
+                "size1": size1,
+                "size2": size2,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1002,6 +1185,7 @@ def sphere(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    circumscribe: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1020,6 +1204,7 @@ def sphere(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        circumscribe: circumscribe rather than inscribe the sphere (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1047,6 +1232,7 @@ def sphere(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "circumscribe": circumscribe,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1063,6 +1249,7 @@ def spheroid(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    circumscribe: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1081,6 +1268,7 @@ def spheroid(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        circumscribe: circumscribe rather than inscribe the spheroid (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1107,6 +1295,7 @@ def spheroid(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "circumscribe": circumscribe,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1130,6 +1319,13 @@ def teardrop(
     anchor: Anchor | Sequence[float] | None = Anchor.CENTER,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    cap_h1: float | None = None,
+    cap_h2: float | None = None,
+    chamfer: float | None = None,
+    chamfer1: float | None = None,
+    chamfer2: float | None = None,
+    circumscribe: bool | None = None,
+    realign: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1155,6 +1351,13 @@ def teardrop(
         anchor: Anchor point (default CENTER)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        cap_h1: truncation height on the front side (CSG backend).
+        cap_h2: truncation height on the back side (CSG backend).
+        chamfer: chamfer size along the bottom/top faces (overall) (default 0) (CSG backend).
+        chamfer1: chamfer size along the bottom face (default 0) (CSG backend).
+        chamfer2: chamfer size along the top face (default 0) (CSG backend).
+        circumscribe: produce a circumscribing teardrop shape (default False) (CSG backend).
+        realign: shift face alignment, passed to teardrop2d (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1189,6 +1392,13 @@ def teardrop(
                 "anchor": anchor,
                 "spin": spin,
                 "orient": orient,
+                "cap_h1": cap_h1,
+                "cap_h2": cap_h2,
+                "chamfer": chamfer,
+                "chamfer1": chamfer1,
+                "chamfer2": chamfer2,
+                "circumscribe": circumscribe,
+                "realign": realign,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1299,6 +1509,15 @@ def tube(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    inner_diameter1: float | None = None,
+    inner_diameter2: float | None = None,
+    inner_radius1: float | None = None,
+    inner_radius2: float | None = None,
+    outer_diameter1: float | None = None,
+    outer_diameter2: float | None = None,
+    outer_radius1: float | None = None,
+    outer_radius2: float | None = None,
+    realign: bool | None = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1329,6 +1548,15 @@ def tube(
         center: If given, overrides anchor (True -> CENTER, False -> DOWN)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        inner_diameter1: inner diameter of the bottom/top (CSG backend).
+        inner_diameter2: inner diameter of the bottom/top (CSG backend).
+        inner_radius1: inner radius of the bottom/top (CSG backend).
+        inner_radius2: inner radius of the bottom/top (CSG backend).
+        outer_diameter1: outer diameter of the bottom/top (CSG backend).
+        outer_diameter2: outer diameter of the bottom/top (CSG backend).
+        outer_radius1: outer radius of the bottom/top (CSG backend).
+        outer_radius2: outer radius of the bottom/top (CSG backend).
+        realign: rotate by half the angle of one face (default False) (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1377,6 +1605,15 @@ def tube(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "inner_diameter1": inner_diameter1,
+                "inner_diameter2": inner_diameter2,
+                "inner_radius1": inner_radius1,
+                "inner_radius2": inner_radius2,
+                "outer_diameter1": outer_diameter1,
+                "outer_diameter2": outer_diameter2,
+                "outer_radius1": outer_radius1,
+                "outer_radius2": outer_radius2,
+                "realign": realign,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1447,6 +1684,25 @@ def xcyl(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    circumscribe: bool | None = None,
+    clip_angle: float | None = None,
+    extra: float | None = None,
+    extra1: float | None = None,
+    extra2: float | None = None,
+    from_end: bool | None = None,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    realign: bool | None = None,
+    shift: Sequence[float] | None = None,
+    teardrop: bool | float | None = None,
+    tex_depth: float | None = None,
+    tex_inset: bool | float | None = None,
+    tex_reps: int | Sequence[int] | None = None,
+    tex_size: float | Sequence[float] | None = None,
+    texture: Any = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1478,6 +1734,25 @@ def xcyl(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1518,6 +1793,25 @@ def xcyl(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "chamfer_angle": chamfer_angle,
+                "chamfer_angle1": chamfer_angle1,
+                "chamfer_angle2": chamfer_angle2,
+                "circumscribe": circumscribe,
+                "clip_angle": clip_angle,
+                "extra": extra,
+                "extra1": extra1,
+                "extra2": extra2,
+                "from_end": from_end,
+                "from_end1": from_end1,
+                "from_end2": from_end2,
+                "realign": realign,
+                "shift": shift,
+                "teardrop": teardrop,
+                "tex_depth": tex_depth,
+                "tex_inset": tex_inset,
+                "tex_reps": tex_reps,
+                "tex_size": tex_size,
+                "texture": texture,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1547,6 +1841,25 @@ def ycyl(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    circumscribe: bool | None = None,
+    clip_angle: float | None = None,
+    extra: float | None = None,
+    extra1: float | None = None,
+    extra2: float | None = None,
+    from_end: bool | None = None,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    realign: bool | None = None,
+    shift: Sequence[float] | None = None,
+    teardrop: bool | float | None = None,
+    tex_depth: float | None = None,
+    tex_inset: bool | float | None = None,
+    tex_reps: int | Sequence[int] | None = None,
+    tex_size: float | Sequence[float] | None = None,
+    texture: Any = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1578,6 +1891,25 @@ def ycyl(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1618,6 +1950,25 @@ def ycyl(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "chamfer_angle": chamfer_angle,
+                "chamfer_angle1": chamfer_angle1,
+                "chamfer_angle2": chamfer_angle2,
+                "circumscribe": circumscribe,
+                "clip_angle": clip_angle,
+                "extra": extra,
+                "extra1": extra1,
+                "extra2": extra2,
+                "from_end": from_end,
+                "from_end1": from_end1,
+                "from_end2": from_end2,
+                "realign": realign,
+                "shift": shift,
+                "teardrop": teardrop,
+                "tex_depth": tex_depth,
+                "tex_inset": tex_inset,
+                "tex_reps": tex_reps,
+                "tex_size": tex_size,
+                "texture": texture,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,
@@ -1647,6 +1998,25 @@ def zcyl(
     center: bool | None = None,
     spin: float | None = 0,
     orient: Anchor | Sequence[float] | None = Anchor.TOP,
+    chamfer_angle: float | None = None,
+    chamfer_angle1: float | None = None,
+    chamfer_angle2: float | None = None,
+    circumscribe: bool | None = None,
+    clip_angle: float | None = None,
+    extra: float | None = None,
+    extra1: float | None = None,
+    extra2: float | None = None,
+    from_end: bool | None = None,
+    from_end1: bool | None = None,
+    from_end2: bool | None = None,
+    realign: bool | None = None,
+    shift: Sequence[float] | None = None,
+    teardrop: bool | float | None = None,
+    tex_depth: float | None = None,
+    tex_inset: bool | float | None = None,
+    tex_reps: int | Sequence[int] | None = None,
+    tex_size: float | Sequence[float] | None = None,
+    texture: Any = None,
     fn: int | None = None,
     fa: float | None = None,
     fs: float | None = None,
@@ -1678,6 +2048,25 @@ def zcyl(
         center: If given, overrides anchor (True -> CENTER, False -> BOTTOM)
         spin: Z-axis rotation in degrees after anchor (default 0)
         orient: Direction to rotate the top towards, after spin (default UP)
+        chamfer_angle: End chamfer angle in degrees away from the ends (CSG backend).
+        chamfer_angle1: Chamfer angle at the bottom end (CSG backend).
+        chamfer_angle2: Chamfer angle at the top end (CSG backend).
+        circumscribe: Circumscribe rather than inscribe the given radius (CSG backend).
+        clip_angle: Clip the rounding arc at the bottom of the cylinder (CSG backend).
+        extra: Extra height at both ends, invisible to anchoring (CSG backend).
+        extra1: Extra height at the bottom end (CSG backend).
+        extra2: Extra height at the top end (CSG backend).
+        from_end: Measure the chamfer along the conic face rather than the axis (CSG backend).
+        from_end1: Measure the bottom chamfer along the conic face (CSG backend).
+        from_end2: Measure the top chamfer along the conic face (CSG backend).
+        realign: Shift point alignment by half a facet (CSG backend).
+        shift: ``[x, y]`` offset for the positive end, shearing the solid (CSG backend).
+        teardrop: Limit the rounding angle from horizontal, for printability (CSG backend).
+        tex_depth: Depth of the texture (CSG backend).
+        tex_inset: Inset the texture into the surface (CSG backend).
+        tex_reps: Number of texture repetitions (CSG backend).
+        tex_size: Size of one texture tile (CSG backend).
+        texture: Named texture for the side surface (CSG backend).
         fn: Fixed fragment count for curved surfaces; the ambient default applies when omitted, and 0 means "use
             fa/fs" (CSG backend).
         fa: Minimum fragment angle in degrees; ambient default when omitted (CSG backend).
@@ -1718,6 +2107,25 @@ def zcyl(
                 "center": center,
                 "spin": spin,
                 "orient": orient,
+                "chamfer_angle": chamfer_angle,
+                "chamfer_angle1": chamfer_angle1,
+                "chamfer_angle2": chamfer_angle2,
+                "circumscribe": circumscribe,
+                "clip_angle": clip_angle,
+                "extra": extra,
+                "extra1": extra1,
+                "extra2": extra2,
+                "from_end": from_end,
+                "from_end1": from_end1,
+                "from_end2": from_end2,
+                "realign": realign,
+                "shift": shift,
+                "teardrop": teardrop,
+                "tex_depth": tex_depth,
+                "tex_inset": tex_inset,
+                "tex_reps": tex_reps,
+                "tex_size": tex_size,
+                "texture": texture,
                 "fn": fn,
                 "fa": fa,
                 "fs": fs,

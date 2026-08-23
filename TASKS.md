@@ -795,9 +795,15 @@ recorded under B-7 (façade = shared surface), so SPEC changes with it.
    façade, both refuse by name on SDF, and **no part passes a shape argument the façade cannot
    carry**. `test_no_part_needs_a_shape_argument_the_facade_cannot_carry` keeps it that way.
 
-   The gap is 146 → 136. What is left is a completeness backlog, not a blocker: the `cyl` family's
-   19 apiece, `rect_tube`'s 15, `tube`'s per-end radii, the `texture`/`tex_*` family. Each carries
-   the same pair of tests: it builds on CSG, it refuses by name on SDF.
+   **The gap is closed: 146 → 0.** The rest went in one sweep once the parts were unblocked -- the
+   `cyl` family's 19 apiece (94 of the 136), `rect_tube`'s 15, `tube`'s per-end radii, `teardrop`'s
+   caps, `cuboid`'s `p1`/`p2`, the `texture`/`tex_*` family. Descriptions were lifted from each CSG
+   constructor's own docstring rather than invented, so the façade says what the backend says.
+
+   `test_the_facade_exposes_every_shared_constructors_full_surface` keeps it closed -- a new
+   CSG-only option is easy to add to `shapes3d` and easy to forget on the façade. A second test
+   takes six of the newly reachable options and checks the claim that matters: honoured on CSG,
+   refused *by parameter name* on SDF. Reachable alone would not be worth much.
 2. **Give the Shape contract a backend-neutral nominal box.** ✅ `with_nominal_size(size, anchor=)`
    is on the `Shape` protocol and implemented on both backends: it returns a new shape around the
    same geometry carrying the nominal anchor box, and — like colour — the box rides the field as
