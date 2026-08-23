@@ -483,7 +483,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             self.cuboid_edge_modes,
         )
 
-    def rotate(self, a: float | Sequence[float], v: list[float] | None = None) -> PyShape:
+    def rotate(self, a: float | Sequence[float] | None = None, v: Sequence[float] | None = None) -> PyShape:
         """Rotate the SDF itself (`f(p) -> f(R^-1 p)`), exact and free -- no meshing involved.
 
         So (like translate()) a shape can still be .round()ed/.chamfer()ed/composed afterward
@@ -495,7 +495,9 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         before any rotation, the same order pybosl2's own anchor/edges-then-spin/orient applies
         them in, so treating edges post-rotation wouldn't mean what it looks like it means.
         """
-        m = _rotation_matrix(a, v)
+        if a is None:
+            raise ValueError("rotate(): give an angle (with an axis) or a list of Euler angles.")
+        m = _rotation_matrix(a, list(v) if v is not None else None)
         mt = [[m[j][i] for j in range(3)] for i in range(3)]  # transpose == inverse for a rotation
         fn = self._sdf_fn
         new_fn = lambda x, y, z: fn(  # noqa: E731
@@ -573,7 +575,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         new_mx = [self.mx[i] * s[i] for i in range(3)]
         return self._wrap(new_fn, new_mn, new_mx)
 
-    def mirror(self, v: list[float]) -> PyShape:
+    def mirror(self, v: Sequence[float]) -> PyShape:
         """Reflect across the plane through the origin with normal `v`, exact and free.
 
         `f(p) -> f(Mp)`, with M the Householder reflection, matching the real mirror(). Drops
@@ -1850,6 +1852,94 @@ def tapered_polygon_prism(
         [float(corners[:, 0].max()), float(corners[:, 1].max()), height],
         res,
     )
+
+
+def spiral_sweep(
+    profile: "PathLike",
+    height: float,
+    radius: float,
+    turns: float = 1.0,
+    center: bool = True,
+    res: int = 10,
+) -> PyShape:
+    """Sweep a 2-D profile along a helix, as a libfive SDF -- a screw thread or a coil.
+
+    The profile is read in the same frame the meshed `spiral_sweep()` uses: X is the offset
+    outward from the helix radius, Y is height. A point at radius `r`, angle `theta` and height
+    `z` lies on turn `k` of the helix when the profile contains
+    ``(r - radius, z - z0 - pitch * (theta / 2pi + k))``, so the solid is the union of that test
+    over every turn the coil has -- which is a plain `min()` over a handful of shifted copies of
+    the profile's own 2-D field.
+
+    Two things follow from that and are worth knowing:
+
+    * The **zero set is exact** -- a point is on the surface exactly when the profile says so --
+      but the *value* is the profile's 2-D distance, not the true 3-D distance to a helical
+      surface, which is shorter as the sweep curves. That is the same trade the rest of this
+      module documents.
+    * `atan2` has a branch cut at ±pi, and a field built on one turn alone would tear along it.
+      Sweeping one extra turn at each end covers the seam, so the neighbours agree across it.
+
+    The ends are cut on flat z-planes rather than on the profile's own plane, which the meshed
+    sweep uses. For a thread that makes no difference -- it is intersected with its rod either way
+    -- but a bare coil's ends are square here.
+
+    Args:
+        profile: The cross-section as ``[[x, y], ...]``: X outward from the helix, Y up.
+        height: Overall height of the coil.
+        radius: Helix radius.
+        turns: Number of revolutions. Negative sweeps the other way (a left-hand thread).
+        center: Centre the coil on the origin, as the meshed sweep does by default.
+        res: libfive meshing resolution passed to frep().
+
+    Returns:
+        The swept coil.
+
+    Raises:
+        ValueError: If the profile has fewer than 3 points, or turns or height is zero.
+
+    """
+    points = np.asarray(as_path_list(profile)[0], dtype=float)
+    if len(points) < 3:
+        raise ValueError(f"spiral_sweep(): the profile needs at least 3 points, got {len(points)}")
+    if turns == 0:
+        raise ValueError("spiral_sweep(): turns must not be zero")
+    if height == 0:
+        raise ValueError("spiral_sweep(): height must not be zero")
+
+    outline = [[float(x), float(y)] for x, y in points]
+    pitch = height / turns
+    bottom = -height / 2 if center else 0.0
+    # One extra turn each side so the atan2 seam is always covered by a neighbour.
+    first = int(math.floor(min(0.0, turns))) - 1
+    last = int(math.ceil(max(0.0, turns))) + 1
+
+    first_turn, last_turn = min(0.0, turns), max(0.0, turns)
+    scale = abs(pitch)  # turns -> millimetres, so the parameter clip is in the field's own units
+
+    def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
+        u = _lv_hypot(x, y) - radius
+        angle = lv.atan2(y, x) / (2 * math.pi)
+        swept = None
+        for k in range(first, last + 1):
+            t_turn = angle + k
+            v = z - (bottom + pitch * t_turn)
+            d = _polygon_sdf_xy(u, v, outline)
+            # Clip each turn to the sweep's own parameter range rather than to a z slab. A slab
+            # would cut the profile's end faces off flat, which is not where the sweep ends: the
+            # first and last cross-sections are the profile itself, standing on the helix.
+            d = lv.max(d, (first_turn - t_turn) * scale)
+            d = lv.max(d, (t_turn - last_turn) * scale)
+            swept = d if swept is None else lv.min(swept, d)
+        assert swept is not None, "the turn range always has at least one entry"
+        return swept
+
+    # The solid is a ring: its box reaches the profile's outermost point, at every angle.
+    outer = radius + float(points[:, 0].max())
+    ends = [bottom + pitch * first_turn, bottom + pitch * last_turn]
+    low = min(ends) + float(points[:, 1].min())
+    high = max(ends) + float(points[:, 1].max())
+    return PyShape(sdf_fn, [-outer, -outer, low], [outer, outer, high], res)
 
 
 def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:

@@ -39,6 +39,7 @@ from pybosl2._backend import csg_part
 from pybosl2.enums import VNFStyle
 from pybosl2.parts.enums import NutShape
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
+from pybosl2.vnf import VNF
 
 __all__ = ["ThreadedRod", "ThreadedNut", "ThreadHelix", "ThreadProfile"]
 
@@ -354,7 +355,7 @@ class ThreadedRod:
         return self._left_handed
 
     @property
-    @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
+    @csg_part("builds its thread surface as a VNF grid, and a non-convex mesh has no distance-field form")
     def shape(self) -> "Solid":
         """Build and return the threaded rod geometry (cached)."""
         if self._solid is not None:
@@ -480,7 +481,7 @@ class ThreadedNut:
         return self._left_handed
 
     @property
-    @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
+    @csg_part("builds its thread surface as a VNF grid, and a non-convex mesh has no distance-field form")
     def shape(self) -> "Solid":
         """Build and return the nut geometry (cached)."""
         if self._solid is not None:
@@ -583,16 +584,14 @@ class ThreadHelix:
         thread: "Solid | None" = None
         for k in range(starts):
             sec = [[x, y + k * pitch] for x, y in section]
-            piece = (
-                Path2D(sec)
-                .spiral_sweep(
-                    height=height,
-                    radius=radius,
-                    turns=turns * (-1 if left_handed else 1),
-                    center=True,
-                )
-                .polyhedron()  # type: ignore[union-attr]
+            swept = Path2D(sec).spiral_sweep(
+                height=height,
+                radius=radius,
+                turns=turns * (-1 if left_handed else 1),
+                center=True,
             )
+            # The CSG sweep hands back a VNF to be built; the SDF one is already a solid.
+            piece = swept.polyhedron() if isinstance(swept, VNF) else swept
             if starts > 1:
                 piece = piece.rotate([0, 0, k * 360 / starts])
             thread = piece if thread is None else (thread | piece)
@@ -625,7 +624,6 @@ class ThreadHelix:
         return self._left_handed
 
     @property
-    @csg_part("sweeps its thread with spiral_sweep(), which a distance field cannot express")
     def shape(self) -> "Solid":
         """Return the helix geometry."""
         return self._solid
