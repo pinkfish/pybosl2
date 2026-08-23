@@ -140,6 +140,7 @@ BACKEND_NEUTRAL_PARTS = frozenset(
         "SparseWall",
         "SpurGear",
         "ThinningTriangle",
+        "ThreadHelix",
         "Truss",
         "TrussClip",
         "TrussCorner",
@@ -244,11 +245,11 @@ def test_a_refusal_names_what_the_part_needs() -> None:
 def test_the_named_reason_reaches_the_message() -> None:
     """The decorator is only worth its argument if the argument is what the caller reads.
 
-    `ThreadedRod` is the subject because its guard is what actually fires: it sweeps its thread
-    with `spiral_sweep()`, which has no dispatched form to refuse first, so the refusal comes from
-    `shape`. Where a part reaches a *dispatched* operation instead -- `WireBundle` hits
-    `polyhedron()`'s convexity check -- the primitive refuses before the guard is ever consulted,
-    which is the more precise message anyway.
+    `ThreadedRod` is the subject because its guard is what actually fires: it builds its thread as
+    a VNF grid, which has no dispatched form to refuse first, so the refusal comes from `shape`.
+    Where a part reaches a *dispatched* operation instead -- `WireBundle` hits `polyhedron()`'s
+    convexity check -- the primitive refuses before the guard is consulted, which is the more
+    precise message anyway.
     """
     import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
     from pybosl2._backend import use_backend
@@ -259,7 +260,7 @@ def test_the_named_reason_reaches_the_message() -> None:
         _ = parts.ThreadedRod(16.0, 24.0, 2.0, _iso_profile()).shape
     message = str(excinfo.value)
     assert "ThreadedRod" in message
-    assert "spiral_sweep()" in message  # the operation that is actually in the way
+    assert "VNF grid" in message  # the operation that is actually in the way
 
 
 def test_a_dispatched_operation_refuses_before_the_part_guard() -> None:

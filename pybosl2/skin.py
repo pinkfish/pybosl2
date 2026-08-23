@@ -826,6 +826,25 @@ def _spiral_sweep(
         dflt=1,
     )
     poly = [[p[0], p[1]] for p in poly]
+
+    from pybosl2._backend import current_backend
+
+    if current_backend() == "sdf":
+        # A helical sweep has an exact distance-field form: the profile's own 2-D field, read in
+        # the frame the helix carries it through (TASKS T14). A taper has none, so it refuses
+        # rather than quietly sweeping a constant radius.
+        from pybosl2.exceptions import UnsupportedByBackendError
+        from pybosl2.sdf.shapes3d import spiral_sweep as _sdf_spiral_sweep
+
+        if abs(rr1 - rr2) > 1e-12:
+            raise UnsupportedByBackendError(
+                "spiral_sweep(radius1=, radius2=)",
+                "sdf",
+                hint="a helix of changing radius has no closed-form distance field here; build it "
+                'inside `with use_backend("csg")` and bring it over with .to_csg().',
+            )
+        return _sdf_spiral_sweep(poly, height=height, radius=rr1, turns=turns, center=center)
+
     nturns = abs(turns)
     sides = _segs(max(rr1, rr2), fn, fa, fs)
     ang_step = 360.0 / sides

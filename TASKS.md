@@ -1010,15 +1010,42 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
   rather than by a blanket part guard.
 
-**36 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+**37 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
 work -- every remaining refusal names a specific missing capability:
 
 | missing capability | parts |
 |---|---|
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
-| `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
+| a VNF grid (a non-convex mesh, as above) | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
 | 2-D geometry (hulls of circles) | 2 — `TorxMask`, `TorxMask2d` |
 | `prismoid(rounding=)` | 0 — see below |
+
+* **`spiral_sweep()` has an exact distance-field form.** A point at radius `r`, angle `theta`,
+  height `z` is on turn `k` of the helix exactly when the profile contains
+  `(r - radius, z - z0 - pitch * (theta / 2pi + k))` -- so the solid is a `min()` over a handful of
+  shifted copies of the profile's own 2-D field. The zero set is exact; the *value* is the
+  profile's 2-D distance rather than the true 3-D distance to a helical surface, the same trade
+  the rest of the module documents. Sampled against the meshed sweep: 400 points, no disagreement
+  outside a facet width.
+
+  Two details the construction turns on. `atan2` tears at ±pi, so the sweep carries **one extra
+  turn at each end** and the neighbours cover the seam. And the ends are clipped in **parameter
+  space, not by a z slab** -- the obvious slab shears the end faces off flat and loses part of the
+  final turn, which is what the first attempt did: the coil came out 1.25 tall where the meshed one
+  is 2.042.
+
+  A *tapered* helix has no closed-form field and is refused by name. `ThreadHelix` builds on either
+  backend now.
+
+* **The reason strings for the threaded fasteners were wrong.** `ThreadedRod`/`ThreadedNut` say
+  they sweep with `spiral_sweep()`, and they do not -- they build the thread surface as a VNF grid
+  through `vertex_array`. Only `ThreadHelix` ever used the sweep. They belong in the non-convex
+  mesh group, and their guards now say so.
+
+* **`SdfSolid` did not satisfy the `Solid` protocol**, which surfaced the moment something typed
+  as `Solid` tried to return one. Three signatures were off: `mirror` and `rotate` took `list`
+  where the contract says `Sequence`, and `rotate` made its angle required where the contract has
+  it optional. Fixed on the implementation rather than by loosening the contract.
 
 * **`RingGear` imported the CSG `cylinder` directly**, which is all that stopped it: its cavity is
   a `SpurGear`, which already built on either backend. Routing the body through the façade was the

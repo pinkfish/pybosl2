@@ -1188,3 +1188,81 @@ class TestPassthroughMethods:
         assert t_chamfer is not None
         center, size = t_chamfer.bounds()
         assert size[2] == pytest.approx(20, abs=0.01)
+
+
+class TestSpiralSweep:
+    """spiral_sweep(): a helical sweep as a distance field (TASKS T14)."""
+
+    SECTION = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
+
+    def test_the_coil_matches_the_meshed_sweep(self) -> None:
+        """The zero set is exact, so a sampled point agrees with the meshed sweep.
+
+        Sampling rather than comparing bounds: a coil and a solid tube of the same size share an
+        envelope, so bounds alone cannot tell them apart. Points within a facet width of the
+        surface are excluded -- a faceted mesh legitimately cuts inside the true helical surface,
+        and that difference is the mesh's, not the field's.
+        """
+        import math
+        import random
+
+        from pybosl2.path2d import Path2D
+        from pybosl2.shapes3d import cuboid as csg_cuboid
+
+        meshed = Path2D(self.SECTION).spiral_sweep(height=40, radius=12, turns=5).polyhedron()
+        field = sdf_s3d.spiral_sweep(self.SECTION, height=40, radius=12, turns=5).mesh()
+
+        random.seed(11)
+        disagreements = []
+        inside = 0
+        for _ in range(200):
+            angle = random.uniform(-math.pi, math.pi)
+            r = random.uniform(9.5, 14.5)
+            z = random.uniform(-22, 22)
+            x, y = r * math.cos(angle), r * math.sin(angle)
+            probe = csg_cuboid([0.05, 0.05, 0.05]).translate([x, y, z])
+            in_mesh = (meshed & probe)._native_bounds() is not None
+            value = float(field.sample(x, y, z))
+            inside += int(in_mesh)
+            if in_mesh != (value < 0) and abs(value) > 0.06:
+                disagreements.append((round(x, 2), round(y, 2), round(z, 2), in_mesh, round(value, 3)))
+
+        assert not disagreements, f"the field disagrees with the mesh away from the surface: {disagreements[:5]}"
+        assert 0 < inside < 200, f"the probes never straddled the coil ({inside} of 200 inside)"
+
+    def test_the_ends_are_the_profile_not_a_flat_cut(self) -> None:
+        """The sweep is clipped in parameter space, so the last cross-section is the profile.
+
+        Clipping to a z slab instead -- the obvious way to bound the union of turns -- shears the
+        end faces off flat and loses the last part of the final turn. The coil is 40 tall plus the
+        profile's own half-height at each end.
+        """
+        coil = sdf_s3d.spiral_sweep(self.SECTION, height=40, radius=12, turns=5)
+        assert coil.mn[2] == pytest.approx(-20 - 1.2)
+        assert coil.mx[2] == pytest.approx(20 + 1.2)
+
+    def test_the_seam_at_the_branch_cut_is_covered(self) -> None:
+        """atan2 tears at ±pi, so a neighbouring turn has to cover it.
+
+        The sweep carries an extra turn at each end for exactly this. Without it the coil is split
+        along the -X half-plane, which is where the field would otherwise jump a whole pitch.
+        """
+        field = sdf_s3d.spiral_sweep(self.SECTION, height=40, radius=12, turns=5).mesh()
+        # Walk across the seam at a height where the coil is solid on both sides of it.
+        for dy in (-0.4, -0.2, -0.05, 0.05, 0.2, 0.4):
+            assert float(field.sample(-12, dy, -20 + 8 * 2.5)) < 0, f"the coil is torn at y={dy}"
+
+    @pytest.mark.parametrize(("bad", "match"), [({"turns": 0}, "turns"), ({"height": 0}, "height")])
+    def test_a_degenerate_sweep_is_rejected(self, bad: dict, match: str) -> None:  # type: ignore[type-arg]
+        kwargs = {"height": 40, "radius": 12, "turns": 5, **bad}
+        with pytest.raises(ValueError, match=match):
+            sdf_s3d.spiral_sweep(self.SECTION, **kwargs)
+
+    def test_a_tapered_helix_is_refused_by_the_facade(self) -> None:
+        """A helix of changing radius has no closed-form field, so it says so."""
+        from pybosl2._backend import use_backend
+        from pybosl2.exceptions import UnsupportedByBackendError
+        from pybosl2.path2d import Path2D
+
+        with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="radius1"):
+            Path2D(self.SECTION).spiral_sweep(height=40, radius1=12, radius2=8, turns=5)
