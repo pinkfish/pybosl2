@@ -613,3 +613,65 @@ def test_a_real_treatment_is_still_refused(kwargs: dict[str, object]) -> None:
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
         solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
+
+
+def test_the_facade_exposes_every_shared_constructors_full_surface() -> None:
+    """SPEC B-9: the façade is the union of what the backends build, not the intersection.
+
+    It used to be the intersection, so 146 CSG parameters were unreachable through
+    `pybosl2.solid` -- a caller who wanted `cyl(teardrop=True)` or `tube(outer_radius1=...)` had to
+    import the CSG constructor directly, which is what tied their code to one backend. The gap is
+    closed; this keeps it closed, because a new CSG-only option is easy to add to `shapes3d` and
+    easy to forget on the façade.
+    """
+    import inspect
+
+    import pybosl2.sdf.shapes3d as sdf_shapes
+    import pybosl2.shapes3d as csg_shapes
+
+    unreachable = {}
+    for name in sorted(solid._SHARED_3D):  # type: ignore[attr-defined]
+        functions = [getattr(module, name, None) for module in (solid, csg_shapes, sdf_shapes)]
+        if not all(callable(f) for f in functions):
+            continue
+        facade_params, csg_params, sdf_params = (set(inspect.signature(f).parameters) for f in functions)
+        gap = sorted((csg_params - sdf_params) - facade_params)
+        if gap:
+            unreachable[name] = gap
+
+    assert not unreachable, (
+        "CSG-only parameters the façade does not carry, so they can only be reached by importing "
+        f"the CSG constructor (SPEC B-9): {unreachable}"
+    )
+
+
+@pytest.mark.parametrize(
+    ("shape", "kwargs", "expected"),
+    [
+        ("cuboid", {"p1": [0, 0, 0], "p2": [10, 20, 30]}, (10, 20, 30)),
+        ("cube", {"size": 10, "chamfer": 2, "trimcorners": True}, (10, 10, 10)),
+        ("tube", {"height": 10, "outer_radius1": 10, "outer_radius2": 6, "inner_radius": 3}, (20, None, 10)),
+        ("rect_tube", {"height": 10, "size1": [20, 20], "size2": [14, 14], "wall": 2}, (20, 20, 10)),
+        ("teardrop", {"height": 10, "radius": 5, "cap_h1": 4, "cap_h2": 4}, (10, 10, None)),
+        ("cyl", {"height": 20, "radius": 5, "teardrop": True}, (10, 10, 20)),
+    ],
+)
+def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
+    shape: str,
+    kwargs: dict[str, object],
+    expected: tuple[float | None, float | None, float | None],
+) -> None:
+    """Reachable is not the claim -- honoured on one backend and refused on the other is."""
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    with use_backend("csg"):
+        built = getattr(solid, shape)(**kwargs)
+    size = built.bounds()[1]
+    for axis, want in enumerate(expected):
+        if want is not None:
+            assert float(size[axis]) == pytest.approx(want, abs=0.2), f"{shape}: size {list(size)}"
+
+    with use_backend("sdf"), pytest.raises(UnsupportedByBackendError) as excinfo:
+        getattr(solid, shape)(**kwargs)
+    # The message names the parameter that is missing, not just the shape.
+    assert any(key in str(excinfo.value) for key in kwargs)

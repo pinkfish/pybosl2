@@ -51,7 +51,7 @@
  },
  "walls": {
   "sparse": {
-   "tris": 280,
+   "tris": 564,
    "vol": "12,007.0",
    "bbox": "4\u00d7101\u00d750",
    "wt": true
@@ -81,7 +81,7 @@
    "wt": true
   },
   "sparse-cuboid": {
-   "tris": 160,
+   "tris": 346,
    "vol": "14,673.8",
    "bbox": "20\u00d740\u00d730",
    "wt": true
