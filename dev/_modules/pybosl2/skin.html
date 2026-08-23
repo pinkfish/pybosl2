@@ -2887,6 +2887,25 @@
         <span class="n">dflt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">poly</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">poly</span><span class="p">]</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_backend</span>
+
+    <span class="k">if</span> <span class="n">current_backend</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"sdf"</span><span class="p">:</span>
+        <span class="c1"># A helical sweep has an exact distance-field form: the profile's own 2-D field, read in</span>
+        <span class="c1"># the frame the helix carries it through (TASKS T14). A taper has none, so it refuses</span>
+        <span class="c1"># rather than quietly sweeping a constant radius.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnsupportedByBackendError</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.sdf.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">spiral_sweep</span> <span class="k">as</span> <span class="n">_sdf_spiral_sweep</span>
+
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">rr1</span> <span class="o">-</span> <span class="n">rr2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-12</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">UnsupportedByBackendError</span><span class="p">(</span>
+                <span class="s2">"spiral_sweep(radius1=, radius2=)"</span><span class="p">,</span>
+                <span class="s2">"sdf"</span><span class="p">,</span>
+                <span class="n">hint</span><span class="o">=</span><span class="s2">"a helix of changing radius has no closed-form distance field here; build it "</span>
+                <span class="s1">'inside `with use_backend("csg")` and bring it over with .to_csg().'</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_sdf_spiral_sweep</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">rr1</span><span class="p">,</span> <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">)</span>
+
     <span class="n">nturns</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">turns</span><span class="p">)</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="n">_segs</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">rr1</span><span class="p">,</span> <span class="n">rr2</span><span class="p">),</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">ang_step</span> <span class="o">=</span> <span class="mf">360.0</span> <span class="o">/</span> <span class="n">sides</span>
