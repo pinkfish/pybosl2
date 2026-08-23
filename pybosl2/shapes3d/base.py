@@ -498,7 +498,11 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         cutlist = path.cut_points(distances, closed=is_closed, direction=True)
         results: list[Bosl2Solid] = []
         for cp in cutlist:
-            copied: Bosl2Solid = self.translate([float(v) for v in cp.point])
+            # Turn the copy to face along the path *before* moving it into place. Translating
+            # first and rotating after spun each copy about the world origin instead of its own,
+            # which flung them off the path -- invisible on a path running along X, where the
+            # rotation happens to fix that axis, and badly wrong on anything that turns.
+            copied: Bosl2Solid = self
             if rotate_children:
                 d = np.asarray(cp.direction, dtype=float)
                 n = np.asarray(cp.normal, dtype=float)
@@ -509,7 +513,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
                 rotm = np.eye(4)
                 rotm[:3, 0], rotm[:3, 1], rotm[:3, 2] = xv, yv, zv
                 copied = copied.multmatrix(rotm.tolist())
-            results.append(copied)
+            results.append(copied.translate([float(v) for v in cp.point]))
         out = results[0]
         for r in results[1:]:
             out = out | r
