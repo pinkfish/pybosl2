@@ -46,8 +46,9 @@ from pybosl2.constants import INCH
 from pybosl2.enums import VNFStyle
 from pybosl2.math import lerp as _math_lerp
 from pybosl2.path2d import Path2D
-from pybosl2.shapes3d import Bosl2Solid, cylinder
+from pybosl2.shapes3d import cylinder
 from pybosl2.solid import cyl
+from pybosl2.solid import cylinder as facade_cylinder
 from pybosl2.vectors import v_theta as _v_theta
 from pybosl2.vnf import VNF
 
@@ -1429,8 +1430,8 @@ class RingGear:
             internal=True,
             profile_shift=profile_shift,
         ).shape
-        body = cylinder(height=thickness, diameter=2 * _or, center=True, fn=fn, fa=fa, fs=fs)
-        self._solid: Bosl2Solid = Bosl2Solid((body - cavity).shape, size=[2 * _or, 2 * _or, thickness])
+        body = facade_cylinder(height=thickness, diameter=2 * _or, center=True, fn=fn, fa=fa, fs=fs)
+        self._solid: "Solid" = (body - cavity).with_nominal_size([2 * _or, 2 * _or, thickness])
         self._teeth: int = teeth
 
     @property
@@ -1439,8 +1440,7 @@ class RingGear:
         return self._teeth
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
-    def shape(self) -> Bosl2Solid:
+    def shape(self) -> "Solid":
         """Return the ring gear geometry."""
         return self._solid
 
