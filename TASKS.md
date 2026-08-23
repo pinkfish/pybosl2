@@ -948,15 +948,19 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
   rather than by a blanket part guard.
 
-**33 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+**35 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
 work -- every remaining refusal names a specific missing capability:
 
 | missing capability | parts |
 |---|---|
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
 | `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
-| 2-D geometry (`Bosl2Shape2D`, hulls of circles) | 4 — `RingGear`, `TorxMask`, `TorxMask2d`, `Rack`, `Rack2d` |
+| 2-D geometry (hulls of circles) | 3 — `RingGear`, `TorxMask`, `TorxMask2d` |
 | `prismoid(rounding=)` | 0 — see below |
+
+* **`Rack2d` follows `SpurGear2d` in returning a `Path2D`**, so `Rack` builds on either backend
+  too. `RobertsonMask` needed nothing but its guard lifting -- it is a tapered prismoid
+  intersected with a cone, and both have dispatched for a while; the guard was stale.
 
 * **An explicit zero was being read as a request.** `RingHook` normalises `None` to `0` before
   forwarding -- `rounding=rounding if rounding else 0`, which parts do routinely -- and B-9's

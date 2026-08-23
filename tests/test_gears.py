@@ -25,7 +25,6 @@ from pybosl2.parts.gears import (
     WormGear,
 )
 from pybosl2.path2d import Path2D
-from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.shapes3d import Bosl2Solid
 
 
@@ -131,7 +130,7 @@ def test_teeth_count_scales_radius() -> None:
 def test_rack2d_builds() -> None:
     """A rack is as long as its teeth times their pitch, and as deep as `height`."""
     rack = Rack2d(pitch=5, teeth=10, height=6)
-    assert isinstance(rack.shape, Bosl2Shape2D)
+    assert isinstance(rack.shape, Path2D)  # a path, so a rack can be built on either backend
     length, depth, _ = _size2d(rack.shape)
     assert float(length) == pytest.approx(10 * 5, abs=0.5)
     assert float(depth) == pytest.approx(6, abs=0.5)
