@@ -2106,6 +2106,57 @@
     <span class="k">return</span> <span class="n">paths</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">inward_probe</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return a point strictly inside *poly* and on no other polygon's boundary.</span>
+
+<span class="sd">    The midpoint of the first edge, nudged inward. WHICH side is inward depends on the winding, so</span>
+<span class="sd">    both are tried. Assuming one (this used to take `-dy, +dx` and nothing else) puts the probe</span>
+<span class="sd">    OUTSIDE every clockwise ring -- 97 of the 153 rings in Wikipedia's Flag_of_Portugal -- and a</span>
+<span class="sd">    probe outside its own polygon fails every containment test, so every nesting depth derived from</span>
+<span class="sd">    it is wrong: the flag's green field came out a top-level sibling of the red one instead of</span>
+<span class="sd">    sitting on it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        poly: The polygon to find an interior point of. It must carry no holes -- the probe is only</span>
+<span class="sd">            guaranteed inside the shell, which is what nesting is computed from.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A point inside *poly*.</span>
+
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span> <span class="k">as</span> <span class="n">_Point</span>
+
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span>
+    <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">x1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span>
+    <span class="k">for</span> <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="ow">in</span> <span class="p">((</span><span class="o">-</span><span class="n">dy</span><span class="p">,</span> <span class="n">dx</span><span class="p">),</span> <span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="o">-</span><span class="n">dx</span><span class="p">)):</span>
+        <span class="n">probe</span> <span class="o">=</span> <span class="n">_Point</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="n">sx</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">my</span> <span class="o">+</span> <span class="n">sy</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">poly</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probe</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">probe</span>
+    <span class="c1"># Degenerate first edge (a spike, or a duplicated point): fall back to a point shapely</span>
+    <span class="c1"># guarantees is inside.</span>
+    <span class="k">return</span> <span class="n">poly</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">nesting_depths</span><span class="p">(</span><span class="n">polys</span><span class="p">:</span> <span class="s2">"Sequence[Any]"</span><span class="p">,</span> <span class="n">probes</span><span class="p">:</span> <span class="s2">"Sequence[Any]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Return how many other polygons contain each one -- the even-odd nesting depth.</span>
+
+<span class="sd">    Even depth is a shell, odd depth is a hole in the shell that encloses it. This is the rule SVG</span>
+<span class="sd">    and OpenSCAD's multi-path ``polygon()`` use.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        polys: The polygons, each a bare shell.</span>
+<span class="sd">        probes: An interior point per polygon, from :func:`inward_probe`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        One depth per polygon, in the same order.</span>
+
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">))]</span>
+
+
 <div class="viewcode-block" id="Region">
 <a class="viewcode-back" href="../../paths/regions.html#pybosl2.regions.Region">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Region</span><span class="p">:</span>
@@ -2355,6 +2406,7 @@
         <span class="n">flip_y</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strokes</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"polygon"</span><span class="p">,</span>
+        <span class="n">clip_to_viewbox</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Load an SVG drawing as a Region of outlines (see :func:`pybosl2.svg.region_from_svg`).</span>
 
@@ -2371,6 +2423,9 @@
 <span class="sd">                Pass ``None`` (the default) to use the SVG's own colours.</span>
 <span class="sd">            strokes: ``"polygon"`` (default) converts stroked paths to filled polygons.</span>
 <span class="sd">                ``"ignore"`` skips shapes that have only a stroke and no fill.</span>
+<span class="sd">            clip_to_viewbox: When True (the default), clip the drawing to the SVG's ``viewBox``.</span>
+<span class="sd">                Pass False for a drawing whose content already sits inside its viewBox, which is</span>
+<span class="sd">                the usual case for a CAD-style silhouette, to skip the work.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`Region` of the drawing, nested by the even-odd rule.</span>
@@ -2378,7 +2433,16 @@
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.svg</span><span class="w"> </span><span class="kn">import</span> <span class="n">region_from_svg</span>
 
-        <span class="k">return</span> <span class="n">region_from_svg</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span> <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">region_from_svg</span><span class="p">(</span>
+            <span class="n">file</span><span class="p">,</span>
+            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="n">flip_y</span><span class="o">=</span><span class="n">flip_y</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">strokes</span><span class="o">=</span><span class="n">strokes</span><span class="p">,</span>
+            <span class="n">clip_to_viewbox</span><span class="o">=</span><span class="n">clip_to_viewbox</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Region.even_odd">
@@ -2425,7 +2489,6 @@
 <span class="sd">                Region.even_odd([red, blue]).geometry().linear_extrude(height=3).show()</span>
 
 <span class="sd">        """</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span> <span class="k">as</span> <span class="n">_Point</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">_Polygon</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
 
@@ -2453,34 +2516,8 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">polys</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span>
 
-        <span class="n">probes</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">:</span>
-            <span class="n">coords</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span>
-            <span class="c1"># Midpoint of the first edge, shifted slightly inward so the probe is</span>
-            <span class="c1"># strictly inside the polygon and on no other polygon's boundary.</span>
-            <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">=</span> <span class="p">(</span><span class="n">x0</span> <span class="o">+</span> <span class="n">x1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">y0</span> <span class="o">+</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
-            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span>
-            <span class="c1"># WHICH side is inward depends on the winding, so try both. Assuming one</span>
-            <span class="c1"># (this used to take `-dy, +dx` and nothing else) puts the probe OUTSIDE every</span>
-            <span class="c1"># clockwise ring -- 97 of the 153 rings in Wikipedia's Flag_of_Portugal -- and a</span>
-            <span class="c1"># probe outside its own polygon fails every containment test, so the nesting</span>
-            <span class="c1"># depth below is wrong for each of them: the flag's green field came out a</span>
-            <span class="c1"># top-level sibling of the red one instead of sitting on it.</span>
-            <span class="k">for</span> <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="ow">in</span> <span class="p">((</span><span class="o">-</span><span class="n">dy</span><span class="p">,</span> <span class="n">dx</span><span class="p">),</span> <span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="o">-</span><span class="n">dx</span><span class="p">)):</span>
-                <span class="n">probe</span> <span class="o">=</span> <span class="n">_Point</span><span class="p">(</span><span class="n">mx</span> <span class="o">+</span> <span class="n">sx</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">my</span> <span class="o">+</span> <span class="n">sy</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">poly</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probe</span><span class="p">):</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Degenerate first edge (a spike, or a duplicated point): fall back to a</span>
-                <span class="c1"># point shapely guarantees is inside. Safe here because these rings carry no</span>
-                <span class="c1"># holes yet -- holes are assigned further down.</span>
-                <span class="n">probe</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>
-            <span class="n">probes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">probe</span><span class="p">)</span>
-        <span class="n">depths</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">polys</span><span class="p">))</span>
-        <span class="p">]</span>
+        <span class="n">probes</span> <span class="o">=</span> <span class="p">[</span><span class="n">inward_probe</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span> <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">polys</span><span class="p">]</span>
+        <span class="n">depths</span> <span class="o">=</span> <span class="n">nesting_depths</span><span class="p">(</span><span class="n">polys</span><span class="p">,</span> <span class="n">probes</span><span class="p">)</span>
 
         <span class="n">color_groups</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="n">_Polygon</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">group_order</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Color | None"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>

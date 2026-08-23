@@ -1891,7 +1891,7 @@
       <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.gears.Rack2d.shape (Python property) — Return the 2-D rack outline."><span>shape</span></span>
+      <span title="pybosl2.parts.gears.Rack2d.shape (Python property) — Return the rack&#39;s tooth profile as a closed path."><span>shape</span></span>
     </span>
   </a>
   
@@ -3720,7 +3720,7 @@
       <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.gears.Rack2d.shape (Python property) — Return the 2-D rack outline."><span>shape</span></span>
+      <span title="pybosl2.parts.gears.Rack2d.shape (Python property) — Return the rack&#39;s tooth profile as a closed path."><span>shape</span></span>
     </span>
   </a>
   
@@ -4859,7 +4859,7 @@ is therefore CSG-only even though <a class="reference internal" href="#pybosl2.p
 
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.parts.gears.Rack.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">CsgSolid</span></span><a class="headerlink" href="#pybosl2.parts.gears.Rack.shape" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol"><span class="pre">Solid</span></a></span><a class="headerlink" href="#pybosl2.parts.gears.Rack.shape" title="Link to this definition">¶</a></dt>
 <dd><p>Return the rack geometry.</p>
 </dd></dl>
 
@@ -4917,8 +4917,10 @@ is therefore CSG-only even though <a class="reference internal" href="#pybosl2.p
 </dl>
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.parts.gears.Rack2d.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">CsgShape2D</span></span><a class="headerlink" href="#pybosl2.parts.gears.Rack2d.shape" title="Link to this definition">¶</a></dt>
-<dd><p>Return the 2-D rack outline.</p>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">Path2D</span></span><a class="headerlink" href="#pybosl2.parts.gears.Rack2d.shape" title="Link to this definition">¶</a></dt>
+<dd><p>Return the rack’s tooth profile as a closed path.</p>
+<p>A path, not 2-D geometry: <cite>Path2D.linear_extrude()</cite> dispatches through the backend, so a
+rack built from this outline is not tied to CSG (see <a class="reference internal" href="#pybosl2.parts.gears.SpurGear2d" title="pybosl2.parts.gears.SpurGear2d (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpurGear2d</span></code></a>).</p>
 </dd></dl>
 
 <dl class="py method objdesc">

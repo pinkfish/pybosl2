@@ -2317,17 +2317,55 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rings_to_shapely</span><span class="p">(</span><span class="n">rings</span><span class="p">:</span> <span class="s2">"list[list[list[float]]]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return the shapely geometry a set of rings describes, even-odd, repaired."""</span>
+<span class="w">    </span><span class="sd">"""Return the shapely geometry a set of rings describes, even-odd, repaired.</span>
+
+<span class="sd">    Even-odd for real: a ring contained by an odd number of others is a hole in the one enclosing</span>
+<span class="sd">    it, and the rest are shells carrying their holes. This used to union the rings as *filled*</span>
+<span class="sd">    polygons, which is what SVG's even-odd rule says they are not -- so a donut clipped to its</span>
+<span class="sd">    viewBox came back a solid disc, and so did every window in a plate and every gap in a ring</span>
+<span class="sd">    icon. `Region.even_odd` ran afterwards and found nothing left to cut (TASKS T15).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rings: The outlines, each a closed list of ``[x, y]`` points.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The shapely geometry, or None if no ring had any area.</span>
+
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Polygon</span> <span class="k">as</span> <span class="n">_Polygon</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">unary_union</span> <span class="k">as</span> <span class="n">_unary_union</span>
 
-    <span class="n">polys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">inward_probe</span><span class="p">,</span> <span class="n">nesting_depths</span>
+
+    <span class="n">shells</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">rings</span><span class="p">:</span>
         <span class="n">poly</span> <span class="o">=</span> <span class="n">_Polygon</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">poly</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
             <span class="n">poly</span> <span class="o">=</span> <span class="n">poly</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">poly</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
-            <span class="n">polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span>
+        <span class="c1"># buffer(0) can split a self-intersecting ring into several polygons; each nests in its</span>
+        <span class="c1"># own right.</span>
+        <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="s2">"geoms"</span><span class="p">,</span> <span class="p">[</span><span class="n">poly</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">part</span><span class="o">.</span><span class="n">is_empty</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="s2">"exterior"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">shells</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_Polygon</span><span class="p">(</span><span class="n">part</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shells</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">probes</span> <span class="o">=</span> <span class="p">[</span><span class="n">inward_probe</span><span class="p">(</span><span class="n">shell</span><span class="p">)</span> <span class="k">for</span> <span class="n">shell</span> <span class="ow">in</span> <span class="n">shells</span><span class="p">]</span>
+    <span class="n">depths</span> <span class="o">=</span> <span class="n">nesting_depths</span><span class="p">(</span><span class="n">shells</span><span class="p">,</span> <span class="n">probes</span><span class="p">)</span>
+    <span class="n">polys</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">shell</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shells</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">depths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># odd depth: a hole, cut from the shell that encloses it just below</span>
+        <span class="n">holes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">other</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">other</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shells</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">!=</span> <span class="n">i</span> <span class="ow">and</span> <span class="n">depths</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">depths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">shell</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">probes</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+        <span class="p">]</span>
+        <span class="n">piece</span> <span class="o">=</span> <span class="n">_Polygon</span><span class="p">(</span><span class="n">shell</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">holes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">piece</span><span class="o">.</span><span class="n">is_valid</span><span class="p">:</span>
+            <span class="n">piece</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">piece</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
+            <span class="n">polys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">polys</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">_unary_union</span><span class="p">(</span><span class="n">polys</span><span class="p">)</span>
