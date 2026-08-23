@@ -948,15 +948,27 @@ The 21 CSG-only methods are not one problem. Triaged by what they would actually
   meshes that stay CSG-only are refused *by the check*, at the operation that cannot do it,
   rather than by a blanket part guard.
 
-**28 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
+**32 part classes** build on either backend, with no CSG leaks. What is left is no longer routing
 work -- every remaining refusal names a specific missing capability:
 
 | missing capability | parts |
 |---|---|
 | a non-convex mesh (no distance-field form) | 9 — `BevelGear`, `Rail`, `ThinningWall`, `ThreadHelix`, `WireBundle`, `Worm`, `WormGear`, both Manfrotto plates |
 | `spiral_sweep` | 4 — `Screw`, `Nut`, `ThreadedRod`, `ThreadedNut` |
-| 2-D geometry (`Bosl2Shape2D`, regions, hulls of circles) | 6 — `RingGear`, `TorxMask`, `TorxMask2d`, `Rack`, `Rack2d`, `SparseWall`/`SparseCuboid` |
+| 2-D geometry (`Bosl2Shape2D`, hulls of circles) | 4 — `RingGear`, `TorxMask`, `TorxMask2d`, `Rack`, `Rack2d` |
 | `prismoid(rounding=)` | 1 — `RingHook` |
+
+* **`SparseWall` builds its lattice from outlines, not a 2-D region.** `sparse_wall2d()` unioned
+  native 2-D polygons and extruded the region, and a region is a CSG notion. It returns the list
+  of outlines now, each extruded and unioned in 3-D -- the same solid, because extruding a union
+  of overlapping outlines equals unioning their extrusions -- so `SparseWall` and `SparseCuboid`
+  build on either backend.
+
+  Matching bounds prove nothing for a lattice (a solid block has the same envelope), so the test
+  probes the pattern itself: 120 points across struts and gaps, all agreeing. The probes are
+  deliberately offset off the lattice pitch -- on the pitch a sixth of them land exactly on a
+  strut edge, where a box probe catches a sliver the point sample misses, which reads as a
+  disagreement and is not one.
 
 * **The SDF `regular_prism` tapers now**, which was the last two parts' blocker.
   `tapered_polygon_prism()` applies the same construction the box `prismoid` uses -- interpolate

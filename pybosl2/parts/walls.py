@@ -30,9 +30,9 @@ import numpy as np
 
 from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
+from pybosl2._helpers import union as _union
 from pybosl2._native import native
 from pybosl2.path2d import Path2D
-from pybosl2.shapes3d import Bosl2Solid
 from pybosl2.solid import cuboid
 from pybosl2.vnf import VNF
 
@@ -60,9 +60,9 @@ class SparseAxis(StrEnum):
     Z = "Z"
 
 
-def _rect(x0: float, x1: float, y0: float, y1: float) -> Any:
-    """Return a native 2D axis-aligned rectangle from two opposite corners."""
-    return _opolygon([[x0, y0], [x1, y0], [x1, y1], [x0, y1]])
+def _rect(x0: float, x1: float, y0: float, y1: float) -> list[list[float]]:
+    """Return an axis-aligned rectangle outline from two opposite corners."""
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
 
 
 def _circle_2tangents(r: float, p1: list[float], p2: list[float], p3: list[float]) -> list[float]:
@@ -79,8 +79,14 @@ def _circle_2tangents(r: float, p1: list[float], p2: list[float], p3: list[float
     return (p2a + bis * (r / math.sin(half))).tolist()  # type: ignore[no-any-return]
 
 
-def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bridge: float) -> Any:
-    """Return the 2D cross-braced pattern, in the (X=h, Y=length) plane (BOSL2 sparse_wall2d())."""
+def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bridge: float) -> list[list[list[float]]]:
+    """Return the 2-D cross-braced pattern as a list of outlines, in the (X=h, Y=length) plane.
+
+    Outlines rather than a 2-D region (BOSL2 sparse_wall2d() unions them): a region is CSG-only,
+    and extruding the union of overlapping outlines is the same solid as the union of their
+    extrusions, so the caller extrudes each and unions in 3-D. That is what lets the wall build on
+    either backend (TASKS T14).
+    """
     zoff = h / 2 - strut / 2
     yoff = length / 2 - strut / 2
     maxa = math.radians(maxang)
@@ -114,11 +120,8 @@ def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bri
                     (-wx / 2, wy / 2),
                 ]
                 poly = [[upos + cx, vpos + cy + syx * cx] for cx, cy in corners]
-                parts.append(_opolygon(poly))
-    region = parts[0]
-    for p in parts[1:]:
-        region = region | p
-    return region
+                parts.append(poly)
+    return parts
 
 
 class NarrowingStrut:
@@ -242,9 +245,11 @@ class SparseWall:
         self._length = length
         self._thick = thick
 
-        region = _sparse_wall2d(height, length, maxang, strut, max_bridge)
-        shape = region.linear_extrude(height=thick, center=True).rotate([0, 90, 0])
-        self._solid: "Solid" = Bosl2Solid(shape, size=[thick, length, height])
+        outlines = _sparse_wall2d(height, length, maxang, strut, max_bridge)
+        shape = _union(Path2D(outline).linear_extrude(height=thick, center=True) for outline in outlines).rotate(
+            [0, 90, 0]
+        )
+        self._solid: "Solid" = shape.with_nominal_size([thick, length, height])
 
     @property
     def height(self) -> float:
@@ -262,7 +267,6 @@ class SparseWall:
         return self._thick
 
     @property
-    @csg_part("builds its lattice as a union of 2-D polygons and extrudes the region, and a 2-D region is a CSG notion")
     def shape(self) -> "Solid":
         """Return the wall geometry."""
         return self._solid
@@ -331,7 +335,6 @@ class SparseCuboid:
         return self._size
 
     @property
-    @csg_part("is a SparseWall clipped to a box, so it inherits that wall's CSG-only 2-D region")
     def shape(self) -> "Solid":
         """Return the cuboid geometry."""
         return self._solid
