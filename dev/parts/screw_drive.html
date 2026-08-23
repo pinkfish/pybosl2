@@ -2154,7 +2154,7 @@
       <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.screw_drive.TorxMask2d.shape (Python property) — Return the 2-D Torx profile."><span>shape</span></span>
+      <span title="pybosl2.parts.screw_drive.TorxMask2d.shape (Python property) — Return the Torx profile as a closed path."><span>shape</span></span>
     </span>
   </a>
   
@@ -3487,7 +3487,7 @@
       <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.screw_drive.TorxMask2d.shape (Python property) — Return the 2-D Torx profile."><span>shape</span></span>
+      <span title="pybosl2.parts.screw_drive.TorxMask2d.shape (Python property) — Return the Torx profile as a closed path."><span>shape</span></span>
     </span>
   </a>
   
@@ -4200,7 +4200,7 @@ by a further <code class="docutils literal notranslate"><span class="pre">2</spa
 
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.parts.screw_drive.TorxMask.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">CsgSolid</span></span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask.shape" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference internal" href="../foundational/solid.html#pybosl2.solid.Solid" title="pybosl2.solid.Solid (Python class) — Bases: Shape, Protocol"><span class="pre">Solid</span></a></span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask.shape" title="Link to this definition">¶</a></dt>
 <dd><p>Return the Torx driver-recess mask geometry.</p>
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a T30 Torx mask:</p>
@@ -4257,8 +4257,9 @@ by a further <code class="docutils literal notranslate"><span class="pre">2</spa
 
 <dl class="py property objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.parts.screw_drive.TorxMask2d.shape">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">CsgSolid</span></span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask2d.shape" title="Link to this definition">¶</a></dt>
-<dd><p>Return the 2-D Torx profile.</p>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><span class="p"> <span class="pre">:</span> </span><span class="desctype"><span class="pre">Path2D</span></span><a class="headerlink" href="#pybosl2.parts.screw_drive.TorxMask2d.shape" title="Link to this definition">¶</a></dt>
+<dd><p>Return the Torx profile as a closed path.</p>
+<p>A path, not 2-D geometry, so it extrudes on either backend (see <code class="xref py py-class docutils literal notranslate"><span class="pre">SpurGear2d</span></code>).</p>
 <p class="example rubric">Examples</p>
 <p>Generate an STL of a T30 Torx 2-D profile extruded 10 mm:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.screw_drive</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorxMask2d</span>
