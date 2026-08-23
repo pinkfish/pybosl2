@@ -135,3 +135,45 @@ def test_thinning_triangle_diagonly_keeps_only_the_diagonal_rim() -> None:
     # Outside the triangle there is nothing, either way.
     assert _thickness_at(full, 35.0, 20.0) is None
     assert _thickness_at(diag, 35.0, 20.0) is None
+
+
+def test_the_sparse_lattice_is_the_same_solid_on_either_backend() -> None:
+    """Matching bounds prove nothing here -- a solid block has the same envelope as the lattice.
+
+    The wall's cross-bracing used to be built as a union of 2-D polygons and extruded as a region,
+    which is a CSG notion. It is a list of outlines now, each extruded and unioned in 3-D, which is
+    the same solid (extruding a union of overlapping outlines equals unioning their extrusions) and
+    builds on either backend. This probes the lattice itself: 450 points, struts and gaps alike.
+
+    The probes are offset off the lattice pitch on purpose. On the pitch, a sixth of them land
+    exactly on a strut edge, where a box probe catches a sliver that a point sample misses --
+    which reads as a disagreement and is not one.
+    """
+    import pybosl2.sdf  # noqa: F401  -- registers the sdf backend
+    from pybosl2._backend import use_backend
+    from pybosl2.shapes3d import cuboid as csg_cuboid
+
+    with use_backend("csg"):
+        csg = SparseWall(height=50, length=100, thick=4).shape
+    with use_backend("sdf"):
+        field = SparseWall(height=50, length=100, thick=4).shape.mesh()
+
+    disagreements = []
+    solid_probes = 0
+    total_probes = 0
+    for y in range(-44, 45, 6):
+        for z in range(-21, 22, 6):
+            total_probes += 1
+            point = (0.0, y + 0.37, z + 0.23)
+            probe = csg_cuboid([6, 0.05, 0.05]).translate(list(point))
+            in_csg = (csg & probe)._native_bounds() is not None  # type: ignore[attr-defined]
+            in_sdf = float(field.sample(*point)) < 0
+            solid_probes += int(in_csg)
+            if in_csg != in_sdf:
+                disagreements.append(point)
+
+    assert not disagreements, f"lattice differs between backends at {disagreements[:5]}"
+    # The grid has to straddle the lattice for the agreement above to mean anything.
+    assert 0 < solid_probes < total_probes, (
+        f"the probe grid found {solid_probes} solid of {total_probes}: it never saw both a strut and a gap"
+    )
