@@ -777,7 +777,11 @@ as the mathematics allows.
 
 A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.md)):
 
-* **Q-1** The full test suite passes; pure-geometry tests pass with no CAD runtime present.
+* **Q-1** The full test suite passes on **every supported interpreter — 3.11, 3.12 and 3.13** —
+  and the pure-geometry tests pass with no CAD runtime present. One interpreter is not enough:
+  the versions differ in behaviour this library depends on (`isinstance` against a Protocol
+  resolves differently before and after 3.12), so a green run on the newest says nothing about the
+  oldest, which is the one CI will run anyway. Mechanics in [PLAN L-1, L-1a](PLAN.md#1-language-baseline).
 * **Q-2** Strict static type checking passes with zero errors.
 * **Q-3** Lint and format are clean.
 * **Q-4** Every new public callable has a minimum-argument test — the mechanical enforcement of

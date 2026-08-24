@@ -16,8 +16,30 @@ and backend dispatch, §5 documentation, §6 modules, §7 errors, §8 style, §9
 
 ## 1. Language baseline
 
-* **L-1** Python **3.11+**. `enum.StrEnum` and `typing.Self` are used throughout;
-  `requires-python` and the classifier list MUST agree with that floor.
+* **L-1 The supported interpreters are 3.11, 3.12 and 3.13, and all three are tested.**
+  `enum.StrEnum` and `typing.Self` set the floor at 3.11; `requires-python`, the classifier list
+  and CI's matrix (`.github/workflows/tests.yml`) MUST all agree with it. Adding or dropping a
+  version changes all three in one commit, and `tests/test_supported_versions.py` fails if they
+  drift apart.
+* **L-1a Testing on one interpreter is not testing.** The differences between them are behavioural,
+  not cosmetic, and this project has already been bitten twice by assuming otherwise:
+  * `isinstance` against a runtime-checkable Protocol uses `hasattr` on 3.11 and a static lookup
+    from 3.12, which is why a computing property on a contract breaks *only* on the oldest
+    supported version (T-6b and T-6e are the two halves — see T-6e).
+  * `typing.Protocol.__protocol_attrs__` does not exist before 3.12, so a test built on it passes
+    on a new interpreter and errors on the supported floor.
+
+  Both were invisible to a full green run on a newer interpreter. So: before calling a change done,
+  run the suite on **3.11** as well as on whatever you develop against — it is the version most
+  likely to disagree with you, and CI runs it whether you did or not:
+
+  ```bash
+  python3.11 -m venv /tmp/venv311 && /tmp/venv311/bin/pip install -e '.[test]'
+  /tmp/venv311/bin/python -m pytest -q
+  ```
+
+  A construct that is version-specific by necessity is written to work on the floor, not on the
+  newest — and never reaches for a `typing` internal, which is where both of these came from.
 * **L-2** Modern syntax only: `X | Y` unions (never `typing.Union`/`Optional`), built-in generics
   (`list[str]`, `dict[str, float]`), `from __future__ import annotations` at the top of every
   module so annotations stay cheap and forward references work.
@@ -555,7 +577,7 @@ The spec's quality gates map to these commands — all five MUST pass before a c
 
 | Gate | Command |
 |---|---|
-| **Q-1** suite green, pure geometry needs no CAD runtime | `pytest` |
+| **Q-1** suite green on every supported interpreter, pure geometry needs no CAD runtime | `pytest` — and the same on 3.11 (L-1a) |
 | **Q-2** strict typing | `mypy --strict pybosl2` |
 | **Q-3** lint and format | `ruff check . --fix && ruff format .` |
 | **Q-4** minimum-argument test + validated example | `pytest tests/test_defaults.py tests/validate_examples.py` |
