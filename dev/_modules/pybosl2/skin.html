@@ -2126,7 +2126,7 @@
 
 <span class="sd">    SPEC S-19a: a sweep returns a `Solid`, so its result composes with `-`/`|`/`&amp;` and the</span>
 <span class="sd">    transforms like any other shape and a caller never appends `.polyhedron()` to a call that</span>
-<span class="sd">    already said "sweep this into a solid". The mesh stays available as `.vnf` for measuring,</span>
+<span class="sd">    already said "sweep this into a solid". The mesh stays available as `.vnf()` for measuring,</span>
 <span class="sd">    joining or exporting with no CAD runtime (SPEC C-8), which is why it is stashed rather than</span>
 <span class="sd">    discarded.</span>
 
@@ -2136,7 +2136,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">VNF</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">mesh</span>
     <span class="n">solid</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
-    <span class="c1"># Stashed for `Solid.vnf` to hand back: meshing it again would be both slower and lossier than</span>
+    <span class="c1"># Stashed for `Solid.vnf()` to hand back: meshing it again would be both slower and lossier than</span>
     <span class="c1"># keeping the one the sweep already built.</span>
     <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">solid</span><span class="p">,</span> <span class="s2">"_vnf"</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">solid</span>

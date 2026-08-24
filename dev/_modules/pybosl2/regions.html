@@ -2979,7 +2979,7 @@
 
 <span class="sd">            red = Path2D.square(20).color("red")</span>
 <span class="sd">            blue = Path2D.square(20).color("blue")</span>
-<span class="sd">            region = Region.even_odd([red, blue.move(25)])</span>
+<span class="sd">            region = Region.even_odd([red, blue.translate([25, 0])])</span>
 <span class="sd">            solid = region.linear_extrude(</span>
 <span class="sd">                height=5,</span>
 <span class="sd">                color_heights={"red": 10, "blue": 3},</span>

@@ -5994,10 +5994,10 @@ groups that <code class="docutils literal notranslate"><span class="pre">flatten
 
 <span class="n">circle</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
 <span class="n">tube</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span><span class="n">circle</span><span class="p">,</span> <span class="n">splinesteps</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
-<span class="n">tube</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">tube</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/ae23587a19109da9.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/ae23587a19109da9.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/7467c98deca5001e.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/7467c98deca5001e.stl">⬇ Download STL mesh</a></p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.beziers.Bezier.from_list">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_list</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.beziers.Bezier.from_list.points" title="pybosl2.beziers.Bezier.from_list.points (Python parameter) — A sequence of 2-D or 3-D control points."><span class="n"><span class="pre">points</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/beziers.html#Bezier.from_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.beziers.Bezier.from_list" title="Link to this definition">¶</a></dt>
@@ -6073,7 +6073,7 @@ parameter values between 0 and 1.</p>
 <em>endpoint</em> is False) sampled uniformly along the curve.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.curve-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.curve-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="paths.html#pybosl2.paths.Path" title="pybosl2.paths.Path (Python class) — Bases: ABC">Path</a></p>
 </dd>
 </dl>
 <p>Examples:
@@ -6175,7 +6175,7 @@ nearer endpoint when no local minimum is detected.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.closest_point-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.closest_point-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.closest_point.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.closest_point.pt" title="Permalink to this definition">¶</a></dt><dd><p>The target point to find the closest curve position to.</p>
+<dt id="pybosl2.beziers.Bezier.closest_point.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.PointLike" title="pybosl2.points.PointLike (Python data) — What a parameter meaning &quot;one point&quot; accepts (PLAN T-4, the point-shaped twin of PathLike): a Point, the plain list or tuple a caller writes, or a NumPy array. Normalise on the first line of the body with Point(x) or np.asarray(x, dtype=float).">PointLike</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.closest_point.pt" title="Permalink to this definition">¶</a></dt><dd><p>The target point to find the closest curve position to.</p>
 </dd>
 <dt id="pybosl2.beziers.Bezier.closest_point.max_err"><span class="sig-name descname">max_err</span><span class="p"> : </span><span class="desctype"><span class="desctype">float</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.closest_point.max_err" title="Permalink to this definition">¶</a></dt><dd><p>Maximum allowed error tolerance for the bisection search.</p>
 </dd>
@@ -6322,7 +6322,7 @@ fine bisection within the best segment.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.path_closest_point-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.path_closest_point-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.path_closest_point.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.path_closest_point.pt" title="Permalink to this definition">¶</a></dt><dd><p>The target point to find the closest position to.</p>
+<dt id="pybosl2.beziers.Bezier.path_closest_point.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.PointLike" title="pybosl2.points.PointLike (Python data) — What a parameter meaning &quot;one point&quot; accepts (PLAN T-4, the point-shaped twin of PathLike): a Point, the plain list or tuple a caller writes, or a NumPy array. Normalise on the first line of the body with Point(x) or np.asarray(x, dtype=float).">PointLike</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.path_closest_point.pt" title="Permalink to this definition">¶</a></dt><dd><p>The target point to find the closest position to.</p>
 </dd>
 <dt id="pybosl2.beziers.Bezier.path_closest_point.n_degree"><span class="sig-name descname">n_degree</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.path_closest_point.n_degree" title="Permalink to this definition">¶</a></dt><dd><p>Degree of each curve segment in the bezier path.</p>
 </dd>
@@ -6505,7 +6505,7 @@ All other parameters are passed through to
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.beziers.Bezier.sweep-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.sweep-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>The swept solid, on the active backend (SPEC S-19a). Its mesh is on <code class="docutils literal notranslate"><span class="pre">.vnf</span></code> for
+<dd class="field-even"><p>The swept solid, on the active backend (SPEC S-19a). Its mesh is on <code class="docutils literal notranslate"><span class="pre">.vnf()</span></code> for
 anything that wants to measure or export it without a CAD runtime.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.sweep-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.sweep-return-type" title="Permalink to this headline">¶</a></dt>
@@ -6604,7 +6604,7 @@ in the XY plane and <em>phi</em> is the angle down from Z+.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.begin-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.begin-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.begin.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.begin.pt" title="Permalink to this definition">¶</a></dt><dd><p>The starting endpoint position.</p>
+<dt id="pybosl2.beziers.Bezier.begin.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.PointLike" title="pybosl2.points.PointLike (Python data) — What a parameter meaning &quot;one point&quot; accepts (PLAN T-4, the point-shaped twin of PathLike): a Point, the plain list or tuple a caller writes, or a NumPy array. Normalise on the first line of the body with Point(x) or np.asarray(x, dtype=float).">PointLike</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.begin.pt" title="Permalink to this definition">¶</a></dt><dd><p>The starting endpoint position.</p>
 </dd>
 <dt id="pybosl2.beziers.Bezier.begin.angle"><span class="sig-name descname">angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.begin.angle" title="Permalink to this definition">¶</a></dt><dd><p>A scalar angle in the XY plane, or a direction vector. Required.</p>
 </dd>
@@ -6618,7 +6618,7 @@ in the XY plane and <em>phi</em> is the angle down from Z+.</p>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">dim)</span></code> ndarray of <code class="docutils literal notranslate"><span class="pre">[endpoint,</span> <span class="pre">control_point]</span></code>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.begin-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.begin-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6635,7 +6635,7 @@ distances from the fixed point.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.tang-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.tang-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.tang.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.tang.pt" title="Permalink to this definition">¶</a></dt><dd><p>The fixed point position.</p>
+<dt id="pybosl2.beziers.Bezier.tang.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.PointLike" title="pybosl2.points.PointLike (Python data) — What a parameter meaning &quot;one point&quot; accepts (PLAN T-4, the point-shaped twin of PathLike): a Point, the plain list or tuple a caller writes, or a NumPy array. Normalise on the first line of the body with Point(x) or np.asarray(x, dtype=float).">PointLike</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.tang.pt" title="Permalink to this definition">¶</a></dt><dd><p>The fixed point position.</p>
 </dd>
 <dt id="pybosl2.beziers.Bezier.tang.angle"><span class="sig-name descname">angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.tang.angle" title="Permalink to this definition">¶</a></dt><dd><p>A scalar angle or direction vector defining the tangent direction.</p>
 </dd>
@@ -6652,7 +6652,7 @@ distances from the fixed point.</p>
 <code class="docutils literal notranslate"><span class="pre">[approaching_cp,</span> <span class="pre">fixed_point,</span> <span class="pre">departing_cp]</span></code>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.tang-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.tang-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6668,7 +6668,7 @@ angles or direction vectors.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.joint-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.joint-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.joint.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.joint.pt" title="Permalink to this definition">¶</a></dt><dd><p>The fixed corner point position.</p>
+<dt id="pybosl2.beziers.Bezier.joint.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.PointLike" title="pybosl2.points.PointLike (Python data) — What a parameter meaning &quot;one point&quot; accepts (PLAN T-4, the point-shaped twin of PathLike): a Point, the plain list or tuple a caller writes, or a NumPy array. Normalise on the first line of the body with Point(x) or np.asarray(x, dtype=float).">PointLike</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.joint.pt" title="Permalink to this definition">¶</a></dt><dd><p>The fixed corner point position.</p>
 </dd>
 <dt id="pybosl2.beziers.Bezier.joint.angle1"><span class="sig-name descname">angle1</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.joint.angle1" title="Permalink to this definition">¶</a></dt><dd><p>Approach direction as a scalar angle or direction vector.</p>
 </dd>
@@ -6690,7 +6690,7 @@ angles or direction vectors.</p>
 approach and departure directions.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.joint-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.joint-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6705,7 +6705,7 @@ direction specified by <em>angle</em>.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.Bezier.end-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.end-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.Bezier.end.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.end.pt" title="Permalink to this definition">¶</a></dt><dd><p>The ending endpoint position.</p>
+<dt id="pybosl2.beziers.Bezier.end.pt"><span class="sig-name descname">pt</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="../math/points.html#pybosl2.points.PointLike" title="pybosl2.points.PointLike (Python data) — What a parameter meaning &quot;one point&quot; accepts (PLAN T-4, the point-shaped twin of PathLike): a Point, the plain list or tuple a caller writes, or a NumPy array. Normalise on the first line of the body with Point(x) or np.asarray(x, dtype=float).">PointLike</a></span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.end.pt" title="Permalink to this definition">¶</a></dt><dd><p>The ending endpoint position.</p>
 </dd>
 <dt id="pybosl2.beziers.Bezier.end.angle"><span class="sig-name descname">angle</span><span class="p"> : </span><span class="desctype"><span class="desctype">float | Sequence[float]</span></span><a class="headerlink" href="#pybosl2.beziers.Bezier.end.angle" title="Permalink to this definition">¶</a></dt><dd><p>A scalar angle or direction vector for the approaching control point.</p>
 </dd>
@@ -6719,7 +6719,7 @@ direction specified by <em>angle</em>.</p>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">(2,</span> <span class="pre">dim)</span></code> ndarray of <code class="docutils literal notranslate"><span class="pre">[control_point,</span> <span class="pre">endpoint]</span></code>.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.beziers.Bezier.end-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.Bezier.end-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -6845,7 +6845,7 @@ BOSL2’s un-ported path_sweep), plus the debug_* visualization modules.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.BezierPatch-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.BezierPatch-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.BezierPatch.__init__.rows"><span class="sig-name descname">rows</span><span class="p"> : </span><span class="desctype"><span class="desctype">np.ndarray</span></span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.__init__.rows" title="Permalink to this definition">¶</a></dt><dd><p>a list of rows, each a list of [x, y, z] control points</p>
+<dt id="pybosl2.beziers.BezierPatch.__init__.rows"><span class="sig-name descname">rows</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[Sequence[float]]] | np.ndarray</span></span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.__init__.rows" title="Permalink to this definition">¶</a></dt><dd><p>a list of rows, each a list of [x, y, z] control points</p>
 </dd>
 </dl>
 </dd>
@@ -6944,11 +6944,11 @@ points.</p>
 </dl>
 <p>Examples:
 .. pythonscad-example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BezierPatch</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">BezierPatch</span><span class="p">,</span> <span class="n">Path3D</span>
 
 <span class="n">patch</span> <span class="o">=</span> <span class="n">BezierPatch</span><span class="o">.</span><span class="n">flat</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">n_degree</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 <span class="n">pts</span> <span class="o">=</span> <span class="n">patch</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="mi">16</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">17</span><span class="p">)])</span>
-<span class="n">pts</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">Path3D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span><span class="o">.</span><span class="n">stroke</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
 </dd></dl>
@@ -7041,7 +7041,7 @@ mesh, joined via <a class="reference internal" href="vnf.html#pybosl2.vnf.VNF.un
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.beziers.BezierPatch.to_vnf-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.to_vnf-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.beziers.BezierPatch.to_vnf.patches"><span class="sig-name descname">patches</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a> | Sequence[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a>]</span></span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.to_vnf.patches" title="Permalink to this definition">¶</a></dt><dd><p>A single patch control-point array or a sequence of patches to mesh.</p>
+<dt id="pybosl2.beziers.BezierPatch.to_vnf.patches"><span class="sig-name descname">patches</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference internal" href="#pybosl2.beziers.BezierPatch" title="pybosl2.beziers.BezierPatch (Python class) — Bases: object">BezierPatch</a> | <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a> | Sequence[<a class="reference internal" href="#pybosl2.beziers.BezierPatch" title="pybosl2.beziers.BezierPatch (Python class) — Bases: object">BezierPatch</a> | <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)">ndarray</a>]</span></span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.to_vnf.patches" title="Permalink to this definition">¶</a></dt><dd><p>A single patch control-point array or a sequence of patches to mesh.</p>
 </dd>
 <dt id="pybosl2.beziers.BezierPatch.to_vnf.splinesteps"><span class="sig-name descname">splinesteps</span><span class="p"> : </span><span class="desctype"><span class="desctype">int</span></span><a class="headerlink" href="#pybosl2.beziers.BezierPatch.to_vnf.splinesteps" title="Permalink to this definition">¶</a></dt><dd><p>Number of sampling steps per axis, or <code class="docutils literal notranslate"><span class="pre">[usteps,</span> <span class="pre">vsteps]</span></code> pair.</p>
 </dd>

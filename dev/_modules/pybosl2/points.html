@@ -2071,13 +2071,18 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Point"</span><span class="p">,</span> <span class="s2">"Vector"</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Point"</span><span class="p">,</span> <span class="s2">"PointLike"</span><span class="p">,</span> <span class="s2">"Vector"</span><span class="p">]</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -2466,6 +2471,20 @@
 <span class="c1"># ---------------------------------------------------------------------------</span>
 
 <span class="n">Vector</span> <span class="o">=</span> <span class="n">Point</span>
+
+<span class="c1">#: What a parameter meaning "one point" accepts (PLAN T-4, the point-shaped twin of</span>
+<span class="c1">#: :data:`~pybosl2.paths.PathLike`): a :class:`Point`, the plain list or tuple a caller writes, or</span>
+<span class="c1">#: a NumPy array. Normalise on the first line of the body with ``Point(x)`` or</span>
+<span class="c1">#: ``np.asarray(x, dtype=float)``.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Typing such a parameter `np.ndarray` is the defect this exists to stop: it rejected</span>
+<span class="c1">#: ``Bezier.begin([0, 0], 45)`` -- which is what the docstring examples write, and what any caller</span>
+<span class="c1">#: writes -- while accepting only the form the library happens to hand back.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Declared here rather than at the top of the module so its value can be a real expression: as a</span>
+<span class="c1">#: string it is a forward reference the linter cannot see through, and the `NDArray` import it</span>
+<span class="c1">#: needs gets pruned as unused.</span>
+<span class="n">PointLike</span><span class="p">:</span> <span class="s2">"TypeAlias"</span> <span class="o">=</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]</span>
 </code></pre></div>
 
 

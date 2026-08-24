@@ -2154,6 +2154,11 @@
         <span class="s2">"edge_profile_asym"</span><span class="p">,</span>
         <span class="s2">"corner_profile"</span><span class="p">,</span>
         <span class="s2">"face_profile"</span><span class="p">,</span>
+        <span class="c1"># the named treatments (SPEC S-26b) are the same masks by a friendlier name, so they are</span>
+        <span class="c1"># exclusive for exactly the same reason</span>
+        <span class="s2">"round_edges"</span><span class="p">,</span>
+        <span class="s2">"chamfer_edges"</span><span class="p">,</span>
+        <span class="s2">"cove_edges"</span><span class="p">,</span>
         <span class="s2">"tag"</span><span class="p">,</span>
         <span class="s2">"tag_this"</span><span class="p">,</span>
         <span class="c1"># the attachment system's own state -- same reason as the operations above</span>
@@ -2728,10 +2733,19 @@
         <span class="o">...</span></div>
 
 
-    <span class="nd">@property</span>
+<div class="viewcode-block" id="Solid.vnf">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.vnf">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">vnf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return this solid as a mesh (SPEC C-8, S-19a)."""</span>
-        <span class="o">...</span>
+<span class="w">        </span><span class="sd">"""Return this solid as a mesh (SPEC C-8, S-19a).</span>
+
+<span class="sd">        A method rather than a property because it does real work -- meshing a field, or crossing</span>
+<span class="sd">        the FFI for a native tessellation -- and because `isinstance` against a runtime-checkable</span>
+<span class="sd">        Protocol calls `hasattr` on every declared member, which *evaluates* a property</span>
+<span class="sd">        (PLAN T-6e). As a property this meshed an SDF field on every `isinstance(shape, Solid)`</span>
+<span class="sd">        and, where no mesher was available, raised out of the check.</span>
+<span class="sd">        """</span>
+        <span class="o">...</span></div>
+
 
 <div class="viewcode-block" id="Solid.export">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.export">[docs]</a>
@@ -2794,10 +2808,22 @@
     <span class="c1"># Partitioning. Both backends implement the whole family; it was simply never declared.</span>
     <span class="c1"># The parameters are `Any` because the two spell their accepted forms differently (a list on</span>
     <span class="c1"># one, a Sequence on the other) while accepting the same values.</span>
+    <span class="c1"># The full surface, including the profiled-cut parameters. Those are CSG-only and the SDF side</span>
+    <span class="c1"># refuses them by name (SPEC B-9) rather than lacking them, which is what lets the contract</span>
+    <span class="c1"># describe the operation completely -- and what let the two stop disagreeing about what a bare</span>
+    <span class="c1"># `half_of()` means (it kept a different half per backend, a PAR-5 defect).</span>
 <div class="viewcode-block" id="Solid.half_of">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.half_of">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">half_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">half_of</span><span class="p">(</span></div>
 
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">v</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
+        <span class="n">center</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cut_path</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cut_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 <div class="viewcode-block" id="Solid.left_half">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.left_half">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">left_half</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
@@ -2824,14 +2850,12 @@
 
 
     <span class="c1"># --- SPEC C-20, the genuinely three-dimensional half ------------------------------------</span>
-    <span class="c1"># `partition` splits, so it returns the pieces rather than one shape -- but the two backends</span>
-    <span class="c1"># disagree on the container: the CSG one hands back `list[CsgSolid]` and the SDF one</span>
-    <span class="c1"># `tuple[SdfSolid, SdfSolid]`. That is a PAR-4 divergence this contract work surfaced, not a</span>
-    <span class="c1"># difference a caller should have to know about; `Any` holds the line until the two agree</span>
-    <span class="c1"># (tracked in SPEC §12.2).</span>
+    <span class="c1"># `partition` splits, so it returns the pieces rather than one shape -- exactly two of them,</span>
+    <span class="c1"># which a 2-tuple states and a list only implies. The backends used to disagree on the</span>
+    <span class="c1"># container (`list` on CSG, `tuple` on SDF), which is what forced this to be `Any`.</span>
 <div class="viewcode-block" id="Solid.partition">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.partition">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">Self</span><span class="p">]:</span> <span class="o">...</span></div>
 
     <span class="c1"># Edge, corner and face treatments (SPEC S-26, S-27) and the one way down to 2-D (C-17).</span>
     <span class="c1"># As above: the SDF backend refuses each by name.</span>
@@ -2855,6 +2879,21 @@
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.face_profile">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">face_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
+
+    <span class="c1"># The named edge treatments (SPEC S-26b): `round_edges`/`chamfer_edges`/`cove_edges` are the</span>
+    <span class="c1"># spellings a caller reaches for, so they belong on the contract like anything else (C-20).</span>
+<div class="viewcode-block" id="Solid.round_edges">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.round_edges">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">round_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.chamfer_edges">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.chamfer_edges">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">chamfer_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.cove_edges">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.cove_edges">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cove_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
 <div class="viewcode-block" id="Solid.projection">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.projection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cut</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
@@ -2866,6 +2905,18 @@
 <div class="viewcode-block" id="Solid.round3d">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.round3d">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">round3d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.wrap">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.wrap">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.oversample">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.oversample">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">oversample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="Solid.repair">
+<a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.repair">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">repair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span></div>
 
 <div class="viewcode-block" id="Solid.chain_hull">
 <a class="viewcode-back" href="../../foundational/solid.html#pybosl2.solid.Solid.chain_hull">[docs]</a>

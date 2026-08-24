@@ -3463,11 +3463,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">+</span> <span class="n">vv</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
 
-    <span class="n">move</span> <span class="o">=</span> <span class="n">translate</span>
-
-<div class="viewcode-block" id="Path2D.rot">
-<a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.rot">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">rot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
+<div class="viewcode-block" id="Path2D.rotate">
+<a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.rotate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Rotate every point by *a* degrees about the origin (Z axis).</span>
 
 <span class="sd">        Args:</span>
@@ -3482,8 +3480,6 @@
         <span class="n">rotmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">],</span> <span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">]])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">@</span> <span class="n">rotmat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">)</span></div>
 
-
-    <span class="n">rotate</span> <span class="o">=</span> <span class="n">rot</span>
 
 <div class="viewcode-block" id="Path2D.mirror">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.mirror">[docs]</a>
@@ -3579,8 +3575,6 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">])</span></div>
 
-
-    <span class="n">fwd</span> <span class="o">=</span> <span class="n">forward</span>
 
     <span class="c1"># -- conversion ------------------------------------------------------------------------</span>
 

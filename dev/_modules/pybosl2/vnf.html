@@ -2509,9 +2509,8 @@
 <span class="sd">            from pybosl2 import contour, Bounds2D</span>
 <span class="sd">            from pybosl2.path2d import Path2D</span>
 
-<span class="sd">            def field(p):</span>
-<span class="sd">                r = np.hypot(p[:, 0], p[:, 1])</span>
-<span class="sd">                return r</span>
+<span class="sd">            def field(p: np.ndarray) -&gt; np.ndarray:</span>
+<span class="sd">                return np.asarray(np.hypot(p[:, 0], p[:, 1]))</span>
 <span class="sd">            paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)</span>
 <span class="sd">            Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()</span>
 
@@ -3058,7 +3057,7 @@
 <span class="sd">                from pybosl2 import Path2D</span>
 
 <span class="sd">                bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)</span>
-<span class="sd">                bar.vnf.export("bar.stl")</span>
+<span class="sd">                bar.vnf().export("bar.stl")</span>
 <span class="sd">                bar.show()</span>
 
 <span class="sd">        """</span>
@@ -3121,7 +3120,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vertex_array</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">points</span><span class="p">:</span> <span class="n">Path3D</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path3D</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="s2">"Path3D | Sequence[Path3D] | Sequence[Sequence[Sequence[float]]] | Sequence[np.ndarray] | np.ndarray"</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="s2">"CapsSpec | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">col_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">row_wrap</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -3489,9 +3488,9 @@
 <span class="sd">            import numpy as np</span>
 <span class="sd">            from pybosl2 import VNF, Bounds3D</span>
 
-<span class="sd">            def field(p):</span>
+<span class="sd">            def field(p: np.ndarray) -&gt; np.ndarray:</span>
 <span class="sd">                x, y, z = p[:, 0], p[:, 1], p[:, 2]</span>
-<span class="sd">                return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)</span>
+<span class="sd">                return np.asarray(20 / np.sqrt(x * x + y * y + z * z) + 3 * np.sin(x / 3))</span>
 <span class="sd">            VNF.from_field(</span>
 <span class="sd">                field, 1,</span>
 <span class="sd">                Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),</span>
@@ -3709,7 +3708,7 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">z</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF | Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.</span>
 
 <span class="sd">        Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are</span>
@@ -3739,21 +3738,23 @@
 
 <span class="sd">                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
 <span class="sd">                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]</span>
-<span class="sd">                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron().show()</span>
+<span class="sd">                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).show()</span>
 
 <span class="sd">        """</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_skin</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_as_solid</span><span class="p">,</span> <span class="n">_skin</span>
 
-        <span class="k">return</span> <span class="n">_skin</span><span class="p">(</span>
-            <span class="n">profiles</span><span class="p">,</span>
-            <span class="n">slices</span><span class="p">,</span>
-            <span class="n">refine</span><span class="o">=</span><span class="n">refine</span><span class="p">,</span>
-            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
-            <span class="n">sampling</span><span class="o">=</span><span class="n">sampling</span><span class="p">,</span>
-            <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
-            <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
-            <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
-            <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
+            <span class="n">_skin</span><span class="p">(</span>
+                <span class="n">profiles</span><span class="p">,</span>
+                <span class="n">slices</span><span class="p">,</span>
+                <span class="n">refine</span><span class="o">=</span><span class="n">refine</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">sampling</span><span class="o">=</span><span class="n">sampling</span><span class="p">,</span>
+                <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
+                <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+                <span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span></div>
 </div>
 

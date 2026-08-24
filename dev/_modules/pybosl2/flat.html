@@ -2065,7 +2065,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">runtime_checkable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">runtime_checkable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span><span class="p">,</span> <span class="n">current_backend</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_anchor</span>
@@ -2125,6 +2125,47 @@
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.linear_extrude">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">height</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Extrude this 2-D shape into a 3-D solid."""</span>
+        <span class="o">...</span></div>
+
+
+    <span class="c1"># The rest of the way up into three dimensions (SPEC C-17), and the operations only an outline</span>
+    <span class="c1"># has. Declared because the objects have them and C-20 says the contract is the whole object;</span>
+    <span class="c1"># `Any` where the two backends spell an option differently (PLAN T-6c).</span>
+<div class="viewcode-block" id="Flat.rotate_extrude">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.rotate_extrude">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_extrude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Solid</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Revolve this 2-D shape about the Z axis into a solid."""</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="Flat.offset">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.offset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return this outline grown or shrunk by a distance."""</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="Flat.hull">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.hull">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hull</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">others</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the convex hull of this shape and any others."""</span>
+        <span class="o">...</span></div>
+
+
+    <span class="c1"># In-plane transforms. Both dimensions can honour a flip and a Z-rotation, so C-22 would put</span>
+    <span class="c1"># these on `Shape` -- they stay here only until the 3-D side grows the same spellings, which is</span>
+    <span class="c1"># the C-21 synonym work (SPEC §12.2).</span>
+<div class="viewcode-block" id="Flat.xflip">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.xflip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across the YZ plane."""</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="Flat.yflip">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.yflip">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">yflip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mirror this shape across the XZ plane."""</span>
         <span class="o">...</span></div>
 </div>
 

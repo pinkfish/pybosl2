@@ -3005,10 +3005,10 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Self</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">Self</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Cut this solid into two interlocking pieces, spread apart.</span>
 
-<span class="sd">        Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved</span>
+<span class="sd">        Returns ``(back_piece, front_piece)`` -- the two halves with matched joining edges, moved</span>
 <span class="sd">        *spread* apart along the (spun) Y axis so they print separately and snap back together.</span>
 <span class="sd">        The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*</span>
 <span class="sd">        rotates the cut direction; *slop* leaves a printer-fit clearance.</span>
@@ -3051,7 +3051,10 @@
             <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">spin</span><span class="p">])</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span> <span class="k">for</span> <span class="n">c2</span> <span class="ow">in</span> <span class="n">center_pt</span><span class="p">])</span>
             <span class="n">move</span> <span class="o">=</span> <span class="n">vec</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="n">vec</span>
             <span class="n">pieces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">&amp;</span> <span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">move</span><span class="p">]))</span>  <span class="c1"># type: ignore[attr-defined]</span>
-        <span class="k">return</span> <span class="n">pieces</span></div>
+        <span class="c1"># A partition makes exactly two pieces, and a 2-tuple says so where a list only implies it.</span>
+        <span class="c1"># The SDF backend already returned a pair; the two disagreeing on the container is what</span>
+        <span class="c1"># forced the shared contract to type this `Any` (SPEC PAR-4).</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">pieces</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pieces</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
 </div>
 
 
