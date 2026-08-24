@@ -2094,6 +2094,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapType</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"turtle2d"</span><span class="p">,</span> <span class="s2">"Turtle2D"</span><span class="p">,</span> <span class="s2">"Turtle2DState"</span><span class="p">,</span> <span class="s2">"TurtleCommand"</span><span class="p">,</span> <span class="s2">"TurtleCommandType"</span><span class="p">]</span>
 
@@ -2230,8 +2231,8 @@
         <span class="n">width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">cap</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Render the turtle's current path as a 2-D stroked outline.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Render the turtle's current path as a filled stroked outline.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            width: Stroke line width.</span>
@@ -2239,7 +2240,7 @@
 <span class="sd">            closed: Override whether the path is treated as closed.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`Path2D` of the stroked polygon outline.</span>
+<span class="sd">            The stroked area as a :class:`~pybosl2.regions.Region` (SPEC S-23).</span>
 
 <span class="sd">        """</span>
         <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">()</span>

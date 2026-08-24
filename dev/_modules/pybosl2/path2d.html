@@ -4227,8 +4227,36 @@
         <span class="n">endcap1</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">endcap2</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">joints</span><span class="p">:</span> <span class="n">CapType</span> <span class="o">|</span> <span class="n">CapSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">ROUND</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Render this 2-D path as a stroked polygon outline."""</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Region"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Render this 2-D path as a filled stroked outline (SPEC S-23).</span>
+
+<span class="sd">        A stroke is the *area* the pen covers, so it comes back as a</span>
+<span class="sd">        :class:`~pybosl2.regions.Region` -- outlines-with-holes -- which is what the rest of the</span>
+<span class="sd">        family already returned (:meth:`dashed_stroke`, :meth:`~pybosl2.regions.Region.stroke`)</span>
+<span class="sd">        and what the 3-D twin returns the solid equivalent of. It used to hand back a `Path2D`,</span>
+<span class="sd">        which described the boundary rather than the mark and left one member of one family</span>
+<span class="sd">        answering a different kind of thing from the other three.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            width: Stroke width.</span>
+<span class="sd">            closed: Treat the path as closed (default: the path's own flag).</span>
+<span class="sd">            endcaps: Cap style for both ends (default: round).</span>
+<span class="sd">            endcap1: Cap style for the first end, overriding *endcaps*.</span>
+<span class="sd">            endcap2: Cap style for the last end, overriding *endcaps*.</span>
+<span class="sd">            joints: Style for the corners between segments (default: round).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The stroked area as a :class:`~pybosl2.regions.Region`.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
+
+<span class="sd">                trace = Path2D([[0, 0], [30, 0], [30, 20]])</span>
+<span class="sd">                trace.stroke(width=3).linear_extrude(height=2).show()</span>
+
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._stroke2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">stroke_2d</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">normalize_one</span>
 
@@ -4249,7 +4277,12 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span> <span class="k">as</span> <span class="n">_Region</span>
+
+        <span class="n">outline</span> <span class="o">=</span> <span class="n">_Region</span><span class="p">([</span><span class="n">result</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">outline</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_color</span>
+        <span class="k">return</span> <span class="n">outline</span></div>
 
 
 <div class="viewcode-block" id="Path2D.dashed_stroke">
