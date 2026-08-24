@@ -113,6 +113,17 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   out of the `isinstance` call. Two backend tests failed with a mesh error from inside a type
   check.
 
+  **This rule and T-6b are two halves of one version change, and the library must satisfy both.**
+  Python 3.11 resolves a protocol `isinstance` with `hasattr`; 3.12 changed it to a static lookup.
+  So on 3.11 a property on a contract is evaluated (this rule) but a member supplied by
+  `__getattr__` is found; on 3.12+ the property is safe but the dynamic member is invisible (T-6b).
+  `requires-python` is `>=3.11`, so code that satisfies only one of the two is broken for some
+  supported interpreter — and, worse, is broken *invisibly* on whichever one the developer happens
+  to run. That is exactly how this reached CI: it is unobservable on 3.12 and later.
+
+  `tests/test_no_mesher.py` is the guard, and it probes with `hasattr` directly as well as through
+  `isinstance` so it fails on every interpreter rather than only on 3.11.
+
   So: anything on a contract that computes is a **method** (`bounds()`, `vnf()`, `volume()`,
   `show()`); a property on a contract is a cheap, total accessor over state the object already
   holds (`backend`, `size`). This is the same failure family as E-6 — code that probes an object

@@ -221,6 +221,12 @@ class CsgShape2D(BaseShape):
     #: This shape is two-dimensional; see CsgSolid.dimensions (SPEC E-7).
     dimensions = 2
 
+    #: The nominal anchor box (SPEC S-2a), set per instance in __init__. Declared at class level as
+    #: well so it is *statically* visible: on Python 3.12+ `isinstance` against a runtime-checkable
+    #: Protocol uses static lookup, and an attribute only ever assigned in __init__ makes the class
+    #: fail a check it satisfies perfectly at runtime (PLAN T-6b).
+    size: "list[float] | None" = None
+
     _bbox: tuple[list[float], list[float]] | None = None
 
     def __init__(
