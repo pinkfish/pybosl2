@@ -35,7 +35,7 @@ bottlecaps
           <button class="md-clipboard md-icon" onclick="copySpecCode(this)" title="Copy to clipboard"></button>
           <div class="spec-code" id="code">&gt;&gt;&gt; BottleCaps.pco1810_neck(fa=6)</div>
         </div>
-        
+
         <div class="spec-tests">7 tests</div>
       </div>
     </div>
@@ -167,4 +167,3 @@ bottlecaps
     navigator.clipboard.writeText(code).then(function(){btn.title='Copied!';btn.classList.add('copied');
     setTimeout(function(){btn.title='Copy to clipboard';btn.classList.remove('copied');},1500);});}
     </script>
-

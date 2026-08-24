@@ -94,8 +94,8 @@ A rod threaded into its matching hex nut (shown side by side):
 .. pythonscad-example::
 
     from pybosl2.parts.threading import iso_threaded_rod, iso_threaded_nut
-    rod = iso_threaded_rod(12, 30, 1.75, fa=6, fs=1).shape()
-    nut = iso_threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).shape().right(22)
+    rod = iso_threaded_rod(12, 30, 1.75, fa=6, fs=1).shape
+    nut = iso_threaded_nut(18, 12, 10, 1.75, slop=0.1, fa=6, fs=1).shape.right(22)
     (rod | nut).show()
 
 API reference

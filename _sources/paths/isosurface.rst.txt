@@ -3,12 +3,18 @@ Isosurface
 
 Pure-Python port of the 3-D core of BOSL2's ``isosurface.scad``:
 :meth:`VNF.from_field() <pybosl2.vnf.VNF.from_field>` meshes the level set of a scalar field over a voxel grid
-(marching cubes) into a :class:`~pybosl2.vnf.VNF`; the ``mb_*`` functions are metaball field
-primitives; and :meth:`VNF.from_metaballs() <pybosl2.vnf.VNF.from_metaballs>` sums transformed primitives and meshes the
-result into a blobby surface::
+(marching cubes) into a :class:`~pybosl2.vnf.VNF`; :class:`~pybosl2.isosurface.Metaball` builds the
+field primitives; and :meth:`VNF.from_metaballs() <pybosl2.vnf.VNF.from_metaballs>` sums positioned
+primitives and meshes the result into a blobby surface::
 
     VNF.from_field(field_fn, isovalue=1, bounding_box=60, voxel_size=2)
-    VNF.from_metaballs([(pos1, mb_sphere(12)), (pos2, mb_sphere(12))], bounding_box=box, voxel_size=2)
+    VNF.from_metaballs([Metaball.sphere(12).at(pos1), Metaball.sphere(12).at(pos2)], bounding_box=box, voxel_size=2)
+
+Each primitive is a factory on the class -- :meth:`Metaball.sphere <pybosl2.isosurface.Metaball.sphere>`,
+``cuboid``, ``torus``, ``capsule``, ``disk``, ``octahedron``, ``connector`` -- and
+:meth:`Metaball.at() <pybosl2.isosurface.Metaball.at>` places one, giving the
+:class:`~pybosl2.isosurface.MetaballSpec` the mesher consumes. The BOSL2 spellings ``mb_sphere`` and
+friends are kept as aliases of the factories.
 
 A field primitive returns a value that grows toward infinity at its center and falls off with
 distance; the surface is drawn where the summed field reaches *isovalue* (default 1). Because the
@@ -41,7 +47,8 @@ Coverage of BOSL2 ``isosurface.scad``
        BOSL2 flat form).
    * - ``mb_sphere`` / ``mb_cuboid`` / ``mb_torus`` / ``mb_capsule`` / ``mb_disk`` / ``mb_octahedron`` / ``mb_connector``
      - ported
-     - the 3-D metaball field primitives, with ``cutoff`` / ``influence`` / ``negative``.
+     - the 3-D metaball field primitives, with ``cutoff`` / ``influence`` / ``negative`` --
+       :meth:`Metaball.sphere <pybosl2.isosurface.Metaball.sphere>` and friends.
    * - ``mb_cyl``
      - not ported
      - the revolved-profile (cone/rounded) field -- a follow-up.
@@ -59,18 +66,19 @@ Two spheres merging into a peanut:
 
 .. pythonscad-example::
 
-    from pybosl2 import VNF, mb_sphere
+    from pybosl2 import VNF, Metaball
 
-    spec = [([-14, 0, 0], mb_sphere(12)), ([14, 0, 0], mb_sphere(12))]
+    spec = [Metaball.sphere(12).at([-14, 0, 0]), Metaball.sphere(12).at([14, 0, 0])]
     VNF.from_metaballs(spec, bounding_box=[[-40, -20, -20], [40, 20, 20]], voxel_size=2).polyhedron().show()
 
 A ring metaball plus a connecting bar:
 
 .. pythonscad-example::
 
-    from pybosl2 import VNF, mb_connector, mb_torus
+    from pybosl2 import VNF, Metaball
 
-    spec = [([0, 0, 0], mb_torus(14, 4)), ([-14, 0, 0], mb_connector([-14, 0, 0], [14, 0, 0], 4))]
+    spec = [Metaball.torus(14, 4).at([0, 0, 0]),
+            Metaball.connector([-14, 0, 0], [14, 0, 0], 4).at([-14, 0, 0])]
     VNF.from_metaballs(spec, bounding_box=[[-22, -22, -10], [22, 22, 10]], voxel_size=2).polyhedron().show()
 
 The level set of a custom field function:

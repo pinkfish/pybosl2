@@ -90,28 +90,28 @@ A spur gear by circular pitch:
 .. pythonscad-example::
 
    from pybosl2.parts.gears import SpurGear
-   SpurGear(circ_pitch=5, teeth=20, thickness=8, shaft_diam=5).shape().show()
+   SpurGear(circ_pitch=5, teeth=20, thickness=8, shaft_diam=5).shape.show()
 
 By metric module:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import SpurGear
-   SpurGear(mod=2, teeth=20, thickness=8, shaft_diam=5).shape().show()
+   SpurGear(mod=2, teeth=20, thickness=8, shaft_diam=5).shape.show()
 
 A helical gear:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import SpurGear
-   SpurGear(circ_pitch=5, teeth=20, thickness=10, shaft_diam=5, helical=-30, slices=12).shape().show()
+   SpurGear(circ_pitch=5, teeth=20, thickness=10, shaft_diam=5, helical=-30, slices=12).shape.show()
 
 A herringbone gear:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import SpurGear
-   SpurGear(circ_pitch=5, teeth=20, thickness=10, shaft_diam=5, helical=30, herringbone=True, slices=5).shape().show()
+   SpurGear(circ_pitch=5, teeth=20, thickness=10, shaft_diam=5, helical=30, herringbone=True, slices=5).shape.show()
 
 .. rubric:: ``ring_gear``
 
@@ -120,35 +120,35 @@ An internal ring gear:
 .. pythonscad-example::
 
    from pybosl2.parts.gears import RingGear
-   RingGear(circ_pitch=5, teeth=48, thickness=10).shape().show()
+   RingGear(circ_pitch=5, teeth=48, thickness=10).shape.show()
 
 Thicker backing:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import RingGear
-   RingGear(circ_pitch=5, teeth=48, thickness=10, backing=30).shape().show()
+   RingGear(circ_pitch=5, teeth=48, thickness=10, backing=30).shape.show()
 
 A higher pressure angle:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import RingGear
-   RingGear(circ_pitch=5, teeth=48, thickness=10, pressure_angle=28).shape().show()
+   RingGear(circ_pitch=5, teeth=48, thickness=10, pressure_angle=28).shape.show()
 
 With a profile shift:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import RingGear
-   RingGear(circ_pitch=5, teeth=48, thickness=10, profile_shift=0.5).shape().show()
+   RingGear(circ_pitch=5, teeth=48, thickness=10, profile_shift=0.5).shape.show()
 
 Helical:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import RingGear
-   RingGear(circ_pitch=5, teeth=48, thickness=15, helical=30).shape().show()
+   RingGear(circ_pitch=5, teeth=48, thickness=15, helical=30).shape.show()
 
 .. rubric:: ``rack``
 
@@ -157,14 +157,14 @@ A linear rack:
 .. pythonscad-example::
 
    from pybosl2.parts.gears import Rack
-   Rack(pitch=5, teeth=10, thickness=5).shape().show()
+   Rack(pitch=5, teeth=10, thickness=5).shape.show()
 
 A rack at 14.5 deg pressure angle:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import Rack
-   Rack(mod=2, teeth=10, thickness=5, pressure_angle=14.5).shape().show()
+   Rack(mod=2, teeth=10, thickness=5, pressure_angle=14.5).shape.show()
 
 .. rubric:: ``bevel_gear``
 
@@ -173,14 +173,14 @@ A 45 deg bevel gear:
 .. pythonscad-example::
 
    from pybosl2.parts.gears import BevelGear
-   BevelGear(circ_pitch=5, teeth=36, mate_teeth=36, shaft_diam=5).shape().show()
+   BevelGear(circ_pitch=5, teeth=36, mate_teeth=36, shaft_diam=5).shape.show()
 
 By module:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import BevelGear
-   BevelGear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6).shape().show()
+   BevelGear(mod=4, teeth=20, face_width=10, pitch_angle=45, shaft_diam=6).shape.show()
 
 .. rubric:: ``worm``
 
@@ -189,21 +189,21 @@ A single-start worm:
 .. pythonscad-example::
 
    from pybosl2.parts.gears import Worm
-   Worm(circ_pitch=8, diameter=30, length=50).shape().show()
+   Worm(circ_pitch=8, diameter=30, length=50).shape.show()
 
 A 3-start worm:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import Worm
-   Worm(circ_pitch=8, diameter=30, length=50, starts=3).shape().show()
+   Worm(circ_pitch=8, diameter=30, length=50, starts=3).shape.show()
 
 A left-handed 3-start worm:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import Worm
-   Worm(circ_pitch=8, diameter=30, length=50, starts=3, left_handed=True).shape().show()
+   Worm(circ_pitch=8, diameter=30, length=50, starts=3, left_handed=True).shape.show()
 
 .. rubric:: ``worm_gear``
 
@@ -212,25 +212,25 @@ A worm gear:
 .. pythonscad-example::
 
    from pybosl2.parts.gears import WormGear
-   WormGear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=1).shape().show()
+   WormGear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=1).shape.show()
 
 Left-handed:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import WormGear
-   WormGear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=1, left_handed=True).shape().show()
+   WormGear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=1, left_handed=True).shape.show()
 
 Meshing a 4-start worm:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import WormGear
-   WormGear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=4).shape().show()
+   WormGear(circ_pitch=5, teeth=36, worm_diam=30, worm_starts=4).shape.show()
 
 By module:
 
 .. pythonscad-example::
 
    from pybosl2.parts.gears import WormGear
-   WormGear(mod=2, teeth=32, worm_diam=30, worm_starts=1).shape().show()
+   WormGear(mod=2, teeth=32, worm_diam=30, worm_starts=1).shape.show()
