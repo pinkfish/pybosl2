@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2073,6 +2097,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResampleMethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">vector_angle3</span> <span class="k">as</span> <span class="n">_vector_angle3</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span><span class="p">,</span> <span class="n">rot_from_to</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
@@ -2165,7 +2190,7 @@
     <span class="n">diameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">p2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">p1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
     <span class="n">height</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">height</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"extrude_from_to(): the two points must differ."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"extrude_from_to(): the two points must differ."</span><span class="p">)</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
     <span class="n">native</span> <span class="o">=</span> <span class="n">_as_native_2d</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
@@ -2222,13 +2247,13 @@
     <span class="n">irv</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">inner_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">inner_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">orv</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">irv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">orv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">irv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">orv</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"cylindrical_extrude(): give positive inner and outer radius/diameter."</span><span class="p">)</span>
     <span class="n">circumf</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">orv</span>
     <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="n">circumf</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">]</span>
@@ -2286,7 +2311,7 @@
 
     <span class="n">objs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">objects</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">objs</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"chain_hull(): needs at least one shape to hull."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"chain_hull(): needs at least one shape to hull."</span><span class="p">)</span>
     <span class="n">natives</span> <span class="o">=</span> <span class="p">[</span><span class="n">unwrap</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">objs</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">natives</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">natives</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -2310,8 +2335,8 @@
     <span class="c1"># Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="p">[</span><span class="n">unwrap</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">ds</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"minkowski_difference(): needs at least one diff shape."</span><span class="p">)</span>
-    <span class="n">center</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_native_bounds</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"minkowski_difference(): needs at least one diff shape."</span><span class="p">)</span>
+    <span class="n">center</span><span class="p">,</span> <span class="n">sz</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">_center_size</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_native_bounds</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
     <span class="n">box0</span> <span class="o">=</span> <span class="n">_cube</span><span class="p">([</span><span class="n">sz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">center</span><span class="p">])</span>
     <span class="n">box1</span> <span class="o">=</span> <span class="n">_cube</span><span class="p">([</span><span class="n">sz</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">center</span><span class="p">])</span>
     <span class="n">shell</span> <span class="o">=</span> <span class="n">box1</span> <span class="o">-</span> <span class="n">b</span>
@@ -2323,7 +2348,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_native_bounds</span><span class="p">(</span><span class="n">shape</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
-    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">_center_size</span><span class="p">()</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -2360,14 +2385,14 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>  <span class="c1"># type: ignore[index]</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): the path must be 2-D (use path_extrude for 3-D)."</span><span class="p">)</span>
         <span class="n">is_closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">closed</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="k">if</span> <span class="n">caps</span> <span class="ow">and</span> <span class="n">is_closed</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): cannot cap a closed extrusion."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): cannot cap a closed extrusion."</span><span class="p">)</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deduplicated</span><span class="p">()]</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): need at least two points."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): need at least two points."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">min_x</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">)</span>
             <span class="n">min_y</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pts</span><span class="p">)</span>
@@ -2414,7 +2439,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>  <span class="c1"># pragma: no cover - defensive: a path short enough to build nothing is</span>
             <span class="c1"># already rejected above ("need at least two points"), and a degenerate one fails in</span>
             <span class="c1"># the frame maths before reaching here. Kept so the failure would name the call.</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): nothing to extrude."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_extrude2d(): nothing to extrude."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span></div>
 
 
@@ -2442,7 +2467,7 @@
         <span class="n">path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sides</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude(): need at least two points."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_extrude(): need at least two points."</span><span class="p">)</span>
         <span class="n">parr</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
         <span class="n">rotmats</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">acc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
@@ -2488,7 +2513,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>  <span class="c1"># pragma: no cover - defensive: a path short enough to build nothing is</span>
             <span class="c1"># already rejected above ("need at least two points"), and a degenerate one fails in</span>
             <span class="c1"># the frame maths before reaching here. Kept so the failure would name the call.</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_extrude(): nothing to extrude."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_extrude(): nothing to extrude."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">or_</span><span class="p">,</span> <span class="n">parts</span><span class="p">))</span></div>
 </div>
 

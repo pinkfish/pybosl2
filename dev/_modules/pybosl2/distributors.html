@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2070,6 +2094,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaggerMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span>
 
@@ -2223,15 +2248,15 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return copies laid out in a square or staggered (hex) grid."""</span>
     <span class="k">if</span> <span class="n">stagger</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">StaggerMode</span><span class="o">.</span><span class="n">ALT</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): stagger must be False, True or 'alt'."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): stagger must be False, True or 'alt'."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">"xyz"</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">"xyz"</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"grid_copies(): invalid axes."</span><span class="p">)</span>
     <span class="n">ai</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"x"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">permax</span><span class="p">(</span><span class="n">pt</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -2328,7 +2353,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return rotated copies about an axis, optionally offset into a ring."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">subrot</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">_vec3</span><span class="p">(</span><span class="n">delta</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rot_copies(): subrot can only be False when delta is nonzero."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rot_copies(): subrot can only be False when delta is nonzero."</span><span class="p">)</span>
     <span class="n">sang</span> <span class="o">=</span> <span class="n">sa</span> <span class="o">+</span> <span class="n">offset</span>
     <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">angs</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[</span><span class="n">i</span> <span class="o">/</span> <span class="n">num_copies</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">+</span> <span class="n">sang</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)]</span>
@@ -2526,7 +2551,7 @@
         <span class="n">distances</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">num_copies</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="ow">not</span> <span class="n">closed</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">spacing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_copies(): give num_copies=, spacing= or dist= to say where the copies go."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_copies(): give num_copies=, spacing= or dist= to say where the copies go."</span><span class="p">)</span>
         <span class="n">cnt</span> <span class="o">=</span> <span class="n">num_copies</span> <span class="k">if</span> <span class="n">num_copies</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">length</span> <span class="o">/</span> <span class="n">spacing</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">ptlist</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">spacing</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cnt</span><span class="p">)]</span>
         <span class="n">center</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ptlist</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ptlist</span><span class="p">)</span>
@@ -2535,9 +2560,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="o">+</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">center</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">ptlist</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mf">1e-09</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_copies(): copies don't fit on the path."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_copies(): copies don't fit on the path."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">distances</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">length</span> <span class="o">+</span> <span class="mf">1e-09</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_copies(): copies don't fit on the path."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_copies(): copies don't fit on the path."</span><span class="p">)</span>
     <span class="n">distances</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">length</span><span class="p">)</span> <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">distances</span><span class="p">]</span>
     <span class="n">cutlist</span> <span class="o">=</span> <span class="p">(</span><span class="n">Path3D</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">else</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">pts</span><span class="p">))</span><span class="o">.</span><span class="n">cut_points</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">planar</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
@@ -2940,12 +2965,13 @@
         <span class="n">dirv</span> <span class="o">=</span> <span class="n">dir_arr</span> <span class="o">/</span> <span class="n">dir_norm</span> <span class="k">if</span> <span class="n">dir_norm</span> <span class="k">else</span> <span class="n">dir_arr</span>
         <span class="n">cnt</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"distribute(): needs at least one child."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"distribute(): needs at least one child."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sizes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">extents</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">bounds</span><span class="p">()[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dirv</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">bounds</span><span class="p">()[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dirv</span><span class="p">)))</span>
-                <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">children</span>
-            <span class="p">]</span>
+            <span class="c1"># The extent of an axis-aligned box along a direction is the projection of its *size*,</span>
+            <span class="c1"># summed per axis -- it does not depend on where the box sits. The old form subtracted</span>
+            <span class="c1"># the projected centre from the projected size, which happened to agree for a child</span>
+            <span class="c1"># centred on the origin and under-measured every other one.</span>
+            <span class="n">extents</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">*</span> <span class="n">dirv</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">children</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">extents</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sizes</span><span class="p">]</span>
         <span class="n">gaps</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="k">if</span> <span class="n">cnt</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="p">[</span><span class="n">extents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">extents</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cnt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>

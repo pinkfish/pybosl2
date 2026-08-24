@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2057,6 +2081,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span> <span class="k">as</span> <span class="n">_text2d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_vector</span><span class="p">,</span> <span class="n">unit</span>
 
@@ -2212,7 +2237,7 @@
         <span class="k">return</span> <span class="p">[[</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># type: ignore[index]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_vector</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
         <span class="sa">f</span><span class="s1">'path_text(): "</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">" must be a length-</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s1"> vector or a list of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="si">}</span><span class="s1"> such vectors matching the path.'</span>
     <span class="p">)</span>
 
@@ -2387,27 +2412,27 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span> <span class="k">as</span> <span class="n">_Bosl2Shape2D</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): text must be non-empty."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): text must be non-empty."</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="s2">"path_text(): size= is one number for the whole string; per-character widths go in lettersize=."</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): must give positive text size."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): must give positive text size."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">normal</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">top</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'path_text(): cannot define both "normal" and "top".'</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s1">'path_text(): cannot define both "normal" and "top".'</span><span class="p">)</span>
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): must supply a 2d or 3d path."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): must supply a 2d or 3d path."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): cannot give a thickness with a 2d path."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): cannot give a thickness with a 2d path."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reverse</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): reverse not allowed with a 2d path."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): reverse not allowed with a 2d path."</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">offset</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): cannot give offset with a 2d path."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): cannot give offset with a 2d path."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">normal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'path_text(): cannot define "normal" for a 2d path, only "top".'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s1">'path_text(): cannot define "normal" for a 2d path, only "top".'</span><span class="p">)</span>
 
     <span class="n">th</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">thickness</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">thickness</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -2415,18 +2440,18 @@
     <span class="k">if</span> <span class="n">lettersize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">lsize</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">lettersize</span><span class="p">)]</span> <span class="o">*</span> <span class="n">sides</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lettersize</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lettersize</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lsize</span><span class="p">)</span> <span class="o">==</span> <span class="n">sides</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): lettersize list must have one entry per character."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): lettersize list must have one entry per character."</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">textmetrics</span><span class="p">:</span>
         <span class="n">lsize</span> <span class="o">=</span> <span class="p">[</span><span class="n">_otextmetrics</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)[</span><span class="s2">"advance"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">text</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="s2">"path_text(): this build has no textmetrics, so the letter widths cannot be "</span>
             <span class="s2">"measured -- pass size= as a list of per-character widths."</span>
         <span class="p">)</span>
 
     <span class="n">kern_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">kern</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">sides</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kern</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kern</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">kern_list</span><span class="p">)</span> <span class="o">==</span> <span class="n">sides</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): kern must be a scalar or a list of length len(text)-1."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): kern must be a scalar or a list of length len(text)-1."</span><span class="p">)</span>
 
     <span class="n">centers</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">prefix</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -2445,7 +2470,7 @@
 
     <span class="n">plen</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">perimeter</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">textlength</span> <span class="o">&lt;=</span> <span class="n">plen</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_text(): path is too short for the text."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_text(): path is too short for the text."</span><span class="p">)</span>
     <span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="n">plen</span> <span class="o">-</span> <span class="n">textlength</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="k">if</span> <span class="n">center</span> <span class="k">else</span> <span class="mf">0.0</span>
     <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span> <span class="o">+</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">]</span>
 
@@ -2563,9 +2588,9 @@
 <span class="sd">    """</span>
     <span class="n">h</span> <span class="o">=</span> <span class="n">height</span> <span class="k">if</span> <span class="n">height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">length</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">h</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cross(): needs a positive height= (or its synonym length=)."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"cross(): needs a positive height= (or its synonym length=)."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"cross(): need a positive height or length."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"cross(): need a positive height or length."</span><span class="p">)</span>
     <span class="n">use_center</span> <span class="o">=</span> <span class="n">center</span> <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
     <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

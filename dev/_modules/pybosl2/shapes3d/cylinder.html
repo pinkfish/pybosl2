@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2057,6 +2081,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pick_radius</span> <span class="k">as</span> <span class="n">_pick_radius</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">quantup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">CENTER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
 <span class="c1"># Import base class and helper functions from shapes3d.base</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -2409,7 +2434,7 @@
     <span class="n">c1v</span> <span class="o">=</span> <span class="n">chamfer1</span> <span class="k">if</span> <span class="n">chamfer1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">c2v</span> <span class="o">=</span> <span class="n">chamfer2</span> <span class="k">if</span> <span class="n">chamfer2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">r1v</span> <span class="ow">or</span> <span class="n">r2v</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c1v</span> <span class="ow">or</span> <span class="n">c2v</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
     <span class="n">_check_rim_treatments</span><span class="p">(</span><span class="n">rad1</span><span class="p">,</span> <span class="n">rad2</span><span class="p">,</span> <span class="n">r1v</span><span class="p">,</span> <span class="n">r2v</span><span class="p">,</span> <span class="n">c1v</span><span class="p">,</span> <span class="n">c2v</span><span class="p">)</span>
 
     <span class="n">cfang1</span> <span class="o">=</span> <span class="n">chamfer_angle1</span> <span class="k">if</span> <span class="n">chamfer_angle1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer_angle</span> <span class="k">if</span> <span class="n">chamfer_angle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
@@ -2533,7 +2558,7 @@
         <span class="p">(</span><span class="s2">"chamfer2"</span><span class="p">,</span> <span class="n">chamfer2</span><span class="p">,</span> <span class="n">radius2</span><span class="p">),</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">treatment</span> <span class="ow">and</span> <span class="n">treatment</span> <span class="o">&gt;</span> <span class="n">radius</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"cyl(): </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">treatment</span><span class="si">}</span><span class="s2"> is larger than that end's radius (</span><span class="si">{</span><span class="n">radius</span><span class="si">}</span><span class="s2">); "</span>
                 <span class="sa">f</span><span class="s2">"a rim treatment has to fit inside the rim it rounds."</span>
             <span class="p">)</span>
@@ -3061,14 +3086,14 @@
     <span class="n">irad1</span> <span class="o">=</span> <span class="n">irr1</span> <span class="k">if</span> <span class="n">irr1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">orr1</span> <span class="o">-</span> <span class="n">wall_v</span> <span class="k">if</span> <span class="n">orr1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">irad2</span> <span class="o">=</span> <span class="n">irr2</span> <span class="k">if</span> <span class="n">irr2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">orr2</span> <span class="o">-</span> <span class="n">wall_v</span> <span class="k">if</span> <span class="n">orr2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rad1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rad2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">irad1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">irad2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="s2">"tube(): needs two of the three sizes -- an inner radius/diameter, an outer "</span>
             <span class="s2">"radius/diameter, and a wall thickness."</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">irad1</span> <span class="o">&lt;=</span> <span class="n">rad1</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"tube(): inner radius is larger than outer radius."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"tube(): inner radius is larger than outer radius."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">irad2</span> <span class="o">&lt;=</span> <span class="n">rad2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"tube(): inner radius is larger than outer radius."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"tube(): inner radius is larger than outer radius."</span><span class="p">)</span>
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">_resolve_center_anchor</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">anchor</span><span class="p">,</span> <span class="n">BOTTOM</span><span class="p">)</span>
 
     <span class="c1"># Build outer and inner cylinders via cyl() for chamfer/rounding support</span>

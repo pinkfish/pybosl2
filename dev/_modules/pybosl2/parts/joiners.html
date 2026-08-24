@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2052,6 +2076,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">Gender</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">prismoid</span><span class="p">,</span> <span class="n">sphere</span>
 
@@ -2063,7 +2088,7 @@
 
 <div class="viewcode-block" id="Dovetail">
 <a class="viewcode-back" href="../../../parts/joiners.html#pybosl2.parts.joiners.Dovetail">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Dovetail</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Dovetail</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A dovetail joint that slides along Y and flares upward in X.</span>
 
 <span class="sd">    The male form is a tenon you attach to a part; the female form is the same</span>
@@ -2182,7 +2207,7 @@
 
 <div class="viewcode-block" id="SnapPin">
 <a class="viewcode-back" href="../../../parts/joiners.html#pybosl2.parts.joiners.SnapPin">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SnapPin</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnapPin</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A press-and-click snap pin: a slotted shaft with a barbed head.</span>
 
 <span class="sd">    Push it head-first through a hole; the slot lets the barb compress and</span>
@@ -2279,7 +2304,7 @@
 
 <div class="viewcode-block" id="SnapPinSocket">
 <a class="viewcode-back" href="../../../parts/joiners.html#pybosl2.parts.joiners.SnapPinSocket">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SnapPinSocket</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnapPinSocket</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""The mating socket mask for a :class:`SnapPin` — difference it out of a part.</span>
 
 <span class="sd">    A clearance bore with a relief groove that the pin's barb clicks into.</span>

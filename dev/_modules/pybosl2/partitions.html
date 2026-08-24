@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2069,6 +2093,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_num</span><span class="p">,</span> <span class="n">zrot4</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BACK</span><span class="p">,</span> <span class="n">DOWN</span><span class="p">,</span> <span class="n">FRONT</span><span class="p">,</span> <span class="n">LEFT</span><span class="p">,</span> <span class="n">RIGHT</span><span class="p">,</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">PartitionCutType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">lerp</span> <span class="k">as</span> <span class="n">_lerp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_matrix</span><span class="p">,</span> <span class="n">rot_about_axis</span><span class="p">,</span> <span class="n">rot_from_to</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
@@ -2238,7 +2263,9 @@
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"partition_path(): unsupported cut type </span><span class="si">{</span><span class="n">cptype</span><span class="si">!r}</span><span class="s2">; use a PartitionCutType member or its name."</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"partition_path(): unsupported cut type </span><span class="si">{</span><span class="n">cptype</span><span class="si">!r}</span><span class="s2">; use a PartitionCutType member or its name."</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_partition_cutpath</span><span class="p">(</span>
@@ -2293,7 +2320,7 @@
 
     <span class="k">if</span> <span class="n">is_num</span><span class="p">(</span><span class="n">cptype</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">cptype</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># type: ignore[operator]</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"flat section length must be positive."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"flat section length must be positive."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">cptype</span><span class="p">),</span> <span class="mi">0</span><span class="p">]])</span>
     <span class="k">if</span> <span class="n">invert</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_yscale</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">_ptn_sect</span><span class="p">(</span><span class="n">cptype</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">))</span>
@@ -2319,7 +2346,7 @@
         <span class="k">if</span> <span class="n">opt</span> <span class="ow">and</span> <span class="n">opt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="n">opt</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">opt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>  <span class="c1"># "3x": repeat</span>
             <span class="n">reps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opt</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">reps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"repetition count must be positive."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"repetition count must be positive."</span><span class="p">)</span>
             <span class="n">sect</span> <span class="o">=</span> <span class="n">_ptn_sect</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
             <span class="n">w</span> <span class="o">=</span> <span class="n">sect</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2329,15 +2356,15 @@
         <span class="k">if</span> <span class="n">opt</span> <span class="ow">and</span> <span class="n">opt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">"x"</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">:</span>  <span class="c1"># "30x20": resize</span>
             <span class="n">parts</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"size modifier must be LENGTHxWIDTH, e.g. '30x25'."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"size modifier must be LENGTHxWIDTH, e.g. '30x25'."</span><span class="p">)</span>
             <span class="n">new_length</span><span class="p">,</span> <span class="n">new_width</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">new_length</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">new_width</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"size modifier </span><span class="si">{</span><span class="n">opt</span><span class="si">!r}</span><span class="s2"> needs a positive LENGTH and WIDTH, e.g. '30x25'."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"size modifier </span><span class="si">{</span><span class="n">opt</span><span class="si">!r}</span><span class="s2"> needs a positive LENGTH and WIDTH, e.g. '30x25'."</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">_ptn_sect</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">new_length</span><span class="p">,</span> <span class="n">new_width</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"skew:"</span><span class="p">):</span>
             <span class="n">angle</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">45</span> <span class="o">&lt;=</span> <span class="n">angle</span> <span class="o">&lt;=</span> <span class="mi">45</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"skew angle must be between -45 and 45."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"skew angle must be between -45 and 45."</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">_skew</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">_ptn_sect</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"pinch:"</span><span class="p">):</span>
             <span class="n">val_str</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
@@ -2357,7 +2384,7 @@
             <span class="k">return</span> <span class="n">Path2D</span><span class="p">([[(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">midx</span><span class="p">)</span> <span class="o">*</span> <span class="n">_lerp</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">pcnt</span> <span class="o">/</span> <span class="mi">100</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">maxy</span><span class="p">)</span> <span class="o">+</span> <span class="n">midx</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">base</span> <span class="o">==</span> <span class="s2">"flat"</span> <span class="ow">and</span> <span class="n">opt</span> <span class="ow">and</span> <span class="n">opt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="ow">and</span> <span class="s2">"x"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt</span> <span class="ow">and</span> <span class="s2">":"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">opt</span><span class="p">),</span> <span class="mi">0</span><span class="p">]])</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"partition_path(): unknown section option </span><span class="si">{</span><span class="n">opt</span><span class="si">!r}</span><span class="s2">; expected a repeat count, "</span>
             <span class="sa">f</span><span class="s2">"'WIDTHxLENGTH', 'skew:ANGLE' or 'pinch:VALUE'."</span>
         <span class="p">)</span>
@@ -2387,17 +2414,17 @@
     <span class="k">elif</span> <span class="n">cptype</span> <span class="o">==</span> <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">COMB</span><span class="p">:</span>
         <span class="n">dx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="n">length</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dx</span> <span class="o">&lt;=</span> <span class="mf">0.5</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"width-to-length ratio too large for comb form."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"width-to-length ratio too large for comb form."</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">dx</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
     <span class="k">elif</span> <span class="n">cptype</span> <span class="o">==</span> <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">FINGER</span><span class="p">:</span>
         <span class="n">dx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="n">length</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dx</span> <span class="o">&lt;=</span> <span class="mf">0.5</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"width-to-length ratio too large for finger form."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"width-to-length ratio too large for finger form."</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="n">dx</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dx</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
     <span class="k">elif</span> <span class="n">cptype</span> <span class="o">==</span> <span class="n">PartitionCutType</span><span class="o">.</span><span class="n">DOVETAIL</span><span class="p">:</span>
         <span class="n">dx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">9</span><span class="p">))</span> <span class="o">*</span> <span class="n">width</span> <span class="o">/</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">dx</span> <span class="o">&lt;</span> <span class="mf">0.25</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"width-to-length ratio too large for dovetail form."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"width-to-length ratio too large for dovetail form."</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">[</span><span class="mf">0.25</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
@@ -2464,7 +2491,7 @@
         <span class="c1"># defensive: every caller passes a number, a str/PartitionCutType, or a</span>
         <span class="c1"># point sequence. partition_path() rejects anything else in its own loop, and the mask</span>
         <span class="c1"># entry points iterate cutpath before they get here, so a stray type never reaches this.</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got </span><span class="si">{</span><span class="n">cptype</span><span class="si">!r}</span><span class="s2">."</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">_scale2</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
@@ -2529,7 +2556,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_ptn_sect</span><span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="n">seglen</span><span class="p">,</span> <span class="n">segwidth</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got </span><span class="si">{</span><span class="n">pd</span><span class="si">!r}</span><span class="s2">."</span>
                 <span class="p">)</span>
     <span class="n">min_xs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
@@ -2547,7 +2574,7 @@
     <span class="k">if</span> <span class="n">y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">redirpath</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">min_y</span> <span class="ow">or</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">max_y</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"partition_path(): closing y would make the path self-crossing."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"partition_path(): closing y would make the path self-crossing."</span><span class="p">)</span>
     <span class="n">closedpath</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="n">redirpath</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">],</span> <span class="p">[</span><span class="n">redirpath</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="p">]]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">redirpath</span><span class="p">)</span>
     <span class="n">outpath</span> <span class="o">=</span> <span class="n">closedpath</span> <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">closedpath</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -2832,7 +2859,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cpv</span> <span class="o">=</span> <span class="n">_as_vec3</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">center_pt</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
+            <span class="n">center_pt</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_center_size</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
             <span class="n">reach</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">size</span><span class="p">))</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cpv</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">center_pt</span><span class="p">)))</span>
             <span class="n">s</span> <span class="o">=</span> <span class="mf">2.2</span> <span class="o">*</span> <span class="n">reach</span> <span class="o">+</span> <span class="mf">2.0</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_half_mask</span><span class="p">(</span><span class="n">v3</span><span class="p">,</span> <span class="n">cpv</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">cut_path</span><span class="p">,</span> <span class="n">cut_angle</span><span class="p">,</span> <span class="n">offset</span><span class="p">))</span>  <span class="c1"># type: ignore[attr-defined, no-any-return]</span></div>
@@ -2997,7 +3024,7 @@
 <span class="sd">                halves[0].show()</span>
 
 <span class="sd">        """</span>
-        <span class="n">center_pt</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
+        <span class="n">center_pt</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_center_size</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
         <span class="n">cs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">cutsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cutsize</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">cutsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cutsize</span><span class="p">]</span>  <span class="c1"># type: ignore[operator, list-item]</span>
         <span class="n">sp</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">spin</span><span class="p">)</span>
         <span class="n">c</span><span class="p">,</span> <span class="n">sn</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">sp</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>

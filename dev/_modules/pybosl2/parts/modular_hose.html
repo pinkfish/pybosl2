@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2051,6 +2075,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">Turtle2DState</span><span class="p">,</span> <span class="n">TurtleCommand</span><span class="p">,</span> <span class="n">turtle2d</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.turtle</span><span class="w"> </span><span class="kn">import</span> <span class="n">TurtleCommandType</span> <span class="k">as</span> <span class="n">TCT</span>  <span class="c1"># noqa: N817</span>
@@ -2218,12 +2244,12 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_SIZES</span><span class="p">[</span><span class="n">size</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s1">'modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
 
 <div class="viewcode-block" id="HoseSegment">
 <a class="viewcode-back" href="../../../parts/modular_hose.html#pybosl2.parts.modular_hose.HoseSegment">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">HoseSegment</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HoseSegment</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A modular-hose ball end, socket end, or full segment.</span>
 
 <span class="sd">    *size* is 0.25, 0.5 or 0.75 (the 1/4", 1/2", 3/4" hose families).  *type*</span>
@@ -2276,7 +2302,7 @@
         <span class="n">bigend</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span> <span class="o">+</span> <span class="n">cl</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span> <span class="o">-</span> <span class="n">bmy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">big</span><span class="p">]</span>
         <span class="n">mid</span> <span class="o">=</span> <span class="n">_WAIST</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="k">if</span> <span class="n">waist_len</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">waist_len</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">mid</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"waist_len must be nonnegative."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"waist_len must be nonnegative."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">in</span> <span class="p">(</span><span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span><span class="p">,):</span>
             <span class="n">shape</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">mid</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">smallend</span><span class="p">]</span> <span class="o">+</span> <span class="p">[[</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="n">y</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">bigend</span><span class="p">]</span>
@@ -2291,7 +2317,7 @@
                 <span class="p">[</span><span class="n">bigend</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span>
             <span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"modular_hose(): type must be one of BALL/SMALL/SOCKET/BIG/SEGMENT."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"modular_hose(): type must be one of BALL/SMALL/SOCKET/BIG/SEGMENT."</span><span class="p">)</span>
 
         <span class="p">(</span><span class="n">_mnx</span><span class="p">,</span> <span class="n">mny</span><span class="p">),</span> <span class="p">(</span><span class="n">mxx</span><span class="p">,</span> <span class="n">mxy</span><span class="p">)</span> <span class="o">=</span> <span class="n">_bounds</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
         <span class="n">cy</span> <span class="o">=</span> <span class="p">(</span><span class="n">mny</span> <span class="o">+</span> <span class="n">mxy</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>

@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2059,6 +2083,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">INCH</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">sphere</span><span class="p">,</span> <span class="n">torus</span><span class="p">,</span> <span class="n">tube</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -2227,7 +2252,7 @@
         <span class="n">bt</span> <span class="o">=</span> <span class="n">_BY_TRADE_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trade_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bt</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <span class="c1"># Map trade-name strings to BearingType enum members.</span>
@@ -2913,7 +2938,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_BEARINGS</span><span class="p">[</span><span class="n">trade_size</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported ball bearing trade size: </span><span class="si">{</span><span class="n">trade_size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="BallBearings.ball_bearing">
@@ -2974,11 +2999,11 @@
                 <span class="n">spec</span><span class="o">.</span><span class="n">shielded</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="n">inner_diameter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give inner_diameter."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give inner_diameter."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">outer_diameter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give outer_diameter."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give outer_diameter."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give width."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"ball_bearing(): must give width."</span><span class="p">)</span>
 
         <span class="n">mid_d</span> <span class="o">=</span> <span class="p">(</span><span class="n">inner_diameter</span> <span class="o">+</span> <span class="n">outer_diameter</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="n">wall</span> <span class="o">=</span> <span class="p">(</span><span class="n">outer_diameter</span> <span class="o">-</span> <span class="n">inner_diameter</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span>

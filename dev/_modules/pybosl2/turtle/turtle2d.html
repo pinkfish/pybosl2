@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2056,6 +2080,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_frag_count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">general_line_intersection</span><span class="p">,</span> <span class="n">line_normal</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
@@ -2239,7 +2264,7 @@
             <span class="k">if</span> <span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span> <span class="o">==</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">XYZMOVE</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_xymove</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'Turtle command "</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" involves the z-axis and is not valid in 2-D at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
 
@@ -2285,7 +2310,7 @@
                 <span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="mi">0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="mi">1</span><span class="p">)),</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"untilx" never reaches the goal at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"untilx" never reaches the goal at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">with_point</span><span class="p">([</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">ct</span> <span class="o">==</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">UNTILY</span><span class="p">:</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">general_line_intersection</span><span class="p">(</span>
@@ -2296,7 +2321,7 @@
                 <span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">)),</span> <span class="n">Point</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">))),</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"untily" never reaches the goal at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"untily" never reaches the goal at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">with_point</span><span class="p">([</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y</span><span class="p">])</span>
         <span class="k">elif</span> <span class="n">ct</span> <span class="o">==</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">LEFT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">with_step</span><span class="p">(</span><span class="n">_rot2</span><span class="p">(</span><span class="n">ang</span> <span class="k">if</span> <span class="n">ang</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="n">step</span><span class="p">))</span>
@@ -2315,7 +2340,7 @@
                 <span class="n">v0</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="n">v1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mf">1e-12</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"setdir" z-component must be 0 for 2-D turtle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"setdir" z-component must be 0 for 2-D turtle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">norm</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="n">u</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">with_step</span><span class="p">([</span><span class="n">norm</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">norm</span> <span class="o">*</span> <span class="n">u</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -2345,7 +2370,7 @@
         <span class="k">elif</span> <span class="n">ct</span> <span class="o">==</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARCZROT</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arczrot</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown turtle command "</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown turtle command "</span><span class="si">{</span><span class="n">ct</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="c1"># -- 2-D specific commands -----------------------------------------------</span>
 
@@ -2380,7 +2405,7 @@
             <span class="n">v1</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parm</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mf">0.0</span>
             <span class="n">v2</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parm</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parm</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="mf">0.0</span>
         <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-12</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"xymove" z-component must be 0 for 2-D turtle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"xymove" z-component must be 0 for 2-D turtle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">with_point</span><span class="p">([</span><span class="n">lastpt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">v0</span><span class="p">,</span> <span class="n">lastpt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">v1</span><span class="p">])</span>
 
     <span class="c1"># -- arc handling --------------------------------------------------------</span>
@@ -2394,7 +2419,7 @@
 <span class="w">        </span><span class="sd">"""Execute an arc command (arcleft / arcright / arcleftto / arcrightto) in 2-D."""</span>
         <span class="n">radius_val</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">radius_val</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="n">lastpt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">lastpt</span>
         <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">step_arr</span>
@@ -2410,7 +2435,7 @@
             <span class="n">rot_step</span> <span class="o">=</span> <span class="n">_rot2</span><span class="p">(</span><span class="n">lrsign</span> <span class="o">*</span> <span class="n">myangle</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric angle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" needs a numeric angle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">radius</span> <span class="o">=</span> <span class="n">radius_val</span>
             <span class="n">ln2</span> <span class="o">=</span> <span class="n">line_normal</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">Point</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
             <span class="n">center</span> <span class="o">=</span> <span class="p">[</span><span class="n">lastpt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">lrsign</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">ln2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lastpt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">lrsign</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">ln2</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
@@ -2449,7 +2474,7 @@
 <span class="sd">        """</span>
         <span class="n">radius_val</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">radius</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">radius_val</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"arczrot" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"arczrot" needs a numeric radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
         <span class="n">lastpt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">lastpt</span>
         <span class="n">step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="o">.</span><span class="n">step_arr</span>
@@ -2503,7 +2528,7 @@
             <span class="n">TurtleCommand</span><span class="o">.</span><span class="n">RotationType</span><span class="o">.</span><span class="n">XROT</span><span class="p">,</span>
             <span class="n">TurtleCommand</span><span class="o">.</span><span class="n">RotationType</span><span class="o">.</span><span class="n">YROT</span><span class="p">,</span>
         <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">'Compound turtle command contains z-axis sub-command "</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">rotation_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
@@ -2515,7 +2540,7 @@
             <span class="ow">or</span> <span class="n">cmd</span><span class="o">.</span><span class="n">rrollto</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="ow">or</span> <span class="n">cmd</span><span class="o">.</span><span class="n">lrollto</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compound turtle command contains z-axis sub-commands at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Compound turtle command contains z-axis sub-commands at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="n">reverse</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">reverse</span>
         <span class="n">usersteps</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">steps</span> <span class="ow">or</span> <span class="mi">1</span>
@@ -2532,11 +2557,11 @@
         <span class="k">elif</span> <span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span> <span class="o">==</span> <span class="n">TurtleCommandType</span><span class="o">.</span><span class="n">ARC</span><span class="p">:</span>
             <span class="n">radius</span> <span class="o">=</span> <span class="n">movescale</span> <span class="o">*</span> <span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">radius</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">radius</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"arc" compound needs a non-zero radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"arc" compound needs a non-zero radius at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
             <span class="n">angle</span> <span class="o">=</span> <span class="n">cmd</span><span class="o">.</span><span class="n">angle</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="mi">0</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">angle</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"arc" compound needs a non-zero rotation angle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'"arc" compound needs a non-zero rotation angle at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
             <span class="n">lrsign</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">angle</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
             <span class="n">turn</span> <span class="o">=</span> <span class="n">lrsign</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
@@ -2563,7 +2588,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">rot_step</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">rot_step</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown compound command head "</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown compound command head "</span><span class="si">{</span><span class="n">cmd</span><span class="o">.</span><span class="n">cmd_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s1">" at index </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
 
 <span class="c1"># -- turtle2d function --------------------------------------------------------</span>

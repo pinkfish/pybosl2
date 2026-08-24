@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2055,6 +2079,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">prismoid</span><span class="p">,</span> <span class="n">sphere</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -2071,7 +2097,7 @@
 
 <div class="viewcode-block" id="LivingHingeMask">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.LivingHingeMask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LivingHingeMask</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LivingHingeMask</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A wedge mask to difference out of a plate to make a print-in-place living hinge.</span>
 
 <span class="sd">    Centre it on the bottom of a plate of thickness *thick*; it leaves ``2*layerheight``</span>
@@ -2148,7 +2174,7 @@
 
 <div class="viewcode-block" id="KnuckleHinge">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHinge">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">KnuckleHinge</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KnuckleHinge</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""One leaf of an interlocking knuckle hinge with a pin bore.</span>
 
 <span class="sd">    The hinge pin lies along X at the origin; the flat leaf extends in +Y (outer</span>
@@ -2200,7 +2226,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">segs</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"knuckle_hinge(): segs must be &gt;= 2."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"knuckle_hinge(): segs must be &gt;= 2."</span><span class="p">)</span>
         <span class="n">seglen</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="p">(</span><span class="n">segs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gap</span><span class="p">)</span> <span class="o">/</span> <span class="n">segs</span>
         <span class="n">mine</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">inner</span> <span class="k">else</span> <span class="mi">0</span>
 
@@ -2283,7 +2309,7 @@
 
 <div class="viewcode-block" id="KnuckleHingePair">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHingePair">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">KnuckleHingePair</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">KnuckleHingePair</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Both leaves of a knuckle hinge, meshed around one pin.</span>
 
 <span class="sd">    Set *fold* to rotate the inner leaf about the pin axis.  With *pin*, a pin</span>
@@ -2400,7 +2426,7 @@
 
 <div class="viewcode-block" id="SnapLock">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapLock">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SnapLock</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnapLock</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`.</span>
 
 <span class="sd">    Examples:</span>
@@ -2479,7 +2505,7 @@
 
 <div class="viewcode-block" id="SnapSocket">
 <a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapSocket">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">SnapSocket</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SnapSocket</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""The receiving socket for a :class:`SnapLock` tab.</span>
 
 <span class="sd">    Examples:</span>

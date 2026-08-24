@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2057,6 +2081,7 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Slider"</span><span class="p">,</span> <span class="s2">"Rail"</span><span class="p">]</span>
@@ -2067,7 +2092,7 @@
 
 <div class="viewcode-block" id="Slider">
 <a class="viewcode-back" href="../../../parts/sliders.html#pybosl2.parts.sliders.Slider">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Slider</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Slider</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""V-groove slider (BOSL2 slider()).</span>
 
 <span class="sd">    The slider rides in a matching V-groove rail. Both print without support.</span>
@@ -2159,7 +2184,7 @@
             <span class="p">)</span><span class="o">.</span><span class="n">reorient</span><span class="p">(</span><span class="n">anchor</span><span class="o">=</span><span class="n">BOTTOM</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="n">LEFT</span><span class="p">)</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slid</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">_union</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">bounds</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -2198,7 +2223,7 @@
 
 <div class="viewcode-block" id="Rail">
 <a class="viewcode-back" href="../../../parts/sliders.html#pybosl2.parts.sliders.Rail">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Rail</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rail</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""V-groove rail (BOSL2 rail()).</span>
 
 <span class="sd">    A matching rail for the V-groove slider.</span>

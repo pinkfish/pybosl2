@@ -515,6 +515,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../foundational/flat.html" class="md-nav__link">
         
   
@@ -1588,7 +1612,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Hose<wbr>Segment</span></span>
+      <span title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: Buildable"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Hose<wbr>Segment</span></span>
     </span>
   </a>
   
@@ -2243,7 +2267,7 @@
       <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: object"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Hose<wbr>Segment</span></span>
+      <span title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: Buildable"><span>pybosl2.<wbr>parts.<wbr>modular_<wbr>hose.<wbr>Hose<wbr>Segment</span></span>
     </span>
   </a>
   
@@ -2428,13 +2452,13 @@
   &#9881;&#65039; <b><a href="specs/modular_hose.html">Spec sheet &rarr;</a></b>
   &nbsp;&mdash;&nbsp; visual schematic and metrics measured from a real rendered STL.
 </p><p>Pure-Python port of BOSL2’s <code class="docutils literal notranslate"><span class="pre">modular_hose.scad</span></code>: the ball-and-socket segments of a modular
-“Loc-Line” style adjustable/coolant hose. <a class="reference internal" href="#pybosl2.parts.modular_hose.HoseSegment" title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">HoseSegment</span></code></a>
+“Loc-Line” style adjustable/coolant hose. <a class="reference internal" href="#pybosl2.parts.modular_hose.HoseSegment" title="pybosl2.parts.modular_hose.HoseSegment (Python class) — Bases: Buildable"><code class="xref py py-class docutils literal notranslate"><span class="pre">HoseSegment</span></code></a>
 revolves a ball end, a socket end, or a full segment for the 1/4”, 1/2” and 3/4” sizes;
 <a class="reference internal" href="#pybosl2.parts.modular_hose.modular_hose_radius" title="pybosl2.parts.modular_hose.modular_hose_radius (Python function) — Return the inner (bore) or outer radius of a modular hose of size."><code class="xref py py-func docutils literal notranslate"><span class="pre">modular_hose_radius()</span></code></a> gives the bore radius.</p>
 <dl class="py class objdesc">
 <dt class="sig sig-object highlight sig-wrap py" id="pybosl2.parts.modular_hose.HoseSegment">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pybosl2.parts.modular_hose.</span></span><span class="sig-name descname"><span class="pre">HoseSegment</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.size" title="pybosl2.parts.modular_hose.HoseSegment.__init__.size (Python parameter)"><span class="n"><span class="pre">size</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.type" title="pybosl2.parts.modular_hose.HoseSegment.__init__.type (Python parameter)"><span class="n"><span class="pre">type</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="n">HoseType</span><span class="o">.</span><span class="n">SEGMENT</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.clearance" title="pybosl2.parts.modular_hose.HoseSegment.__init__.clearance (Python parameter)"><span class="n"><span class="pre">clearance</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="mi">0</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.waist_len" title="pybosl2.parts.modular_hose.HoseSegment.__init__.waist_len (Python parameter)"><span class="n"><span class="pre">waist_len</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fn" title="pybosl2.parts.modular_hose.HoseSegment.__init__.fn (Python parameter)"><span class="n"><span class="pre">fn</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fa" title="pybosl2.parts.modular_hose.HoseSegment.__init__.fa (Python parameter)"><span class="n"><span class="pre">fa</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.parts.modular_hose.HoseSegment.__init__.fs" title="pybosl2.parts.modular_hose.HoseSegment.__init__.fs (Python parameter)"><span class="n"><span class="pre">fs</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">None</span></code></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/parts/modular_hose.html#HoseSegment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.parts.modular_hose.HoseSegment" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Buildable</span></code></p>
 <p>A modular-hose ball end, socket end, or full segment.</p>
 <p><em>size</em> is 0.25, 0.5 or 0.75 (the 1/4”, 1/2”, 3/4” hose families).  <em>type</em>
 is a <code class="xref py py-class docutils literal notranslate"><span class="pre">HoseType</span></code> enum value.  <em>clearance</em> loosens the fit.</p>

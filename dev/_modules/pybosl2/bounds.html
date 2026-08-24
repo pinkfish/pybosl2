@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2038,18 +2062,31 @@
 
 <span class="sd">"""Axis-aligned bounding boxes for 2-D and 3-D geometry.</span>
 
-<span class="sd">Provides :class:`Bounds2D` and :class:`Bounds3D` dataclasses returned</span>
-<span class="sd">by :meth:`Path2D.bounds`, :meth:`Path3D.bounds`, and solid bounding-box</span>
-<span class="sd">methods throughout pybosl2. Each holds the min/max corners and</span>
-<span class="sd">pre-computed width/length (or width/length/height) so users can write</span>
-<span class="sd">``path.bounds().width`` instead of ``path.bounds()[1][0] - path.bounds()[0][0]``.</span>
+<span class="sd">:class:`Bounds2D` and :class:`Bounds3D` are what **every** ``bounds()`` in pybosl2 returns</span>
+<span class="sd">(SPEC S-2b) -- shapes on either backend, :class:`~pybosl2.path2d.Path2D`,</span>
+<span class="sd">:class:`~pybosl2.path3d.Path3D`, :class:`~pybosl2.regions.Region` and :class:`~pybosl2.vnf.VNF`.</span>
+<span class="sd">One name, one meaning: ``bounds()`` answers a box, and the box carries every spelling of itself</span>
+<span class="sd">so no caller has to do the arithmetic and no implementation has to pick a winner::</span>
+
+<span class="sd">    box = cuboid([40, 30, 20]).bounds()</span>
+<span class="sd">    box.min, box.max        # corners, as Points</span>
+<span class="sd">    box.center, box.size    # centre and extent</span>
+<span class="sd">    box.width               # or .length / .height</span>
+
+<span class="sd">They used to disagree -- shapes answered a bare ``(centre, size)`` pair, paths and meshes a</span>
+<span class="sd">dataclass, regions a NumPy array -- so ``lo, hi = solid.bounds()``, the obvious reading of the</span>
+<span class="sd">name, silently bound a *centre* to ``lo``. These types are the single answer.</span>
 <span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Bounds2D"</span><span class="p">,</span> <span class="s2">"Bounds3D"</span><span class="p">]</span>
 
@@ -2079,7 +2116,73 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""The (width, length) of the bounding box."""</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The lower corner as a 2-D :class:`~pybosl2.points.Point`."""</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_y</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The upper corner as a 2-D :class:`~pybosl2.points.Point`."""</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_y</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Bounds2D.from_min_max">
+<a class="viewcode-back" href="../../math/bounds.html#pybosl2.bounds.Bounds2D.from_min_max">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_min_max</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lo</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">hi</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bounds2D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build from the two opposite corners.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lo: the lower corner, ``[x, y]``.</span>
+<span class="sd">            hi: the upper corner, ``[x, y]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The bounding box, with width and length derived.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; Bounds2D.from_min_max([0, 0], [10, 5]).size</span>
+<span class="sd">            (10.0, 5.0)</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">min_x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">min_y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">max_x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">max_y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">width</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">length</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Bounds2D.from_center_size">
+<a class="viewcode-back" href="../../math/bounds.html#pybosl2.bounds.Bounds2D.from_center_size">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_center_size</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bounds2D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build from a centre point and an extent.</span>
+
+<span class="sd">        This is the form the native backends report, so it is the conversion every shape's</span>
+<span class="sd">        ``bounds()`` goes through rather than doing the halving inline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            center: the box centre, ``[x, y]``.</span>
+<span class="sd">            size: the box extent, ``[width, length]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The bounding box, with the corners derived.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; Bounds2D.from_center_size([0, 0], [10, 5]).min_x</span>
+<span class="sd">            -5.0</span>
+
+<span class="sd">        """</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_min_max</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="n">half</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">half</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">half</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">half</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+        <span class="p">)</span></div>
+</div>
 
 
 
@@ -2116,7 +2219,76 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""The (width, length, height) of the bounding box."""</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The lower corner as a 3-D :class:`~pybosl2.points.Point`."""</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_z</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The upper corner as a 3-D :class:`~pybosl2.points.Point`."""</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_z</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Bounds3D.from_min_max">
+<a class="viewcode-back" href="../../math/bounds.html#pybosl2.bounds.Bounds3D.from_min_max">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_min_max</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">lo</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">hi</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bounds3D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build from the two opposite corners.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lo: the lower corner, ``[x, y, z]``.</span>
+<span class="sd">            hi: the upper corner, ``[x, y, z]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The bounding box, with width, length and height derived.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; Bounds3D.from_min_max([0, 0, 0], [10, 5, 2]).size</span>
+<span class="sd">            (10.0, 5.0, 2.0)</span>
+
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">min_x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">min_y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">min_z</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">max_x</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">max_y</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">max_z</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">width</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">length</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">height</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">hi</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">lo</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Bounds3D.from_center_size">
+<a class="viewcode-back" href="../../math/bounds.html#pybosl2.bounds.Bounds3D.from_center_size">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_center_size</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">center</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="s2">"Sequence[float]"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Bounds3D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build from a centre point and an extent.</span>
+
+<span class="sd">        This is the form the native backends report, so it is the conversion every solid's</span>
+<span class="sd">        ``bounds()`` goes through rather than doing the halving inline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            center: the box centre, ``[x, y, z]``.</span>
+<span class="sd">            size: the box extent, ``[width, length, height]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The bounding box, with the corners derived.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; Bounds3D.from_center_size([0, 0, 0], [40, 30, 20]).min_z</span>
+<span class="sd">            -10.0</span>
+
+<span class="sd">        """</span>
+        <span class="n">half</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_min_max</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">-</span> <span class="n">half</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span>
+            <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">half</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span>
+        <span class="p">)</span></div>
+</div>
 
 </code></pre></div>
 

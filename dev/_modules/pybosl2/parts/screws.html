@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2062,6 +2086,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">NutShape</span><span class="p">,</span> <span class="n">ScrewDriveType</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="p">,</span> <span class="n">ThreadPitchClass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">regular_prism</span>
 
@@ -2443,13 +2469,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">head_angle</span> <span class="o">=</span> <span class="mf">90.0</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">head_height</span> <span class="o">=</span> <span class="p">(</span><span class="n">spec_f</span><span class="o">.</span><span class="n">actual_d</span> <span class="o">-</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown head type "</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unknown head type "</span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_lookup_pitch</span><span class="p">(</span><span class="n">diam</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">thread</span><span class="p">:</span> <span class="n">ThreadPitchClass</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">diam</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ISO_THREAD</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown metric screw size M</span><span class="si">{</span><span class="n">diam</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown metric screw size M</span><span class="si">{</span><span class="n">diam</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">_ISO_THREAD</span><span class="p">[</span><span class="n">diam</span><span class="p">]</span><span class="o">.</span><span class="n">pitch</span><span class="p">(</span><span class="n">thread</span><span class="p">))</span>
 
 
@@ -2463,7 +2489,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">hs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="c1"># defensive: ScrewSpec fills head_size from the standard tables for every head type it</span>
         <span class="c1"># accepts, so a spec that names a head always carries its size.</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"head_size not set for head type </span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"head_size not set for head type </span><span class="si">{</span><span class="n">head</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">head</span> <span class="o">==</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">HEX</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">regular_prism</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">hh</span><span class="p">,</span> <span class="n">inner_diameter</span><span class="o">=</span><span class="n">hs</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">hh</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">head</span> <span class="ow">in</span> <span class="p">(</span><span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET</span><span class="p">,</span> <span class="n">ScrewHeadType</span><span class="o">.</span><span class="n">SOCKET_RIBBED</span><span class="p">):</span>
@@ -2501,7 +2527,7 @@
 
 <div class="viewcode-block" id="Screw">
 <a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.Screw">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Screw</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Screw</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A metric screw: threaded (or plain) shaft plus a head with an optional drive recess.</span>
 
 <span class="sd">    Examples:</span>
@@ -2634,25 +2660,13 @@
             <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">-</span> <span class="n">recess</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="n">result</span>
-        <span class="k">return</span> <span class="n">result</span>
-
-<div class="viewcode-block" id="Screw.show">
-<a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.Screw.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the screw in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="n">result</span></div>
 
 
 
 <div class="viewcode-block" id="Nut">
 <a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.Nut">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Nut</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Nut</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A hex or square nut with a threaded hole.</span>
 
 <span class="sd">    Examples:</span>
@@ -2746,25 +2760,13 @@
             <span class="n">fa</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fa</span><span class="p">,</span>
             <span class="n">fs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_fs</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">shape</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="Nut.show">
-<a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.Nut.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the nut in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
 <div class="viewcode-block" id="ScrewHole">
 <a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.ScrewHole">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ScrewHole</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScrewHole</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A hole cutter for a screw: clearance shaft plus optional countersink/counterbore.</span>
 
 <span class="sd">    Returns a solid to *subtract* from your part.  The clearance shaft occupies</span>
@@ -2896,19 +2898,7 @@
             <span class="n">cutter</span> <span class="o">=</span> <span class="n">cutter</span> <span class="o">|</span> <span class="n">cb</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="n">cutter</span>
-        <span class="k">return</span> <span class="n">cutter</span>
-
-<div class="viewcode-block" id="ScrewHole.show">
-<a class="viewcode-back" href="../../../parts/screws.html#pybosl2.parts.screws.ScrewHole.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the hole cutter in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="n">cutter</span></div>
 
 
 

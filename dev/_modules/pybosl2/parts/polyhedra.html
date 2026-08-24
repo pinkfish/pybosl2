@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2051,10 +2075,11 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vnf</span><span class="w"> </span><span class="kn">import</span> <span class="n">VNF</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -2249,7 +2274,7 @@
 
 <div class="viewcode-block" id="RegularPolyhedron">
 <a class="viewcode-back" href="../../../parts/polyhedra.html#pybosl2.parts.polyhedra.RegularPolyhedron">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">RegularPolyhedron</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegularPolyhedron</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A regular Platonic solid, sized by circumradius, diameter, inradius, or side.</span>
 
 <span class="sd">    *name* is a :class:`PlatonicSolid` enum.  The convenience class methods</span>
@@ -2339,18 +2364,6 @@
         <span class="c1"># larger than bounds() -- a cube of circumradius 1 measures 2/sqrt(3) across.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="n">solid</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="RegularPolyhedron.show">
-<a class="viewcode-back" href="../../../parts/polyhedra.html#pybosl2.parts.polyhedra.RegularPolyhedron.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the polyhedron in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-
 
 <div class="viewcode-block" id="RegularPolyhedron.tetrahedron">
 <a class="viewcode-back" href="../../../parts/polyhedra.html#pybosl2.parts.polyhedra.RegularPolyhedron.tetrahedron">[docs]</a>

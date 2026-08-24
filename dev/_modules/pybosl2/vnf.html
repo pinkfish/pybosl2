@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2055,16 +2079,19 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._mctable</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORNER_OFFSETS</span><span class="p">,</span> <span class="n">EDGE_CORNERS</span><span class="p">,</span> <span class="n">TRI_TABLE</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds2D</span><span class="p">,</span> <span class="n">Bounds3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SamplingType</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">FilePath</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
@@ -2878,7 +2905,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plane</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"halfspace(): plane must be [A, B, C, D]."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"halfspace(): plane must be [A, B, C, D]."</span><span class="p">)</span>
         <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">plane</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">plane</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
         <span class="n">verts_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">verts_in</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -3000,6 +3027,95 @@
         <span class="k">return</span> <span class="n">above</span><span class="p">,</span> <span class="n">below</span></div>
 
 
+<div class="viewcode-block" id="VNF.export">
+<a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.export">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="s2">"str | os.PathLike[str]"</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">file_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"FilePath"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Write this mesh to a file (SPEC S-53).</span>
+
+<span class="sd">        Pure Python and numpy -- no CAD runtime -- so a mesh built with no kernel present can be</span>
+<span class="sd">        saved with none present either (SPEC S-54, A-2).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: destination file. Its suffix picks the format -- ``.stl``, ``.obj``, ``.off``,</span>
+<span class="sd">                ``.ply`` -- unless *file_format* overrides it.</span>
+<span class="sd">            file_format: explicit format name (``"stl"``, ``"stla"`` for ASCII STL, ``"obj"``,</span>
+<span class="sd">                ``"off"``, ``"ply"``).</span>
+<span class="sd">            check: validate the mesh first and refuse to write one that is open or wound inside</span>
+<span class="sd">                out (SPEC S-55). ``False`` for a surface that is open on purpose.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path written.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If the format is unknown, or *check* is on and the mesh is not a</span>
+<span class="sd">                closed, outward-wound solid.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import Path2D</span>
+
+<span class="sd">                bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)</span>
+<span class="sd">                bar.vnf.export("bar.stl")</span>
+<span class="sd">                bar.show()</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">_FilePath</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_mesh</span>
+
+        <span class="k">return</span> <span class="n">write_mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_FilePath</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">file_format</span><span class="o">=</span><span class="n">file_format</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="n">check</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VNF.from_solid">
+<a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.from_solid">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_solid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">solid</span><span class="p">:</span> <span class="s2">"Solid"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"VNF"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Mesh *solid* into a VNF (SPEC C-8).</span>
+
+<span class="sd">        The way back across the boundary :meth:`polyhedron` crosses the other way, so anything the</span>
+<span class="sd">        library can build can also be measured, joined or exported without the caller reaching for</span>
+<span class="sd">        a native handle. Faces come back wound the way the native layer wants them and are</span>
+<span class="sd">        reversed on the way in, matching the convention :meth:`volume` and :meth:`polyhedron`</span>
+<span class="sd">        assume: counter-clockwise seen from outside, positive volume for a solid.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            solid: any 3-D shape on any backend.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The mesh, as an ordinary :class:`VNF`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If the solid produced no geometry to mesh.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            .. pythonscad-example::</span>
+
+<span class="sd">                from pybosl2 import cuboid, VNF</span>
+
+<span class="sd">                mesh = VNF.from_solid(cuboid([20, 20, 20]))</span>
+<span class="sd">                print(mesh.volume())      # 8000.0</span>
+<span class="sd">                mesh.polyhedron().show()</span>
+
+<span class="sd">        """</span>
+        <span class="c1"># A CSG shape wraps its native handle as `.shape`; an SDF shape has none until its field is</span>
+        <span class="c1"># meshed, and `mesh()` there hands back the native solid rather than the vertices.</span>
+        <span class="n">native</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">solid</span><span class="p">,</span> <span class="s2">"shape"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">native</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">native</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Any"</span><span class="p">,</span> <span class="n">solid</span><span class="p">)</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+            <span class="n">native</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">native</span><span class="p">,</span> <span class="s2">"shape"</span><span class="p">,</span> <span class="n">native</span><span class="p">)</span>
+        <span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span> <span class="o">=</span> <span class="n">native</span><span class="o">.</span><span class="n">mesh</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">faces</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"VNF.from_solid(): the solid meshed to nothing -- is it empty?"</span><span class="p">)</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">],</span>
+            <span class="p">[[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">f</span><span class="p">))]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">mesh</span> <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">mesh</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span></div>
+
+
 <div class="viewcode-block" id="VNF.vertex_array">
 <a class="viewcode-back" href="../../paths/vnf.html#pybosl2.vnf.VNF.vertex_array">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -3055,9 +3171,9 @@
         <span class="n">make_cap1</span><span class="p">,</span> <span class="n">cap1_round</span> <span class="o">=</span> <span class="n">_resolve_cap</span><span class="p">(</span><span class="n">cap1</span><span class="p">)</span>
         <span class="n">make_cap2</span><span class="p">,</span> <span class="n">cap2_round</span> <span class="o">=</span> <span class="n">_resolve_cap</span><span class="p">(</span><span class="n">cap2</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">make_cap1</span> <span class="ow">or</span> <span class="n">make_cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">col_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column."</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">make_cap1</span> <span class="ow">or</span> <span class="n">make_cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="s2">"vertex_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."</span>
             <span class="p">)</span>
 
@@ -3241,7 +3357,7 @@
 <span class="sd">        meshes triangular / irregular point arrays (what the degenerate bezier patches produce).</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">caps</span> <span class="ow">or</span> <span class="n">cap1</span> <span class="ow">or</span> <span class="n">cap2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">row_wrap</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="s2">"tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."</span>
             <span class="p">)</span>
         <span class="n">plen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
@@ -3316,7 +3432,7 @@
         <span class="c1"># The native polyhedron() rejects an empty point list with a bare "There must at least be</span>
         <span class="c1"># one point in the polyhedron"; say which VNF that came from instead.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"polyhedron(): this VNF has no geometry to build "</span>
                 <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span><span class="si">}</span><span class="s2"> faces)."</span>
             <span class="p">)</span>
@@ -3467,7 +3583,7 @@
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"from_field(): a callable field needs a bounding_box."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"from_field(): a callable field needs a bounding_box."</span><span class="p">)</span>
             <span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span> <span class="o">=</span> <span class="n">_resolve_grid</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">,</span> <span class="n">voxel_count</span><span class="p">,</span> <span class="n">exact_bounds</span><span class="p">)</span>
             <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span> <span class="o">=</span> <span class="n">_grid_axes</span><span class="p">(</span><span class="n">bb</span><span class="p">,</span> <span class="n">vs_final</span><span class="p">)</span>
             <span class="n">field</span> <span class="o">=</span> <span class="n">_sample_field</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">zs</span><span class="p">)</span>
@@ -3527,7 +3643,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">spec</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"from_metaballs(): the spec is empty."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"from_metaballs(): the spec is empty."</span><span class="p">)</span>
 
         <span class="n">bb</span><span class="p">:</span> <span class="n">Bounds3D</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bounding_box</span><span class="p">,</span> <span class="n">Bounds3D</span><span class="p">):</span>
@@ -3552,7 +3668,7 @@
                     <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">val</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">-</span> <span class="n">val</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"bounding_box list must have length 2, 3 or 6."</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"bounding_box list must have length 2, 3 or 6."</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"bounding_box must be Bounds3D, float, or list/tuple."</span><span class="p">)</span>
 

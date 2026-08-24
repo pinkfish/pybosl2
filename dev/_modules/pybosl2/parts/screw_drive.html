@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2063,6 +2087,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">CENTER</span><span class="p">,</span> <span class="n">INCH</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistributableMatrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cyl</span><span class="p">,</span> <span class="n">prismoid</span><span class="p">,</span> <span class="n">regular_prism</span>
 
@@ -2208,7 +2234,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="n">spec</span> <span class="o">=</span> <span class="n">_TORX</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported Torx size: </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported Torx size: </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"outer_diameter"</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"inner_diameter"</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"depth"</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -2298,7 +2324,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"robertson size must be an int 0..4, got </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"robertson size must be an int 0..4, got </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">_ROBERTSON</span><span class="p">[</span><span class="n">size</span><span class="p">]</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"m_min"</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"m_max"</span><span class="p">,</span> <span class="n">spec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -2379,13 +2405,13 @@
 <span class="w">    </span><span class="sd">"""Parse a Phillips size (int 0..4 or a string like ``"#2"``) into its integer number."""</span>
     <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"#"</span><span class="p">))</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"phillips size must be #0..#4, got </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"phillips size must be #0..#4, got </span><span class="si">{</span><span class="n">size</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">count</span>
 
 
 <div class="viewcode-block" id="PhillipsMask">
 <a class="viewcode-back" href="../../../parts/screw_drive.html#pybosl2.parts.screw_drive.PhillipsMask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PhillipsMask</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhillipsMask</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Phillips driver-recess mask for a given bit size (BOSL2 phillips_mask()).</span>
 
 <span class="sd">    The mask is positioned with its opening at the top and its bottom on the XY</span>
@@ -2542,7 +2568,7 @@
 
 <div class="viewcode-block" id="HexDriveMask">
 <a class="viewcode-back" href="../../../parts/screw_drive.html#pybosl2.parts.screw_drive.HexDriveMask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">HexDriveMask</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HexDriveMask</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Hex (Allen) driver-recess mask (BOSL2 hex_drive_mask()).</span>
 
 <span class="sd">    The recess is slightly oversized per the ISO standard; *slop* enlarges it</span>
@@ -2708,7 +2734,7 @@
 
 <div class="viewcode-block" id="TorxMask">
 <a class="viewcode-back" href="../../../parts/screw_drive.html#pybosl2.parts.screw_drive.TorxMask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TorxMask</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TorxMask</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Torx driver-recess mask: the 2-D profile extruded *l* tall (BOSL2 torx_mask()).</span>
 
 <span class="sd">    Examples:</span>
@@ -2796,7 +2822,7 @@
 
 <div class="viewcode-block" id="RobertsonMask">
 <a class="viewcode-back" href="../../../parts/screw_drive.html#pybosl2.parts.screw_drive.RobertsonMask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">RobertsonMask</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RobertsonMask</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Robertson/square driver-recess mask for square-drive sizes ``0``..``4`` (BOSL2 robertson_mask()).</span>
 
 <span class="sd">    Examples:</span>

@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2061,7 +2085,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span><span class="p">,</span> <span class="n">CENTER</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.distributors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistributableMatrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.masking</span><span class="w"> </span><span class="kn">import</span> <span class="n">chamfer_edge_mask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.solid</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">prismoid</span><span class="p">,</span> <span class="n">regular_prism</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -2121,7 +2147,7 @@
         <span class="k">return</span> <span class="mi">90</span><span class="p">,</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">hh</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># LEFT (-X)</span>
         <span class="k">return</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">hh</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cubetruss(clips=): unsupported clip direction </span><span class="si">{</span><span class="n">vec</span><span class="si">!r}</span><span class="s2"> (use FRONT/BACK/LEFT/RIGHT)"</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cubetruss(clips=): unsupported clip direction </span><span class="si">{</span><span class="n">vec</span><span class="si">!r}</span><span class="s2"> (use FRONT/BACK/LEFT/RIGHT)"</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_octagon_tunnel</span><span class="p">(</span>
@@ -2167,7 +2193,7 @@
 
 <div class="viewcode-block" id="TrussSegment">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussSegment">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussSegment</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussSegment</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A single cubetruss cube segment — a hollow cube lightened with octagonal tunnels.</span>
 
 <span class="sd">    Examples:</span>
@@ -2264,7 +2290,7 @@
 
 <div class="viewcode-block" id="Truss">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.Truss">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Truss</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Truss</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A truss assembled from a grid of cube segments.</span>
 
 <span class="sd">    *extents* is the number of cubes long, or an ``[X, Y, Z]`` count.  *clips*</span>
@@ -2390,7 +2416,7 @@
 
 <div class="viewcode-block" id="TrussSupport">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussSupport">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussSupport</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussSupport</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A diagonal support truss — a block cut on the diagonal and lightened.</span>
 
 <span class="sd">    *extents* is the vertical segment count, or an ``[X, Y, Z]`` count.</span>
@@ -2493,7 +2519,7 @@
 
 <div class="viewcode-block" id="TrussCorner">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussCorner">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussCorner</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussCorner</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A corner truss with arms jutting out in one or more directions.</span>
 
 <span class="sd">    *height* is the central column height in cubes.  *extents* is a scalar</span>
@@ -2591,7 +2617,7 @@
 
 <div class="viewcode-block" id="TrussClip">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussClip">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussClip</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussClip</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A pair of snap clips for the end of a truss.</span>
 
 <span class="sd">    Examples:</span>
@@ -2708,7 +2734,7 @@
 
 <div class="viewcode-block" id="TrussFoot">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussFoot">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussFoot</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussFoot</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A foot that clips onto the bottom of a truss for support.</span>
 
 <span class="sd">    Examples:</span>
@@ -2845,7 +2871,7 @@
 
 <div class="viewcode-block" id="TrussUClip">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussUClip">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussUClip</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussUClip</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A U-shaped clip that joins two trusses face to face.</span>
 
 <span class="sd">    Examples:</span>
@@ -2939,7 +2965,7 @@
 
 <div class="viewcode-block" id="TrussJoiner">
 <a class="viewcode-back" href="../../../parts/cubetruss.html#pybosl2.parts.cubetruss.TrussJoiner">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TrussJoiner</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TrussJoiner</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A joiner that clips two trusses end to end.</span>
 
 <span class="sd">    Examples:</span>

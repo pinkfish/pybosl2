@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2045,7 +2069,7 @@
 <span class="c1">#          "incremental" (rotation-minimizing frame via the double-reflection</span>
 <span class="c1">#          algorithm), "manual" (caller normals) and "natural" (the curve's own</span>
 <span class="c1">#          normal); twist, per-point/interpolated scale, open &amp; closed paths,</span>
-<span class="c1">#          flat caps on/off, user tangents, and the transforms=True mode.</span>
+<span class="c1">#          flat caps on/off, user tangents, and the frames path_sweep_transforms() returns.</span>
 <span class="c1">#      * skin(profiles, slices)     -- blend a stack of profiles (methods "direct"</span>
 <span class="c1">#          and "reindex")</span>
 <span class="c1">#      * linear_sweep(region, h)    -- extrude an outline with twist/scale/shift</span>
@@ -2087,6 +2111,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span><span class="p">,</span> <span class="n">has_decorative_caps</span><span class="p">,</span> <span class="n">norm_caps</span><span class="p">,</span> <span class="n">vnf_with_decorative_caps</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_facets</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResampleMethod</span><span class="p">,</span> <span class="n">RoundingMethod</span><span class="p">,</span> <span class="n">SamplingType</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">,</span> <span class="n">SweepMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply</span> <span class="k">as</span> <span class="n">_apply</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rot_about_axis</span><span class="p">,</span> <span class="n">rot_decode</span><span class="p">,</span> <span class="n">rot_inverse</span>
@@ -2094,6 +2119,27 @@
 
 <span class="n">UP</span> <span class="o">=</span> <span class="n">Point</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
 <span class="n">BACK</span> <span class="o">=</span> <span class="n">Point</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_solid</span><span class="p">(</span><span class="n">mesh</span><span class="p">:</span> <span class="s2">"VNF | Solid"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Realize a sweep's mesh as a solid on the active backend, keeping the mesh reachable.</span>
+
+<span class="sd">    SPEC S-19a: a sweep returns a `Solid`, so its result composes with `-`/`|`/`&amp;` and the</span>
+<span class="sd">    transforms like any other shape and a caller never appends `.polyhedron()` to a call that</span>
+<span class="sd">    already said "sweep this into a solid". The mesh stays available as `.vnf` for measuring,</span>
+<span class="sd">    joining or exporting with no CAD runtime (SPEC C-8), which is why it is stashed rather than</span>
+<span class="sd">    discarded.</span>
+
+<span class="sd">    A member that already built a Solid -- the decorative-cap path unions real geometry -- passes</span>
+<span class="sd">    straight through.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mesh</span><span class="p">,</span> <span class="n">VNF</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">mesh</span>
+    <span class="n">solid</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>
+    <span class="c1"># Stashed for `Solid.vnf` to hand back: meshing it again would be both slower and lossier than</span>
+    <span class="c1"># keeping the one the sweep already built.</span>
+    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">solid</span><span class="p">,</span> <span class="s2">"_vnf"</span><span class="p">,</span> <span class="n">mesh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">solid</span>
 
 
 <div class="viewcode-block" id="Sweepable">
@@ -2105,7 +2151,7 @@
 <a class="viewcode-back" href="../../paths/skin.html#pybosl2.skin.Sweepable.path_sweep">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">shape</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+        <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
         <span class="n">normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -2120,8 +2166,7 @@
         <span class="n">relaxed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
-        <span class="n">transforms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Sweep *shape* along this path.</span>
 
 <span class="sd">        *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"</span>
@@ -2140,10 +2185,10 @@
 
 <span class="sd">                square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]</span>
 <span class="sd">                helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]</span>
-<span class="sd">                Path3D(helix).path_sweep(square).polyhedron().show()</span>
+<span class="sd">                Path3D(helix).path_sweep(square).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_path_sweep</span><span class="p">(</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">_path_sweep</span><span class="p">(</span>
             <span class="n">shape</span><span class="p">,</span>
             <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D | Path3D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
@@ -2160,19 +2205,94 @@
             <span class="n">relaxed</span><span class="o">=</span><span class="n">relaxed</span><span class="p">,</span>
             <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
-            <span class="n">transforms</span><span class="o">=</span><span class="n">transforms</span><span class="p">,</span>
-        <span class="p">)</span></div>
+            <span class="n">transforms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"VNF"</span><span class="p">,</span> <span class="n">mesh</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Sweepable.path_sweep_transforms">
+<a class="viewcode-back" href="../../paths/skin.html#pybosl2.skin.Sweepable.path_sweep_transforms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep_transforms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
+        <span class="n">normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">twist_by_length</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="n">scale_by_length</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">symmetry</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">last_normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tangent</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">uniform</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">relaxed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">"""Return the 4x4 transforms :meth:`path_sweep` would place its cross sections with.</span>
+
+<span class="sd">        This used to be ``path_sweep(..., transforms=True)``, which made the return type depend on</span>
+<span class="sd">        an argument: every caller of the ordinary case paid for the flag with a union they could</span>
+<span class="sd">        not narrow, and the documented one-liner stopped type-checking. A flag that changes the</span>
+<span class="sd">        return type is a second function, so here it is (SPEC S-19b, PLAN T-6d).</span>
+
+<span class="sd">        The parameters are :meth:`path_sweep`'s, minus the ones that only affect the skin</span>
+<span class="sd">        (``caps``, ``style``) and the profile itself -- a transform list does not have a profile.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            method: how the cross section is oriented along the path.</span>
+<span class="sd">            normal: per-point normals, for ``SweepMethod.MANUAL``.</span>
+<span class="sd">            closed: the path loops back on itself.</span>
+<span class="sd">            twist: degrees of twist along the path.</span>
+<span class="sd">            twist_by_length: distribute the twist by arc length rather than by point index.</span>
+<span class="sd">            scale: scalar, 2-vector, per-point vector or Nx2 scaling along the path.</span>
+<span class="sd">            scale_by_length: distribute the scaling by arc length rather than by point index.</span>
+<span class="sd">            symmetry: rotational symmetry order of the profile.</span>
+<span class="sd">            last_normal: normal to land on at the far end.</span>
+<span class="sd">            tangent: explicit per-point tangents.</span>
+<span class="sd">            uniform: resample the path uniformly first.</span>
+<span class="sd">            relaxed: relax the frame rather than holding the normal exactly.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            One 4x4 matrix per cross section, as plain nested lists.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Placing your own geometry at each station along a path::</span>
+
+<span class="sd">                from pybosl2 import Path3D, cuboid</span>
+
+<span class="sd">                path = Path3D([[0, 0, 0], [0, 0, 10], [5, 0, 20]])</span>
+<span class="sd">                for matrix in path.path_sweep_transforms():</span>
+<span class="sd">                    cuboid([2, 2, 1]).multmatrix(matrix)</span>
+
+<span class="sd">        """</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="n">_path_sweep</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span>  <span class="c1"># a placeholder profile: only the frames are read</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D | Path3D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">normal</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
+            <span class="n">twist</span><span class="o">=</span><span class="n">twist</span><span class="p">,</span>
+            <span class="n">twist_by_length</span><span class="o">=</span><span class="n">twist_by_length</span><span class="p">,</span>
+            <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+            <span class="n">scale_by_length</span><span class="o">=</span><span class="n">scale_by_length</span><span class="p">,</span>
+            <span class="n">symmetry</span><span class="o">=</span><span class="n">symmetry</span><span class="p">,</span>
+            <span class="n">last_normal</span><span class="o">=</span><span class="n">last_normal</span><span class="p">,</span>
+            <span class="n">tangent</span><span class="o">=</span><span class="n">tangent</span><span class="p">,</span>
+            <span class="n">uniform</span><span class="o">=</span><span class="n">uniform</span><span class="p">,</span>
+            <span class="n">relaxed</span><span class="o">=</span><span class="n">relaxed</span><span class="p">,</span>
+            <span class="n">transforms</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"list[list[list[float]]]"</span><span class="p">,</span> <span class="n">placed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Sweepable.path_sweep2d">
 <a class="viewcode-back" href="../../paths/skin.html#pybosl2.skin.Sweepable.path_sweep2d">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_sweep2d</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">shape</span><span class="p">:</span> <span class="n">Path2D</span><span class="p">,</span>
+        <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Sweep 2-D *shape* along this 2-D path.</span>
 
 <span class="sd">        For each point on the profile, the path is offset by its X coordinate and lifted to Z = Y,</span>
@@ -2189,10 +2309,10 @@
 
 <span class="sd">                shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]</span>
 <span class="sd">                path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]</span>
-<span class="sd">                Path2D(path).path_sweep2d(shape).polyhedron().show()</span>
+<span class="sd">                Path2D(path).path_sweep2d(shape).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_path_sweep2d</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span><span class="n">_path_sweep2d</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Sweepable.linear_sweep">
@@ -2207,7 +2327,7 @@
         <span class="n">center</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Extrude this 2-D profile linearly with optional twist/scale/shift.</span>
 
 <span class="sd">        The profile is duplicated at *slices* positions along the Z axis; at each level the points</span>
@@ -2222,19 +2342,21 @@
 <span class="sd">                from pybosl2 import Path2D</span>
 
 <span class="sd">                square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]</span>
-<span class="sd">                Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()</span>
+<span class="sd">                Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_linear_sweep</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
-            <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
-            <span class="n">twist</span><span class="o">=</span><span class="n">twist</span><span class="p">,</span>
-            <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
-            <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span>
-            <span class="n">slices</span><span class="o">=</span><span class="n">slices</span><span class="p">,</span>
-            <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
-            <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
-            <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
+            <span class="n">_linear_sweep</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+                <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span>
+                <span class="n">twist</span><span class="o">=</span><span class="n">twist</span><span class="p">,</span>
+                <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
+                <span class="n">shift</span><span class="o">=</span><span class="n">shift</span><span class="p">,</span>
+                <span class="n">slices</span><span class="o">=</span><span class="n">slices</span><span class="p">,</span>
+                <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+                <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -2247,7 +2369,7 @@
         <span class="n">_closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
         <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Revolve this 2-D profile around the Z axis.</span>
 
 <span class="sd">        The profile is swept through *angle* degrees (default 360) around Z, starting at</span>
@@ -2261,15 +2383,17 @@
 <span class="sd">                from pybosl2 import Path2D</span>
 
 <span class="sd">                profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]</span>
-<span class="sd">                Path2D(profile).rotate_sweep(angle=360).polyhedron().show()</span>
+<span class="sd">                Path2D(profile).rotate_sweep(angle=360).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_rotate_sweep</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
-            <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span>
-            <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
-            <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
-            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
+            <span class="n">_rotate_sweep</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+                <span class="n">angle</span><span class="o">=</span><span class="n">angle</span><span class="p">,</span>
+                <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+                <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -2290,7 +2414,7 @@
         <span class="n">fn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Sweep this 2-D profile along a helix.</span>
 
 <span class="sd">        The profile follows a helical path of *height* and *radius* (or separate start/end radii)</span>
@@ -2323,24 +2447,26 @@
 <span class="sd">                from pybosl2 import Path2D</span>
 
 <span class="sd">                section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]</span>
-<span class="sd">                Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()</span>
+<span class="sd">                Path2D(section).spiral_sweep(height=40, radius=12, turns=5).show()</span>
 
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_spiral_sweep</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
-            <span class="n">height</span><span class="p">,</span>
-            <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
-            <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">,</span>
-            <span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span>
-            <span class="n">radius2</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span>
-            <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
-            <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span>
-            <span class="n">diameter2</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span>
-            <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
-            <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
-            <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
-            <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
-            <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
+            <span class="n">_spiral_sweep</span><span class="p">(</span>
+                <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">),</span>
+                <span class="n">height</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span>
+                <span class="n">turns</span><span class="o">=</span><span class="n">turns</span><span class="p">,</span>
+                <span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span>
+                <span class="n">radius2</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span>
+                <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">,</span>
+                <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span>
+                <span class="n">diameter2</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span>
+                <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+                <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span>
+                <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span>
+                <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -2352,17 +2478,19 @@
         <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="s2">"Solid"</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.</span>
 
 <span class="sd">        or Bosl2Solid (BOSL2 sweep()).</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">_sweep</span><span class="p">(</span>
-            <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)],</span>
-            <span class="n">transforms</span><span class="p">,</span>
-            <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
-            <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
-            <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">_as_solid</span><span class="p">(</span>
+            <span class="n">_sweep</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="bp">self</span><span class="p">)],</span>
+                <span class="n">transforms</span><span class="p">,</span>
+                <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
+                <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="p">)</span></div>
 </div>
 
@@ -2461,11 +2589,11 @@
 <span class="sd">    """</span>
     <span class="n">shape3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">path3d</span><span class="p">(</span><span class="n">shape</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape3</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"shape must be a path of at least 3 points."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"shape must be a path of at least 3 points."</span><span class="p">)</span>
     <span class="n">cap_specs</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
     <span class="n">ntrans</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">transforms</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">ntrans</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"transforms must be length 2 or more."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"transforms must be length 2 or more."</span><span class="p">)</span>
     <span class="n">hi</span> <span class="o">=</span> <span class="n">ntrans</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_apply</span><span class="p">(</span><span class="n">transforms</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">ntrans</span><span class="p">],</span> <span class="n">shape3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hi</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
 
@@ -2479,17 +2607,23 @@
         <span class="n">outdir2</span> <span class="o">=</span> <span class="p">[</span><span class="n">center2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">center1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">vnf_with_decorative_caps</span><span class="p">(</span><span class="n">vnf</span><span class="p">,</span> <span class="n">cap_specs</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="p">[</span><span class="n">center1</span><span class="p">,</span> <span class="n">center2</span><span class="p">],</span> <span class="p">[</span><span class="n">outdir1</span><span class="p">,</span> <span class="n">outdir2</span><span class="p">],</span> <span class="n">radius</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span>
+    <span class="n">vnf</span> <span class="o">=</span> <span class="n">VNF</span><span class="o">.</span><span class="n">vertex_array</span><span class="p">(</span>
         <span class="n">points</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="n">points</span><span class="p">,</span>
         <span class="n">caps</span><span class="o">=</span><span class="n">cap_specs</span><span class="p">,</span>
         <span class="n">col_wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">row_wrap</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
         <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># SPEC S-19c: every sweep hands back outward-facing normals. Whether vertex_array() winds this</span>
+    <span class="c1"># way depends on the direction the transform list runs, so it is normalised here -- the one</span>
+    <span class="c1"># exit `path_sweep`, `sweep` and `spiral_sweep` all leave through. Without it `path_sweep`</span>
+    <span class="c1"># produced the mirror of what `linear_sweep` produced for the same box (volume -1000 against</span>
+    <span class="c1"># +1000), and an inside-out mesh handed to polyhedron() *adds* material where it should cut.</span>
+    <span class="k">return</span> <span class="n">vnf</span> <span class="k">if</span> <span class="n">vnf</span><span class="o">.</span><span class="n">volume</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">vnf</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_sweep</span><span class="p">(</span>
-    <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="n">Path3D</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
     <span class="n">normal</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2516,7 +2650,7 @@
     <span class="n">patharr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">path3d</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">npts</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path must have at least 2 points."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path must have at least 2 points."</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">tangent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tangents</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">_u</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">path3d</span><span class="p">(</span><span class="n">tangent</span><span class="p">)])</span>
@@ -2624,12 +2758,12 @@
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nprofiles</span><span class="p">)</span>
         <span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"path_sweep(): unknown method </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">; use incremental, manual or natural."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"path_sweep(): unknown method </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">; use incremental, manual or natural."</span><span class="p">)</span>
 
     <span class="n">transform_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unscaled</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">scale_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unscaled</span><span class="p">))]</span>
     <span class="k">if</span> <span class="n">transforms</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">transform_list</span>
-    <span class="n">shp</span> <span class="o">=</span> <span class="n">clockwise_polygon</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">shp</span> <span class="o">=</span> <span class="n">clockwise_polygon</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]] | Path2D"</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_sweep</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">transform_list</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
 
 
@@ -2698,22 +2832,22 @@
     <span class="n">profiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">]</span>
     <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"skin() needs at least two profiles."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"skin() needs at least two profiles."</span><span class="p">)</span>
     <span class="n">profcount</span> <span class="o">=</span> <span class="n">sides</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">cap_specs</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">)</span>
     <span class="n">refine_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">refine</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">refine</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">refine</span><span class="p">]</span> <span class="o">*</span> <span class="n">sides</span>
     <span class="n">method_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">method</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">*</span> <span class="n">profcount</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">method_list</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">SkinMethod</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"skin(): only the 'direct' and 'reindex' methods are ported (got </span><span class="si">{</span><span class="n">m</span><span class="si">!r}</span><span class="s2">)."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"skin(): only the 'direct' and 'reindex' methods are ported (got </span><span class="si">{</span><span class="n">m</span><span class="si">!r}</span><span class="s2">)."</span><span class="p">)</span>
     <span class="n">sampling</span> <span class="o">=</span> <span class="n">sampling</span> <span class="k">if</span> <span class="n">sampling</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">SamplingType</span><span class="o">.</span><span class="n">LENGTH</span>
 
     <span class="n">dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"skin(): 2-D profiles need a matching-length z list."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"skin(): 2-D profiles need a matching-length z list."</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="n">sides</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"skin(): 2-D profiles need a matching-length z list."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"skin(): 2-D profiles need a matching-length z list."</span><span class="p">)</span>
         <span class="n">profiles</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">pt</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pt</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">pt</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)]</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
@@ -2821,7 +2955,7 @@
 <span class="sd">    Public API: use :meth:`Sweepable.rotate_sweep` instead of calling this directly.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">angle</span> <span class="o">&lt;=</span> <span class="mi">360</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rotate_sweep(): angle must be in (0, 360]."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rotate_sweep(): angle must be in (0, 360]."</span><span class="p">)</span>
     <span class="n">cap_specs</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">)</span>
     <span class="n">prof</span> <span class="o">=</span> <span class="p">[[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">shape</span><span class="p">]</span>
     <span class="n">full</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">&gt;=</span> <span class="mi">360</span>
@@ -2869,9 +3003,9 @@
 <span class="sd">    Public API: use :meth:`Sweepable.spiral_sweep` instead of calling this directly.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"spiral_sweep(): need positive height and nonzero turns."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"spiral_sweep(): need positive height and nonzero turns."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">turns</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"spiral_sweep(): need positive height and nonzero turns."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"spiral_sweep(): need positive height and nonzero turns."</span><span class="p">)</span>
     <span class="n">rr1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span>
         <span class="n">radius1</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span>
         <span class="n">diameter1</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span>
@@ -2956,10 +3090,10 @@
 
         <span class="n">numpoints</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span> <span class="o">//</span> <span class="n">math</span><span class="o">.</span><span class="n">gcd</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">),</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">])</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">numpoints</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"numpoints must be int after resolution"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"numpoints must be int after resolution"</span><span class="p">)</span>
     <span class="n">numpoints</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">numpoints</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">numpoints</span> <span class="o">&gt;=</span> <span class="n">maxsize</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"subdivide_and_slice(): numpoints is smaller than the largest profile."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"subdivide_and_slice(): numpoints is smaller than the largest profile."</span><span class="p">)</span>
     <span class="n">fixed</span> <span class="o">=</span> <span class="p">[</span><span class="n">_wrap</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">subdivide_path</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="n">numpoints</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">slice_profiles</span><span class="p">(</span><span class="n">fixed</span><span class="p">,</span> <span class="n">slices</span><span class="p">,</span> <span class="n">closed</span><span class="p">)</span></div>
 
@@ -3079,7 +3213,7 @@
     <span class="n">r_val</span> <span class="o">=</span> <span class="n">radius</span>
     <span class="n">h_val</span> <span class="o">=</span> <span class="n">height</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">r_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"os_circle(): radius is required."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"os_circle(): radius is required."</span><span class="p">)</span>
     <span class="n">h_res</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">h_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">h_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">r_val</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">OSProfile</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">OSType</span><span class="o">.</span><span class="n">CIRCLE</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">r_val</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">h_res</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span></div>
 
@@ -3212,9 +3346,9 @@
 <span class="sd">    """</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"os_profile(): First point of the profile must be [0, 0]."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"os_profile(): First point of the profile must be [0, 0]."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"os_profile(): First point of the profile must be [0, 0]."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"os_profile(): First point of the profile must be [0, 0]."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">OSProfile</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">OSType</span><span class="o">.</span><span class="n">PROFILE</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="n">pts</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span></div>
 
 
@@ -3265,7 +3399,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">height</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"offset_sweep(): height must be positive."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"offset_sweep(): height must be positive."</span><span class="p">)</span>
     <span class="n">cap_specs</span> <span class="o">=</span> <span class="n">norm_caps</span><span class="p">(</span><span class="n">caps</span><span class="p">)</span>
 
     <span class="n">base</span> <span class="o">=</span> <span class="p">[[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
@@ -3392,7 +3526,7 @@
     <span class="n">h_bot</span> <span class="o">=</span> <span class="n">bot_zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">h_top</span> <span class="o">=</span> <span class="n">top_zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">h_bot</span> <span class="o">+</span> <span class="n">h_top</span> <span class="o">&lt;=</span> <span class="n">height</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height."</span><span class="p">)</span>
 
     <span class="c1"># Assemble (delta, z) pairs for the complete column, bottom → top.</span>
     <span class="n">column</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3641,7 +3775,7 @@
     <span class="n">h_bot</span> <span class="o">=</span> <span class="n">bot_zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">h_top</span> <span class="o">=</span> <span class="n">top_zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">h_bot</span> <span class="o">+</span> <span class="n">h_top</span> <span class="o">&lt;=</span> <span class="n">h_val</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height."</span><span class="p">)</span>
 
     <span class="n">column</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -3671,7 +3805,7 @@
     <span class="n">b_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">b_rounded</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">t_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t_rounded</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">b_arr</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_arr</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rounded_prism(): bottom and top polygons must have the same number of vertices."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rounded_prism(): bottom and top polygons must have the same number of vertices."</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">delta</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">deduped</span><span class="p">:</span>
         <span class="n">frac</span> <span class="o">=</span> <span class="n">z</span> <span class="o">/</span> <span class="n">h_val</span>
@@ -3848,7 +3982,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_sweep2d</span><span class="p">(</span>
-    <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">,</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
     <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">,</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
@@ -3876,7 +4010,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">off</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">pth</span><span class="p">)):</span>  <span class="c1"># pragma: no cover</span>
             <span class="c1"># defensive: offset(same_length=True) returns the raw per-corner</span>
             <span class="c1"># construction, one point per input point, so the lengths cannot disagree here.</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="s2">"path_sweep2d(): the offset dropped points (the shape is too wide for the path "</span>
                 <span class="s2">"here); reduce the shape's X extent."</span>
             <span class="p">)</span>
@@ -3966,7 +4100,7 @@
 
 <span class="sd">    Interpolates between successive transforms along their screw motion (via :func:`rot_decode`),</span>
 <span class="sd">    optionally adding *twist* and *scale* (smoothed over *smoothlen*). Handy for regularizing the</span>
-<span class="sd">    transform list from ``path_sweep(..., transforms=True)`` before handing it to :func:`sweep`.</span>
+<span class="sd">    transform list from :meth:`Sweepable.path_sweep_transforms` before handing it to :func:`sweep`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        rotlist: list of 4x4 transform matrices</span>
@@ -3982,16 +4116,16 @@
 <span class="sd">    """</span>
     <span class="n">rotlist_extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">rotlist</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">smoothlen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): smoothlen must be a positive odd integer."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): smoothlen must be a positive odd integer."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">smoothlen</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): smoothlen must be a positive odd integer."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): smoothlen must be a positive odd integer."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">ResampleMethod</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rot_resample(): method must be a ResampleMethod member, got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rot_resample(): method must be a ResampleMethod member, got </span><span class="si">{</span><span class="n">method</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
     <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rotlist_extra</span><span class="p">)</span>
     <span class="n">tcount</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">LENGTH</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): num_copies must be an integer for method='length'."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): num_copies must be an integer for method='length'."</span><span class="p">)</span>
         <span class="n">count</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_copies</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="n">num_copies</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tcount</span> <span class="o">*</span> <span class="n">num_copies</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_copies</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">num_copies</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -4019,7 +4153,7 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tcount</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">ResampleMethod</span><span class="o">.</span><span class="n">LENGTH</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">length</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): a repeated/origin rotation makes method='length' undefined."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"rot_resample(): a repeated/origin rotation makes method='length' undefined."</span><span class="p">)</span>
 
     <span class="n">cumlen</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">length</span><span class="p">:</span>

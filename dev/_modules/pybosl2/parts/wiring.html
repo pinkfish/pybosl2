@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2046,12 +2070,19 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">csg_part</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">frag_count</span> <span class="k">as</span> <span class="n">_segs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.parts._buildable</span><span class="w"> </span><span class="kn">import</span> <span class="n">Buildable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Solid</span>
 
@@ -2133,7 +2164,7 @@
 
 <div class="viewcode-block" id="WireBundle">
 <a class="viewcode-back" href="../../../parts/wiring.html#pybosl2.parts.wiring.WireBundle">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">WireBundle</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WireBundle</span><span class="p">(</span><span class="n">Buildable</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""A bundle of round wires routed along a path with rounded corners.</span>
 
 <span class="sd">    The wires are hex-packed in the bundle cross-section and each is coloured</span>
@@ -2179,7 +2210,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">wires</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"wire_bundle() needs at least one wire."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"wire_bundle() needs at least one wire."</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_segs</span><span class="p">(</span><span class="n">wirediam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
         <span class="n">offsets</span> <span class="o">=</span> <span class="n">_hex_offsets</span><span class="p">(</span><span class="n">wires</span><span class="p">,</span> <span class="n">wirediam</span><span class="p">)</span>
         <span class="n">rounded_path</span> <span class="o">=</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">round_corners</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">rounding</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="p">(</span><span class="n">corner_steps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
@@ -2189,15 +2220,15 @@
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sides</span><span class="p">)</span>
         <span class="p">]</span>
 
-        <span class="n">bundle</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">bundle</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wires</span><span class="p">):</span>
             <span class="n">ox</span><span class="p">,</span> <span class="n">oy</span> <span class="o">=</span> <span class="n">offsets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">prof</span> <span class="o">=</span> <span class="p">[[</span><span class="n">x</span> <span class="o">+</span> <span class="n">ox</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">oy</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">profile</span><span class="p">]</span>
-            <span class="n">wire</span> <span class="o">=</span> <span class="n">rounded_path</span><span class="o">.</span><span class="n">path_sweep</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>  <span class="c1"># type: ignore[attr-defined]</span>
+            <span class="n">wire</span> <span class="o">=</span> <span class="n">rounded_path</span><span class="o">.</span><span class="n">path_sweep</span><span class="p">(</span><span class="n">prof</span><span class="p">)</span>
             <span class="n">wire</span> <span class="o">=</span> <span class="n">wire</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">_WIRE_COLORS</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="n">wirenum</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">_WIRE_COLORS</span><span class="p">)])</span>
             <span class="n">bundle</span> <span class="o">=</span> <span class="n">wire</span> <span class="k">if</span> <span class="n">bundle</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">bundle</span> <span class="o">|</span> <span class="n">wire</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">bundle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">bundle</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="n">Bosl2Solid</span> <span class="o">=</span> <span class="n">Bosl2Solid</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Bosl2Solid"</span><span class="p">,</span> <span class="n">bundle</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wires</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">wires</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wirediam</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">wirediam</span>
 

@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="drawing.html">
+        <link rel="prev" href="export.html">
       
       
         <link rel="next" href="masking.html">
@@ -511,6 +511,30 @@
                 
   
   
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
     
@@ -575,6 +599,34 @@
   
     <nav class="md-nav" aria-label="pybosl2.flat.Flat">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.flat.Flat.bounds" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.flat.Flat.bounds (Python method) — Return the 2-D axis-aligned bounding box (SPEC S-2b)."><span>bounds</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="bounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.flat.Flat.bounds-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#pybosl2.flat.Flat.rotate" class="md-nav__link">
@@ -2627,6 +2679,34 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#pybosl2.flat.Flat.bounds" class="md-nav__link">
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="pybosl2.flat.Flat.bounds (Python method) — Return the 2-D axis-aligned bounding box (SPEC S-2b)."><span>bounds</span></span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="bounds">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.flat.Flat.bounds-return-type" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Return type</span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pybosl2.flat.Flat.rotate" class="md-nav__link">
     
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
@@ -3187,6 +3267,17 @@
 <code class="docutils literal notranslate"><span class="pre">bounds()</span></code> and <code class="docutils literal notranslate"><span class="pre">show()</span></code> — is declared once on <code class="docutils literal notranslate"><span class="pre">Shape</span></code> (SPEC C-15, C-18). What is left
 here is the way up into three dimensions (SPEC C-17).</p>
 <dl class="py method objdesc">
+<dt class="sig sig-object highlight py" id="pybosl2.flat.Flat.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/flat.html#Flat.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.flat.Flat.bounds" title="Link to this definition">¶</a></dt>
+<dd><p>Return the 2-D axis-aligned bounding box (SPEC S-2b).</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="pybosl2.flat.Flat.bounds-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.flat.Flat.bounds-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../math/bounds.html#pybosl2.bounds.Bounds2D" title="pybosl2.bounds.Bounds2D (Python class) — Bases: object">Bounds2D</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.flat.Flat.rotate">
 <span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.flat.Flat.rotate.a" title="pybosl2.flat.Flat.rotate.a (Python parameter)"><span class="n"><span class="pre">a</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/flat.html#Flat.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.flat.Flat.rotate" title="Link to this definition">¶</a></dt>
 <dd><p>Rotate this shape <em>a</em> degrees about Z.</p>
@@ -3350,7 +3441,7 @@ here is the way up into three dimensions (SPEC C-17).</p>
 <dd class="field-even"><p>A 2-D shape on whichever backend is active.</p>
 </dd>
 <dt class="field-odd" id="pybosl2.flat.regular_ngon-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.flat.regular_ngon-raises" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference internal" href="solid.html#pybosl2.solid.UnsupportedByBackendError" title="pybosl2.solid.UnsupportedByBackendError (Python exception) — Bases: Bosl2Error"><strong>UnsupportedByBackendError</strong></a> – If <em>rounding</em> is asked for on the SDF backend, which has no
+<dd class="field-odd"><p><a class="reference internal" href="solid.html#pybosl2.solid.UnsupportedByBackendError" title="pybosl2.solid.UnsupportedByBackendError (Python exception) — Bases: Bosl2Error, AttributeError"><strong>UnsupportedByBackendError</strong></a> – If <em>rounding</em> is asked for on the SDF backend, which has no
     rounded-corner ngon.</p>
 </dd>
 <dt class="field-even" id="pybosl2.flat.regular_ngon-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.flat.regular_ngon-return-type" title="Permalink to this headline">¶</a></dt>
@@ -3663,7 +3754,7 @@ here is the way up into three dimensions (SPEC C-17).</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="drawing.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Drawing">
+          <a href="export.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Export">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3673,7 +3764,7 @@ here is the way up into three dimensions (SPEC C-17).</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Drawing
+                Export
               </div>
             </div>
           </a>

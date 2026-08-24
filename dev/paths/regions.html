@@ -515,6 +515,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../foundational/flat.html" class="md-nav__link">
         
   
@@ -1565,7 +1589,7 @@
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.regions.Region.bounds (Python method) — Return the bounding box over every path in the region."><span>bounds</span></span>
+      <span title="pybosl2.regions.Region.bounds (Python method) — Return the axis-aligned bounding box over every path in the region (SPEC S-2b)."><span>bounds</span></span>
     </span>
   </a>
   
@@ -1577,6 +1601,16 @@
     
     <span class="md-ellipsis">
       <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.bounds-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
     </span>
   </a>
   
@@ -3876,7 +3910,7 @@
       <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
     
     <span class="md-ellipsis">
-      <span title="pybosl2.regions.Region.bounds (Python method) — Return the bounding box over every path in the region."><span>bounds</span></span>
+      <span title="pybosl2.regions.Region.bounds (Python method) — Return the axis-aligned bounding box over every path in the region (SPEC S-2b)."><span>bounds</span></span>
     </span>
   </a>
   
@@ -3888,6 +3922,16 @@
     
     <span class="md-ellipsis">
       <span>Returns</span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pybosl2.regions.Region.bounds-raises" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Raises</span>
     </span>
   </a>
   
@@ -4870,15 +4914,29 @@ a list applies per-corner radii.</p>
 <dl class="py method objdesc">
 <dt class="sig sig-object highlight py" id="pybosl2.regions.Region.bounds">
 <span class="sig-name descname"><span class="pre">bounds</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/regions.html#Region.bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.regions.Region.bounds" title="Link to this definition">¶</a></dt>
-<dd><p>Return the bounding box over every path in the region.</p>
+<dd><p>Return the axis-aligned bounding box over every path in the region (SPEC S-2b).</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.regions.Region.bounds-returns">Returns<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.bounds-returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p>A numpy array <code class="docutils literal notranslate"><span class="pre">[[min_x,</span> <span class="pre">min_y],</span> <span class="pre">[max_x,</span> <span class="pre">max_y]]</span></code>.</p>
+<dd class="field-odd"><p>The <a class="reference internal" href="../math/bounds.html#pybosl2.bounds.Bounds2D" title="pybosl2.bounds.Bounds2D (Python class) — Bases: object"><code class="xref py py-class docutils literal notranslate"><span class="pre">Bounds2D</span></code></a> box – the same type every other <code class="docutils literal notranslate"><span class="pre">bounds()</span></code> in
+the library answers, rather than the bare NumPy <code class="docutils literal notranslate"><span class="pre">[[min],</span> <span class="pre">[max]]</span></code> array this used to
+hand back.</p>
 </dd>
-<dt class="field-even" id="pybosl2.regions.Region.bounds-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.bounds-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><em>ndarray</em></a></p>
+<dt class="field-even" id="pybosl2.regions.Region.bounds-raises">Raises<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.bounds-raises" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><strong>Bosl2ValueError</strong> – If the region holds no paths.</p>
+</dd>
+<dt class="field-odd" id="pybosl2.regions.Region.bounds-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.regions.Region.bounds-return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p><a class="reference internal" href="../math/bounds.html#pybosl2.bounds.Bounds2D" title="pybosl2.bounds.Bounds2D (Python class) — Bases: object"><em>Bounds2D</em></a></p>
 </dd>
 </dl>
+<p class="example rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span><span class="p">,</span> <span class="n">Region</span>
+
+<span class="n">region</span> <span class="o">=</span> <span class="n">Region</span><span class="p">([</span><span class="n">Path2D</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">]],</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>     <span class="c1"># (30.0, 20.0)</span>
+<span class="n">region</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="stl-viewer" data-stl-uri="_stl/8aba90f60a348996.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/8aba90f60a348996.stl">⬇ Download STL mesh</a></p>
 </dd></dl>
 
 <dl class="py method objdesc">

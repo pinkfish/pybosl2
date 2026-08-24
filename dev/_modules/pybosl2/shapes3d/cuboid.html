@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2092,6 +2116,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDGE_OFFSETS</span><span class="p">,</span> <span class="n">EDGES_ALL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">edges</span> <span class="k">as</span> <span class="n">resolve_edges</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes3d.cylinder</span><span class="w"> </span><span class="kn">import</span> <span class="n">cyl_profile</span>
 
 
@@ -2491,7 +2516,7 @@
     <span class="n">chamfer_v</span> <span class="o">=</span> <span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="n">rounding_v</span> <span class="o">=</span> <span class="n">rounding</span> <span class="k">if</span> <span class="n">rounding</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">chamfer_v</span> <span class="ow">and</span> <span class="n">rounding_v</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
 
     <span class="n">corners8</span> <span class="o">=</span> <span class="p">[[</span><span class="n">xa</span><span class="p">,</span> <span class="n">ya</span><span class="p">,</span> <span class="n">za</span><span class="p">]</span> <span class="k">for</span> <span class="n">za</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">ya</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">xa</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
 
@@ -2852,18 +2877,20 @@
         <span class="k">else</span> <span class="p">([</span><span class="n">s2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">wall</span><span class="p">,</span> <span class="n">s2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">wall</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">wall</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">s2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">size1_v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">size2_v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="s2">"rect_tube(): needs an outer size -- give size (or size1/size2), or an inner size with a wall thickness."</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">isize1_v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">isize2_v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
             <span class="s2">"rect_tube(): needs a bore -- give isize (or isize1/isize2), or a wall thickness to "</span>
             <span class="s2">"derive it from the outer size."</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">isize1_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size1_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">isize1_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size1_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rect_tube(): bore </span><span class="si">{</span><span class="n">isize1_v</span><span class="si">}</span><span class="s2"> is not smaller than the outer size </span><span class="si">{</span><span class="n">size1_v</span><span class="si">}</span><span class="s2"> at the bottom."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"rect_tube(): bore </span><span class="si">{</span><span class="n">isize1_v</span><span class="si">}</span><span class="s2"> is not smaller than the outer size </span><span class="si">{</span><span class="n">size1_v</span><span class="si">}</span><span class="s2"> at the bottom."</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">isize2_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size2_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">isize2_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">size2_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rect_tube(): bore </span><span class="si">{</span><span class="n">isize2_v</span><span class="si">}</span><span class="s2"> is not smaller than the outer size </span><span class="si">{</span><span class="n">size2_v</span><span class="si">}</span><span class="s2"> at the top."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"rect_tube(): bore </span><span class="si">{</span><span class="n">isize2_v</span><span class="si">}</span><span class="s2"> is not smaller than the outer size </span><span class="si">{</span><span class="n">size2_v</span><span class="si">}</span><span class="s2"> at the top."</span><span class="p">)</span>
 
     <span class="n">rounding1_v</span> <span class="o">=</span> <span class="n">force4f</span><span class="p">(</span><span class="n">rounding1</span> <span class="k">if</span> <span class="n">rounding1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rounding</span><span class="p">)</span>
     <span class="n">rounding2_v</span> <span class="o">=</span> <span class="n">force4f</span><span class="p">(</span><span class="n">rounding2</span> <span class="k">if</span> <span class="n">rounding2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">rounding</span><span class="p">)</span>
@@ -3013,9 +3040,9 @@
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">sides</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sides</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"regular_prism(): sides must be an integer &gt;= 3, got </span><span class="si">{</span><span class="n">sides</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">cos_half</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">sides</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">circumradius</span><span class="p">(</span><span class="n">spec_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -3046,7 +3073,7 @@
     <span class="n">c1v</span> <span class="o">=</span> <span class="n">chamfer1</span> <span class="k">if</span> <span class="n">chamfer1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">c2v</span> <span class="o">=</span> <span class="n">chamfer2</span> <span class="k">if</span> <span class="n">chamfer2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">chamfer</span> <span class="k">if</span> <span class="n">chamfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">r1v</span> <span class="ow">or</span> <span class="n">r2v</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c1v</span> <span class="ow">or</span> <span class="n">c2v</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Cannot specify nonzero value for both chamfer and rounding"</span><span class="p">)</span>
 
     <span class="n">use_anchor</span> <span class="o">=</span> <span class="n">anchor</span>
     <span class="k">if</span> <span class="n">use_anchor</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

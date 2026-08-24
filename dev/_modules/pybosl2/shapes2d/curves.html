@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2074,6 +2098,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._native</span><span class="w"> </span><span class="kn">import</span> <span class="n">native</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CENTER</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.vectors</span><span class="w"> </span><span class="kn">import</span> <span class="n">unit</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -2160,9 +2185,9 @@
 <span class="sd">    """</span>
     <span class="n">rad</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius1</span><span class="o">=</span><span class="n">outer_radius</span><span class="p">,</span> <span class="n">diameter1</span><span class="o">=</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">rad</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"star(): must specify a radius (radius, diameter, outer_radius or outer_diameter)."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"star(): must specify a radius (radius, diameter, outer_radius or outer_diameter)."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tips</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"star(): must specify tips"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"star(): must specify tips"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">stepr</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">180</span> <span class="o">*</span> <span class="n">step</span> <span class="o">/</span> <span class="n">tips</span><span class="p">))</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mi">180</span> <span class="o">*</span> <span class="p">(</span><span class="n">step</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">tips</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2235,7 +2260,7 @@
     <span class="n">minheight</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
     <span class="n">maxheight</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">cap_height</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">cap_height</span> <span class="o">&lt;</span> <span class="n">minheight</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cap_height cannot be less than </span><span class="si">{</span><span class="n">minheight</span><span class="si">}</span><span class="s2"> but it is </span><span class="si">{</span><span class="n">cap_height</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cap_height cannot be less than </span><span class="si">{</span><span class="n">minheight</span><span class="si">}</span><span class="s2"> but it is </span><span class="si">{</span><span class="n">cap_height</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">pointy</span> <span class="o">=</span> <span class="n">cap_height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">cap_height</span> <span class="o">&gt;=</span> <span class="n">maxheight</span>
     <span class="k">if</span> <span class="n">cap_height</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pointy</span><span class="p">:</span>
         <span class="n">cap_top</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">maxheight</span><span class="p">]</span>
@@ -2303,15 +2328,15 @@
 <span class="sd">    """</span>
     <span class="n">radius1</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius1</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter1</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give radius1 or diameter1"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"egg(): must give radius1 or diameter1"</span><span class="p">)</span>
     <span class="n">radius2</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">radius2</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">diameter2</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give radius2 or diameter2"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"egg(): must give radius2 or diameter2"</span><span class="p">)</span>
     <span class="n">arc_r</span> <span class="o">=</span> <span class="n">_pick_radius</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="n">arc_radius</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">arc_diameter</span><span class="p">,</span> <span class="n">dflt</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">arc_r</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give arc_radius or arc_diameter"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"egg(): must give arc_radius or arc_diameter"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">length</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): must give length"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"egg(): must give length"</span><span class="p">)</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_egg_path</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">arc_r</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>
@@ -2329,18 +2354,18 @@
     <span class="n">fs</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
     <span class="k">if</span> <span class="n">length</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"egg(): length must be positive, got </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"egg(): length must be positive, got </span><span class="si">{</span><span class="n">length</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">arc_radius</span> <span class="o">&gt;</span> <span class="n">length</span> <span class="o">/</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Side radius must be larger than length/2"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Side radius must be larger than length/2"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">length</span> <span class="o">&gt;</span> <span class="n">radius1</span> <span class="o">+</span> <span class="n">radius2</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Length must be longer than radius1+radius2"</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Length must be longer than radius1+radius2"</span><span class="p">)</span>
     <span class="n">c1</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">radius1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
     <span class="n">c2</span> <span class="o">=</span> <span class="p">[</span><span class="n">length</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">radius2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
     <span class="n">m_pts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">_circle_circle_intersection</span><span class="p">(</span><span class="n">arc_radius</span> <span class="o">-</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">c1</span><span class="p">,</span> <span class="n">arc_radius</span> <span class="o">-</span> <span class="n">radius2</span><span class="p">,</span> <span class="n">c2</span><span class="p">)))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m_pts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="c1"># defensive: the two guards above force arc_radius &gt; length/2 &gt; (radius1+radius2)/2, which</span>
         <span class="c1"># is exactly the condition under which the two blending circles meet in two points.</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"egg(): circles do not intersect for the given length/radius1/radius2/arc_radius."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"egg(): circles do not intersect for the given length/radius1/radius2/arc_radius."</span><span class="p">)</span>
     <span class="n">arcparms</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">m_pts</span><span class="p">:</span>
         <span class="n">u1</span> <span class="o">=</span> <span class="n">unit</span><span class="p">([</span><span class="n">c1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
@@ -2541,10 +2566,10 @@
 
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">squareness</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"squircle(): squareness must be between 0 and 1."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"squircle(): squareness must be between 0 and 1."</span><span class="p">)</span>
     <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">style</span> <span class="o">==</span> <span class="s2">"fg"</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'squircle(): only the default "fg" style is ported.'</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s1">'squircle(): only the default "fg" style is ported.'</span><span class="p">)</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">_squircle_fg_path</span><span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">squareness</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">_opolygon</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">_anchor_offset_hull</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">anchor</span><span class="p">)</span>

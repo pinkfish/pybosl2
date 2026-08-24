@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2074,11 +2098,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
 
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PathLike</span>
@@ -2090,6 +2115,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsSpec</span><span class="p">,</span> <span class="n">CapType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">UP</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SweepMethod</span><span class="p">,</span> <span class="n">VNFStyle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2ValueError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.math</span><span class="w"> </span><span class="kn">import</span> <span class="n">EPSILON</span><span class="p">,</span> <span class="n">lerp</span><span class="p">,</span> <span class="n">lerpn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply</span> <span class="k">as</span> <span class="n">_apply</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">reorient</span>
@@ -2149,19 +2175,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"control points must be a 2-D array (N points x D dims), got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-D shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
                 <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
             <span class="p">):</span>  <span class="c1"># pragma: no cover - defensive: an empty sequence is handled by the size == 0 branch above</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must have at least 1 point, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must have at least 1 point, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be 2-D or 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> components per point"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
                 <span class="c1"># defensive: np.array(..., dtype=float) either produces a float64 array or raises</span>
                 <span class="c1"># on its own, so a surviving array never has another dtype.</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_points</span> <span class="o">=</span> <span class="n">pts</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -2284,7 +2310,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="n">order</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"derivative(): order must be a non-negative integer, got </span><span class="si">{</span><span class="n">order</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"derivative(): order must be a non-negative integer, got </span><span class="si">{</span><span class="n">order</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
@@ -2519,7 +2545,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"path_curve(): a degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path needs a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> "</span>
                 <span class="sa">f</span><span class="s2">"points plus 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
@@ -2568,7 +2594,7 @@
 <span class="sd">        """</span>
         <span class="n">new_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"path_closest_point(): a degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path needs a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> "</span>
                 <span class="sa">f</span><span class="s2">"points plus 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
@@ -2581,7 +2607,7 @@
             <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">best</span> <span class="o">=</span> <span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">best</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Could not find closest point."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Could not find closest point."</span><span class="p">)</span>
         <span class="n">seg</span> <span class="o">=</span> <span class="n">best</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">curve</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array</span><span class="p">[</span><span class="n">seg</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="p">:</span> <span class="p">(</span><span class="n">seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">curve</span><span class="o">.</span><span class="n">closest_point</span><span class="p">(</span><span class="n">new_pt</span><span class="p">,</span> <span class="n">max_err</span><span class="o">=</span><span class="n">max_err</span><span class="p">))</span></div>
@@ -2605,7 +2631,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"path_arc_length(): a degree </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> bezier path needs a multiple of </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2"> "</span>
                 <span class="sa">f</span><span class="s2">"points plus 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
@@ -2642,7 +2668,7 @@
 <span class="sd">        """</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"close_to_axis() works only on 2-D bezier paths."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"close_to_axis() works only on 2-D bezier paths."</span><span class="p">)</span>
         <span class="n">sp</span><span class="p">,</span> <span class="n">ep</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">arr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">head</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">"X"</span><span class="p">:</span>
@@ -2650,7 +2676,7 @@
         <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="s2">"Y"</span><span class="p">:</span>
             <span class="n">foot_s</span><span class="p">,</span> <span class="n">foot_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sp</span><span class="p">[</span><span class="mi">1</span><span class="p">]]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">ep</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'close_to_axis(): axis must be "X" or "Y", got </span><span class="si">{</span><span class="n">axis</span><span class="si">!r}</span><span class="s1">.'</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'close_to_axis(): axis must be "X" or "Y", got </span><span class="si">{</span><span class="n">axis</span><span class="si">!r}</span><span class="s1">.'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -2686,7 +2712,7 @@
 <span class="sd">        """</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"path_offset() works only on 2-D bezier paths."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"path_offset() works only on 2-D bezier paths."</span><span class="p">)</span>
         <span class="n">off</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">backbez</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span> <span class="o">+</span> <span class="n">off</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">Bezier</span><span class="p">(</span>
@@ -2739,7 +2765,7 @@
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.sweep">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sweep</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">shape</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
         <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
         <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
@@ -2754,9 +2780,8 @@
         <span class="n">last_normal</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
         <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">MIN_EDGE</span><span class="p">,</span>
-        <span class="n">transforms</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span> <span class="o">|</span> <span class="n">Bosl2Solid</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Sweep the 2-D *shape* along this bezier curve or path into a VNF.</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Sweep the 2-D *shape* along this bezier curve or path into a solid.</span>
 
 <span class="sd">        If *n_degree* is given and ``len(self) % n_degree == 1`` this</span>
 <span class="sd">        treats the bezier as a degree-*N* path, sampling each segment</span>
@@ -2780,10 +2805,10 @@
 <span class="sd">            last_normal: Last normal vector for closed sweeps.</span>
 <span class="sd">            caps: Whether to add end caps.</span>
 <span class="sd">            style: VNF triangulation style.</span>
-<span class="sd">            transforms: If True, return transformation matrices instead of a mesh.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A :class:`~pybosl2.vnf.VNF` vertex-face mesh of the swept shape.</span>
+<span class="sd">            The swept solid, on the active backend (SPEC S-19a). Its mesh is on ``.vnf`` for</span>
+<span class="sd">            anything that wants to measure or export it without a CAD runtime.</span>
 
 <span class="sd">        Examples:</span>
 <span class="sd">            Curve mode (single curve sweep):</span>
@@ -2796,7 +2821,7 @@
 <span class="sd">                from math import cos, sin</span>
 <span class="sd">                circle = [[2 * cos(t), 2 * sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
 <span class="sd">                tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)</span>
-<span class="sd">                tube.polyhedron().show()</span>
+<span class="sd">                tube.show()</span>
 
 <span class="sd">            Path2D mode (degree-3 bezier path sweep):</span>
 
@@ -2808,7 +2833,7 @@
 <span class="sd">                from math import cos, sin</span>
 <span class="sd">                shape = [[cos(t), sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]</span>
 <span class="sd">                path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])</span>
-<span class="sd">                path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()</span>
+<span class="sd">                path.sweep(shape, n_degree=3, splinesteps=24).show()</span>
 
 <span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
@@ -2830,7 +2855,7 @@
         <span class="n">path_3d</span> <span class="o">=</span> <span class="n">path3d</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">tang_3d</span> <span class="o">=</span> <span class="n">path3d</span><span class="p">(</span><span class="n">tang</span><span class="p">)</span> <span class="k">if</span> <span class="n">tang</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">path_3d</span><span class="p">))</span><span class="o">.</span><span class="n">path_sweep</span><span class="p">(</span>
-            <span class="n">shape</span><span class="p">,</span>  <span class="c1"># type: ignore[arg-type, return-value]</span>
+            <span class="n">shape</span><span class="p">,</span>
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">normal</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span>
             <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
@@ -2843,8 +2868,93 @@
             <span class="n">tangent</span><span class="o">=</span><span class="n">tang_3d</span><span class="p">,</span>
             <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span>
             <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">,</span>
-            <span class="n">transforms</span><span class="o">=</span><span class="n">transforms</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Bezier.sweep_transforms">
+<a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.Bezier.sweep_transforms">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sweep_transforms</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
+        <span class="n">n_degree</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">SweepMethod</span> <span class="o">=</span> <span class="n">SweepMethod</span><span class="o">.</span><span class="n">INCREMENTAL</span><span class="p">,</span>
+        <span class="n">endpoint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">normal</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">twist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">twist_by_length</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">scale_by_length</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">symmetry</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">last_normal</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">"""Return the 4x4 transforms :meth:`sweep` would place its cross sections with.</span>
+
+<span class="sd">        This used to be ``sweep(..., transforms=True)``. A flag that changes the return type is a</span>
+<span class="sd">        second function (SPEC S-19b), so it is one -- and separating them is what lets ``sweep()``</span>
+<span class="sd">        return a plain `Solid`.</span>
+
+<span class="sd">        It is not the same as ``self.path_curve(...).path_sweep_transforms()``: this passes the</span>
+<span class="sd">        curve's *analytic* tangents, which is what makes the first frame exact rather than the</span>
+<span class="sd">        result of a rotation-minimizing walk along sampled points.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            splinesteps: Number of uniform segments per curve or curve-segment.</span>
+<span class="sd">            n_degree: Curve degree for path mode; ``None`` uses curve mode.</span>
+<span class="sd">            method: Sweep method.</span>
+<span class="sd">            endpoint: If True, include the endpoint at u=1.</span>
+<span class="sd">            normal: Optional normal vector for the sweep.</span>
+<span class="sd">            closed: Whether the swept shape should be closed (a tube).</span>
+<span class="sd">            twist: Total twist angle in degrees applied along the sweep.</span>
+<span class="sd">            twist_by_length: If True, twist is scaled by relative arc length.</span>
+<span class="sd">            scale: Scale factor applied along the sweep.</span>
+<span class="sd">            scale_by_length: If True, scale is distributed by relative arc length.</span>
+<span class="sd">            symmetry: Rotational symmetry count of the shape.</span>
+<span class="sd">            last_normal: Last normal vector for closed sweeps.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            One 4x4 matrix per cross section, as plain nested lists.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            Placing your own geometry at each station along a bezier::</span>
+
+<span class="sd">                from pybosl2 import Bezier, cuboid</span>
+
+<span class="sd">                curve = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]])</span>
+<span class="sd">                for matrix in curve.sweep_transforms(splinesteps=4):</span>
+<span class="sd">                    cuboid([2, 2, 1]).multmatrix(matrix)</span>
+
+<span class="sd">        """</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.skin</span><span class="w"> </span><span class="kn">import</span> <span class="n">_path_sweep</span><span class="p">,</span> <span class="n">path3d</span>
+
+        <span class="k">if</span> <span class="n">n_degree</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_degree</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">bezpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array</span>
+            <span class="n">nsegs</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bezpath</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">n_degree</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path_curve</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">n_degree</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+            <span class="n">tang</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nsegs</span><span class="p">):</span>
+                <span class="n">ctrl</span> <span class="o">=</span> <span class="n">Bezier</span><span class="p">(</span><span class="n">bezpath</span><span class="p">[</span><span class="n">seg</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="p">:</span> <span class="p">(</span><span class="n">seg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">tang</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ctrl</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">curve</span><span class="p">(</span><span class="n">splinesteps</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="n">tang</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">derivative</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lerpn</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">splinesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">))))</span>
+        <span class="n">placed</span> <span class="o">=</span> <span class="n">_path_sweep</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]],</span>  <span class="c1"># placeholder profile: only the frames are read</span>
+            <span class="n">Path3D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">path3d</span><span class="p">(</span><span class="n">path</span><span class="p">))),</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">normal</span><span class="o">=</span><span class="n">normal</span><span class="p">,</span>
+            <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span>
+            <span class="n">twist</span><span class="o">=</span><span class="n">twist</span><span class="p">,</span>
+            <span class="n">twist_by_length</span><span class="o">=</span><span class="n">twist_by_length</span><span class="p">,</span>
+            <span class="n">scale</span><span class="o">=</span><span class="p">(</span><span class="n">scale</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
+            <span class="n">scale_by_length</span><span class="o">=</span><span class="n">scale_by_length</span><span class="p">,</span>
+            <span class="n">symmetry</span><span class="o">=</span><span class="n">symmetry</span><span class="p">,</span>
+            <span class="n">last_normal</span><span class="o">=</span><span class="n">last_normal</span><span class="p">,</span>
+            <span class="n">tangent</span><span class="o">=</span><span class="n">path3d</span><span class="p">(</span><span class="n">tang</span><span class="p">),</span>
+            <span class="n">transforms</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"list[list[list[float]]]"</span><span class="p">,</span> <span class="n">placed</span><span class="p">)</span></div>
 
 
     <span class="c1"># -- control-point construction (BOSL2 bez_begin/bez_tang/bez_joint/bez_end) ------------</span>
@@ -2873,7 +2983,7 @@
 <span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"phi= requires a 3-D point"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"phi= requires a 3-D point"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">pt</span><span class="p">,</span> <span class="n">pt</span> <span class="o">+</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_ctrloffset</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">phi</span><span class="p">)])</span></div>
 
 
@@ -2909,7 +3019,7 @@
 <span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"phi= requires a 3-D point"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"phi= requires a 3-D point"</span><span class="p">)</span>
         <span class="n">unit_dir</span><span class="p">,</span> <span class="n">dist</span> <span class="o">=</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_dir_and_dist</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">phi</span><span class="p">)</span>
         <span class="n">dist1</span> <span class="o">=</span> <span class="n">dist</span> <span class="k">if</span> <span class="n">radius1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius1</span>
         <span class="n">dist2</span> <span class="o">=</span> <span class="n">dist1</span> <span class="k">if</span> <span class="n">radius2</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius2</span>
@@ -2952,7 +3062,7 @@
 <span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="p">(</span><span class="n">phi1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">phi2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"phi1=/phi2= require a 3-D point"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"phi1=/phi2= require a 3-D point"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="n">pt</span> <span class="o">+</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_ctrloffset</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle1</span><span class="p">,</span> <span class="n">radius1</span><span class="p">,</span> <span class="n">phi1</span><span class="p">),</span>
@@ -2986,7 +3096,7 @@
 <span class="sd">        """</span>
         <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pt</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"phi= requires a 3-D point"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"phi= requires a 3-D point"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">pt</span> <span class="o">+</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_ctrloffset</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pt</span><span class="p">),</span> <span class="n">angle</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">phi</span><span class="p">),</span> <span class="n">pt</span><span class="p">])</span></div>
 
 
@@ -3081,7 +3191,7 @@
             <span class="n">direction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">direction</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_unit</span><span class="p">(</span><span class="n">direction</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"radius must be given when angle is a scalar, not a direction vector"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"radius must be given when angle is a scalar, not a direction vector"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">point_dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_spherical_to_xyz</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="mf">90.0</span> <span class="k">if</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">phi</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -3096,7 +3206,7 @@
             <span class="n">dist</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">direction</span><span class="p">))</span> <span class="k">if</span> <span class="n">radius</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">radius</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">_unit</span><span class="p">(</span><span class="n">direction</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">dist</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">radius</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"radius must be given when angle is a scalar, not a direction vector"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"radius must be given when angle is a scalar, not a direction vector"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">point_dim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Bezier</span><span class="o">.</span><span class="n">_spherical_to_xyz</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="mf">90.0</span> <span class="k">if</span> <span class="n">phi</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">phi</span><span class="p">),</span> <span class="n">radius</span>  <span class="c1"># type: ignore[arg-type]</span>
         <span class="n">rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
@@ -3150,7 +3260,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">relsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Can't define both size and relsize."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Can't define both size and relsize."</span><span class="p">)</span>
     <span class="n">patharr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">patharr</span><span class="p">)</span>
     <span class="n">lastpt</span> <span class="o">=</span> <span class="n">npts</span> <span class="o">-</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
@@ -3161,7 +3271,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sizevect</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">curvesize</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sizevect</span><span class="p">)</span> <span class="o">==</span> <span class="n">lastpt</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Size or relsize must have length </span><span class="si">{</span><span class="n">lastpt</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Size or relsize must have length </span><span class="si">{</span><span class="n">lastpt</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">tangents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">tang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">tangents</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">tang</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tang</span><span class="p">])</span>
@@ -3172,7 +3282,7 @@
             <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">sizevect</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Size and relsize must be greater than zero."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Size and relsize must be greater than zero."</span><span class="p">)</span>
     <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">basis_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">lastpt</span><span class="p">):</span>
@@ -3180,7 +3290,7 @@
         <span class="n">second</span> <span class="o">=</span> <span class="n">patharr</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span>
         <span class="n">seglength</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">seglength</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path2D segment has zero length from index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Path2D segment has zero length from index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="n">segdir</span> <span class="o">=</span> <span class="p">(</span><span class="n">second</span> <span class="o">-</span> <span class="n">first</span><span class="p">)</span> <span class="o">/</span> <span class="n">seglength</span>
         <span class="n">tangent1</span> <span class="o">=</span> <span class="n">tang</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">tangent2</span> <span class="o">=</span> <span class="o">-</span><span class="n">tang</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">npts</span><span class="p">]</span>
@@ -3260,23 +3370,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">"patch rows must be a 3-D array (R rows x C cols x 3 dim), got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">-D shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
                 <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
             <span class="p">):</span>  <span class="c1"># pragma: no cover - defensive: an empty sequence is handled by the size == 0 branch above</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch must have at least 1 row, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch must have at least 1 row, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
                 <span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
             <span class="p">):</span>  <span class="c1"># pragma: no cover - defensive: a row-less array is already rejected by the ndim check</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch must have at least 1 column, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch must have at least 1 column, got shape </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"patch control points must be 3-D, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> components"</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
                 <span class="c1"># defensive: np.array(..., dtype=float) either produces a float64 array or raises</span>
                 <span class="c1"># on its own, so a surviving array never has another dtype.</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"control points must be float64, got </span><span class="si">{</span><span class="n">pts</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span> <span class="o">=</span> <span class="n">pts</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -3563,7 +3673,7 @@
 
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">n_degree</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BezierPatch.flat(): n_degree must be positive, got </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BezierPatch.flat(): n_degree must be positive, got </span><span class="si">{</span><span class="n">n_degree</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="n">sz</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
         <span class="n">patch</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">[[</span><span class="n">sz</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">n_degree</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">sz</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">-</span> <span class="n">y</span> <span class="o">/</span> <span class="n">n_degree</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_degree</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
@@ -3578,7 +3688,7 @@
 
 <div class="viewcode-block" id="BezierPatch.sheet">
 <a class="viewcode-back" href="../../paths/beziers.html#pybosl2.beziers.BezierPatch.sheet">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta</span><span class="p">:</span> <span class="s2">"float | Sequence[float]"</span><span class="p">,</span> <span class="n">splinesteps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n">VNFStyle</span> <span class="o">=</span> <span class="n">VNFStyle</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VNF</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).</span>
 
 <span class="sd">        Creates a solid by meshing two copies of the patch offset in opposite</span>
@@ -3616,7 +3726,7 @@
         <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">(</span><span class="n">uvals</span><span class="p">,</span> <span class="n">vvals</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">normals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">normals</span><span class="p">(</span><span class="n">uvals</span><span class="p">,</span> <span class="n">vvals</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">normals</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Bezier patch has degenerate normals."</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"Bezier patch has degenerate normals."</span><span class="p">)</span>
         <span class="n">offset0</span> <span class="o">=</span> <span class="n">pts</span> <span class="o">-</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">normals</span>
         <span class="n">offset1</span> <span class="o">=</span> <span class="n">pts</span> <span class="o">-</span> <span class="n">diameter</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">normals</span>
         <span class="n">allpoints</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">offset0</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">offset1</span><span class="p">[</span><span class="n">i</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">offset0</span><span class="p">))]</span>
@@ -3808,7 +3918,8 @@
     <span class="n">dedup</span> <span class="o">=</span> <span class="p">[</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span>
         <span class="n">p</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">&gt;</span> <span class="mf">1e-9</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">dedup</span><span class="p">)</span><span class="o">.</span><span class="n">path_sweep</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span>  <span class="c1"># type: ignore[union-attr, arg-type]</span>
+    <span class="c1"># a sweep already returns a Solid (SPEC S-19a), so there is nothing to realize here</span>
+    <span class="k">return</span> <span class="n">Path3D</span><span class="p">(</span><span class="n">dedup</span><span class="p">)</span><span class="o">.</span><span class="n">path_sweep</span><span class="p">(</span><span class="n">circ</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sphere_at</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">diameter</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
@@ -3915,7 +4026,7 @@
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">_add</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_VNF</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">surfaces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">())</span>
     <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off."</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off."</span><span class="p">)</span>
     <span class="c1"># Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the</span>
     <span class="c1"># result with no bounding box of its own.</span>
     <span class="k">return</span> <span class="n">result</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">_Bosl2Solid</span><span class="p">)</span> <span class="k">else</span> <span class="n">_Bosl2Solid</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>

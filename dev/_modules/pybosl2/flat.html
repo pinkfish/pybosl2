@@ -506,6 +506,30 @@
   
   
     <li class="md-nav__item">
+      <a href="../../foundational/export.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Export</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../foundational/flat.html" class="md-nav__link">
         
   
@@ -2054,6 +2078,7 @@
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.bounds</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bounds2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 
@@ -2081,6 +2106,13 @@
 <span class="sd">    ``bounds()`` and ``show()`` — is declared once on ``Shape`` (SPEC C-15, C-18). What is left</span>
 <span class="sd">    here is the way up into three dimensions (SPEC C-17).</span>
 <span class="sd">    """</span>
+
+<div class="viewcode-block" id="Flat.bounds">
+<a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.bounds">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bounds2D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the 2-D axis-aligned bounding box (SPEC S-2b)."""</span>
+        <span class="o">...</span></div>
+
 
 <div class="viewcode-block" id="Flat.rotate">
 <a class="viewcode-back" href="../../foundational/flat.html#pybosl2.flat.Flat.rotate">[docs]</a>
