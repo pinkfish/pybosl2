@@ -48,12 +48,12 @@ spec renumbers as items close, and all but S-46a have.
 | 5 | S-53 / S-54 / S-55 | [T19](#t19--give-the-library-a-way-out) ✅ | M |
 | 6 | E-1 / E-5 / E-6 / E-7 | [T20](#t20--make-the-error-contract-usable) ✅ | M |
 | 7 | A-8 / A-9 | [T21](#t21--export-the-families-whole) ✅ | S |
-| 8 | S-26a … S-26d | [T22](#t22--make-the-masks-obey-the-librarys-own-rules) | L |
+| 8 | S-26a … S-26c | [T22](#t22--make-the-masks-obey-the-librarys-own-rules) ✅ | L |
 | 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) 🔶 | M |
 
-T0–T13, T15 and **T16–T21 are done**. Open: **T22** (the masking API) and **T23 step 2** (the 35
-docstring examples still held by the ratchet). T14 (parts on the SDF backend) remains the
-long-running parity item.
+T0–T13, T15 and **T16–T22 are done**. Open: **T23 step 2** — the 35 docstring examples still held
+by the ratchet, almost all of them one rule (T-4, "inputs widen"). T14 (parts on the SDF backend)
+remains the long-running parity item.
 
 T16–T23 came from using the library as a caller rather than reading it: every one is a rule the
 spec already stated that nothing measured — which is why T23's gate went in even though its
@@ -91,7 +91,7 @@ The T16–T23 wave, which is about the object surface rather than the constructo
        │                (needs T16's type)  before declaring the contract complete
        │
   T18 sweeps ──► T19 export               a sweep must return a Solid before "export a Solid"
-       │          (needs T18's .vnf)        is the whole story
+       │          (needs T18's .vnf())      is the whole story
        │
   T21 exports ─── independent, and cheap
   T22 masks   ─── independent (touches masking.py + the edge_* methods on the solid)
@@ -1712,7 +1712,7 @@ own section numbers, plus a check that no public `__all__` advertises internal p
 
 ---
 
-## T22 — Make the masks obey the library's own rules
+## T22 — Make the masks obey the library's own rules ✅
 
 **Closes:** §12.2 item 8 (S-26a … S-26d) · **Implements:** PLAN O-1a, E-P5, T-9a · **Size:** L
 **Risk:** medium — signatures change on the most-used treatment
@@ -1759,6 +1759,34 @@ signature, where D-5 specifies two.
 `edge_mask(..., mask3d_roundover(...))`, pinned by a golden; no public signature in `masking.py`
 mentions a native type; the D-5 conflict test covers the mask factories.
 
+
+**Landed.** `solid.round_edges(Anchor.Z, radius=3)`, `chamfer_edges()` and `cove_edges()` are the
+spellings a caller reaches for: they build the mask and take the box from `bounds()`, so the
+parent's own dimensions are never named (S-26a, S-26b). `edge_mask`/`edge_profile` stay for a
+custom mask, with `children=` renamed to `mask=` and typed `Solid`/`Path2D` — no `PyOpenSCAD` is
+left anywhere in a public masking signature, which a test now enforces.
+
+Every factory takes at most one required positional (S-26c, D-2): `Mask3D.groove(6)` derives depth
+from width and length from the part it grooves, `Mask2D.step(4)` is square unless told otherwise,
+`Mask2D.chamfer(width, height)` replaces `(x, y)`, and `radius`/`diameter` route through
+`pick_radius()`. `size` is keyword-only throughout, because it describes the *parent*.
+
+**S-26d withdrawn**, not deferred. Returning `Flat` from the 2-D masks would make the primary use
+worse and break the layering: a 2-D mask exists to be swept along an edge, which needs a path, and
+the `Mask2D` factories are pure L0 arithmetic whereas `Path2D.polygon()` crosses the FFI. The
+reason is recorded in the spec against the struck-through requirement (SPEC §13 rule 5).
+
+**One real bug fell out.** `Mask2D.step` returned a polygon that ran back along the notch's own
+edges, enclosing an L-shaped sliver `excess` thick — a 4×4 step enclosed 0.08 mm² instead of 16 and
+cut nothing at all. Its test asserted `len(path) == 6`, which a broken mask satisfies exactly as
+well as a working one; the replacement asserts the enclosed area (PLAN X-8). This is the third time
+in this wave that an existence-only assertion hid a defect.
+
+Tests: `tests/test_mask_contract.py` — one required argument per factory, no native type in a
+signature, the named treatment matching the mask it replaces geometrically, and each treatment
+refusing by name on the SDF backend (they joined `CSG_ONLY_FEATURES` for the same reason the masks
+they wrap are on it).
+
 ---
 
 ## T23 — Type-check the examples, and build a front door 🔶
@@ -1800,7 +1828,7 @@ getting-started page renders in the docs build with every step producing a figur
 table lists Q-6 and it passes; a reader following the page end to end has an STL.
 
 
-**Step 1 and step 3 landed; step 2 is the open half.**
+**Step 1 and step 3 landed; step 2 is nearly closed — 7 of 314, down from 54.**
 
 The gate: `tests/test_docstring_examples.py` extracts all 304 examples with the same parser the
 docs build uses and type-checks them in one batched `mypy --strict` run. No CAD runtime, so it runs
@@ -1820,7 +1848,14 @@ Fixed along the way, each a real defect the gate found rather than an example to
   the very forms their own examples passed (PLAN T-4, "inputs widen").
 * `offset_stroke` was typed as returning the same kind of path; its own docstring says Region.
 
-**The remaining 35 are almost all T-4 again** — a callable typed to take the exact object the
+**The remaining 7** are concentrated in `beziers` (patch and sampling helpers still typed
+`ndarray`) plus the two PAR-4 divergences (`half_of(cut_path=)`, and one SDF 2-D example). A second
+pass closed 47 of the 54, and what it found along the way was worth more than the count: a stale
+`solid.pyi` that made `cube(chamfer=2)` fail the checker, 30 fluent turtle methods with no stub at
+all, `VNF.from_skin` still carrying the union T18 removed everywhere else, a naming divergence
+between the backends' extrusions, and `Anchor.UP` — an example that was broken *at runtime*.
+
+**The original 35 were almost all T-4** — a callable typed to take the exact object the
 library hands back rejects the plain list or tuple a caller writes. The fix is per-signature and
 mechanical; it is queued here rather than bundled into the wave that surfaced it.
 

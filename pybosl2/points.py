@@ -19,13 +19,18 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
-from typing import overload
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
+from numpy.typing import NDArray
 
 from pybosl2.exceptions import Bosl2ValueError
 
-__all__ = ["Point", "Vector"]
+if TYPE_CHECKING:
+    from typing import TypeAlias
+
+
+__all__ = ["Point", "PointLike", "Vector"]
 
 
 # ---------------------------------------------------------------------------
@@ -372,3 +377,17 @@ class Point(Sequence[float]):
 # ---------------------------------------------------------------------------
 
 Vector = Point
+
+#: What a parameter meaning "one point" accepts (PLAN T-4, the point-shaped twin of
+#: :data:`~pybosl2.paths.PathLike`): a :class:`Point`, the plain list or tuple a caller writes, or
+#: a NumPy array. Normalise on the first line of the body with ``Point(x)`` or
+#: ``np.asarray(x, dtype=float)``.
+#:
+#: Typing such a parameter `np.ndarray` is the defect this exists to stop: it rejected
+#: ``Bezier.begin([0, 0], 45)`` -- which is what the docstring examples write, and what any caller
+#: writes -- while accepting only the form the library happens to hand back.
+#:
+#: Declared here rather than at the top of the module so its value can be a real expression: as a
+#: string it is a forward reference the linter cannot see through, and the `NDArray` import it
+#: needs gets pruned as unused.
+PointLike: "TypeAlias" = Point | Sequence[float] | NDArray[np.float64]

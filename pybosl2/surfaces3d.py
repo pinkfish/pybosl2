@@ -646,7 +646,7 @@ def plot3d(
 @backend_only("csg")
 def plot_revolution(
     f: Callable[[float, float], float],
-    angle: float,
+    angle: "Sequence[float]",
     z: Sequence[float] | None = None,
     radius: float | None = None,
     radius1: float | None = None,
@@ -712,7 +712,9 @@ def plot_revolution(
         diameter=diameter,
         dflt=None,
     )
-    theta = [float(a) for a in angle]  # type: ignore[attr-defined]
+    # `angle` is the sweep *range* -- at least two values -- which the annotation used to say
+    # was a single `float`, so every caller writing what the body needs failed the checker.
+    theta = [float(a) for a in angle]
     if not (len(theta) > 1):
         raise Bosl2ValueError("plot_revolution(): angle must have at least 2 values.")
     if path is not None:

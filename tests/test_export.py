@@ -67,7 +67,7 @@ def test_ascii_and_binary_stl_describe_the_same_mesh(tmp_path: Path) -> None:
 
 def test_obj_off_and_ply_carry_every_vertex(tmp_path: Path) -> None:
     """The text formats keep the polygons rather than triangulating, so counts match the VNF."""
-    mesh = _box_solid().vnf  # type: ignore[attr-defined]
+    mesh = _box_solid().vnf()  # type: ignore[attr-defined]
     for suffix, vertex_token in ((".obj", "v "), (".off", None), (".ply", None)):
         out = mesh.export(tmp_path / f"box{suffix}")
         text = out.read_text()
@@ -79,7 +79,7 @@ def test_obj_off_and_ply_carry_every_vertex(tmp_path: Path) -> None:
 def test_a_solid_and_its_mesh_export_identically(tmp_path: Path) -> None:
     solid = _box_solid()
     from_solid = solid.export(tmp_path / "a.stl")  # type: ignore[attr-defined]
-    from_mesh = solid.vnf.export(tmp_path / "b.stl")  # type: ignore[attr-defined]
+    from_mesh = solid.vnf().export(tmp_path / "b.stl")  # type: ignore[attr-defined]
     assert from_solid.read_bytes() == from_mesh.read_bytes()
 
 
@@ -87,7 +87,7 @@ def test_a_solid_built_any_other_way_exports_too(tmp_path: Path) -> None:
     """Not just sweeps: an ordinary CSG solid meshes on demand (VNF.from_solid)."""
     part = cuboid([40, 30, 10], rounding=3, fn=64) - cyl(radius=4, height=20)
     metrics = stl_metrics(part.export(tmp_path / "bracket.stl"))
-    assert metrics.volume == pytest.approx(part.vnf.volume(), rel=1e-6)
+    assert metrics.volume == pytest.approx(part.vnf().volume(), rel=1e-6)
     # against the solid's own bounds, not the nominal size: a facetted roundover sits marginally
     # inside the box it was cut from, and that is the solid's business, not the exporter's
     assert list(metrics.size) == pytest.approx(list(part.bounds().size), abs=1e-4)
@@ -128,7 +128,7 @@ def test_an_open_surface_is_refused_and_the_escape_hatch_works(tmp_path: Path) -
 
 def test_an_inside_out_mesh_is_refused(tmp_path: Path) -> None:
     """An inverted mesh exports cleanly and then adds material wherever it cuts (SPEC S-55)."""
-    inverted = _box_solid().vnf.reverse()  # type: ignore[attr-defined]
+    inverted = _box_solid().vnf().reverse()  # type: ignore[attr-defined]
     assert inverted.volume() < 0
     with pytest.raises(Bosl2ValueError, match="inside out"):
         inverted.export(tmp_path / "bad.stl")
@@ -140,8 +140,8 @@ def test_an_empty_mesh_is_refused(tmp_path: Path) -> None:
 
 
 def test_a_closed_solid_has_no_open_edges() -> None:
-    assert open_edges(_box_solid().vnf) == []  # type: ignore[attr-defined]
-    assert check_exportable(_box_solid().vnf) is None  # type: ignore[attr-defined]
+    assert open_edges(_box_solid().vnf()) == []  # type: ignore[attr-defined]
+    assert check_exportable(_box_solid().vnf()) is None  # type: ignore[attr-defined]
 
 
 # --- format selection -------------------------------------------------------------------------
@@ -171,5 +171,5 @@ def test_a_curved_solid_survives_the_round_trip(tmp_path: Path) -> None:
         closed=True,
     ).linear_sweep(height=12)
     metrics = stl_metrics(swept.export(tmp_path / "rod.stl"))
-    assert metrics.volume == pytest.approx(swept.vnf.volume(), rel=1e-5)
+    assert metrics.volume == pytest.approx(swept.vnf().volume(), rel=1e-5)
     assert metrics.ntris == 2 * 24 + 2 * 22  # 24 side quads fanned, plus two 24-gon caps

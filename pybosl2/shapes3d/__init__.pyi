@@ -5,6 +5,9 @@
 # SPDX-License-Identifier: BSD-2-Clause
 
 # Surfaces3d lazy exports
+# `osimport` is re-exported from base.py and was the one public name this stub missed, so a
+# documented call to it failed `mypy --strict` while working perfectly (PLAN T-8).
+from pybosl2.shapes3d.base import osimport as osimport
 from pybosl2.surfaces3d import (
     cylindrical_heightfield as cylindrical_heightfield,
 )

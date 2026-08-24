@@ -102,12 +102,44 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   member that exists only through a dynamic passthrough therefore fails the check even though the
   call works — which is how `show()` was absent from every shape contract while appearing to be
   present. Anything in a contract MUST be declared on the class.
+* **T-6e A runtime-checkable Protocol declares no property that does work.** `isinstance()`
+  against such a Protocol calls `hasattr()` on **every** declared member, and `hasattr` on a
+  property *evaluates* it. So a property that meshes, renders, crosses the FFI, or can raise turns
+  a type check into that work — silently, on every call — and, when the work fails, into an
+  exception escaping the check itself, because `hasattr` catches `AttributeError` and nothing else.
+
+  `Solid.vnf` was declared as a property and did exactly this: `isinstance(shape, Solid)` meshed an
+  SDF field, and on a machine with no mesher available the resulting `Bosl2ValueError` propagated
+  out of the `isinstance` call. Two backend tests failed with a mesh error from inside a type
+  check.
+
+  **This rule and T-6b are two halves of one version change, and the library must satisfy both.**
+  Python 3.11 resolves a protocol `isinstance` with `hasattr`; 3.12 changed it to a static lookup.
+  So on 3.11 a property on a contract is evaluated (this rule) but a member supplied by
+  `__getattr__` is found; on 3.12+ the property is safe but the dynamic member is invisible (T-6b).
+  `requires-python` is `>=3.11`, so code that satisfies only one of the two is broken for some
+  supported interpreter — and, worse, is broken *invisibly* on whichever one the developer happens
+  to run. That is exactly how this reached CI: it is unobservable on 3.12 and later.
+
+  `tests/test_no_mesher.py` is the guard, and it probes with `hasattr` directly as well as through
+  `isinstance` so it fails on every interpreter rather than only on 3.11.
+
+  So: anything on a contract that computes is a **method** (`bounds()`, `vnf()`, `volume()`,
+  `show()`); a property on a contract is a cheap, total accessor over state the object already
+  holds (`backend`, `size`). This is the same failure family as E-6 — code that probes an object
+  must get an answer, not a traceback — arriving through `isinstance` rather than `getattr`.
 * **T-7 Variance is explicit.** `TypeVar("T", covariant=True)` / `contravariant=True` where a
   generic is exposed publicly.
-* **T-8 Stubs for dynamic surfaces.** Any module whose public names are bound dynamically MUST ship
-  a `.pyi` that declares them statically — `pybosl2/__init__.pyi`, `shapes2d/__init__.pyi`,
-  `shapes3d/__init__.pyi`, `solid.pyi`, `_shape.pyi`. A stub and its module MUST NOT drift; parity
-  is enforced by `tests/test_init_stub.py`.
+* **T-8 Stubs for dynamic surfaces, and *only* for those.** A module whose public names are bound
+  dynamically MUST ship a `.pyi` that declares them statically — `pybosl2/__init__.pyi`,
+  `shapes2d/__init__.pyi`, `shapes3d/__init__.pyi`, `_shape.pyi`. A module whose functions are
+  ordinary `def`s with full annotations MUST NOT: the stub shadows the truth and can only drift
+  from it. `solid.pyi` was exactly that and had — it declared `cube` with five parameters where
+  the module has fifteen, so `cube(size=20, chamfer=2)` failed the checker while working perfectly,
+  and the docstring example that wrote it was reported as the defect. It is deleted.
+
+  A stub and its module MUST NOT drift; parity is enforced by `tests/test_init_stub.py`, and the
+  docstring-example gate (D-P5a) is what catches the drift a parity test does not model.
 * **T-9 No dynamic globals.** Never `globals()[name] = …` or `setattr(module, …)` to register an
   API. The one permitted `__getattr__` is the top-level lazy re-export table, which is backed by
   its stub (T-8).
@@ -528,13 +560,13 @@ The spec's quality gates map to these commands — all five MUST pass before a c
 | **Q-3** lint and format | `ruff check . --fix && ruff format .` |
 | **Q-4** minimum-argument test + validated example | `pytest tests/test_defaults.py tests/validate_examples.py` |
 | **Q-5** contract tests still pass | `pytest tests/test_facets.py tests/test_init_stub.py tests/test_backend_matrix.py tests/test_shape_contract.py` |
-| **Q-6** every docstring example type-checks | `pytest tests/test_docstring_examples.py` |
+| **Q-6** every docstring example type-checks | `pytest tests/test_docstring_examples.py` (needs mypy, which the `test` extra carries; the gate **fails rather than skips** when `CI` is set, and `tests/test_ci_gates.py` checks every workflow can run it) |
 
 
 ```bash
 python -m venv .venv                 # create from OUTSIDE the repo: pybosl2/math.py can shadow stdlib
 source .venv/bin/activate
-pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad
+pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad + mypy
 
 export TMPDIR=/Volumes/ExternalDocs/tmp/   # scratch on the big volume, not the system disk
 pytest                               # full suite

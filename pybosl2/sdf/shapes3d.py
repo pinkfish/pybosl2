@@ -399,7 +399,6 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         return Bounds3D.from_min_max(self.mn, self.mx)
 
-    @property
     def vnf(self) -> "VNF":
         """Return this solid as a mesh (SPEC C-8, S-19a).
 
@@ -416,7 +415,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                 from pybosl2 import Path2D
 
                 bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
-                print(bar.vnf.volume())     # 2000.0
+                print(bar.vnf().volume())     # 2000.0
                 bar.show()
 
         """
@@ -465,7 +464,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         from pybosl2.export import write_mesh
 
-        return write_mesh(self.vnf, _FilePath(path), file_format=file_format, check=check)
+        return write_mesh(self.vnf(), _FilePath(path), file_format=file_format, check=check)
 
     # --- The CSG-only surface, refused explicitly (SPEC C-12, C-13, PAR-3) ---------------------
     # Declared as real methods rather than left to __getattr__ so that the neutral contract can
@@ -536,6 +535,18 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def face_profile(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: face treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
         self._refuse("face_profile")
+
+    def round_edges(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use `cuboid(rounding=...)` instead."""
+        self._refuse("round_edges")
+
+    def chamfer_edges(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use `cuboid(chamfer=...)` instead."""
+        self._refuse("chamfer_edges")
+
+    def cove_edges(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only, and a cove has no constructor parameter."""
+        self._refuse("cove_edges")
 
     def projection(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: a 2-D shadow of a field has no closed form (SPEC PAR-3). Use `.to_csg()`."""

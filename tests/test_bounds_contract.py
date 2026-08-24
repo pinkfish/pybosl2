@@ -25,9 +25,9 @@ from pybosl2.bounds import Bounds2D, Bounds3D
 
 
 def _sweep_mesh(profile: Path2D) -> object:
-    """The mesh a sweep produces -- reached through `.vnf` once T18 lands, the sweep itself today."""
+    """The mesh a sweep produces -- reached through `.vnf()` once T18 lands, the sweep itself today."""
     swept = profile.linear_sweep(height=10)
-    return getattr(swept, "vnf", swept)
+    return swept.vnf()
 
 
 def _every_measurable() -> list[tuple[str, object, type]]:

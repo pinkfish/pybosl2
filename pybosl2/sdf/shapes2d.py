@@ -424,6 +424,49 @@ class SdfShape2D:
 
     # ---- to 3-D ----
 
+    def linear_extrude(
+        self,
+        height: float,
+        rounding_top: float = 0,
+        rounding_bottom: float = 0,
+        center: bool = False,
+        res: int | None = None,
+    ) -> PyShape:
+        """Extrude this 2-D shape to *height* along Z -- the `Flat` contract's spelling.
+
+        The same operation as :meth:`extrude`, under the name the shared contract uses (SPEC C-17)
+        and the CSG 2-D shape already used. Having only `extrude` here made a caller's code
+        backend-specific for no reason and put a naming divergence in the API rather than in the
+        one translation table PLAN B-P2 allows.
+
+        Args:
+            height: Extrusion height along Z.
+            rounding_top: Rim roundover at the top face.
+            rounding_bottom: Rim roundover at the bottom face.
+            center: Centre the result on z=0 rather than basing it there.
+            res: Sampling resolution; the ambient default applies when omitted.
+
+        Returns:
+            The extruded :class:`PyShape`.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import square, use_backend
+
+                with use_backend("sdf"):
+                    shape = square([20, 10]).linear_extrude(height=6)
+                shape.show()
+
+        """
+        return self.extrude(
+            height,
+            rounding_top=rounding_top,
+            rounding_bottom=rounding_bottom,
+            center=center,
+            res=res,
+        )
+
     def extrude(
         self,
         height: float,
@@ -514,13 +557,6 @@ class SdfShape2D:
         )
 
     linear_sweep = linear_sweep_sdf
-
-    def linear_extrude(self, height: float, center: bool = False) -> PyShape:
-        """Native-spelling alias for extrude(), so migrated 2-D shapes keep working at existing.
-
-        `.linear_extrude(height=...)` call sites.
-        """
-        return self.extrude(height, center=center)
 
     def __getattr__(self, name: str) -> Any:
         # Fall through to a thin extrusion's meshed solid -- an escape hatch for native-only

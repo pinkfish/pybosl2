@@ -55,7 +55,7 @@ def test_every_sweep_returns_a_solid(name: str, swept: object) -> None:
 @pytest.mark.parametrize(("name", "swept"), list(_family().items()))
 def test_every_sweep_keeps_its_mesh_reachable(name: str, swept: object) -> None:
     """Returning a Solid must not cost the caller who wanted the mesh (SPEC C-8, S-19a)."""
-    mesh = swept.vnf  # type: ignore[attr-defined]
+    mesh = swept.vnf()  # type: ignore[attr-defined]
     assert isinstance(mesh, VNF), name
     assert len(mesh.vertices) > 3, name
     assert len(mesh.faces) > 3, name
@@ -70,15 +70,15 @@ def test_every_sweep_winds_outward(name: str, swept: object) -> None:
     own and then *adds* material where it was meant to cut. The existing render-level guard
     covered `linear_sweep` alone; this covers the siblings that were actually wrong.
     """
-    assert swept.vnf.volume() > 0, f"{name} is wound inside out"  # type: ignore[attr-defined]
+    assert swept.vnf().volume() > 0, f"{name} is wound inside out"  # type: ignore[attr-defined]
 
 
 def test_the_same_box_two_ways_agrees_on_volume() -> None:
     """The exact comparison the winding bug failed: +1000 one way, -1000 the other."""
     by_extrusion = SQUARE.linear_sweep(height=10)
     by_path = Path3D([[0, 0, z] for z in range(11)]).path_sweep(SQUARE)
-    assert by_extrusion.vnf.volume() == pytest.approx(1000.0)
-    assert by_path.vnf.volume() == pytest.approx(1000.0)
+    assert by_extrusion.vnf().volume() == pytest.approx(1000.0)
+    assert by_path.vnf().volume() == pytest.approx(1000.0)
 
 
 @pytest.mark.parametrize(("name", "swept"), list(_family().items()))
@@ -86,7 +86,7 @@ def test_a_sweep_cuts_rather_than_fills(name: str, swept: object) -> None:
     """The consequence the winding guards: subtracting a sweep must *remove* material."""
     block = cuboid([80, 80, 80])
     cut = block - swept  # type: ignore[operator]
-    assert cut.vnf.volume() < block.vnf.volume(), f"cutting with {name} added material"
+    assert cut.vnf().volume() < block.vnf().volume(), f"cutting with {name} added material"
 
 
 def test_no_sweep_signature_carries_a_union_return() -> None:

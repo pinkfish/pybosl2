@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, Self, cast, runtime_checkable
 
 from pybosl2._backend import Shape, current_backend
 from pybosl2._edges_lang import resolve_anchor
@@ -63,6 +63,32 @@ class Flat(Shape, Protocol):
 
     def linear_extrude(self, height: float, **kwargs: Any) -> Solid:
         """Extrude this 2-D shape into a 3-D solid."""
+        ...
+
+    # The rest of the way up into three dimensions (SPEC C-17), and the operations only an outline
+    # has. Declared because the objects have them and C-20 says the contract is the whole object;
+    # `Any` where the two backends spell an option differently (PLAN T-6c).
+    def rotate_extrude(self, *args: Any, **kwargs: Any) -> Solid:
+        """Revolve this 2-D shape about the Z axis into a solid."""
+        ...
+
+    def offset(self, *args: Any, **kwargs: Any) -> Self:
+        """Return this outline grown or shrunk by a distance."""
+        ...
+
+    def hull(self, *others: Any, **kwargs: Any) -> Self:
+        """Return the convex hull of this shape and any others."""
+        ...
+
+    # In-plane transforms. Both dimensions can honour a flip and a Z-rotation, so C-22 would put
+    # these on `Shape` -- they stay here only until the 3-D side grows the same spellings, which is
+    # the C-21 synonym work (SPEC §12.2).
+    def xflip(self, *args: Any, **kwargs: Any) -> Self:
+        """Mirror this shape across the YZ plane."""
+        ...
+
+    def yflip(self, *args: Any, **kwargs: Any) -> Self:
+        """Mirror this shape across the XZ plane."""
         ...
 
 

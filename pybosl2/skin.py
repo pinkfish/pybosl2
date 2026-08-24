@@ -74,7 +74,7 @@ def _as_solid(mesh: "VNF | Solid") -> "Solid":
 
     SPEC S-19a: a sweep returns a `Solid`, so its result composes with `-`/`|`/`&` and the
     transforms like any other shape and a caller never appends `.polyhedron()` to a call that
-    already said "sweep this into a solid". The mesh stays available as `.vnf` for measuring,
+    already said "sweep this into a solid". The mesh stays available as `.vnf()` for measuring,
     joining or exporting with no CAD runtime (SPEC C-8), which is why it is stashed rather than
     discarded.
 
@@ -84,7 +84,7 @@ def _as_solid(mesh: "VNF | Solid") -> "Solid":
     if not isinstance(mesh, VNF):
         return mesh
     solid = mesh.polyhedron()
-    # Stashed for `Solid.vnf` to hand back: meshing it again would be both slower and lossier than
+    # Stashed for `Solid.vnf()` to hand back: meshing it again would be both slower and lossier than
     # keeping the one the sweep already built.
     object.__setattr__(solid, "_vnf", mesh)
     return solid

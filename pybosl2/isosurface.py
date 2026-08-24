@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
     from pybosl2.bounds import Bounds2D
-    from pybosl2.points import Point
+    from pybosl2.points import Point, PointLike
 
 INF = math.inf
 
@@ -515,7 +515,7 @@ class MetaballSpec:
     transform: np.ndarray = field(init=False)
     metaball: Metaball = field(init=False)
 
-    def __init__(self, transform: np.ndarray | Point, metaball: Metaball) -> None:
+    def __init__(self, transform: "PointLike | np.ndarray", metaball: Metaball) -> None:
         """Pair a metaball with where it sits.
 
         :meth:`Metaball.at` is the readable way to build one.

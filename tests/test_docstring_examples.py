@@ -59,6 +59,26 @@ def _examples() -> list[tuple[str, str]]:
     return found
 
 
+def _require_mypy() -> None:
+    """Ensure the checker is available -- and in CI, refuse to skip without it.
+
+    Locally a contributor may not have the dev extras yet, and skipping with a clear reason beats
+    a confusing failure. In CI there is no such thing as a gate that skips: SPEC Q-6 says every
+    docstring example type-checks, and a skipped check reports exactly the same green tick as a
+    passing one. `mypy` is in the `test` extra precisely so every job that installs the suite has
+    it, and this makes a regression in that packaging fail loudly rather than quietly stop testing.
+    """
+    import importlib.util
+    import os
+
+    if importlib.util.find_spec("mypy") is not None:
+        return
+    message = "the docstring-example gate needs mypy, which is part of the `test` extra (`pip install -e '.[test]'`)"
+    if os.environ.get("CI"):
+        pytest.fail(f"{message} -- and in CI this gate may not be skipped (SPEC Q-6)")
+    pytest.skip(message)
+
+
 @pytest.fixture(scope="module")
 def mypy_report(tmp_path_factory: pytest.TempPathFactory) -> dict[str, list[str]]:
     """Type-check every example in one batched mypy run, and index the errors by example.
@@ -66,6 +86,8 @@ def mypy_report(tmp_path_factory: pytest.TempPathFactory) -> dict[str, list[str]
     One process for the whole corpus: mypy's startup dominates, and a per-example run would make
     the gate too slow to keep in the default suite.
     """
+    _require_mypy()
+
     examples = _examples()
     work = tmp_path_factory.mktemp("examples")
     written: dict[str, str] = {}
@@ -91,6 +113,22 @@ def mypy_report(tmp_path_factory: pytest.TempPathFactory) -> dict[str, list[str]
         text=True,
         cwd=REPO_ROOT,
     )
+
+    # A gate that reports success because it never ran is worse than no gate. mypy exits 0 for
+    # "no errors", 1 for "errors found", and >=2 for a usage or internal failure -- but it also
+    # exits 1 with *empty stdout* when the module could not be loaded at all. Both of those look
+    # exactly like "every example is clean" to the parser below, which then reports the whole
+    # known-gap list as stale. Distinguish them here, before anything is parsed.
+    ran = result.returncode == 0 or (result.returncode == 1 and result.stdout.strip())
+    if not ran:
+        raise AssertionError(
+            "the docstring-example gate did not run, so its result means nothing (SPEC Q-6).\n"
+            f"  mypy exited {result.returncode} with no diagnostics.\n"
+            f"  stderr: {result.stderr.strip()[:500] or '(empty)'}\n"
+            "Install the dev extras (`pip install -e '.[test]'`) so `python -m mypy` is importable "
+            "by the interpreter running pytest."
+        )
+
     errors: dict[str, list[str]] = {label: [] for label in written.values()}
     for line in result.stdout.splitlines():
         match = re.match(r"^.*?(example_\d+\.py):(\d+): error: (.+)$", line)
@@ -121,23 +159,12 @@ def test_there_are_examples_to_check() -> None:
 #: Counted per module rather than per line so the list survives ordinary editing: a moved example
 #: must not silently free a slot.
 #:
-#: 35 of 304 examples, down from 48 when the gate landed.
+#: 8 of 314 examples, down from 54 when the gate landed.
 KNOWN_UNTYPED_EXAMPLES: dict[str, int] = {
-    "docs/index.rst": 1,
-    "pybosl2/beziers.py": 7,
-    "pybosl2/distributors.py": 1,
-    "pybosl2/isosurface.py": 1,
+    "pybosl2/beziers.py": 3,
     "pybosl2/partitions.py": 1,
-    "pybosl2/parts/cubetruss.py": 1,
     "pybosl2/sdf/shapes2d.py": 1,
-    "pybosl2/shapes2d/base.py": 1,
-    "pybosl2/shapes3d/base.py": 4,
-    "pybosl2/shapes3d/cuboid.py": 2,
-    "pybosl2/shapes3d/cylinder.py": 3,
-    "pybosl2/solid.py": 5,
-    "pybosl2/surfaces3d.py": 1,
-    "pybosl2/turtle/_fluent.py": 1,
-    "pybosl2/vnf.py": 5,
+    "pybosl2/vnf.py": 3,
 }
 
 
@@ -195,3 +222,36 @@ def test_no_example_suppresses_a_type_error() -> None:
     assert not offenders, (
         f"examples must not carry `# type: ignore` (PLAN D-P5a) -- if one needs it, the signature is wrong: {offenders}"
     )
+
+
+def test_the_gate_refuses_to_pass_when_it_did_not_run() -> None:
+    """A gate that reports success because it never executed is worse than no gate at all.
+
+    mypy exits 1 both for "found errors" and for "could not load the module", and the second case
+    comes with *empty stdout* -- which the parser reads as "every example is clean". The visible
+    symptom was the opposite of the cause: every module reported as stale, with no hint that the
+    checker had not run. This pins the distinction.
+    """
+    import subprocess
+    import sys
+
+    # the shape of a run that did not happen: exit 1, nothing on stdout, a reason on stderr
+    failed_to_run = subprocess.run(
+        [sys.executable, "-m", "mypy_definitely_not_installed"], capture_output=True, text=True
+    )
+    assert failed_to_run.returncode == 1
+    assert not failed_to_run.stdout.strip()
+    assert failed_to_run.stderr.strip()
+
+    # ...and the shape of a real run that found nothing
+    clean = subprocess.run([sys.executable, "-m", "mypy", "--version"], capture_output=True, text=True)
+    assert clean.returncode == 0, "mypy must be importable for the gate to mean anything"
+
+    # The fixture's own predicate, stated here so a change to it has to change this too.
+    def ran(returncode: int, stdout: str) -> bool:
+        return returncode == 0 or (returncode == 1 and bool(stdout.strip()))
+
+    assert not ran(failed_to_run.returncode, failed_to_run.stdout), "a failed launch must not count as a run"
+    assert ran(0, ""), "exit 0 with no output is a real run that found nothing"
+    assert ran(1, "x.py:1: error: something"), "exit 1 with diagnostics is a real run"
+    assert not ran(2, ""), "a usage error is not a run"

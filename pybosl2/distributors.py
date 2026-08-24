@@ -34,7 +34,7 @@ from __future__ import annotations
 import math
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import numpy as np
 
@@ -827,7 +827,7 @@ class Distributable(ABC):
 
     @staticmethod
     def distribute(
-        children: list[BaseShape],
+        children: "Sequence[Any]",
         spacing: float | None = None,
         sizes: list[float] | None = None,
         dir: Anchor | Point = RIGHT,  # noqa: A002
@@ -877,7 +877,7 @@ class Distributable(ABC):
         out = placed[0]
         for c in placed[1:]:
             out = out | c
-        return out
+        return cast("BaseShape", out)
 
 
 # -- module-level convenience wrappers for the static distribute ---------------
@@ -885,7 +885,7 @@ class Distributable(ABC):
 
 
 def xdistribute(
-    children: list[BaseShape],
+    children: "Sequence[Any]",
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
@@ -905,7 +905,7 @@ def xdistribute(
 
 
 def ydistribute(
-    children: list[BaseShape],
+    children: "Sequence[Any]",
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,
@@ -915,7 +915,7 @@ def ydistribute(
 
 
 def zdistribute(
-    children: list[BaseShape],
+    children: "Sequence[Any]",
     spacing: float | None = None,
     sizes: list[float] | None = None,
     length: float | None = None,

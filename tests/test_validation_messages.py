@@ -567,10 +567,10 @@ def _box() -> object:
 
 
 MASK_CASES: list[tuple[Callable[[], object], str]] = [
-    (lambda: masking.edge_mask(_box(), children=Path2D(OPEN_SQUARE)), "size="),
-    (lambda: masking.edge_mask(_box(), size=(20, 20, 20)), "children="),
-    (lambda: masking.edge_profile(_box(), children=Path2D(OPEN_SQUARE)), "size="),
-    (lambda: masking.edge_profile(_box(), size=(20, 20, 20)), "children="),
+    (lambda: masking.edge_mask(_box(), mask=Path2D(OPEN_SQUARE)), "size="),
+    (lambda: masking.edge_mask(_box(), size=(20, 20, 20)), "mask="),
+    (lambda: masking.edge_profile(_box(), mask=Path2D(OPEN_SQUARE)), "size="),
+    (lambda: masking.edge_profile(_box(), size=(20, 20, 20)), "mask="),
     (lambda: masking.corner_profile(_box(), corners="ALL", radius=2, size=(20, 20, 20)), "Legacy string"),
     (
         lambda: masking.corner_profile(_box(), except_corners="TOP", radius=2, size=(20, 20, 20)),
@@ -966,7 +966,7 @@ def test_stroke_rejections_say_what_to_pass(call: Callable[[], object], expected
 MASKING_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=2, size=(10, 10, 10), corners="left"), "Legacy str"),
     (lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=2), "size= .the box's size. must be given"),
-    (lambda: masking.mask3d_roundover(r=2, size=(10, 10, 10), corners=Anchor.NONE), "selected no corners"),
+    (lambda: masking.mask3d_roundover(radius=2, size=(10, 10, 10), corners=Anchor.NONE), "selected no corners"),
     (lambda: masking.mask3d_chamfer(chamfer=2, size=(10, 10, 10), corners=Anchor.NONE), "selected no corners"),
 ]
 

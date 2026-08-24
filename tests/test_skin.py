@@ -53,16 +53,17 @@ SQUARE = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
 def _mesh(swept: object) -> Any:
     """The mesh behind a sweep result.
 
-    Sweeps return a `Solid` now (SPEC S-19a) and keep the mesh on `.vnf`; the lower-level helpers
+    Sweeps return a `Solid` now (SPEC S-19a) and keep the mesh on `.vnf()`; the lower-level helpers
     still hand back a bare VNF, so both are accepted.
     """
-    return getattr(swept, "vnf", swept)
+    mesh = getattr(swept, "vnf", swept)
+    return mesh() if callable(mesh) else mesh  # `.vnf` is a method now (PLAN T-6e)
 
 
 def _valid(swept: object) -> bool:
     """Every face indexes a vertex that exists.
 
-    A sweep hands back a Solid now (SPEC S-19a), so the mesh is reached through `.vnf`; a bare VNF
+    A sweep hands back a Solid now (SPEC S-19a), so the mesh is reached through `.vnf()`; a bare VNF
     (from the lower-level helpers) is accepted as-is.
     """
     vnf = _mesh(swept)
@@ -559,8 +560,8 @@ def test_rounded_prism_tapered() -> None:
     prism = Path2D(_SQ20).rounded_prism(top=top_sq, height=20, joint_sides=1)
     assert _valid(prism)
     # Volume should be between bottom-extruded and top-extruded cubes
-    vol_bot = Path2D(_SQ20).linear_sweep(height=20).vnf.volume()
-    vol_top = Path2D(top_sq).linear_sweep(height=20).vnf.volume()
+    vol_bot = Path2D(_SQ20).linear_sweep(height=20).vnf().volume()
+    vol_top = Path2D(top_sq).linear_sweep(height=20).vnf().volume()
     assert vol_top < _mesh(prism).volume() < vol_bot  # type: ignore[attr-defined, union-attr]
 
 
@@ -636,14 +637,14 @@ def test_oop_skin_and_sweep() -> None:
     circle = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf_skinned = VNF.from_skin([circle, square], slices=5, method=SkinMethod.REINDEX, z=[0, 10])
-    assert isinstance(vnf_skinned, VNF)
+    assert isinstance(vnf_skinned.vnf(), VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf()
     assert abs(_mesh(vnf_skinned).volume()) > 0
 
     shape = Path2D(square)
     transforms = [np.eye(4), np.eye(4)]
     transforms[1][:3, 3] = [0, 0, 10]
     vnf_swept = shape.sweep(transforms)
-    assert isinstance(vnf_swept.vnf, VNF)  # a Solid now (S-19a); its mesh is on .vnf
+    assert isinstance(vnf_swept.vnf(), VNF)  # a Solid now (S-19a); its mesh is on .vnf()
 
 
 # ── decorative caps coverage ────────────────────────────────────────────
@@ -658,7 +659,7 @@ def test_path_sweep_arrow_cap() -> None:
     spine = Path2D([[0, 0], [20, 0], [20, 20]])
     plain = spine.path_sweep(circle)
     capped = spine.path_sweep(circle, caps=CapSpec(CapType.ARROW, length=2))
-    assert isinstance(plain.vnf, VNF)  # a Solid now (S-19a); its mesh is on .vnf
+    assert isinstance(plain.vnf(), VNF)  # a Solid now (S-19a); its mesh is on .vnf()
     assert not isinstance(capped, VNF)
     assert "rotate_extrude" in repr(capped.shape)  # the arrow is a revolved profile
 

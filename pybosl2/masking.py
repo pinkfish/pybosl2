@@ -210,7 +210,7 @@ def edge_mask(
     body: "Bosl2Solid",
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
-    children: "Solid | None" = None,
+    mask: "Solid | None" = None,
     size: tuple[float, float, float] | None = None,
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
@@ -222,7 +222,7 @@ def edge_mask(
         body: The box solid to cut.
         edges: Edges to mask — an :class:`EdgePlane`, a string, a vector, or a list thereof (default ``"ALL"``).
         except_edges: Edges to explicitly not mask.
-        children: The pre-built 3-D edge cutter.
+        mask: The 3-D edge cutter to apply.
         size: The box's ``(x, y, z)`` size.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
@@ -231,14 +231,14 @@ def edge_mask(
     """
     if not (size is not None):
         raise Bosl2ValueError("size= (the box's size) must be given")
-    if not (children is not None):
-        raise Bosl2ValueError("children= (the edge cutter) must be given")
+    if not (mask is not None):
+        raise Bosl2ValueError("mask= (the edge cutter) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Solid | None" = None
     for axis in range(3):
         for i in range(4):
             if edge_set[axis][i] > 0:
-                piece = _orient_mask_along_edge(children, size, Point(EDGE_OFFSETS[axis][i]))
+                piece = _orient_mask_along_edge(mask, size, Point(EDGE_OFFSETS[axis][i]))
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return None if return_cutter else body
@@ -252,7 +252,7 @@ def edge_profile(
     body: "Bosl2Solid",
     edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
     except_edges: list[EdgeAtom] | None = None,
-    children: "Path2D | None" = None,
+    mask: "Path2D | None" = None,
     size: tuple[float, float, float] | None = None,
     convexity: int = 10,
     anchor: Anchor | Point = CENTER,
@@ -265,7 +265,7 @@ def edge_profile(
         body: The box solid to cut.
         edges: Edges to mask (default ``"ALL"``).
         except_edges: Edges to explicitly not mask.
-        children: The 2-D mask cross-section :class:`~pybosl2.path2d.Path2D`.
+        mask: The 2-D mask cross-section, as a :class:`~pybosl2.path2d.Path2D`.
         size: The box's ``(x, y, z)`` size.
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
@@ -276,8 +276,8 @@ def edge_profile(
     _ = convexity
     if not (size is not None):
         raise Bosl2ValueError("size= (the box's size) must be given")
-    if not (children is not None):
-        raise Bosl2ValueError("children= (the 2-D mask path) must be given")
+    if not (mask is not None):
+        raise Bosl2ValueError("mask= (the 2-D mask path) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Solid | None" = None
     for axis in range(3):
@@ -285,7 +285,7 @@ def edge_profile(
             if edge_set[axis][i] > 0:
                 vec = EDGE_OFFSETS[axis][i]
                 length = size[axis] + 0.1
-                piece = _extrude_mask_along_edge(children, length, size, Point(vec))
+                piece = _extrude_mask_along_edge(mask, length, size, Point(vec))
                 cutter = piece if cutter is None else (cutter | piece)
     if cutter is None:
         return None if return_cutter else body
@@ -411,7 +411,7 @@ def corner_profile(
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
-    children: "Path2D | None" = None,
+    mask: "Path2D | None" = None,
     convexity: int = 10,
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
@@ -429,7 +429,7 @@ def corner_profile(
         radius: Rounding radius.
         diameter: Rounding diameter (alternative to *radius*).
         size: The box's ``(x, y, z)`` size.
-        children: Accepted for call-site compatibility; unused.
+        mask: Accepted for call-site compatibility; unused -- corner_profile always rounds.
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
@@ -439,7 +439,7 @@ def corner_profile(
         return_cutter: If True, returns the generated cutter shape instead of cutting it.
 
     """
-    _ = (children, convexity)
+    _ = (mask, convexity)
     if radius is None:
         if not (diameter is not None):
             raise Bosl2ValueError("corner_profile(): must give radius or diameter")
@@ -467,7 +467,7 @@ def face_profile(
     radius: float | None = None,
     diameter: float | None = None,
     size: tuple[float, float, float] | None = None,
-    children: "Path2D | None" = None,
+    mask: "Path2D | None" = None,
     convexity: int = 10,
     anchor: Anchor | Point = CENTER,
     center: Point | None = None,
@@ -484,8 +484,8 @@ def face_profile(
         radius: Rounding radius.
         diameter: Rounding diameter (alternative to *radius*).
         size: The box's ``(x, y, z)`` size.
-        children: The 2-D mask cross-section :class:`~pybosl2.path2d.Path2D`;
-            defaults to ``mask2d_roundover(radius)``.
+        mask: The 2-D mask cross-section, as a :class:`~pybosl2.path2d.Path2D`;
+            defaults to ``Mask2D.roundover(radius)``.
         convexity: Accepted for signature compatibility; unused.
         anchor: The anchor *body* was built with (default ``CENTER``).
         center: The box center in body's current frame.
@@ -500,12 +500,12 @@ def face_profile(
             raise Bosl2ValueError("face_profile(): must give radius or diameter")
         radius = diameter / 2
     rad = float(radius)
-    mask = children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
+    profile = mask if mask is not None else Mask2D.roundover(rad, fn=fn, fa=fa, fs=fs)
     if return_cutter:
         edge_c = edge_profile(
             body,
             faces,
-            children=mask,
+            mask=profile,
             size=size,
             convexity=convexity,
             anchor=anchor,
@@ -531,7 +531,7 @@ def face_profile(
             return edge_c
         return edge_c | corner_c
 
-    body = edge_profile(body, faces, children=mask, size=size, convexity=convexity, anchor=anchor, center=center)  # type: ignore[assignment]
+    body = edge_profile(body, faces, mask=profile, size=size, convexity=convexity, anchor=anchor, center=center)  # type: ignore[assignment]
     return corner_profile(
         body,
         faces,  # type: ignore[arg-type]
@@ -549,7 +549,7 @@ def face_profile(
 class Mask2D:
     """The 2-D cutter cross-sections (BOSL2's ``mask2d_*`` family), as factories returning a Path2D.
 
-    Each returns the profile you sweep along an edge to cut it -- pass one as the *children* of
+    Each returns the profile you sweep along an edge to cut it -- pass one as the *mask* of
     :meth:`~pybosl2.shapes3d.base.Bosl2Solid.edge_profile` /
     :meth:`~pybosl2.shapes3d.base.Bosl2Solid.corner_profile`, or extrude it yourself. The BOSL2 spellings
     (``mask2d_roundover`` and friends) remain as aliases of these.
@@ -559,7 +559,7 @@ class Mask2D:
 
             from pybosl2 import Anchor, Mask2D, cuboid
 
-            cuboid([30, 30, 20]).edge_profile(edges=[Anchor.TOP], children=Mask2D.roundover(4)).show()
+            cuboid([30, 30, 20]).edge_profile(edges=[Anchor.TOP], mask=Mask2D.roundover(4)).show()
 
     """
 
@@ -610,27 +610,49 @@ class Mask2D:
 
     @staticmethod
     def chamfer(
-        x: float,
-        y: float | None = None,
+        width: float,
+        height: float | None = None,
         excess: float = 0.01,
     ) -> "Path2D":
         """Return the 2-D L-shaped cutter cross-section for chamfering a 90-degree edge.
 
+        A symmetric chamfer needs one number; give *height* only for an asymmetric one. These were
+        spelled ``x`` and ``y``, which named the axes rather than the thing being described
+        (SPEC S-26c).
+
         Args:
-            x: Chamfer width (X direction).
-            y: Chamfer height (Y direction). Defaults to `x`.
+            width: Chamfer width, measured back along the first face.
+            height: Chamfer height, measured back along the second face (default: *width*, a
+                symmetric 45-degree chamfer).
             excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
+
+        Returns:
+            A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
+
+        Raises:
+            Bosl2ValueError: If *width* or a given *height* is not positive.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, Mask2D, cuboid
+
+                cuboid([30, 30, 20]).edge_profile(edges=[Anchor.TOP], mask=Mask2D.chamfer(4)).show()
 
         """
         from pybosl2.path2d import Path2D
 
-        y_val = x if y is None else y
+        if not (width > 0):
+            raise Bosl2ValueError(f"Mask2D.chamfer(): width must be positive, got {width}.")
+        y_val = width if height is None else float(height)
+        if not (y_val > 0):
+            raise Bosl2ValueError(f"Mask2D.chamfer(): height must be positive, got {height}.")
         pts = [
-            [x, -excess],
+            [width, -excess],
             [-excess, -excess],
             [-excess, y_val],
             [0.0, y_val],
-            [x, 0.0],
+            [width, 0.0],
         ]
         return Path2D(pts, closed=True)
 
@@ -715,33 +737,61 @@ class Mask2D:
     @staticmethod
     def step(
         width: float,
-        height: float,
+        height: float | None = None,
         excess: float = 0.01,
     ) -> "Path2D":
         """Return the 2-D cutter cross-section for cutting a step profile in a corner.
 
+        A square step needs one number; give *height* only for a rectangular one. It used to
+        require both, which SPEC D-2 allows only with a written justification and there is none:
+        a step as deep as it is wide is the ordinary case.
+
         Args:
-            width: Step width.
-            height: Step height.
+            width: Step width. The one thing no default can invent.
+            height: Step height (default: *width*, a square step).
             excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
 
+        Returns:
+            A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
+
+        Raises:
+            Bosl2ValueError: If *width* or a given *height* is not positive.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, Mask2D, cuboid
+
+                cuboid([30, 30, 20]).edge_profile(edges=[Anchor.TOP], mask=Mask2D.step(4)).show()
+
         """
+        if not (width > 0):
+            raise Bosl2ValueError(f"Mask2D.step(): width must be positive, got {width}.")
+        height = width if height is None else float(height)
+        if not (height > 0):
+            raise Bosl2ValueError(f"Mask2D.step(): height must be positive, got {height}.")
         from pybosl2.path2d import Path2D
 
+        # The rectangular notch this cuts out of the corner, extended by `excess` on the two outer
+        # sides so the boolean is clean.
+        #
+        # This traced (width, -excess) -> (-excess, -excess) -> (-excess, height) -> (0, height)
+        # -> (0, 0) -> (width, 0), which returns along the notch's *own* edges and so encloses only
+        # an L-shaped sliver `excess` thick: a 4 x 4 step enclosed 0.08 mm^2 instead of 16, and cut
+        # nothing at all. Nothing caught it because the test asserted the point count and not the
+        # area (PLAN X-8).
         pts = [
-            [width, -excess],
             [-excess, -excess],
+            [width, -excess],
+            [width, height],
             [-excess, height],
-            [0.0, height],
-            [0.0, 0.0],
-            [width, 0.0],
         ]
         return Path2D(pts, closed=True)
 
     @staticmethod
     def groove(
         width: float,
-        depth: float,
+        depth: float | None = None,
         chamfer: float = 0.0,
         round_radius: float = 0.0,
         excess: float = 0.01,
@@ -751,17 +801,38 @@ class Mask2D:
     ) -> "Path2D":
         """Return the 2-D cutter cross-section for cutting a slot or groove.
 
+        Only *width* is required (SPEC D-2, P-3): half the width is the depth that reads as a
+        groove rather than a slot, so that is what it derives when you do not say.
+
         Args:
-            width: Groove width.
-            depth: Groove depth.
+            width: Groove width. The one thing no default can invent.
+            depth: Groove depth (default: half the width).
             chamfer: Groove chamfer offset (unused, kept for compatibility).
             round_radius: Groove corner rounding radius (unused, kept for compatibility).
             excess: Amount the flat sides extend past the origin, for a clean cut (default 0.01).
-            fn: Arc smoothness overrides.
-            fa: Arc smoothness overrides.
-            fs: Arc smoothness overrides.
+            fn: Arc smoothness override -- fixed fragment count.
+            fa: Arc smoothness override -- minimum fragment angle.
+            fs: Arc smoothness override -- minimum fragment size.
+
+        Returns:
+            A :class:`~pybosl2.path2d.Path2D` of the 2-D cutter cross-section.
+
+        Raises:
+            Bosl2ValueError: If *width* or a given *depth* is not positive.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, Mask2D, cuboid
+
+                cuboid([30, 30, 20]).edge_profile(edges=[Anchor.TOP], mask=Mask2D.groove(4)).show()
 
         """
+        if not (width > 0):
+            raise Bosl2ValueError(f"Mask2D.groove(): width must be positive, got {width}.")
+        depth = width / 2 if depth is None else float(depth)
+        if not (depth > 0):
+            raise Bosl2ValueError(f"Mask2D.groove(): depth must be positive, got {depth}.")
         from pybosl2.path2d import Path2D
 
         _ = (chamfer, round_radius, fn, fa, fs)
@@ -796,26 +867,53 @@ class Mask3D:
 
     @staticmethod
     def roundover(
-        r: float,
+        radius: float | None = None,
+        *,
         size: tuple[float, float, float],
+        diameter: float | None = None,
         corners: Anchor = Anchor.ALL,
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
     ) -> "Solid":
-        """3-D cutter shape for rounding corners and edges of a box of the given size.
+        """Return the 3-D cutter that rounds the corners and edges of a box of the given size.
+
+        `size` is the box being cut, so it is only ever needed when you build the cutter yourself.
+        Reaching for :meth:`~pybosl2.shapes3d.base.CsgSolid.round_edges` instead is both shorter
+        and safer -- the solid already knows its own box and fills this in (SPEC S-26a, S-26b)::
+
+            solid.round_edges(Anchor.TOP, radius=3)
 
         Args:
-            r: Rounding radius.
-            size: Bounding box size (X, Y, Z).
+            radius: Rounding radius.
+            size: Size of the box being cut, ``(x, y, z)``. Keyword-only, because it describes the
+                *parent*, not the treatment.
+            diameter: Rounding diameter (alternative to *radius*; giving both is an error).
             corners: Corners to select.
-            fn: Arc smoothness overrides.
-            fa: Arc smoothness overrides.
-            fs: Arc smoothness overrides.
+            fn: Arc smoothness override -- fixed fragment count.
+            fa: Arc smoothness override -- minimum fragment angle.
+            fs: Arc smoothness override -- minimum fragment size.
+
+        Returns:
+            The cutter solid; subtract it from the box to round it.
+
+        Raises:
+            Bosl2ValueError: If neither radius nor diameter is given, if both are, or if *corners*
+                selects nothing.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Mask3D, cuboid
+
+                (cuboid([30, 30, 30]) - Mask3D.roundover(4, size=(30, 30, 30))).show()
 
         """
         from pybosl2.shapes3d import cuboid
 
+        r = _pick_radius(radius=radius, diameter=diameter)
+        if r is None:
+            raise Bosl2ValueError("Mask3D.roundover(): give radius= or diameter=.")
         body = cuboid(size)
         cutter = corner_profile(
             body,
@@ -837,18 +935,36 @@ class Mask3D:
     @staticmethod
     def chamfer(
         chamfer: float,
+        *,
         size: tuple[float, float, float],
         corners: Anchor = Anchor.ALL,
     ) -> "Solid":
-        """3-D cutter shape for chamfering corners and edges of a box of the given size.
+        """Return the 3-D cutter that chamfers the corners and edges of a box of the given size.
+
+        As with :meth:`roundover`, `size` describes the box being cut;
+        :meth:`~pybosl2.shapes3d.base.CsgSolid.chamfer_edges` fills it in for you (SPEC S-26a).
 
         Args:
             chamfer: Chamfer distance.
-            size: Bounding box size (X, Y, Z).
+            size: Size of the box being cut, ``(x, y, z)``. Keyword-only -- it describes the
+                *parent*, not the treatment.
             corners: Corners to select.
 
+        Returns:
+            The cutter solid; subtract it from the box to chamfer it.
+
+        Raises:
+            Bosl2ValueError: If *corners* selects nothing.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Mask3D, cuboid
+
+                (cuboid([30, 30, 30]) - Mask3D.chamfer(4, size=(30, 30, 30))).show()
+
         """
-        # NOT corner_profile(children=mask2d_chamfer(...)): corner_profile ignores children= and
+        # NOT corner_profile(mask=Mask2D.chamfer(...)): corner_profile ignores mask= and
         # always rounds, which used to make this factory return the roundover cutter verbatim.
         cutter: "Solid | None" = None
         for idx, sel in enumerate(_corners(corners, [])):
@@ -865,22 +981,56 @@ class Mask3D:
     @staticmethod
     def groove(
         width: float,
-        depth: float,
-        length: float,
+        *,
+        depth: float | None = None,
+        length: float | None = None,
         chamfer: float = 0.0,
-    ) -> "Bosl2Solid":
-        """3-D cutter shape representing a slot or groove of the given width, depth, and length.
+        size: tuple[float, float, float] | None = None,
+    ) -> "Solid":
+        """Return the 3-D cutter for a slot or groove of the given width.
+
+        Only *width* is required (SPEC D-2): a groove's depth follows from its width unless you
+        say otherwise -- half the width is the proportion that reads as a groove rather than a
+        slot -- and its length is however long the thing being grooved is, which *size* supplies
+        when you pass it and :meth:`~pybosl2.shapes3d.base.CsgSolid.groove_edges` supplies for you
+        (SPEC P-3, S-26a). This took three required positionals, which SPEC D-2 says is never
+        acceptable.
 
         Args:
-            width: Groove width.
-            depth: Groove depth.
-            length: Groove length.
+            width: Groove width. The one thing no default can invent.
+            depth: Groove depth (default: half the width).
+            length: Groove length (default: the longest side of *size*, or ten times the width if
+                no size is given either).
             chamfer: Groove chamfer offset.
+            size: Size of the thing being grooved, ``(x, y, z)``, used to derive *length*.
+
+        Returns:
+            The cutter solid, extruded along Z and centred.
+
+        Raises:
+            Bosl2ValueError: If *width* is not positive, or a given *depth* is not positive.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Mask3D, cuboid
+
+                (cuboid([40, 40, 12]) - Mask3D.groove(6, length=60)).show()
 
         """
-        g2d = mask2d_groove(width, depth, chamfer=chamfer)
-        # Extrude along Z:
-        return g2d.linear_extrude(height=length, center=True)  # type: ignore[return-value]
+        if not (width > 0):
+            raise Bosl2ValueError(f"Mask3D.groove(): width must be positive, got {width}.")
+        cut_depth = width / 2 if depth is None else float(depth)
+        if not (cut_depth > 0):
+            raise Bosl2ValueError(f"Mask3D.groove(): depth must be positive, got {depth}.")
+        if length is not None:
+            cut_length = float(length)
+        elif size is not None:
+            cut_length = max(float(v) for v in size)
+        else:
+            cut_length = width * 10
+        g2d = Mask2D.groove(width, cut_depth, chamfer=chamfer)
+        return g2d.linear_extrude(height=cut_length, center=True)
 
 
 # The BOSL2 spellings, kept as aliases of the factories above (SPEC P-6). New code should use the

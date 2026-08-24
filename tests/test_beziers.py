@@ -26,8 +26,9 @@ CIRCLE = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 12, en
 
 
 def _mesh(swept: object) -> Any:
-    """The mesh behind a sweep result: `.vnf` on the Solid a sweep returns (SPEC S-19a)."""
-    return getattr(swept, "vnf", swept)
+    """The mesh behind a sweep result: `.vnf()` on the Solid a sweep returns (SPEC S-19a)."""
+    mesh = getattr(swept, "vnf", swept)
+    return mesh() if callable(mesh) else mesh  # `.vnf` is a method now (PLAN T-6e)
 
 
 def _valid(swept: object) -> bool:
@@ -317,7 +318,7 @@ def test_vnf_degenerate_return_edges() -> None:
 
 def test_bezier_sweep_valid() -> None:
     v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=6)  # type: ignore[arg-type]
-    assert isinstance(v.vnf, VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf
+    assert isinstance(v.vnf(), VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf()
     assert _valid(v)
     assert len(_mesh(v).vertices) == 84
     assert len(_mesh(v).faces) == 146
@@ -326,7 +327,7 @@ def test_bezier_sweep_valid() -> None:
 def test_sweep_valid() -> None:
     bp = Bezier([[0, 0, 0], [10, 0, 0], [10, 10, 0], [10, 10, 10]])
     v = bp.sweep(CIRCLE, splinesteps=6, n_degree=3)  # type: ignore[arg-type]
-    assert isinstance(v.vnf, VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf
+    assert isinstance(v.vnf(), VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf()
     assert _valid(v)
     assert len(_mesh(v).vertices) == 84
     assert len(_mesh(v).faces) == 146

@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 
     from openscad import PyOpenSCAD
 
+    from pybosl2._backend import Solid
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
@@ -600,7 +601,6 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         center, size = self._center_size()
         return Bounds3D.from_center_size(center, size)
 
-    @property
     def vnf(self) -> "VNF":
         """Return this solid as a mesh (SPEC C-8, S-19a).
 
@@ -617,7 +617,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
                 from pybosl2 import Path2D
 
                 bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
-                print(bar.vnf.volume())     # 2000.0
+                print(bar.vnf().volume())     # 2000.0
                 bar.show()
 
         """
@@ -666,7 +666,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         from pybosl2.export import write_mesh
 
-        return write_mesh(self.vnf, _FilePath(path), file_format=file_format, check=check)
+        return write_mesh(self.vnf(), _FilePath(path), file_format=file_format, check=check)
 
     def _center_size(self) -> "tuple[list[float], list[float]]":
         """Return the bounding box as the raw ``(center, size)`` pair the native layer reports."""
@@ -815,7 +815,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
             cube = cuboid([20, 30, 10])
             cyl = cylinder(height=15, radius=4)
-            cube.attach(Anchor.UP, cyl).show()
+            cube.attach(Anchor.TOP, cyl).show()
 
         """
         pa = parent_anchor.vector
@@ -853,7 +853,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
         except_edges: list[EdgeAtom] | None = None,
-        children: PyOpenSCAD | None = None,
+        mask: "Solid | None" = None,
         bbox: Sequence[Sequence[float]] | None = None,
         tag: AttachTag | str | None = None,
     ) -> "Bosl2Solid":
@@ -865,7 +865,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         Args:
             edges:        edges to mask (default ``"ALL"``)
             except_edges: edges to explicitly not mask
-            children:     the pre-built 3-D edge cutter
+            mask:         the 3-D edge cutter to apply, as a Solid
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
             tag:          override tag for attachment (default: AttachTag.REMOVE)
 
@@ -877,7 +877,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             self.shape,
             edges,
             except_edges,
-            children,
+            mask,
             size=(size[0], size[1], size[2]),
             center=Point(center[0], center[1], center[2]),
             return_cutter=True,
@@ -897,7 +897,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
         except_edges: list[EdgeAtom] | None = None,
-        children: Sequence[Sequence[float]] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
         bbox: Sequence[Sequence[float]] | None = None,
         radius: float | None = None,
@@ -914,7 +914,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         Args:
             edges:        edges to mask (default ``"ALL"``)
             except_edges: edges to explicitly not mask
-            children:     the 2-D mask cross-section path
+            mask:         the 2-D mask cross-section, as a Path2D or a point list
             convexity:    accepted for compatibility; unused
             bbox:         override bounding box (see :meth:`_resolve_bounds`)
             radius:       rounding radius
@@ -937,17 +937,17 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             if dia is not None:
                 rad = dia / 2
 
-        resolved_children: Sequence[Sequence[float]] | Path2D | None = children
-        if rad is not None and resolved_children is None:
-            resolved_children = masking.mask2d_roundover(abs(rad), fn=fn, fa=fa, fs=fs)
-        if resolved_children is not None and not isinstance(resolved_children, Path2D):
-            resolved_children = Path2D(resolved_children, closed=False)
+        resolved_mask: Sequence[Sequence[float]] | Path2D | None = mask
+        if rad is not None and resolved_mask is None:
+            resolved_mask = masking.mask2d_roundover(abs(rad), fn=fn, fa=fa, fs=fs)
+        if resolved_mask is not None and not isinstance(resolved_mask, Path2D):
+            resolved_mask = Path2D(resolved_mask, closed=False)
 
         cutter_shape = masking.edge_profile(
             self.shape,
             edges,
             except_edges,
-            children=resolved_children,
+            mask=resolved_mask,
             size=(size[0], size[1], size[2]),
             convexity=convexity,
             center=Point(center[0], center[1], center[2]) if center is not None else None,
@@ -967,11 +967,179 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             out.diff_config = {"type": "diff", "remove": ["remove"], "keep": ["keep"]}
         return out
 
+    # ------------------------------------------------------------------
+    # Named edge treatments (SPEC S-26a, S-26b)
+    #
+    # `edge_mask(edges, mask=...)` makes the caller build the cutter first, which means naming the
+    # parent's own dimensions -- the solid already knows them. These name the *treatment* instead
+    # and fill the rest in, which is what P-1 and P-3 ask for. `edge_mask`/`edge_profile` remain
+    # for a custom mask.
+    # ------------------------------------------------------------------
+
+    def round_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Bosl2Solid":
+        """Round the selected edges of this solid.
+
+        The one-call form of the roundover: it builds the mask and takes the box from
+        :meth:`bounds`, so a caller never names the parent's own dimensions (SPEC S-26a, S-26b)::
+
+            bracket.round_edges(Anchor.TOP, radius=3)
+
+        Args:
+            edges: Which edges to round, in the anchor language (default: all of them).
+            radius: Rounding radius.
+            diameter: Rounding diameter (alternative to *radius*; giving both is an error).
+            except_edges: Edges to leave alone.
+            bbox: Override bounding box (see :meth:`_resolve_bounds`).
+            tag: Override tag for attachment (default: ``AttachTag.REMOVE``).
+            fn: Arc smoothness override -- fixed fragment count.
+            fa: Arc smoothness override -- minimum fragment angle.
+            fs: Arc smoothness override -- minimum fragment size.
+
+        Returns:
+            A new solid with the treatment attached, ready to realize.
+
+        Raises:
+            Bosl2ValueError: If neither radius nor diameter is given, or both are.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, cuboid
+
+                cuboid([40, 30, 20]).round_edges(Anchor.Z, radius=4).show()
+
+        """
+        from pybosl2._helpers import pick_radius
+        from pybosl2.masking import Mask2D
+
+        rad = pick_radius(radius=radius, diameter=diameter)
+        if rad is None:
+            raise Bosl2ValueError("round_edges(): give radius= or diameter=.")
+        return self.edge_profile(
+            edges,
+            except_edges,
+            mask=Mask2D.roundover(rad, fn=fn, fa=fa, fs=fs),
+            bbox=bbox,
+            tag=tag,
+        )
+
+    def chamfer_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
+        *,
+        chamfer: float,
+        height: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+    ) -> "Bosl2Solid":
+        """Chamfer the selected edges of this solid.
+
+        The one-call form of the chamfer, the companion to :meth:`round_edges`.
+
+        Args:
+            edges: Which edges to chamfer, in the anchor language (default: all of them).
+            chamfer: Chamfer width, measured back along the first face.
+            height: Chamfer height for an asymmetric chamfer (default: *chamfer*, symmetric).
+            except_edges: Edges to leave alone.
+            bbox: Override bounding box (see :meth:`_resolve_bounds`).
+            tag: Override tag for attachment (default: ``AttachTag.REMOVE``).
+
+        Returns:
+            A new solid with the treatment attached, ready to realize.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, cuboid
+
+                cuboid([40, 30, 20]).chamfer_edges(Anchor.Z, chamfer=3).show()
+
+        """
+        from pybosl2.masking import Mask2D
+
+        return self.edge_profile(
+            edges,
+            except_edges,
+            mask=Mask2D.chamfer(chamfer, height),
+            bbox=bbox,
+            tag=tag,
+        )
+
+    def cove_edges(
+        self,
+        edges: "EdgeAtom | list[EdgeAtom]" = Anchor.ALL,
+        *,
+        radius: float | None = None,
+        diameter: float | None = None,
+        except_edges: "list[EdgeAtom] | None" = None,
+        bbox: "Sequence[Sequence[float]] | None" = None,
+        tag: "AttachTag | str | None" = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+    ) -> "Bosl2Solid":
+        """Cove (concave fillet) the selected edges of this solid.
+
+        The inverse of :meth:`round_edges`: it adds a concave sweep into the corner rather than
+        cutting a convex one off it.
+
+        Args:
+            edges: Which edges to cove, in the anchor language (default: all of them).
+            radius: Cove radius.
+            diameter: Cove diameter (alternative to *radius*; giving both is an error).
+            except_edges: Edges to leave alone.
+            bbox: Override bounding box (see :meth:`_resolve_bounds`).
+            tag: Override tag for attachment (default: ``AttachTag.REMOVE``).
+            fn: Arc smoothness override -- fixed fragment count.
+            fa: Arc smoothness override -- minimum fragment angle.
+            fs: Arc smoothness override -- minimum fragment size.
+
+        Returns:
+            A new solid with the treatment attached, ready to realize.
+
+        Raises:
+            Bosl2ValueError: If neither radius nor diameter is given, or both are.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, cuboid
+
+                cuboid([40, 30, 20]).cove_edges(Anchor.Z, radius=4).show()
+
+        """
+        from pybosl2._helpers import pick_radius
+        from pybosl2.masking import Mask2D
+
+        rad = pick_radius(radius=radius, diameter=diameter)
+        if rad is None:
+            raise Bosl2ValueError("cove_edges(): give radius= or diameter=.")
+        return self.edge_profile(
+            edges,
+            except_edges,
+            mask=Mask2D.cove(rad, fn=fn, fa=fa, fs=fs),
+            bbox=bbox,
+            tag=tag,
+        )
+
     def edge_profile_asym(
         self,
         edges: EdgeAtom | list[EdgeAtom] = Anchor.ALL,
         except_edges: list[EdgeAtom] | None = None,
-        children: Sequence[Sequence[float]] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
         radius: float | None = None,
         diameter: float | None = None,
@@ -986,7 +1154,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         return self.edge_profile(
             edges=edges,
             except_edges=except_edges,
-            children=children,
+            mask=mask,
             convexity=convexity,
             radius=radius,
             diameter=diameter,
@@ -1004,7 +1172,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         except_corners: list[Anchor] | None = None,
         radius: float | None = None,
         diameter: float | None = None,
-        children: Sequence[Sequence[float]] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
         fn: int | None = None,
         fa: float | None = None,
@@ -1021,7 +1189,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             except_corners: corners to explicitly not mask
             radius:         rounding radius
             diameter:       rounding diameter
-            children:       the 2-D mask cross-section path
+            mask:           the 2-D mask cross-section, as a Path2D or a point list
             convexity:      accepted for compatibility; unused
             fn:       arc smoothness overrides
             fa:       arc smoothness overrides
@@ -1048,11 +1216,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             clean_rad,
             clean_dia,
             size=(size[0], size[1], size[2]),
-            children=(
-                None
-                if children is None
-                else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
-            ),
+            mask=(None if mask is None else (Path2D(mask, closed=False) if not isinstance(mask, Path2D) else mask)),
             convexity=convexity,
             center=Point(center[0], center[1], center[2]) if center is not None else None,
             fn=fn,
@@ -1082,7 +1246,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         faces: Anchor | list[Anchor] = Anchor.ALL,
         radius: float | None = None,
         diameter: float | None = None,
-        children: Sequence[Sequence[float]] | None = None,
+        mask: "Path2D | Sequence[Sequence[float]] | None" = None,
         convexity: int = 10,
         fn: int | None = None,
         fa: float | None = None,
@@ -1108,11 +1272,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             clean_rad,
             clean_dia,
             size=(size[0], size[1], size[2]),
-            children=(
-                None
-                if children is None
-                else (Path2D(children, closed=False) if not isinstance(children, Path2D) else children)
-            ),
+            mask=(None if mask is None else (Path2D(mask, closed=False) if not isinstance(mask, Path2D) else mask)),
             convexity=convexity,
             center=Point(center[0], center[1], center[2]) if center is not None else None,
             fn=fn,
