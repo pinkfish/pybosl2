@@ -295,10 +295,13 @@ def test_stroke_of_a_2d_path_is_a_backend_free_outline(width: float) -> None:
     import numpy as np
 
     from pybosl2.path2d import Path2D
+    from pybosl2.regions import Region
 
     flat = Path2D([[0, 0], [20, 0], [20, 20]], closed=False)
-    outline = flat.stroke(width=width)
-    assert isinstance(outline, Path2D)
+    stroked = flat.stroke(width=width)
+    assert isinstance(stroked, Region)  # a stroke is the area the pen covers (SPEC S-23a)
+    assert len(stroked.paths) == 1
+    outline = stroked.paths[0]
     assert outline.closed  # the spine is open; its stroke is the closed boundary around it
 
     points = np.array(outline)
@@ -306,7 +309,7 @@ def test_stroke_of_a_2d_path_is_a_backend_free_outline(width: float) -> None:
     np.testing.assert_allclose(points.max(axis=0), [20 + width / 2, 20 + width / 2])
 
     with use_backend("sdf"):
-        under_sdf = np.array(flat.stroke(width=width))
+        under_sdf = np.array(flat.stroke(width=width).paths[0])
     np.testing.assert_allclose(under_sdf, points)
 
 

@@ -42,6 +42,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from pybosl2.caps import CapSpec, CapType
+    from pybosl2.regions import Region
 
 __all__ = ["turtle2d", "Turtle2D", "Turtle2DState", "TurtleCommand", "TurtleCommandType"]
 
@@ -178,8 +179,8 @@ class Turtle2D(TurtleCommands):
         width: float = 1,
         cap: CapType | CapSpec | None = None,
         closed: bool | None = None,
-    ) -> Path2D:
-        """Render the turtle's current path as a 2-D stroked outline.
+    ) -> "Region":
+        """Render the turtle's current path as a filled stroked outline.
 
         Args:
             width: Stroke line width.
@@ -187,7 +188,7 @@ class Turtle2D(TurtleCommands):
             closed: Override whether the path is treated as closed.
 
         Returns:
-            A :class:`Path2D` of the stroked polygon outline.
+            The stroked area as a :class:`~pybosl2.regions.Region` (SPEC S-23).
 
         """
         path = self.points()

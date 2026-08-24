@@ -1985,8 +1985,36 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         endcap1: CapType | CapSpec | None = None,
         endcap2: CapType | CapSpec | None = None,
         joints: CapType | CapSpec = CapType.ROUND,
-    ) -> "Path2D":
-        """Render this 2-D path as a stroked polygon outline."""
+    ) -> "Region":
+        """Render this 2-D path as a filled stroked outline (SPEC S-23).
+
+        A stroke is the *area* the pen covers, so it comes back as a
+        :class:`~pybosl2.regions.Region` -- outlines-with-holes -- which is what the rest of the
+        family already returned (:meth:`dashed_stroke`, :meth:`~pybosl2.regions.Region.stroke`)
+        and what the 3-D twin returns the solid equivalent of. It used to hand back a `Path2D`,
+        which described the boundary rather than the mark and left one member of one family
+        answering a different kind of thing from the other three.
+
+        Args:
+            width: Stroke width.
+            closed: Treat the path as closed (default: the path's own flag).
+            endcaps: Cap style for both ends (default: round).
+            endcap1: Cap style for the first end, overriding *endcaps*.
+            endcap2: Cap style for the last end, overriding *endcaps*.
+            joints: Style for the corners between segments (default: round).
+
+        Returns:
+            The stroked area as a :class:`~pybosl2.regions.Region`.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                trace = Path2D([[0, 0], [30, 0], [30, 20]])
+                trace.stroke(width=3).linear_extrude(height=2).show()
+
+        """
         from pybosl2._stroke2d import stroke_2d
         from pybosl2.caps import CapSpec, normalize_one
 
@@ -2007,7 +2035,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         )
         if self._color is not None:
             result._color = self._color
-        return result
+        from pybosl2.regions import Region as _Region
+
+        outline = _Region([result])
+        if self._color is not None:
+            outline._color = self._color
+        return outline
 
     def dashed_stroke(
         self,
