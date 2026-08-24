@@ -20,6 +20,7 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import EPSILON
 from pybosl2.points import Point
 
@@ -75,7 +76,7 @@ def unit(
     if sides < EPSILON:
         if error is not None:
             return np.asarray(error, dtype=float)
-        raise ValueError("Cannot normalize a zero vector")
+        raise Bosl2ValueError("Cannot normalize a zero vector")
     return arr / sides
 
 

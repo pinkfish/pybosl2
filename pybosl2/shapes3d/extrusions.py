@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
 from pybosl2.constants import CENTER
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.vectors import is_vector, unit
 
@@ -184,7 +185,7 @@ def _path_text_bcast_dir(
         return [[v[0], v[1]]] * len(path)  # type: ignore[index]
     if isinstance(v, list) and len(v) == len(path) and all(is_vector(p, dim) for p in v):
         return [list(p) for p in v]
-    raise ValueError(
+    raise Bosl2ValueError(
         f'path_text(): "{label}" must be a length-{dim} vector or a list of {len(path)} such vectors matching the path.'
     )
 
@@ -354,27 +355,27 @@ def path_text(
     from pybosl2.shapes2d import Bosl2Shape2D as _Bosl2Shape2D
 
     if not (len(text) > 0):
-        raise ValueError("path_text(): text must be non-empty.")
+        raise Bosl2ValueError("path_text(): text must be non-empty.")
     if isinstance(size, (list, tuple)):
-        raise ValueError(
+        raise Bosl2ValueError(
             "path_text(): size= is one number for the whole string; per-character widths go in lettersize=."
         )
     if not size > 0:
-        raise ValueError("path_text(): must give positive text size.")
+        raise Bosl2ValueError("path_text(): must give positive text size.")
     if not (normal is None or top is None):
-        raise ValueError('path_text(): cannot define both "normal" and "top".')
+        raise Bosl2ValueError('path_text(): cannot define both "normal" and "top".')
     dim = len(path[0])
     if dim not in (2, 3):
-        raise ValueError("path_text(): must supply a 2d or 3d path.")
+        raise Bosl2ValueError("path_text(): must supply a 2d or 3d path.")
     if dim == 2:
         if thickness is not None:
-            raise ValueError("path_text(): cannot give a thickness with a 2d path.")
+            raise Bosl2ValueError("path_text(): cannot give a thickness with a 2d path.")
         if reverse:
-            raise ValueError("path_text(): reverse not allowed with a 2d path.")
+            raise Bosl2ValueError("path_text(): reverse not allowed with a 2d path.")
         if not (offset == 0):
-            raise ValueError("path_text(): cannot give offset with a 2d path.")
+            raise Bosl2ValueError("path_text(): cannot give offset with a 2d path.")
         if normal is not None:
-            raise ValueError('path_text(): cannot define "normal" for a 2d path, only "top".')
+            raise Bosl2ValueError('path_text(): cannot define "normal" for a 2d path, only "top".')
 
     th = 1.0 if thickness is None else thickness
     sides = len(text)
@@ -382,18 +383,18 @@ def path_text(
     if lettersize is not None:
         lsize = [float(lettersize)] * sides if isinstance(lettersize, (int, float)) else [float(v) for v in lettersize]
         if not (len(lsize) == sides):
-            raise ValueError("path_text(): lettersize list must have one entry per character.")
+            raise Bosl2ValueError("path_text(): lettersize list must have one entry per character.")
     elif textmetrics:
         lsize = [_otextmetrics(ch, font=font, size=size)["advance"][0] for ch in text]
     else:
-        raise ValueError(
+        raise Bosl2ValueError(
             "path_text(): this build has no textmetrics, so the letter widths cannot be "
             "measured -- pass size= as a list of per-character widths."
         )
 
     kern_list = [float(kern)] * (sides - 1) if isinstance(kern, (int, float)) else [float(v) for v in kern]
     if not (len(kern_list) == sides - 1):
-        raise ValueError("path_text(): kern must be a scalar or a list of length len(text)-1.")
+        raise Bosl2ValueError("path_text(): kern must be a scalar or a list of length len(text)-1.")
 
     centers = []
     prefix = 0.0
@@ -412,7 +413,7 @@ def path_text(
 
     plen = path.perimeter()
     if not (textlength <= plen):
-        raise ValueError("path_text(): path is too short for the text.")
+        raise Bosl2ValueError("path_text(): path is too short for the text.")
     start = (plen - textlength) / 2.0 if center else 0.0
     dists = [start + c for c in centers]
 
@@ -527,9 +528,9 @@ def cross(
     """
     h = height if height is not None else length
     if not h:
-        raise ValueError("cross(): needs a positive height= (or its synonym length=).")
+        raise Bosl2ValueError("cross(): needs a positive height= (or its synonym length=).")
     if not (h > 0):
-        raise ValueError("cross(): need a positive height or length.")
+        raise Bosl2ValueError("cross(): need a positive height or length.")
     use_center = center if center is not None else True
     use_anchor = anchor
     if center is not None:

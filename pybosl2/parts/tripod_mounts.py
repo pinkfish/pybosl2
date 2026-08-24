@@ -19,7 +19,9 @@ from typing import Any, Sequence
 from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import anchor_vector, unwrap
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.masking import chamfer_edge_mask, edge_mask
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
 from pybosl2.shapes3d import Bosl2Solid, cuboid
@@ -30,7 +32,7 @@ from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
 __all__ = ["ManfrottoRC2Plate", "manfrotto_rc2_plate"]
 
 
-class ManfrottoRC2Plate:
+class ManfrottoRC2Plate(Buildable):
     """A Manfrotto RC2 tripod quick release mount plate.
 
     The *chamfer* argument controls edge chamfering: ``"all"`` (default),
@@ -82,7 +84,7 @@ class ManfrottoRC2Plate:
         self._chamfer = chamfer
 
         if chamfer not in ("bot", "bottom", "all", "none"):
-            raise ValueError('chamfer must be "all", "bottom", "bot", or "none"')
+            raise Bosl2ValueError('chamfer must be "all", "bottom", "bot", or "none"')
 
         chsize = 0.5
         chamf_top = chamfer == "all"
@@ -137,7 +139,7 @@ class ManfrottoRC2Plate:
         # (the top face is 0.32 mm right of the bottom one), which sits the body half of that
         # offset to the left of the anchor box.
         shift = 0.64115 / 2
-        body = Bosl2Solid(unwrap(pts.linear_sweep(height=length).polyhedron())).orient(Anchor.FRONT)  # type: ignore[union-attr]
+        body = Bosl2Solid(unwrap(pts.linear_sweep(height=length))).orient(Anchor.FRONT)
         body = body.left(shift / 2)
         # where the profile's own origin (its bottom-left corner) lands, so the cutouts below can
         # be placed in the same coordinates the profile was drawn in
@@ -169,7 +171,7 @@ class ManfrottoRC2Plate:
         cutout_len = 26.0
         facet_x = [p[0] for p in facet]
         facet_y = [p[1] for p in facet]
-        cut2 = Bosl2Solid(unwrap(Path2D(facet).linear_sweep(height=cutout_len).polyhedron())).orient(Anchor.FRONT)  # type: ignore[union-attr]
+        cut2 = Bosl2Solid(unwrap(Path2D(facet).linear_sweep(height=cutout_len))).orient(Anchor.FRONT)
         cut2 = cut2.translate(
             [
                 profile_x + (min(facet_x) + max(facet_x)) / 2,
@@ -235,7 +237,7 @@ class ManfrottoRC2Plate:
         return self._chamfer
 
     @property
-    @csg_part("builds its body by sweeping a 2-D outline into a mesh with linear_sweep().polyhedron()")
+    @csg_part("builds its body by sweeping a 2-D outline into a mesh with linear_sweep()")
     def shape(self) -> Bosl2Solid:
         """Return the RC2 plate geometry."""
         return self._solid

@@ -69,7 +69,7 @@ def test_translate_moves_all() -> None:
 
 def test_bounds() -> None:
     b = Region.with_holes(SQUARE, HOLE).bounds()  # type: ignore[arg-type]
-    np.testing.assert_allclose(b, [[0, 0], [80, 60]])
+    np.testing.assert_allclose([list(b.min), list(b.max)], [[0, 0], [80, 60]])
 
 
 def test_round_corners_returns_region() -> None:
@@ -95,7 +95,7 @@ def test_geometry_returns_a_solid() -> None:
     geometry = region.geometry()
     assert geometry is not None
     if geometry.shape.size is not None:  # needs the native 2-D bbox
-        assert [float(v) for v in geometry.bounds()[1]] == pytest.approx([80.0, 60.0], abs=0.01)
+        assert [float(v) for v in geometry.bounds().size] == pytest.approx([80.0, 60.0], abs=0.01)
 
 
 def test_intersection_overlapping_squares() -> None:
@@ -319,8 +319,8 @@ def test_region_hull_with_path() -> None:
     result = Region.hull(a, b)
     assert isinstance(result, Region)
     corners = result.bounds()
-    assert [float(v) for v in corners[0]] == pytest.approx([0.0, 0.0])
-    assert [float(v) for v in corners[1]] == pytest.approx([70.0, 50.0])
+    assert [float(v) for v in corners.min] == pytest.approx([0.0, 0.0])
+    assert [float(v) for v in corners.max] == pytest.approx([70.0, 50.0])
     assert area(result) > area(a) + area(Region([[40, 0], [70, 0], [70, 50], [40, 50]]))  # bridged
 
 
@@ -398,7 +398,7 @@ def test_region_fill() -> None:
 
     assert isinstance(result, Bosl2Shape2D)
     if result.shape.size is not None:  # needs the native 2-D bbox
-        assert [float(v) for v in result.bounds()[1]] == pytest.approx([20.0, 20.0], abs=0.01)
+        assert [float(v) for v in result.bounds().size] == pytest.approx([20.0, 20.0], abs=0.01)
 
 
 def test_region_linear_extrude() -> None:
@@ -407,7 +407,7 @@ def test_region_linear_extrude() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
-    assert [float(v) for v in result.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
+    assert [float(v) for v in result.bounds().size] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
 
 
 def test_linear_extrude_color_heights() -> None:
@@ -419,7 +419,7 @@ def test_linear_extrude_color_heights() -> None:
     from pybosl2.shapes3d import Bosl2Solid
 
     assert isinstance(result, Bosl2Solid)
-    size = [float(v) for v in result.bounds()[1]]
+    size = [float(v) for v in result.bounds().size]
     assert size[0] == pytest.approx(45.0, abs=0.01)  # both squares, 25 apart
     assert size[2] == pytest.approx(10.0, abs=0.01)  # the tallest colour wins the bounding box
 
@@ -434,7 +434,7 @@ def test_linear_extrude_color_heights_missing_color_uses_default() -> None:
 
     assert isinstance(result, Bosl2Solid)
     # red got its 10; green fell back to the default 5, so the tallest is still 10
-    assert float(result.bounds()[1][2]) == pytest.approx(10.0, abs=0.01)
+    assert float(result.bounds().size[2]) == pytest.approx(10.0, abs=0.01)
 
 
 def test_linear_extrude_color_heights_single_piece() -> None:
@@ -445,7 +445,7 @@ def test_linear_extrude_color_heights_single_piece() -> None:
 
     assert isinstance(result, Bosl2Solid)
     # the mapping wins over the height= default, even with nothing to compare against
-    assert [float(v) for v in result.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
+    assert [float(v) for v in result.bounds().size] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
 
 
 def test_region_rotate_extrude() -> None:
@@ -455,7 +455,7 @@ def test_region_rotate_extrude() -> None:
 
     assert isinstance(result, Bosl2Solid)
     # a 20x20 profile against the axis sweeps a 40mm-wide disc, 20 tall
-    size = [float(v) for v in result.bounds()[1]]
+    size = [float(v) for v in result.bounds().size]
     assert size[0] == pytest.approx(40.0, abs=0.3)
     assert size[2] == pytest.approx(20.0, abs=0.01)
 
@@ -466,8 +466,8 @@ def test_region_stroke() -> None:
     result = r.stroke(width=2)
     assert isinstance(result, Region)
     corners = result.bounds()
-    assert [float(v) for v in corners[0]] == pytest.approx([-1.0, -1.0], abs=0.01)
-    assert [float(v) for v in corners[1]] == pytest.approx([21.0, 21.0], abs=0.01)
+    assert [float(v) for v in corners.min] == pytest.approx([-1.0, -1.0], abs=0.01)
+    assert [float(v) for v in corners.max] == pytest.approx([21.0, 21.0], abs=0.01)
     assert len(result.paths[0]) > len(r.paths[0])  # rounded joints, not four corners
 
 
@@ -480,8 +480,8 @@ def test_region_dashed_stroke() -> None:
     assert len(r.stroke(width=2).paths) == 1
     # the dashes stay on the outline they were cut from
     corners = dashed.bounds()
-    assert float(corners[0][0]) >= -1.01
-    assert float(corners[1][0]) <= 21.01
+    assert float(corners.min[0]) >= -1.01
+    assert float(corners.max[0]) <= 21.01
 
 
 def test_region_hull_type_error() -> None:
@@ -793,7 +793,7 @@ def test_from_svg_no_ribext(tmp_path) -> None:
     # the r=20 circle the SVG declares, as a 24-sided polygon
     assert area(result) == pytest.approx(math.pi * 20**2, rel=0.03)
     corners = result.bounds()
-    assert float(corners[1][0]) - float(corners[0][0]) == pytest.approx(40.0, abs=0.5)
+    assert float(corners.max[0]) - float(corners.min[0]) == pytest.approx(40.0, abs=0.5)
 
 
 # -- per-polygon colors (even_odd with colors parameter) ---------------------------------------

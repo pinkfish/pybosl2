@@ -34,6 +34,8 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.parts.enums import NutShape, ScrewDriveType, ScrewHeadType, ThreadPitchClass
 from pybosl2.solid import cuboid, cyl, regular_prism
 
@@ -407,12 +409,12 @@ class ScrewSpec:
             self.head_angle = 90.0
             self.head_height = (spec_f.actual_d - d) / 2
         else:
-            raise ValueError(f'Unknown head type "{head}"')
+            raise Bosl2ValueError(f'Unknown head type "{head}"')
 
 
 def _lookup_pitch(diam: float, thread: ThreadPitchClass) -> float:
     if diam not in _ISO_THREAD:
-        raise ValueError(f"Unknown metric screw size M{diam:g}")
+        raise Bosl2ValueError(f"Unknown metric screw size M{diam:g}")
     return float(_ISO_THREAD[diam].pitch(thread))
 
 
@@ -426,7 +428,7 @@ def _make_head(info: ScrewSpec, fn: int | None, fa: float | None, fs: float | No
     if not (hs is not None):  # pragma: no cover
         # defensive: ScrewSpec fills head_size from the standard tables for every head type it
         # accepts, so a spec that names a head always carries its size.
-        raise ValueError(f"head_size not set for head type {head}")
+        raise Bosl2ValueError(f"head_size not set for head type {head}")
     if head == ScrewHeadType.HEX:
         return regular_prism(6, height=hh, inner_diameter=hs, fn=fn, fa=fa, fs=fs).up(hh / 2)
     if head in (ScrewHeadType.SOCKET, ScrewHeadType.SOCKET_RIBBED):
@@ -462,7 +464,7 @@ def _make_recess(
     return rec.up(head_top - (depth + eps) / 2 + eps / 2)
 
 
-class Screw:
+class Screw(Buildable):
     """A metric screw: threaded (or plain) shaft plus a head with an optional drive recess.
 
     Examples:
@@ -597,17 +599,8 @@ class Screw:
         self._solid = result
         return result
 
-    def show(self) -> Any:
-        """Display the screw in the viewer, and return it.
 
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
-
-
-class Nut:
+class Nut(Buildable):
     """A hex or square nut with a threaded hole.
 
     Examples:
@@ -703,17 +696,8 @@ class Nut:
         ).shape
         return self._solid
 
-    def show(self) -> Any:
-        """Display the nut in the viewer, and return it.
 
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
-
-
-class ScrewHole:
+class ScrewHole(Buildable):
     """A hole cutter for a screw: clearance shaft plus optional countersink/counterbore.
 
     Returns a solid to *subtract* from your part.  The clearance shaft occupies
@@ -846,15 +830,6 @@ class ScrewHole:
 
         self._solid = cutter
         return cutter
-
-    def show(self) -> Any:
-        """Display the hole cutter in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
 
 
 # ---------------------------------------------------------------------------

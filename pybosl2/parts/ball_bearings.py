@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 
 from pybosl2.color import Color
 from pybosl2.constants import INCH
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.solid import sphere, torus, tube
 
 if TYPE_CHECKING:
@@ -199,7 +200,7 @@ class BearingType(Enum):
         bt = _BY_TRADE_NAME.get(trade_name)
         if bt is not None:
             return bt
-        raise ValueError(f"Unsupported ball bearing trade size: {trade_name!r}")
+        raise Bosl2ValueError(f"Unsupported ball bearing trade size: {trade_name!r}")
 
 
 # Map trade-name strings to BearingType enum members.
@@ -878,7 +879,7 @@ class BallBearings:
         try:
             return _BEARINGS[trade_size]
         except KeyError:
-            raise ValueError(f"Unsupported ball bearing trade size: {trade_size!r}") from None
+            raise Bosl2ValueError(f"Unsupported ball bearing trade size: {trade_size!r}") from None
 
     @staticmethod
     def ball_bearing(
@@ -936,11 +937,11 @@ class BallBearings:
                 spec.shielded,
             )
         if inner_diameter is None:
-            raise ValueError("ball_bearing(): must give inner_diameter.")
+            raise Bosl2ValueError("ball_bearing(): must give inner_diameter.")
         if outer_diameter is None:
-            raise ValueError("ball_bearing(): must give outer_diameter.")
+            raise Bosl2ValueError("ball_bearing(): must give outer_diameter.")
         if width is None:
-            raise ValueError("ball_bearing(): must give width.")
+            raise Bosl2ValueError("ball_bearing(): must give width.")
 
         mid_d = (inner_diameter + outer_diameter) / 2
         wall = (outer_diameter - inner_diameter) / 2 / 3

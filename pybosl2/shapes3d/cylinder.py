@@ -29,6 +29,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import quantup
 from pybosl2.constants import BOTTOM, CENTER
+from pybosl2.exceptions import Bosl2ValueError
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -376,7 +377,7 @@ def cyl(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     if (r1v or r2v) and (c1v or c2v):
-        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
     _check_rim_treatments(rad1, rad2, r1v, r2v, c1v, c2v)
 
     cfang1 = chamfer_angle1 if chamfer_angle1 is not None else (chamfer_angle if chamfer_angle is not None else None)
@@ -499,7 +500,7 @@ def _check_rim_treatments(
         ("chamfer2", chamfer2, radius2),
     ):
         if treatment and treatment > radius:
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"cyl(): {label}={treatment} is larger than that end's radius ({radius}); "
                 f"a rim treatment has to fit inside the rim it rounds."
             )
@@ -1013,14 +1014,14 @@ def tube(
     irad1 = irr1 if irr1 is not None else (orr1 - wall_v if orr1 is not None else None)
     irad2 = irr2 if irr2 is not None else (orr2 - wall_v if orr2 is not None else None)
     if rad1 is None or rad2 is None or irad1 is None or irad2 is None:
-        raise ValueError(
+        raise Bosl2ValueError(
             "tube(): needs two of the three sizes -- an inner radius/diameter, an outer "
             "radius/diameter, and a wall thickness."
         )
     if not (irad1 <= rad1):
-        raise ValueError("tube(): inner radius is larger than outer radius.")
+        raise Bosl2ValueError("tube(): inner radius is larger than outer radius.")
     if not (irad2 <= rad2):
-        raise ValueError("tube(): inner radius is larger than outer radius.")
+        raise Bosl2ValueError("tube(): inner radius is larger than outer radius.")
     use_anchor = _resolve_center_anchor(center, anchor, BOTTOM)
 
     # Build outer and inner cylinders via cyl() for chamfer/rounding support

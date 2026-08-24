@@ -74,7 +74,8 @@ def test_textured_tile_by_name_builds(name: str) -> None:
     # (the dense [4, 4] render path is exercised by tests/test_stl_render.py::test_textured_tile_heightfield).
     s = textured_tile(name, size=[40, 40], tex_reps=[2, 2], tex_depth=3)  # type: ignore[operator]
     assert isinstance(s, Bosl2Solid)
-    _, sz = s.bounds()
+    _box = s.bounds()
+    _, sz = list(_box.center), list(_box.size)
     assert round(sz[0]) == 40
     assert round(sz[1]) == 40
 
@@ -89,13 +90,14 @@ def test_textured_tile_raw_array_drives_the_height(peak: float, tex_depth: float
         tex_reps=[4, 4],
         tex_depth=tex_depth,
     )
-    _, size = s.bounds()
+    _box = s.bounds()
+    _, size = list(_box.center), list(_box.size)
     assert size[:2] == pytest.approx([40.0, 40.0])
     assert size[2] == pytest.approx(peak * tex_depth + base)
 
     # An all-zero array is the control: nothing but the backing plate.
     flat = textured_tile([[0, 0, 0]] * 3, size=[40, 40], tex_reps=[4, 4], tex_depth=tex_depth)  # type: ignore[operator]
-    assert flat.bounds()[1][2] == pytest.approx(base)
+    assert flat.bounds().size[2] == pytest.approx(base)
 
 
 @pytest.mark.parametrize(("tex_size", "reps"), [(20, 2), (10, 4), (5, 8)])
@@ -107,4 +109,4 @@ def test_textured_tile_tex_size_picks_reps(tex_size: float, reps: int) -> None:
     by_size = textured_tile("pyramids", size=[40, 40], tex_size=tex_size, tex_depth=2)  # type: ignore[operator]
     by_reps = textured_tile("pyramids", size=[40, 40], tex_reps=[reps, reps], tex_depth=2)  # type: ignore[operator]
     assert repr(by_size) == repr(by_reps)
-    assert by_size.bounds()[1] == pytest.approx([40.0, 40.0, 2.1])
+    assert by_size.bounds().size == pytest.approx([40.0, 40.0, 2.1])

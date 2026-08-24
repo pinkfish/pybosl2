@@ -27,7 +27,7 @@ import numpy as np
 
 from pybosl2._backend import SolidBackend, for_backend, refuse_unhonoured, register_backend
 from pybosl2.defaults import resolve_res
-from pybosl2.exceptions import UnsupportedByBackendError
+from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
 from pybosl2.sdf import shapes3d as _s
 
 __all__: list[str] = []
@@ -114,7 +114,7 @@ class SdfBackend:
         """
         fn = getattr(_s, shape, None)
         if not callable(fn):
-            raise ValueError(f"the sdf backend has no shape constructor {shape!r}")
+            raise Bosl2ValueError(f"the sdf backend has no shape constructor {shape!r}")
         return cast("Callable[..., _s.PyShape]", fn)
 
     def construct(self, shape: str, arguments: Mapping[str, Any]) -> _s.PyShape:
@@ -206,7 +206,7 @@ class SdfBackend:
                     "pybosl2.sdf.shapes3d.path_sweep(twist=...).",
                 )
         if options:
-            raise ValueError(f"linear_extrude(): the sdf backend has no {sorted(options)} option(s).")
+            raise Bosl2ValueError(f"linear_extrude(): the sdf backend has no {sorted(options)} option(s).")
         shape = _s.polygon_prism(
             paths,
             height,

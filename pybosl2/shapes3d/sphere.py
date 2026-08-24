@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 from pybosl2._helpers import anchor_vector
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
+from pybosl2.exceptions import Bosl2ValueError
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -184,7 +185,7 @@ def _teardrop2d_path(
     maxheight = rad / math.sin(math.radians(angle))
     minheight = rad * math.sin(math.radians(angle))
     if not (cap_height is None or cap_height >= minheight - 1e-09):
-        raise ValueError("teardrop2d(): cap_height cannot be less than radius*sin(angle).")
+        raise Bosl2ValueError("teardrop2d(): cap_height cannot be less than radius*sin(angle).")
     pointy = cap_height is None or cap_height >= maxheight
 
     sweep = 180 + 2 * angle

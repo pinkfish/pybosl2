@@ -7,6 +7,7 @@
 """Tests for pybosl2/beziers.py: the Bezier curve/path API and BezierPatch surfaces."""
 
 import math
+from typing import Any
 
 import numpy as np
 import pytest
@@ -24,7 +25,13 @@ PATCH = [
 CIRCLE = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
 
 
-def _valid(vnf: object) -> bool:
+def _mesh(swept: object) -> Any:
+    """The mesh behind a sweep result: `.vnf` on the Solid a sweep returns (SPEC S-19a)."""
+    return getattr(swept, "vnf", swept)
+
+
+def _valid(swept: object) -> bool:
+    vnf = _mesh(swept)
     return not vnf.faces or max(i for f in vnf.faces for i in f) < len(vnf.vertices)  # type: ignore[attr-defined]
 
 
@@ -234,8 +241,8 @@ def test_patch_normals_are_unit() -> None:
 
 def test_patch_vnf_counts_and_validity() -> None:
     v = BezierPatch(PATCH).vnf(splinesteps=8)  # type: ignore[arg-type]
-    assert len(v.vertices) == 81  # 9x9 grid
-    assert len(v.faces) == 128  # 8x8 cells x 2 tris
+    assert len(_mesh(v).vertices) == 81  # 9x9 grid
+    assert len(_mesh(v).faces) == 128  # 8x8 cells x 2 tris
     assert _valid(v)
 
 
@@ -243,8 +250,8 @@ def test_to_vnf_joins_patch_list() -> None:
     v = BezierPatch.to_vnf([PATCH, PATCH], splinesteps=4)  # type: ignore[list-item]
     assert isinstance(v, VNF)
     assert _valid(v)
-    assert len(v.vertices) == 50
-    assert len(v.faces) == 64
+    assert len(_mesh(v).vertices) == 50
+    assert len(_mesh(v).faces) == 64
 
 
 def test_flat_patch() -> None:
@@ -252,8 +259,8 @@ def test_flat_patch() -> None:
     assert len(fp) == 2  # degree 1 -> 2x2 control points
     assert _valid(fp.vnf(4))
     v = fp.vnf(4)
-    assert len(v.vertices) == 25
-    assert len(v.faces) == 32
+    assert len(_mesh(v).vertices) == 25
+    assert len(_mesh(v).faces) == 32
     np.testing.assert_allclose(fp[0, 0], [-50.0, 50.0, 0.0], atol=1e-9)
     np.testing.assert_allclose(fp[1, 1], [50.0, -50.0, 0.0], atol=1e-9)
 
@@ -269,8 +276,8 @@ def test_sheet_is_valid_vnf() -> None:
     v = BezierPatch(PATCH).sheet([0, -8], splinesteps=6)  # type: ignore[arg-type]
     assert isinstance(v, VNF)
     assert _valid(v)
-    assert len(v.vertices) == 98
-    assert len(v.faces) == 170
+    assert len(_mesh(v).vertices) == 98
+    assert len(_mesh(v).faces) == 170
 
 
 def test_vnf_degenerate_has_fewer_faces_than_naive() -> None:
@@ -310,23 +317,23 @@ def test_vnf_degenerate_return_edges() -> None:
 
 def test_bezier_sweep_valid() -> None:
     v = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=6)  # type: ignore[arg-type]
-    assert isinstance(v, VNF)
+    assert isinstance(v.vnf, VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf
     assert _valid(v)
-    assert len(v.vertices) == 84
-    assert len(v.faces) == 146
+    assert len(_mesh(v).vertices) == 84
+    assert len(_mesh(v).faces) == 146
 
 
 def test_sweep_valid() -> None:
     bp = Bezier([[0, 0, 0], [10, 0, 0], [10, 10, 0], [10, 10, 10]])
     v = bp.sweep(CIRCLE, splinesteps=6, n_degree=3)  # type: ignore[arg-type]
-    assert isinstance(v, VNF)
+    assert isinstance(v.vnf, VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf
     assert _valid(v)
-    assert len(v.vertices) == 84
-    assert len(v.faces) == 146
+    assert len(_mesh(v).vertices) == 84
+    assert len(_mesh(v).faces) == 146
 
 
 def test_sweep_transforms_mode() -> None:
-    tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep(CIRCLE, splinesteps=4, transforms=True)  # type: ignore[arg-type]
+    tl = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]]).sweep_transforms(splinesteps=4)
     assert len(tl) == 5  # type: ignore[arg-type]
     for t in tl:  # type: ignore[union-attr]
         assert np.asarray(t).shape == (4, 4)
@@ -476,7 +483,8 @@ def test_bezier_debug_spans_the_curve_it_draws() -> None:
             Bezier.end([10, 0, 5], 230, 1),
         ]
     )
-    _centre, size = path.debug(width=0.5).bounds()
+    _box = path.debug(width=0.5).bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert float(size[0]) > 10.0  # the curve runs 0..10 in X, plus the marker balls
     assert float(size[1]) > 8.0
     assert float(size[2]) > 5.0
@@ -492,7 +500,8 @@ def test_debug_bezier_patches_accepts_a_single_patch_in_any_form(form: str) -> N
         "ndarray": np.asarray(DEBUG_PATCH, dtype=float),
         "list of one": [BezierPatch(DEBUG_PATCH)],
     }[form]
-    _centre, size = debug_bezier_patches(arg, showcps=False).bounds()  # type: ignore[arg-type]
+    _box = debug_bezier_patches(arg, showcps=False).bounds()  # type: ignore[arg-type]
+    _centre, size = list(_box.center), list(_box.size)
     assert [float(size[0]), float(size[1])] == pytest.approx([100.0, 100.0])
 
 
@@ -500,22 +509,23 @@ def test_debug_bezier_patches_draws_every_patch_it_is_given() -> None:
     """Two patches 120 apart span both, not just one: the surfaces are open meshes, which a CSG
     union cannot combine, so they have to be merged as meshes instead."""
     two = [BezierPatch(DEBUG_PATCH), BezierPatch(_shifted_patch(120))]
-    _centre, size = debug_bezier_patches(two, showcps=False).bounds()
+    _box = debug_bezier_patches(two, showcps=False).bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert float(size[1]) == pytest.approx(220.0)  # 100 of patch + 120 of offset
     assert float(size[0]) == pytest.approx(100.0)
 
 
 def test_debug_bezier_patches_control_net_reaches_past_the_surface() -> None:
     """The control points sit off the surface, so drawing them widens the result."""
-    bare = debug_bezier_patches(BezierPatch(DEBUG_PATCH), showcps=False).bounds()[1]
-    netted = debug_bezier_patches(BezierPatch(DEBUG_PATCH)).bounds()[1]
+    bare = debug_bezier_patches(BezierPatch(DEBUG_PATCH), showcps=False).bounds().size
+    netted = debug_bezier_patches(BezierPatch(DEBUG_PATCH)).bounds().size
     assert float(netted[2]) > float(bare[2])
 
 
 def test_debug_bezier_patches_marker_size_is_honoured() -> None:
     """An explicit size= sets the marker diameter, so bigger markers reach further out."""
-    small = debug_bezier_patches(BezierPatch(DEBUG_PATCH), size=1).bounds()[1]
-    large = debug_bezier_patches(BezierPatch(DEBUG_PATCH), size=4).bounds()[1]
+    small = debug_bezier_patches(BezierPatch(DEBUG_PATCH), size=1).bounds().size
+    large = debug_bezier_patches(BezierPatch(DEBUG_PATCH), size=4).bounds().size
     assert float(large[0]) > float(small[0])
 
 

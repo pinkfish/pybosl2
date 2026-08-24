@@ -160,3 +160,71 @@ def test_polyline_ratchet_would_catch_a_raw_nesting() -> None:
     assert _RAW_NESTING.search(annotation)
     assert not re.search(r"\bPath(Like|2D|3D)?\b", annotation)
     assert not _RAW_NESTING.search("PathLike | None")
+
+
+# --- SPEC A-8 / A-9: families are exported whole, plumbing is not exported at all -------------
+
+
+def test_the_named_families_are_exported_whole() -> None:
+    """Where the spec names a family as *the* way to do something, all of it is reachable (A-8).
+
+    Five of the six ``mask2d_*`` were exported and ``mask2d_roundover`` -- the one people actually
+    reach for -- was not; the sweep enums were missing while the sweeps they configure were the
+    documented API. Neither was a decision, which is what makes a review-only rule the wrong tool.
+    """
+    import pybosl2
+
+    families = {
+        "S-5 rotation algebra": ["Quaternion"],
+        "S-10 turtles": ["Turtle2D", "Turtle3D", "turtle2d", "turtle3d"],
+        "S-20 sweep vocabulary": ["SweepMethod", "SkinMethod", "SamplingType", "VNFStyle"],
+        "S-21 offset-sweep end treatments": [
+            "os_circle",
+            "os_smooth",
+            "os_teardrop",
+            "os_chamfer",
+            "os_flat",
+            "os_profile",
+        ],
+        "S-26 masks": [
+            "mask2d_roundover",
+            "mask2d_chamfer",
+            "mask2d_cove",
+            "mask2d_tear",
+            "mask2d_step",
+            "mask2d_groove",
+            "mask3d_roundover",
+            "mask3d_chamfer",
+            "mask3d_groove",
+            "Mask2D",
+            "Mask3D",
+        ],
+        "S-30 partition profiles": ["PartitionCutType"],
+        "S-34 textures": ["texture"],
+        "E-1 error family": ["Bosl2Error", "Bosl2ValueError", "UnsupportedByBackendError", "CrossBackendError"],
+    }
+    missing = {family: [name for name in names if name not in pybosl2.__all__] for family, names in families.items()}
+    missing = {family: names for family, names in missing.items() if names}
+    assert not missing, f"exported in part, which is drift rather than a decision: {missing}"
+
+
+def test_no_public_all_advertises_internal_plumbing() -> None:
+    """Argument forwarding and signature filtering are not API (SPEC A-9)."""
+    import importlib
+    import pkgutil
+
+    import pybosl2
+
+    plumbing = {"given_arguments", "for_backend", "refuse_unhonoured", "check_operand_backend"}
+    offenders: list[str] = []
+    for module_info in pkgutil.walk_packages(pybosl2.__path__, "pybosl2."):
+        if "._" in module_info.name or module_info.name.rsplit(".", 1)[-1].startswith("_"):
+            continue
+        try:
+            module = importlib.import_module(module_info.name)
+        except Exception:
+            continue
+        for name in getattr(module, "__all__", []):
+            if name in plumbing:
+                offenders.append(f"{module_info.name}.__all__ holds {name!r}")
+    assert not offenders, "; ".join(offenders)

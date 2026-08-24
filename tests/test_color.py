@@ -250,7 +250,7 @@ def test_color_chains_with_transforms() -> None:
     result = cuboid([10, 10, 10]).hsv(30).right(5).up(2)
     assert isinstance(result, Bosl2Solid)
     assert applied_colour(result)[:3] == pytest.approx(colorsys.hsv_to_rgb(30 / 360, 1, 1))
-    assert [float(v) for v in result.bounds()[0]] == pytest.approx([5.0, 0.0, 2.0])
+    assert [float(v) for v in result.bounds().center] == pytest.approx([5.0, 0.0, 2.0])
 
 
 @pytest.mark.parametrize(

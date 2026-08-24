@@ -13,7 +13,8 @@ from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(s: Bosl2Solid) -> list[float]:
-    _center, size = s.bounds()
+    _box = s.bounds()
+    _center, size = list(_box.center), list(_box.size)
     return size
 
 

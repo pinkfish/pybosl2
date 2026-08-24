@@ -17,13 +17,20 @@ from pybosl2.exceptions import UnsupportedByBackendError
 
 @pytest.mark.parametrize("feature", ["attach", "align", "position", "edge_mask", "face_profile"])
 def test_csg_attachment_features_unsupported_on_sdf(feature: str) -> None:
-    """The half of the attachment system that holds children is still CSG-only (T14 phase 5a)."""
+    """The half of the attachment system that holds children is still CSG-only (T14 phase 5a).
+
+    The refusal fires when the feature is **used**, not when the name is looked up: SPEC PAR-3 has
+    an exclusive feature declared and refusing rather than absent, so the contract can carry it and
+    `isinstance(sdf_solid, Solid)` stays true (PLAN T-6b).
+    """
     with use_backend("sdf"):
         s = solid.sphere(radius=10)  # type: ignore[attr-defined]
+        assert hasattr(s, feature), f"{feature} must be declared so the contract can carry it"
         with pytest.raises(UnsupportedByBackendError) as ei:
-            getattr(s, feature)
+            getattr(s, feature)()
         assert ei.value.backend == "sdf"
         assert ei.value.feature == feature
+        assert ei.value.hint, "a refusal names the way forward (SPEC E-2)"
 
 
 @pytest.mark.parametrize("feature", ["anchor_point", "reanchor", "reorient", "orient"])

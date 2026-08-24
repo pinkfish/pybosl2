@@ -49,6 +49,7 @@ from enum import Enum
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import EPSILON, lerpn
 from pybosl2.vnf import VNF, VnfStyle
 
@@ -273,7 +274,7 @@ def _homogeneous(points: Sequence[PointLike], weights: Sequence[float]) -> list[
     if not (len(weights) == len(points)):  # pragma: no cover
         # defensive: NurbsCurve/NurbsPatch check the weight count against the control points
         # before storing them, and the patch call sites zip(strict=True) first.
-        raise ValueError("weights must match the number of control points.")
+        raise Bosl2ValueError("weights must match the number of control points.")
     return [list(np.asarray(p, dtype=float) * w) + [float(w)] for p, w in zip(points, weights, strict=True)]
 
 
@@ -325,7 +326,7 @@ def _sample_params(
     """
     if splinesteps is not None:
         if not (splinesteps > 0):
-            raise ValueError("splinesteps must be a positive integer.")
+            raise Bosl2ValueError("splinesteps must be a positive integer.")
         params: list[float] = []
         for i in range(degree, count):
             if not math.isclose(knot[i], knot[i + 1], rel_tol=0, abs_tol=EPSILON):
@@ -337,10 +338,10 @@ def _sample_params(
     if not (u is not None):  # pragma: no cover
         # defensive: _curve_points() defaults splinesteps to 16 when the caller gives neither, so
         # this helper always arrives with one of the two set.
-        raise ValueError("Must define exactly one of u and splinesteps.")
+        raise Bosl2ValueError("Must define exactly one of u and splinesteps.")
     values = [float(x) for x in u]
     if not (all((-1e-12 <= x <= 1 + 1e-12 for x in values))):
-        raise ValueError("u must lie in [0, 1].")
+        raise Bosl2ValueError("u must lie in [0, 1].")
     if nurbs_type == NurbsType.CLAMPED:
         return values
     lo, hi = float(knot[degree]), float(knot[count])
@@ -377,7 +378,7 @@ def _curve_points(
     if not (splinesteps is None or u is None):  # pragma: no cover
         # defensive: the public curve()/point()/points()/surface() methods each pass exactly one
         # of the two, and the patch grid picks one per direction.
-        raise ValueError("Must define exactly one of u and splinesteps.")
+        raise Bosl2ValueError("Must define exactly one of u and splinesteps.")
     if splinesteps is None and u is None:
         splinesteps = 16
 
@@ -396,7 +397,7 @@ def _curve_points(
     if not (nurbs_type == NurbsType.CLOSED or len(control) >= degree + 1):  # pragma: no cover
         # defensive: NurbsCurve.__init__ makes the same check before any
         # curve can reach this helper, and a CLOSED curve is exempt from it
-        raise ValueError(f"Not enough control points for a degree {degree} {nurbs_type.value} curve.")
+        raise Bosl2ValueError(f"Not enough control points for a degree {degree} {nurbs_type.value} curve.")
     ctrl = [np.asarray(p, dtype=float) for p in control]
     if nurbs_type == NurbsType.CLOSED:
         ctrl = ctrl + ctrl[:degree]
@@ -685,9 +686,9 @@ def _elevate_curve(
 
     """
     if nurbs_type not in (NurbsType.CLAMPED, NurbsType.OPEN):
-        raise ValueError("degree elevation needs a CLAMPED or OPEN curve.")
+        raise Bosl2ValueError("degree elevation needs a CLAMPED or OPEN curve.")
     if not (times >= 0):
-        raise ValueError("times must be zero or a positive integer.")
+        raise Bosl2ValueError("times must be zero or a positive integer.")
     points = [[float(c) for c in p] for p in control]
     if times == 0:
         return (
@@ -788,19 +789,21 @@ class NurbsCurve:
         if not (pts.ndim == 2):  # pragma: no cover
             # defensive: the comprehension above builds a list of rows of floats, so numpy either
             # produces a 2-D array or raises on a ragged/scalar input.
-            raise ValueError(f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}")
+            raise Bosl2ValueError(f"control points must be a 2-D array (N points x D dims), got shape {pts.shape}")
         if pts.shape[1] not in (2, 3):
-            raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
+            raise Bosl2ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
         if not (isinstance(degree, int)):
-            raise ValueError(f"degree must be a positive integer, got {degree!r}")
+            raise Bosl2ValueError(f"degree must be a positive integer, got {degree!r}")
         if not (degree >= 1):
-            raise ValueError(f"degree must be a positive integer, got {degree!r}")
+            raise Bosl2ValueError(f"degree must be a positive integer, got {degree!r}")
         if not (isinstance(nurbs_type, NurbsType)):
-            raise ValueError(f"unknown NURBS type: {nurbs_type!r}")
+            raise Bosl2ValueError(f"unknown NURBS type: {nurbs_type!r}")
         if not (nurbs_type == NurbsType.CLOSED or pts.shape[0] >= degree + 1):
-            raise ValueError(f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points")
+            raise Bosl2ValueError(
+                f"a degree {degree} {nurbs_type.value} curve needs at least {degree + 1} control points"
+            )
         if not (weights is None or len(weights) == pts.shape[0]):
-            raise ValueError("weights must match the number of control points.")
+            raise Bosl2ValueError("weights must match the number of control points.")
         pts.flags.writeable = False  # the definition is fixed once built; make a new curve to change it
         self._control = pts
         self._degree = degree
@@ -1023,20 +1026,20 @@ class NurbsPatch:
 
         """
         if not (NurbsPatch.is_patch(control)):
-            raise ValueError("control must be a rectangular grid of points.")
+            raise Bosl2ValueError("control must be a rectangular grid of points.")
         pts = np.array(control, dtype=float)
         if not (pts.ndim == 3):  # pragma: no cover
             # defensive: is_patch() above already rejects anything that is not a rectangular grid
             # of points, which is exactly what makes the array 3-D.
-            raise ValueError(f"patch must be a 3-D array (rows x cols x dim), got shape {pts.shape}")
+            raise Bosl2ValueError(f"patch must be a 3-D array (rows x cols x dim), got shape {pts.shape}")
         if not (pts.shape[2] == 3):
-            raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
+            raise Bosl2ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
         if not (all((isinstance(d, int) and d >= 1 for d in degree))):
-            raise ValueError(f"degree must be positive integers, got {degree!r}")
+            raise Bosl2ValueError(f"degree must be positive integers, got {degree!r}")
         if not (all((isinstance(t, NurbsType) for t in nurbs_type))):
-            raise ValueError(f"unknown NURBS type: {nurbs_type!r}")
+            raise Bosl2ValueError(f"unknown NURBS type: {nurbs_type!r}")
         if not (weights is None or np.asarray(weights, dtype=float).shape == pts.shape[:2]):
-            raise ValueError("weights must be the same size as the control-point grid.")
+            raise Bosl2ValueError("weights must be the same size as the control-point grid.")
         pts.flags.writeable = False  # the definition is fixed once built; make a new patch to change it
         self._control = pts
         self._degree = (degree[0], degree[1])
@@ -1199,7 +1202,7 @@ class NurbsPatch:
         havecaps = any(cs.cap_type != CapType.NONE for cs in cap_specs)
         cappable = ((NurbsType.CLAMPED, NurbsType.CLOSED), (NurbsType.CLOSED, NurbsType.CLAMPED))
         if not (not havecaps or self._nurbs_type in cappable):
-            raise ValueError("caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED).")
+            raise Bosl2ValueError("caps require (CLAMPED,CLOSED) or (CLOSED,CLAMPED).")
 
         # caps close the column-wrapped ends, so a closed U direction is transposed into V
         flip = havecaps and self._nurbs_type[0] == NurbsType.CLOSED

@@ -30,9 +30,9 @@ def test_the_nominal_box_is_attached_without_touching_the_geometry(backend: str)
         shape = solid.cuboid([10, 20, 30])  # type: ignore[attr-defined]
         named = shape.with_nominal_size([1, 2, 3])
 
-    assert named.nominal_size == pytest.approx([1.0, 2.0, 3.0])
+    assert named.size == pytest.approx([1.0, 2.0, 3.0])
     assert named.backend == backend
-    for got, want in zip(named.bounds()[1], [10, 20, 30], strict=True):
+    for got, want in zip(named.bounds().size, [10, 20, 30], strict=True):
         assert abs(float(got) - want) < 0.01, "the nominal box must not change what bounds() says"
 
 
@@ -43,9 +43,9 @@ def test_it_returns_a_new_shape_and_leaves_the_original_alone(backend: str) -> N
         named = shape.with_nominal_size([1, 2, 3])
 
     assert named is not shape
-    assert named.nominal_size == pytest.approx([1.0, 2.0, 3.0])
+    assert named.size == pytest.approx([1.0, 2.0, 3.0])
     # The CSG constructors record their own size; the SDF ones carry none until one is attached.
-    assert shape.nominal_size != pytest.approx([1.0, 2.0, 3.0]) if shape.nominal_size else True
+    assert shape.size != pytest.approx([1.0, 2.0, 3.0]) if shape.size else True
 
 
 @pytest.mark.parametrize("backend", BACKENDS)
@@ -54,15 +54,15 @@ def test_the_nominal_box_survives_a_transform(backend: str) -> None:
     with use_backend(backend):
         moved = solid.cuboid([10, 20, 30]).with_nominal_size([1, 2, 3]).translate([5, 0, 0])  # type: ignore[attr-defined]
 
-    assert moved.nominal_size == pytest.approx([1.0, 2.0, 3.0])
-    assert moved.bounds()[0][0] == pytest.approx(5.0)  # ... and the geometry really did move
+    assert moved.size == pytest.approx([1.0, 2.0, 3.0])
+    assert moved.bounds().center[0] == pytest.approx(5.0)  # ... and the geometry really did move
 
 
 def test_a_nominal_box_can_name_the_anchor_too() -> None:
     """A part anchors to a face of the frame it is designed around, not to its bounding box."""
     shape = solid.cuboid([10, 20, 30]).with_nominal_size([1, 2, 3], anchor=Anchor.TOP)  # type: ignore[attr-defined]
     assert shape.anchor is Anchor.TOP
-    assert shape.nominal_size == pytest.approx([1.0, 2.0, 3.0])
+    assert shape.size == pytest.approx([1.0, 2.0, 3.0])
 
 
 def test_it_is_the_replacement_for_the_native_rewrap() -> None:
@@ -78,7 +78,7 @@ def test_it_is_the_replacement_for_the_native_rewrap() -> None:
     by_rewrap = Bosl2Solid(built.shape, size=[1, 2, 3])
     by_method = built.with_nominal_size([1, 2, 3])
 
-    assert by_method.nominal_size == pytest.approx(list(by_rewrap.size or []))
+    assert by_method.size == pytest.approx(list(by_rewrap.size or []))
     assert by_method.bounds() == by_rewrap.bounds()
 
     from pybosl2.exceptions import UnsupportedByBackendError
@@ -87,4 +87,4 @@ def test_it_is_the_replacement_for_the_native_rewrap() -> None:
         sdf_solid = solid.cuboid([10, 20, 30])  # type: ignore[attr-defined]
         with pytest.raises(UnsupportedByBackendError, match="'shape'"):
             _ = sdf_solid.shape  # the re-wrap idiom cannot even get started here
-        assert sdf_solid.with_nominal_size([1, 2, 3]).nominal_size == pytest.approx([1.0, 2.0, 3.0])
+        assert sdf_solid.with_nominal_size([1, 2, 3]).size == pytest.approx([1.0, 2.0, 3.0])

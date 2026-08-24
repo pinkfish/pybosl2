@@ -22,6 +22,8 @@ from collections.abc import Sequence
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
+
 # Default tolerance used throughout BOSL2 for floating-point comparisons.
 EPSILON = 1e-9
 
@@ -231,13 +233,13 @@ def slerp(a: Sequence[float], b: Sequence[float], t: float) -> list[float]:
     na: float = _math.sqrt(sum(x * x for x in a))
     nb: float = _math.sqrt(sum(x * x for x in b))
     if na < EPSILON or nb < EPSILON:
-        raise ValueError("Cannot slerp with zero-length vector")
+        raise Bosl2ValueError("Cannot slerp with zero-length vector")
     u: list[float] = [x / na for x in a]
     v: list[float] = [x / nb for x in b]
     dot: float = max(-1.0, min(1.0, sum(u[i] * v[i] for i in range(3))))
     theta: float = _math.acos(dot)
     if abs(theta - _math.pi) < EPSILON:
-        raise ValueError("No solution when vectors are 180° apart")
+        raise Bosl2ValueError("No solution when vectors are 180° apart")
     sin_theta: float = _math.sin(theta)
     if sin_theta < EPSILON:
         mid: list[float] = [u[i] + v[i] for i in range(3)]
@@ -272,13 +274,13 @@ def slerpn(
     na: float = _math.sqrt(sum(x * x for x in a))
     nb: float = _math.sqrt(sum(x * x for x in b))
     if na < EPSILON or nb < EPSILON:
-        raise ValueError("Cannot slerpn with zero-length vector")
+        raise Bosl2ValueError("Cannot slerpn with zero-length vector")
     u: list[float] = [x / na for x in a]
     v: list[float] = [x / nb for x in b]
     dot: float = max(-1.0, min(1.0, sum(u[i] * v[i] for i in range(3))))
     theta: float = _math.acos(dot)
     if abs(theta - _math.pi) < EPSILON:
-        raise ValueError("No solution when vectors are 180° apart")
+        raise Bosl2ValueError("No solution when vectors are 180° apart")
     sin_theta: float = _math.sin(theta)
     d: int = n - 1 if endpoint else n
     result: list[list[float]] = []
@@ -352,7 +354,7 @@ def quant(v: float, unit: float) -> float:
 
     """
     if unit <= 0.0:
-        raise ValueError(f"Quantum must be positive, got {unit}")
+        raise Bosl2ValueError(f"Quantum must be positive, got {unit}")
     return round(v / unit) * unit
 
 
@@ -370,5 +372,5 @@ def mean(v: Sequence[float]) -> float:
 
     """
     if len(v) == 0:
-        raise ValueError("Cannot compute mean of an empty sequence")
+        raise Bosl2ValueError("Cannot compute mean of an empty sequence")
     return sum(v) / len(v)

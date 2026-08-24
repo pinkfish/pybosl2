@@ -41,6 +41,7 @@ import numpy as np
 from pybosl2._helpers import is_num, zrot4
 from pybosl2.constants import BACK, DOWN, FRONT, LEFT, RIGHT, UP
 from pybosl2.enums import PartitionCutType
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import lerp as _lerp
 from pybosl2.transforms import axis_angle_matrix, rot_about_axis, rot_from_to
 from pybosl2.vectors import unit
@@ -210,7 +211,9 @@ def _partition_subpath(
                 )
             )
         )
-    raise ValueError(f"partition_path(): unsupported cut type {cptype!r}; use a PartitionCutType member or its name.")
+    raise Bosl2ValueError(
+        f"partition_path(): unsupported cut type {cptype!r}; use a PartitionCutType member or its name."
+    )
 
 
 def _partition_cutpath(
@@ -265,7 +268,7 @@ def _ptn_sect(
 
     if is_num(cptype):
         if not (cptype > 0):  # type: ignore[operator]
-            raise ValueError("flat section length must be positive.")
+            raise Bosl2ValueError("flat section length must be positive.")
         return Path2D([[0, 0], [float(cptype), 0]])
     if invert:
         return _yscale(-1, _ptn_sect(cptype, length, width, fn=fn, fa=fa, fs=fs))
@@ -291,7 +294,7 @@ def _ptn_sect(
         if opt and opt[0].isdigit() and opt.endswith("x") and opt[:-1].isdigit():  # "3x": repeat
             reps = int(opt[:-1])
             if not (reps > 0):
-                raise ValueError("repetition count must be positive.")
+                raise Bosl2ValueError("repetition count must be positive.")
             sect = _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs)
             w = sect[-1][0]
             out: list[Any] = []
@@ -301,15 +304,15 @@ def _ptn_sect(
         if opt and opt[0].isdigit() and "x" in opt:  # "30x20": resize
             parts = opt.split("x")
             if not (len(parts) == 2):
-                raise ValueError("size modifier must be LENGTHxWIDTH, e.g. '30x25'.")
+                raise Bosl2ValueError("size modifier must be LENGTHxWIDTH, e.g. '30x25'.")
             new_length, new_width = float(parts[0]), float(parts[1])
             if new_length <= 0 or new_width <= 0:
-                raise ValueError(f"size modifier {opt!r} needs a positive LENGTH and WIDTH, e.g. '30x25'.")
+                raise Bosl2ValueError(f"size modifier {opt!r} needs a positive LENGTH and WIDTH, e.g. '30x25'.")
             return _ptn_sect(base, new_length, new_width, fn=fn, fa=fa, fs=fs)
         if opt.startswith("skew:"):
             angle = float(opt[5:])
             if not (-45 <= angle <= 45):
-                raise ValueError("skew angle must be between -45 and 45.")
+                raise Bosl2ValueError("skew angle must be between -45 and 45.")
             return _skew(angle, _ptn_sect(base, length, width, fn=fn, fa=fa, fs=fs))
         if opt.startswith("pinch:"):
             val_str = opt[6:]
@@ -329,7 +332,7 @@ def _ptn_sect(
             return Path2D([[(p[0] - midx) * _lerp(1, pcnt / 100, abs(p[1]) / maxy) + midx, p[1]] for p in raw])
         if base == "flat" and opt and opt[0].isdigit() and "x" not in opt and ":" not in opt:
             return Path2D([[0, 0], [float(opt), 0]])
-        raise ValueError(
+        raise Bosl2ValueError(
             f"partition_path(): unknown section option {opt!r}; expected a repeat count, "
             f"'WIDTHxLENGTH', 'skew:ANGLE' or 'pinch:VALUE'."
         )
@@ -359,17 +362,17 @@ def _ptn_sect(
     elif cptype == PartitionCutType.COMB:
         dx = math.tan(math.radians(2)) * width / length
         if not (dx <= 0.5):
-            raise ValueError("width-to-length ratio too large for comb form.")
+            raise Bosl2ValueError("width-to-length ratio too large for comb form.")
         path = [[0, 0], [dx, 1], [1 - dx, 1], [1, 0]]
     elif cptype == PartitionCutType.FINGER:
         dx = math.tan(math.radians(20)) * width / length
         if not (dx <= 0.5):
-            raise ValueError("width-to-length ratio too large for finger form.")
+            raise Bosl2ValueError("width-to-length ratio too large for finger form.")
         path = [[0, 0], [dx, 1], [1 - dx, 1], [1, 0]]
     elif cptype == PartitionCutType.DOVETAIL:
         dx = math.tan(math.radians(9)) * width / length / 2
         if not (dx < 0.25):
-            raise ValueError("width-to-length ratio too large for dovetail form.")
+            raise Bosl2ValueError("width-to-length ratio too large for dovetail form.")
         path = [
             [0, 0],
             [0.25 + dx, 0],
@@ -436,7 +439,7 @@ def _ptn_sect(
         # defensive: every caller passes a number, a str/PartitionCutType, or a
         # point sequence. partition_path() rejects anything else in its own loop, and the mask
         # entry points iterate cutpath before they get here, so a stray type never reaches this.
-        raise ValueError(
+        raise Bosl2ValueError(
             f"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got {cptype!r}."
         )
     return _scale2(length, width, path)
@@ -499,7 +502,7 @@ def partition_path(
             elif isinstance(pd, str):
                 paths.append(_ptn_sect(pd, seglen, segwidth, fn=fn, fa=fa, fs=fs))
             else:
-                raise ValueError(
+                raise Bosl2ValueError(
                     f"partition_path(): each pathdesc item is a length, a 2-D path, or a named cut type; got {pd!r}."
                 )
     min_xs = [min(p[0] for p in path) for path in paths]
@@ -517,7 +520,7 @@ def partition_path(
     if y is None:
         return Path2D(list(redirpath), closed=False)  # type: ignore[arg-type]
     if not (y < min_y or y > max_y):
-        raise ValueError("partition_path(): closing y would make the path self-crossing.")
+        raise Bosl2ValueError("partition_path(): closing y would make the path self-crossing.")
     closedpath: list[Any] = [[redirpath[-1][0], y], [redirpath[0][0], y]] + list(redirpath)
     outpath = closedpath if y < 0 else closedpath[::-1]
     return Path2D(outpath, closed=True)
@@ -791,7 +794,7 @@ class Partitionable:
         else:
             cpv = _as_vec3(center)
         if s is None:
-            center_pt, size = self.bounds()  # type: ignore[attr-defined]
+            center_pt, size = self._center_size()  # type: ignore[attr-defined]
             reach = float(np.linalg.norm(size)) + float(np.linalg.norm(cpv - np.asarray(center_pt)))
             s = 2.2 * reach + 2.0
         return self._wrap(self.shape & self._half_mask(v3, cpv, s, cut_path, cut_angle, offset))  # type: ignore[attr-defined, no-any-return]
@@ -935,7 +938,7 @@ class Partitionable:
                 halves[0].show()
 
         """
-        center_pt, size = self.bounds()  # type: ignore[attr-defined]
+        center_pt, size = self._center_size()  # type: ignore[attr-defined]
         cs: list[float] = list(cutsize) if isinstance(cutsize, (list, tuple, np.ndarray)) else [cutsize * 2, cutsize]  # type: ignore[operator, list-item]
         sp = math.radians(spin)
         c, sn = math.cos(sp), math.sin(sp)

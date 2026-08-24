@@ -29,7 +29,8 @@ from pybosl2.shapes3d import Bosl2Solid
 
 
 def _size(solid: Bosl2Solid):  # type: ignore[no-untyped-def]
-    _, size = solid.bounds()
+    _box = solid.bounds()
+    _, size = list(_box.center), list(_box.size)
     return size
 
 
@@ -399,7 +400,8 @@ def test_backlash_clearance_shorten_build() -> None:
 
 def _size2d(shape):  # type: ignore[no-untyped-def]
     # 2-D outlines have no z-bounds; measure via a thin extrude, which carries the tracked size
-    _center, size = shape.linear_extrude(height=0.1).bounds()
+    _box = shape.linear_extrude(height=0.1).bounds()
+    _center, size = list(_box.center), list(_box.size)
     return size
 
 

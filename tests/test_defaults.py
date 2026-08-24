@@ -17,6 +17,7 @@ import pytest
 import pybosl2.sdf  # noqa: F401  -- registers the "sdf" backend
 import pybosl2.shapes2d as s2
 from pybosl2._backend import use_backend
+from pybosl2.bounds import Bounds3D
 from pybosl2.defaults import (
     Resolution,
     current_defaults,
@@ -257,18 +258,39 @@ def _argument_free(module: object) -> list[tuple[str, object]]:
 
 @pytest.mark.parametrize("module_name", ["pybosl2.solid", "pybosl2.flat", "pybosl2.shapes2d", "pybosl2.shapes3d"])
 def test_argument_free_constructors_either_build_or_explain(module_name: str) -> None:
-    """No-argument calls must build or raise ValueError -- never assert or TypeError (SPEC P-1, E-4)."""
+    """A no-argument call raises ValueError or builds a *usable* shape (SPEC P-1, E-4, E-5).
+
+    "Does not raise" is not enough, and asserting only that is how ``regular_ngon()`` shipped
+    returning a polygon of coincident points whose bounds were ``[-inf, -inf]``: no traceback, no
+    shape either. PLAN E-P4 requires the result to be checked, so a constructor that cannot make
+    something from its defaults has to say so.
+    """
     import importlib
+    import math
 
     module = importlib.import_module(module_name)
     built = 0
     for label, function in _argument_free(module):
         try:
-            assert function() is not None, label
+            shape = function()
         except ValueError:
             continue  # a documented "you must choose one of these spellings"
         except (AssertionError, TypeError) as exc:  # pragma: no cover - the failure we guard against
             pytest.fail(f"{label}() with no arguments raised {type(exc).__name__}: {exc}")
+        assert shape is not None, label
+
+        # E-5: what came back has to be something somebody could use. For a shape that means every
+        # extent finite and positive -- a degenerate build is a silent wrong answer, not a lenient
+        # default. `current_backend()` and the raw point-list helpers are argument-free too but
+        # are not shapes, so they are measured by what they are.
+        if hasattr(shape, "bounds"):
+            size = shape.bounds().size
+            assert all(math.isfinite(extent) for extent in size), (
+                f"{label}() built a shape with non-finite bounds: {size}"
+            )
+            assert all(extent > 0 for extent in size), f"{label}() built an empty shape: {size}"
+        elif isinstance(shape, (list, tuple)):
+            assert shape, f"{label}() returned an empty sequence"
         built += 1
     assert built, f"no argument-free constructor in {module_name} actually built"
 
@@ -308,7 +330,9 @@ def test_size_only_rect_tube_gets_a_wall() -> None:
     """An outer size with no bore stated still makes a tube (SPEC.md P-3)."""
     from pybosl2.solid import rect_tube
 
-    assert rect_tube(size=[20, 20], height=10).bounds() == ([0.0, 0.0, 5.0], [20.0, 20.0, 10.0])
+    assert rect_tube(size=[20, 20], height=10).bounds() == Bounds3D.from_center_size(
+        [0.0, 0.0, 5.0], [20.0, 20.0, 10.0]
+    )
 
 
 def test_a_radius_and_its_own_diameter_together_are_rejected() -> None:

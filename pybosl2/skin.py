@@ -17,7 +17,7 @@
 #          "incremental" (rotation-minimizing frame via the double-reflection
 #          algorithm), "manual" (caller normals) and "natural" (the curve's own
 #          normal); twist, per-point/interpolated scale, open & closed paths,
-#          flat caps on/off, user tangents, and the transforms=True mode.
+#          flat caps on/off, user tangents, and the frames path_sweep_transforms() returns.
 #      * skin(profiles, slices)     -- blend a stack of profiles (methods "direct"
 #          and "reindex")
 #      * linear_sweep(region, h)    -- extrude an outline with twist/scale/shift
@@ -59,6 +59,7 @@ from pybosl2._helpers import xrot4 as _xrot4
 from pybosl2.caps import CapsSpec, CapType, has_decorative_caps, norm_caps, vnf_with_decorative_caps
 from pybosl2.defaults import resolve_facets
 from pybosl2.enums import ResampleMethod, RoundingMethod, SamplingType, SkinMethod, SweepMethod, VNFStyle
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.points import Point
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import rot_about_axis, rot_decode, rot_inverse
@@ -68,12 +69,33 @@ UP = Point([0.0, 0.0, 1.0])
 BACK = Point([0.0, 1.0, 0.0])
 
 
+def _as_solid(mesh: "VNF | Solid") -> "Solid":
+    """Realize a sweep's mesh as a solid on the active backend, keeping the mesh reachable.
+
+    SPEC S-19a: a sweep returns a `Solid`, so its result composes with `-`/`|`/`&` and the
+    transforms like any other shape and a caller never appends `.polyhedron()` to a call that
+    already said "sweep this into a solid". The mesh stays available as `.vnf` for measuring,
+    joining or exporting with no CAD runtime (SPEC C-8), which is why it is stashed rather than
+    discarded.
+
+    A member that already built a Solid -- the decorative-cap path unions real geometry -- passes
+    straight through.
+    """
+    if not isinstance(mesh, VNF):
+        return mesh
+    solid = mesh.polyhedron()
+    # Stashed for `Solid.vnf` to hand back: meshing it again would be both slower and lossier than
+    # keeping the one the sweep already built.
+    object.__setattr__(solid, "_vnf", mesh)
+    return solid
+
+
 class Sweepable:
     """Mixin adding sweep methods to Path2D and Path3D."""
 
     def path_sweep(
         self,
-        shape: Path2D,
+        shape: "PathLike",
         method: SweepMethod = SweepMethod.INCREMENTAL,
         normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
         closed: bool = False,
@@ -88,8 +110,7 @@ class Sweepable:
         relaxed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-        transforms: bool = False,
-    ) -> VNF | "Solid" | list[list[list[float]]]:
+    ) -> "Solid":
         """Sweep *shape* along this path.
 
         *method* orients the cross section: "incremental" (rotation-minimizing frame), "manual"
@@ -108,10 +129,10 @@ class Sweepable:
 
                 square = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
                 helix = [[10 * math.cos(t), 10 * math.sin(t), t * 3] for t in np.linspace(0, 3 * math.pi, 40)]
-                Path3D(helix).path_sweep(square).polyhedron().show()
+                Path3D(helix).path_sweep(square).show()
 
         """
-        return _path_sweep(
+        mesh = _path_sweep(
             shape,
             cast("Path2D | Path3D", self),
             method=method,
@@ -128,16 +149,88 @@ class Sweepable:
             relaxed=relaxed,
             caps=caps,
             style=style,
-            transforms=transforms,
+            transforms=False,
         )
+        return _as_solid(cast("VNF", mesh))
+
+    def path_sweep_transforms(
+        self,
+        method: SweepMethod = SweepMethod.INCREMENTAL,
+        normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
+        closed: bool = False,
+        twist: float = 0.0,
+        twist_by_length: bool = True,
+        scale: Any = (1.0, 1.0),
+        scale_by_length: bool = True,
+        symmetry: int = 1,
+        last_normal: Sequence[float] | None = None,
+        tangent: Sequence[Sequence[float]] | None = None,
+        uniform: bool = True,
+        relaxed: bool = False,
+    ) -> list[list[list[float]]]:
+        """Return the 4x4 transforms :meth:`path_sweep` would place its cross sections with.
+
+        This used to be ``path_sweep(..., transforms=True)``, which made the return type depend on
+        an argument: every caller of the ordinary case paid for the flag with a union they could
+        not narrow, and the documented one-liner stopped type-checking. A flag that changes the
+        return type is a second function, so here it is (SPEC S-19b, PLAN T-6d).
+
+        The parameters are :meth:`path_sweep`'s, minus the ones that only affect the skin
+        (``caps``, ``style``) and the profile itself -- a transform list does not have a profile.
+
+        Args:
+            method: how the cross section is oriented along the path.
+            normal: per-point normals, for ``SweepMethod.MANUAL``.
+            closed: the path loops back on itself.
+            twist: degrees of twist along the path.
+            twist_by_length: distribute the twist by arc length rather than by point index.
+            scale: scalar, 2-vector, per-point vector or Nx2 scaling along the path.
+            scale_by_length: distribute the scaling by arc length rather than by point index.
+            symmetry: rotational symmetry order of the profile.
+            last_normal: normal to land on at the far end.
+            tangent: explicit per-point tangents.
+            uniform: resample the path uniformly first.
+            relaxed: relax the frame rather than holding the normal exactly.
+
+        Returns:
+            One 4x4 matrix per cross section, as plain nested lists.
+
+        Examples:
+            Placing your own geometry at each station along a path::
+
+                from pybosl2 import Path3D, cuboid
+
+                path = Path3D([[0, 0, 0], [0, 0, 10], [5, 0, 20]])
+                for matrix in path.path_sweep_transforms():
+                    cuboid([2, 2, 1]).multmatrix(matrix)
+
+        """
+        placed = _path_sweep(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]],  # a placeholder profile: only the frames are read
+            cast("Path2D | Path3D", self),
+            method=method,
+            normal=normal,
+            closed=closed,
+            twist=twist,
+            twist_by_length=twist_by_length,
+            scale=scale,
+            scale_by_length=scale_by_length,
+            symmetry=symmetry,
+            last_normal=last_normal,
+            tangent=tangent,
+            uniform=uniform,
+            relaxed=relaxed,
+            transforms=True,
+        )
+        return cast("list[list[list[float]]]", placed)
 
     def path_sweep2d(
         self,
-        shape: Path2D,
+        shape: "PathLike",
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> VNF | "Solid":
+    ) -> "Solid":
         """Sweep 2-D *shape* along this 2-D path.
 
         For each point on the profile, the path is offset by its X coordinate and lifted to Z = Y,
@@ -154,10 +247,10 @@ class Sweepable:
 
                 shape = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
                 path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
-                Path2D(path).path_sweep2d(shape).polyhedron().show()
+                Path2D(path).path_sweep2d(shape).show()
 
         """
-        return _path_sweep2d(shape, cast("Path2D", self), closed=closed, caps=caps, style=style)
+        return _as_solid(_path_sweep2d(shape, cast("Path2D", self), closed=closed, caps=caps, style=style))
 
     def linear_sweep(
         self,
@@ -169,7 +262,7 @@ class Sweepable:
         center: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> VNF | "Solid":
+    ) -> "Solid":
         """Extrude this 2-D profile linearly with optional twist/scale/shift.
 
         The profile is duplicated at *slices* positions along the Z axis; at each level the points
@@ -184,19 +277,21 @@ class Sweepable:
                 from pybosl2 import Path2D
 
                 square = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
-                Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).polyhedron().show()
+                Path2D(square).linear_sweep(height=40, twist=120, scale=0.4).show()
 
         """
-        return _linear_sweep(
-            cast("Path2D", self),
-            height=height,
-            twist=twist,
-            scale=scale,
-            shift=shift,
-            slices=slices,
-            center=center,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _linear_sweep(
+                cast("Path2D", self),
+                height=height,
+                twist=twist,
+                scale=scale,
+                shift=shift,
+                slices=slices,
+                center=center,
+                caps=caps,
+                style=style,
+            )
         )
 
     def rotate_sweep(
@@ -206,7 +301,7 @@ class Sweepable:
         _closed: bool | None = None,
         style: VNFStyle = VNFStyle.MIN_EDGE,
         start: float = 0.0,
-    ) -> VNF | "Solid":
+    ) -> "Solid":
         """Revolve this 2-D profile around the Z axis.
 
         The profile is swept through *angle* degrees (default 360) around Z, starting at
@@ -220,15 +315,17 @@ class Sweepable:
                 from pybosl2 import Path2D
 
                 profile = [[4, -10], [12, -10], [12, -6], [7, -2], [7, 2], [12, 6], [12, 10], [4, 10]]
-                Path2D(profile).rotate_sweep(angle=360).polyhedron().show()
+                Path2D(profile).rotate_sweep(angle=360).show()
 
         """
-        return _rotate_sweep(
-            cast("Path2D", self),
-            angle=angle,
-            caps=caps,
-            style=style,
-            start=start,
+        return _as_solid(
+            _rotate_sweep(
+                cast("Path2D", self),
+                angle=angle,
+                caps=caps,
+                style=style,
+                start=start,
+            )
         )
 
     def spiral_sweep(
@@ -246,7 +343,7 @@ class Sweepable:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> VNF | "Solid":
+    ) -> "Solid":
         """Sweep this 2-D profile along a helix.
 
         The profile follows a helical path of *height* and *radius* (or separate start/end radii)
@@ -279,24 +376,26 @@ class Sweepable:
                 from pybosl2 import Path2D
 
                 section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
-                Path2D(section).spiral_sweep(height=40, radius=12, turns=5).polyhedron().show()
+                Path2D(section).spiral_sweep(height=40, radius=12, turns=5).show()
 
         """
-        return _spiral_sweep(
-            cast("Path2D", self),
-            height,
-            radius=radius,
-            turns=turns,
-            radius1=radius1,
-            radius2=radius2,
-            diameter=diameter,
-            diameter1=diameter1,
-            diameter2=diameter2,
-            center=center,
-            style=style,
-            fn=fn,
-            fa=fa,
-            fs=fs,
+        return _as_solid(
+            _spiral_sweep(
+                cast("Path2D", self),
+                height,
+                radius=radius,
+                turns=turns,
+                radius1=radius1,
+                radius2=radius2,
+                diameter=diameter,
+                diameter1=diameter1,
+                diameter2=diameter2,
+                center=center,
+                style=style,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            )
         )
 
     def sweep(
@@ -305,17 +404,19 @@ class Sweepable:
         closed: bool = False,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> VNF | "Solid":
+    ) -> "Solid":
         """Apply each 4x4 transform to this 2-D shape and skin the resulting profiles into a VNF.
 
         or Bosl2Solid (BOSL2 sweep()).
         """
-        return _sweep(
-            [list(p) for p in cast("Path2D", self)],
-            transforms,
-            closed=closed,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _sweep(
+                [list(p) for p in cast("Path2D", self)],
+                transforms,
+                closed=closed,
+                caps=caps,
+                style=style,
+            )
         )
 
 
@@ -403,11 +504,11 @@ def _sweep(
     """
     shape3 = np.asarray(path3d(shape), dtype=float)
     if not (len(shape3) >= 3):
-        raise ValueError("shape must be a path of at least 3 points.")
+        raise Bosl2ValueError("shape must be a path of at least 3 points.")
     cap_specs = norm_caps(caps, closed=closed)
     ntrans = len(transforms)
     if not (ntrans >= 2):
-        raise ValueError("transforms must be length 2 or more.")
+        raise Bosl2ValueError("transforms must be length 2 or more.")
     hi = ntrans - (0 if closed else 1)
     points = [np.asarray(_apply(transforms[i % ntrans], shape3), dtype=float) for i in range(hi + 1)]
 
@@ -421,17 +522,23 @@ def _sweep(
         outdir2 = [center2[i] - center1[i] for i in range(3)]
         return vnf_with_decorative_caps(vnf, cap_specs, closed, [center1, center2], [outdir1, outdir2], radius)
 
-    return VNF.vertex_array(
+    vnf = VNF.vertex_array(
         points[:-1] if closed else points,
         caps=cap_specs,
         col_wrap=True,
         row_wrap=closed,
         style=style,
     )
+    # SPEC S-19c: every sweep hands back outward-facing normals. Whether vertex_array() winds this
+    # way depends on the direction the transform list runs, so it is normalised here -- the one
+    # exit `path_sweep`, `sweep` and `spiral_sweep` all leave through. Without it `path_sweep`
+    # produced the mirror of what `linear_sweep` produced for the same box (volume -1000 against
+    # +1000), and an inside-out mesh handed to polyhedron() *adds* material where it should cut.
+    return vnf if vnf.volume() >= 0 else vnf.reverse()
 
 
 def _path_sweep(
-    shape: Sequence[Sequence[float]] | Path2D,
+    shape: "PathLike",
     path: Sequence[Sequence[float]] | Path2D | Path3D,
     method: SweepMethod = SweepMethod.INCREMENTAL,
     normal: Sequence[float] | Sequence[Sequence[float]] | None = None,
@@ -458,7 +565,7 @@ def _path_sweep(
     patharr = np.asarray(path3d(path), dtype=float)
     npts = len(patharr)
     if not (npts >= 2):
-        raise ValueError("path must have at least 2 points.")
+        raise Bosl2ValueError("path must have at least 2 points.")
 
     if tangent is not None:
         tangents = np.array([_u(t) for t in path3d(tangent)])
@@ -566,12 +673,12 @@ def _path_sweep(
             for i in range(nprofiles)
         ]
     else:
-        raise ValueError(f"path_sweep(): unknown method {method!r}; use incremental, manual or natural.")
+        raise Bosl2ValueError(f"path_sweep(): unknown method {method!r}; use incremental, manual or natural.")
 
     transform_list = [unscaled[i] @ scale_list[i] for i in range(len(unscaled))]
     if transforms:
         return transform_list
-    shp = clockwise_polygon(shape)
+    shp = clockwise_polygon(cast("Sequence[Sequence[float]] | Path2D", shape))
     return _sweep(shp, transform_list, closed=closed, caps=caps, style=style)
 
 
@@ -637,22 +744,22 @@ def _skin(
     profiles = [np.asarray(p, dtype=float).tolist() for p in profiles]
     sides = len(profiles)
     if not (sides > 1):
-        raise ValueError("skin() needs at least two profiles.")
+        raise Bosl2ValueError("skin() needs at least two profiles.")
     profcount = sides - (0 if closed else 1)
     cap_specs = norm_caps(caps, closed=closed)
     refine_list = list(refine) if isinstance(refine, (list, tuple)) else [refine] * sides
     method_list = list(method) if isinstance(method, (list, tuple)) else [method] * profcount
     for m in method_list:
         if not (isinstance(m, SkinMethod)):
-            raise ValueError(f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r}).")
+            raise Bosl2ValueError(f"skin(): only the 'direct' and 'reindex' methods are ported (got {m!r}).")
     sampling = sampling if sampling is not None else SamplingType.LENGTH
 
     dim = len(profiles[0][0])
     if dim == 2:
         if not (z is not None):
-            raise ValueError("skin(): 2-D profiles need a matching-length z list.")
+            raise Bosl2ValueError("skin(): 2-D profiles need a matching-length z list.")
         if not (len(z) == sides):
-            raise ValueError("skin(): 2-D profiles need a matching-length z list.")
+            raise Bosl2ValueError("skin(): 2-D profiles need a matching-length z list.")
         profiles = [[[pt[0], pt[1], z[i]] for pt in profiles[i]] for i in range(sides)]
 
     from pybosl2.path3d import Path3D
@@ -760,7 +867,7 @@ def _rotate_sweep(
     Public API: use :meth:`Sweepable.rotate_sweep` instead of calling this directly.
     """
     if not (0 < angle <= 360):
-        raise ValueError("rotate_sweep(): angle must be in (0, 360].")
+        raise Bosl2ValueError("rotate_sweep(): angle must be in (0, 360].")
     cap_specs = norm_caps(caps)
     prof = [[p[0], p[1]] for p in shape]
     full = angle >= 360
@@ -808,9 +915,9 @@ def _spiral_sweep(
     Public API: use :meth:`Sweepable.spiral_sweep` instead of calling this directly.
     """
     if not (height > 0):
-        raise ValueError("spiral_sweep(): need positive height and nonzero turns.")
+        raise Bosl2ValueError("spiral_sweep(): need positive height and nonzero turns.")
     if not (turns != 0):
-        raise ValueError("spiral_sweep(): need positive height and nonzero turns.")
+        raise Bosl2ValueError("spiral_sweep(): need positive height and nonzero turns.")
     rr1 = _pick_radius(
         radius1=radius1,
         diameter1=diameter1,
@@ -893,10 +1000,10 @@ def subdivide_and_slice(
 
         numpoints = reduce(lambda a, b: a * b // math.gcd(a, b), [len(p) for p in profiles])
     if not (isinstance(numpoints, int)):
-        raise ValueError("numpoints must be int after resolution")
+        raise Bosl2ValueError("numpoints must be int after resolution")
     numpoints = round(numpoints)
     if not (numpoints >= maxsize):
-        raise ValueError("subdivide_and_slice(): numpoints is smaller than the largest profile.")
+        raise Bosl2ValueError("subdivide_and_slice(): numpoints is smaller than the largest profile.")
     fixed = [_wrap(p).subdivide_path(points=numpoints, closed=True) for p in profiles]
     return slice_profiles(fixed, slices, closed)
 
@@ -1010,7 +1117,7 @@ def os_circle(
     r_val = radius
     h_val = height
     if not (r_val is not None):
-        raise ValueError("os_circle(): radius is required.")
+        raise Bosl2ValueError("os_circle(): radius is required.")
     h_res = float(h_val) if h_val is not None else abs(float(r_val))
     return OSProfile(type=OSType.CIRCLE, radius=float(r_val), height=h_res, extra=float(extra))
 
@@ -1128,9 +1235,9 @@ def os_profile(profile: PathLike, extra: float = 0.0) -> OSProfile:
     """
     pts = [[float(p[0]), float(p[1])] for p in profile]
     if not (pts):
-        raise ValueError("os_profile(): First point of the profile must be [0, 0].")
+        raise Bosl2ValueError("os_profile(): First point of the profile must be [0, 0].")
     if not (pts[0] == [0.0, 0.0]):
-        raise ValueError("os_profile(): First point of the profile must be [0, 0].")
+        raise Bosl2ValueError("os_profile(): First point of the profile must be [0, 0].")
     return OSProfile(type=OSType.PROFILE, points=pts, extra=float(extra))
 
 
@@ -1180,7 +1287,7 @@ def _offset_sweep(
     from pybosl2.path2d import Path2D as _Path
 
     if not (height > 0):
-        raise ValueError("offset_sweep(): height must be positive.")
+        raise Bosl2ValueError("offset_sweep(): height must be positive.")
     cap_specs = norm_caps(caps)
 
     base = [[float(p[0]), float(p[1])] for p in path]
@@ -1307,7 +1414,7 @@ def _offset_sweep(
     h_bot = bot_zs[-1]
     h_top = top_zs[-1]
     if not (h_bot + h_top <= height):
-        raise ValueError("offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height.")
+        raise Bosl2ValueError("offset_sweep(): the sum of the bottom and top rim heights exceeds the extrusion height.")
 
     # Assemble (delta, z) pairs for the complete column, bottom → top.
     column: list[tuple[float, float]] = []
@@ -1556,7 +1663,7 @@ def _rounded_prism(
     h_bot = bot_zs[-1]
     h_top = top_zs[-1]
     if not (h_bot + h_top <= h_val):
-        raise ValueError("rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height.")
+        raise Bosl2ValueError("rounded_prism(): the sum of the bottom and top rim heights exceeds the prism height.")
 
     column: list[tuple[float, float]] = []
 
@@ -1586,7 +1693,7 @@ def _rounded_prism(
     b_arr = np.asarray(b_rounded, dtype=float)
     t_arr = np.asarray(t_rounded, dtype=float)
     if not (len(b_arr) == len(t_arr)):
-        raise ValueError("rounded_prism(): bottom and top polygons must have the same number of vertices.")
+        raise Bosl2ValueError("rounded_prism(): bottom and top polygons must have the same number of vertices.")
 
     for delta, z in deduped:
         frac = z / h_val
@@ -1763,7 +1870,7 @@ def _bent_cutout_mask(
 
 
 def _path_sweep2d(
-    shape: Sequence[Sequence[float]] | Path2D,
+    shape: "PathLike",
     path: Sequence[Sequence[float]] | Path2D,
     closed: bool = False,
     caps: CapsSpec = CapType.BUTT,
@@ -1791,7 +1898,7 @@ def _path_sweep2d(
         if not (len(off) == len(pth)):  # pragma: no cover
             # defensive: offset(same_length=True) returns the raw per-corner
             # construction, one point per input point, so the lengths cannot disagree here.
-            raise ValueError(
+            raise Bosl2ValueError(
                 "path_sweep2d(): the offset dropped points (the shape is too wide for the path "
                 "here); reduce the shape's X extent."
             )
@@ -1879,7 +1986,7 @@ def rot_resample(
 
     Interpolates between successive transforms along their screw motion (via :func:`rot_decode`),
     optionally adding *twist* and *scale* (smoothed over *smoothlen*). Handy for regularizing the
-    transform list from ``path_sweep(..., transforms=True)`` before handing it to :func:`sweep`.
+    transform list from :meth:`Sweepable.path_sweep_transforms` before handing it to :func:`sweep`.
 
     Args:
         rotlist: list of 4x4 transform matrices
@@ -1895,16 +2002,16 @@ def rot_resample(
     """
     rotlist_extra = [np.asarray(t, dtype=float) for t in rotlist]
     if not (smoothlen > 0):
-        raise ValueError("rot_resample(): smoothlen must be a positive odd integer.")
+        raise Bosl2ValueError("rot_resample(): smoothlen must be a positive odd integer.")
     if not (smoothlen % 2 == 1):
-        raise ValueError("rot_resample(): smoothlen must be a positive odd integer.")
+        raise Bosl2ValueError("rot_resample(): smoothlen must be a positive odd integer.")
     if not isinstance(method, ResampleMethod):
-        raise ValueError(f"rot_resample(): method must be a ResampleMethod member, got {method!r}.")
+        raise Bosl2ValueError(f"rot_resample(): method must be a ResampleMethod member, got {method!r}.")
     m = len(rotlist_extra)
     tcount = m + (0 if closed else -1)
     if method == ResampleMethod.LENGTH:
         if not (isinstance(num_copies, int)):
-            raise ValueError("rot_resample(): num_copies must be an integer for method='length'.")
+            raise Bosl2ValueError("rot_resample(): num_copies must be an integer for method='length'.")
         count = (num_copies + 1) if closed else num_copies
     else:
         count = int(tcount * num_copies + 1) if isinstance(num_copies, (int, float)) else int(sum(num_copies) + 1)
@@ -1932,7 +2039,7 @@ def rot_resample(
         for i in range(tcount)
     ]
     if method == ResampleMethod.LENGTH and not all(x > 0 for x in length):
-        raise ValueError("rot_resample(): a repeated/origin rotation makes method='length' undefined.")
+        raise Bosl2ValueError("rot_resample(): a repeated/origin rotation makes method='length' undefined.")
 
     cumlen = [0.0]
     for x in length:

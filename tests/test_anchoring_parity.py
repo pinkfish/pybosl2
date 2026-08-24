@@ -63,7 +63,7 @@ def test_reanchor_brings_the_same_point_to_the_origin(anchor: Anchor) -> None:
             moved = solid.cuboid([10, 20, 30]).reanchor(anchor)  # type: ignore[attr-defined]
             np.testing.assert_allclose(moved.anchor_point(anchor), [0, 0, 0], atol=1e-6)
             # ... and the shape itself is unchanged, only moved
-            np.testing.assert_allclose(list(moved.bounds()[1]), [10, 20, 30], atol=1e-6)
+            np.testing.assert_allclose(list(moved.bounds().size), [10, 20, 30], atol=1e-6)
 
 
 @pytest.mark.parametrize(
@@ -78,7 +78,7 @@ def test_reorient_turns_the_box_the_same_way_on_both_backends(orient: Anchor, ex
     for backend in ("csg", "sdf"):
         with use_backend(backend):
             turned = solid.cuboid([10, 20, 30]).reorient(anchor=Anchor.CENTER, orient=orient)  # type: ignore[attr-defined]
-        np.testing.assert_allclose([float(v) for v in turned.bounds()[1]], expected, atol=1e-6)
+        np.testing.assert_allclose([float(v) for v in turned.bounds().size], expected, atol=1e-6)
 
 
 def test_orient_is_reorient_about_the_centre() -> None:
@@ -87,8 +87,10 @@ def test_orient_is_reorient_about_the_centre() -> None:
             shape = solid.cuboid([10, 20, 30])  # type: ignore[attr-defined]
             by_orient = shape.orient(Anchor.RIGHT).bounds()
             by_reorient = shape.reorient(anchor=Anchor.CENTER, orient=Anchor.RIGHT).bounds()
-        np.testing.assert_allclose([float(v) for v in by_orient[1]], [float(v) for v in by_reorient[1]], atol=1e-9)
-        np.testing.assert_allclose([float(v) for v in by_orient[0]], [float(v) for v in by_reorient[0]], atol=1e-9)
+        np.testing.assert_allclose([float(v) for v in by_orient.size], [float(v) for v in by_reorient.size], atol=1e-9)
+        np.testing.assert_allclose(
+            [float(v) for v in by_orient.center], [float(v) for v in by_reorient.center], atol=1e-9
+        )
 
 
 def test_a_supplied_box_overrides_the_shapes_own() -> None:

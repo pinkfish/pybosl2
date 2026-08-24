@@ -13,21 +13,51 @@ all: the refusal never fires, and the two records of what a backend can do disag
 from __future__ import annotations
 
 import inspect
+from typing import cast
 
 import pytest
 
 import pybosl2.sdf  # noqa: F401  -- registers the "sdf" backend
 from pybosl2._backend import CSG_ONLY_FEATURES, SDF_ONLY_FEATURES
+from pybosl2.bounds import Bounds3D
 from pybosl2.exceptions import UnsupportedByBackendError
 from pybosl2.sdf.shapes3d import SdfSolid
 from pybosl2.shapes3d.base import CsgSolid
 
 
-def test_csg_only_features_are_absent_from_the_sdf_shape() -> None:
-    implemented = sorted(f for f in CSG_ONLY_FEATURES if inspect.getattr_static(SdfSolid, f, None) is not None)
-    assert not implemented, "listed as CSG-only but implemented on SdfSolid, so the refusal never fires: " + ", ".join(
-        implemented
-    )
+def test_every_csg_only_feature_refuses_on_the_sdf_shape() -> None:
+    """A CSG-only feature is declared on the SDF shape and refuses (SPEC PAR-3, PLAN B-P4).
+
+    What must never happen is the third case -- listed as exclusive and quietly *working*, as
+    `projection` once did, so the refusal never fires. Absence is no longer the requirement:
+    a member supplied only by `__getattr__` makes `isinstance(sdf_solid, Solid)` false (T-6b), and
+    a method that says why is more explicit than a missing name (C-13).
+    """
+    from pybosl2.exceptions import UnsupportedByBackendError
+
+    shape = _sdf_probe()
+    silent: list[str] = []
+    for feature in sorted(CSG_ONLY_FEATURES):
+        member = inspect.getattr_static(SdfSolid, feature, None)
+        if member is None:
+            continue  # reached through __getattr__, which refuses for anything unlisted
+        try:
+            getattr(shape, feature)()
+        except UnsupportedByBackendError:
+            continue
+        except Exception:
+            continue
+        silent.append(feature)
+    assert not silent, "listed as CSG-only but succeeds on SdfSolid, so the refusal never fires: " + ", ".join(silent)
+
+
+def _sdf_probe() -> SdfSolid:
+    """A plain SDF solid to probe the refusals against."""
+    from pybosl2._backend import use_backend
+    from pybosl2.solid import cuboid
+
+    with use_backend("sdf"):
+        return cast("SdfSolid", cuboid([10, 10, 10]))
 
 
 def test_sdf_only_features_are_absent_from_the_csg_shape() -> None:
@@ -62,7 +92,7 @@ def test_sdf_shapes_keep_their_backend_through_moves_and_colour() -> None:
         moved = cuboid([10, 10, 10]).up(5).right(2).fwd(1)
         assert isinstance(moved, SdfSolid)
         assert moved.backend == "sdf"
-        assert moved.bounds() == ([2.0, -1.0, 5.0], [10.0, 10.0, 10.0])
+        assert moved.bounds() == Bounds3D.from_center_size([2.0, -1.0, 5.0], [10.0, 10.0, 10.0])
 
         coloured = cuboid([10, 10, 10]).color(Color("red")).ghost()
         assert isinstance(coloured, SdfSolid)
@@ -105,9 +135,9 @@ def test_every_directional_move_stays_in_the_field() -> None:
             moved = getattr(shape, name)(*args)
             assert isinstance(moved, SdfSolid), name
             assert moved.backend == "sdf", name
-            assert moved.bounds()[0] == expected_centre, name
+            assert moved.bounds().center == expected_centre, name
 
-        assert shape.move([1.0, 2.0, 3.0]).bounds()[0] == [1.0, 2.0, 3.0]
+        assert shape.move([1.0, 2.0, 3.0]).bounds().center == [1.0, 2.0, 3.0]
         assert isinstance(shape.rot(90), SdfSolid)
 
 
@@ -267,8 +297,8 @@ def test_the_same_call_builds_the_same_geometry_on_both_backends() -> None:
             if not built:
                 continue
             checked += 1
-            csg_centre, csg_size = built["csg"]
-            sdf_centre, sdf_size = built["sdf"]
+            csg_centre, csg_size = list(built["csg"].center), list(built["csg"].size)
+            sdf_centre, sdf_size = list(built["sdf"].center), list(built["sdf"].size)
             # Placement must match outright -- that is what a shared default decides. Size is
             # compared proportionally: a facetted CSG solid inscribes its analytic SDF twin, and
             # at these unit-sized defaults that gap is a few percent even at fn=256.
@@ -303,7 +333,8 @@ def test_a_cut_that_trims_an_end_tightens_the_bounds() -> None:
     for backend in ("csg", "sdf"):
         with use_backend(backend):
             trimmed = cuboid([10, 10, 20]) - cuboid([12, 12, 6]).up(10)  # type: ignore[operator]
-        _centre, size = trimmed.bounds()
+        _box = trimmed.bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert [float(v) for v in size] == pytest.approx([10.0, 10.0, 17.0], abs=0.01), (
             f"{backend} reported {list(size)} for a solid cut down to 17 tall"
         )
@@ -334,13 +365,13 @@ def test_a_cut_that_cannot_be_proved_leaves_the_bounds_alone() -> None:
     with use_backend("sdf"):
         base = cuboid([10, 10, 20])  # type: ignore[operator]
         through_hole = base - cyl(height=30, radius=2)  # type: ignore[operator]
-        assert [float(v) for v in through_hole.bounds()[1]] == pytest.approx([10, 10, 20])
+        assert [float(v) for v in through_hole.bounds().size] == pytest.approx([10, 10, 20])
 
         partial = base - cuboid([4, 4, 6]).up(10)  # type: ignore[operator]  # too narrow to trim the end
-        assert [float(v) for v in partial.bounds()[1]] == pytest.approx([10, 10, 20])
+        assert [float(v) for v in partial.bounds().size] == pytest.approx([10, 10, 20])
 
         turned = base - cuboid([12, 12, 6]).up(10).rotate(30, [0, 0, 1])  # type: ignore[operator]
-        assert [float(v) for v in turned.bounds()[1]] == pytest.approx([10, 10, 20])
+        assert [float(v) for v in turned.bounds().size] == pytest.approx([10, 10, 20])
 
 
 def test_a_rounded_cutter_does_not_count_as_a_box() -> None:
@@ -384,8 +415,8 @@ class TestLinearSweepAgreesAcrossBackends:
 
         from pybosl2 import Path2D
 
-        vnf = Path2D(self._blob_profile()).linear_sweep(height=self.HEIGHT, **kwargs)  # type: ignore[arg-type]
-        verts = np.asarray(vnf.vertices, dtype=float)
+        swept = Path2D(self._blob_profile()).linear_sweep(height=self.HEIGHT, **kwargs)  # type: ignore[arg-type]
+        verts = np.asarray(swept.vnf.vertices, dtype=float)
         top = verts[np.abs(verts[:, 2] - self.HEIGHT) < 1e-6]
         return [float(c) for c in top[:, :2].mean(axis=0)]
 

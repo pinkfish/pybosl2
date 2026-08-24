@@ -23,6 +23,8 @@ from typing import overload
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
+
 __all__ = ["Point", "Vector"]
 
 
@@ -83,7 +85,7 @@ class Point(Sequence[float]):
             elif len(arr) == 1:
                 self.x, self.y, self.z = float(arr[0]), 0.0, None
             else:
-                raise ValueError(f"Expected 1-3 values, got {len(arr)}")
+                raise Bosl2ValueError(f"Expected 1-3 values, got {len(arr)}")
 
     @property
     def is_2d(self) -> bool:
@@ -199,7 +201,7 @@ class Point(Sequence[float]):
 
         """
         if self.is_2d:
-            raise ValueError("cross() requires a 3‑D point")
+            raise Bosl2ValueError("cross() requires a 3‑D point")
         return Point.from_seq(np.cross(np.asarray(self), np.asarray(other, dtype=float)))
 
     @classmethod
@@ -221,7 +223,7 @@ class Point(Sequence[float]):
             return cls(float(arr[0]), float(arr[1]))
         if arr.shape[0] == 3:
             return cls(float(arr[0]), float(arr[1]), float(arr[2]))
-        raise ValueError(f"Expected 2 or 3 values, got {arr.shape[0]}")
+        raise Bosl2ValueError(f"Expected 2 or 3 values, got {arr.shape[0]}")
 
     def astuple(self) -> tuple[float, float] | tuple[float, float, float]:
         """Return the point as a ``(x, y)`` or ``(x, y, z)`` tuple."""
@@ -262,7 +264,7 @@ class Point(Sequence[float]):
         if sides < EPSILON:
             if error is not None:
                 return Point.from_seq(error)
-            raise ValueError("Cannot normalize a zero vector")
+            raise Bosl2ValueError("Cannot normalize a zero vector")
         return Point.from_seq(arr / sides)
 
     def angle(self, other: Point) -> float:
@@ -275,11 +277,11 @@ class Point(Sequence[float]):
         from pybosl2.math import EPSILON, constrain
 
         if len(self) != len(other):
-            raise ValueError(f"Vectors must have the same dimension, got {len(self)} and {len(other)}")
+            raise Bosl2ValueError(f"Vectors must have the same dimension, got {len(self)} and {len(other)}")
         norm_a: float = math.hypot(*self)
         norm_b: float = math.hypot(*other)
         if norm_a < EPSILON or norm_b < EPSILON:
-            raise ValueError("Cannot compute angle with a zero-length vector")
+            raise Bosl2ValueError("Cannot compute angle with a zero-length vector")
         dot: float = constrain(
             sum(self[i] * other[i] for i in range(len(self))) / (norm_a * norm_b),
             -1.0,
@@ -297,11 +299,11 @@ class Point(Sequence[float]):
         from pybosl2.math import EPSILON
 
         if len(self) != 3 or len(other) != 3:
-            raise ValueError(f"axis requires 3-D vectors, got sizes {len(self)} and {len(other)}")
+            raise Bosl2ValueError(f"axis requires 3-D vectors, got sizes {len(self)} and {len(other)}")
         norm_a: float = math.hypot(*self)
         norm_b: float = math.hypot(*other)
         if norm_a < EPSILON or norm_b < EPSILON:
-            raise ValueError("Cannot compute axis with a zero-length vector")
+            raise Bosl2ValueError("Cannot compute axis with a zero-length vector")
         ang: float = self.angle(other)
         u: list[float] = [x / norm_a for x in self]
         v: list[float] = [x / norm_b for x in other]
@@ -325,11 +327,11 @@ class Point(Sequence[float]):
         from pybosl2.math import EPSILON
 
         if len(self) != len(other):
-            raise ValueError(f"Vectors must have the same dimension, got {len(self)} and {len(other)}")
+            raise Bosl2ValueError(f"Vectors must have the same dimension, got {len(self)} and {len(other)}")
         norm_a: float = math.hypot(*self)
         norm_b: float = math.hypot(*other)
         if norm_a < EPSILON or norm_b < EPSILON:
-            raise ValueError("Cannot bisect a zero-length vector")
+            raise Bosl2ValueError("Cannot bisect a zero-length vector")
         u: list[float] = [x / norm_a for x in self]
         v: list[float] = [x / norm_b for x in other]
         mid: list[float] = [u[i] + v[i] for i in range(len(u))]
@@ -341,7 +343,7 @@ class Point(Sequence[float]):
     def closest(self, points: Sequence[Point]) -> int:
         """Return the index of the closest point in *points* to this point."""
         if len(points) == 0:
-            raise ValueError("Cannot find closest point in an empty list")
+            raise Bosl2ValueError("Cannot find closest point in an empty list")
         result: int = 0
         result_dist_sq: float = float("inf")
         for i, candidate in enumerate(points):
@@ -354,7 +356,7 @@ class Point(Sequence[float]):
     def furthest(self, points: Sequence[Point]) -> int:
         """Return the index of the furthest point in *points* from this point."""
         if len(points) == 0:
-            raise ValueError("Cannot find furthest point in an empty list")
+            raise Bosl2ValueError("Cannot find furthest point in an empty list")
         result: int = 0
         result_dist_sq: float = -1.0
         for i, candidate in enumerate(points):

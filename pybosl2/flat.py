@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
     from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
+    from pybosl2.bounds import Bounds2D
     from pybosl2.paths import PathLike
 
 
@@ -51,6 +52,10 @@ class Flat(Shape, Protocol):
     ``bounds()`` and ``show()`` — is declared once on ``Shape`` (SPEC C-15, C-18). What is left
     here is the way up into three dimensions (SPEC C-17).
     """
+
+    def bounds(self) -> Bounds2D:
+        """Return the 2-D axis-aligned bounding box (SPEC S-2b)."""
+        ...
 
     def rotate(self, a: float | Sequence[float]) -> Flat:
         """Rotate this shape *a* degrees about Z."""

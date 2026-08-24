@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -23,20 +23,25 @@ from pybosl2._edges_lang import Anchor, EdgeAtom, resolve_anchor
 from pybosl2._native import native
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Sequence
+    from pathlib import Path as FilePath
 
     from openscad import PyOpenSCAD
 
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
     from pybosl2.shapes2d import Bosl2Shape2D
+    from pybosl2.vnf import VNF
 from pybosl2._anchoring import Anchorable
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import unwrap
 from pybosl2._shape import BaseShape as BaseShape
+from pybosl2.bounds import Bounds3D
 from pybosl2.defaults import resolve_facets as _resolve_facets
 from pybosl2.enums import AttachTag
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.partitions import Partitionable
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
@@ -226,6 +231,17 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
     #: wave it into an SDF boolean instead of raising CrossBackendError (SPEC C-1, PLAN O-6a).
     backend = "csg"
 
+    #: How many dimensions this shape lives in. Paired with ``backend`` as the two facts every
+    #: operand check needs: mixing backends raises CrossBackendError, mixing dimensions raises
+    #: naming the extrusion or projection that crosses deliberately (SPEC C-4, C-16, E-7).
+    dimensions = 3
+
+    #: The nominal anchor box (SPEC S-2a), set per instance in __init__. Declared here as well
+    #: so it is *statically* visible: since Python 3.12 `isinstance` against a runtime
+    #: checkable Protocol uses static lookup, and an attribute only ever assigned in
+    #: __init__ makes the class fail the check it satisfies perfectly at runtime (PLAN T-6b).
+    size: "list[float] | None" = None
+
     def __init__(
         self,
         shape: PyOpenSCAD,
@@ -247,7 +263,9 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         """
         self.shape = shape
-        self.size = size
+        # Normalised to a list of floats so `size` matches the Shape protocol exactly; it is
+        # the one public spelling of the nominal anchor box (SPEC S-2a, C-21).
+        self.size: list[float] | None = None if size is None else [float(v) for v in size]
         a_val: Anchor | None
         if anchor is None:
             a_val = Anchor.CENTER
@@ -256,7 +274,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         elif isinstance(anchor, str):  # pragma: no cover
             # defensive: anchor_vector() rejects the string form at every entry point that builds
             # a solid, so one never reaches the constructor.
-            raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
+            raise Bosl2ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
         else:
             a_val = resolve_anchor(list(anchor))
         self.anchor = a_val
@@ -486,7 +504,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
         else:
             if not (spacing is not None):
-                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
+                raise Bosl2ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)
@@ -550,18 +568,108 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             return None
         return mincorner, size
 
-    def bounds(self) -> "tuple[list[float], list[float]]":
-        """Return this object's axis-aligned bounding box as (center, size) --.
-
-        both plain [x, y, z] float lists in the object's CURRENT
-        coordinate frame (after any translate/rotate/CSG).
+    def bounds(self) -> Bounds3D:
+        """Return this solid's axis-aligned bounding box in its current frame (SPEC S-2b).
 
         Prefers the native bbox, which always reflects the actual current geometry -- this is
         what lets anchoring/attachment/masking work without the caller tracking a size, and
         stays correct after the object has been moved or combined. Falls back to the tracked
         cuboid size/anchor metadata only when the native accessors aren't available (the numeric
-        test mock). Raises if neither is available.
+        test mock).
+
+        Returns:
+            The :class:`~pybosl2.bounds.Bounds3D` box, carrying ``min``/``max``, ``center``,
+            ``size`` and the per-axis extents -- so ``lo, hi = solid.bounds()`` is a ``TypeError``
+            rather than the silent mis-read it used to be against the old ``(center, size)`` pair.
+
+        Raises:
+            Bosl2ValueError: If the object has neither a native bounding box nor tracked size
+                metadata.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import cuboid
+
+                shape = cuboid([40, 30, 20])
+                print(shape.bounds().size)      # (40.0, 30.0, 20.0)
+                print(shape.bounds().min_z)     # -10.0
+                shape.show()
+
         """
+        center, size = self._center_size()
+        return Bounds3D.from_center_size(center, size)
+
+    @property
+    def vnf(self) -> "VNF":
+        """Return this solid as a mesh (SPEC C-8, S-19a).
+
+        For a solid a sweep built, this is the very mesh it was skinned from -- kept rather than
+        discarded so that returning a `Solid` (S-19a) costs the caller nothing who wanted the mesh.
+        For any other solid it is meshed on demand.
+
+        Returns:
+            The :class:`~pybosl2.vnf.VNF`, with faces wound counter-clockwise seen from outside.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
+                print(bar.vnf.volume())     # 2000.0
+                bar.show()
+
+        """
+        from pybosl2.vnf import VNF
+
+        stashed = getattr(self, "_vnf", None)
+        if stashed is not None:
+            return cast("VNF", stashed)
+        return VNF.from_solid(self)
+
+    def export(
+        self, path: "str | os.PathLike[str]", *, file_format: str | None = None, check: bool = True
+    ) -> "FilePath":
+        """Write this shape to a file (SPEC S-53).
+
+        The way out of the library: a shape you have built becomes a file you can slice, share or
+        diff. The mesh formats are written by pybosl2 itself, so this works wherever
+        ``import pybosl2`` does -- no CAD runtime required (S-54).
+
+        Args:
+            path: destination file. Its suffix picks the format -- ``.stl``, ``.obj``, ``.off``,
+                ``.ply`` -- unless *file_format* overrides it.
+            file_format: explicit format name (``"stl"``, ``"stla"`` for ASCII STL, ``"obj"``,
+                ``"off"``, ``"ply"``).
+            check: validate the mesh first and refuse to write one that is open or inside out
+                (SPEC S-55). Pass ``False`` for a surface that is open on purpose.
+
+        Returns:
+            The path written, so the call can be chained or logged.
+
+        Raises:
+            Bosl2ValueError: If the format is unknown, or *check* is on and the mesh is not a
+                closed, outward-wound solid.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import cuboid, cyl
+
+                bracket = cuboid([40, 30, 10], rounding=3) - cyl(radius=4, height=20)
+                bracket.export("bracket.stl")
+                bracket.show()
+
+        """
+        from pathlib import Path as _FilePath
+
+        from pybosl2.export import write_mesh
+
+        return write_mesh(self.vnf, _FilePath(path), file_format=file_format, check=check)
+
+    def _center_size(self) -> "tuple[list[float], list[float]]":
+        """Return the bounding box as the raw ``(center, size)`` pair the native layer reports."""
         nb = self._native_bounds()
         if nb is not None:
             mincorner, size = nb
@@ -569,7 +677,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         if self.size is not None and self.anchor is not None:
             size = [float(v) for v in self.size]
             return _anchor_offset_box3(size, self.anchor), size
-        raise ValueError(
+        raise Bosl2ValueError(
             "bounds(): object has no native bounding box and no tracked cuboid size/anchor "
             "metadata (are you calling this under the numeric mock on a non-cuboid?)"
         )
@@ -1038,8 +1146,8 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         """
         from pybosl2.shapes3d.cuboid import cuboid
 
-        center, size = self.bounds()
-        return cuboid([size[i] + 2 * excess for i in range(3)]).translate([float(c) for c in center])
+        box = self.bounds()
+        return cuboid([extent + 2 * excess for extent in box.size]).translate(list(box.center))
 
     def offset3d(
         self,

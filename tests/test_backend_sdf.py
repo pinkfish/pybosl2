@@ -29,7 +29,8 @@ def test_sdf_backend_registers_and_builds_primitives() -> None:
 
 def test_sdf_sphere_bounds_match_the_requested_size() -> None:
     with use_backend("sdf"):
-        _center, size = get_backend().construct("sphere", {"radius": 10}).bounds()
+        _box = get_backend().construct("sphere", {"radius": 10}).bounds()
+        _center, size = list(_box.center), list(_box.size)
     assert [round(s) for s in size] == [20, 20, 20]  # exact, cheap -- no meshing needed
 
 

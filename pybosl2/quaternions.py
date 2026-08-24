@@ -21,6 +21,8 @@ from typing import TYPE_CHECKING, Any, Self, cast
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
+
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
@@ -53,21 +55,23 @@ class Quaternion:
     def from_array(cls, array: Sequence[float] | np.ndarray) -> Quaternion:
         """Create a Quaternion from a 4-element numeric sequence."""
         if len(array) != 4:
-            raise ValueError(f"from_array expects a 4-element sequence, got length {len(array)}")
+            raise Bosl2ValueError(f"from_array expects a 4-element sequence, got length {len(array)}")
         return cls(float(array[0]), float(array[1]), float(array[2]), float(array[3]))
 
     @classmethod
     def from_scalar_vector(cls, scalar: float, vector: Sequence[float] | np.ndarray) -> Quaternion:
         """Create a Quaternion from a scalar and a 3-element vector."""
         if len(vector) != 3:
-            raise ValueError(f"from_scalar_vector expects a 3-element vector, got length {len(vector)}")
+            raise Bosl2ValueError(f"from_scalar_vector expects a 3-element vector, got length {len(vector)}")
         return cls(float(scalar), float(vector[0]), float(vector[1]), float(vector[2]))
 
     @classmethod
     def from_real_imaginary(cls, real: float, imaginary: Sequence[float] | np.ndarray) -> Quaternion:
         """Create a Quaternion from real and 3-element imaginary parts."""
         if len(imaginary) != 3:
-            raise ValueError(f"from_real_imaginary expects a 3-element imaginary vector, got length {len(imaginary)}")
+            raise Bosl2ValueError(
+                f"from_real_imaginary expects a 3-element imaginary vector, got length {len(imaginary)}"
+            )
         return cls(float(real), float(imaginary[0]), float(imaginary[1]), float(imaginary[2]))
 
     @classmethod
@@ -83,12 +87,12 @@ class Quaternion:
         elif shape == (4, 4):
             r_mat = matrix[:-1][:, :-1]
         else:
-            raise ValueError("Invalid matrix shape: Input must be a 3x3 or 4x4 numpy array or matrix")
+            raise Bosl2ValueError("Invalid matrix shape: Input must be a 3x3 or 4x4 numpy array or matrix")
 
         if not np.allclose(np.dot(r_mat, r_mat.conj().transpose()), np.eye(3), rtol=rtol, atol=atol):
-            raise ValueError("Matrix must be orthogonal, i.e. its transpose should be its inverse")
+            raise Bosl2ValueError("Matrix must be orthogonal, i.e. its transpose should be its inverse")
         if not np.isclose(np.linalg.det(r_mat), 1.0, rtol=rtol, atol=atol):
-            raise ValueError("Matrix must be special orthogonal i.e. its determinant must be +1.0")
+            raise Bosl2ValueError("Matrix must be special orthogonal i.e. its determinant must be +1.0")
 
         def trace_method(mat: Any) -> np.ndarray:
             m = mat.conj().transpose()
@@ -741,16 +745,16 @@ def quaternion(
     """
     if angle is not None:
         if axis is None:
-            raise ValueError("quaternion(): must specify axis when angle is given")
+            raise Bosl2ValueError("quaternion(): must specify axis when angle is given")
         axis_arr = np.asarray(axis, dtype=float)
         if np.linalg.norm(axis_arr) < 1e-9:
-            raise ValueError("quaternion(): axis vector cannot be zero-length")
+            raise Bosl2ValueError("quaternion(): axis vector cannot be zero-length")
         # Convert degrees to radians for from_axis_angle
         rad = math.radians(angle)
         q = Quaternion.from_axis_angle(axis_arr, rad)
     elif rpy is not None:
         if len(rpy) != 3:
-            raise ValueError("quaternion(): rpy must be a sequence of 3 angles")
+            raise Bosl2ValueError("quaternion(): rpy must be a sequence of 3 angles")
         r, p, y = [math.radians(a) / 2.0 for a in rpy]
         sr, cr = math.sin(r), math.cos(r)
         sp, cp = math.sin(p), math.cos(p)

@@ -33,10 +33,14 @@ from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
 _F = TypeVar("_F", bound=Callable[..., Any])
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Mapping, Sequence
+    from pathlib import Path as FilePath
 
+    from pybosl2.bounds import Bounds2D, Bounds3D
     from pybosl2.caps import CapSpec
     from pybosl2.path3d import Path3D
+    from pybosl2.vnf import VNF
 
 
 def given_arguments(arguments: dict[str, Any]) -> dict[str, Any]:
@@ -406,18 +410,56 @@ def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError |
     return None
 
 
-def check_operand_backend(self_backend: str, other: Any) -> None:
-    """Raise :class:`~pybosl2.exceptions.CrossBackendError` if *other* is a Solid on a different backend.
+def check_operand_backend(self_backend: str, other: Any, self_dimensions: int | None = None) -> None:
+    """Raise if *other* cannot be combined with a shape on *self_backend* in *self_dimensions*.
 
-    Called by every boolean operator so ``csg_solid | sdf_solid`` fails loudly with conversion
-    guidance instead of producing nonsense. A raw native shape (no ``backend`` attribute) is treated
-    as same-backend so existing native interop keeps working.
+    Called by every boolean operator, so the two ways an operand can be wrong both fail loudly with
+    guidance instead of producing nonsense:
+
+    * a different **backend** raises :class:`~pybosl2.exceptions.CrossBackendError` naming the
+      conversion (SPEC E-3);
+    * a different **dimension** raises :class:`~pybosl2.exceptions.Bosl2ValueError` naming the
+      extrusion or projection that crosses deliberately (SPEC C-4, C-16, E-7). The static error is
+      the first line of defence -- ``Flat`` and ``Solid`` are distinct protocols, so mypy rejects
+      ``flat - solid`` outright -- but the native layer answers a mixed boolean with a warning on
+      stdout and the unchanged left operand, which is a silent wrong answer for the many callers
+      who drive a CAD app without a type checker.
+
+    A raw native shape (no ``backend``/``dimensions`` attribute) is treated as compatible, so
+    existing native interop keeps working.
+
+    Args:
+        self_backend: backend tag of the left operand.
+        other: the right operand, of any type.
+        self_dimensions: dimension count of the left operand; ``None`` skips the dimension check.
+
+    Raises:
+        CrossBackendError: If *other* was built by a different backend.
+        Bosl2ValueError: If *other* has a different number of dimensions.
+
     """
     other_backend = getattr(other, "backend", None)
     if other_backend is not None and other_backend != self_backend:
         from pybosl2.exceptions import CrossBackendError
 
         raise CrossBackendError(self_backend, other_backend)
+
+    other_dimensions = getattr(other, "dimensions", None)
+    if self_dimensions is not None and other_dimensions is not None and other_dimensions != self_dimensions:
+        from pybosl2.exceptions import Bosl2ValueError
+
+        flat_first = self_dimensions == 2
+        raise Bosl2ValueError(
+            f"cannot combine a {self_dimensions}-D shape with a {other_dimensions}-D one -- a boolean "
+            f"needs both operands in the same dimension. Cross deliberately first: "
+            + (
+                "extrude the 2-D shape with `.linear_extrude(height=...)` or `.rotate_extrude()`, "
+                "or flatten the solid with `.projection()`."
+                if flat_first
+                else "flatten the solid with `.projection()`, or extrude the 2-D shape with "
+                "`.linear_extrude(height=...)`."
+            )
+        )
 
 
 BackendName = str  # "csg" | "sdf" (kept a plain str so third-party backends can register too)
@@ -510,9 +552,85 @@ class Shape(Protocol):
     def translate(self, v: "Sequence[float]") -> Self: ...
     def scale(self, v: "Sequence[float]") -> Self: ...
     def mirror(self, v: "Sequence[float]") -> Self: ...
-    def bounds(self) -> "tuple[list[float], list[float]]": ...
+    def bounds(self) -> "Bounds2D | Bounds3D":
+        """Return the axis-aligned bounding box (SPEC S-2b).
+
+        The union is fixed by which protocol the caller holds, not by an argument, so it is not
+        the flag-selected union PLAN T-6d forbids: `Flat` narrows it to `Bounds2D` and `Solid` to
+        `Bounds3D`.
+        """
+        ...
+
     def show(self) -> Any: ...
 
+    # --- SPEC C-20: the contract is the whole object -----------------------------------------
+    # These were reachable only by accident of the concrete class, so typed user code -- a caller
+    # following this project's own advice in PLAN §2 -- could not call the library's headline
+    # composition features. Parameters are `Any` where the two backends spell the same idea
+    # differently; that is the bounded exception T-6c allows, not a licence to stop typing.
+
+    # Colour and the preview modifiers ride on any shape (SPEC C-19, S-37, S-38).
+    def color(self, c: Any = None, alpha: float | None = None) -> Self: ...
+    def recolor(self, c: Any = None, alpha: float | None = None) -> Self: ...
+    def color_this(self, c: Any = None, alpha: float | None = None) -> Self: ...
+    def hsl(self, h: float, s: float = 1.0, lightness: float = 0.5, alpha: float = 1.0) -> Self: ...
+    def hsv(self, h: float, s: float = 1.0, v: float = 1.0, alpha: float = 1.0) -> Self: ...
+    def highlight(self) -> Self: ...
+    def ghost(self) -> Self: ...
+
+    # Attachment and tagging (SPEC C-12): part of the core object model, so part of the contract.
+    # The SDF backend refuses each of these explicitly by name (C-13) rather than lacking them --
+    # which is both what C-13 asks for and what keeps `isinstance(sdf_solid, Solid)` true. A caller
+    # who needs to know *before* calling asks the backend, not the shape: the authority is
+    # `pybosl2.sdf.CSG_ONLY_FEATURES` (PAR-3), not a structural check that would pass on the very
+    # methods whose job is to refuse.
+    def attach(self, *args: Any, **kwargs: Any) -> Self: ...
+    def position(self, *args: Any, **kwargs: Any) -> Self: ...
+    def align(self, *args: Any, **kwargs: Any) -> Self: ...
+    def tag(self, *args: Any, **kwargs: Any) -> Self: ...
+    def tag_this(self, *args: Any, **kwargs: Any) -> Self: ...
+    def diff(self, *args: Any, **kwargs: Any) -> Self: ...
+    def intersect(self, *args: Any, **kwargs: Any) -> Self: ...
+
+    # Distribution: an operation on "any shape", not on solids specifically (SPEC C-19, S-31).
+    # These return a *list* of copies, not one shape -- `xcopies(3)` is three shapes, and the
+    # caller unions them or distributes them further.
+    def line_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def xcopies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def ycopies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def zcopies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def grid_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def rot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def xrot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def yrot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def zrot_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def arc_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def sphere_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def path_copies(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def mirror_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def xflip_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def yflip_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    def zflip_copy(self, *args: Any, **kwargs: Any) -> list[Self]: ...
+    # `distribute_on_path` places copies and unions them, so it is one shape, not a list.
+    def distribute_on_path(self, *args: Any, **kwargs: Any) -> Self: ...
+
+    # Transforms that both dimensions honour (SPEC C-22): a flip and a Z-rotation are not
+    # three-dimensional ideas, and `spin` living only on Flat was historical.
+    def multmatrix(self, m: Any) -> Self: ...
+    def rotate(self, *args: Any, **kwargs: Any) -> Self: ...
+    def minkowski(self, *others: Any) -> Self: ...
+
+    # Directional moves within the plane both dimensions share.
+    def left(self, x: float) -> Self: ...
+    def right(self, x: float) -> Self: ...
+    def forward(self, y: float) -> Self: ...
+    def back(self, y: float) -> Self: ...
+
+    # Anchoring arithmetic, which needs only a box (SPEC C-10).
+    def anchor_point(self, anchor: Any, bbox: Any = None) -> list[float]: ...
+    def reanchor(self, anchor: Any, bbox: Any = None) -> Self: ...
+
+    # The nominal anchor box a shape was designed around (SPEC S-2a).
     def with_nominal_size(self, size: "Sequence[float]", anchor: Any = None) -> Self:
         """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
 
@@ -522,8 +640,13 @@ class Shape(Protocol):
         ...
 
     @property
-    def nominal_size(self) -> "list[float] | None":
-        """The nominal anchor box, or None if none was attached (SPEC S-2a)."""
+    def size(self) -> "list[float] | None":
+        """Return the nominal anchor box, or None if this shape never had one (SPEC S-2a).
+
+        This is the box ``anchor=`` is measured against -- the shape the geometry is *designed*
+        around -- and it is not required to equal ``bounds()``, which reports the geometry itself.
+        ``nominal_size`` was a second name for exactly this and has been removed (SPEC C-21).
+        """
         ...
 
 
@@ -534,6 +657,21 @@ class Solid(Shape, Protocol):
     ``.to_csg()`` / ``.to_sdf()`` convert between the backends; ``projection()`` is the one way
     down to 2-D (SPEC C-17).
     """
+
+    def bounds(self) -> "Bounds3D":
+        """Return the 3-D axis-aligned bounding box (SPEC S-2b)."""
+        ...
+
+    @property
+    def vnf(self) -> "VNF":
+        """Return this solid as a mesh (SPEC C-8, S-19a)."""
+        ...
+
+    def export(
+        self, path: "str | os.PathLike[str]", *, file_format: str | None = None, check: bool = True
+    ) -> "FilePath":
+        """Write this solid to a mesh file (SPEC S-53)."""
+        ...
 
     def rotate(self, a: "float | Sequence[float] | None" = None, v: "Sequence[float] | None" = None) -> "Solid": ...
 
@@ -549,7 +687,10 @@ class Solid(Shape, Protocol):
 
     def multmatrix(self, m: Any) -> Self: ...
     def color(self, c: Any = None, alpha: float | None = None) -> Self: ...
-    def hull(self, *others: Any) -> "Solid": ...
+    # `**kwargs` because the SDF hull takes sampling controls (`directions`, `res`) the CSG
+    # one has no notion of -- the caller's view is "hull these", and the extras are backend
+    # detail (PLAN T-6c).
+    def hull(self, *others: Any, **kwargs: Any) -> Self: ...
 
     # Partitioning. Both backends implement the whole family; it was simply never declared.
     # The parameters are `Any` because the two spell their accepted forms differently (a list on
@@ -561,6 +702,28 @@ class Solid(Shape, Protocol):
     def back_half(self, y: float = 0, s: float | None = None) -> Self: ...
     def top_half(self, z: float = 0, s: float | None = None) -> Self: ...
     def bottom_half(self, z: float = 0, s: float | None = None) -> Self: ...
+
+    # --- SPEC C-20, the genuinely three-dimensional half ------------------------------------
+    # `partition` splits, so it returns the pieces rather than one shape -- but the two backends
+    # disagree on the container: the CSG one hands back `list[CsgSolid]` and the SDF one
+    # `tuple[SdfSolid, SdfSolid]`. That is a PAR-4 divergence this contract work surfaced, not a
+    # difference a caller should have to know about; `Any` holds the line until the two agree
+    # (tracked in SPEC §12.2).
+    def partition(self, *args: Any, **kwargs: Any) -> Any: ...
+    # Edge, corner and face treatments (SPEC S-26, S-27) and the one way down to 2-D (C-17).
+    # As above: the SDF backend refuses each by name.
+    def edge_mask(self, *args: Any, **kwargs: Any) -> Self: ...
+    def edge_profile(self, *args: Any, **kwargs: Any) -> Self: ...
+    def edge_profile_asym(self, *args: Any, **kwargs: Any) -> Self: ...
+    def corner_profile(self, *args: Any, **kwargs: Any) -> Self: ...
+    def face_profile(self, *args: Any, **kwargs: Any) -> Self: ...
+    def projection(self, cut: bool = False) -> Any: ...
+    def offset3d(self, *args: Any, **kwargs: Any) -> Self: ...
+    def round3d(self, *args: Any, **kwargs: Any) -> Self: ...
+    def chain_hull(self, *args: Any, **kwargs: Any) -> Self: ...
+    def minkowski_difference(self, *args: Any, **kwargs: Any) -> Self: ...
+    def to_csg(self, *args: Any, **kwargs: Any) -> Any: ...
+    def to_sdf(self, *args: Any, **kwargs: Any) -> Any: ...
 
     def anchor_point(
         self,

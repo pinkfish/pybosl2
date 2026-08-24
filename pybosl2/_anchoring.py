@@ -28,6 +28,7 @@ import numpy as np
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import anchor_vector
+from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -58,18 +59,18 @@ class Anchorable:
 
         """
         if bbox is None:
-            return self.bounds()  # type: ignore[attr-defined,no-any-return]
+            return self._center_size()  # type: ignore[attr-defined,no-any-return]
         try:
             arr = np.asarray(bbox, dtype=float)
         except (TypeError, ValueError) as exc:
             # A ragged box used to surface numpy's "inhomogeneous shape" message, which says
             # nothing about what to pass (SPEC E-4).
-            raise ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].") from exc
+            raise Bosl2ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].") from exc
         if arr.shape != (2, 3):
-            raise ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].")
+            raise Bosl2ValueError("bbox must be [[min_x,min_y,min_z],[max_x,max_y,max_z]].")
         lo, hi = arr[0], arr[1]
         if not bool(np.all(hi >= lo - 1e-12)):
-            raise ValueError("bbox must be [[min...],[max...]] with max >= min.")
+            raise Bosl2ValueError("bbox must be [[min...],[max...]] with max >= min.")
         return [(lo[i] + hi[i]) / 2 for i in range(3)], [hi[i] - lo[i] for i in range(3)]
 
     def anchor_point(

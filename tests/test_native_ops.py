@@ -24,7 +24,7 @@ def test_repair_returns_solid() -> None:
     """repair() rebuilds the mesh without moving it."""
     repaired = _cube().repair()
     assert isinstance(repaired, Bosl2Solid)
-    assert [float(v) for v in repaired.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0])
+    assert [float(v) for v in repaired.bounds().size] == pytest.approx([20.0, 20.0, 10.0])
 
 
 def test_wrap_returns_solid_with_and_without_fn() -> None:
@@ -49,14 +49,14 @@ def test_pull_returns_solid() -> None:
     """pull() stretches the mesh, so the solid grows by the distance it was pulled."""
     pulled = _cube().pull([0, 0, 1], 5)
     assert isinstance(pulled, Bosl2Solid)
-    assert [float(v) for v in pulled.bounds()[1]] == pytest.approx([25.0, 25.0, 15.0])
+    assert [float(v) for v in pulled.bounds().size] == pytest.approx([25.0, 25.0, 15.0])
 
 
 def test_oversample_returns_solid() -> None:
     """oversample() subdivides the faces: same solid, finer mesh."""
     dense = _cube().oversample(2)
     assert isinstance(dense, Bosl2Solid)
-    assert [float(v) for v in dense.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0])
+    assert [float(v) for v in dense.bounds().size] == pytest.approx([20.0, 20.0, 10.0])
 
 
 def test_separate_returns_list_of_solids() -> None:
@@ -80,7 +80,8 @@ def test_methods_are_chainable() -> None:
     # each returns a Bosl2Solid, so they compose fluently with the rest of the API
     out = _cube().oversample(2).repair().up(5)
     assert isinstance(out, Bosl2Solid)
-    centre, size = out.bounds()
+    _box = out.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert [float(v) for v in size] == pytest.approx([20.0, 20.0, 10.0])  # neither op moved it
     assert float(centre[2]) == pytest.approx(5.0)  # ...and the up() at the end did
 

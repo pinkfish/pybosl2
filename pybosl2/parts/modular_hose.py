@@ -23,6 +23,8 @@ import math
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.turtle import Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as TCT  # noqa: N817
@@ -190,10 +192,10 @@ def _size_index(size: float) -> int:
     try:
         return _SIZES[size]
     except KeyError:
-        raise ValueError('modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").') from None
+        raise Bosl2ValueError('modular_hose(): size must be 0.25, 0.5 or 0.75 (1/4", 1/2", 3/4").') from None
 
 
-class HoseSegment:
+class HoseSegment(Buildable):
     """A modular-hose ball end, socket end, or full segment.
 
     *size* is 0.25, 0.5 or 0.75 (the 1/4", 1/2", 3/4" hose families).  *type*
@@ -246,7 +248,7 @@ class HoseSegment:
         bigend = [[x + cl[1], y - bmy] for x, y in big]
         mid = _WAIST[ind] if waist_len is None else waist_len
         if not (mid >= 0):
-            raise ValueError("waist_len must be nonnegative.")
+            raise Bosl2ValueError("waist_len must be nonnegative.")
 
         if type in (HoseType.SEGMENT,):
             shape = [[x, y + mid] for x, y in smallend] + [[x, -y] for x, y in bigend]
@@ -261,7 +263,7 @@ class HoseSegment:
                 [bigend[0][0], 0],
             ]
         else:
-            raise ValueError("modular_hose(): type must be one of BALL/SMALL/SOCKET/BIG/SEGMENT.")
+            raise Bosl2ValueError("modular_hose(): type must be one of BALL/SMALL/SOCKET/BIG/SEGMENT.")
 
         (_mnx, mny), (mxx, mxy) = _bounds(shape)
         cy = (mny + mxy) / 2

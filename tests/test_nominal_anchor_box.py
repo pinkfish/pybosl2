@@ -50,7 +50,8 @@ def test_bounds_reports_geometry_not_the_nominal_box() -> None:
     box = cuboid([10, 20, 30])
     lied_to = Bosl2Solid(box.shape, size=[1, 1, 1])
 
-    _centre, size = lied_to.bounds()
+    _box = lied_to.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert size == pytest.approx([10.0, 20.0, 30.0]), "bounds() answered from `size`, not the geometry"
     assert list(lied_to.size or []) == [1, 1, 1]  # ... while the nominal box is kept as given
 

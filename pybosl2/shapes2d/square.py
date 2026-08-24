@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 
@@ -51,6 +51,7 @@ from pybosl2._helpers import (
 )
 from pybosl2._native import native
 from pybosl2.constants import CENTER
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.vectors import v_theta as _v_theta
 
 from .base import (
@@ -125,7 +126,7 @@ def square(
 
     """
     if rounding and chamfer:
-        raise ValueError("Cannot set both rounding and chamfer at the same time.")
+        raise Bosl2ValueError("Cannot set both rounding and chamfer at the same time.")
     sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(v) for v in size]
     use_anchor = anchor
     if center is not None:
@@ -267,12 +268,12 @@ def _regular_ngon_path(
         if rounding and chamfer:  # pragma: no cover
             # defensive: regular_ngon(), the only caller, rejects the combination before it builds
             # the path.
-            raise ValueError("Cannot set both rounding and chamfer at the same time on an n-gon.")
+            raise Bosl2ValueError("Cannot set both rounding and chamfer at the same time on an n-gon.")
         half_angle = math.radians((180 - 360.0 / sides) / 2)
         inset: float = chamfer / math.sin(half_angle) if chamfer else rounding / math.sin(half_angle)
         if inset >= radius:
             treatment = "chamfer" if chamfer else "rounding"
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"{treatment} value {chamfer or rounding} is too large for a {sides}-gon of radius {radius}."
             )
         steps = max(1, int(_frag_count(radius, fn, fa, fs) // sides))
@@ -364,9 +365,9 @@ def regular_ngon(
 
     """
     if rounding and chamfer:
-        raise ValueError("Cannot set both rounding and chamfer at the same time.")
+        raise Bosl2ValueError("Cannot set both rounding and chamfer at the same time.")
     if sides < 3:
-        raise ValueError(f"regular_ngon(): sides must be 3 or more, got {sides}.")
+        raise Bosl2ValueError(f"regular_ngon(): sides must be 3 or more, got {sides}.")
     sc = 1 / math.cos(math.radians(180.0 / sides))
     ir_s = inner_radius * sc if inner_radius is not None else None
     id_s = inner_diameter * sc if inner_diameter is not None else None
@@ -381,11 +382,13 @@ def regular_ngon(
         diameter=diameter,
         dflt=dflt_val,
     )
-    if rad is None:  # pragma: no cover
-        # defensive: _pick_radius() falls back to dflt (the side-derived radius, or 0.0), so it
-        # never returns None here.
-        raise ValueError(
-            "regular_ngon(): need to specify one of radius, diameter, outer_radius, outer_diameter, inner_radius, inner_diameter, side."  # noqa: E501
+    if rad is None or rad <= 0:
+        # _pick_radius() falls back to dflt, which is 0.0 when the caller named no size at all, so
+        # `is None` alone never fires: the call used to return a polygon of coincident points whose
+        # bounds() was infinite rather than raising (SPEC E-5).
+        raise Bosl2ValueError(
+            f"regular_ngon(): needs a size -- give radius, diameter, outer_radius, outer_diameter, "
+            f"inner_radius, inner_diameter or side (got {rad})."
         )
     path = _regular_ngon_path(
         sides,
@@ -567,7 +570,7 @@ def right_triangle(
 
     """
     if rounding and chamfer:
-        raise ValueError("Cannot set both rounding and chamfer at the same time.")
+        raise Bosl2ValueError("Cannot set both rounding and chamfer at the same time.")
     sz: Sequence[float] = [float(size), float(size)] if isinstance(size, (int, float)) else size
     if anchor is not None:
         use_anchor = anchor
@@ -584,11 +587,10 @@ def right_triangle(
         from pybosl2.path2d import Path2D
 
         path = Path2D(corners, closed=True)
-        treated = cast(
-            "Path2D",
+        treated = (
             path.round_corners(method=RoundingMethod.CIRCLE, radius=rounding, fn=fn, fa=fa, fs=fs)
             if rounding
-            else path.round_corners(method=RoundingMethod.CHAMFER, joint=chamfer),
+            else path.round_corners(method=RoundingMethod.CHAMFER, joint=chamfer)
         )
         corners = [[float(point[0]), float(point[1])] for point in treated]
     shape = _opolygon(corners)
@@ -710,7 +712,9 @@ def trapezoid(
     """
     defined = sum(x is not None for x in (height, width1, width2, angle))
     if defined != 3:
-        raise ValueError(f"trapezoid(): give exactly three of height=, width1=, width2= and angle= (got {defined}).")
+        raise Bosl2ValueError(
+            f"trapezoid(): give exactly three of height=, width1=, width2= and angle= (got {defined})."
+        )
     if height is None:
         assert width1 is not None
         assert width2 is not None
@@ -725,13 +729,13 @@ def trapezoid(
         assert angle is not None
         width2 = width1 - 2 * (_adjacent_angle_to_opposite(height, angle) + shift)
     if not (width1 >= 0):
-        raise ValueError("Degenerate trapezoid geometry.")
+        raise Bosl2ValueError("Degenerate trapezoid geometry.")
     if not (width2 >= 0):
-        raise ValueError("Degenerate trapezoid geometry.")
+        raise Bosl2ValueError("Degenerate trapezoid geometry.")
     if not (height > 0):
-        raise ValueError("Degenerate trapezoid geometry.")
+        raise Bosl2ValueError("Degenerate trapezoid geometry.")
     if not (width1 + width2 > 0):
-        raise ValueError("Degenerate trapezoid geometry.")
+        raise Bosl2ValueError("Degenerate trapezoid geometry.")
     path = _trapezoid_path(height, width1, width2, shift, chamfer, rounding, flip, fn, fa, fs)
     shape = _opolygon(path)
     offset = _anchor_offset_hull(path, anchor)

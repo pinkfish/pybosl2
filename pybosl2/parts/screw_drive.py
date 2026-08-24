@@ -35,6 +35,8 @@ from pybosl2._helpers import quantup, union
 from pybosl2._native import native
 from pybosl2.constants import BOTTOM, CENTER, INCH
 from pybosl2.distributors import DistributableMatrix
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.solid import cyl, prismoid, regular_prism
 
@@ -169,7 +171,7 @@ class TorxSpec:
         try:
             spec = _TORX[int(size)]
         except (KeyError, ValueError):
-            raise ValueError(f"Unsupported Torx size: {size!r}") from None
+            raise Bosl2ValueError(f"Unsupported Torx size: {size!r}") from None
         object.__setattr__(self, "outer_diameter", spec[0])
         object.__setattr__(self, "inner_diameter", spec[1])
         object.__setattr__(self, "depth", spec[2])
@@ -255,7 +257,7 @@ class RobertsonSpec:
 
         """
         if not (isinstance(size, int) and 0 <= size <= 4):
-            raise ValueError(f"robertson size must be an int 0..4, got {size!r}")
+            raise Bosl2ValueError(f"robertson size must be an int 0..4, got {size!r}")
         spec = _ROBERTSON[size]
         object.__setattr__(self, "m_min", spec[0])
         object.__setattr__(self, "m_max", spec[1])
@@ -336,11 +338,11 @@ def _phillips_num(size: str | int) -> int:
     """Parse a Phillips size (int 0..4 or a string like ``"#2"``) into its integer number."""
     count = int(size.lstrip("#")) if isinstance(size, str) else int(size)
     if count < 0 or count > 4:
-        raise ValueError(f"phillips size must be #0..#4, got {size!r}")
+        raise Bosl2ValueError(f"phillips size must be #0..#4, got {size!r}")
     return count
 
 
-class PhillipsMask:
+class PhillipsMask(Buildable):
     """Phillips driver-recess mask for a given bit size (BOSL2 phillips_mask()).
 
     The mask is positioned with its opening at the top and its bottom on the XY
@@ -491,7 +493,7 @@ class PhillipsMask:
         return self._solid.show()
 
 
-class HexDriveMask:
+class HexDriveMask(Buildable):
     """Hex (Allen) driver-recess mask (BOSL2 hex_drive_mask()).
 
     The recess is slightly oversized per the ISO standard; *slop* enlarges it
@@ -645,7 +647,7 @@ class TorxMask2d:
         return self._shape
 
 
-class TorxMask:
+class TorxMask(Buildable):
     """Torx driver-recess mask: the 2-D profile extruded *l* tall (BOSL2 torx_mask()).
 
     Examples:
@@ -727,7 +729,7 @@ class TorxMask:
         return self._solid.show()
 
 
-class RobertsonMask:
+class RobertsonMask(Buildable):
     """Robertson/square driver-recess mask for square-drive sizes ``0``..``4`` (BOSL2 robertson_mask()).
 
     Examples:

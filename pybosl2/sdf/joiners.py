@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pybosl2.constants import UP
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.parts.enums import Gender
 from pybosl2.sdf.paths import (
     bezpath_points,
@@ -95,13 +96,13 @@ def knuckle_hinge(  # type: ignore[no-untyped-def]
     """
     _ = fill
     if not (arm_angle == 90):
-        raise ValueError("only the arm_angle=90/arm_height=0 variant is ported")
+        raise Bosl2ValueError("only the arm_angle=90/arm_height=0 variant is ported")
     if not (arm_height == 0):
-        raise ValueError("only the arm_angle=90/arm_height=0 variant is ported")
+        raise Bosl2ValueError("only the arm_angle=90/arm_height=0 variant is ported")
     if not isinstance(segs, int) or segs < 2:
-        raise ValueError(f"knuckle_hinge(): segs must be an integer of 2 or more, got {segs!r}")
+        raise Bosl2ValueError(f"knuckle_hinge(): segs must be an integer of 2 or more, got {segs!r}")
     if not (offset >= knuckle_diam / 2):
-        raise ValueError("offset must be at least the knuckle radius")
+        raise Bosl2ValueError("offset must be at least the knuckle radius")
 
     segs1 = math.ceil(segs / 2)
     segs2 = math.floor(segs / 2)
@@ -165,7 +166,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     anchoring; the "double" type isn't ported since nothing here uses it).
     """
     if type not in ("pin", Gender.MALE, "socket", Gender.FEMALE):
-        raise ValueError(f"unsupported rabbit_clip type {type!r}")
+        raise Bosl2ValueError(f"unsupported rabbit_clip type {type!r}")
     is_pin = type in ("pin", "male")
     extra = 0.02
     clearance = 0 if is_pin else clearance
@@ -192,7 +193,7 @@ def rabbit_clip(  # type: ignore[no-untyped-def]
     )
     fullpath = np.vstack([sidepath, [bottom_pt], sidepath[::-1] * [-1.0, 1.0]])
     if not (fullpath[4][1] < fullpath[3][1]):
-        raise ValueError("Pin is too wide for its length")
+        raise Bosl2ValueError("Pin is too wide for its length")
 
     fulltangent = path_tangents(fullpath, closed=False, uniform=False)
     # Force vertical tangents at the outer edges of the clip to avoid overshoot.

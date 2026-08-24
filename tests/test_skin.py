@@ -7,6 +7,7 @@
 """Tests for pybosl2/skin.py: frame_map, sweep and path_sweep frame methods."""
 
 import math
+from typing import Any
 
 import numpy as np
 import pytest
@@ -49,8 +50,23 @@ from pybosl2.skin import (
 SQUARE = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
 
 
-def _valid(vnf: object) -> bool:
-    return not vnf.faces or max(i for f in vnf.faces for i in f) < len(vnf.vertices)  # type: ignore[attr-defined]  # type: ignore[attr-defined]
+def _mesh(swept: object) -> Any:
+    """The mesh behind a sweep result.
+
+    Sweeps return a `Solid` now (SPEC S-19a) and keep the mesh on `.vnf`; the lower-level helpers
+    still hand back a bare VNF, so both are accepted.
+    """
+    return getattr(swept, "vnf", swept)
+
+
+def _valid(swept: object) -> bool:
+    """Every face indexes a vertex that exists.
+
+    A sweep hands back a Solid now (SPEC S-19a), so the mesh is reached through `.vnf`; a bare VNF
+    (from the lower-level helpers) is accepted as-is.
+    """
+    vnf = _mesh(swept)
+    return not vnf.faces or max(i for f in vnf.faces for i in f) < len(vnf.vertices)  # type: ignore[attr-defined]
 
 
 def _circle(r: float, sides: int = 24) -> list[list[float]]:
@@ -83,7 +99,7 @@ def test_frame_map_fills_third_axis() -> None:
 
 def test_straight_sweep_counts() -> None:
     vnf = Path3D([[0, 0, 0], [0, 0, 5], [0, 0, 10]]).path_sweep(SQUARE)  # type: ignore[arg-type]
-    assert len(vnf.vertices) == 12  # type: ignore[arg-type, union-attr]  # 4 shape pts x 3 profiles
+    assert len(_mesh(vnf).vertices) == 12  # type: ignore[arg-type, union-attr]  # 4 shape pts x 3 profiles
     assert _valid(vnf)
 
 
@@ -98,7 +114,7 @@ def test_sweep_open_has_caps_closed_does_not() -> None:
 def test_curved_sweep_methods(method: str) -> None:
     curve = [[math.cos(t) * 10, math.sin(t) * 10, t * 2] for t in np.linspace(0, math.pi, 10)]
     vnf = Path3D(curve).path_sweep(SQUARE, method=method)  # type: ignore[arg-type]
-    assert len(vnf.vertices) == 40  # type: ignore[arg-type, union-attr]
+    assert len(_mesh(vnf).vertices) == 40  # type: ignore[arg-type, union-attr]
     assert _valid(vnf)
 
 
@@ -114,11 +130,11 @@ def test_closed_sweep_has_no_caps() -> None:
     vnf = Path3D(circ).path_sweep(SQUARE, closed=True)  # type: ignore[arg-type]
     assert _valid(vnf)
     # 25 profiles (closed adds the wrap) x 4 verts
-    assert len(vnf.vertices) == 100  # type: ignore[arg-type, union-attr]
+    assert len(_mesh(vnf).vertices) == 100  # type: ignore[arg-type, union-attr]
 
 
 def test_transforms_mode_returns_matrices() -> None:
-    tl = Path3D([[0, 0, 0], [0, 0, 5], [0, 0, 10]]).path_sweep(SQUARE, transforms=True)  # type: ignore[arg-type]
+    tl = Path3D([[0, 0, 0], [0, 0, 5], [0, 0, 10]]).path_sweep_transforms()  # type: ignore[arg-type]
     assert len(tl) == 3  # type: ignore[arg-type]
     assert np.asarray(tl[0]).shape == (4, 4)  # type: ignore[index]
 
@@ -156,7 +172,7 @@ def test_slice_profiles_inserts_intermediates() -> None:
 def test_skin_two_profiles() -> None:
     vnf = skin([_circle(6), [[-8, -8], [8, -8], [8, 8], [-8, 8]]], slices=10, z=[0, 25])
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]  # winding fixed to outward
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]  # winding fixed to outward
 
 
 def test_skin_reindex_method() -> None:
@@ -167,13 +183,13 @@ def test_skin_reindex_method() -> None:
         z=[0, 20],
     )
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_skin_three_profiles() -> None:
     vnf = skin([_circle(4), _circle(8), _circle(4)], slices=5, z=[0, 15, 30])
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_skin_closed_stack() -> None:
@@ -204,22 +220,22 @@ def test_linear_sweep_plain_box_volume() -> None:
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
     vnf = Path2D(sq).linear_sweep(height=5)
     assert _valid(vnf)
-    assert math.isclose(vnf.volume(), 20 * 20 * 5, rel_tol=1e-6)  # type: ignore[operator, union-attr]  # 2000
+    assert math.isclose(_mesh(vnf).volume(), 20 * 20 * 5, rel_tol=1e-6)  # type: ignore[operator, union-attr]  # 2000
 
 
 def test_linear_sweep_twist_scale() -> None:
     sq = [[-10, -10], [10, -10], [10, 10], [-10, 10]]
     vnf = linear_sweep(sq, height=40, twist=120, scale=0.4)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_linear_sweep_center_vs_base() -> None:
     sq = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
     base = Path2D(sq).linear_sweep(height=10)
     centered = Path2D(sq).linear_sweep(height=10, center=True)
-    bz = [v[2] for v in base.vertices]  # type: ignore[attr-defined, union-attr]
-    cz = [v[2] for v in centered.vertices]  # type: ignore[attr-defined, union-attr]
+    bz = [v[2] for v in _mesh(base).vertices]  # type: ignore[attr-defined, union-attr]
+    cz = [v[2] for v in _mesh(centered).vertices]  # type: ignore[attr-defined, union-attr]
     assert math.isclose(min(bz), 0.0, abs_tol=1e-9)
     assert math.isclose(max(bz), 10.0, abs_tol=1e-9)
     assert math.isclose(min(cz), -5.0, abs_tol=1e-9)
@@ -234,13 +250,13 @@ PROFILE = [[4, -10], [12, -10], [12, 10], [4, 10]]
 def test_rotate_sweep_full() -> None:
     vnf = rotate_sweep(PROFILE, 360)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_rotate_sweep_partial_has_caps() -> None:
     vnf = rotate_sweep(PROFILE, 270)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_rotate_sweep_rejects_bad_angle() -> None:
@@ -255,14 +271,14 @@ def test_spiral_sweep_coil() -> None:
     section = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
     vnf = spiral_sweep(section, height=40, radius=12, turns=5)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_spiral_sweep_conical_taper() -> None:
     section = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf = spiral_sweep(section, height=30, radius1=15, radius2=5, turns=4)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 # -- path_sweep2d -------------------------------------------------------------------------
@@ -273,7 +289,7 @@ def test_path_sweep2d_open() -> None:
     path = [[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)]
     vnf = path_sweep2d(shape, path)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 def test_path_sweep2d_closed_loop() -> None:
@@ -281,7 +297,7 @@ def test_path_sweep2d_closed_loop() -> None:
     ring = [[20 * math.cos(t), 20 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 32, endpoint=False)]
     vnf = path_sweep2d(shape, ring, closed=True)
     assert _valid(vnf)
-    assert vnf.volume() > 0  # type: ignore[operator, union-attr]
+    assert _mesh(vnf).volume() > 0  # type: ignore[operator, union-attr]
 
 
 # -- subdivide_and_slice ------------------------------------------------------------------
@@ -299,7 +315,7 @@ def test_subdivide_and_slice_equalizes_and_slices() -> None:
 def test_rot_resample_changes_count_and_sweeps() -> None:
     sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
     curve = [[0, 0, 0], [10, 0, 5], [10, 10, 10], [0, 10, 15]]
-    tl = Path3D(curve).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
+    tl = Path3D(curve).path_sweep_transforms()  # type: ignore[arg-type]
     out = rot_resample(tl, num_copies=20)
     assert len(out) == 20
     assert np.asarray(out[0]).shape == (4, 4)
@@ -307,14 +323,14 @@ def test_rot_resample_changes_count_and_sweeps() -> None:
 
 
 def test_rot_resample_count_method() -> None:
-    sq = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
-    tl = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 20]]).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
+    _sq = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
+    tl = Path3D([[0, 0, 0], [0, 0, 10], [0, 0, 20]]).path_sweep_transforms()  # type: ignore[arg-type]
     out = rot_resample(tl, num_copies=5, method=ResampleMethod.COUNT)
     assert len(out) == 5 * 2 + 1  # samples-per-gap * gaps + 1
 
 
 def test_rot_resample_rejects_even_smoothlen() -> None:
-    tl = Path3D([[0, 0, 0], [0, 0, 10]]).path_sweep([[-1, -1], [1, -1], [1, 1], [-1, 1]], transforms=True)  # type: ignore[arg-type]
+    tl = Path3D([[0, 0, 0], [0, 0, 10]]).path_sweep_transforms()
     with pytest.raises(ValueError, match="smoothlen must be a"):
         rot_resample(tl, num_copies=6, smoothlen=2)
 
@@ -349,7 +365,7 @@ def test_offset_sweep_plain_volume() -> None:
     vnf_os = Path2D(_SQ20).offset_sweep(height=10)
     vnf_ls = Path2D(_SQ20).linear_sweep(height=10)
     assert _valid(vnf_os)
-    assert math.isclose(vnf_os.volume(), vnf_ls.volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined, union-attr]
+    assert math.isclose(_mesh(vnf_os).volume(), _mesh(vnf_ls).volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined, union-attr]
 
 
 def test_offset_sweep_top_roundover_smaller_volume() -> None:
@@ -357,8 +373,8 @@ def test_offset_sweep_top_roundover_smaller_volume() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     rounded = Path2D(_SQ20).offset_sweep(height=20, top=os_circle(radius=4))
     assert _valid(rounded)
-    assert rounded.volume() > 0  # type: ignore[attr-defined]
-    assert rounded.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(rounded).volume() > 0  # type: ignore[attr-defined]
+    assert _mesh(rounded).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_bottom_roundover_smaller_volume() -> None:
@@ -366,7 +382,7 @@ def test_offset_sweep_bottom_roundover_smaller_volume() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     rounded = Path2D(_SQ20).offset_sweep(height=20, bottom=os_circle(radius=4))
     assert _valid(rounded)
-    assert rounded.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(rounded).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_both_ends_smaller_than_one() -> None:
@@ -374,7 +390,7 @@ def test_offset_sweep_both_ends_smaller_than_one() -> None:
     one_end = Path2D(_SQ20).offset_sweep(height=20, top=os_circle(radius=3))
     both = Path2D(_SQ20).offset_sweep(height=20, top=os_circle(radius=3), bottom=os_circle(radius=3))
     assert _valid(both)
-    assert both.volume() < one_end.volume()  # type: ignore[attr-defined]
+    assert _mesh(both).volume() < _mesh(one_end).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_flare_larger_volume() -> None:
@@ -382,7 +398,7 @@ def test_offset_sweep_flare_larger_volume() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     flared = Path2D(_SQ20).offset_sweep(height=20, bottom=os_circle(radius=-3))
     assert _valid(flared)
-    assert flared.volume() > plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(flared).volume() > _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_rejects_nonpositive_height() -> None:
@@ -460,28 +476,28 @@ def test_offset_sweep_smooth() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     smoothed = Path2D(_SQ20).offset_sweep(height=20, top=os_smooth(cut=4))
     assert _valid(smoothed)
-    assert smoothed.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(smoothed).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_teardrop() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     td = Path2D(_SQ20).offset_sweep(height=20, top=os_teardrop(radius=3))
     assert _valid(td)
-    assert td.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(td).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_chamfer() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     chamf = Path2D(_SQ20).offset_sweep(height=20, top=os_chamfer(width=3, height=3))
     assert _valid(chamf)
-    assert chamf.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(chamf).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_flat() -> None:
     plain = Path2D(_SQ20).offset_sweep(height=20)
     flat_sweep = Path2D(_SQ20).offset_sweep(height=20, top=os_flat())
     assert _valid(flat_sweep)
-    assert math.isclose(flat_sweep.volume(), plain.volume(), rel_tol=1e-4)  # type: ignore[attr-defined]
+    assert math.isclose(_mesh(flat_sweep).volume(), _mesh(plain).volume(), rel_tol=1e-4)  # type: ignore[attr-defined]
 
 
 def test_offset_sweep_profile() -> None:
@@ -490,7 +506,7 @@ def test_offset_sweep_profile() -> None:
     prof = [[0.0, 0.0], [2.0, 3.0]]
     prof_sweep = Path2D(_SQ20).offset_sweep(height=20, top=os_profile(prof))
     assert _valid(prof_sweep)
-    assert prof_sweep.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(prof_sweep).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 # -- convex_offset_extrude & rounded_prism --------------------------------------------------
@@ -500,7 +516,7 @@ def test_convex_offset_extrude_alias() -> None:
     v1 = Path2D(_SQ20).convex_offset_extrude(height=15, top=os_circle(radius=2))
     v2 = Path2D(_SQ20).offset_sweep(height=15, top=os_circle(radius=2))
     assert _valid(v1)
-    assert math.isclose(v1.volume(), v2.volume(), rel_tol=1e-9)  # type: ignore[attr-defined]
+    assert math.isclose(_mesh(v1).volume(), _mesh(v2).volume(), rel_tol=1e-9)  # type: ignore[attr-defined]
 
 
 def test_rounded_prism_plain() -> None:
@@ -508,7 +524,7 @@ def test_rounded_prism_plain() -> None:
     plain = Path2D(_SQ20).rounded_prism(height=20)
     expected = Path2D(_SQ20).linear_sweep(height=20)
     assert _valid(plain)
-    assert math.isclose(plain.volume(), expected.volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined, union-attr]
+    assert math.isclose(_mesh(plain).volume(), _mesh(expected).volume(), rel_tol=1e-4)  # type: ignore[operator, attr-defined, union-attr]
 
 
 def test_rounded_prism_rim_rounding() -> None:
@@ -516,7 +532,7 @@ def test_rounded_prism_rim_rounding() -> None:
     plain = Path2D(_SQ20).rounded_prism(height=20)
     rounded = Path2D(_SQ20).rounded_prism(height=20, joint_top=3, joint_bottom=3)
     assert _valid(rounded)
-    assert rounded.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(rounded).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_rounded_prism_compat() -> None:
@@ -525,7 +541,7 @@ def test_rounded_prism_compat() -> None:
     v2 = Path2D(_SQ20).rounded_prism(height=20, joint_top=3, joint_bot=3, joint_sides=2, k_sides=0.5)
     assert _valid(v1)
     assert _valid(v2)
-    assert math.isclose(v1.volume(), v2.volume(), rel_tol=1e-9)  # type: ignore[attr-defined]
+    assert math.isclose(_mesh(v1).volume(), _mesh(v2).volume(), rel_tol=1e-9)  # type: ignore[attr-defined]
 
 
 def test_rounded_prism_side_rounding() -> None:
@@ -533,7 +549,7 @@ def test_rounded_prism_side_rounding() -> None:
     plain = Path2D(_SQ20).rounded_prism(height=20)
     rounded = Path2D(_SQ20).rounded_prism(height=20, joint_sides=2)
     assert _valid(rounded)
-    assert rounded.volume() < plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(rounded).volume() < _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_rounded_prism_tapered() -> None:
@@ -543,9 +559,9 @@ def test_rounded_prism_tapered() -> None:
     prism = Path2D(_SQ20).rounded_prism(top=top_sq, height=20, joint_sides=1)
     assert _valid(prism)
     # Volume should be between bottom-extruded and top-extruded cubes
-    vol_bot = Path2D(_SQ20).linear_sweep(height=20).volume()  # type: ignore[operator, union-attr]
-    vol_top = Path2D(top_sq).linear_sweep(height=20).volume()  # type: ignore[operator, union-attr]
-    assert vol_top < prism.volume() < vol_bot  # type: ignore[attr-defined, union-attr]
+    vol_bot = Path2D(_SQ20).linear_sweep(height=20).vnf.volume()
+    vol_top = Path2D(top_sq).linear_sweep(height=20).vnf.volume()
+    assert vol_top < _mesh(prism).volume() < vol_bot  # type: ignore[attr-defined, union-attr]
 
 
 # -- join_prism & prism_connector -----------------------------------------------------------
@@ -556,7 +572,7 @@ def test_join_prism_fillet() -> None:
     filleted = Path2D(_SQ20).join_prism(height=20, fillet=2)
     assert _valid(filleted)
     # Filleting at the bottom adds volume (outward flare)
-    assert filleted.volume() > plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(filleted).volume() > _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 def test_prism_connector_fillets() -> None:
@@ -564,7 +580,7 @@ def test_prism_connector_fillets() -> None:
     filleted = Path2D(_SQ20).prism_connector(length=20, fillet1=2, fillet2=2)
     assert _valid(filleted)
     # Filleting at both ends adds volume (outward flares)
-    assert filleted.volume() > plain.volume()  # type: ignore[attr-defined]
+    assert _mesh(filleted).volume() > _mesh(plain).volume()  # type: ignore[attr-defined]
 
 
 # -- attach_prism & bent_cutout_mask --------------------------------------------------------
@@ -576,16 +592,16 @@ def test_attach_prism_fillet_rounding() -> None:
     assert _valid(filleted_rounded)
     # Fillet (adds volume at bottom) vs Roundover (removes volume at top)
     # Let's verify it constructs a valid VNF with correct dimensions.
-    assert len(filleted_rounded.vertices) > len(plain.vertices)  # type: ignore[attr-defined]
+    assert len(_mesh(filleted_rounded).vertices) > len(_mesh(plain).vertices)  # type: ignore[attr-defined]
 
 
 def test_bent_cutout_mask() -> None:
     cutout = [[-5, -5], [5, -5], [5, 5], [-5, 5]]
     mask = Path2D(cutout).bent_cutout_mask(radius=30, thickness=4)
     assert _valid(mask)
-    assert mask.volume() > 0  # type: ignore[attr-defined]
+    assert _mesh(mask).volume() > 0  # type: ignore[attr-defined]
     # Thickness check (roughly 4 in radius direction)
-    verts = np.asarray(mask.vertices)  # type: ignore[attr-defined]
+    verts = np.asarray(_mesh(mask).vertices)  # type: ignore[attr-defined]
     radii = np.linalg.norm(verts[:, :2], axis=1)
     r_min = np.min(radii)
     r_max = np.max(radii)
@@ -596,22 +612,22 @@ def test_sweepable_mixin() -> None:
     path = Path3D([[0, 0, 0], [0, 0, 10], [0, 10, 10]])
     shape = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf1 = path.path_sweep(shape)  # type: ignore[arg-type]
-    assert abs(vnf1.volume()) > 0  # type: ignore[operator, union-attr]
+    assert abs(_mesh(vnf1).volume()) > 0  # type: ignore[operator, union-attr]
 
     path2d = Path2D([[t, 8 * math.sin(t / 12)] for t in range(0, 90, 3)])
     vnf2 = path2d.path_sweep2d(shape)  # type: ignore[arg-type]
-    assert abs(vnf2.volume()) > 0  # type: ignore[operator, union-attr]
+    assert abs(_mesh(vnf2).volume()) > 0  # type: ignore[operator, union-attr]
 
     profile = Path2D(shape)
     vnf3 = profile.linear_sweep(height=20)
-    assert abs(vnf3.volume()) > 0  # type: ignore[operator, union-attr]
+    assert abs(_mesh(vnf3).volume()) > 0  # type: ignore[operator, union-attr]
 
     prof = Path2D([[2, 0], [4, 0], [4, 5], [2, 5]])
     vnf4 = prof.rotate_sweep(angle=180)
-    assert abs(vnf4.volume()) > 0  # type: ignore[operator, union-attr]
+    assert abs(_mesh(vnf4).volume()) > 0  # type: ignore[operator, union-attr]
 
     vnf5 = profile.spiral_sweep(height=10, radius=5, turns=2)
-    assert abs(vnf5.volume()) > 0  # type: ignore[operator, union-attr]
+    assert abs(_mesh(vnf5).volume()) > 0  # type: ignore[operator, union-attr]
 
 
 def test_oop_skin_and_sweep() -> None:
@@ -621,13 +637,13 @@ def test_oop_skin_and_sweep() -> None:
     square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf_skinned = VNF.from_skin([circle, square], slices=5, method=SkinMethod.REINDEX, z=[0, 10])
     assert isinstance(vnf_skinned, VNF)
-    assert abs(vnf_skinned.volume()) > 0
+    assert abs(_mesh(vnf_skinned).volume()) > 0
 
     shape = Path2D(square)
     transforms = [np.eye(4), np.eye(4)]
     transforms[1][:3, 3] = [0, 0, 10]
     vnf_swept = shape.sweep(transforms)
-    assert isinstance(vnf_swept, VNF)
+    assert isinstance(vnf_swept.vnf, VNF)  # a Solid now (S-19a); its mesh is on .vnf
 
 
 # ── decorative caps coverage ────────────────────────────────────────────
@@ -642,7 +658,7 @@ def test_path_sweep_arrow_cap() -> None:
     spine = Path2D([[0, 0], [20, 0], [20, 20]])
     plain = spine.path_sweep(circle)
     capped = spine.path_sweep(circle, caps=CapSpec(CapType.ARROW, length=2))
-    assert isinstance(plain, VNF)
+    assert isinstance(plain.vnf, VNF)  # a Solid now (S-19a); its mesh is on .vnf
     assert not isinstance(capped, VNF)
     assert "rotate_extrude" in repr(capped.shape)  # the arrow is a revolved profile
 
@@ -653,7 +669,7 @@ def test_linear_sweep_decorative_cap() -> None:
 
     sq = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     capped = sq.linear_sweep(height=10, caps=CapSpec(CapType.ARROW, length=3))
-    assert [float(v) for v in capped.bounds()[1]] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
+    assert [float(v) for v in capped.bounds().size] == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
 
 
 def test_rotate_sweep_decorative_cap() -> None:
@@ -663,7 +679,7 @@ def test_rotate_sweep_decorative_cap() -> None:
     profile = [[10, 0], [10, 2], [2, 6], [0, 10]]
     capped = Path2D(profile).rotate_sweep(angle=90, caps=CapSpec(CapType.DOT))
     assert "sphere(" in repr(capped.shape)
-    assert float(capped.bounds()[1][0]) > 10.0  # the profile reaches x=10; the cap goes further
+    assert float(capped.bounds().size[0]) > 10.0  # the profile reaches x=10; the cap goes further
 
 
 #: (name, the rim descriptor). Each treats the top rim of the same 20x20x10 prism.
@@ -681,11 +697,11 @@ def test_rounded_prism_rim_treatments(name: str, rim: object) -> None:
     base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     plain = base.rounded_prism(height=10)
     treated = base.rounded_prism(height=10, joint_top=rim())  # type: ignore[operator, arg-type]
-    points = np.asarray(treated.vertices)
+    points = np.asarray(_mesh(treated).vertices)
     assert points.min(axis=0).tolist() == pytest.approx([0.0, 0.0, 0.0], abs=0.01), name
     assert points.max(axis=0).tolist() == pytest.approx([20.0, 20.0, 10.0], abs=0.01), name
-    assert 0 < float(treated.volume()) < float(plain.volume()), name
-    assert len(treated.vertices) > len(plain.vertices), name  # the rim is a curve now
+    assert 0 < float(_mesh(treated).volume()) < float(_mesh(plain).volume()), name
+    assert len(_mesh(treated).vertices) > len(_mesh(plain).vertices), name  # the rim is a curve now
 
 
 def test_rounded_prism_teardrop_rim() -> None:
@@ -693,16 +709,16 @@ def test_rounded_prism_teardrop_rim() -> None:
     base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     teardrop = base.rounded_prism(height=10, joint_top=os_teardrop(radius=3))  # type: ignore[arg-type]
     chamfered = base.rounded_prism(height=10, joint_top=os_chamfer(width=2))  # type: ignore[arg-type]
-    assert float(teardrop.volume()) > float(chamfered.volume())  # it keeps more material
+    assert float(_mesh(teardrop).volume()) > float(_mesh(chamfered).volume())  # it keeps more material
 
 
 # ── rot_resample with transforms path ───────────────────────────────────
 
 
 def test_rot_resample_twist_list() -> None:
-    sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
+    _sq = [[-3, -3], [3, -3], [3, 3], [-3, 3]]
     curve = [[0, 0, 0], [10, 0, 5], [10, 10, 10], [0, 10, 15]]
-    tl = Path3D(curve).path_sweep(sq, transforms=True)  # type: ignore[arg-type]
+    tl = Path3D(curve).path_sweep_transforms()  # type: ignore[arg-type]
     result = rot_resample(tl, num_copies=12, twist=[5, 10, 15])
     assert len(result) == 12
 
@@ -712,7 +728,7 @@ def test_rounded_prism_smooth_rim() -> None:
     base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     tight = base.rounded_prism(height=10, joint_top=os_smooth(cut=3, curvature=0.2))  # type: ignore[arg-type]
     loose = base.rounded_prism(height=10, joint_top=os_smooth(cut=3, curvature=0.8))  # type: ignore[arg-type]
-    assert float(tight.volume()) != pytest.approx(float(loose.volume()), abs=1.0)
+    assert float(_mesh(tight).volume()) != pytest.approx(float(_mesh(loose).volume()), abs=1.0)
 
 
 def test_rounded_prism_chamfer_rim() -> None:
@@ -720,7 +736,7 @@ def test_rounded_prism_chamfer_rim() -> None:
     base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     narrow = base.rounded_prism(height=10, joint_top=os_chamfer(width=1))  # type: ignore[arg-type]
     wide = base.rounded_prism(height=10, joint_top=os_chamfer(width=3))  # type: ignore[arg-type]
-    assert float(wide.volume()) < float(narrow.volume())
+    assert float(_mesh(wide).volume()) < float(_mesh(narrow).volume())
 
 
 def test_rounded_prism_profile_rim() -> None:
@@ -728,5 +744,5 @@ def test_rounded_prism_profile_rim() -> None:
     base = Path2D([[0, 0], [20, 0], [20, 20], [0, 20]])
     custom = base.rounded_prism(height=10, joint_top=os_profile([[0, 0], [1, 3], [2, 5]]))  # type: ignore[arg-type]
     plain = base.rounded_prism(height=10)
-    assert float(custom.volume()) < float(plain.volume())
-    assert np.asarray(custom.vertices).max(axis=0).tolist() == pytest.approx([20.0, 20.0, 10.0], abs=0.01)
+    assert float(_mesh(custom).volume()) < float(_mesh(plain).volume())
+    assert np.asarray(_mesh(custom).vertices).max(axis=0).tolist() == pytest.approx([20.0, 20.0, 10.0], abs=0.01)

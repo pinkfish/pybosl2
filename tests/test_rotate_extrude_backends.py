@@ -36,7 +36,8 @@ BACKENDS = ["csg", "sdf"]
 def test_a_full_revolution_is_a_ring_of_the_stated_radius(backend: str) -> None:
     with use_backend(backend):
         ring = Path2D(RING).rotate_extrude()
-    centre, size = ring.bounds()
+    _box = ring.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert size[0] == pytest.approx(20.0, abs=0.2)  # 2 * outer radius; CSG facets fall just inside
     assert size[1] == pytest.approx(20.0, abs=0.2)
     assert size[2] == pytest.approx(2.0, abs=0.01)  # the profile's own height
@@ -54,9 +55,9 @@ def test_a_partial_revolution_sweeps_the_same_sector_on_both_backends(
         with use_backend(backend):
             built[backend] = Path2D(RING).rotate_extrude(angle).bounds()
     for axis in range(3):
-        assert abs(float(built["csg"][1][axis]) - float(built["sdf"][1][axis])) < 0.2
-        assert abs(float(built["csg"][0][axis]) - float(built["sdf"][0][axis])) < 0.2
-        assert float(built["sdf"][1][axis]) == pytest.approx(expected_size[axis], abs=0.01)
+        assert abs(float(built["csg"].size[axis]) - float(built["sdf"].size[axis])) < 0.2
+        assert abs(float(built["csg"].center[axis]) - float(built["sdf"].center[axis])) < 0.2
+        assert float(built["sdf"].size[axis]) == pytest.approx(expected_size[axis], abs=0.01)
 
 
 def test_the_field_is_the_profile_read_at_the_radius() -> None:

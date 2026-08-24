@@ -37,6 +37,8 @@ if TYPE_CHECKING:
 
 from pybosl2._backend import csg_part
 from pybosl2.enums import VNFStyle
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.parts.enums import NutShape
 from pybosl2.shapes3d import Bosl2Solid, cuboid, cyl, regular_prism
 from pybosl2.vnf import VNF
@@ -109,7 +111,7 @@ def _trapezoidal_profile(pitch: float, thread_angle: float = 30, thread_depth: f
     depth = thread_depth if thread_depth is not None else pitch / 2
     pa_delta = 0.5 * depth * math.tan(math.radians(thread_angle / 2)) / pitch
     if not (pa_delta <= 0.25):
-        raise ValueError("trapezoidal thread geometry is impossible (angle/depth too large).")
+        raise Bosl2ValueError("trapezoidal thread geometry is impossible (angle/depth too large).")
     rr1 = -depth / pitch
     z1, z2 = 0.25 - pa_delta, 0.25 + pa_delta
     return ThreadProfile(f"trapezoidal-{thread_angle:g}deg", ((-z2, rr1), (-z1, 0), (z1, 0), (z2, rr1)))
@@ -243,7 +245,7 @@ def _nut_solid(
     elif shape == NutShape.SQUARE:
         body = cuboid([nutwidth, nutwidth, h], fn=fn, fa=fa, fs=fs)
     else:
-        raise ValueError(f"nut(): shape must be NutShape.HEX or NutShape.SQUARE, got {shape!r}.")
+        raise Bosl2ValueError(f"nut(): shape must be NutShape.HEX or NutShape.SQUARE, got {shape!r}.")
     if pitch == 0:
         return body - cyl(height=h + 2, radius=idia / 2 + slop, fn=fn, fa=fa, fs=fs)
     depth_abs = _profile_depth_abs(profile, pitch)
@@ -266,7 +268,7 @@ def _nut_solid(
 # ---------------------------------------------------------------------------
 
 
-class ThreadedRod:
+class ThreadedRod(Buildable):
     """A threaded rod built from an explicit 2-D thread profile.
 
     *profile* is a :class:`ThreadProfile` or a plain point list in pitch units
@@ -313,11 +315,11 @@ class ThreadedRod:
 
         """
         if not (pitch > 0):
-            raise ValueError("ThreadedRod: d, l and pitch must be positive.")
+            raise Bosl2ValueError("ThreadedRod: d, l and pitch must be positive.")
         if not (l > 0):
-            raise ValueError("ThreadedRod: d, l and pitch must be positive.")
+            raise Bosl2ValueError("ThreadedRod: d, l and pitch must be positive.")
         if not (d > 0):
-            raise ValueError("ThreadedRod: d, l and pitch must be positive.")
+            raise Bosl2ValueError("ThreadedRod: d, l and pitch must be positive.")
         self._d: float = d
         self._l: float = l
         self._pitch: float = pitch
@@ -373,17 +375,8 @@ class ThreadedRod:
         )
         return self._solid
 
-    def show(self) -> Any:
-        """Display the threaded rod in the viewer, and return it.
 
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
-
-
-class ThreadedNut:
+class ThreadedNut(Buildable):
     """A nut: a hex or square body with a threaded hole cut by a matching thread tap.
 
     Examples:
@@ -502,17 +495,8 @@ class ThreadedNut:
         )
         return self._solid
 
-    def show(self) -> Any:
-        """Display the nut in the viewer, and return it.
 
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
-
-
-class ThreadHelix:
+class ThreadHelix(Buildable):
     """A single helical thread ridge, for adding threads onto your own cylinder.
 
     The thread crest is at diameter *d*; give *thread_depth* and *flank_angle*,
@@ -562,9 +546,9 @@ class ThreadHelix:
         from pybosl2.path2d import Path2D
 
         if not (pitch > 0):
-            raise ValueError("ThreadHelix: d and pitch must be positive.")
+            raise Bosl2ValueError("ThreadHelix: d and pitch must be positive.")
         if not (d > 0):
-            raise ValueError("ThreadHelix: d and pitch must be positive.")
+            raise Bosl2ValueError("ThreadHelix: d and pitch must be positive.")
         self._d: float = d
         self._pitch: float = pitch
         self._turns: float = turns

@@ -18,12 +18,19 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, cast
+
+if TYPE_CHECKING:
+    from pybosl2._backend import Solid
+
 import math
 from typing import Any
 
 from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
 from pybosl2.color import Color
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path3d import Path3D
 from pybosl2.shapes3d import Bosl2Solid
 
@@ -100,7 +107,7 @@ def hex_offsets(sides: int, diameter: float) -> list[list[float]]:
     return _hex_offsets(sides, diameter)
 
 
-class WireBundle:
+class WireBundle(Buildable):
     """A bundle of round wires routed along a path with rounded corners.
 
     The wires are hex-packed in the bundle cross-section and each is coloured
@@ -146,7 +153,7 @@ class WireBundle:
 
         """
         if wires < 1:
-            raise ValueError("wire_bundle() needs at least one wire.")
+            raise Bosl2ValueError("wire_bundle() needs at least one wire.")
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
         rounded_path = Path3D(path, closed=False).round_corners(radius=rounding, fn=(corner_steps + 1) * 4)
@@ -156,15 +163,15 @@ class WireBundle:
             for k in range(sides)
         ]
 
-        bundle: Bosl2Solid | None = None
+        bundle: "Solid | None" = None
         for i in range(wires):
             ox, oy = offsets[i]
             prof = [[x + ox, y + oy] for x, y in profile]
-            wire = rounded_path.path_sweep(prof).polyhedron()  # type: ignore[attr-defined]
+            wire = rounded_path.path_sweep(prof)
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None
-        self._solid: Bosl2Solid = Bosl2Solid(bundle.shape, size=None)
+        self._solid: Bosl2Solid = Bosl2Solid(cast("Bosl2Solid", bundle).shape, size=None)
         self._wires: int = wires
         self._wirediam: float = wirediam
 

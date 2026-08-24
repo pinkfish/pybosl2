@@ -32,6 +32,8 @@ from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
 from pybosl2._helpers import union as _union
 from pybosl2._native import native
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.solid import cuboid
 from pybosl2.vnf import VNF
@@ -124,7 +126,7 @@ def _sparse_wall2d(h: float, length: float, maxang: float, strut: float, max_bri
     return parts
 
 
-class NarrowingStrut:
+class NarrowingStrut(Buildable):
     """A strut like an extruded baseball home plate: a rectangle topped by a narrowing triangle (BOSL2.
 
     narrowing_strut()).
@@ -201,7 +203,7 @@ class NarrowingStrut:
         return self._solid.show()
 
 
-class SparseWall:
+class SparseWall(Buildable):
     """An open, X-cross-braced rectangular wall that saves material.
 
     and prints support-free (BOSL2 sparse_wall()).
@@ -281,7 +283,7 @@ class SparseWall:
         return self._solid.show()
 
 
-class SparseCuboid:
+class SparseCuboid(Buildable):
     """A solid cuboid whose interior is X-cross-braced along *dir* ("X", "Y" or "Z") (BOSL2 sparse_cuboid()).
 
     A drop-in for :func:`~pybosl2.shapes3d.cuboid` when the part would benefit from the sparse
@@ -326,7 +328,7 @@ class SparseCuboid:
         elif dir == SparseAxis.Z:
             braced = SparseWall(sx, sy, sz, maxang, strut, max_bridge).shape.rotate([0, 90, 0])
         else:
-            raise ValueError("sparse_cuboid(): dir must be a SparseAxis value.")
+            raise Bosl2ValueError("sparse_cuboid(): dir must be a SparseAxis value.")
         self._solid: "Solid" = (braced & cuboid([sx, sy, sz])).with_nominal_size([sx, sy, sz])
 
     @property
@@ -349,7 +351,7 @@ class SparseCuboid:
         return self._solid.show()
 
 
-class CorrugatedWall:
+class CorrugatedWall(Buildable):
     """A corrugated wall: a solid border framing a sinusoidal sheet.
 
     of thickness *wall* (BOSL2 corrugated_wall()).
@@ -432,7 +434,7 @@ class CorrugatedWall:
         return self._solid.show()
 
 
-class ThinningWall:
+class ThinningWall(Buildable):
     """A rectangular wall that thins to *wall* in the middle while.
 
     the edges stay *thick* (BOSL2 thinning_wall()).
@@ -613,7 +615,7 @@ class ThinningWall:
         return self._solid.show()
 
 
-class ThinningTriangle:
+class ThinningTriangle(Buildable):
     """A right-triangular wall with thick edges thinning to *wall* in the middle (BOSL2 thinning_triangle()).
 
     The hypotenuse rises from the front-bottom to the back-top. *diagonly* keeps only the

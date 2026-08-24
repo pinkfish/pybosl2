@@ -157,7 +157,7 @@ def test_stroke_region_strokes_every_path() -> None:
     stroked = reg.stroke(width=2)
     assert len(stroked.paths) == len(reg.paths) == 2
     corners = stroked.bounds()
-    assert [float(v) for v in corners[0]] == pytest.approx([-1.0, -1.0], abs=0.01)  # half a width out
+    assert [float(v) for v in corners.min] == pytest.approx([-1.0, -1.0], abs=0.01)  # half a width out
 
 
 def test_dashed_stroke_returns_paths() -> None:
@@ -179,8 +179,8 @@ def test_dashed_stroke_on_path_method() -> None:
     assert len(dashes.paths) == 10
     corners = dashes.bounds()
     # the pattern is fitted to the line, so the leftover is split evenly as a margin at each end
-    assert float(corners[0][0]) == pytest.approx(100.0 - float(corners[1][0]), abs=0.01)
-    assert float(corners[1][1]) == pytest.approx(1.0, abs=0.01)  # half the default stroke width
+    assert float(corners.min[0]) == pytest.approx(100.0 - float(corners.max[0]), abs=0.01)
+    assert float(corners.max[1]) == pytest.approx(1.0, abs=0.01)  # half the default stroke width
 
 
 def test_dashed_stroke_region_flattens() -> None:

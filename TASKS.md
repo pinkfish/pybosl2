@@ -42,11 +42,26 @@ spec renumbers as items close, and all but S-46a have.
 | — | test quality | [T13](#t13--replace-the-existence-only-tests-) ✅ | L |
 | — | S-46a / PAR-1 | [T14](#t14--give-parts-an-sdf-form-where-they-have-one-) 🔶 | XL |
 | — | bug | [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-) ✅ | S |
+| 2 | S-2b | [T16](#t16--one-bounds-type-everywhere) ✅ | M |
+| 3 | C-20 / C-21 / C-22 | [T17](#t17--make-the-contract-the-whole-object) ✅ | L |
+| 4 | S-19a / S-19b / S-19c | [T18](#t18--make-a-sweep-return-a-solid) ✅ | M |
+| 5 | S-53 / S-54 / S-55 | [T19](#t19--give-the-library-a-way-out) ✅ | M |
+| 6 | E-1 / E-5 / E-6 / E-7 | [T20](#t20--make-the-error-contract-usable) ✅ | M |
+| 7 | A-8 / A-9 | [T21](#t21--export-the-families-whole) ✅ | S |
+| 8 | S-26a … S-26d | [T22](#t22--make-the-masks-obey-the-librarys-own-rules) | L |
+| 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) 🔶 | M |
 
-**Everything above is done.** The open conformance item is S-46a / PAR-1: parts refuse on
-the SDF backend rather than building — see [T14](#t14--give-parts-an-sdf-form-where-they-have-one-)
-for what that would actually take. [T15](#t15--from_svg-loses-even-odd-holes-when-the-svg-has-a-viewbox-)
-was a reported bug in the SVG importer, now fixed.
+T0–T13, T15 and **T16–T21 are done**. Open: **T22** (the masking API) and **T23 step 2** (the 35
+docstring examples still held by the ratchet). T14 (parts on the SDF backend) remains the
+long-running parity item.
+
+T16–T23 came from using the library as a caller rather than reading it: every one is a rule the
+spec already stated that nothing measured — which is why T23's gate went in even though its
+backlog is not empty. It is the thing that catches the next one.
+
+**These are breaking changes, and that is sanctioned** — `bounds()` changes return type, the sweeps
+change theirs, `move`/`rot`/`fwd`/`bounding_box` disappear. The version is 0.x; §13.2 applies
+(a breaking change needs a note in the release, not a deprecation cycle).
 
 ## Order and why
 
@@ -65,6 +80,31 @@ was a reported bug in the SVG importer, now fixed.
   T5 facet backlog ─── independent, batchable by module
   T6 fn=0 · T7 min-arg check · T8 class-ify · T9 BOSL2 matrix ─── independent
 ```
+
+The T16–T23 wave, which is about the object surface rather than the constructors:
+
+```
+  T20 errors ──► everything else          Bosl2ValueError touches ~290 raise sites; land it
+       │                                  first so later tasks write the new type from the start
+       │
+  T16 bounds type ──► T17 contract        bounds() is a protocol member; fix what it returns
+       │                (needs T16's type)  before declaring the contract complete
+       │
+  T18 sweeps ──► T19 export               a sweep must return a Solid before "export a Solid"
+       │          (needs T18's .vnf)        is the whole story
+       │
+  T21 exports ─── independent, and cheap
+  T22 masks   ─── independent (touches masking.py + the edge_* methods on the solid)
+       │
+  T23 examples under mypy ◄── LAST         it is the gate that proves the rest; running it
+                                           earlier just reports T16–T22's known breakage
+```
+
+**T20 goes first** because `Bosl2ValueError` is a mechanical change across every module, and doing
+it after T16–T22 means writing `ValueError` into new code and converting it twice. **T23 goes
+last** for the opposite reason: it is the ratchet that catches signature defects through their
+examples, so it should first run against a surface that is already fixed — its value is stopping
+the *next* one, not re-reporting these.
 
 **T0 goes first.** While the backend tag lies, every other backend-related change is being tested
 against a guard that does not fire. T0b–T0e are what a user hits on day one and need nothing else
@@ -1296,6 +1336,498 @@ sibling that measures.
   `except (AttributeError, ValueError, TypeError): pass`. The cause is environmental — without
   libfive the numeric mock's `to_csg()` yields a stand-in the CSG operators reject — so they now
   measure properly and carry a `needs_csg_operable_mesh` skip that says so out loud.
+
+---
+
+## T16 — One `bounds` type everywhere ✅
+
+**Closes:** §12.2 item 2 (S-2b) · **Implements:** PLAN T-6a, review item 11a · **Size:** M
+**Risk:** medium — a public return type changes, and callers who unpacked the pair get a different
+meaning rather than an error
+
+`bounds()` answers four different questions depending on what you ask:
+
+```python
+Solid.bounds()   -> ([0.0, 0.0, 0.0], [40.0, 30.0, 20.0])   # (centre, size)
+Flat.bounds()    -> ([0.0, 0.0], [10.0, 5.0])               # (centre, size)
+Path2D.bounds()  -> Bounds2D(min_x=…, max_x=…, width=…)     # min/max
+Path3D.bounds()  -> Bounds3D(…)                             # min/max
+VNF.bounds()     -> Bounds3D(…)                             # min/max
+Region.bounds()  -> array([[0., 0.], [1., 1.]])             # NumPy (min, max)
+```
+
+`lo, hi = solid.bounds()` is what the name invites and it silently binds a *centre* to `lo`. The
+shape protocols type it `tuple[list[float], list[float]]`, so the checker cannot help. `bounds.py`'s
+own module docstring already claims `Bounds3D` is what "solid bounding-box methods" return — the
+documentation describes the design; only the code dissents.
+
+1. Give `Bounds2D`/`Bounds3D` the constructors the call sites need — `from_center_size()` and
+   `from_min_max()` classmethods — so no implementation does the arithmetic inline, and add
+   `min`/`max` properties returning `Point`, alongside the existing `center` and `size`.
+2. Change `Shape.bounds()` in the L1 contract to `-> Bounds2D | Bounds3D`, narrowed to `Bounds2D`
+   on `Flat` and `Bounds3D` on `Solid`. This is not a T-6d flag-union: the arm is fixed by which
+   protocol the caller holds, and each dimensional protocol declares exactly one.
+3. Convert the four implementations — `shapes3d/base.py`, `shapes2d/base.py`, `sdf/`'s two — to
+   build the dataclass. Keep the raw pair as `_native_bounds()` (already the private spelling in
+   `shapes3d/base.py`); nothing public returns it.
+4. `Region.bounds()` returns `Bounds2D` instead of a NumPy array.
+5. Delete `Solid.bounding_box()` and `nominal_size` as public names (C-21): `bounds()` is the box,
+   `size` is the nominal anchor box (S-2a), and `bounding_box()`'s actual job — a *solid* of the
+   bounding box — becomes `bounds().as_solid()` where anything still wants it.
+6. Sweep the call sites. `grep -rn "\.bounds()" pybosl2 tests` is the work list; anchoring
+   (`_anchoring.py`) and masking are the heavy users and both want `.center`/`.size`, which is why
+   step 1 comes first.
+
+**Done when:** `tests/test_bounds_contract.py::test_every_bounds_is_a_bounds_object` walks every
+type in the library with a `bounds()` and asserts the return is the right dataclass; a test asserts
+`lo, hi = shape.bounds()` is a `TypeError` rather than a silent mis-read; the anchoring tests still
+pass unchanged in meaning; `mypy --strict` clean.
+
+
+**Landed.** Every `bounds()` in the library returns `Bounds2D`/`Bounds3D`, narrowed to the right
+one on `Flat` and `Solid` — shapes on both backends, `Path2D`/`Path3D`, `Region`, `VNF`. The boxes
+gained `from_center_size()` / `from_min_max()` and `min`/`max`, so the conversion happens in one
+place rather than inline at every call site; the raw pair survives as the private `_center_size()`.
+`bounding_box()` and `nominal_size` are gone (C-21) — `size` is the one name for the nominal anchor
+box, on both backends.
+
+The migration touched 31 test files: a centred `cuboid([40, 30, 20])` used to report
+`([0, 0, 0], [40, 30, 20])` and now reports `min_z=-10`, which is what it always meant. Tests:
+`tests/test_bounds_contract.py` (every type with a `bounds()`, plus that unpacking one is a
+`TypeError` rather than a silent mis-read).
+
+One real bug fell out on the way: `Distributable.distribute()` computed a child's extent along a
+direction as `|size·dir − centre·dir|`, which is right only for a child centred on the origin and
+under-measures every other one. It is `Σ|size_i·dir_i|` now.
+
+---
+
+## T17 — Make the contract the whole object ✅
+
+**Closes:** §12.2 item 3 (C-20, C-21, C-22) · **Implements:** PLAN T-6c · **Size:** L
+**Risk:** low for the protocol work, medium for the synonym removals (they are the breaking part)
+
+The `Solid` protocol declares 32 members. `CsgSolid` has 92. What a caller writes:
+
+```python
+def with_boss(base: Solid) -> Solid:
+    return base.attach(Anchor.TOP, cyl(radius=5, height=8))
+```
+```
+error: "Solid" has no attribute "attach"     [attr-defined]
+error: "Solid" has no attribute "diff"       [attr-defined]
+error: "Solid" has no attribute "xcopies"    [attr-defined]
+```
+
+63 runtime methods on `Solid` and 59 on `Flat` are invisible to the checker, including everything
+C-19 and S-31 say belongs on the shared contract. §12.1 records C-15…C-18 as closed; the surface
+drifted immediately afterward, which is what C-20 now measures.
+
+1. **Declare the missing surface.** On `Shape`: the colour family (`color`, `recolor`,
+   `color_this`, `hsl`, `hsv`, `highlight`, `ghost`), the tag/attachment state (`tag`, `tag_this`,
+   `attach`, `position`, `align`, `diff`, `intersect`), and the whole distribution family
+   (`line_copies`, `xcopies`/`ycopies`/`zcopies`, `grid_copies`, `rot_copies` + axis variants,
+   `arc_copies`, `sphere_copies`, `path_copies`, `mirror_copy`, the flips, `distribute`,
+   `distribute_on_path`) — C-19 and S-31 both put these on "any shape". On `Solid`: `projection`,
+   the half-cuts, `partition`, the edge/corner/face treatments, `to_csg`/`to_sdf`, `hull`,
+   `chain_hull`, `minkowski`, `minkowski_difference`, `offset3d`, `round3d`. On `Flat`:
+   `linear_extrude`, `rotate_extrude`, `path_extrude`, `offset`, `fill`.
+2. **Type them for the caller, not the implementation.** Where `CsgSolid` and `SdfSolid` spell a
+   parameter differently, the protocol declares the caller's view with `Any` and a comment naming
+   the two spellings (T-6c). `attach(parent_anchor: Anchor, child: object)` is already `object` on
+   the concrete class — tighten it to `Shape` while it is being declared.
+3. **Return the protocol, not the concrete class.** `-> "Bosl2Solid"` on a public method is an L2
+   type in an L3 signature; it becomes `Self` (transforms, copies) or `Solid`/`Flat` (conversions).
+   Same for `beziers.sweep` and `shapes3d.extrusions.path_text`, which return `Bosl2Solid` today.
+4. **Collapse the synonyms (C-21).** Keep the BOSL2 name, delete the other: `move` → `translate`,
+   `rot` → `rotate`, `fwd` → `forward`, `bounding_box`/`nominal_size` → gone with T16. Keep
+   `up`/`down`/`left`/`right`/`forward`/`back` — those are BOSL2's own and are not synonyms of
+   `translate`, they are named directions.
+5. **Earn the dimensional split (C-22).** `xflip`/`yflip` and `spin` move to `Shape` (they are
+   flips and a Z-rotation; both dimensions have both). `up`/`down` stay `Solid`-only, which is
+   genuinely dimensional. Anything else present on one side only gets a comment saying why.
+6. **Prune the plumbing.** `realize`, `wrap`, `pull`, `separate`, `repair`, `oversample`,
+   `inside`, `diff_config` and `tag_name` are either internal (make them `_`-prefixed) or public
+   (declare and document them). Decide each; the allowlist in the new test records the decision.
+
+**Done when:** `tests/test_shape_contract.py::test_the_contract_is_the_whole_object` walks
+`CsgSolid`, `SdfSolid`, `CsgShape2D` and `PyShape2D` and fails on any public attribute no protocol
+declares, with a named allowlist carrying a reason per entry; a typed fixture module exercising
+`attach`/`diff`/`xcopies`/`color` through `Solid` and `Flat` passes `mypy --strict`; a test asserts
+no removed synonym still resolves.
+
+
+**Landed.** The shared surface is declared on `Shape` — colour and the preview modifiers,
+attachment and tagging, the whole distribution family, the in-plane moves, `minkowski` — and the
+dimensional half on `Flat`/`Solid`. `def with_boss(base: Solid) -> Solid: return base.attach(...)`
+type-checks now; it did not before.
+
+Three things the work surfaced rather than assumed:
+
+* the distribution family returns **`list[Self]`**, not `Self` — `xcopies(3)` is three shapes;
+* `_shape.pyi` had drifted from its class: `minkowski` was on one and not the other, which is why
+  56 docstring examples failed the T23 gate while working perfectly at runtime;
+* `partition()` returns `list[CsgSolid]` on one backend and `tuple[SdfSolid, SdfSolid]` on the
+  other. The contract types it `Any` and the divergence is now SPEC §12.2 item 4.
+
+The CSG-only families (attachment, tagging, the edge treatments, `projection`) are declared on the
+shared contract and **refuse by name** on the SDF backend rather than being absent — which is what
+C-13 asks for, and what keeps `isinstance(sdf_solid, Solid)` true under Python 3.12's static
+protocol lookup. PAR-3 and PLAN B-P4 were reworded to match, and their tests now assert that
+calling refuses rather than that the attribute is missing.
+
+Synonyms removed: `nominal_size` (→ `size`). `move`/`rot`/`fwd` are still present; they were left
+for a follow-up rather than bundled into a change this size.
+
+---
+
+## T18 — Make a sweep return a solid ✅
+
+**Closes:** §12.2 item 4 (S-19a, S-19b, S-19c) · **Implements:** PLAN T-6d · **Size:** M
+**Risk:** medium — return types change across the sweep family, and the winding fix moves geometry
+
+The most valuable thing BOSL2 does is the hardest thing here to use. The documented one-liner,
+copied from `path_sweep`'s own docstring:
+
+```python
+swept = helix.path_sweep(profile).polyhedron()
+```
+```
+error: Item "Solid" of "VNF | Solid | list[list[list[float]]]" has no attribute "polyhedron"
+error: Item "list[list[list[float]]]" of "…" has no attribute "polyhedron"
+```
+
+Three faults in one signature. The `| Solid` arm is dead — every sweep returns `VNF` in practice.
+The `| list[...]` arm exists only because `transforms=True` repurposes the function. And the
+caller has to know a mesh was the intermediate at all.
+
+Then the winding, measured on the same box built two ways:
+
+```
+linear_sweep straight box volume: +1000.0
+path_sweep   straight box volume: -1000.0
+```
+
+`tests/test_stl_render.py::test_swept_solid_is_not_inside_out` guards exactly this — for
+`linear_sweep` only. Its comment says what the inverted case costs: "it exports fine on its own,
+but cutting with it then adds material instead of removing it."
+
+1. **Split the flag out.** `path_sweep(..., transforms=True)` becomes
+   `path_sweep_transforms(...) -> list[Matrix]`. The `transforms` parameter is removed, not
+   deprecated. That alone drops the third arm of the union.
+2. **Return a `Solid`.** Every member of the family — `path_sweep`, `path_sweep2d`,
+   `linear_sweep`, `rotate_sweep`, `spiral_sweep`, `sweep`, `offset_sweep`, `VNF.from_skin`,
+   `Bezier.sweep` — returns `Solid`, built by handing the VNF to the façade `polyhedron()` so it
+   honours the active backend. Expose the mesh as `.vnf` on the result for C-8's measuring and
+   T19's exporting.
+3. **Fix the winding.** Find where `path_sweep` orders its faces relative to `linear_sweep` and
+   make them agree; do not paper over it with a `reverse()` at the boundary, since the same
+   generator feeds `sweep` and `spiral_sweep`.
+4. **Generalise the existing guard.** `test_swept_solid_is_not_inside_out` becomes parametrised
+   over every member of the family, cutting with each and asserting the cut *removed* material.
+5. Update the docstring examples: the `.polyhedron()` suffix comes off, which is also what makes
+   them pass T23.
+
+**Done when:** `tests/test_sweeps.py::test_every_sweep_returns_a_solid_that_cuts` builds a cut with
+each family member and asserts the resulting volume went *down*; a pure-Python test asserts
+`volume() > 0` for every family member's `.vnf`; no public sweep signature carries a union return;
+the docstring examples type-check (T23 will enforce it, this task should not leave work for it).
+
+
+**Landed.** Every member of the family — `path_sweep`, `path_sweep2d`, `linear_sweep`,
+`rotate_sweep`, `spiral_sweep`, `sweep`, `Bezier.sweep`, and the seven extruders in `rounding.py` —
+returns a `Solid`, with the mesh kept on `.vnf` rather than discarded, so returning a shape costs
+the caller who wanted the mesh nothing. `.polyhedron()` came off 22 call sites and examples.
+
+`transforms=True` became `path_sweep_transforms()`, and `Bezier` needed its own
+`sweep_transforms()`: its analytic tangents are not the same as a path's sampled frames, so
+`path_curve(...).path_sweep_transforms()` gives a different first frame.
+
+The winding bug was one missing line: `_sweep()` normalised the winding in its decorative-cap
+branch and not in the plain one, so `path_sweep` produced the mirror of `linear_sweep` for the same
+box. Test: `tests/test_sweep_contract.py` cuts an 80 mm block with every family member and asserts
+the volume went *down* — the guard that existed for `linear_sweep` alone.
+
+---
+
+## T19 — Give the library a way out ✅
+
+**Closes:** §12.2 item 5 (S-53, S-54, S-55) · **Implements:** PLAN new §6 export rules · **Size:** M
+**Risk:** low — purely additive
+
+There is no export. No `shape.export()`, no `VNF.to_stl()`, nothing that writes a file. §6.13 is
+titled "Import, export and interchange" and S-41/42/43 specify only import; the only STL writing in
+the repo is inside the test and docs harness, driving the app in a subprocess. For a library whose
+L0 promise is that geometry works with no CAD runtime present, a user who builds a part cannot save
+it without leaving the library.
+
+1. **`pybosl2/export.py` (L0, pure).** Writers from a `VNF`: `stl` (binary and ASCII), `obj`,
+   `off`, `ply`. No native import — this is arrays to bytes, and it must work wherever
+   `import pybosl2` does (S-54, A-2).
+2. **`VNF.export(path, *, format=None, check=True)`.** Format from the suffix, overridable.
+   `check=True` validates watertightness and winding and raises `Bosl2ValueError` naming the defect
+   (S-55); `check=False` is the escape hatch for a deliberately open surface.
+3. **`Shape.export(...)` on the contract.** Meshes to a `VNF` first, then delegates. On the CSG
+   backend that means the native tessellation; on SDF it is `mesh()`, which the backend already
+   does for `show()`. Declared on `Shape` (C-15) so 2-D exports too — DXF/SVG out where the runtime
+   offers it, and an explicit refusal naming the extrusion where it does not.
+4. **`Part.export(...)`** delegating to `self.shape.export(...)`, exactly as `show()` delegates
+   (S-51).
+5. Formats that need a CAD kernel (3MF, AMF) delegate and raise naming what is missing, rather
+   than writing a file a slicer will reject.
+
+**Done when:** `tests/test_export.py` round-trips a cube through every pure format and reads it
+back with the existing mesh reader in the STL harness, asserting vertex count and volume survive;
+a test asserts export works with the native runtime stubbed out (A-2); a test asserts an inside-out
+mesh raises with `check=True` and writes with `check=False`; the getting-started page (T23) ends on
+`.export("bracket.stl")`.
+
+
+**Landed.** `pybosl2/export.py` writes STL (binary and ASCII), OBJ, OFF and PLY straight from a
+`VNF` — pure Python and numpy, no native runtime, which a test enforces by stubbing
+`pythonscad`/`openscad`/`libfive` out of `__import__` and exporting anyway.
+
+`Shape.export(path)`, `VNF.export(path)` and `Part.export(path)`; the format comes from the suffix
+and `file_format=` overrides it (`format` shadows a builtin). `VNF.from_solid()` is the way back
+across the mesh boundary, so *any* solid exports, not just a swept one.
+
+Before writing, `check_exportable()` refuses a mesh that is open or wound inside out — the second
+being the defect that exports cleanly and then adds material wherever it cuts — with `check=False`
+for a surface that is open on purpose. Round-trips are checked against the render harness's own
+`parse_stl`/`stl_metrics` rather than against the writer's assumptions.
+
+---
+
+## T20 — Make the error contract usable ✅
+
+**Closes:** §12.2 item 6 (E-1, E-5, E-6, E-7) · **Implements:** PLAN E-P4, E-P4a, E-P4b
+**Size:** M · **Risk:** low — the MRO change is invisible to existing `except` clauses
+
+Four separate ways the error contract does not do what §9 says.
+
+**E-1 does not hold.** `Bosl2Error(Exception)` and validation raises `ValueError`, so
+`except Bosl2Error` catches none of the ~290 validation errors T0b created. The two requirements
+are only compatible if the type is both.
+
+**`hasattr` explodes.**
+
+```python
+hasattr(sdf_solid, "attach")  # UnsupportedByBackendError, not False
+getattr(sdf_solid, "attach", "default")  # raises too
+```
+
+Anything that probes capabilities — `hasattr`, `getattr` with a default, `inspect`, `copy`,
+`pickle`, REPL completion — breaks on an SDF shape.
+
+**Silent wrong answers.** `square([10,10]) - cuboid([5,5,5])` prints
+`WARNING: Mixing 2D and 3D objects is not supported` to stdout and returns the flat unchanged.
+mypy catches it, and this library's users drive a CAD app and mostly do not run mypy.
+`regular_ngon()` with no radius returns a polygon of coincident points whose `bounds()` is
+`([-inf, -inf], [-inf, -inf])` — its sibling `star()` correctly raises. The Q-4 minimum-argument
+test passes it because it only asserts "does not raise".
+
+1. Add `Bosl2ValueError(Bosl2Error, ValueError)` to `exceptions.py` and export it. Convert every
+   `raise ValueError(` in `pybosl2/` to it — messages unchanged, and every existing
+   `pytest.raises(ValueError)` keeps passing, which is the point of the MRO.
+2. Add `AttributeError` to `UnsupportedByBackendError`'s bases. Nothing else changes; a refusal
+   raised from a call is unaffected.
+3. Guard `__or__`/`__and__`/`__sub__` on both dimensions: a mismatched operand raises
+   `Bosl2ValueError` naming `linear_extrude()` or `projection()` as the way across (E-7). While
+   there, find the other native operations that print a warning and return an operand — the
+   PythonSCAD `WARNING:` strings are the search key — and give each a raise.
+4. Fix the E-5 constructors. `regular_ngon()` raises like `star()` does; `cuboid(40, rounding=30)`
+   raises rather than building nonsense; `cyl(radius=-5)` raises `Bosl2ValueError` naming `radius`
+   instead of surfacing the native `TypeError: Cylinder r1 must not be negative` (which names a
+   parameter the caller never typed). Audit the rest of the façade for the same shape of defect.
+5. Strengthen the minimum-argument test per E-P4: a zero-argument call either raises or produces
+   finite, positive bounds. That is what should have caught `regular_ngon`.
+
+**Done when:** a test asserts `except Bosl2Error` catches a validation error and `except
+ValueError` still does; a test asserts `hasattr(sdf_solid, "attach") is False`; a test asserts
+`flat - solid` raises with a message naming the conversion; the strengthened minimum-argument test
+passes over all four public shape modules; the AST ratchet in `tests/test_errors.py` rejects a bare
+`ValueError` in the package.
+
+
+**Landed.** `Bosl2ValueError(Bosl2Error, ValueError)`; all 570 `raise ValueError` sites converted
+with their messages unchanged, so every existing `except ValueError` still works and
+`except Bosl2Error` starts working. An AST ratchet rejects a bare `ValueError` in the package.
+
+`UnsupportedByBackendError` also inherits `AttributeError`, so `hasattr` and
+`getattr(x, n, default)` answer instead of exploding.
+
+Dimensional mixing raises: shapes carry a `dimensions` tag and the single operand choke point
+(`check_operand_backend`) checks it alongside the backend, so `flat - solid` names the extrusion or
+projection that crosses deliberately — on both backends, and on all six operators.
+
+`regular_ngon()` with no size raises rather than returning a shape with infinite bounds, and the
+minimum-argument check now asserts the *result* is usable (finite, positive bounds) rather than
+merely that nothing was raised — which is what let that through for so long.
+
+---
+
+## T21 — Export the families whole ✅
+
+**Closes:** §12.2 item 7 (A-8, A-9) · **Implements:** PLAN M-2a, T-8 · **Size:** S · **Risk:** low
+
+167 lazy exports, and the ones a caller reaches for are missing:
+
+```
+MISSING: path_sweep, sweep, linear_sweep, rotate_sweep, offset_sweep, spiral_sweep
+MISSING: SweepMethod, SkinMethod, RoundingMethod, SamplingType   (S-20: this is how you call a sweep)
+MISSING: os_circle, os_smooth, os_teardrop, os_chamfer, os_flat, os_profile  (S-21)
+MISSING: mask2d_roundover                          (the other five mask2d_* are all exported)
+MISSING: Quaternion (S-5), Turtle2D/Turtle3D (S-10), round_corners/smooth_path (S-8), texture (S-34)
+EXPORTED: given_arguments                          (an internal forwarding helper)
+```
+
+`mask2d_roundover` is the diagnostic one: the most-used member of an exported family is the single
+omission, which is drift rather than a decision.
+
+1. Add the missing names to `_LAZY_EXPORTS`, pointing at the façade where one exists (M-2a) — the
+   sweeps are `Path2D`/`Path3D` methods, so what the top level exports is the enums, the `os_*`
+   treatments and the free-function forms, not a second spelling of the method.
+2. Remove `given_arguments` from `pybosl2.solid.__all__` (A-9) and check the other public
+   `__all__`s for the same.
+3. Regenerate `pybosl2/__init__.pyi`.
+4. Add the family check: for each family the spec names as *the* way to do something (S-5, S-8,
+   S-10, S-19, S-20, S-21, S-26, S-34), assert every member is reachable from `pybosl2`.
+
+**Done when:** `tests/test_exports.py::test_the_named_families_are_exported_whole` passes with the
+family lists written from the spec's own section numbers; `test_init_stub.py` passes; no public
+`__all__` holds an internal helper.
+
+
+**Landed.** 25 names added: the sweep and partition enums, the six `os_*` end treatments,
+`Quaternion`, `Turtle2D`/`Turtle3D`, `texture`, `Bosl2ValueError`, and `mask2d_roundover` — the one
+member missing from an otherwise fully-exported family, which is what made it drift rather than a
+decision. `given_arguments` withdrawn from `pybosl2.solid.__all__` (A-9). Stub regenerated; 191
+exports, all resolving.
+
+`round_corners` and `smooth_path` are deliberately *not* exported: they are `Path` methods
+(PLAN O-3), so what the top level owes is the vocabulary they take, which is `RoundingMethod`.
+
+Test: `test_the_named_families_are_exported_whole`, with the family lists written from the spec's
+own section numbers, plus a check that no public `__all__` advertises internal plumbing.
+
+---
+
+## T22 — Make the masks obey the library's own rules
+
+**Closes:** §12.2 item 8 (S-26a … S-26d) · **Implements:** PLAN O-1a, E-P5, T-9a · **Size:** L
+**Risk:** medium — signatures change on the most-used treatment
+
+The masking API is the part of the library that breaks the most of its own rules:
+
+```
+mask3d_roundover(r, size, corners=…)             # 2 required; `r` not radius; no diameter (D-5)
+mask3d_chamfer(chamfer, size, corners=…)         # 2 required
+mask3d_groove(width, depth, length, chamfer=0)   # 3 required — D-2 says never acceptable
+mask2d_chamfer(x, y=None, excess=0.01)           # what are x and y?
+```
+
+Every 3-D mask demands `size` — the dimensions of the block it cuts with — and the only sensible
+caller is `solid.edge_mask(...)`, where the solid already knows its own box. That is P-3 inverted
+on the treatment users reach for most. Then the call:
+
+```python
+b.edge_mask(Anchor.TOP, children=mask3d_roundover(...))
+```
+
+`children` is OpenSCAD's module-with-children vocabulary, which B2-2 exists to replace, and it is
+typed `PyOpenSCAD | None` — a raw native handle in a public signature, an L2 type crossing an L3
+boundary (A-1). `edge_profile` meanwhile takes `radius`, `diameter`, `r` **and** `d` in one
+signature, where D-5 specifies two.
+
+1. **Derive `size` (S-26a).** It becomes keyword-only and optional on every `Mask3D` factory,
+   filled from the parent's `bounds()` when the mask is applied through a treatment method. A mask
+   built standalone still takes it explicitly — that is the P-6 escape hatch.
+2. **Rename to the library's vocabulary (S-26c).** `r` → `radius` with `diameter` alongside
+   through `pick_radius()`; `mask2d_chamfer(x, y)` → `(width, height)`. `mask3d_groove`'s three
+   positionals become one required (`width`) with `depth` and `length` derived from the parent.
+3. **Give the treatments names (S-26b).** `solid.round_edges(edges, radius=…)`,
+   `solid.chamfer_edges(edges, chamfer=…)`, `solid.cove_edges(...)` — thin wrappers that build the
+   mask and apply it. `edge_mask(edges, mask)` stays for a custom `Mask3D`, with `children=`
+   renamed to `mask=` and typed `Mask3D | Solid`, never a native handle.
+4. **2-D masks return `Flat` (S-26d)**, with the underlying `Path2D` on `.path`.
+5. Keep the `mask2d_*`/`mask3d_*` free functions as aliases of the `Mask2D`/`Mask3D` members, as
+   O-1a already requires — one body, two spellings.
+
+**Done when:** every mask factory has at most one required argument
+(`tests/test_min_args.py` already parametrises over public shape modules — add `masking`);
+`solid.round_edges(Anchor.TOP, radius=3)` renders to the same STL as today's
+`edge_mask(..., mask3d_roundover(...))`, pinned by a golden; no public signature in `masking.py`
+mentions a native type; the D-5 conflict test covers the mask factories.
+
+---
+
+## T23 — Type-check the examples, and build a front door 🔶
+
+**Closes:** §12.2 item 9 (DOC-5, DOC-6, Q-6) · **Implements:** PLAN D-P5a · **Size:** M
+**Risk:** low — a new gate plus a new page
+
+Two halves of the same problem: nothing checks that the code we tell users to write actually works,
+and there is nowhere that tells a new user what to write first.
+
+**The gate.** Docstring examples are rendered by the docs build (D-P5) but never type-checked, so
+`path_sweep`'s own documented one-liner failed `mypy --strict` for as long as its signature was
+wrong. Every finding in the T16–T22 wave is a rule the spec stated and nothing measured; this is
+the measurement that would have caught the largest share of them, because an example is a caller
+and a caller is what the ergonomics rules are *about*.
+
+**The front door.** `docs/index.rst` goes from the title image to a module-indexed API reference.
+There is no page that carries a reader from "I want a bracket" to a file on disk. §3's whole
+premise is that a caller who knows what they want but nothing about the library can build it, and
+a reference organised by module is not how anyone learns that.
+
+1. `tests/test_docstring_examples.py`: walk every public module, extract each
+   `.. pythonscad-example::` block and each `>>>` doctest with the parser the docs build already
+   uses, write them to a temp directory, and run one batched `mypy --strict`. Report the owning
+   callable, the example source and mypy's message together. Per D-P5a it needs no CAD runtime,
+   so it runs in CI.
+2. Fix what it finds. Expect most of it to be already-fixed by T16–T22 — that is why this task is
+   last — and treat any remainder as a signature defect, never a `# type: ignore`.
+3. `docs/getting_started.rst`, first in the toctree: install, build a `cuboid`, round its edges,
+   cut a hole, place a boss with `attach`, measure it with `bounds()`, `show()` it, and
+   `export()` it. One worked part, each step a `pythonscad-example`, no forward references to
+   concepts the page has not introduced.
+4. Fix the index's own messaging: it currently points readers at `pybosl2.shapes3d.Bosl2Solid`
+   while the spec designates `pybosl2.solid` as the recommended entry point (L3) — the first
+   thing a reader sees should not contradict the layering.
+
+**Done when:** `pytest tests/test_docstring_examples.py` is green with no ignores; the
+getting-started page renders in the docs build with every step producing a figure; PLAN §10's gate
+table lists Q-6 and it passes; a reader following the page end to end has an STL.
+
+
+**Step 1 and step 3 landed; step 2 is the open half.**
+
+The gate: `tests/test_docstring_examples.py` extracts all 304 examples with the same parser the
+docs build uses and type-checks them in one batched `mypy --strict` run. No CAD runtime, so it runs
+in CI. It found **54 signature defects** on the day it landed — including the case that motivated
+it, `path_sweep`'s own documented one-liner.
+
+19 of the 54 are fixed. The rest are held by `KNOWN_UNTYPED_EXAMPLES`, a per-module count that
+**only shrinks**, with a companion test that fails if a module is left on the list after its
+examples are fixed. Counted per module rather than per line so a moved example cannot silently free
+a slot.
+
+Fixed along the way, each a real defect the gate found rather than an example to annotate:
+
+* `Roundable`'s eleven methods were annotated `-> object`, which broke every typed chain off
+  `path.round_corners(...)`. They return `Self`, or `Solid` for the seven that are extruders.
+* `Bezier.sweep`, `BezierPatch.sheet`, `path_sweep`/`path_sweep2d` and `Colorable.color` rejected
+  the very forms their own examples passed (PLAN T-4, "inputs widen").
+* `offset_stroke` was typed as returning the same kind of path; its own docstring says Region.
+
+**The remaining 35 are almost all T-4 again** — a callable typed to take the exact object the
+library hands back rejects the plain list or tuple a caller writes. The fix is per-signature and
+mechanical; it is queued here rather than bundled into the wave that surfaced it.
+
+The front door: `docs/getting_started.rst` — solid, roundover, bore, boss, measurement, exported
+file — first in the toctree, every step a rendered example. The gate caught four of its examples on
+the first run, which is the rule working as intended. The index no longer points new readers at
+`pybosl2.shapes3d.Bosl2Solid` while the spec designates the façade.
 
 ---
 

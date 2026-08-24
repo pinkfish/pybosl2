@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pybosl2._helpers import pick_radius as _pick_radius
+from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -166,9 +167,9 @@ class Metaball:
         """
         rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
         if not (rr):
-            raise ValueError("Metaball.sphere(): need a positive radius or diameter.")
+            raise Bosl2ValueError("Metaball.sphere(): need a positive radius or diameter.")
         if not (rr > 0):
-            raise ValueError("Metaball.sphere(): need a positive radius or diameter.")
+            raise Bosl2ValueError("Metaball.sphere(): need a positive radius or diameter.")
         neg = -1 if negative else 1
 
         def field(pts: np.ndarray) -> np.ndarray:
@@ -215,7 +216,7 @@ class Metaball:
 
         """
         if not (0 <= squareness <= 1):
-            raise ValueError("Metaball.cuboid(): squareness must be in [0, 1].")
+            raise Bosl2ValueError("Metaball.cuboid(): squareness must be in [0, 1].")
         xp = _squircle_se_exponent(squareness)
         inv = (
             np.array([2 / size] * 3, dtype=float)
@@ -276,13 +277,13 @@ class Metaball:
             (_pick_radius(radius=minor_radius, diameter=minor_diameter, dflt=None)),
         )
         if not (rmaj):
-            raise ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
+            raise Bosl2ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
         if not (rmin):
-            raise ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
+            raise Bosl2ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
         if not (rmaj > 0):
-            raise ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
+            raise Bosl2ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
         if not (rmin > 0):
-            raise ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
+            raise Bosl2ValueError("Metaball.torus(): need positive major_radius and minor_radius.")
         neg = -1 if negative else 1
 
         def field(pts: np.ndarray) -> np.ndarray:
@@ -320,16 +321,16 @@ class Metaball:
         """
         rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
         if not (height):
-            raise ValueError("Metaball.capsule(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.capsule(): need positive height and radius.")
         if not (rr):
-            raise ValueError("Metaball.capsule(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.capsule(): need positive height and radius.")
         if not (height > 0):
-            raise ValueError("Metaball.capsule(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.capsule(): need positive height and radius.")
         if not (rr > 0):
-            raise ValueError("Metaball.capsule(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.capsule(): need positive height and radius.")
         hl = (height - 2 * rr) / 2
         if not (hl > 0):
-            raise ValueError("Metaball.capsule(): total length must exceed the two rounded ends.")
+            raise Bosl2ValueError("Metaball.capsule(): total length must exceed the two rounded ends.")
         neg = -1 if negative else 1
 
         def field(pts: np.ndarray) -> np.ndarray:
@@ -370,17 +371,17 @@ class Metaball:
         """
         rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
         if not (height):
-            raise ValueError("Metaball.disk(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.disk(): need positive height and radius.")
         if not (rr):
-            raise ValueError("Metaball.disk(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.disk(): need positive height and radius.")
         if not (height > 0):
-            raise ValueError("Metaball.disk(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.disk(): need positive height and radius.")
         if not (rr > 0):
-            raise ValueError("Metaball.disk(): need positive height and radius.")
+            raise Bosl2ValueError("Metaball.disk(): need positive height and radius.")
         hl = height / 2
         ri = rr - hl
         if not (ri > 0):
-            raise ValueError("Metaball.disk(): diameter must exceed the thickness.")
+            raise Bosl2ValueError("Metaball.disk(): diameter must exceed the thickness.")
         neg = -1 if negative else 1
 
         def field(pts: np.ndarray) -> np.ndarray:
@@ -416,7 +417,7 @@ class Metaball:
 
         """
         if not (0 <= squareness <= 1):
-            raise ValueError("Metaball.octahedron(): squareness must be in [0, 1].")
+            raise Bosl2ValueError("Metaball.octahedron(): squareness must be in [0, 1].")
         xp = _squircle_se_exponent(squareness)
 
         def _octdist(p: np.ndarray) -> np.ndarray:
@@ -476,11 +477,11 @@ class Metaball:
         rr = _pick_radius(radius=radius, diameter=diameter, dflt=None)
         a, b = np.asarray(p1, dtype=float), np.asarray(p2, dtype=float)
         if not (rr):
-            raise ValueError("Metaball.connector(): need distinct points and positive radius.")
+            raise Bosl2ValueError("Metaball.connector(): need distinct points and positive radius.")
         if not (rr > 0):
-            raise ValueError("Metaball.connector(): need distinct points and positive radius.")
+            raise Bosl2ValueError("Metaball.connector(): need distinct points and positive radius.")
         if np.array_equal(a, b):
-            raise ValueError("Metaball.connector(): need distinct points and positive radius.")
+            raise Bosl2ValueError("Metaball.connector(): need distinct points and positive radius.")
         neg = -1 if negative else 1
         dc: np.ndarray = b - a
         height: float = float(np.linalg.norm(dc)) / 2
@@ -592,7 +593,7 @@ def metaballs2d(
 
     """
     if not (spec):
-        raise ValueError("metaballs2d(): the spec is empty.")
+        raise Bosl2ValueError("metaballs2d(): the spec is empty.")
     from pybosl2.vnf import contour
 
     invs: list[np.ndarray] = [np.linalg.inv(s.transform) for s in spec]

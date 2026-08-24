@@ -143,7 +143,8 @@ def test_masks_measure_their_driver_size(
     expected_size: tuple[float | None, float | None, float | None],
     expected_centre: tuple[float | None, float | None, float | None],
 ) -> None:
-    centre, size = obj.bounds()
+    _box = obj.bounds()
+    centre, size = list(_box.center), list(_box.size)
     for axis in range(3):
         assert size[axis] > 0.0
         if expected_size[axis] is not None:
@@ -154,8 +155,8 @@ def test_masks_measure_their_driver_size(
 
 def test_hex_slop_widens_the_recess() -> None:
     """slop= is clearance: it makes the socket bigger, never smaller."""
-    tight = HexDriveMask(6, 8).shape.bounds()[1]
-    loose = HexDriveMask(6, 8, slop=0.05).shape.bounds()[1]
+    tight = HexDriveMask(6, 8).shape.bounds().size
+    loose = HexDriveMask(6, 8, slop=0.05).shape.bounds().size
     assert loose[0] > tight[0]
     assert loose[1] > tight[1]
     assert loose[2] == pytest.approx(tight[2])  # depth is untouched
@@ -164,7 +165,8 @@ def test_hex_slop_widens_the_recess() -> None:
 def test_torx_2d_outline_spans_the_outer_diameter() -> None:
     """The 2-D profile is the 3-D mask's cross-section, so extruding it measures the same width."""
     for size in (30, 8):
-        _, extents = TorxMask2d(size).shape.linear_extrude(height=1).bounds()
+        _box = TorxMask2d(size).shape.linear_extrude(height=1).bounds()
+        _, extents = list(_box.center), list(_box.size)
         assert extents[0] == pytest.approx(TorxSpec(size).outer_diameter, abs=0.01)
         assert extents[2] == pytest.approx(1.0)
 
@@ -172,10 +174,12 @@ def test_torx_2d_outline_spans_the_outer_diameter() -> None:
 def test_mask_composes_with_head() -> None:
     """A recess subtracts cleanly from a head: it cuts into it without changing its envelope."""
     head = cyl(diameter1=2, diameter2=8, height=4).down(2)
-    plain_centre, plain_size = head.bounds()
+    _box = head.bounds()
+    plain_centre, plain_size = list(_box.center), list(_box.size)
     for recess in (PhillipsMask("#2").shape, TorxMask(30, 4).shape):
         cut = head - recess
-        centre, size = cut.bounds()
+        _box = cut.bounds()
+        centre, size = list(_box.center), list(_box.size)
         assert centre == pytest.approx(plain_centre)
         assert size == pytest.approx(plain_size)  # the recess is wholly inside the head
         assert repr(cut) != repr(head)  # ... but it really was cut

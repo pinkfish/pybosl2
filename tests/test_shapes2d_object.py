@@ -92,7 +92,8 @@ def test_every_constructor_returns_the_2d_wrapper(name: str) -> None:
 @pytest.mark.parametrize("name", sorted(CONSTRUCTORS))
 def test_every_constructor_builds_something_with_extent(name: str) -> None:
     """...and it is real geometry: a finite, non-empty area, not an empty union."""
-    centre, size = CONSTRUCTORS[name]().bounds()
+    _box = CONSTRUCTORS[name]().bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert all(math.isfinite(float(v)) for v in centre), f"{name}(): non-finite centre {centre}"
     assert all(float(v) > 0 for v in size), f"{name}(): degenerate size {size}"
 
@@ -121,7 +122,8 @@ EXACT_SIZES = {
 @pytest.mark.parametrize("name", sorted(EXACT_SIZES))
 def test_the_derivable_constructors_have_their_exact_size(name: str) -> None:
     expected, why = EXACT_SIZES[name]
-    _centre, size = CONSTRUCTORS[name]().bounds()
+    _box = CONSTRUCTORS[name]().bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert [float(v) for v in size] == pytest.approx(expected, abs=0.01), f"{name}: {why}"
 
 
@@ -185,7 +187,8 @@ def test_each_transform_moves_the_shape_where_it_says(
     name: str, op: object, centre: list[float], size: list[float]
 ) -> None:
     """A transform that returns the right *type* and the wrong geometry is still a bug."""
-    got_centre, got_size = op(s2.square(10)).bounds()  # type: ignore[operator]
+    _box = op(s2.square(10)).bounds()  # type: ignore[operator]
+    got_centre, got_size = list(_box.center), list(_box.size)
     assert [float(v) for v in got_centre] == pytest.approx(centre, abs=0.01), name
     assert [float(v) for v in got_size] == pytest.approx(size, abs=0.01), name
 
@@ -209,7 +212,7 @@ def test_csg_between_wrappers_returns_the_2d_wrapper(name: str, op: object, size
 @pytest.mark.parametrize(("name", "op", "size"), CSG_OPS, ids=[row[0] for row in CSG_OPS])
 def test_csg_between_wrappers_combines_the_geometry(name: str, op: object, size: list[float]) -> None:
     result = op(s2.square(20), s2.circle(radius=5))  # type: ignore[operator]
-    assert [float(v) for v in result.bounds()[1]] == pytest.approx(size, abs=0.01), name
+    assert [float(v) for v in result.bounds().size] == pytest.approx(size, abs=0.01), name
 
 
 @needs_native_2d_bbox
@@ -234,7 +237,7 @@ def test_a_raw_native_operand_gives_the_same_geometry(name: str, op: object, siz
     """`square | circle.shape` must build what `square | circle` builds, not something else."""
     wrapped = op(s2.square(20), s2.circle(radius=5))  # type: ignore[operator]
     native = op(s2.square(20), s2.circle(radius=5).shape)  # type: ignore[operator]
-    assert [float(v) for v in native.bounds()[1]] == pytest.approx([float(v) for v in wrapped.bounds()[1]])
+    assert [float(v) for v in native.bounds().size] == pytest.approx([float(v) for v in wrapped.bounds().size])
 
 
 @needs_native_2d_bbox
@@ -242,9 +245,9 @@ def test_reflected_csg_with_a_raw_native_left_operand() -> None:
     # __ror__/__rand__/__rsub__: reached explicitly, since the native operators raise rather
     # than returning NotImplemented when handed an object they don't know.
     native, wrapper = s2.square(20).shape, s2.circle(radius=5)
-    assert [float(v) for v in wrapper.__ror__(native).bounds()[1]] == pytest.approx([20.0, 20.0])
-    assert [float(v) for v in wrapper.__rand__(native).bounds()[1]] == pytest.approx([10.0, 10.0])
-    assert [float(v) for v in wrapper.__rsub__(native).bounds()[1]] == pytest.approx([20.0, 20.0])
+    assert [float(v) for v in wrapper.__ror__(native).bounds().size] == pytest.approx([20.0, 20.0])
+    assert [float(v) for v in wrapper.__rand__(native).bounds().size] == pytest.approx([10.0, 10.0])
+    assert [float(v) for v in wrapper.__rsub__(native).bounds().size] == pytest.approx([20.0, 20.0])
 
 
 @pytest.mark.parametrize("op", [lambda a, b: a | b, lambda a, b: a & b, lambda a, b: a - b])
@@ -258,7 +261,7 @@ def test_unknown_native_method_falls_through_still_wrapped() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap its native result as 2-D
     resized = s2.square(10).resize([20, 20, 0])  # type: ignore[operator]
     assert isinstance(resized, Bosl2Shape2D)
-    assert [float(v) for v in resized.bounds()[1]] == pytest.approx([20.0, 20.0])
+    assert [float(v) for v in resized.bounds().size] == pytest.approx([20.0, 20.0])
 
 
 def test_missing_attribute_raises_attribute_error() -> None:
@@ -303,7 +306,7 @@ def test_module_level_fill_accepts_every_child_form(name: str, child: object, si
 @pytest.mark.parametrize(("name", "child", "size"), FILL_CHILDREN, ids=[row[0] for row in FILL_CHILDREN])
 def test_every_fill_child_form_fills_the_same_outline(name: str, child: object, size: list[float]) -> None:
     """Accepting a form is not enough -- a Path2D and its point list must fill identically."""
-    assert [float(v) for v in s2.fill(child()).bounds()[1]] == pytest.approx(size, abs=0.01), name  # type: ignore[operator]
+    assert [float(v) for v in s2.fill(child()).bounds().size] == pytest.approx(size, abs=0.01), name  # type: ignore[operator]
 
 
 def _covers(shape2d: Bosl2Shape2D, point: list[float]) -> bool:
@@ -346,7 +349,7 @@ def test_hull_of_a_star_fills_its_points_in() -> None:
     """A star's hull keeps its extent but is solid between the tips."""
     star = s2.star(tips=5, radius=20, inner_radius=8)
     hulled = star.hull()
-    assert [float(v) for v in hulled.bounds()[1]] == pytest.approx([float(v) for v in star.bounds()[1]], abs=0.01)
+    assert [float(v) for v in hulled.bounds().size] == pytest.approx([float(v) for v in star.bounds().size], abs=0.01)
     notch_between_tips = [10.0, 4.0]  # inside the hull, in the star's notch
     assert not _covers(star, notch_between_tips)
     assert _covers(hulled, notch_between_tips)
@@ -372,18 +375,18 @@ def test_hull_accepts_every_child_form(name: str, child: object, size: list[floa
 def test_every_hull_child_form_spans_the_same_box(name: str, child: object, size: list[float]) -> None:
     """The hull must reach the child wherever it is -- a form that is silently ignored would not."""
     hulled = s2.circle(radius=5).hull(child())  # type: ignore[operator]
-    assert [float(v) for v in hulled.bounds()[1]] == pytest.approx(size, abs=0.01), name
+    assert [float(v) for v in hulled.bounds().size] == pytest.approx(size, abs=0.01), name
 
 
 @needs_native_2d_bbox
 def test_module_level_hull_takes_varargs_or_one_list() -> None:
     a, b = s2.circle(radius=5), s2.circle(radius=5).right(30)
     two_circles = [40.0, 10.0]  # from x=-5 to x=35
-    assert [float(v) for v in s2.hull(a, b).bounds()[1]] == pytest.approx(two_circles)
-    assert [float(v) for v in s2.hull([a, b]).bounds()[1]] == pytest.approx(two_circles)  # a list *of* shapes
+    assert [float(v) for v in s2.hull(a, b).bounds().size] == pytest.approx(two_circles)
+    assert [float(v) for v in s2.hull([a, b]).bounds().size] == pytest.approx(two_circles)  # a list *of* shapes
     # ...and a point list is one shape's outline, not a list of shapes
-    assert [float(v) for v in s2.hull(SQUARE_PTS).bounds()[1]] == pytest.approx([20.0, 10.0])
-    assert [float(v) for v in s2.hull(Path2D(SQUARE_PTS)).bounds()[1]] == pytest.approx([20.0, 10.0])
+    assert [float(v) for v in s2.hull(SQUARE_PTS).bounds().size] == pytest.approx([20.0, 10.0])
+    assert [float(v) for v in s2.hull(Path2D(SQUARE_PTS)).bounds().size] == pytest.approx([20.0, 10.0])
 
 
 def test_module_level_hull_rejects_no_children() -> None:
@@ -435,12 +438,12 @@ def test_offset_returns_the_2d_wrapper(name: str, kwargs: dict[str, object]) -> 
 @pytest.mark.parametrize(("name", "kwargs"), OFFSETS, ids=[row[0] for row in OFFSETS])
 def test_every_offset_form_grows_the_shape_by_the_same_amount(name: str, kwargs: dict[str, object]) -> None:
     grown = s2.square(10).offset(**kwargs)  # type: ignore[arg-type]
-    assert [float(v) for v in grown.bounds()[1]] == pytest.approx([14.0, 14.0], abs=0.01), name
+    assert [float(v) for v in grown.bounds().size] == pytest.approx([14.0, 14.0], abs=0.01), name
 
 
 @needs_native_2d_bbox
 def test_a_negative_offset_shrinks_the_shape() -> None:
-    assert [float(v) for v in s2.square(10).offset(delta=-2).bounds()[1]] == pytest.approx([6.0, 6.0], abs=0.01)
+    assert [float(v) for v in s2.square(10).offset(delta=-2).bounds().size] == pytest.approx([6.0, 6.0], abs=0.01)
 
 
 def test_offset_needs_exactly_one_of_radius_or_delta() -> None:
@@ -476,10 +479,10 @@ def test_round2d_and_shell2d_offset_through_the_wrapper() -> None:
 def test_round2d_and_shell2d_accept_unwrapped_children() -> None:
     """Both take a raw native or a Path2D, and build the same geometry they would from a wrapper."""
     rounded = s2.round2d(radius=1, children=s2.square(10).shape)
-    assert [float(v) for v in rounded.bounds()[1]] == pytest.approx([10.0, 10.0], abs=0.01)  # rounds inward
+    assert [float(v) for v in rounded.bounds().size] == pytest.approx([10.0, 10.0], abs=0.01)  # rounds inward
     shelled = s2.shell2d(thickness=1, children=Path2D(SQUARE_PTS))
     # a 20x10 outline walled 1mm outward on every side
-    assert [float(v) for v in shelled.bounds()[1]] == pytest.approx([22.0, 12.0], abs=0.01)
+    assert [float(v) for v in shelled.bounds().size] == pytest.approx([22.0, 12.0], abs=0.01)
 
 
 # ---------------------------------------------------------------------------
@@ -501,10 +504,10 @@ def test_linear_extrude_carries_the_tracked_size_to_three_dimensions() -> None:
 
 #: (name, options, what the option must do to the extrusion of a 10mm square, 5 tall).
 EXTRUDE_OPTIONS = [
-    ("center", {"center": True}, lambda s: float(s.bounds()[0][2]) == pytest.approx(0.0)),
-    ("uncentered", {}, lambda s: float(s.bounds()[0][2]) == pytest.approx(2.5)),
-    ("twist", {"twist": 45, "slices": 8}, lambda s: float(s.bounds()[1][0]) > 10.0),
-    ("scale_vector", {"scale": [1, 2]}, lambda s: float(s.bounds()[1][1]) == pytest.approx(20.0, abs=0.01)),
+    ("center", {"center": True}, lambda s: float(s.bounds().center[2]) == pytest.approx(0.0)),
+    ("uncentered", {}, lambda s: float(s.bounds().center[2]) == pytest.approx(2.5)),
+    ("twist", {"twist": 45, "slices": 8}, lambda s: float(s.bounds().size[0]) > 10.0),
+    ("scale_vector", {"scale": [1, 2]}, lambda s: float(s.bounds().size[1]) == pytest.approx(20.0, abs=0.01)),
     ("scale_scalar", {"scale": 2}, lambda s: "scale = 2" in repr(s.shape)),
     ("convexity", {"convexity": 4}, lambda s: "convexity = 4" in repr(s.shape)),
 ]
@@ -526,13 +529,14 @@ def test_linear_extrude_passes_its_options_through(name: str, kwargs: dict[str, 
 def test_a_scalar_scale_tapers_both_axes_like_the_vector_form() -> None:
     scalar = s2.square(10).linear_extrude(height=5, scale=2)
     vector = s2.square(10).linear_extrude(height=5, scale=[2, 2])
-    assert [float(v) for v in scalar.bounds()[1]] == pytest.approx([float(v) for v in vector.bounds()[1]])
+    assert [float(v) for v in scalar.bounds().size] == pytest.approx([float(v) for v in vector.bounds().size])
     assert repr(scalar.shape) == repr(vector.shape)
 
 
 @needs_native_2d_bbox
 def test_linear_extrude_height_is_the_z_extent() -> None:
-    _center, size = s2.square([10, 4]).linear_extrude(height=5).bounds()
+    _box = s2.square([10, 4]).linear_extrude(height=5).bounds()
+    _center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(size, [10, 4, 5], atol=1e-6)
 
 
@@ -541,7 +545,7 @@ def test_rotate_extrude_sweeps_the_profile_around_the_z_axis() -> None:
     """A 4x10 profile 20mm out from the axis sweeps a ring 44mm across and 10 tall."""
     profile = s2.square([4, 10]).right(20)
     full = profile.rotate_extrude()
-    assert [float(v) for v in full.bounds()[1]] == pytest.approx([44.0, 43.76, 10.0], abs=0.3)
+    assert [float(v) for v in full.bounds().size] == pytest.approx([44.0, 43.76, 10.0], abs=0.3)
 
 
 @needs_native_2d_bbox
@@ -549,8 +553,8 @@ def test_rotate_extrude_angle_sweeps_only_part_of_the_way() -> None:
     """Half a turn leaves half the ring, so it spans the full diameter in X but only half in Y."""
     profile = s2.square([4, 10]).right(20)
     half = profile.rotate_extrude(angle=180)
-    assert float(half.bounds()[1][0]) == pytest.approx(44.0, abs=0.3)
-    assert float(half.bounds()[1][1]) == pytest.approx(22.0, abs=0.3)
+    assert float(half.bounds().size[0]) == pytest.approx(44.0, abs=0.3)
+    assert float(half.bounds().size[1]) == pytest.approx(22.0, abs=0.3)
     assert isinstance(profile.rotate_extrude(angle=180, fn=16, convexity=4), Bosl2Solid)
 
 
@@ -559,7 +563,7 @@ def test_path_extrude_follows_its_spine() -> None:
     """A radius-2 circle swept up 20mm and 5mm over reaches roughly that far in each axis."""
     spine = [[0, 0, 0], [0, 0, 10], [5, 0, 20]]
     tube = s2.circle(radius=2).path_extrude(spine)  # type: ignore[arg-type]
-    size = [float(v) for v in tube.bounds()[1]]
+    size = [float(v) for v in tube.bounds().size]
     assert size[2] == pytest.approx(20.8, abs=0.5)  # the spine's height, plus the profile's tilt
     assert 4.0 < size[0] < 12.0  # the 5mm dogleg, widened by the 4mm-diameter profile
 
@@ -578,14 +582,16 @@ def test_box_shapes_track_their_nominal_size() -> None:
 
 
 def test_bounds_of_a_centred_square() -> None:
-    center, size = s2.square(10).bounds()
+    _box = s2.square(10).bounds()
+    center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(center, [0, 0], atol=1e-6)
     np.testing.assert_allclose(size, [10, 10], atol=1e-6)
 
 
 @needs_native_2d_bbox
 def test_bounds_follow_a_translate() -> None:
-    center, size = s2.square(10).right(5).bounds()
+    _box = s2.square(10).right(5).bounds()
+    center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(center, [5, 0], atol=1e-6)
     np.testing.assert_allclose(size, [10, 10], atol=1e-6)
 
@@ -609,13 +615,13 @@ def test_in_plane_distributors_lay_the_copies_out() -> None:
     circle = s2.circle(radius=2)
 
     def gaps(copies: list[Bosl2Shape2D], axis: int) -> list[float]:
-        centres = sorted(float(copy.bounds()[0][axis]) for copy in copies)
+        centres = sorted(float(copy.bounds().center[axis]) for copy in copies)
         return [round(b - a, 6) for a, b in zip(centres, centres[1:], strict=False)]
 
     across = circle.xcopies(spacing=10, num_copies=3)
     assert len(across) == 3
     assert gaps(across, 0) == pytest.approx([10.0, 10.0])
-    assert all([float(v) for v in copy.bounds()[1]] == pytest.approx([4.0, 4.0], abs=0.2) for copy in across)
+    assert all([float(v) for v in copy.bounds().size] == pytest.approx([4.0, 4.0], abs=0.2) for copy in across)
 
     up = circle.ycopies(spacing=10, num_copies=3)
     assert gaps(up, 1) == pytest.approx([10.0, 10.0])
@@ -624,7 +630,8 @@ def test_in_plane_distributors_lay_the_copies_out() -> None:
     grid = circle.grid_copies(spacing=10, num_copies=2)
     assert len(grid) == 4  # 2 x 2
     spans = [
-        max(float(c.bounds()[0][axis]) for c in grid) - min(float(c.bounds()[0][axis]) for c in grid) for axis in (0, 1)
+        max(float(c.bounds().center[axis]) for c in grid) - min(float(c.bounds().center[axis]) for c in grid)
+        for axis in (0, 1)
     ]
     assert spans == pytest.approx([10.0, 10.0])
 
@@ -650,24 +657,24 @@ def test_path_geometry_is_the_2d_wrapper() -> None:
 def test_path_2d_operators() -> None:
     """A Path2D goes into the 2-D operators directly and keeps its own 20x10 outline."""
     path = Path2D(SQUARE_PTS)
-    assert [float(v) for v in path.fill().bounds()[1]] == pytest.approx([20.0, 10.0], abs=0.01)
-    assert [float(v) for v in path.polygon().hull().bounds()[1]] == pytest.approx([20.0, 10.0], abs=0.01)
+    assert [float(v) for v in path.fill().bounds().size] == pytest.approx([20.0, 10.0], abs=0.01)
+    assert [float(v) for v in path.polygon().hull().bounds().size] == pytest.approx([20.0, 10.0], abs=0.01)
     # hulling it with a circle at the origin reaches out to that circle
     with_circle = path.polygon().hull(s2.circle(radius=5))
-    assert [float(v) for v in with_circle.bounds()[1]] == pytest.approx([25.0, 15.0], abs=0.01)
+    assert [float(v) for v in with_circle.bounds().size] == pytest.approx([25.0, 15.0], abs=0.01)
 
 
 @needs_native_2d_bbox
 def test_path_extruders() -> None:
     path = Path2D(SQUARE_PTS)
     straight = path.linear_extrude(height=4)
-    assert [float(v) for v in straight.bounds()[1]] == pytest.approx([20.0, 10.0, 4.0], abs=0.01)
+    assert [float(v) for v in straight.bounds().size] == pytest.approx([20.0, 10.0, 4.0], abs=0.01)
     twisted = path.linear_extrude(height=4, center=True, twist=20)
-    assert float(twisted.bounds()[1][0]) > 20.0  # the twist swings the corners out
-    assert float(twisted.bounds()[0][2]) == pytest.approx(0.0)  # centered
+    assert float(twisted.bounds().size[0]) > 20.0  # the twist swings the corners out
+    assert float(twisted.bounds().center[2]) == pytest.approx(0.0)  # centered
     revolved = path.translate([30, 0]).rotate_extrude(angle=180)
-    assert float(revolved.bounds()[1][0]) == pytest.approx(100.0, abs=0.1)  # out to x=50 and back
-    assert float(revolved.bounds()[1][2]) == pytest.approx(10.0, abs=0.01)  # the profile's height
+    assert float(revolved.bounds().size[0]) == pytest.approx(100.0, abs=0.1)  # out to x=50 and back
+    assert float(revolved.bounds().size[2]) == pytest.approx(10.0, abs=0.01)  # the profile's height
 
 
 def test_region_geometry_is_the_2d_wrapper() -> None:
@@ -684,11 +691,13 @@ def test_region_geometry_is_the_2d_wrapper() -> None:
 def test_a_region_keeps_its_outline_through_the_pipeline() -> None:
     """Its outer boundary is 20x10 whatever is done to it -- the hole never changes the box."""
     region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])  # type: ignore[arg-type]
-    assert [float(v) for v in region.geometry().bounds()[1]] == pytest.approx([20.0, 10.0], abs=0.01)
-    assert [float(v) for v in region.geometry().hull().bounds()[1]] == pytest.approx([20.0, 10.0], abs=0.01)
-    assert [float(v) for v in region.linear_extrude(height=4).bounds()[1]] == pytest.approx([20.0, 10.0, 4.0], abs=0.01)
+    assert [float(v) for v in region.geometry().bounds().size] == pytest.approx([20.0, 10.0], abs=0.01)
+    assert [float(v) for v in region.geometry().hull().bounds().size] == pytest.approx([20.0, 10.0], abs=0.01)
+    assert [float(v) for v in region.linear_extrude(height=4).bounds().size] == pytest.approx(
+        [20.0, 10.0, 4.0], abs=0.01
+    )
     revolved = region.translate([30, 0]).rotate_extrude(angle=180)
-    assert float(revolved.bounds()[1][0]) == pytest.approx(100.0, abs=0.1)
+    assert float(revolved.bounds().size[0]) == pytest.approx(100.0, abs=0.1)
 
 
 @needs_native_2d_bbox
@@ -718,18 +727,19 @@ def test_solid_hull_accepts_a_raw_native_and_a_vnf() -> None:
     from pybosl2.shapes3d import sphere
     from pybosl2.vnf import VNF
 
-    alone = [float(v) for v in sphere(radius=8).bounds()[1]]
+    alone = [float(v) for v in sphere(radius=8).bounds().size]
     with_native = sphere(radius=8).hull(cuboid([4, 4, 4]).shape)
-    assert [float(v) for v in with_native.bounds()[1]] == pytest.approx(alone, abs=0.5)  # cube fits inside
+    assert [float(v) for v in with_native.bounds().size] == pytest.approx(alone, abs=0.5)  # cube fits inside
 
     vnf = VNF.tri_array([[[0, 0, 0], [10, 0, 0]], [[0, 10, 0], [10, 10, 5]]])
     with_vnf = sphere(radius=8).hull(vnf)
-    assert float(with_vnf.bounds()[1][0]) > alone[0]  # the mesh reaches out to x=10
+    assert float(with_vnf.bounds().size[0]) > alone[0]  # the mesh reaches out to x=10
 
 
 def test_solid_hull_spans_both_children() -> None:
     capsule = cuboid([10, 10, 10]).hull(cuboid([10, 10, 10]).up(30))
-    _center, size = capsule.bounds()
+    _box = capsule.bounds()
+    _center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(size, [10, 10, 40], atol=0.5)
 
 
@@ -744,7 +754,7 @@ def test_projection_returns_the_2d_wrapper() -> None:
 def test_projection_chains_back_into_the_2d_operators() -> None:
     """3-D -> 2-D -> 3-D: the footprint grows by the offset, then extrudes to its own height."""
     plate = cuboid([30, 20, 10]).projection().offset(radius=2).linear_extrude(height=2)
-    assert [float(v) for v in plate.bounds()[1]] == pytest.approx([34.0, 24.0, 2.0], abs=0.01)
+    assert [float(v) for v in plate.bounds().size] == pytest.approx([34.0, 24.0, 2.0], abs=0.01)
 
 
 @needs_native_2d_bbox
@@ -769,8 +779,8 @@ def test_minkowski_accepts_native_shape() -> None:
     circle = s2.circle(radius=2, fn=64)
     wrapped = square.minkowski(circle)
     native = square.minkowski(circle.shape)
-    assert [float(v) for v in native.bounds()[1]] == pytest.approx([float(v) for v in wrapped.bounds()[1]])
-    assert [float(v) for v in native.bounds()[1]] == pytest.approx([14.0, 14.0], abs=0.1)
+    assert [float(v) for v in native.bounds().size] == pytest.approx([float(v) for v in wrapped.bounds().size])
+    assert [float(v) for v in native.bounds().size] == pytest.approx([14.0, 14.0], abs=0.1)
 
 
 @needs_native_2d_bbox
@@ -778,8 +788,8 @@ def test_minkowski_chainable() -> None:
     """The result is an ordinary 2-D shape, so the transforms keep working on it."""
     rounded = s2.square([10, 10], center=True).minkowski(s2.circle(radius=2, fn=64))
     moved = rounded.translate([0, 5]).rotate(45)
-    assert float(moved.bounds()[0][1]) > float(rounded.bounds()[0][1])  # the translate took effect
-    assert float(moved.bounds()[1][0]) > float(rounded.bounds()[1][0])  # ...and so did the rotate
+    assert float(moved.bounds().center[1]) > float(rounded.bounds().center[1])  # the translate took effect
+    assert float(moved.bounds().size[0]) > float(rounded.bounds().size[0])  # ...and so did the rotate
 
 
 @needs_native_2d_bbox
@@ -787,7 +797,7 @@ def test_minkowski_union_chains() -> None:
     """A ring: the same square grown by two radii, the smaller cut out of the larger."""
     square = s2.square([10, 10], center=True)
     ring = square.minkowski(s2.circle(radius=4, fn=64)) - square.minkowski(s2.circle(radius=2, fn=64))
-    assert [float(v) for v in ring.bounds()[1]] == pytest.approx([18.0, 18.0], abs=0.1)
+    assert [float(v) for v in ring.bounds().size] == pytest.approx([18.0, 18.0], abs=0.1)
     assert not _covers(ring, [0, 0])  # the middle is the hole the smaller shape left
     assert _covers(ring, [8, 0])
 
@@ -795,7 +805,7 @@ def test_minkowski_union_chains() -> None:
 @needs_native_2d_bbox
 def test_minkowski_linear_extrude() -> None:
     solid = s2.square([10, 10], center=True).minkowski(s2.circle(radius=3, fn=64)).linear_extrude(height=5)
-    assert [float(v) for v in solid.bounds()[1]] == pytest.approx([16.0, 16.0, 5.0], abs=0.1)
+    assert [float(v) for v in solid.bounds().size] == pytest.approx([16.0, 16.0, 5.0], abs=0.1)
 
 
 @needs_native_2d_bbox
@@ -846,7 +856,8 @@ CORNER_TREATMENTS = [
 
 def _near_corner(shape: Bosl2Shape2D) -> list[float]:
     """A point just inside the shape's bottom-left bounding corner."""
-    centre, size = shape.bounds()
+    _box = shape.bounds()
+    centre, size = list(_box.center), list(_box.size)
     return [float(centre[0]) - float(size[0]) * 0.464, float(centre[1]) - float(size[1]) * 0.464]
 
 
@@ -864,8 +875,8 @@ def test_corner_treatments_return_shape2d(name: str, plain: object, treated: obj
 def test_a_corner_treatment_actually_cuts_the_corner(name: str, plain: object, treated: object, how: str) -> None:
     """Rounding and chamfering must remove material at the corners -- and only at the corners."""
     original, cut = plain(), treated()  # type: ignore[operator]
-    before = [float(v) for v in original.bounds()[1]]
-    after = [float(v) for v in cut.bounds()[1]]
+    before = [float(v) for v in original.bounds().size]
+    after = [float(v) for v in cut.bounds().size]
 
     if how == "corner":
         probe = _near_corner(original)
@@ -912,7 +923,7 @@ def test_rect_rounding_and_chamfer_mutually_exclusive() -> None:
 def test_a_treated_shape_extrudes_to_its_own_footprint(name: str, shape: object, footprint: list[float]) -> None:
     """The corner treatment survives into 3-D: the prism has the treated outline, 5 tall."""
     solid = shape().linear_extrude(height=5)  # type: ignore[operator]
-    assert [float(v) for v in solid.bounds()[1]] == pytest.approx([*footprint, 5.0], abs=0.05), name
+    assert [float(v) for v in solid.bounds().size] == pytest.approx([*footprint, 5.0], abs=0.05), name
 
 
 # ── uncovered shapes2d methods ───────────────────────────────────────────
@@ -922,7 +933,7 @@ def test_a_treated_shape_extrudes_to_its_own_footprint(name: str, shape: object,
 def test_cross_2d() -> None:
     """A cross spans its full size in both axes, with the arms cut away between them."""
     cross = s2.cross(size=30, arm_width=6)
-    assert [float(v) for v in cross.bounds()[1]] == pytest.approx([30.0, 30.0], abs=0.01)
+    assert [float(v) for v in cross.bounds().size] == pytest.approx([30.0, 30.0], abs=0.01)
     assert _covers(cross, [0, 0])  # the middle
     assert _covers(cross, [14, 0])  # along an arm
     assert not _covers(cross, [14, 14])  # ...but not the corner between two arms
@@ -932,7 +943,8 @@ def test_cross_2d() -> None:
 def test_cross_with_center() -> None:
     """`size=[x, y]` gives the two arm lengths; center=False anchors it at the corner."""
     cross = s2.cross(size=[40, 30], arm_width=8, center=False)
-    centre, size = cross.bounds()
+    _box = cross.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert [float(v) for v in size] == pytest.approx([40.0, 30.0], abs=0.01)
     assert float(centre[0]) > 0  # anchored off the origin rather than centred on it
 
@@ -942,8 +954,8 @@ def test_shape_rotate_keyword_a() -> None:
     """`a=` is OpenSCAD's own spelling of the rotation angle, and must rotate the same way."""
     by_keyword = s2.square(20).rotate(a=45)  # type: ignore[call-arg]
     by_position = s2.square(20).rotate(45)
-    assert [float(v) for v in by_keyword.bounds()[1]] == pytest.approx([float(v) for v in by_position.bounds()[1]])
-    assert float(by_keyword.bounds()[1][0]) == pytest.approx(20 * math.sqrt(2), abs=0.01)
+    assert [float(v) for v in by_keyword.bounds().size] == pytest.approx([float(v) for v in by_position.bounds().size])
+    assert float(by_keyword.bounds().size[0]) == pytest.approx(20 * math.sqrt(2), abs=0.01)
 
 
 # ── chamfer / rounding validation tests ─────────────────────────────────────
@@ -956,8 +968,8 @@ def test_a_negative_corner_treatment_cuts_the_other_way(treatment: str) -> None:
     shape ends up larger than the plain n-gon rather than smaller."""
     plain = s2.regular_ngon(sides=6, radius=10)
     flared = s2.regular_ngon(sides=6, radius=10, **{treatment: -2})
-    before = [float(v) for v in plain.bounds()[1]]
-    after = [float(v) for v in flared.bounds()[1]]
+    before = [float(v) for v in plain.bounds().size]
+    after = [float(v) for v in flared.bounds().size]
     assert all(a > b for a, b in zip(after, before, strict=True)), f"{after} vs {before}"
 
 
@@ -1003,7 +1015,7 @@ def test_a_negative_treatment_flares_the_corners_outward(
     flared: object,
     size: list[float],
 ) -> None:
-    assert [float(v) for v in flared().bounds()[1]] == pytest.approx(size, abs=0.01), name  # type: ignore[operator]
+    assert [float(v) for v in flared().bounds().size] == pytest.approx(size, abs=0.01), name  # type: ignore[operator]
 
 
 def test_cuboid_negative_chamfer_flares_outward() -> None:
@@ -1011,7 +1023,7 @@ def test_cuboid_negative_chamfer_flares_outward() -> None:
 
     flared = _cuboid([20, 20, 20], chamfer=-4)
     # 4mm of flare on each side of X and Y; the Z faces are untouched
-    assert [float(v) for v in flared.bounds()[1]] == pytest.approx([28.0, 28.0, 20.0], abs=0.01)
+    assert [float(v) for v in flared.bounds().size] == pytest.approx([28.0, 28.0, 20.0], abs=0.01)
 
 
 def test_cyl_negative_rounding_flares_outward() -> None:
@@ -1019,8 +1031,8 @@ def test_cyl_negative_rounding_flares_outward() -> None:
 
     plain = cyl(height=20, radius=10)
     flared = cyl(height=20, radius=10, rounding=-2)
-    before = [float(v) for v in plain.bounds()[1]]
-    after = [float(v) for v in flared.bounds()[1]]
+    before = [float(v) for v in plain.bounds().size]
+    after = [float(v) for v in flared.bounds().size]
     # 2mm of flare on each side; the Y figure carries the facet error of the default cylinder
     assert all(a == pytest.approx(b + 4.0, abs=0.05) for a, b in zip(after, before, strict=True))
 
@@ -1038,7 +1050,7 @@ def test_osimport_2d_with_kwargs_creates_shape() -> None:
         assert isinstance(result, Bosl2Shape2D)
         # measured inside the block: the import is lazy, so the file has to still be there
         if result.shape.size is not None:  # the imported 10x10 rect, as the SVG declared it
-            assert [float(v) for v in result.bounds()[1]] == pytest.approx([10.0, 10.0], abs=0.01)
+            assert [float(v) for v in result.bounds().size] == pytest.approx([10.0, 10.0], abs=0.01)
 
 
 def test_osimport_3d_with_kwargs_creates_shape() -> None:
@@ -1058,4 +1070,4 @@ def test_osimport_3d_with_kwargs_creates_shape() -> None:
         assert isinstance(result, Bosl2Solid)
         # the single triangle the STL declares: 1mm on each leg, flat in Z. Measured inside the
         # block, since the import is lazy and needs the file to still exist.
-        assert [float(v) for v in result.bounds()[1]] == pytest.approx([1.0, 1.0, 0.0], abs=0.01)
+        assert [float(v) for v in result.bounds().size] == pytest.approx([1.0, 1.0, 0.0], abs=0.01)

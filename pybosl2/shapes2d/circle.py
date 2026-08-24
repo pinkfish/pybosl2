@@ -49,6 +49,7 @@ from pybosl2._helpers import (
 from pybosl2._native import native
 from pybosl2.constants import CENTER
 from pybosl2.defaults import resolve_facets as _resolve_facets
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import is_collinear
 from pybosl2.geometry import vector_angle3 as _vector_angle
 from pybosl2.path2d import Path2D
@@ -206,7 +207,7 @@ def arc(
     # -- width + thickness: a circular segment through 3 points on/above the X axis ----------
     if width is not None and thickness is not None:
         if any((v is not None for v in (radius, center, points, angle, start))):
-            raise ValueError("conflicting arc() params")
+            raise Bosl2ValueError("conflicting arc() params")
         return arc(
             count=count,
             points=[[width / 2, 0], [0, thickness], [-width / 2, 0]],
@@ -220,16 +221,16 @@ def arc(
     # -- corner: the fillet arc tangent to both legs of a 3-point corner ---------------------
     if corner is not None:
         if not (len(corner) == 3):
-            raise ValueError("corner= needs exactly 3 points")
+            raise Bosl2ValueError("corner= needs exactly 3 points")
         if is_collinear(
             Point(corner[0][0], corner[0][1]), Point(corner[1][0], corner[1][1]), Point(corner[2][0], corner[2][1])
         ):
-            raise ValueError("Collinear corner does not define an arc")
+            raise Bosl2ValueError("Collinear corner does not define an arc")
         rad = _pick_radius(radius=radius, diameter=diameter)
         if not (rad is not None):
-            raise ValueError("arc(corner=) needs radius= or diameter=")
+            raise Bosl2ValueError("arc(corner=) needs radius= or diameter=")
         if not (rad > 0):
-            raise ValueError("arc(corner=) needs radius= or diameter=")
+            raise Bosl2ValueError("arc(corner=) needs radius= or diameter=")
         p0, p1, p2 = corner
         v1 = unit([float(p0[0]) - float(p1[0]), float(p0[1]) - float(p1[1])])
         v2 = unit([float(p2[0]) - float(p1[0]), float(p2[1]) - float(p1[1])])
@@ -266,12 +267,12 @@ def arc(
     if points is not None:
         pts = [[float(p[0]), float(p[1])] for p in points]
         if not (all((len(p) == 2 for p in points))):
-            raise ValueError("arc() port handles 2-D points only")
+            raise Bosl2ValueError("arc() port handles 2-D points only")
         if len(pts) == 2:
             if not (center is not None):
-                raise ValueError("center= is required when points has length 2")
+                raise Bosl2ValueError("center= is required when points has length 2")
             if not (pts[0] != pts[1]):
-                raise ValueError("arc endpoints are equal")
+                raise Bosl2ValueError("arc endpoints are equal")
             centre = [float(center[0]), float(center[1])]
             dv1 = [float(pts[0][0]) - centre[0], float(pts[0][1]) - centre[1]]
             dv2 = [float(pts[1][0]) - centre[0], float(pts[1][1]) - centre[1]]
@@ -281,7 +282,7 @@ def arc(
                 direction = prelim
             else:
                 if not (clockwise or counterclockwise):
-                    raise ValueError("Collinear inputs don't define a unique arc")
+                    raise Bosl2ValueError("Collinear inputs don't define a unique arc")
                 direction = 1
             rad = math.hypot(dv1[0], dv1[1])
             if long or (counterclockwise and direction < 0) or (clockwise and direction > 0):
@@ -302,9 +303,9 @@ def arc(
                 fs=fs,
             )
         if not (len(pts) == 3):
-            raise ValueError(f"arc(points=) needs 2 or 3 points, got {len(pts)}")
+            raise Bosl2ValueError(f"arc(points=) needs 2 or 3 points, got {len(pts)}")
         if is_collinear(Point(pts[0][0], pts[0][1]), Point(pts[1][0], pts[1][1]), Point(pts[2][0], pts[2][1])):
-            raise ValueError("arc(points=): the three points are collinear, so they define no arc.")
+            raise Bosl2ValueError("arc(points=): the three points are collinear, so they define no arc.")
         centre, arc_radius = _circle_from_3pts(pts)
         a0 = math.degrees(math.atan2(pts[0][1] - centre[1], pts[0][0] - centre[0]))
         am = math.degrees(math.atan2(pts[1][1] - centre[1], pts[1][0] - centre[0]))
@@ -323,13 +324,13 @@ def arc(
     # -- radius + angle (with optional [start, end] range) -----------------------------------
     arc_r: float | None = _pick_radius(radius=radius, diameter=diameter)
     if arc_r is None:
-        raise ValueError(
+        raise Bosl2ValueError(
             "arc(): needs a size -- give radius= or diameter=, three points= to pass through, "
             "a corner= to fit, or width=/thickness=."
         )
     if isinstance(angle, (list, tuple)):
         if start is not None:
-            raise ValueError("start= is not allowed with angle=[start, end]")
+            raise Bosl2ValueError("start= is not allowed with angle=[start, end]")
         calc_start = float(angle[0])
         calc_angle = float(angle[1]) - float(angle[0])
     elif isinstance(angle, (int, float)):
@@ -451,9 +452,9 @@ def keyhole(
     r1v = float(_pick_radius(radius=radius1, diameter=diameter1, dflt=5))
     r2v = float(_pick_radius(radius=radius2, diameter=diameter2, dflt=10))
     if not (lv > 0):
-        raise ValueError("keyhole(): length must be positive and at least max(radius1, radius2).")
+        raise Bosl2ValueError("keyhole(): length must be positive and at least max(radius1, radius2).")
     if not (lv >= max(r1v, r2v)):
-        raise ValueError("keyhole(): length must be positive and at least max(radius1, radius2).")
+        raise Bosl2ValueError("keyhole(): length must be positive and at least max(radius1, radius2).")
     shoulder_radius = float(shoulder_radius) if shoulder_radius is not None else min(r1v, r2v) / 2
     cp1, cp2 = [0.0, 0.0], [0.0, -lv]
     minr, maxr = min(r1v, r2v) + shoulder_radius, max(r1v, r2v) + shoulder_radius
@@ -539,7 +540,7 @@ def ring(
 
     """
     if angle is not None:
-        raise ValueError("ring(): only the full-annulus form is ported (no angle=).")
+        raise Bosl2ValueError("ring(): only the full-annulus form is ported (no angle=).")
     r1v = _pick_radius(radius=radius1, diameter=diameter1, dflt=None)
     r2v = _pick_radius(radius=radius2, diameter=diameter2, dflt=None)
     rv = _pick_radius(radius=radius, diameter=diameter, dflt=None)
@@ -547,12 +548,12 @@ def ring(
         inner, outer = min(r1v, r2v), max(r1v, r2v)
     else:
         if rv is None or ring_width is None:
-            raise ValueError("ring(): needs two sizes -- give radius1= and radius2=, or radius= with ring_width=.")
+            raise Bosl2ValueError("ring(): needs two sizes -- give radius1= and radius2=, or radius= with ring_width=.")
         inner, outer = min(rv, rv + ring_width), max(rv, rv + ring_width)
     if not (inner != outer):
-        raise ValueError(f"ring(): needs a positive wall between the radii; got inner={inner}, outer={outer}.")
+        raise Bosl2ValueError(f"ring(): needs a positive wall between the radii; got inner={inner}, outer={outer}.")
     if outer <= 0:
-        raise ValueError(f"ring(): needs a positive outer radius; got {outer}.")
+        raise Bosl2ValueError(f"ring(): needs a positive outer radius; got {outer}.")
     fnv = sides if sides is not None else fn
     shape = circle(radius=outer, fn=fnv, fa=fa, fs=fs) - circle(radius=inner, fn=fnv, fa=fa, fs=fs)
     offset = _anchor_offset_box([2 * outer, 2 * outer], anchor)
@@ -671,7 +672,7 @@ def reuleaux_polygon(
 
     """
     if sides < 3 or sides % 2 == 0:
-        raise ValueError(f"reuleaux_polygon(): sides must be an odd number of 3 or more, got {sides}.")
+        raise Bosl2ValueError(f"reuleaux_polygon(): sides must be an odd number of 3 or more, got {sides}.")
     rad = _pick_radius(radius=radius, diameter=diameter, dflt=1)
     ssegs = max(3, math.ceil(_frag_count(rad, fn, fa, fs) / sides))
     slen = math.dist(_polar_to_xy(rad, 0), _polar_to_xy(rad, 180 - 180.0 / sides))

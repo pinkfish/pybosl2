@@ -35,6 +35,8 @@ from pybosl2._helpers import (
 )
 from pybosl2._native import native
 from pybosl2._shape import BaseShape as BaseShape
+from pybosl2.bounds import Bounds2D
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.points import Point
 from pybosl2.vectors import unit
 
@@ -215,6 +217,10 @@ class CsgShape2D(BaseShape):
     #: Which realize backend produced this shape (always "csg" for Bosl2Shape2D).
     #: The SDF backend uses SdfShape2D for 2-D geometry.
     backend = "csg"
+
+    #: This shape is two-dimensional; see CsgSolid.dimensions (SPEC E-7).
+    dimensions = 2
+
     _bbox: tuple[list[float], list[float]] | None = None
 
     def __init__(
@@ -236,7 +242,7 @@ class CsgShape2D(BaseShape):
         elif isinstance(anchor, str):  # pragma: no cover
             # defensive: anchor_vector() rejects the string form at every entry point that builds
             # a shape, so one never reaches the constructor.
-            raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
+            raise Bosl2ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
         else:
             a_val = resolve_anchor(list(anchor))
         self.anchor = a_val
@@ -319,13 +325,13 @@ class CsgShape2D(BaseShape):
 
     def _resolve_bounds(self, bbox: Sequence[Sequence[float]] | None = None) -> tuple[list[float], list[float]]:
         if bbox is None:
-            return self.bounds()
+            return self._center_size()
         arr = np.asarray(bbox, dtype=float)
         if not (arr.shape == (2, 2)):
-            raise ValueError("bbox must be [[min_x,min_y],[max_x,max_y]].")
+            raise Bosl2ValueError("bbox must be [[min_x,min_y],[max_x,max_y]].")
         lo, hi = arr[0], arr[1]
         if not (bool(np.all(hi >= lo - 1e-12))):
-            raise ValueError("bbox must be [[min...],[max...]] with max >= min.")
+            raise Bosl2ValueError("bbox must be [[min...],[max...]] with max >= min.")
         return [(lo[i] + hi[i]) / 2 for i in range(2)], [hi[i] - lo[i] for i in range(2)]
 
     def anchor_point(
@@ -497,7 +503,7 @@ class CsgShape2D(BaseShape):
 
         """
         if not ((radius is None) != (delta is None)):
-            raise ValueError("offset(): give exactly one of radius= or delta=.")
+            raise Bosl2ValueError("offset(): give exactly one of radius= or delta=.")
         kw: dict[str, Any] = {"r": radius} if radius is not None else {"delta": delta, "chamfer": chamfer}
         for name, value in (("fn", fn), ("fa", fa), ("fs", fs)):
             if value is not None:
@@ -728,7 +734,7 @@ class CsgShape2D(BaseShape):
                 distances = [start_pos + i * step for i in range(num_copies)]
             else:
                 if not (spacing is not None):
-                    raise ValueError("distribute_on_path(): provide num_copies or spacing.")
+                    raise Bosl2ValueError("distribute_on_path(): provide num_copies or spacing.")
                 cnt = int((length - start_pos) / spacing) + 1
                 distances = [start_pos + i * spacing for i in range(cnt)]
         elif num_copies is not None and spacing is None:
@@ -740,7 +746,7 @@ class CsgShape2D(BaseShape):
                 distances = [i * step for i in range(num_copies)]
         else:
             if not (spacing is not None):
-                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
+                raise Bosl2ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)
@@ -765,16 +771,36 @@ class CsgShape2D(BaseShape):
 
     # ---- bounding box ----
 
-    def bounds(self) -> "tuple[list[float], list[float]]":
-        """Return this shape's axis-aligned bounding box as ``(center, size)``.
+    def bounds(self) -> Bounds2D:
+        """Return this shape's axis-aligned bounding box in its current frame (SPEC S-2b).
 
-        -- both ``[x, y]`` float lists in the shape's current frame (the
-        2-D form of :meth:`~pybosl2.shapes3d.Bosl2Solid.bounds`).
+        The 2-D form of :meth:`~pybosl2.shapes3d.CsgSolid.bounds`. Prefers the native bbox, which
+        always reflects the current geometry; falls back to the tracked nominal size/anchor when
+        the native accessors aren't available (the numeric test mock).
 
-        Prefers the native bbox, which always reflects the current geometry; falls back to the
-        tracked nominal size/anchor when the native accessors aren't available (the numeric test
-        mock).
+        Returns:
+            The :class:`~pybosl2.bounds.Bounds2D` box, carrying ``min``/``max``, ``center``,
+            ``size``, ``width`` and ``length``.
+
+        Raises:
+            Bosl2ValueError: If the shape has neither a native bounding box nor tracked size
+                metadata.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import square
+
+                shape = square([20, 10])
+                print(shape.bounds().width)     # 20.0
+                shape.linear_extrude(height=4).show()
+
         """
+        center, size = self._center_size()
+        return Bounds2D.from_center_size(center, size)
+
+    def _center_size(self) -> "tuple[list[float], list[float]]":
+        """Return the bounding box as the raw ``(center, size)`` pair the native layer reports."""
         try:
             pos, sz = self.shape.position, self.shape.size
         except AttributeError:
@@ -792,7 +818,7 @@ class CsgShape2D(BaseShape):
             size = [float(v) for v in self.size]
             assert self.anchor is not None
             return _anchor_offset_box(size, self.anchor), size
-        raise ValueError("bounds(): the shape has no native bounding box and no tracked size metadata.")
+        raise Bosl2ValueError("bounds(): the shape has no native bounding box and no tracked size metadata.")
 
 
 Bosl2Shape2D = CsgShape2D

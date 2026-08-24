@@ -63,7 +63,7 @@ def test_shared_constructor_builds_on_backend(name, backend) -> None:  # type: i
         s = getattr(solid, name)(*args, **kwargs)  # type: ignore[arg-type]
     assert s.backend == backend
     assert isinstance(s, Solid)
-    size = s.bounds()[1]
+    size = s.bounds().size
     assert len(size) == 3, f"{name} on {backend}: degenerate bounds {size}"
     assert all(v > 0 for v in size), f"{name} on {backend}: degenerate bounds {size}"
     if expected is not None:
@@ -81,7 +81,7 @@ def test_both_backends_agree_on_bounds(name) -> None:  # type: ignore[no-untyped
     assert sdf.backend == "sdf"
     if not agree:
         return  # bounds() legitimately differ (SDF reports a conservative construction domain)
-    for c, s in zip(csg.bounds()[1], sdf.bounds()[1], strict=False):
+    for c, s in zip(csg.bounds().size, sdf.bounds().size, strict=False):
         assert abs(c - s) < TOL, f"{name}: backends disagree on bounds ({c} vs {s})"
 
 
@@ -111,8 +111,8 @@ def test_path_linear_extrude_dispatches_on_active_backend(backend) -> None:  # t
         s = Path2D(SQUARE).linear_extrude(height=5)
     assert s.backend == backend
     assert isinstance(s, Solid)
-    for got, want in zip(s.bounds()[1], [20, 12, 5], strict=False):
-        assert abs(got - want) < TOL, f"path extrude on {backend}: size {s.bounds()[1]}"
+    for got, want in zip(s.bounds().size, [20, 12, 5], strict=False):
+        assert abs(got - want) < TOL, f"path extrude on {backend}: size {s.bounds().size}"
 
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
@@ -121,7 +121,7 @@ def test_path_linear_extrude_center_lands_on_the_origin(backend) -> None:  # typ
 
     with use_backend(backend):
         s = Path2D(SQUARE).linear_extrude(height=5, center=True)
-    assert abs(s.bounds()[0][2]) < TOL, "center=True should straddle z=0 on both backends"
+    assert abs(s.bounds().center[2]) < TOL, "center=True should straddle z=0 on both backends"
 
 
 @pytest.mark.parametrize("backend", ["csg", "sdf"])
@@ -131,7 +131,7 @@ def test_single_outline_region_extrudes_on_both_backends(backend) -> None:  # ty
     with use_backend(backend):
         s = Region([SQUARE]).linear_extrude(height=5)
     assert s.backend == backend
-    for got, want in zip(s.bounds()[1], [20, 12, 5], strict=False):
+    for got, want in zip(s.bounds().size, [20, 12, 5], strict=False):
         assert abs(got - want) < TOL
 
 
@@ -242,8 +242,8 @@ def test_solid_hull_dispatches_on_active_backend(backend) -> None:  # type: igno
     with use_backend(backend):
         capsule = solid.cube(10).hull(solid.cube(10).translate([0, 0, 30]))  # type: ignore[attr-defined]
     assert capsule.backend == backend
-    for got, want in zip(capsule.bounds()[1], [10, 10, 40], strict=False):
-        assert abs(got - want) < TOL, f"hull on {backend}: size {capsule.bounds()[1]}"
+    for got, want in zip(capsule.bounds().size, [10, 10, 40], strict=False):
+        assert abs(got - want) < TOL, f"hull on {backend}: size {capsule.bounds().size}"
 
 
 def test_projection_is_csg_only() -> None:
@@ -255,7 +255,8 @@ def test_projection_is_csg_only() -> None:
     shadow = solid.cuboid([30, 20, 10]).projection()  # type: ignore[attr-defined]
     assert isinstance(shadow, Bosl2Shape2D)
     # The shadow of a 30x20x10 box is its 30x20 footprint; extruding it back measures the outline.
-    _, extents = shadow.linear_extrude(height=1).bounds()
+    _box = shadow.linear_extrude(height=1).bounds()
+    _, extents = list(_box.center), list(_box.size)
     assert extents == pytest.approx([30.0, 20.0, 1.0])
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match=r"\.to_csg\(\)"):
@@ -485,7 +486,7 @@ def test_tessellation_arguments_are_accepted_and_ignored(kwargs: dict[str, objec
     with use_backend("sdf"):
         shape = solid.cyl(height=10, radius=5, **kwargs)  # type: ignore[attr-defined]
     assert shape.backend == "sdf"
-    for got, want in zip(shape.bounds()[1], [10, 10, 10], strict=False):
+    for got, want in zip(shape.bounds().size, [10, 10, 10], strict=False):
         assert abs(got - want) < TOL
 
 
@@ -506,9 +507,9 @@ def test_a_tapered_prism_builds_the_same_way_on_both_backends(radius1: float, ra
             ).bounds()
 
     for axis in range(3):
-        assert abs(float(built["csg"][1][axis]) - float(built["sdf"][1][axis])) < 0.01
-        assert abs(float(built["csg"][0][axis]) - float(built["sdf"][0][axis])) < 0.01
-    assert float(built["csg"][1][0]) == pytest.approx(2 * max(radius1, radius2), abs=0.01)
+        assert abs(float(built["csg"].size[axis]) - float(built["sdf"].size[axis])) < 0.01
+        assert abs(float(built["csg"].center[axis]) - float(built["sdf"].center[axis])) < 0.01
+    assert float(built["csg"].size[0]) == pytest.approx(2 * max(radius1, radius2), abs=0.01)
 
 
 def test_the_taper_really_narrows_the_prism_on_the_sdf_backend() -> None:
@@ -526,8 +527,8 @@ def test_circumscribe_is_geometry_not_tessellation() -> None:
     from pybosl2.exceptions import UnsupportedByBackendError
 
     with use_backend("csg"):
-        inscribed = solid.regular_prism(6, height=10, radius=8).bounds()[1]  # type: ignore[attr-defined]
-        enclosing = solid.regular_prism(6, height=10, radius=8, circumscribe=True).bounds()[1]  # type: ignore[attr-defined]
+        inscribed = solid.regular_prism(6, height=10, radius=8).bounds().size  # type: ignore[attr-defined]
+        enclosing = solid.regular_prism(6, height=10, radius=8, circumscribe=True).bounds().size  # type: ignore[attr-defined]
     assert enclosing[1] > inscribed[1], "circumscribe changes the shape, so it is not tessellation"
 
     with use_backend("sdf"), pytest.raises(UnsupportedByBackendError, match="circumscribe"):
@@ -540,7 +541,7 @@ def test_the_facade_carries_prismoid_edge_treatments_and_refuses_them_on_sdf() -
 
     with use_backend("csg"):
         rounded = solid.prismoid([40, 40], [20, 20], height=30, rounding=5)  # type: ignore[attr-defined]
-    assert rounded.bounds()[1] == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
+    assert rounded.bounds().size == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
 
     for kwargs in ({"rounding": 5}, {"chamfer": 5}, {"rounding1": 5}, {"chamfer2": 5}):
         with use_backend("sdf"), pytest.raises(UnsupportedByBackendError):
@@ -603,7 +604,7 @@ def test_an_explicit_zero_treatment_is_not_a_request(kwargs: dict[str, object]) 
     with use_backend("sdf"):
         built = solid.prismoid([40, 40], [20, 20], height=30, **kwargs)  # type: ignore[attr-defined]
     assert built.backend == "sdf"
-    assert built.bounds()[1] == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
+    assert built.bounds().size == pytest.approx([40.0, 40.0, 30.0], abs=0.01)
 
 
 @pytest.mark.parametrize("kwargs", [{"rounding": 5}, {"chamfer": 3}, {"rounding1": 2}])
@@ -666,7 +667,7 @@ def test_a_newly_reachable_option_builds_on_csg_and_refuses_by_name_on_sdf(
 
     with use_backend("csg"):
         built = getattr(solid, shape)(**kwargs)
-    size = built.bounds()[1]
+    size = built.bounds().size
     for axis, want in enumerate(expected):
         if want is not None:
             assert float(size[axis]) == pytest.approx(want, abs=0.2), f"{shape}: size {list(size)}"

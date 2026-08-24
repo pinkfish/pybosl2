@@ -26,6 +26,8 @@ import random
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
+from pybosl2.exceptions import Bosl2ValueError
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Self
@@ -116,7 +118,7 @@ def rainbow(
     """
     items = list(items)
     colors = rainbow_colors(len(items), stride=stride, maxhues=maxhues, shuffle=shuffle, seed=seed)
-    return [obj.color(col) for obj, col in zip(items, colors, strict=False)]  # type: ignore[arg-type]
+    return [obj.color(col) for obj, col in zip(items, colors, strict=False)]
 
 
 # ---------------------------------------------------------------------------
@@ -155,14 +157,14 @@ class Color:
                 if len(hex_val) == 3:
                     hex_val = "".join(c * 2 for c in hex_val)
                 if len(hex_val) not in (6, 8):
-                    raise ValueError(f"invalid hex colour: {spec!r}")
+                    raise Bosl2ValueError(f"invalid hex colour: {spec!r}")
                 try:
                     r, g, b = (int(hex_val[i : i + 2], 16) for i in (0, 2, 4))
                     self._r, self._g, self._b = r / 255, g / 255, b / 255
                     if len(hex_val) == 8:
                         self._a = int(hex_val[6:8], 16) / 255
                 except ValueError:
-                    raise ValueError(f"invalid hex colour: {spec!r}") from None
+                    raise Bosl2ValueError(f"invalid hex colour: {spec!r}") from None
                 return
             # only a CSS colour NAME needs the lookup table, so the dependency is imported
             # here rather than at module scope (SPEC A-4: importing pybosl2 stays cheap, and
@@ -170,7 +172,7 @@ class Color:
             try:
                 import webcolors
             except ImportError:  # pragma: no cover - depends on the runtime
-                raise ValueError(
+                raise Bosl2ValueError(
                     f"cannot resolve the colour name {spec!r}: the webcolors package is not "
                     f"available in this runtime. Use a hex string ('#ff0000') or an [r, g, b] "
                     f"sequence instead."
@@ -180,11 +182,11 @@ class Color:
                 self._r, self._g, self._b = c.red / 255, c.green / 255, c.blue / 255
                 return
             except ValueError:
-                raise ValueError(f"unknown colour name: {spec!r}") from None
+                raise Bosl2ValueError(f"unknown colour name: {spec!r}") from None
         arr = list(spec)
         n = len(arr)
         if n < 3:
-            raise ValueError(f"colour sequence needs at least 3 values, got {n}")
+            raise Bosl2ValueError(f"colour sequence needs at least 3 values, got {n}")
         # Detect int (0-255) vs float (0-1): if any value > 1, treat as 0-255
         scale = (
             1.0 / 255 if any(isinstance(v, int) and v > 1 or isinstance(v, float) and v > 1 for v in arr[:3]) else 1.0
@@ -290,7 +292,7 @@ class Colorable(ABC):
     def _ghost_native(self) -> Self:  # pragma: no cover
         raise NotImplementedError
 
-    def color(self, c: "Color | None" = None, alpha: float | None = None) -> Self:
+    def color(self, c: "Color | str | Sequence[float] | None" = None, alpha: float | None = None) -> Self:
         """Colour this object.
 
         Args:

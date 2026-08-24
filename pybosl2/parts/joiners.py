@@ -24,6 +24,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING, Any
 
+from pybosl2.parts._buildable import Buildable
 from pybosl2.parts.enums import Gender
 from pybosl2.solid import cuboid, cyl, prismoid, sphere
 
@@ -33,7 +34,7 @@ if TYPE_CHECKING:
 __all__ = ["Dovetail", "SnapPin", "SnapPinSocket"]
 
 
-class Dovetail:
+class Dovetail(Buildable):
     """A dovetail joint that slides along Y and flares upward in X.
 
     The male form is a tenon you attach to a part; the female form is the same
@@ -146,7 +147,7 @@ class Dovetail:
         return self._solid.show()
 
 
-class SnapPin:
+class SnapPin(Buildable):
     """A press-and-click snap pin: a slotted shaft with a barbed head.
 
     Push it head-first through a hole; the slot lets the barb compress and
@@ -237,7 +238,7 @@ class SnapPin:
         return self._solid.show()
 
 
-class SnapPinSocket:
+class SnapPinSocket(Buildable):
     """The mating socket mask for a :class:`SnapPin` — difference it out of a part.
 
     A clearance bore with a relief groove that the pin's barb clicks into.

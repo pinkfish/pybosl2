@@ -24,13 +24,16 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, Self, Sequence, cast
 
 if TYPE_CHECKING:
     from shapely.geometry import MultiPolygon
 
+    from pybosl2._backend import Solid
     from pybosl2.path2d import Path2D
     from pybosl2.paths import Path
+    from pybosl2.regions import Region
+    from pybosl2.vnf import VNF
 
 import numpy as np
 
@@ -52,6 +55,7 @@ __all__ = [
 # ---------------------------------------------------------------------------
 
 
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import vector_angle3 as _vector_angle3
 
 
@@ -189,18 +193,18 @@ def _round_corners(
         if v is not None
     ]
     if len(given) != 1:
-        raise ValueError("round_corners(): give exactly one of radius=, cut=, joint= or width=.")
+        raise Bosl2ValueError("round_corners(): give exactly one of radius=, cut=, joint= or width=.")
     measure, size = given[0]
     pts = [[float(c) for c in p] for p in path]
     sides = len(pts)
     if sides <= 2:
-        raise ValueError(f"round_corners(): needs a path of 3 or more points to round; got {sides}.")
+        raise Bosl2ValueError(f"round_corners(): needs a path of 3 or more points to round; got {sides}.")
     if method != RoundingMethod.CIRCLE and measure == Measure.RADIUS:
-        raise ValueError(
+        raise Bosl2ValueError(
             'round_corners(): radius= is allowed only with method="circle"; use cut=/joint=/width= instead.'
         )
     if method != RoundingMethod.CHAMFER and measure == Measure.WIDTH:
-        raise ValueError('round_corners(): width= is allowed only with method="chamfer".')
+        raise Bosl2ValueError('round_corners(): width= is allowed only with method="chamfer".')
 
     if is_num(size):
         parm = [float(size)] * sides  # type: ignore[arg-type]
@@ -210,16 +214,16 @@ def _round_corners(
         kv = [0.5] * sides
     elif curv_val is not None and is_num(curv_val):
         if not (method == RoundingMethod.SMOOTH):
-            raise ValueError('k is only allowed with method="smooth".')
+            raise Bosl2ValueError('k is only allowed with method="smooth".')
         kv = [float(cast("float", curv_val))] * sides
     elif isinstance(curv_val, (list, tuple, np.ndarray)):
         if not (method == RoundingMethod.SMOOTH):
-            raise ValueError('k is only allowed with method="smooth".')
+            raise Bosl2ValueError('k is only allowed with method="smooth".')
         kv = ([0.0] + [float(v) for v in curv_val] + [0.0]) if len(curv_val) < sides else [float(v) for v in curv_val]
     if not (all((v >= 0 for v in parm))):
-        raise ValueError(f"{measure} must be nonnegative.")
+        raise Bosl2ValueError(f"{measure} must be nonnegative.")
     if not (all((0 <= v <= 1 for v in kv))):
-        raise ValueError("k must be in [0, 1].")
+        raise Bosl2ValueError("k must be in [0, 1].")
 
     # dk[i] = [joint distance, shape param] per corner (chamfer has just [distance])
     dk = []
@@ -229,12 +233,12 @@ def _round_corners(
             dk.append([0.0])
             continue
         if np.allclose(p0, p1, rtol=0, atol=EPSILON):
-            raise ValueError(f"Repeated point in path at index {i} with nonzero rounding.")
+            raise Bosl2ValueError(f"Repeated point in path at index {i} with nonzero rounding.")
         if np.allclose(p1, p2, rtol=0, atol=EPSILON):
-            raise ValueError(f"Repeated point in path at index {i} with nonzero rounding.")
+            raise Bosl2ValueError(f"Repeated point in path at index {i} with nonzero rounding.")
         angle = _vector_angle3(p0, p1, p2) / 2
         if math.isclose(angle, 0, rel_tol=0, abs_tol=EPSILON):
-            raise ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding.")
+            raise Bosl2ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding.")
         ar = math.radians(angle)
         if method == RoundingMethod.CHAMFER:
             dk.append(
@@ -275,7 +279,7 @@ def _round_corners(
             )
             scale.append(min(a, b))
     if not (not scale or min(scale) >= 1 - 1e-09):
-        raise ValueError("Roundovers are too big for the path (they overlap); reduce the sizes.")
+        raise Bosl2ValueError("Roundovers are too big for the path (they overlap); reduce the sizes.")
 
     out = []
     for i in range(sides):
@@ -342,6 +346,13 @@ def _smooth_path(
 # ---------------------------------------------------------------------------
 
 
+def _as_solid(mesh: "VNF | Solid") -> "Solid":
+    """Realize a mesh as a solid on the active backend (SPEC S-19a) -- see :func:`pybosl2.skin._as_solid`."""
+    from pybosl2.skin import _as_solid as _convert
+
+    return _convert(mesh)
+
+
 class Roundable:
     """Mixin adding the rounding.scad path operators as methods on :class:`~pybosl2.paths.Path2D` and.
 
@@ -361,7 +372,7 @@ class Roundable:
         fa: float | None = None,
         fs: float | None = None,
         k: float | None = None,
-    ) -> object:
+    ) -> Self:
         """Round every corner of this path.
 
         *method* is ``"circle"`` (a constant-radius arc), ``"smooth"`` (a continuous-curvature bezier),
@@ -414,7 +425,7 @@ class Roundable:
         )
         if hasattr(self, "_color") and self._color is not None:
             result._color = self._color  # type: ignore[attr-defined]
-        return result
+        return cast("Self", result)
 
     def smooth_path(
         self,
@@ -424,7 +435,7 @@ class Roundable:
         splinesteps: int = 10,
         uniform: bool = False,
         closed: bool | None = None,
-    ) -> object:
+    ) -> Self:
         """Fit a smooth continuous-curvature curve through this path.
 
         Runs a cubic bezier through every point, matching the path's tangents, and samples it
@@ -456,14 +467,17 @@ class Roundable:
 
         """
         path_self = cast("Path", self)
-        return _smooth_path(
-            cast("Sequence[Sequence[float]]", self),
-            tangents=tangents,
-            size=size,
-            relsize=relsize,
-            splinesteps=splinesteps,
-            uniform=uniform,
-            closed=path_self.closed if closed is None else closed,
+        return cast(
+            "Self",
+            _smooth_path(
+                cast("Sequence[Sequence[float]]", self),
+                tangents=tangents,
+                size=size,
+                relsize=relsize,
+                splinesteps=splinesteps,
+                uniform=uniform,
+                closed=path_self.closed if closed is None else closed,
+            ),
         )
 
     def offset_stroke(
@@ -472,15 +486,18 @@ class Roundable:
         closed: bool | None = None,
         endcap: CapType = CapType.ROUND,
         joint: CapType = CapType.ROUND,
-    ) -> object:
+    ) -> "Region":
         """Offset this 2-D path to create a thickened outline Region."""
         path_self = cast("Path", self)
-        return _offset_stroke(
-            cast("Sequence[Sequence[float]]", self),
-            width=width,
-            closed=path_self.closed if closed is None else closed,
-            endcap=endcap,
-            joint=joint,
+        return cast(
+            "Region",
+            _offset_stroke(
+                cast("Sequence[Sequence[float]]", self),
+                width=width,
+                closed=path_self.closed if closed is None else closed,
+                endcap=endcap,
+                joint=joint,
+            ),
         )
 
     def offset_sweep(
@@ -494,7 +511,7 @@ class Roundable:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> object:
+    ) -> "Solid":
         """Offset sweep/extrusion of this 2-D shape.
 
         Args:
@@ -515,17 +532,19 @@ class Roundable:
         """
         from pybosl2.skin import _offset_sweep as _os
 
-        return _os(
-            cast("Sequence[Sequence[float]]", self),
-            height=height,
-            bottom=bottom,
-            top=top,
-            fn=fn,
-            fa=fa,
-            fs=fs,
-            steps=steps,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _os(
+                cast("Sequence[Sequence[float]]", self),
+                height=height,
+                bottom=bottom,
+                top=top,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+                steps=steps,
+                caps=caps,
+                style=style,
+            )
         )
 
     def convex_offset_extrude(
@@ -536,18 +555,20 @@ class Roundable:
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> object:
+    ) -> "Solid":
         """Offset sweep/extrusion of this 2-D shape."""
         from pybosl2.skin import _convex_offset_extrude as _coe
 
-        return _coe(
-            cast("Sequence[Sequence[float]]", self),
-            height=height,
-            bottom=bottom,
-            top=top,
-            steps=steps,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _coe(
+                cast("Sequence[Sequence[float]]", self),
+                height=height,
+                bottom=bottom,
+                top=top,
+                steps=steps,
+                caps=caps,
+                style=style,
+            )
         )
 
     def rounded_prism(
@@ -563,7 +584,7 @@ class Roundable:
         style: VNFStyle = VNFStyle.MIN_EDGE,
         joint_bot: float | dict[str, object] | None = None,
         k_sides: float | list[float] | None = None,
-    ) -> object:
+    ) -> "Solid":
         """Return the rounded prism between this path and a top path."""
         from pybosl2.skin import _rounded_prism as _rp
 
@@ -571,17 +592,19 @@ class Roundable:
         j_bot = joint_bottom if joint_bottom is not None else joint_bot
         k_sides = curvature_sides if curvature_sides is not None else k_sides
 
-        return _rp(
-            cast("Sequence[Sequence[float]]", self),
-            top=top,
-            height=height,
-            joint_top=joint_top,
-            joint_bottom=j_bot,
-            joint_sides=joint_sides,
-            curvature_sides=k_sides,
-            steps=steps,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _rp(
+                cast("Sequence[Sequence[float]]", self),
+                top=top,
+                height=height,
+                joint_top=joint_top,
+                joint_bottom=j_bot,
+                joint_sides=joint_sides,
+                curvature_sides=k_sides,
+                steps=steps,
+                caps=caps,
+                style=style,
+            )
         )
 
     def join_prism(
@@ -591,17 +614,19 @@ class Roundable:
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> object:
+    ) -> "Solid":
         """Join this prism to a base plane with a filleted transition."""
         from pybosl2.skin import _join_prism as _jp
 
-        return _jp(
-            cast("Sequence[Sequence[float]]", self),
-            height=height,
-            fillet=fillet,
-            steps=steps,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _jp(
+                cast("Sequence[Sequence[float]]", self),
+                height=height,
+                fillet=fillet,
+                steps=steps,
+                caps=caps,
+                style=style,
+            )
         )
 
     def prism_connector(
@@ -613,19 +638,21 @@ class Roundable:
         steps: int = 16,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> object:
+    ) -> "Solid":
         """Construct a filleted prism connecting two objects."""
         from pybosl2.skin import _prism_connector as _pc
 
-        return _pc(
-            cast("Sequence[Sequence[float]]", self),
-            length=length,
-            fillet=fillet,
-            fillet1=fillet1,
-            fillet2=fillet2,
-            steps=steps,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _pc(
+                cast("Sequence[Sequence[float]]", self),
+                length=length,
+                fillet=fillet,
+                fillet1=fillet1,
+                fillet2=fillet2,
+                steps=steps,
+                caps=caps,
+                style=style,
+            )
         )
 
     def attach_prism(
@@ -639,7 +666,7 @@ class Roundable:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> object:
+    ) -> "Solid":
         """Attach a filleted prism with optional rounded end.
 
         Args:
@@ -660,17 +687,19 @@ class Roundable:
         """
         from pybosl2.skin import _attach_prism as _ap
 
-        return _ap(
-            cast("Sequence[Sequence[float]]", self),
-            length=length,
-            fillet=fillet,
-            rounding=rounding,
-            steps=steps,
-            fn=fn,
-            fa=fa,
-            fs=fs,
-            caps=caps,
-            style=style,
+        return _as_solid(
+            _ap(
+                cast("Sequence[Sequence[float]]", self),
+                length=length,
+                fillet=fillet,
+                rounding=rounding,
+                steps=steps,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+                caps=caps,
+                style=style,
+            )
         )
 
     def bent_cutout_mask(
@@ -678,15 +707,17 @@ class Roundable:
         radius: float,
         thickness: float,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-    ) -> object:
+    ) -> "Solid":
         """Create a mask to generate a round-edged cutout in a cylindrical shell."""
         from pybosl2.skin import _bent_cutout_mask as _bcm
 
-        return _bcm(
-            radius=radius,
-            thickness=thickness,
-            path=cast("Sequence[Sequence[float]]", self),
-            style=style,
+        return _as_solid(
+            _bcm(
+                radius=radius,
+                thickness=thickness,
+                path=cast("Sequence[Sequence[float]]", self),
+                style=style,
+            )
         )
 
     def path_join(
@@ -702,20 +733,23 @@ class Roundable:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> object:
+    ) -> Self:
         """Join multiple paths to this path end-to-end (see :func:`path_join`)."""
-        return _path_join(
-            [self] + list(other_paths),  # type: ignore[arg-type]
-            radius=radius,
-            cut=cut,
-            joint=joint,
-            curvature=curvature,
-            relocate=relocate,
-            closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
-            k=k,
-            fn=fn,
-            fa=fa,
-            fs=fs,
+        return cast(
+            "Self",
+            _path_join(
+                [self] + list(other_paths),  # type: ignore[arg-type]
+                radius=radius,
+                cut=cut,
+                joint=joint,
+                curvature=curvature,
+                relocate=relocate,
+                closed=self.closed if closed is None else closed,  # type: ignore[attr-defined]
+                k=k,
+                fn=fn,
+                fa=fa,
+                fs=fs,
+            ),
         )
 
 

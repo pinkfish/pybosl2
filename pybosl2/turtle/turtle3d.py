@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 
 from pybosl2._helpers import rot_from_to4
 from pybosl2.constants import BACK, FRONT, RIGHT, UP
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.points import Point
 from pybosl2.transforms import rot_decode
 
@@ -103,7 +104,7 @@ class Turtle3D(TurtleCommands):
                 TurtleCommand(Tct.MOVE, size=20),
                 TurtleCommand(Tct.ARCLEFT, radius=3),
             ]).points()
-            Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
+            Path3D(path).path_sweep(sq, closed=True).show()
 
     """
 
@@ -431,10 +432,10 @@ class Turtle3D(TurtleCommands):
         if not (not is_arc or (right == 0 or left == 0)):  # pragma: no cover
             # defensive: a command carries a single rotation_type, so at most one of the four
             # relative rotations is ever non-zero.
-            raise ValueError(f'Cannot give both "left" and "right" at index {index}')
+            raise Bosl2ValueError(f'Cannot give both "left" and "right" at index {index}')
         if not (not is_arc or (up == 0 or down == 0)):  # pragma: no cover
             # defensive: see above -- rotation_type picks exactly one of up/down.
-            raise ValueError(f'Cannot give both "up" and "down" at index {index}')
+            raise Bosl2ValueError(f'Cannot give both "up" and "down" at index {index}')
 
         newdir = Turtle3D._apply(Turtle3D._zrot4(left - right) @ Turtle3D._yrot4(down - up), RIGHT.vector)
         if left - right == 0:
@@ -478,11 +479,11 @@ class Turtle3D(TurtleCommands):
         else:
             projv = v - np.dot(absaxis, v) * absaxis
             if not (np.linalg.norm(projv) > 1e-09):
-                raise ValueError(f"Rotation acts as twist -- not a valid arc at index {index}")
+                raise Bosl2ValueError(f"Rotation acts as twist -- not a valid arc at index {index}")
             abscenter = np.sign(absangle) * radius * np.cross(absaxis, projv)
             vshift = absaxis * (np.dot(absaxis, v) / np.linalg.norm(projv)) * 2 * math.pi * radius * absangle / 360
         if not (not is_arc or (absangle or rel_angle)):
-            raise ValueError('"arc" needs a rotation type and angle')
+            raise Bosl2ValueError('"arc" needs a rotation type and angle')
 
         # roll
         def _final_xform() -> np.ndarray:
@@ -622,7 +623,7 @@ class Turtle3D(TurtleCommands):
             diameter = Turtle3D._apply(last_xform, [1, 0, 0]) - lastpt
             target = list(self._xyz(sz)) if sz else [0.0, 0.0, 0.0]
             if abs(diameter[axis]) < 1e-12:
-                raise ValueError(f'"{ct.value}" never reaches the goal at index {index}')
+                raise Bosl2ValueError(f'"{ct.value}" never reaches the goal at index {index}')
             dist = (target[axis] - lastpt[axis]) / diameter[axis]
             self._tupdate([last_xform @ Turtle3D._trans4([dist, 0, 0])], [last_pre])
         elif ct in (TurtleCommandType.JUMP, TurtleCommandType.XJUMP, TurtleCommandType.YJUMP, TurtleCommandType.ZJUMP):
@@ -678,7 +679,7 @@ class Turtle3D(TurtleCommands):
             TurtleCommandType.ARCDOWN,
         ):
             if not isinstance(cmd.radius, (int, float)):
-                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
+                raise Bosl2ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             radius = step * cmd.radius
             myangle = ang if isinstance(ang, (int, float)) else angle
             center = [
@@ -693,7 +694,7 @@ class Turtle3D(TurtleCommands):
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCXROT, TurtleCommandType.ARCYROT, TurtleCommandType.ARCZROT):
             if not isinstance(cmd.radius, (int, float)):
-                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
+                raise Bosl2ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             radius = step * cmd.radius
             myangle = ang if isinstance(ang, (int, float)) else angle
             length = 2 * math.pi * radius * abs(myangle) / 360
@@ -717,7 +718,7 @@ class Turtle3D(TurtleCommands):
             self._tupdate(tran, [last_pre] * steps)
         elif ct in (TurtleCommandType.ARCTODIR, TurtleCommandType.ARCROT):
             if not isinstance(cmd.radius, (int, float)):
-                raise ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
+                raise Bosl2ValueError(f'"{ct.value}" needs a numeric radius at index {index}')
             rot_part, shift = Turtle3D._rotpart(last_xform), Turtle3D._transpart(last_xform)
             v_dir = Turtle3D._apply(rot_part, [1, 0, 0])
             rd = rot_decode(rot_from_to4(v_dir, ang) if ct == TurtleCommandType.ARCTODIR else np.asarray(ang, float))
@@ -736,7 +737,7 @@ class Turtle3D(TurtleCommands):
             ]
             self._tupdate(tran, [last_pre] * steps)
         else:
-            raise ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
+            raise Bosl2ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
 
 
 # -- convenience function ----------------------------------------------------
@@ -781,7 +782,7 @@ def turtle3d(
                 TurtleCommand(Tct.MOVE, size=20),
                 TurtleCommand(Tct.ARCLEFT, radius=3),
             ]).points()
-            Path3D(path).path_sweep(sq, closed=True).polyhedron().show()
+            Path3D(path).path_sweep(sq, closed=True).show()
 
     """
     return Turtle3D(state).run(commands, repeat)

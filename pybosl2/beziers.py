@@ -46,11 +46,12 @@ point-valued methods return numpy ndarrays.
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
+    from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
     from pybosl2.caps import CapsSpec, CapType
     from pybosl2.paths import Path, PathLike
@@ -62,6 +63,7 @@ import numpy as np
 from pybosl2.caps import CapsSpec, CapType
 from pybosl2.constants import UP
 from pybosl2.enums import SweepMethod, VNFStyle
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import EPSILON, lerp, lerpn
 from pybosl2.transforms import apply as _apply
 from pybosl2.transforms import reorient
@@ -119,19 +121,19 @@ class Bezier:
             self._points = np.empty((0, 0), dtype=float)
         else:
             if not (pts.ndim == 2):
-                raise ValueError(
+                raise Bosl2ValueError(
                     f"control points must be a 2-D array (N points x D dims), got {pts.ndim}-D shape {pts.shape}"
                 )
             if not (
                 pts.shape[0] >= 1
             ):  # pragma: no cover - defensive: an empty sequence is handled by the size == 0 branch above
-                raise ValueError(f"control points must have at least 1 point, got shape {pts.shape}")
+                raise Bosl2ValueError(f"control points must have at least 1 point, got shape {pts.shape}")
             if pts.shape[1] not in (2, 3):
-                raise ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
+                raise Bosl2ValueError(f"control points must be 2-D or 3-D, got {pts.shape[1]} components per point")
             if not (pts.dtype == np.float64):  # pragma: no cover
                 # defensive: np.array(..., dtype=float) either produces a float64 array or raises
                 # on its own, so a surviving array never has another dtype.
-                raise ValueError(f"control points must be float64, got {pts.dtype}")
+                raise Bosl2ValueError(f"control points must be float64, got {pts.dtype}")
             self._points = pts
 
     def __len__(self) -> int:
@@ -243,7 +245,7 @@ class Bezier:
 
         """
         if not isinstance(order, int) or order < 0:
-            raise ValueError(f"derivative(): order must be a non-negative integer, got {order!r}.")
+            raise Bosl2ValueError(f"derivative(): order must be a non-negative integer, got {order!r}.")
         if order == 0:
             return self.points(u)
         sides = len(self) - 1
@@ -457,7 +459,7 @@ class Bezier:
 
         """
         if len(self) % n_degree != 1:
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"path_curve(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
                 f"points plus 1, got {len(self)}."
             )
@@ -503,7 +505,7 @@ class Bezier:
         """
         new_pt = np.asarray(pt, dtype=float)
         if len(self) % n_degree != 1:
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"path_closest_point(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
                 f"points plus 1, got {len(self)}."
             )
@@ -516,7 +518,7 @@ class Bezier:
             if best is None or dist < best[1]:
                 best = (seg, dist)
         if best is None:
-            raise ValueError("Could not find closest point.")
+            raise Bosl2ValueError("Could not find closest point.")
         seg = best[0]
         curve = Bezier(self.array[seg * n_degree : (seg + 1) * n_degree + 1])
         return (seg, curve.closest_point(new_pt, max_err=max_err))
@@ -537,7 +539,7 @@ class Bezier:
 
         """
         if len(self) % n_degree != 1:
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"path_arc_length(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
                 f"points plus 1, got {len(self)}."
             )
@@ -571,7 +573,7 @@ class Bezier:
         """
         arr = self.array
         if not (arr.shape[1] == 2):
-            raise ValueError("close_to_axis() works only on 2-D bezier paths.")
+            raise Bosl2ValueError("close_to_axis() works only on 2-D bezier paths.")
         sp, ep = arr[0], arr[-1]
         head = arr[:-1]
         if axis == "X":
@@ -579,7 +581,7 @@ class Bezier:
         elif axis == "Y":
             foot_s, foot_e = np.array([0.0, sp[1]]), np.array([0.0, ep[1]])
         else:
-            raise ValueError(f'close_to_axis(): axis must be "X" or "Y", got {axis!r}.')
+            raise Bosl2ValueError(f'close_to_axis(): axis must be "X" or "Y", got {axis!r}.')
         return Bezier(
             np.concatenate(
                 [
@@ -612,7 +614,7 @@ class Bezier:
         """
         arr = self.array
         if not (arr.shape[1] == 2):
-            raise ValueError("path_offset() works only on 2-D bezier paths.")
+            raise Bosl2ValueError("path_offset() works only on 2-D bezier paths.")
         off = np.asarray(offset, dtype=float)
         backbez = (arr + off)[::-1]
         return Bezier(
@@ -659,7 +661,7 @@ class Bezier:
 
     def sweep(
         self,
-        shape: Path,
+        shape: "PathLike",
         splinesteps: int = 16,
         n_degree: int | None = None,
         method: SweepMethod = SweepMethod.INCREMENTAL,
@@ -674,9 +676,8 @@ class Bezier:
         last_normal: Point | None = None,
         caps: CapsSpec = CapType.BUTT,
         style: VNFStyle = VNFStyle.MIN_EDGE,
-        transforms: bool = False,
-    ) -> VNF | Bosl2Solid:
-        """Sweep the 2-D *shape* along this bezier curve or path into a VNF.
+    ) -> "Solid":
+        """Sweep the 2-D *shape* along this bezier curve or path into a solid.
 
         If *n_degree* is given and ``len(self) % n_degree == 1`` this
         treats the bezier as a degree-*N* path, sampling each segment
@@ -700,10 +701,10 @@ class Bezier:
             last_normal: Last normal vector for closed sweeps.
             caps: Whether to add end caps.
             style: VNF triangulation style.
-            transforms: If True, return transformation matrices instead of a mesh.
 
         Returns:
-            A :class:`~pybosl2.vnf.VNF` vertex-face mesh of the swept shape.
+            The swept solid, on the active backend (SPEC S-19a). Its mesh is on ``.vnf`` for
+            anything that wants to measure or export it without a CAD runtime.
 
         Examples:
             Curve mode (single curve sweep):
@@ -716,7 +717,7 @@ class Bezier:
                 from math import cos, sin
                 circle = [[2 * cos(t), 2 * sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
                 tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
-                tube.polyhedron().show()
+                tube.show()
 
             Path2D mode (degree-3 bezier path sweep):
 
@@ -728,7 +729,7 @@ class Bezier:
                 from math import cos, sin
                 shape = [[cos(t), sin(t)] for t in np.linspace(0, 2 * math.pi, 12, endpoint=False)]
                 path = Bezier.flatten([Bezier.begin([0, 0], 0, 20), Bezier.end([50, 0], 180, 20)])
-                path.sweep(shape, n_degree=3, splinesteps=24).polyhedron().show()
+                path.sweep(shape, n_degree=3, splinesteps=24).show()
 
         """
         from pybosl2.path3d import Path3D
@@ -750,7 +751,7 @@ class Bezier:
         path_3d = path3d(path)
         tang_3d = path3d(tang) if tang is not None else None
         return Path3D(np.asarray(path_3d)).path_sweep(
-            shape,  # type: ignore[arg-type, return-value]
+            shape,
             method=method,
             normal=normal,
             closed=closed,
@@ -763,8 +764,90 @@ class Bezier:
             tangent=tang_3d,
             caps=caps,
             style=style,
-            transforms=transforms,
         )
+
+    def sweep_transforms(
+        self,
+        splinesteps: int = 16,
+        n_degree: int | None = None,
+        method: SweepMethod = SweepMethod.INCREMENTAL,
+        endpoint: bool = True,
+        normal: Point | None = None,
+        closed: bool = False,
+        twist: float = 0.0,
+        twist_by_length: bool = True,
+        scale: float = 1.0,
+        scale_by_length: bool = True,
+        symmetry: int = 1,
+        last_normal: Point | None = None,
+    ) -> list[list[list[float]]]:
+        """Return the 4x4 transforms :meth:`sweep` would place its cross sections with.
+
+        This used to be ``sweep(..., transforms=True)``. A flag that changes the return type is a
+        second function (SPEC S-19b), so it is one -- and separating them is what lets ``sweep()``
+        return a plain `Solid`.
+
+        It is not the same as ``self.path_curve(...).path_sweep_transforms()``: this passes the
+        curve's *analytic* tangents, which is what makes the first frame exact rather than the
+        result of a rotation-minimizing walk along sampled points.
+
+        Args:
+            splinesteps: Number of uniform segments per curve or curve-segment.
+            n_degree: Curve degree for path mode; ``None`` uses curve mode.
+            method: Sweep method.
+            endpoint: If True, include the endpoint at u=1.
+            normal: Optional normal vector for the sweep.
+            closed: Whether the swept shape should be closed (a tube).
+            twist: Total twist angle in degrees applied along the sweep.
+            twist_by_length: If True, twist is scaled by relative arc length.
+            scale: Scale factor applied along the sweep.
+            scale_by_length: If True, scale is distributed by relative arc length.
+            symmetry: Rotational symmetry count of the shape.
+            last_normal: Last normal vector for closed sweeps.
+
+        Returns:
+            One 4x4 matrix per cross section, as plain nested lists.
+
+        Examples:
+            Placing your own geometry at each station along a bezier::
+
+                from pybosl2 import Bezier, cuboid
+
+                curve = Bezier([[0, 0, 5], [0, 0, 10], [15, 7, 9], [17, 2, 4]])
+                for matrix in curve.sweep_transforms(splinesteps=4):
+                    cuboid([2, 2, 1]).multmatrix(matrix)
+
+        """
+        from pybosl2.path3d import Path3D
+        from pybosl2.skin import _path_sweep, path3d
+
+        if n_degree is not None and len(self) % n_degree == 1:
+            bezpath = self.array
+            nsegs = (len(bezpath) - 1) // n_degree
+            path = self.path_curve(splinesteps, n_degree, endpoint)
+            tang: list[Any] = []
+            for seg in range(nsegs):
+                ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
+                tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
+        else:
+            path = self.curve(splinesteps, endpoint)  # type: ignore[assignment]
+            tang = list(self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
+        placed = _path_sweep(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]],  # placeholder profile: only the frames are read
+            Path3D(np.asarray(path3d(path))),
+            method=method,
+            normal=normal,
+            closed=closed,
+            twist=twist,
+            twist_by_length=twist_by_length,
+            scale=(scale, scale),
+            scale_by_length=scale_by_length,
+            symmetry=symmetry,
+            last_normal=last_normal,
+            tangent=path3d(tang),
+            transforms=True,
+        )
+        return cast("list[list[list[float]]]", placed)
 
     # -- control-point construction (BOSL2 bez_begin/bez_tang/bez_joint/bez_end) ------------
 
@@ -790,7 +873,7 @@ class Bezier:
         """
         pt = np.asarray(pt, dtype=float)
         if not (len(pt) == 3 or phi is None):
-            raise ValueError("phi= requires a 3-D point")
+            raise Bosl2ValueError("phi= requires a 3-D point")
         return np.stack([pt, pt + Bezier._ctrloffset(len(pt), angle, radius, phi)])
 
     @staticmethod
@@ -823,7 +906,7 @@ class Bezier:
         """
         pt = np.asarray(pt, dtype=float)
         if not (len(pt) == 3 or phi is None):
-            raise ValueError("phi= requires a 3-D point")
+            raise Bosl2ValueError("phi= requires a 3-D point")
         unit_dir, dist = Bezier._dir_and_dist(len(pt), angle, radius1, phi)
         dist1 = dist if radius1 is None else radius1
         dist2 = dist1 if radius2 is None else radius2
@@ -863,7 +946,7 @@ class Bezier:
         """
         pt = np.asarray(pt, dtype=float)
         if not (len(pt) == 3 or (phi1 is None and phi2 is None)):
-            raise ValueError("phi1=/phi2= require a 3-D point")
+            raise Bosl2ValueError("phi1=/phi2= require a 3-D point")
         return np.stack(
             [
                 pt + Bezier._ctrloffset(len(pt), angle1, radius1, phi1),
@@ -894,7 +977,7 @@ class Bezier:
         """
         pt = np.asarray(pt, dtype=float)
         if not (len(pt) == 3 or phi is None):
-            raise ValueError("phi= requires a 3-D point")
+            raise Bosl2ValueError("phi= requires a 3-D point")
         return np.stack([pt + Bezier._ctrloffset(len(pt), angle, radius, phi), pt])
 
     def debug(self, width: float = 1.0, n_degree: int = 3) -> Any:
@@ -982,7 +1065,7 @@ class Bezier:
             direction = np.asarray(angle, dtype=float)
             return direction if radius is None else radius * np.asarray(_unit(direction), dtype=float)
         if not (radius is not None):
-            raise ValueError("radius must be given when angle is a scalar, not a direction vector")
+            raise Bosl2ValueError("radius must be given when angle is a scalar, not a direction vector")
         if point_dim == 3:
             return Bezier._spherical_to_xyz(radius, angle, 90.0 if phi is None else phi)  # type: ignore[arg-type]
         rad = math.radians(angle)  # type: ignore[arg-type]
@@ -997,7 +1080,7 @@ class Bezier:
             dist = float(np.linalg.norm(direction)) if radius is None else radius
             return np.asarray(_unit(direction), dtype=float), dist
         if not (radius is not None):
-            raise ValueError("radius must be given when angle is a scalar, not a direction vector")
+            raise Bosl2ValueError("radius must be given when angle is a scalar, not a direction vector")
         if point_dim == 3:
             return Bezier._spherical_to_xyz(1.0, angle, 90.0 if phi is None else phi), radius  # type: ignore[arg-type]
         rad = math.radians(angle)  # type: ignore[arg-type]
@@ -1048,7 +1131,7 @@ def create_bezier(
     from pybosl2.path3d import Path3D
 
     if not (size is None or relsize is None):
-        raise ValueError("Can't define both size and relsize.")
+        raise Bosl2ValueError("Can't define both size and relsize.")
     patharr = np.asarray(path, dtype=float)
     npts = len(patharr)
     lastpt = npts - (0 if closed else 1)
@@ -1059,7 +1142,7 @@ def create_bezier(
     else:
         sizevect = [float(v) for v in curvesize]
         if not (len(sizevect) == lastpt):
-            raise ValueError(f"Size or relsize must have length {lastpt}.")
+            raise Bosl2ValueError(f"Size or relsize must have length {lastpt}.")
     if tangents is not None:
         tang = np.asarray(tangents, dtype=float)
         tang = np.array([t / np.linalg.norm(t) for t in tang])
@@ -1070,7 +1153,7 @@ def create_bezier(
             dtype=float,
         )
     if not (min(sizevect) > 0):
-        raise ValueError("Size and relsize must be greater than zero.")
+        raise Bosl2ValueError("Size and relsize must be greater than zero.")
     out: list[np.ndarray] = []
     basis_mat = np.array([[-3, 6, -3], [7, -9, 2], [-5, 3, 0], [1, 0, 0]], dtype=float)
     for i in range(lastpt):
@@ -1078,7 +1161,7 @@ def create_bezier(
         second = patharr[(i + 1) % npts]
         seglength = float(np.linalg.norm(second - first))
         if not (seglength > 0):
-            raise ValueError(f"Path2D segment has zero length from index {i} to {i + 1}.")
+            raise Bosl2ValueError(f"Path2D segment has zero length from index {i} to {i + 1}.")
         segdir = (second - first) / seglength
         tangent1 = tang[i]
         tangent2 = -tang[(i + 1) % npts]
@@ -1155,23 +1238,23 @@ class BezierPatch:
             self._rows = np.empty((0, 0, 0), dtype=float)
         else:
             if not (pts.ndim == 3):
-                raise ValueError(
+                raise Bosl2ValueError(
                     f"patch rows must be a 3-D array (R rows x C cols x 3 dim), got {pts.ndim}-D shape {pts.shape}"
                 )
             if not (
                 pts.shape[0] >= 1
             ):  # pragma: no cover - defensive: an empty sequence is handled by the size == 0 branch above
-                raise ValueError(f"patch must have at least 1 row, got shape {pts.shape}")
+                raise Bosl2ValueError(f"patch must have at least 1 row, got shape {pts.shape}")
             if not (
                 pts.shape[1] >= 1
             ):  # pragma: no cover - defensive: a row-less array is already rejected by the ndim check
-                raise ValueError(f"patch must have at least 1 column, got shape {pts.shape}")
+                raise Bosl2ValueError(f"patch must have at least 1 column, got shape {pts.shape}")
             if not (pts.shape[2] == 3):
-                raise ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
+                raise Bosl2ValueError(f"patch control points must be 3-D, got {pts.shape[2]} components")
             if not (pts.dtype == np.float64):  # pragma: no cover
                 # defensive: np.array(..., dtype=float) either produces a float64 array or raises
                 # on its own, so a surviving array never has another dtype.
-                raise ValueError(f"control points must be float64, got {pts.dtype}")
+                raise Bosl2ValueError(f"control points must be float64, got {pts.dtype}")
             self._rows = pts
 
     def __len__(self) -> int:
@@ -1435,7 +1518,7 @@ class BezierPatch:
 
         """
         if n_degree <= 0:
-            raise ValueError(f"BezierPatch.flat(): n_degree must be positive, got {n_degree}.")
+            raise Bosl2ValueError(f"BezierPatch.flat(): n_degree must be positive, got {n_degree}.")
         sz = [float(size), float(size)] if isinstance(size, (int, float)) else [float(size[0]), float(size[1])]
         patch = [
             [[sz[0] * (x / n_degree - 0.5), sz[1] * (0.5 - y / n_degree), 0.0] for y in range(n_degree + 1)]
@@ -1447,7 +1530,7 @@ class BezierPatch:
         m = (xform @ base).tolist()
         return BezierPatch([_apply(m, row) for row in patch])  # type: ignore[arg-type]
 
-    def sheet(self, delta: float, splinesteps: int = 16, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
+    def sheet(self, delta: "float | Sequence[float]", splinesteps: int = 16, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
         """Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).
 
         Creates a solid by meshing two copies of the patch offset in opposite
@@ -1485,7 +1568,7 @@ class BezierPatch:
         pts = np.asarray(self.points(uvals, vvals), dtype=float)
         normals = np.asarray(self.normals(uvals, vvals), dtype=float)
         if np.any(np.isnan(normals)):
-            raise ValueError("Bezier patch has degenerate normals.")
+            raise Bosl2ValueError("Bezier patch has degenerate normals.")
         offset0 = pts - diameter[0] * normals
         offset1 = pts - diameter[1] * normals
         allpoints = [np.concatenate([offset0[i], offset1[i][::-1]]) for i in range(len(offset0))]
@@ -1669,7 +1752,8 @@ def _debug_tube(points: np.ndarray, radius: float, sides: int = 8) -> Any:
     dedup = [pts[0]] + [
         p for i, p in enumerate(pts[1:], 1) if np.linalg.norm(np.asarray(p) - np.asarray(pts[i - 1])) > 1e-9
     ]
-    return Path3D(dedup).path_sweep(circ).polyhedron()  # type: ignore[union-attr, arg-type]
+    # a sweep already returns a Solid (SPEC S-19a), so there is nothing to realize here
+    return Path3D(dedup).path_sweep(circ)
 
 
 def _sphere_at(p: np.ndarray, diameter: float) -> Any:
@@ -1774,7 +1858,7 @@ def debug_bezier_patches(
 
         result = _add(result, _VNF.join(surfaces).polyhedron())
     if result is None:
-        raise ValueError("debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off.")
+        raise Bosl2ValueError("debug_bezier_patches(): nothing to show -- showcps, showpatch and showdots are all off.")
     # Every piece is already a Bosl2Solid; wrapping again would bury the native and leave the
     # result with no bounding box of its own.
     return result if isinstance(result, _Bosl2Solid) else _Bosl2Solid(result)

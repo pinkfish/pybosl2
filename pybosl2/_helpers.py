@@ -32,6 +32,8 @@ if TYPE_CHECKING:
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
+
 # ---------------------------------------------------------------------------
 # Scalar/number predicates
 # ---------------------------------------------------------------------------
@@ -217,7 +219,7 @@ def norm_atype(atype: str | AnchorType) -> AnchorType:
     try:
         return AnchorType(atype.lower())
     except (ValueError, AttributeError):
-        raise ValueError(f"Invalid atype: {atype!r}. Expected one of {list(AnchorType)}") from None
+        raise Bosl2ValueError(f"Invalid atype: {atype!r}. Expected one of {list(AnchorType)}") from None
 
 
 def quantup(x: float, y: float) -> float:
@@ -284,7 +286,7 @@ def pick_radius(
         (radius, diameter, "radius", "diameter"),
     ):
         if radius_value is not None and diameter_value is not None:
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"give {radius_name} or {diameter_name}, not both "
                 f"({radius_name}={radius_value}, {diameter_name}={diameter_value})"
             )
@@ -332,7 +334,7 @@ def anchor_vector(anchor: Anchor | Sequence[float]) -> list[float]:
 
     """
     if isinstance(anchor, str):
-        raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}; pass an Anchor member.")
+        raise Bosl2ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}; pass an Anchor member.")
     return [float(v) for v in anchor.vector] if isinstance(anchor, Anchor) else [float(v) for v in anchor]
 
 
@@ -511,9 +513,9 @@ def rect_path(
     insets_x = max(insets[0] + insets[1], insets[2] + insets[3])
     insets_y = max(insets[0] + insets[3], insets[1] + insets[2])
     if not (insets_x <= sx):
-        raise ValueError(f"Requested roundings and/or chamfers ({insets_x:.3f}) exceed the rect width ({sx:.3f})")
+        raise Bosl2ValueError(f"Requested roundings and/or chamfers ({insets_x:.3f}) exceed the rect width ({sx:.3f})")
     if not (insets_y <= sy):
-        raise ValueError(f"Requested roundings and/or chamfers ({insets_y:.3f}) exceed the rect height ({sy:.3f})")
+        raise Bosl2ValueError(f"Requested roundings and/or chamfers ({insets_y:.3f}) exceed the rect height ({sy:.3f})")
     path = []
     for i in range(4):
         quad = quadorder[i]

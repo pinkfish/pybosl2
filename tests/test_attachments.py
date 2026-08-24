@@ -23,14 +23,16 @@ def test_basic_attachment() -> None:
     assert attached.shape is cube.shape
 
     # Check bounds are computed for parent only before realization
-    b_center, b_size = attached.bounds()
+    _box = attached.bounds()
+    b_center, b_size = list(_box.center), list(_box.size)
     assert b_center == [0.0, 0.0, 0.0]
     assert b_size == [10.0, 10.0, 10.0]
 
     # Realization produces the actual unioned shape
     realized = attached.realize()
     assert len(realized.attachments) == 0
-    center, size = realized.bounds()
+    _box = realized.bounds()
+    center, size = list(_box.center), list(_box.size)
     assert pytest.approx(center) == [0.0, 0.0, 2.5]
     assert pytest.approx(size) == [10.0, 10.0, 15.0]
 
@@ -46,12 +48,14 @@ def test_transform_propagation() -> None:
     assert len(moved.attachments) == 1
 
     # The parent bounds translated
-    b_center, b_size = moved.bounds()
+    _box = moved.bounds()
+    b_center, b_size = list(_box.center), list(_box.size)
     assert b_center == [10.0, 0.0, 0.0]
     assert b_size == [10.0, 10.0, 10.0]
 
     # The realized translated shape bounds
-    center, size = moved.realize().bounds()
+    _box = moved.realize().bounds()
+    center, size = list(_box.center), list(_box.size)
     assert pytest.approx(center) == [10.0, 0.0, 2.5]
     assert pytest.approx(size) == [10.0, 10.0, 15.0]
 
@@ -84,14 +88,16 @@ def test_diff_realization() -> None:
 
     # Without diff, it unions by default
     attached = cube.attach(Anchor.TOP, cyl)
-    center, size = attached.realize().bounds()
+    _box = attached.realize().bounds()
+    center, size = list(_box.center), list(_box.size)
     assert pytest.approx(center) == [0.0, 0.0, 5.0]
     assert pytest.approx(size) == [10.0, 10.0, 20.0]
 
     # With diff, it subtracts the remove tag
     diffed = diff(attached)
-    center, size = diffed.realize().bounds()
+    _box = diffed.realize().bounds()
     # Bounding box of the cube (even with a hole/subtraction) is still the original cube size
+    center, size = list(_box.center), list(_box.size)
     assert pytest.approx(center) == [0.0, 0.0, 0.0]
     assert pytest.approx(size) == [10.0, 10.0, 10.0]
 
@@ -108,7 +114,8 @@ def test_negative_roundover_keep() -> None:
     assert neg_round.attachments[0].tag_name == "keep"
 
     # The fillet extends Z edges, adding material.
-    center, size = neg_round.realize().bounds()
+    _box = neg_round.realize().bounds()
+    size = list(_box.size)
     assert size[0] > 20.0
 
 
@@ -135,7 +142,8 @@ def test_attach_at_center_places_the_child_without_turning_it() -> None:
     orientation and sits concentric with the parent."""
     box = cuboid([10, 10, 10])
     tall = cylinder(radius=2, height=30)
-    _centre, size = box.attach(Anchor.CENTER, tall).realize().bounds()
+    _box = box.attach(Anchor.CENTER, tall).realize().bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert float(size[2]) == pytest.approx(30.0)  # still upright, not laid over
     assert float(size[0]) == pytest.approx(10.0)  # and centred, so the box still sets the width
 
@@ -145,7 +153,8 @@ def test_a_child_anchored_at_its_own_center_straddles_the_face() -> None:
     over the edge rather than sitting on top."""
     box = cuboid([10, 10, 10])
     ball = sphere(radius=3)
-    _centre, size = box.attach(Anchor.TOP, ball, child_anchor=Anchor.CENTER).realize().bounds()
+    _box = box.attach(Anchor.TOP, ball, child_anchor=Anchor.CENTER).realize().bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert float(size[2]) > 10.0  # it pokes out above ...
     assert float(size[2]) < 10.0 + 2 * 3  # ... but by less than a whole ball
 

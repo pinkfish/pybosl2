@@ -12,6 +12,8 @@ ports that work in plain CPython. The modules that build native geometry
 
 ## Reference
 
+* [Getting started](https://pinkfish.github.io/pybosl2/getting_started.html) — build one part end
+  to end: solid, roundover, bore, boss, measurement, exported file
 * [Docs](https://pinkfish.github.io/pybosl2/)
 * [Specs](https://pinkfish.github.io/pybosl2/specs/index.html) of the various parts
 * [SPEC.md](SPEC.md) — what the system is and does, and the contracts it honours
@@ -37,10 +39,17 @@ the plain OpenSCAD builtins with BOSL2's anchor/spin/orient-aware versions, so t
 package is deliberately not wildcard-re-exported):
 
 ```python
-from pybosl2 import cuboid
+from pybosl2 import Anchor, cuboid, cyl
 
-part = cuboid([20, 20, 10]).up(5)
+part = cuboid([60, 40, 12], rounding=4, edges=Anchor.Z) - cyl(diameter=10, height=20)
+print(part.bounds().size)  # (60.0, 40.0, 12.0)
+part.export("bracket.stl")  # .stl / .obj / .off / .ply, no CAD runtime needed
+part.show()
 ```
+
+Booleans are operators (`-`, `|`, `&`), every operation returns a new shape so calls chain, and
+`bounds()` measures without rendering. See [Getting
+started](https://pinkfish.github.io/pybosl2/getting_started.html) for the guided version.
 
 ## Development & tests
 

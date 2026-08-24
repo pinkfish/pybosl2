@@ -45,6 +45,7 @@ from pybosl2._helpers import frame_map4_yz, rot_from_to4, unwrap, vec3
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BACK, UP
 from pybosl2.enums import ResampleMethod
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import vector_angle3 as _vector_angle3
 from pybosl2.transforms import axis_angle_matrix, rot_from_to
 from pybosl2.vectors import unit
@@ -135,7 +136,7 @@ def extrude_from_to(
     diameter = [p2[i] - p1[i] for i in range(3)]
     height = math.hypot(math.hypot(diameter[0], diameter[1]), diameter[2])
     if height <= 0:
-        raise ValueError("extrude_from_to(): the two points must differ.")
+        raise Bosl2ValueError("extrude_from_to(): the two points must differ.")
     theta = math.degrees(math.atan2(diameter[1], diameter[0]))
     phi = math.degrees(math.atan2(math.hypot(diameter[0], diameter[1]), diameter[2]))
     native = _as_native_2d(profile)
@@ -189,13 +190,13 @@ def cylindrical_extrude(
     irv = _pick_radius(radius=inner_radius, diameter=inner_diameter, dflt=None)
     orv = _pick_radius(radius=outer_radius, diameter=outer_diameter, dflt=None)
     if not (irv is not None):
-        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+        raise Bosl2ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
     if not (orv is not None):
-        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+        raise Bosl2ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
     if not (irv > 0):
-        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+        raise Bosl2ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
     if not (orv > 0):
-        raise ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
+        raise Bosl2ValueError("cylindrical_extrude(): give positive inner and outer radius/diameter.")
     circumf = 2 * math.pi * orv
     if size is None:
         size = [circumf, 1000.0]
@@ -250,7 +251,7 @@ def chain_hull(*objects: object) -> Bosl2Solid:
 
     objs = list(objects[0]) if len(objects) == 1 and isinstance(objects[0], (list, tuple)) else list(objects)
     if not objs:
-        raise ValueError("chain_hull(): needs at least one shape to hull.")
+        raise Bosl2ValueError("chain_hull(): needs at least one shape to hull.")
     natives = [unwrap(o) for o in objs]
     if len(natives) == 1:
         return Bosl2Solid(natives[0])
@@ -271,8 +272,8 @@ def minkowski_difference(base: object, *diffs: object, size: float = 1000, conve
     # Diffs may arrive as Bosl2Solid wrappers; the native minkowski() only takes raw solids.
     ds = [unwrap(d) for d in raw]
     if not (ds):
-        raise ValueError("minkowski_difference(): needs at least one diff shape.")
-    center, sz = Bosl2Solid(b).bounds() if isinstance(base, Bosl2Solid) else _native_bounds(b)
+        raise Bosl2ValueError("minkowski_difference(): needs at least one diff shape.")
+    center, sz = Bosl2Solid(b)._center_size() if isinstance(base, Bosl2Solid) else _native_bounds(b)
     box0 = _cube([sz[i] for i in range(3)], center=True).translate([float(c) for c in center])
     box1 = _cube([sz[i] + 2 for i in range(3)], center=True).translate([float(c) for c in center])
     shell = box1 - b
@@ -283,7 +284,7 @@ def minkowski_difference(base: object, *diffs: object, size: float = 1000, conve
 def _native_bounds(shape: Any) -> tuple[list[float], list[float]]:
     from pybosl2.shapes3d import Bosl2Solid
 
-    return Bosl2Solid(shape).bounds()
+    return Bosl2Solid(shape)._center_size()
 
 
 # ---------------------------------------------------------------------------
@@ -316,14 +317,14 @@ class Extrudable:
         from pybosl2.shapes3d import Bosl2Solid
 
         if not (len(self[0]) == 2):  # type: ignore[index]
-            raise ValueError("path_extrude2d(): the path must be 2-D (use path_extrude for 3-D).")
+            raise Bosl2ValueError("path_extrude2d(): the path must be 2-D (use path_extrude for 3-D).")
         is_closed = self.closed if closed is None else closed  # type: ignore[attr-defined]
         if caps and is_closed:
-            raise ValueError("path_extrude2d(): cannot cap a closed extrusion.")
+            raise Bosl2ValueError("path_extrude2d(): cannot cap a closed extrusion.")
         pts = [[float(p[0]), float(p[1])] for p in self.deduplicated()]  # type: ignore[attr-defined]
         sides = len(pts)
         if not (sides >= 2):
-            raise ValueError("path_extrude2d(): need at least two points.")
+            raise Bosl2ValueError("path_extrude2d(): need at least two points.")
         if s is None:
             min_x = min(p[0] for p in pts)
             min_y = min(p[1] for p in pts)
@@ -370,7 +371,7 @@ class Extrudable:
         if not parts:  # pragma: no cover - defensive: a path short enough to build nothing is
             # already rejected above ("need at least two points"), and a degenerate one fails in
             # the frame maths before reaching here. Kept so the failure would name the call.
-            raise ValueError("path_extrude2d(): nothing to extrude.")
+            raise Bosl2ValueError("path_extrude2d(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
     def path_extrude(
@@ -395,7 +396,7 @@ class Extrudable:
         path: list[list[float]] = [[float(p[0]), float(p[1]), float(p[2]) if dim == 3 else 0.0] for p in self]  # type: ignore[attr-defined]
         sides = len(path)
         if not (sides >= 2):
-            raise ValueError("path_extrude(): need at least two points.")
+            raise Bosl2ValueError("path_extrude(): need at least two points.")
         parr = [np.asarray(p) for p in path]
         rotmats = []
         acc = np.eye(4)
@@ -441,7 +442,7 @@ class Extrudable:
         if not parts:  # pragma: no cover - defensive: a path short enough to build nothing is
             # already rejected above ("need at least two points"), and a degenerate one fails in
             # the frame maths before reaching here. Kept so the failure would name the call.
-            raise ValueError("path_extrude(): nothing to extrude.")
+            raise Bosl2ValueError("path_extrude(): nothing to extrude.")
         return Bosl2Solid(reduce(operator.or_, parts))
 
 

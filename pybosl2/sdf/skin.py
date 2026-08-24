@@ -14,6 +14,7 @@ from __future__ import annotations
 import math
 from typing import TYPE_CHECKING
 
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.sdf._libfive import lv
 from pybosl2.sdf.paths import _lv_hypot
 from pybosl2.sdf.shapes3d import PyShape
@@ -193,9 +194,9 @@ def skin_sdf(
 
     """
     if not (len(shapes) >= 2):
-        raise ValueError("skin_sdf(): need at least 2 profiles")
+        raise Bosl2ValueError("skin_sdf(): need at least 2 profiles")
     if not (len(shapes) == len(z)):
-        raise ValueError("skin_sdf(): shapes and z must have same length")
+        raise Bosl2ValueError("skin_sdf(): shapes and z must have same length")
 
     sfs = [s._sdf_fn for s in shapes]
     zs = [float(zi) for zi in z]

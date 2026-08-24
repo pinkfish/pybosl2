@@ -76,7 +76,8 @@ def test_cuboid_is_bosl2solid_with_size() -> None:
 
 
 def test_bounds_center_and_size() -> None:
-    center, size = cuboid([40, 30, 20]).bounds()
+    _box = cuboid([40, 30, 20]).bounds()
+    center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(center, [0, 0, 0], atol=1e-9)
     np.testing.assert_allclose(size, [40, 30, 20], atol=1e-9)
 
@@ -113,7 +114,8 @@ def test_rot_is_rotate_alias() -> None:
 
 def test_reanchor_moves_anchor_to_origin() -> None:
     rb = cuboid([40, 30, 20]).reanchor(BOTTOM)
-    center, size = rb.bounds()
+    _box = rb.bounds()
+    center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(center, [0, 0, 10], atol=1e-9)  # box now sits on z=0
     np.testing.assert_allclose(size, [40, 30, 20], atol=1e-9)
 
@@ -129,17 +131,17 @@ def test_csg_operators_return_bosl2solid() -> None:
     """The small cube sits inside the big one, so only the intersection changes the box."""
     a, b = cuboid([10, 10, 10]), cuboid([5, 5, 5])
     assert isinstance(a | b, Bosl2Solid)
-    assert [float(v) for v in (a | b).bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])
-    assert [float(v) for v in (a - b).bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])
-    assert [float(v) for v in (a & b).bounds()[1]] == pytest.approx([5.0, 5.0, 5.0])
+    assert [float(v) for v in (a | b).bounds().size] == pytest.approx([10.0, 10.0, 10.0])
+    assert [float(v) for v in (a - b).bounds().size] == pytest.approx([10.0, 10.0, 10.0])
+    assert [float(v) for v in (a & b).bounds().size] == pytest.approx([5.0, 5.0, 5.0])
 
 
 def test_color_and_scale_preserve_wrapper() -> None:
     c = cuboid([10, 10, 10])
     coloured = c.color(Color("red"))
     assert isinstance(coloured, Bosl2Solid)
-    assert [float(v) for v in coloured.bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])  # colour is not geometry
-    assert [float(v) for v in c.scale([2, 2, 2]).bounds()[1]] == pytest.approx([20.0, 20.0, 20.0])
+    assert [float(v) for v in coloured.bounds().size] == pytest.approx([10.0, 10.0, 10.0])  # colour is not geometry
+    assert [float(v) for v in c.scale([2, 2, 2]).bounds().size] == pytest.approx([20.0, 20.0, 20.0])
 
 
 # BUG: c.color(alpha=0.5) segfaults in the native OpenSCAD extension on Python 3.14
@@ -162,7 +164,7 @@ def test_color_native_all_parameter_forms(name: str, call: object) -> None:
     """Every spelling colours the solid without disturbing its geometry."""
     coloured = call(cuboid([5, 5, 5]))  # type: ignore[operator]
     assert isinstance(coloured, Bosl2Solid)
-    assert [float(v) for v in coloured.bounds()[1]] == pytest.approx([5.0, 5.0, 5.0]), name
+    assert [float(v) for v in coloured.bounds().size] == pytest.approx([5.0, 5.0, 5.0]), name
     if name != "no_argument":  # a bare color() keeps the default, which emits no colour call
         assert "color" in repr(coloured.shape), name
     # BUG: alpha-only segfaults — see above
@@ -172,14 +174,16 @@ def test_color_native_all_parameter_forms(name: str, call: object) -> None:
 def test_other_primitives_build() -> None:
     s = sphere(radius=5)
     assert isinstance(s, Bosl2Solid)
-    center, size = s.bounds()
+    _box = s.bounds()
+    _center, size = list(_box.center), list(_box.size)
     assert size[0] == pytest.approx(10, abs=1)
     assert size[1] == pytest.approx(10, abs=1)
     assert size[2] == pytest.approx(10, abs=1)
 
     c = cyl(height=10, radius=3)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(10, abs=1)
     assert size[0] == pytest.approx(6, abs=1)
 
@@ -191,7 +195,7 @@ def test_getattr_falls_through_to_native() -> None:
     c = cuboid([10, 10, 10])
     assert callable(c.position)
     placed = c.position(Anchor.TOP, cuboid([2, 2, 2])).realize()
-    assert float(placed.bounds()[1][2]) > 10.0  # the child now hangs off the top
+    assert float(placed.bounds().size[2]) > 10.0  # the child now hangs off the top
 
 
 def test_plot3d_surface_and_solid() -> None:
@@ -202,9 +206,9 @@ def test_plot3d_surface_and_solid() -> None:
     ys = list(range(-9, 10, 3))
     surface = plot3d(lambda x, _y: math.cos(x / 6), xs, ys)  # type: ignore[operator]
     assert isinstance(surface, Bosl2Solid)
-    assert [float(v) for v in surface.bounds()[1]][:2] == pytest.approx([18.0, 18.0])  # the -9..9 grid
+    assert [float(v) for v in surface.bounds().size][:2] == pytest.approx([18.0, 18.0])  # the -9..9 grid
     solid = plot3d(lambda x, _y: math.cos(x / 6), xs, ys, base=0)
-    assert float(solid.bounds()[1][2]) < float(surface.bounds()[1][2])  # cut off at z=0  # type: ignore[operator]
+    assert float(solid.bounds().size[2]) < float(surface.bounds().size[2])  # cut off at z=0  # type: ignore[operator]
 
 
 def test_orient_reorient_return_bosl2solid() -> None:
@@ -232,8 +236,9 @@ def test_anchor_bbox_override() -> None:
 def test_reanchor_bbox_override_moves_center() -> None:
     c = cuboid([10, 10, 10])
     # with an overriding bbox sitting above the origin, reanchor(BOTTOM) drops it onto z=0
-    center, _ = c.reanchor(BOTTOM, bbox=[[-5, -5, 10], [5, 5, 30]]).bounds()
+    _box = c.reanchor(BOTTOM, bbox=[[-5, -5, 10], [5, 5, 30]]).bounds()
     # the overriding bbox's BOTTOM anchor is at z=10, so reanchor translates by -10
+    center, _ = list(_box.center), list(_box.size)
     np.testing.assert_allclose(center, [0, 0, -10], atol=1e-9)
 
 
@@ -250,14 +255,16 @@ def test_resolve_bounds_rejects_bad_bbox() -> None:
 def test_fillet_builds() -> None:
     f1 = fillet(length=20, radius=6)
     assert isinstance(f1, Bosl2Solid)  # type: ignore[operator]
-    c1, s1 = f1.bounds()
+    _box = f1.bounds()
+    s1 = list(_box.size)
     assert s1[0] > 0
     assert s1[1] > 0
     assert s1[2] > 0
 
     f2 = fillet(length=20, radius1=4, radius2=8)
     assert isinstance(f2, Bosl2Solid)  # type: ignore[operator]
-    c2, s2 = f2.bounds()
+    _box = f2.bounds()
+    s2 = list(_box.size)
     assert s2[0] > 0
     assert s2[1] > 0
     assert s2[2] > 0
@@ -285,13 +292,13 @@ def test_plot_revolution_taper_and_path() -> None:
         radius2=6,
     )
     assert isinstance(tapered, Bosl2Solid)
-    size = [float(v) for v in tapered.bounds()[1]]
+    size = [float(v) for v in tapered.bounds().size]
     assert size[0] == pytest.approx(20.0, abs=0.5)  # the radius-10 end, both sides
     assert size[2] == pytest.approx(20.0, abs=1.0)  # z=0..20
 
     by_path = plot_revolution(_f, angle=list(range(0, 361, 20)), path=[[10, 0], [8, 10], [10, 20]])
     assert isinstance(by_path, Bosl2Solid)
-    assert [float(v) for v in by_path.bounds()[1]][0] == pytest.approx(20.0, abs=0.5)  # type: ignore[operator]
+    assert [float(v) for v in by_path.bounds().size][0] == pytest.approx(20.0, abs=0.5)  # type: ignore[operator]
 
 
 def test_textured_tile_reps_and_size() -> None:
@@ -299,9 +306,9 @@ def test_textured_tile_reps_and_size() -> None:
     bump = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
     deep = textured_tile(bump, size=[40, 40], tex_reps=[4, 4], tex_depth=3)  # type: ignore[operator]
     assert isinstance(deep, Bosl2Solid)
-    assert [float(v) for v in deep.bounds()[1]][:2] == pytest.approx([40.0, 40.0])
+    assert [float(v) for v in deep.bounds().size][:2] == pytest.approx([40.0, 40.0])
     shallow = textured_tile(bump, size=[40, 40], tex_size=10)
-    assert float(shallow.bounds()[1][2]) < float(deep.bounds()[1][2])  # type: ignore[operator]
+    assert float(shallow.bounds().size[2]) < float(deep.bounds().size[2])  # type: ignore[operator]
 
 
 # --- regressions for the Bosl2Solid wrapper review fixes ---
@@ -342,7 +349,8 @@ def test_native_passthrough_op_keeps_wrapper_and_chains() -> None:
     # resize() has no explicit override; __getattr__ must re-wrap so the fluent API survives
     chained = cuboid([10, 10, 10]).resize([5, 5, 5]).up(3)  # type: ignore[operator]
     assert isinstance(chained, Bosl2Solid)
-    centre, size = chained.bounds()
+    _box = chained.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert [float(v) for v in size] == pytest.approx([5.0, 5.0, 5.0])  # the resize took
     assert float(centre[2]) == pytest.approx(3.0)  # ...and so did the up()
 
@@ -350,27 +358,27 @@ def test_native_passthrough_op_keeps_wrapper_and_chains() -> None:
 def test_rotate_accepts_numpy_int_scalar() -> None:
     """np.int64 is not a Python int; the scalar -> Z-rotation normalisation must still apply."""
     quarter = cuboid([10, 10, 10]).rotate(np.int64(90))
-    assert [float(v) for v in quarter.bounds()[1]] == pytest.approx([10.0, 10.0, 10.0])  # square: unchanged
+    assert [float(v) for v in quarter.bounds().size] == pytest.approx([10.0, 10.0, 10.0])  # square: unchanged
     eighth = cuboid([10, 10, 10]).rotate(np.float64(45))
     # turned 45 degrees about Z, a 10mm square footprint measures 10*sqrt(2) across
-    assert [float(v) for v in eighth.bounds()[1]] == pytest.approx([14.142, 14.142, 10.0], abs=0.01)
+    assert [float(v) for v in eighth.bounds().size] == pytest.approx([14.142, 14.142, 10.0], abs=0.01)
 
 
 def test_bounds_metadata_fallback_no_longer_checks_staleness() -> None:
     c = cuboid([10, 10, 10])
     c._native_bounds = lambda: None  # type: ignore[method-assign]
-    assert c.bounds()[0] == [0.0, 0.0, 0.0]
+    assert c.bounds().center == [0.0, 0.0, 0.0]
     m = cuboid([10, 10, 10]).up(50)
     m._native_bounds = lambda: None  # type: ignore[method-assign]
-    assert m.bounds()[0] == [0.0, 0.0, 0.0]  # tracked metadata (may be stale, but accepted)
+    assert m.bounds().center == [0.0, 0.0, 0.0]  # tracked metadata (may be stale, but accepted)
 
 
 def test_cyl_extra_lengthens_the_cylinder() -> None:
     """`extra=` adds length past each end, for a clean boolean cut."""
     plain = cyl(length=40, radius=10)
     stretched = cyl(length=40, radius=10, extra=5, chamfer_angle=30, from_end=True)
-    assert float(plain.bounds()[1][2]) == pytest.approx(40.0)
-    assert float(stretched.bounds()[1][2]) == pytest.approx(50.0)  # 5 past each end
+    assert float(plain.bounds().size[2]) == pytest.approx(40.0)
+    assert float(stretched.bounds().size[2]) == pytest.approx(50.0)  # 5 past each end
 
 
 def test_cyl_per_end_extras_are_independent() -> None:
@@ -385,8 +393,8 @@ def test_cyl_per_end_extras_are_independent() -> None:
         from_end1=True,
         from_end2=False,
     )
-    assert float(solid.bounds()[1][2]) == pytest.approx(55.0)  # 50 + 2 + 3
-    assert float(solid.bounds()[0][2]) == pytest.approx(0.5)  # (3 - 2) / 2 upward
+    assert float(solid.bounds().size[2]) == pytest.approx(55.0)  # 50 + 2 + 3
+    assert float(solid.bounds().center[2]) == pytest.approx(0.5)  # (3 - 2) / 2 upward
 
 
 @pytest.mark.parametrize(
@@ -400,22 +408,22 @@ def test_cyl_per_end_extras_are_independent() -> None:
 )
 def test_the_axis_cylinders_lie_along_their_own_axis(name: str, call: object, axis: int) -> None:
     """Each is the same cylinder turned onto its named axis, so that axis is the long one."""
-    size = [float(v) for v in call().bounds()[1]]  # type: ignore[operator]
+    size = [float(v) for v in call().bounds().size]  # type: ignore[operator]
     assert size[axis] == max(size), f"{name}: {size}"
 
 
 def test_cyl_tapered_with_chamfer() -> None:
     """A tapered cylinder chamfers on the wider end's radius, not a single shared one."""
     tapered = cyl(height=30, radius1=12, radius2=8, chamfer=2, realign=True)
-    assert float(tapered.bounds()[1][0]) == pytest.approx(24.0, abs=0.2)  # the radius-12 end
-    assert float(tapered.bounds()[1][2]) == pytest.approx(30.0)
+    assert float(tapered.bounds().size[0]) == pytest.approx(24.0, abs=0.2)  # the radius-12 end
+    assert float(tapered.bounds().size[2]) == pytest.approx(30.0)
 
 
 def test_cyl_accepts_the_texture_arguments_it_cannot_yet_apply() -> None:
     """`texture="none"` takes the whole texture argument set and builds a plain cylinder."""
     plain = cyl(radius=10, height=20)
     textured = cyl(radius=10, height=20, texture="none", tex_size=5, tex_reps=4, tex_depth=2, tex_inset=True)
-    assert [float(v) for v in textured.bounds()[1]] == pytest.approx([float(v) for v in plain.bounds()[1]])
+    assert [float(v) for v in textured.bounds().size] == pytest.approx([float(v) for v in plain.bounds().size])
 
 
 @pytest.mark.parametrize(
@@ -443,9 +451,9 @@ def test_a_teardrop_rounding_clips_the_overhang(name: str, kwargs: dict[str, obj
     """A teardrop rim keeps the cylinder's extent but flattens the top of the roundover."""
     plain = cyl(radius=10, height=20, rounding=2)
     teardrop = cyl(radius=10, height=20, rounding=2, **kwargs)  # type: ignore[arg-type]
-    assert [float(v) for v in teardrop.bounds()[1]] == pytest.approx([float(v) for v in plain.bounds()[1]], abs=0.5), (
-        name
-    )
+    assert [float(v) for v in teardrop.bounds().size] == pytest.approx(
+        [float(v) for v in plain.bounds().size], abs=0.5
+    ), name
     assert repr(teardrop.shape) != repr(plain.shape), name
 
 
@@ -477,8 +485,8 @@ def test_align_places_child_on_face() -> None:
 
     parent = cuboid([30, 30, 10])
     result = parent.align(Anchor.TOP, cuboid([5, 5, 5])).realize()
-    assert [float(v) for v in result.bounds()[1]] == pytest.approx([30.0, 30.0, 15.0])
-    assert float(result.bounds()[0][2]) == pytest.approx(2.5)  # grown upward only
+    assert [float(v) for v in result.bounds().size] == pytest.approx([30.0, 30.0, 15.0])
+    assert float(result.bounds().center[2]) == pytest.approx(2.5)  # grown upward only
 
 
 def test_position_places_child_at_anchor() -> None:
@@ -488,7 +496,7 @@ def test_position_places_child_at_anchor() -> None:
     parent = cuboid([30, 30, 30])
     result = parent.position(Anchor.TOP_FRONT_LEFT, cuboid([5, 5, 5])).realize()
     # 2.5mm of the child sticks out past each of the three faces meeting at that corner
-    assert [float(v) for v in result.bounds()[1]] == pytest.approx([32.5, 32.5, 32.5])
+    assert [float(v) for v in result.bounds().size] == pytest.approx([32.5, 32.5, 32.5])
 
 
 def test_mirror_preserves_wrapper() -> None:
@@ -496,7 +504,7 @@ def test_mirror_preserves_wrapper() -> None:
     offset = cuboid([10, 10, 10]).right(20)
     mirrored = offset.mirror([1, 0, 0])
     assert isinstance(mirrored, Bosl2Solid)
-    assert float(mirrored.bounds()[0][0]) == pytest.approx(-float(offset.bounds()[0][0]))
+    assert float(mirrored.bounds().center[0]) == pytest.approx(-float(offset.bounds().center[0]))
 
 
 def test_center_false_aligns_to_bottom_front_left() -> None:
@@ -504,7 +512,8 @@ def test_center_false_aligns_to_bottom_front_left() -> None:
     from pybosl2._edges_lang import Anchor
 
     c = cuboid([10, 20, 30], anchor=Anchor.BOTTOM_FRONT_LEFT)
-    center, size = c.bounds()
+    _box = c.bounds()
+    center = list(_box.center)
     assert center[0] > 0  # center is shifted from origin
 
 
@@ -514,8 +523,10 @@ def test_center_true_is_equivalent_to_anchor_center() -> None:
 
     a = cuboid([10, 20, 30], anchor=Anchor.CENTER)
     b = cuboid([10, 20, 30], anchor=Anchor.CENTER)
-    ca, _ = a.bounds()
-    cb, _ = b.bounds()
+    _box = a.bounds()
+    ca, _ = list(_box.center), list(_box.size)
+    _box = b.bounds()
+    cb, _ = list(_box.center), list(_box.size)
     for i in range(3):
         assert abs(ca[i] - cb[i]) < 1e-9
 
@@ -525,7 +536,8 @@ def test_p1_p2_cuboid() -> None:
     from pybosl2.points import Point
 
     result = cuboid(p1=Point(0, 0, 0), p2=Point(10, 20, 30))
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert abs(size[0] - 10) < 0.01
     assert abs(size[1] - 20) < 0.01
     assert abs(size[2] - 30) < 0.01
@@ -537,8 +549,8 @@ def test_attach_aligns_child_to_parent() -> None:
 
     parent = cuboid([30, 30, 10])
     result = parent.attach(Anchor.TOP, cuboid([5, 5, 15]), child_anchor=Anchor.BOTTOM).realize()
-    assert [float(v) for v in result.bounds()[1]] == pytest.approx([30.0, 30.0, 25.0])
-    assert float(result.bounds()[0][2]) == pytest.approx(7.5)
+    assert [float(v) for v in result.bounds().size] == pytest.approx([30.0, 30.0, 25.0])
+    assert float(result.bounds().center[2]) == pytest.approx(7.5)
 
 
 # ---------------------------------------------------------------------------
@@ -549,7 +561,8 @@ def test_attach_aligns_child_to_parent() -> None:
 def test_cone_pointed_returns_solid() -> None:
     result = cone(height=30, radius=15)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(30, abs=1)
     assert size[0] == pytest.approx(30, abs=1)
     assert size[1] == pytest.approx(30, abs=1)
@@ -558,7 +571,8 @@ def test_cone_pointed_returns_solid() -> None:
 def test_cone_truncated_returns_solid() -> None:
     result = cone(height=30, radius1=15, radius2=8)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(30, abs=1)
     assert size[0] >= 16
     assert size[1] >= 16
@@ -570,7 +584,7 @@ def test_a_cone_can_be_treated_at_its_base(treatment: str) -> None:
     plain = cone(height=30, radius=15)
     treated = cone(height=30, radius=15, **{treatment: 1})
     assert isinstance(treated, Bosl2Solid)
-    assert [float(v) for v in treated.bounds()[1]] == pytest.approx([float(v) for v in plain.bounds()[1]], abs=0.01)
+    assert [float(v) for v in treated.bounds().size] == pytest.approx([float(v) for v in plain.bounds().size], abs=0.01)
     assert repr(treated.shape) != repr(plain.shape)
 
 
@@ -589,7 +603,8 @@ def test_a_cone_tip_cannot_be_rounded_or_chamfered(treatment: str) -> None:
 
 def test_cone_bounds_positive_z() -> None:
     result = cone(height=30, radius=15)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
     assert abs(size[0] - 30) < 1
 
@@ -602,7 +617,8 @@ def test_cone_bounds_positive_z() -> None:
 def test_cube_returns_solid() -> None:
     result = cube(size=20)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[0] == pytest.approx(20, abs=1)
     assert size[1] == pytest.approx(20, abs=1)
     assert size[2] == pytest.approx(20, abs=1)
@@ -611,7 +627,8 @@ def test_cube_returns_solid() -> None:
 def test_cube_chamfered_returns_solid() -> None:
     result = cube(size=20, chamfer=3)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[0] > 0
     assert size[1] > 0
     assert size[2] > 0
@@ -620,7 +637,8 @@ def test_cube_chamfered_returns_solid() -> None:
 def test_cube_rounded_returns_solid() -> None:
     result = cube(size=20, rounding=3)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[0] > 0
     assert size[1] > 0
     assert size[2] > 0
@@ -630,7 +648,8 @@ def test_cube_center_false_anchors_correctly() -> None:
     from pybosl2._edges_lang import Anchor
 
     c = cube(size=10, anchor=Anchor.BOTTOM_FRONT_LEFT)
-    center, size = c.bounds()
+    _box = c.bounds()
+    center = list(_box.center)
     assert center[0] > 0
 
 
@@ -642,7 +661,8 @@ def test_cube_center_false_anchors_correctly() -> None:
 def test_tube_returns_solid() -> None:
     result = tube(height=20, outer_radius=15, inner_radius=10)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
     assert size[0] >= 28  # outer diameter = 30
 
@@ -650,7 +670,8 @@ def test_tube_returns_solid() -> None:
 def test_tube_chamfered_returns_solid() -> None:
     result = tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
     assert size[0] > 0
 
@@ -658,14 +679,16 @@ def test_tube_chamfered_returns_solid() -> None:
 def test_tube_rounded_returns_solid() -> None:
     result = tube(height=20, outer_radius=15, inner_radius=10, rounding=1)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
     assert size[0] > 0
 
 
 def test_tube_bounds_has_height() -> None:
     result = tube(height=30, outer_radius=10, inner_radius=6)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
 
 
@@ -677,7 +700,8 @@ def test_tube_bounds_has_height() -> None:
 def test_cylinder_chamfered_returns_solid() -> None:
     result = cylinder(height=20, radius=10, chamfer=2)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
     assert size[0] >= 18  # diameter = 20
 
@@ -685,7 +709,8 @@ def test_cylinder_chamfered_returns_solid() -> None:
 def test_cylinder_rounded_returns_solid() -> None:
     result = cylinder(height=20, radius=10, rounding=2)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
     assert size[0] >= 18
 
@@ -693,7 +718,8 @@ def test_cylinder_rounded_returns_solid() -> None:
 def test_cylinder_teardrop_returns_solid() -> None:
     result = cylinder(height=20, radius=10, rounding=2, teardrop=True)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
     assert size[0] > 0
 
@@ -701,8 +727,10 @@ def test_cylinder_teardrop_returns_solid() -> None:
 def test_cylinder_equals_cyl() -> None:
     a = cylinder(height=20, radius=10)
     b = cyl(height=20, radius=10)
-    ca, sa = a.bounds()
-    cb, sb = b.bounds()
+    _box = a.bounds()
+    sa = list(_box.size)
+    _box = b.bounds()
+    sb = list(_box.size)
     for i in range(3):
         assert abs(sa[i] - sb[i]) < 1
 
@@ -713,28 +741,32 @@ def test_cylinder_equals_cyl() -> None:
 def test_cyl_circumscribe() -> None:
     c = cyl(height=20, radius=10, circumscribe=True)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_xcyl_circumscribe() -> None:
     c = xcyl(height=20, radius=10, circumscribe=True)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[0] == pytest.approx(20, abs=1)  # xcyl has height along X
 
 
 def test_ycyl_circumscribe() -> None:
     c = ycyl(height=20, radius=10, circumscribe=True)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[1] == pytest.approx(20, abs=1)  # ycyl has height along Y
 
 
 def test_cyl_shift() -> None:
     c = cyl(height=20, radius=10, shift=[3, 4])
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
     assert size[0] >= 18
 
@@ -742,56 +774,64 @@ def test_cyl_shift() -> None:
 def test_cyl_shift_tapered() -> None:
     c = cyl(height=20, radius1=8, radius2=4, shift=[5, 0])
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_chamfer_bottom_only() -> None:
     c = cyl(height=20, radius=10, chamfer1=2, chamfer2=0)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_chamfer_top_only() -> None:
     c = cyl(height=20, radius=10, chamfer1=0, chamfer2=2)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_rounding_bottom_only() -> None:
     c = cyl(height=20, radius=10, rounding1=2, rounding2=0)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_asymmetric_rounding_top_only() -> None:
     c = cyl(height=20, radius=10, rounding1=0, rounding2=2)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_chamfer_from_end() -> None:
     c = cyl(height=20, radius=10, chamfer=2, from_end=True)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_cyl_chamfer_from_end_bottom() -> None:
     c = cyl(height=20, radius=10, chamfer1=2, chamfer2=0, from_end1=True)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
 
 
 def test_tube_realign() -> None:
     c = tube(height=20, outer_radius=15, inner_radius=10, realign=True)
     assert isinstance(c, Bosl2Solid)
-    center, size = c.bounds()
+    _box = c.bounds()
+    size = list(_box.size)
     assert size[2] == pytest.approx(20, abs=1)
     assert size[0] >= 28
 
@@ -805,7 +845,8 @@ def test_cuboid_negative_chamfer() -> None:
     """cuboid with negative chamfer hits _edge_mask_negative (chamfer path)."""
     result = cuboid([10, 10, 10], chamfer=-1)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[0] > 0
     assert size[1] > 0
     assert size[2] > 0
@@ -815,7 +856,8 @@ def test_cuboid_negative_rounding() -> None:
     """cuboid with negative rounding hits _edge_mask_negative (rounding path)."""
     result = cuboid([10, 10, 10], rounding=-1)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[0] > 0
     assert size[1] > 0
     assert size[2] > 0
@@ -825,7 +867,8 @@ def test_cuboid_p1_single_point_anchor() -> None:
     """cuboid with p1 only anchors at BOTTOM_FRONT_LEFT then translates."""
     result = cuboid([10, 10, 10], p1=[2, 3, 4])
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    center, size = list(_box.center), list(_box.size)
     np.testing.assert_allclose(center, [7, 8, 9], atol=1e-9)
     np.testing.assert_allclose(size, [10, 10, 10], atol=1e-9)
 
@@ -838,7 +881,7 @@ def test_cuboid_except_edges() -> None:
     kept_sharp = cuboid([10, 10, 10], rounding=2, except_edges=[Anchor.TOP])
     assert isinstance(kept_sharp, Bosl2Solid)
     # rounding every edge pulls the bounding box in; sparing the top edges keeps it out there
-    assert float(kept_sharp.bounds()[1][2]) > float(everywhere.bounds()[1][2])
+    assert float(kept_sharp.bounds().size[2]) > float(everywhere.bounds().size[2])
 
 
 def test_prismoid_asymmetric_rounding_and_chamfer() -> None:
@@ -852,7 +895,8 @@ def test_prismoid_asymmetric_rounding_and_chamfer() -> None:
         shift=[3, 0],
     )
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
 
 
@@ -860,7 +904,8 @@ def test_regular_prism_inner_radius_sizing() -> None:
     """regular_prism sized by inner_radius (apothem)."""
     result = regular_prism(sides=6, height=10, inner_radius=8)
     assert isinstance(result, Bosl2Solid)
-    center, size = result.bounds()
+    _box = result.bounds()
+    size = list(_box.size)
     assert size[2] > 0
 
 
@@ -871,7 +916,7 @@ def test_regular_prism_circumscribe() -> None:
     inscribed = regular_prism(sides=8, height=10, radius=10)
     circumscribed = regular_prism(sides=8, height=10, radius=10, circumscribe=True)
     assert isinstance(circumscribed, Bosl2Solid)
-    grew = float(circumscribed.bounds()[1][0]) / float(inscribed.bounds()[1][0])
+    grew = float(circumscribed.bounds().size[0]) / float(inscribed.bounds().size[0])
     assert grew == pytest.approx(1 / math.cos(math.pi / 8), abs=0.01)
 
 
@@ -886,7 +931,8 @@ def test_regular_prism_combined_options() -> None:
         radius2=5,
     )
     assert isinstance(result, Bosl2Solid)
-    centre, size = result.bounds()
+    _box = result.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert float(size[2]) == pytest.approx(10.0)  # the height is unaffected by the lean
     assert float(centre[0]) == pytest.approx(-1.0, abs=0.01)  # leaned 2mm over its own base
     assert float(size[0]) < 2 * 8  # tapered, so narrower than twice the bottom radius
@@ -908,7 +954,8 @@ def test_path_text_2d_path_gives_a_flat_shape() -> None:
     flat = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0)
     assert isinstance(flat, Bosl2Shape2D)
     # It is real 2-D geometry: extruding it gives a solid exactly as tall as the extrusion.
-    centre, size = flat.linear_extrude(height=2).bounds()
+    _box = flat.linear_extrude(height=2).bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert float(size[2]) == pytest.approx(2.0)
     assert 0.0 < float(size[0]) <= 24.0  # the letters span at most their own 24mm of text
     assert float(centre[1]) > 0.0  # sitting on the baseline, so above the path
@@ -919,10 +966,10 @@ def test_path_text_3d_path_extrudes_the_letters() -> None:
     solid = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3)
     assert isinstance(solid, Bosl2Solid)
     thicker = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=5)
-    assert float(solid.bounds()[1][1]) == pytest.approx(3.0)
-    assert float(thicker.bounds()[1][1]) == pytest.approx(5.0)
+    assert float(solid.bounds().size[1]) == pytest.approx(3.0)
+    assert float(thicker.bounds().size[1]) == pytest.approx(5.0)
     # The extra depth is all that changed: the letters still run the same distance along the path.
-    assert float(thicker.bounds()[1][0]) == pytest.approx(float(solid.bounds()[1][0]))
+    assert float(thicker.bounds().size[0]) == pytest.approx(float(solid.bounds().size[0]))
 
 
 def test_path_text_accepts_a_bare_point_list() -> None:
@@ -933,18 +980,18 @@ def test_path_text_accepts_a_bare_point_list() -> None:
     from_path = path_text(Path2D(TEXT_PATH_2D), "abc", size=8, lettersize=8.0)
     listed = from_list.linear_extrude(height=2).bounds()
     pathed = from_path.linear_extrude(height=2).bounds()
-    assert np.allclose(np.asarray(listed[0], dtype=float), np.asarray(pathed[0], dtype=float))
-    assert np.allclose(np.asarray(listed[1], dtype=float), np.asarray(pathed[1], dtype=float))
+    assert np.allclose(np.asarray(listed.center, dtype=float), np.asarray(pathed.center, dtype=float))
+    assert np.allclose(np.asarray(listed.size, dtype=float), np.asarray(pathed.size, dtype=float))
 
 
 def test_path_text_center_splits_the_slack() -> None:
     """center=True starts the text half the leftover path length in: (80 - 3*8) / 2 = 28mm."""
     plain = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0).linear_extrude(height=2)
     centred = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0, center=True).linear_extrude(height=2)
-    shift = float(centred.bounds()[0][0]) - float(plain.bounds()[0][0])
+    shift = float(centred.bounds().center[0]) - float(plain.bounds().center[0])
     assert shift == pytest.approx(28.0, abs=1e-6)
     # Only the position moved; the letters themselves are untouched.
-    assert np.allclose(np.asarray(centred.bounds()[1], dtype=float), np.asarray(plain.bounds()[1], dtype=float))
+    assert np.allclose(np.asarray(centred.bounds().size, dtype=float), np.asarray(plain.bounds().size, dtype=float))
 
 
 def test_path_text_kern_spreads_the_letters() -> None:
@@ -952,7 +999,7 @@ def test_path_text_kern_spreads_the_letters() -> None:
     tight = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0).linear_extrude(height=2)
     spread = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0, kern=4.0).linear_extrude(height=2)
     # Two gaps of 4mm between three letters, and the run is measured between the outer glyph edges.
-    assert float(spread.bounds()[1][0]) - float(tight.bounds()[1][0]) == pytest.approx(8.0, abs=1e-6)
+    assert float(spread.bounds().size[0]) - float(tight.bounds().size[0]) == pytest.approx(8.0, abs=1e-6)
 
 
 def _text_ring(radius: float = 20.0, points: int = 32) -> list[list[float]]:
@@ -972,9 +1019,9 @@ def test_path_text_normal_turns_the_letters_to_face_it() -> None:
     upright = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2)
     flat = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2, normal=[0, 0, 1])
     # Read from above, the letters lie in the plane of the ring: only their depth stands up in Z.
-    assert float(flat.bounds()[1][2]) == pytest.approx(2.0)
+    assert float(flat.bounds().size[2]) == pytest.approx(2.0)
     # Read from the side, they stand upright instead, so Z spans a whole glyph height.
-    assert float(upright.bounds()[1][2]) > 6.0
+    assert float(upright.bounds().size[2]) > 6.0
 
 
 def test_path_text_normal_accepts_one_vector_per_path_point() -> None:
@@ -983,8 +1030,12 @@ def test_path_text_normal_accepts_one_vector_per_path_point() -> None:
     ring = _text_ring()
     broadcast = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2, normal=[0, 0, 1])
     per_point = path_text(ring, "abcd", size=8, lettersize=8.0, thickness=2, normal=[[0, 0, 1]] * len(ring))
-    assert np.allclose(np.asarray(per_point.bounds()[0], dtype=float), np.asarray(broadcast.bounds()[0], dtype=float))
-    assert np.allclose(np.asarray(per_point.bounds()[1], dtype=float), np.asarray(broadcast.bounds()[1], dtype=float))
+    assert np.allclose(
+        np.asarray(per_point.bounds().center, dtype=float), np.asarray(broadcast.bounds().center, dtype=float)
+    )
+    assert np.allclose(
+        np.asarray(per_point.bounds().size, dtype=float), np.asarray(broadcast.bounds().size, dtype=float)
+    )
 
 
 def test_path_text_normal_list_must_match_the_path() -> None:
@@ -997,15 +1048,15 @@ def test_path_text_reverse_flips_the_letters_across_the_path() -> None:
     """reverse= reads the text from the other side, mirroring it about the path."""
     front = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3)
     back = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3, reverse=True)
-    assert float(back.bounds()[0][2]) == pytest.approx(-float(front.bounds()[0][2]))
-    assert np.allclose(np.asarray(back.bounds()[1], dtype=float), np.asarray(front.bounds()[1], dtype=float))
+    assert float(back.bounds().center[2]) == pytest.approx(-float(front.bounds().center[2]))
+    assert np.allclose(np.asarray(back.bounds().size, dtype=float), np.asarray(front.bounds().size, dtype=float))
 
 
 def test_path_text_offset_lifts_the_letters_off_the_path() -> None:
     """offset= shifts the letters along the normal, towards the reader."""
     flush = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3)
     raised = path_text(TEXT_PATH_3D, "abc", size=8, lettersize=8.0, thickness=3, offset=2)
-    moved = np.asarray(raised.bounds()[0], dtype=float) - np.asarray(flush.bounds()[0], dtype=float)
+    moved = np.asarray(raised.bounds().center, dtype=float) - np.asarray(flush.bounds().center, dtype=float)
     assert np.allclose(moved, [0.0, -2.0, 0.0])  # the default normal points at -Y
 
 
@@ -1018,8 +1069,8 @@ def test_path_text_top_orients_the_letters_on_a_2d_path() -> None:
     plain = path_text(TEXT_PATH_2D, "abc", size=8, lettersize=8.0)
     # +Y is already "up" for a left-to-right path, so it changes nothing.
     assert np.allclose(
-        np.asarray(topped.linear_extrude(height=2).bounds()[0], dtype=float),
-        np.asarray(plain.linear_extrude(height=2).bounds()[0], dtype=float),
+        np.asarray(topped.linear_extrude(height=2).bounds().center, dtype=float),
+        np.asarray(plain.linear_extrude(height=2).bounds().center, dtype=float),
     )
 
 
@@ -1029,16 +1080,16 @@ def test_path_text_top_orients_the_letters_on_a_2d_path() -> None:
 def test_adding_a_vector_translates() -> None:
     """`shape + [x, y, z]` is a translation, and reads the same either way round."""
     box = cuboid([10, 10, 10])
-    assert [float(v) for v in (box + [5, 0, 0]).bounds()[0]] == pytest.approx([5.0, 0.0, 0.0])
-    assert [float(v) for v in ([5, 0, 0] + box).bounds()[0]] == pytest.approx([5.0, 0.0, 0.0])
+    assert [float(v) for v in (box + [5, 0, 0]).bounds().center] == pytest.approx([5.0, 0.0, 0.0])
+    assert [float(v) for v in ([5, 0, 0] + box).bounds().center] == pytest.approx([5.0, 0.0, 0.0])
 
 
 def test_multiplying_scales() -> None:
     """`shape * n` scales uniformly; a vector scales per axis."""
     box = cuboid([10, 10, 10])
-    assert [float(v) for v in (box * 2).bounds()[1]] == pytest.approx([20.0, 20.0, 20.0])
-    assert [float(v) for v in (2 * box).bounds()[1]] == pytest.approx([20.0, 20.0, 20.0])
-    assert [float(v) for v in (box * [2, 1, 1]).bounds()[1]] == pytest.approx([20.0, 10.0, 10.0])
+    assert [float(v) for v in (box * 2).bounds().size] == pytest.approx([20.0, 20.0, 20.0])
+    assert [float(v) for v in (2 * box).bounds().size] == pytest.approx([20.0, 20.0, 20.0])
+    assert [float(v) for v in (box * [2, 1, 1]).bounds().size] == pytest.approx([20.0, 10.0, 10.0])
 
 
 def test_adding_a_bare_number_is_rejected() -> None:

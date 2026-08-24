@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Self, cast
 import numpy as np
 
 from pybosl2.caps import CapSpec, CapType
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import EPSILON, deriv
 from pybosl2.points import Point
 
@@ -97,7 +98,7 @@ class Path(ABC):
         """
         if cls is Path:
             if points is None:
-                raise ValueError("Cannot instantiate abstract Path class without points to determine dimension.")
+                raise Bosl2ValueError("Cannot instantiate abstract Path class without points to determine dimension.")
             pts = np.asarray(points, dtype=float)
             dim = pts.shape[-1] if len(pts.shape) > 1 else 0
             if dim == 2:
@@ -109,7 +110,7 @@ class Path(ABC):
 
                 return cast("Self", super().__new__(Path3D))
             else:
-                raise ValueError("Path points must be 2-D or 3-D.")
+                raise Bosl2ValueError("Path points must be 2-D or 3-D.")
         return super().__new__(cls)
 
     def color(self, c: "Color") -> Self:
@@ -252,7 +253,7 @@ class Path(ABC):
         derivs = np.asarray(deriv(pts, height=height, closed=closed), dtype=float)
         norms = np.linalg.norm(derivs, axis=1, keepdims=True)
         if not (np.all(norms.ravel() > EPSILON)):
-            raise ValueError("Cannot normalize a zero vector")
+            raise Bosl2ValueError("Cannot normalize a zero vector")
         result: NDArray[np.float64] = derivs / norms
         return result
 
