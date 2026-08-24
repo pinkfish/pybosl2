@@ -537,6 +537,18 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """Refuse: face treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
         self._refuse("face_profile")
 
+    def round_edges(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use `cuboid(rounding=...)` instead."""
+        self._refuse("round_edges")
+
+    def chamfer_edges(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use `cuboid(chamfer=...)` instead."""
+        self._refuse("chamfer_edges")
+
+    def cove_edges(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only, and a cove has no constructor parameter."""
+        self._refuse("cove_edges")
+
     def projection(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: a 2-D shadow of a field has no closed form (SPEC PAR-3). Use `.to_csg()`."""
         self._refuse("projection")

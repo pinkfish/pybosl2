@@ -455,9 +455,8 @@ def contour(
             from pybosl2 import contour, Bounds2D
             from pybosl2.path2d import Path2D
 
-            def field(p):
-                r = np.hypot(p[:, 0], p[:, 1])
-                return r
+            def field(p: np.ndarray) -> np.ndarray:
+                return np.hypot(p[:, 0], p[:, 1])
             paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)
             Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
 
@@ -1035,7 +1034,7 @@ class VNF:
     @classmethod
     def vertex_array(
         cls,
-        points: Path3D | list[Path3D] | list[list[list[float]]] | list[np.ndarray] | np.ndarray,
+        points: "Path3D | Sequence[Path3D] | Sequence[Sequence[Sequence[float]]] | Sequence[np.ndarray] | np.ndarray",
         caps: "CapsSpec | None" = None,
         col_wrap: bool = False,
         row_wrap: bool = False,
@@ -1391,9 +1390,9 @@ class VNF:
             import numpy as np
             from pybosl2 import VNF, Bounds3D
 
-            def field(p):
+            def field(p: np.ndarray) -> np.ndarray:
                 x, y, z = p[:, 0], p[:, 1], p[:, 2]
-                return 20 / np.sqrt(x*x + y*y + z*z) + 3 * np.sin(x / 3)
+                return 20 / np.sqrt(x * x + y * y + z * z) + 3 * np.sin(x / 3)
             VNF.from_field(
                 field, 1,
                 Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),
@@ -1605,7 +1604,7 @@ class VNF:
         closed: bool = False,
         style: VNFStyle = VNFStyle.MIN_EDGE,
         z: Sequence[float] | None = None,
-    ) -> "VNF | Solid":
+    ) -> "Solid":
         """Blend a stack of 2-D/3-D profiles into a skinned surface, returning a VNF or Bosl2Solid.
 
         Consecutive profiles are connected vertex-to-vertex; *slices* extra interpolated profiles are
@@ -1635,21 +1634,23 @@ class VNF:
 
                 circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
                 square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]
-                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron().show()
+                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).show()
 
         """
-        from pybosl2.skin import _skin
+        from pybosl2.skin import _as_solid, _skin
 
-        return _skin(
-            profiles,
-            slices,
-            refine=refine,
-            method=method,
-            sampling=sampling,
-            caps=caps,
-            closed=closed,
-            style=style,
-            z=z,
+        return _as_solid(
+            _skin(
+                profiles,
+                slices,
+                refine=refine,
+                method=method,
+                sampling=sampling,
+                caps=caps,
+                closed=closed,
+                style=style,
+                z=z,
+            )
         )
 
 

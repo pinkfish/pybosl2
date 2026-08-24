@@ -108,7 +108,7 @@ class Slider(Buildable):
                 chamfer=2,
                 edges=[Anchor.RIGHT],
                 except_edges=[Anchor.BOTTOM],
-                anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],  # type: ignore[arg-type]
+                anchor=[b + le for b, le in zip(BOTTOM, LEFT, strict=False)],
                 fn=fn,
                 fa=fa,
                 fs=fs,

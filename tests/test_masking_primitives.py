@@ -4,6 +4,7 @@
 # root for the full license text.
 # SPDX-License-Identifier: BSD-2-Clause
 
+import numpy as np
 import pytest
 
 from pybosl2._edges_lang import Anchor
@@ -21,7 +22,7 @@ from pybosl2.path2d import Path2D
 
 
 def test_mask2d_chamfer() -> None:
-    path = mask2d_chamfer(x=3.0, y=4.0)
+    path = mask2d_chamfer(width=3.0, height=4.0)
     assert isinstance(path, Path2D)
     assert len(path) == 5
 
@@ -38,10 +39,23 @@ def test_mask2d_tear() -> None:
     assert len(path) > 5
 
 
-def test_mask2d_step() -> None:
+def test_mask2d_step_encloses_the_notch_it_cuts() -> None:
+    """A mask is the area it removes, so that is what the test asserts (PLAN X-8).
+
+    This used to check only ``len(path) == 6``, which a profile enclosing 0.08 mm^2 satisfies as
+    happily as one enclosing 16: the polygon returned along the notch's own edges, so a 3x4 step
+    cut nothing at all.
+    """
     path = mask2d_step(width=3.0, height=4.0)
     assert isinstance(path, Path2D)
-    assert len(path) == 6
+    points = np.asarray(path)
+    area = abs(0.5 * np.sum(points[:, 0] * np.roll(points[:, 1], -1) - np.roll(points[:, 0], -1) * points[:, 1]))
+    assert area == pytest.approx(3.0 * 4.0, abs=0.1), f"a 3x4 step must enclose ~12 mm^2, got {area}"
+
+
+def test_mask2d_step_is_square_unless_told_otherwise() -> None:
+    """One number is a square step (SPEC D-2, P-3)."""
+    np.testing.assert_allclose(np.asarray(mask2d_step(3.0)), np.asarray(mask2d_step(3.0, 3.0)))
 
 
 def test_mask2d_groove() -> None:
@@ -52,7 +66,7 @@ def test_mask2d_groove() -> None:
 
 def test_mask3d_roundover_reaches_every_corner_of_the_box() -> None:
     """The cutter is one r-sided block per corner, so its envelope is the whole `size` box."""
-    cutter = mask3d_roundover(r=2.0, size=(10.0, 10.0, 10.0))
+    cutter = mask3d_roundover(radius=2.0, size=(10.0, 10.0, 10.0))
     _box = cutter.bounds()
     centre, size = list(_box.center), list(_box.size)
     assert centre == pytest.approx([0.0, 0.0, 0.0])
@@ -62,7 +76,7 @@ def test_mask3d_roundover_reaches_every_corner_of_the_box() -> None:
 @pytest.mark.parametrize("radius", [2.0, 4.0])
 def test_mask3d_roundover_corner_selection_limits_the_cutter(radius: float) -> None:
     """corners=TOP leaves the bottom four corners alone: the cutter is an r-thick top slab."""
-    cutter = mask3d_roundover(r=radius, size=(10.0, 10.0, 10.0), corners=Anchor.TOP)
+    cutter = mask3d_roundover(radius=radius, size=(10.0, 10.0, 10.0), corners=Anchor.TOP)
     _box = cutter.bounds()
     centre, size = list(_box.center), list(_box.size)
     assert centre == pytest.approx([0.0, 0.0, 5.0 - radius / 2])
@@ -71,7 +85,7 @@ def test_mask3d_roundover_corner_selection_limits_the_cutter(radius: float) -> N
 
 def test_mask3d_roundover_rejects_an_empty_corner_set() -> None:
     with pytest.raises(ValueError, match="selected no corners"):
-        mask3d_roundover(r=2.0, size=(10.0, 10.0, 10.0), corners=Anchor.NONE)
+        mask3d_roundover(radius=2.0, size=(10.0, 10.0, 10.0), corners=Anchor.NONE)
 
 
 def test_mask3d_chamfer_occupies_the_same_corners_as_the_roundover() -> None:
@@ -96,7 +110,7 @@ def test_mask3d_chamfer_is_not_the_roundover() -> None:
     factories emitted byte-identical programs and every test passed.
     """
     chamfered = repr(mask3d_chamfer(chamfer=2.0, size=(10.0, 10.0, 10.0)))
-    rounded = repr(mask3d_roundover(r=2.0, size=(10.0, 10.0, 10.0)))
+    rounded = repr(mask3d_roundover(radius=2.0, size=(10.0, 10.0, 10.0)))
     assert "sphere(" in rounded
     assert "sphere(" not in chamfered
     assert chamfered != rounded

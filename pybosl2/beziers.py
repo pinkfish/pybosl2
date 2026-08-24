@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     from pybosl2._edges_lang import Anchor
     from pybosl2.caps import CapsSpec, CapType
     from pybosl2.paths import Path, PathLike
-    from pybosl2.points import Point
+    from pybosl2.points import Point, PointLike
     from pybosl2.shapes3d import Bosl2Solid
 
 import numpy as np
@@ -199,7 +199,7 @@ class Bezier:
         result = powers @ mp
         return result[0] if scalar else result  # type: ignore[no-any-return]
 
-    def curve(self, splinesteps: int = 16, endpoint: bool = True) -> np.ndarray:
+    def curve(self, splinesteps: int = 16, endpoint: bool = True) -> "Path":
         """Sample *splinesteps* segments uniformly along the curve.
 
         Returns an ndarray of *splinesteps*+1 points (or *splinesteps* if
@@ -223,7 +223,13 @@ class Bezier:
             pts.stroke(width=2).linear_extrude(height=3).show()
 
         """
-        return self.points(lerpn(0, 1, splinesteps + 1, endpoint))
+        # The sampled points *are* a path -- which is what the docstring example does with them
+        # (`.stroke(...)`) -- so say so rather than handing back a bare array (PLAN T-4).
+        from pybosl2.path2d import Path2D
+        from pybosl2.path3d import Path3D
+
+        sampled = np.asarray(self.points(lerpn(0, 1, splinesteps + 1, endpoint)), dtype=float)
+        return Path3D(sampled) if sampled.shape[1] == 3 else Path2D(sampled)
 
     def derivative(self, u: float | Sequence[float] | np.ndarray, order: int = 1) -> np.ndarray:
         """Compute the *order*-th derivative of the curve at parameter(s) *u*.
@@ -302,7 +308,7 @@ class Bezier:
             out.append(val)
         return out[0] if scalar else np.array(out)  # type: ignore[return-value]
 
-    def closest_point(self, pt: np.ndarray, max_err: float = 0.01, u: float = 0.0, end_u: float = 1.0) -> float:
+    def closest_point(self, pt: "PointLike", max_err: float = 0.01, u: float = 0.0, end_u: float = 1.0) -> float:
         """Return the parameter *u* of the point on this curve closest to *pt*.
 
         Uses recursive bisection to find the curve parameter that minimizes
@@ -481,7 +487,7 @@ class Bezier:
             return _Path3D(result)
         return _Path2D(result)
 
-    def path_closest_point(self, pt: np.ndarray, n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
+    def path_closest_point(self, pt: "PointLike", n_degree: int = 3, max_err: float = 0.01) -> tuple[int, float]:
         """Find the closest position on this bezier PATH to *pt*.
 
         Returns a tuple ``[segnum, u]`` where *segnum* is the 0-based curve
@@ -744,7 +750,7 @@ class Bezier:
                 ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
                 tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
         else:
-            path = self.curve(splinesteps, endpoint)  # type: ignore[assignment]
+            path = self.curve(splinesteps, endpoint)
             tang: list[Sequence[float]] = self.derivative(  # type: ignore[no-redef]
                 list(lerpn(0, 1, splinesteps + 1, endpoint))
             )
@@ -830,7 +836,7 @@ class Bezier:
                 ctrl = Bezier(bezpath[seg * n_degree : (seg + 1) * n_degree + 1])
                 tang.extend(ctrl.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
         else:
-            path = self.curve(splinesteps, endpoint)  # type: ignore[assignment]
+            path = self.curve(splinesteps, endpoint)
             tang = list(self.derivative(list(lerpn(0, 1, splinesteps + 1, endpoint))))
         placed = _path_sweep(
             [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]],  # placeholder profile: only the frames are read
@@ -853,7 +859,7 @@ class Bezier:
 
     @staticmethod
     def begin(
-        pt: np.ndarray, angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
+        pt: "PointLike", angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
     ) -> np.ndarray:
         """Return the starting endpoint and control point of a cubic bezier path.
 
@@ -878,7 +884,7 @@ class Bezier:
 
     @staticmethod
     def tang(
-        pt: np.ndarray,
+        pt: "PointLike",
         angle: float | Sequence[float],
         radius1: float | None = None,
         radius2: float | None = None,
@@ -914,7 +920,7 @@ class Bezier:
 
     @staticmethod
     def joint(
-        pt: np.ndarray,
+        pt: "PointLike",
         angle1: float | Sequence[float],
         angle2: float | Sequence[float],
         radius1: float | None = None,
@@ -957,7 +963,7 @@ class Bezier:
 
     @staticmethod
     def end(
-        pt: np.ndarray, angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
+        pt: "PointLike", angle: float | Sequence[float], radius: float | None = None, phi: float | None = None
     ) -> np.ndarray:
         """Approaching control point and endpoint of a cubic bezier path.
 
@@ -1222,7 +1228,7 @@ class BezierPatch:
 
     _rows: np.ndarray
 
-    def __init__(self, rows: np.ndarray = ()) -> None:  # type: ignore[assignment]
+    def __init__(self, rows: "Sequence[Sequence[Sequence[float]]] | np.ndarray" = ()) -> None:
         """Initialize with a 2-D grid of 3-D control points.
 
         Accepts a list of rows where each row is a list of [x, y, z] control
@@ -1416,7 +1422,7 @@ class BezierPatch:
             flipping the mesh orientation.
 
         """
-        return BezierPatch([list(reversed(row)) for row in self])  # type: ignore[arg-type]
+        return BezierPatch([list(reversed(row)) for row in self])
 
     # -- meshing ---------------------------------------------------------------------------
 
@@ -1528,7 +1534,7 @@ class BezierPatch:
         xform = np.eye(4)
         xform[:3, 3] = np.asarray(trans, dtype=float)
         m = (xform @ base).tolist()
-        return BezierPatch([_apply(m, row) for row in patch])  # type: ignore[arg-type]
+        return BezierPatch([_apply(m, row) for row in patch])
 
     def sheet(self, delta: "float | Sequence[float]", splinesteps: int = 16, style: VNFStyle = VNFStyle.DEFAULT) -> VNF:
         """Offset the patch along surface normals to form a thin sheet (BOSL2 bezier_sheet).

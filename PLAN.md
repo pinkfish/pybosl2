@@ -104,10 +104,16 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   present. Anything in a contract MUST be declared on the class.
 * **T-7 Variance is explicit.** `TypeVar("T", covariant=True)` / `contravariant=True` where a
   generic is exposed publicly.
-* **T-8 Stubs for dynamic surfaces.** Any module whose public names are bound dynamically MUST ship
-  a `.pyi` that declares them statically — `pybosl2/__init__.pyi`, `shapes2d/__init__.pyi`,
-  `shapes3d/__init__.pyi`, `solid.pyi`, `_shape.pyi`. A stub and its module MUST NOT drift; parity
-  is enforced by `tests/test_init_stub.py`.
+* **T-8 Stubs for dynamic surfaces, and *only* for those.** A module whose public names are bound
+  dynamically MUST ship a `.pyi` that declares them statically — `pybosl2/__init__.pyi`,
+  `shapes2d/__init__.pyi`, `shapes3d/__init__.pyi`, `_shape.pyi`. A module whose functions are
+  ordinary `def`s with full annotations MUST NOT: the stub shadows the truth and can only drift
+  from it. `solid.pyi` was exactly that and had — it declared `cube` with five parameters where
+  the module has fifteen, so `cube(size=20, chamfer=2)` failed the checker while working perfectly,
+  and the docstring example that wrote it was reported as the defect. It is deleted.
+
+  A stub and its module MUST NOT drift; parity is enforced by `tests/test_init_stub.py`, and the
+  docstring-example gate (D-P5a) is what catches the drift a parity test does not model.
 * **T-9 No dynamic globals.** Never `globals()[name] = …` or `setattr(module, …)` to register an
   API. The one permitted `__getattr__` is the top-level lazy re-export table, which is backed by
   its stub (T-8).

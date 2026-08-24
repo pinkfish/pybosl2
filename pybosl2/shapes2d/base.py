@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
     from pybosl2.path2d import Path2D
-    from pybosl2.path3d import Path3D
+    from pybosl2.paths import PathLike
     from pybosl2.shapes3d.base import CsgSolid as Bosl2Solid
 
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
@@ -643,7 +643,7 @@ class CsgShape2D(BaseShape):
                 kw[name] = value
         return Bosl2Solid(self.shape.rotate_extrude(**kw))
 
-    def path_extrude(self, path: Path3D, convexity: int | None = None) -> "Bosl2Solid":
+    def path_extrude(self, path: "PathLike", convexity: int | None = None) -> "Bosl2Solid":
         """Sweep this 2-D shape along *path* via the native ``path_extrude()``.
 
         *path* is a :class:`~pybosl2.paths.Path3D` or a point list.

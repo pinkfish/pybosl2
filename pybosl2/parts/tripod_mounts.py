@@ -199,7 +199,7 @@ class ManfrottoRC2Plate(Buildable):
                 ],
                 size=mask_box,
                 center=mask_center,
-                children=chamfer_edge_mask(length, chsize),
+                mask=chamfer_edge_mask(length, chsize),
             )
             assert body is not None
 
@@ -214,7 +214,7 @@ class ManfrottoRC2Plate(Buildable):
                 ],
                 size=mask_box,
                 center=mask_center,
-                children=chamfer_edge_mask(length, chsize),
+                mask=chamfer_edge_mask(length, chsize),
             )
             assert body is not None
 

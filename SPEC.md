@@ -438,9 +438,15 @@ resolution rules in §8, and the error contract in §9.
   (D-5), not `r`; `width`/`depth`/`length` rather than `x`/`y` — and takes at most one required
   argument (D-2). `mask3d_groove(width, depth, length)` with three required positionals is the
   case D-2 says is never acceptable.
-* **S-26d A mask profile is a shape.** 2-D masks return a `Flat`, not a `Path2D`: S-26 calls them
-  first-class shapes and a caller composing one with `|`/`-` should not have to convert first. The
-  underlying path stays available on the result.
+* **~~S-26d A mask profile is a shape.~~** ~~2-D masks return a `Flat`, not a `Path2D`.~~
+  **Withdrawn** (§13 rule 5). Implementation showed it makes the primary use worse and breaks the
+  layering: a 2-D mask exists to be *swept along an edge*, which needs a path, and the `Mask2D`
+  factories are pure L0 — they build a `Path2D` out of arithmetic with no CAD runtime in sight,
+  whereas `Path2D.polygon()` crosses the FFI. Returning a `Flat` would force every mask
+  construction through a native runtime that A-2 says L0 must not need, to spare a `.polygon()`
+  call in the rarer case. A mask profile is data; `.polygon()` is the one step to geometry when a
+  caller wants it. S-26's "first-class" stands — it means the profiles are named, reusable values
+  rather than inline point lists, which they are.
 * **S-28** Rounding and chamfering MUST be available both as constructor parameters
   (`rounding=`, `chamfer=`, and their per-end variants) and as masks, and the two MUST agree
   geometrically.
@@ -840,15 +846,22 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 | **DOC-5 / Q-6** | Docstring examples were rendered but never type-checked, so `path_sweep`'s documented one-liner failed `mypy --strict` for as long as its signature was wrong | `tests/test_docstring_examples.py` extracts all 304 examples and type-checks them in one batched `mypy --strict` run — no CAD runtime needed, so it runs in CI. It found 54 signature defects on the day it landed; 19 are fixed and the remaining 35 are a per-module ratchet that only shrinks (PLAN R-P5) |
 | **DOC-6** | The docs opened on a module-indexed API reference, with no page taking a reader from "I want a bracket" to a file on disk | `docs/getting_started.rst`: solid, roundover, bore, boss, measurement, export — one worked part, first in the toctree. The index no longer points new readers at `pybosl2.shapes3d.Bosl2Solid` while the spec designates the façade |
 | **O-1c** | 50 part classes each carried a hand-written `show()` that only delegated to `self.shape.show()` | `parts/_buildable.py`: `Buildable` provides `show()`, `export()` and `bounds()` from a part's `shape`. The three parts whose `shape` is a 2-D profile do not inherit it |
+| **S-26a / S-26b / S-26c** | Masking broke more of this project's own rules than anything else: `mask3d_roundover(r, size)` demanded the *parent's* dimensions as a second positional, `mask3d_groove(width, depth, length)` had three required positionals where D-2 says three is never acceptable, `r` was spelled `r` where D-5 asks for `radius`/`diameter`, `mask2d_chamfer(x, y)` named the axes rather than the thing, and `edge_mask(children=...)` took a raw `PyOpenSCAD` — an L2 type crossing an L3 boundary (A-1) in the module-with-children vocabulary B2-2 exists to replace | `solid.round_edges(Anchor.Z, radius=3)`, `chamfer_edges()` and `cove_edges()` are the spellings a caller reaches for: they build the mask and take the box from `bounds()`, so the parent's dimensions are never named. `children=` is `mask=` everywhere and typed `Solid`/`Path2D`. Every factory takes at most one required positional — `Mask3D.groove(6)` derives depth from width and length from the part, `Mask2D.step(4)` is square unless told otherwise — and `size` is keyword-only, because it describes the parent rather than the treatment. `radius`/`diameter` route through `pick_radius()`. Tests: `tests/test_mask_contract.py`, which pins that a treatment matches the mask it replaces geometrically |
+| bug | `Mask2D.step` returned a polygon that ran back along the notch's own edges, so it enclosed an L-shaped sliver `excess` thick — a 4×4 step enclosed 0.08 mm² instead of 16 and **cut nothing at all**. Its test asserted `len(path) == 6`, which a broken mask satisfies as happily as a working one | The profile is the rectangle it removes; the test asserts the enclosed *area* (PLAN X-8) |
+| **T-8** | `solid.pyi` shadowed a fully-annotated module and had drifted from it — it declared `cube` with five parameters where the module has fifteen, so `cube(size=20, chamfer=2)` failed the checker while working perfectly. The 30 fluent turtle methods, bound with `setattr`, had no stub at all, so the entire fluent API was invisible to typed code. `shapes3d/__init__.pyi` was missing `osimport` | `solid.pyi` deleted (T-8 now says a stub is for dynamic surfaces *only*); `turtle/_fluent.pyi` written and kept in step by `tests/test_turtle_stub.py`; `osimport` declared. All three found by the docstring gate |
+| **S-19a** | `VNF.from_skin` was the sweep-family member T18 missed: still `VNF \| Solid`, still needing `.polyhedron()` | Returns a `Solid` through the same `_as_solid()` the rest of the family uses |
+| **PAR-4** | The SDF 2-D shape spelled extrusion `extrude` where the contract and the CSG shape say `linear_extrude`, and its narrow alias silently dropped the rounding options | One `linear_extrude` carrying the full parameter set; the naming divergence is gone rather than moved |
+| **T-4** | Point-shaped parameters were typed `np.ndarray`, rejecting the plain lists their own examples pass — `Bezier.begin([0, 0], 45)` did not type-check | `PointLike` (`Point \| Sequence[float] \| NDArray`), the point-shaped twin of `PathLike`, applied across beziers and isosurface; `plot_revolution(angle=)` was typed `float` while its body required a sequence of at least two |
+| bug | `Anchor.UP` in a docstring example — a name that has never existed, so the example was broken at runtime, not merely untyped | `Anchor.TOP`; found by the docstring gate |
 
 ### 12.2 Open
 
 | # | Requirement | Current state |
 |---|---|---|
 | 1 | **S-46a / PAR-1** | **38 of the 53 parts build on either backend** (T14). The 15 that still refuse all need the same thing — a non-convex mesh, which has no closed-form distance field — so closing this fully would mean approximating one, which B-5 forbids. |
-| 2 | **S-26a … S-26d** | The masking API still breaks the most of the library's own rules: `mask3d_roundover(r, size)` demands the parent's own dimensions, `mask3d_groove(width, depth, length)` has three required positionals, `edge_mask(children=...)` takes a raw native handle, and 2-D masks return `Path2D` rather than `Flat`. [T22](TASKS.md#t22--make-the-masks-obey-the-librarys-own-rules) |
-| 3 | **DOC-5 / Q-6** | 35 of 304 docstring examples still fail `mypy --strict`, held by a per-module ratchet that only shrinks. Almost all are one rule — T-4, "inputs widen": a callable typed to take the exact object the library returns rejects the plain list its own example passes. [T23 step 2](TASKS.md#t23--type-check-the-examples-and-build-a-front-door) |
-| 4 | **PAR-4** | `partition()` returns `list[CsgSolid]` on one backend and `tuple[SdfSolid, SdfSolid]` on the other, so the shared contract has to type it `Any`. Surfaced by the C-20 work; the two need to agree on the container. |
+| 2 | **DOC-5 / Q-6** | **7 of 314** docstring examples still fail `mypy --strict`, down from 54 when the gate landed, held by a per-module ratchet that only shrinks. What is left is concentrated in `beziers` (patch and sampling helpers still typed `ndarray` where a caller writes lists) plus the two PAR-4 divergences below. [T23 step 2](TASKS.md#t23--type-check-the-examples-and-build-a-front-door) |
+| 3 | **PAR-4** | Two shared operations diverge between the backends, so the contract cannot describe them fully. `partition()` returns `list[CsgSolid]` on one and `tuple[SdfSolid, SdfSolid]` on the other, so it is typed `Any`; `half_of()` takes `cut_path`/`cut_angle`/`offset` on CSG and not on SDF, so the contract declares only the three shared parameters. Both surfaced by the C-20 work. |
+| 4 | **C-21** | Three synonym pairs remain on the shape surface: `move`/`translate`, `rot`/`rotate`, `fwd`/`forward`. Deliberately left out of the C-20 wave rather than bundled into a change that size. |
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body

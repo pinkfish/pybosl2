@@ -248,7 +248,7 @@ class Truss(Buildable):
     def __init__(
         self,
         extents: int | Sequence[int] = 6,
-        clips: Sequence[Sequence[float]] | Sequence[float] | None = None,
+        clips: "Anchor | Sequence[Sequence[float]] | Sequence[float] | None" = None,
         bracing: bool | None = None,
         size: float | None = None,
         strut: float | None = None,

@@ -636,7 +636,7 @@ def test_oop_skin_and_sweep() -> None:
     circle = [[math.cos(t), math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
     square = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
     vnf_skinned = VNF.from_skin([circle, square], slices=5, method=SkinMethod.REINDEX, z=[0, 10])
-    assert isinstance(vnf_skinned, VNF)
+    assert isinstance(vnf_skinned.vnf, VNF)  # a Solid now (SPEC S-19a); the mesh is on .vnf
     assert abs(_mesh(vnf_skinned).volume()) > 0
 
     shape = Path2D(square)

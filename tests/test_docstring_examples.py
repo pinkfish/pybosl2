@@ -121,23 +121,12 @@ def test_there_are_examples_to_check() -> None:
 #: Counted per module rather than per line so the list survives ordinary editing: a moved example
 #: must not silently free a slot.
 #:
-#: 35 of 304 examples, down from 48 when the gate landed.
+#: 7 of 314 examples, down from 54 when the gate landed.
 KNOWN_UNTYPED_EXAMPLES: dict[str, int] = {
-    "docs/index.rst": 1,
-    "pybosl2/beziers.py": 7,
-    "pybosl2/distributors.py": 1,
-    "pybosl2/isosurface.py": 1,
+    "pybosl2/beziers.py": 3,
     "pybosl2/partitions.py": 1,
-    "pybosl2/parts/cubetruss.py": 1,
     "pybosl2/sdf/shapes2d.py": 1,
-    "pybosl2/shapes2d/base.py": 1,
-    "pybosl2/shapes3d/base.py": 4,
-    "pybosl2/shapes3d/cuboid.py": 2,
-    "pybosl2/shapes3d/cylinder.py": 3,
-    "pybosl2/solid.py": 5,
-    "pybosl2/surfaces3d.py": 1,
-    "pybosl2/turtle/_fluent.py": 1,
-    "pybosl2/vnf.py": 5,
+    "pybosl2/vnf.py": 2,
 }
 
 

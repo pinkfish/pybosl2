@@ -247,7 +247,7 @@ def test_skin_lofts_two_profiles(tmp_path):
     )
     m = _render(
         tmp_path,
-        "VNF.from_skin([circle, square], slices=16, method=SkinMethod.REINDEX, z=[0, 25]).polyhedron()",
+        "VNF.from_skin([circle, square], slices=16, method=SkinMethod.REINDEX, z=[0, 25])",
         setup=setup,
         name="skin",
     )
