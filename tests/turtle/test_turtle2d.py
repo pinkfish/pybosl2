@@ -13,6 +13,7 @@ import pytest
 
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
+from pybosl2.regions import Region
 from pybosl2.turtle import Turtle2D, Turtle2DState, TurtleCommand, turtle2d
 from pybosl2.turtle import TurtleCommandType as Tct
 
@@ -201,5 +202,7 @@ def test_turtle_stroke() -> None:
     t = Turtle2D()
     t.run([M(Tct.MOVE, size=20), M(Tct.LEFT, angle=90), M(Tct.MOVE, size=20)])
     s = t.stroke(width=2)
-    assert isinstance(s, Path2D)
-    assert len(s) > 0
+    assert isinstance(s, Region)  # a stroke is the area the pen covers (SPEC S-23a)
+    assert len(s.paths[0]) > 0
+    # the L the turtle walked, grown by half a width on each side
+    assert s.bounds().size == pytest.approx((22.0, 22.0), abs=0.1)

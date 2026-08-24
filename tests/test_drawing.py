@@ -127,8 +127,8 @@ def test_stroke_2d_builds() -> None:
     """A stroked arc is a closed ribbon reaching half the width past the arc on each side."""
     path = arc(radius=30, angle=200)
     ribbon = path.stroke(width=3)
-    assert isinstance(ribbon, Path2D)
-    assert len(ribbon) > len(path)  # both sides of the ribbon, plus the caps
+    assert isinstance(ribbon, Region)  # a stroke is the area the pen covers (SPEC S-23a)
+    assert len(ribbon.paths[0]) > len(path)  # both sides of the ribbon, plus the caps
     box = ribbon.bounds()
     assert box.max_x - box.min_x == pytest.approx(2 * 30 + 3, abs=0.6)  # the arc, widened by the stroke
 
@@ -148,7 +148,7 @@ def test_stroke_closed_path_defaults_from_flag() -> None:
     open_ribbon = Path2D(list(square), closed=False).stroke(width=1)
     box = closed_ribbon.bounds()
     assert box.max_x - box.min_x == pytest.approx(11.0, abs=0.01)  # 10 plus half a width each side
-    assert len(closed_ribbon) != len(open_ribbon)
+    assert len(closed_ribbon.paths[0]) != len(open_ribbon.paths[0])
 
 
 def test_stroke_region_strokes_every_path() -> None:
@@ -235,7 +235,7 @@ def test_every_endcap_style_builds_2d(style: object) -> None:
     ribbon = Path2D(pts, closed=True).stroke(width=3, endcap1=style, endcap2=style)  # type: ignore[arg-type]
     box = ribbon.bounds()
     assert (box.min_x, box.max_x) == pytest.approx((-1.5, 21.5))  # half a width past each side
-    assert len(ribbon) > len(pts)
+    assert len(ribbon.paths[0]) > len(pts)
 
 
 @pytest.mark.parametrize("style", ALL_ENDCAPS)

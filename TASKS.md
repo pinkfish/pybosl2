@@ -51,8 +51,10 @@ spec renumbers as items close, and all but S-46a have.
 | 8 | S-26a … S-26c | [T22](#t22--make-the-masks-obey-the-librarys-own-rules) ✅ | L |
 | 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) ✅ | M |
 
-**T0–T23 are all done.** T14 (parts on the SDF backend) is the one remaining conformance item,
-and it is bounded by mathematics rather than effort — see SPEC §12.2.
+**T0–T23 are all done**, and every item from the API review that opened this wave is closed —
+including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
+T14 (parts on the SDF backend) is the one remaining conformance item, and it is bounded by
+mathematics rather than effort: see SPEC §12.2.
 
 T16–T23 came from using the library as a caller rather than reading it: every one is a rule the
 spec already stated that nothing measured — which is why T23's gate went in even though its
