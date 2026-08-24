@@ -91,7 +91,7 @@ The T16–T23 wave, which is about the object surface rather than the constructo
        │                (needs T16's type)  before declaring the contract complete
        │
   T18 sweeps ──► T19 export               a sweep must return a Solid before "export a Solid"
-       │          (needs T18's .vnf)        is the whole story
+       │          (needs T18's .vnf())      is the whole story
        │
   T21 exports ─── independent, and cheap
   T22 masks   ─── independent (touches masking.py + the edge_* methods on the solid)
