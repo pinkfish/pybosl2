@@ -25,6 +25,8 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from pybosl2._native import native
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.solid import cuboid, cyl, prismoid
 
@@ -52,7 +54,7 @@ def _circle_point_tangents(r: float, center: list[float], pt: list[float]) -> li
     pt_arr = np.asarray(pt, dtype=float)
     diameter = float(np.linalg.norm(pt_arr - center_arr))
     if diameter <= r:
-        raise ValueError("point must be outside the circle for a tangent to exist")
+        raise Bosl2ValueError("point must be outside the circle for a tangent to exist")
     u = (pt_arr - center_arr) / diameter
     angle = math.acos(r / diameter)
     out: list[list[float]] = []
@@ -71,7 +73,7 @@ def _radius(r: float | None, d: float | None) -> float | None:
     return None
 
 
-class RingHook:
+class RingHook(Buildable):
     """A ring hook: a rectangular base that flares tangentially into a Y-axis cylinder with a hole.
 
     *base_size* is the ``[x, y]`` of the mounting base, which sits on ``z = 0``; *hole_z* the
@@ -146,29 +148,29 @@ class RingHook:
         ir_t = _radius(inner_radius, inner_diameter)
         if custom:
             if ir_t is not None or wall is not None:
-                raise ValueError(
+                raise Bosl2ValueError(
                     "ring_hook(): cannot give inner_radius/inner_diameter or wall with a custom hole path."
                 )
             if or_t is None:
-                raise ValueError("ring_hook(): a custom hole needs or/outer_diameter.")
+                raise Bosl2ValueError("ring_hook(): a custom hole needs or/outer_diameter.")
             ri, ro = 0.0, or_t
         else:
             defined = sum(v is not None for v in (or_t, ir_t, wall))
             if defined != 2:
-                raise ValueError(
+                raise Bosl2ValueError(
                     "ring_hook(): define exactly two of or/outer_diameter, inner_radius/inner_diameter and wall."
                 )
             ri = ir_t if ir_t is not None else float(or_t) - float(wall)  # type: ignore[arg-type]
             ro = or_t if or_t is not None else float(ri) + float(wall)  # type: ignore[arg-type]
             if ri > ro:
-                raise ValueError("ring_hook(): hole doesn't fit, or wall is negative.")
+                raise Bosl2ValueError("ring_hook(): hole doesn't fit, or wall is negative.")
             if hole not in (HoleType.CIRCLE, HoleType.D):
-                raise ValueError(f"ring_hook(): hole must be CIRCLE, D or a 2-D path, got {hole!r}")
+                raise Bosl2ValueError(f"ring_hook(): hole must be CIRCLE, D or a 2-D path, got {hole!r}")
             if hole == HoleType.CIRCLE and ri > 0 and ri + hole_rounding >= hole_z:
-                raise ValueError(f"ring_hook(): inner_radius + hole_rounding must be less than hole_z ({hole_z}).")
+                raise Bosl2ValueError(f"ring_hook(): inner_radius + hole_rounding must be less than hole_z ({hole_z}).")
 
         if math.hypot(bx / 2, hole_z) <= ro:
-            raise ValueError("ring_hook(): base corners must be outside the cylinder (need a tangent).")
+            raise Bosl2ValueError("ring_hook(): base corners must be outside the cylinder (need a tangent).")
 
         tangents = _circle_point_tangents(ro, [0, hole_z], [bx / 2, 0])
         tx, tz = max(tangents, key=lambda t: t[1])

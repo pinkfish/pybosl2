@@ -66,7 +66,7 @@ def test_sweep_builds_ffi_free() -> None:
     tube = sdf.bezier_sweep(CIRCLE, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
     assert type(tube).__name__ == "SdfSolid"
     assert tube.backend == "sdf"
-    size = tube.bounds()[1]
+    size = tube.bounds().size
     assert len(size) == 3
     assert all(v > 0 for v in size)
 
@@ -75,7 +75,7 @@ def test_sweep_builds_ffi_free() -> None:
 def test_straight_tube_geometry() -> None:
     tube = sdf.path_sweep(CIRCLE, [[0, 0, z] for z in np.linspace(0, 30, 40)])
     # a radius-2 circle swept 0..30 along z: bounds exactly [4, 4, 30], no overshoot past the ends
-    sx, sy, sz = tube.bounds()[1]
+    sx, sy, sz = tube.bounds().size
     assert abs(sx - 4) < 0.05
     assert abs(sy - 4) < 0.05
     assert abs(sz - 30) < 0.05

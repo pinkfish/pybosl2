@@ -22,6 +22,8 @@
 
 from __future__ import annotations
 
+from pybosl2.exceptions import Bosl2ValueError
+
 # The default version baked into the code. The release GitHub workflow rewrites
 # the literal on the next line to match the release tag (e.g. a "v1.2.3" release
 # sets this to "1.2.3"). Keep it a plain string literal so setuptools can read it
@@ -55,7 +57,7 @@ class Version:
         try:
             self.major, self.minor, self.update = (int(p) for p in parts[:3])
         except ValueError as exc:
-            raise ValueError(f"invalid version string: {version!r}") from exc
+            raise Bosl2ValueError(f"invalid version string: {version!r}") from exc
 
     @property
     def string(self) -> str:

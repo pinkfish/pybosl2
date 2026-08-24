@@ -177,7 +177,8 @@ def test_screw_builds(head: ScrewHeadType) -> None:
     )
     solid = Screw("M6", 20, head=head, drive=drive, fn=8).shape
     assert isinstance(solid, Bosl2Solid)
-    _centre, size = solid.bounds()
+    _box = solid.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     width, height = float(size[0]), float(size[2])
     if head is ScrewHeadType.NONE:
         assert width == pytest.approx(6.0, abs=0.1)  # the shank alone
@@ -192,9 +193,9 @@ def test_screw_unthreaded_and_partly_threaded() -> None:
     threaded = Screw("M6", 20, fn=8).shape
     plain = Screw("M6", 20, thread=ThreadPitchClass.NONE, fn=8).shape
     partial = Screw("M6", 20, thread_len=8, fn=8).shape
-    reference = [float(v) for v in threaded.bounds()[1]]
-    assert [float(v) for v in plain.bounds()[1]] == pytest.approx(reference, abs=0.1)
-    assert [float(v) for v in partial.bounds()[1]] == pytest.approx(reference, abs=0.1)
+    reference = [float(v) for v in threaded.bounds().size]
+    assert [float(v) for v in plain.bounds().size] == pytest.approx(reference, abs=0.1)
+    assert [float(v) for v in partial.bounds().size] == pytest.approx(reference, abs=0.1)
     assert repr(partial.shape) != repr(plain.shape)  # ...but they are not the same screw
 
 
@@ -203,7 +204,8 @@ def test_nut_builds(shape: NutShape) -> None:
     """An M6 nut is 10mm across its flats either way; the hex adds its points on one axis."""
     solid = Nut("M6", shape=shape, fn=8).shape
     assert isinstance(solid, Bosl2Solid)
-    _centre, size = solid.bounds()
+    _box = solid.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert float(size[1]) == pytest.approx(10.0, abs=0.1)  # across the flats
     if shape is NutShape.SQUARE:
         assert float(size[0]) == pytest.approx(10.0, abs=0.1)
@@ -213,7 +215,7 @@ def test_nut_builds(shape: NutShape) -> None:
 
 def test_nut_thickness_classes_build() -> None:
     """The named classes are ordered, and a number is taken as the thickness outright."""
-    height = lambda spec: float(Nut("M6", thickness=spec, fn=8).shape.bounds()[1][2])  # noqa: E731
+    height = lambda spec: float(Nut("M6", thickness=spec, fn=8).shape.bounds().size[2])  # noqa: E731
     assert height("thin") < height("normal") < height("thick")
     assert height(4.0) == pytest.approx(4.0, abs=0.01)
 
@@ -231,7 +233,8 @@ def test_screw_hole_builds(head: ScrewHeadType, counterbore: int) -> None:
     """A hole is the cutter for the screw, so it is wider than the M6 shank it has to clear."""
     solid = ScrewHole("M6", 20, head=head, counterbore=counterbore, fn=8).shape
     assert isinstance(solid, Bosl2Solid)
-    _centre, size = solid.bounds()
+    _box = solid.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert float(size[0]) > 6.0
     assert float(size[2]) >= 20.0  # at least the screw's length, plus any counterbore
 
@@ -240,15 +243,15 @@ def test_tapped_hole_builds() -> None:
     """A tapped hole is cut at the thread's own diameter, not at a clearance fit."""
     tapped = ScrewHole("M6", 20, thread=ThreadPitchClass.COARSE, fn=8).shape
     clearance = ScrewHole("M6", 20, fn=8).shape
-    assert float(tapped.bounds()[1][0]) == pytest.approx(6.0, abs=0.1)
-    assert float(tapped.bounds()[1][0]) < float(clearance.bounds()[1][0])
+    assert float(tapped.bounds().size[0]) == pytest.approx(6.0, abs=0.1)
+    assert float(tapped.bounds().size[0]) < float(clearance.bounds().size[0])
 
 
 @pytest.mark.parametrize("fit", ["close", "normal", "loose"])
 def test_clearance_fits_build(fit: str) -> None:
     """Every fit clears the 6mm shank, and looser fits clear it by more."""
     diameters = {
-        name: float(ScrewHole("M6", 20, fit=name, fn=8).shape.bounds()[1][0]) for name in ("close", "normal", "loose")
+        name: float(ScrewHole("M6", 20, fit=name, fn=8).shape.bounds().size[0]) for name in ("close", "normal", "loose")
     }
     assert diameters[fit] > 6.0
     assert diameters["close"] < diameters["normal"] < diameters["loose"]

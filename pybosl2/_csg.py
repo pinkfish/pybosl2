@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 from pybosl2._backend import for_backend, refuse_unhonoured, register_backend
 from pybosl2._native import native
+from pybosl2.exceptions import Bosl2ValueError
 
 _polygon = native("polygon")
 
@@ -50,7 +51,7 @@ class CsgBackend:
 
         fn = getattr(_m, shape, None)
         if not callable(fn):
-            raise ValueError(f"the csg backend has no shape constructor {shape!r}")
+            raise Bosl2ValueError(f"the csg backend has no shape constructor {shape!r}")
         return cast("Callable[..., Any]", fn)
 
     def construct(self, shape: str, arguments: Mapping[str, Any]) -> Any:
@@ -98,7 +99,7 @@ class CsgBackend:
         # plain floats: the native polygon()/FFI boundary rejects numpy scalars
         outlines = [[[float(p[0]), float(p[1])] for p in path] for path in paths]
         if not (outlines):
-            raise ValueError("linear_extrude(): needs at least one outline.")
+            raise Bosl2ValueError("linear_extrude(): needs at least one outline.")
         shape = Bosl2Shape2D(_polygon(outlines[0]))
         for hole in outlines[1:]:
             shape = shape - Bosl2Shape2D(_polygon(hole))

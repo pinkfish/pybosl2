@@ -33,7 +33,9 @@ from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM, CENTER
 from pybosl2.distributors import DistributableMatrix
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.masking import chamfer_edge_mask
+from pybosl2.parts._buildable import Buildable
 from pybosl2.solid import cuboid, prismoid, regular_prism
 
 if TYPE_CHECKING:
@@ -93,7 +95,7 @@ def _clip_placement(vec: Sequence[float], extents: Sequence[float]) -> tuple[int
         return 90, (length, w, hh)
     if x < 0:  # LEFT (-X)
         return -90, (length, w, hh)
-    raise ValueError(f"cubetruss(clips=): unsupported clip direction {vec!r} (use FRONT/BACK/LEFT/RIGHT)")
+    raise Bosl2ValueError(f"cubetruss(clips=): unsupported clip direction {vec!r} (use FRONT/BACK/LEFT/RIGHT)")
 
 
 def _octagon_tunnel(
@@ -134,7 +136,7 @@ def truss_dist(
 # ---------------------------------------------------------------------------
 
 
-class TrussSegment:
+class TrussSegment(Buildable):
     """A single cubetruss cube segment — a hollow cube lightened with octagonal tunnels.
 
     Examples:
@@ -225,7 +227,7 @@ class TrussSegment:
         return self._solid.show()
 
 
-class Truss:
+class Truss(Buildable):
     """A truss assembled from a grid of cube segments.
 
     *extents* is the number of cubes long, or an ``[X, Y, Z]`` count.  *clips*
@@ -345,7 +347,7 @@ class Truss:
         return self._solid.show()
 
 
-class TrussSupport:
+class TrussSupport(Buildable):
     """A diagonal support truss — a block cut on the diagonal and lightened.
 
     *extents* is the vertical segment count, or an ``[X, Y, Z]`` count.
@@ -442,7 +444,7 @@ class TrussSupport:
         return self._solid.show()
 
 
-class TrussCorner:
+class TrussCorner(Buildable):
     """A corner truss with arms jutting out in one or more directions.
 
     *height* is the central column height in cubes.  *extents* is a scalar
@@ -534,7 +536,7 @@ class TrussCorner:
         return self._solid.show()
 
 
-class TrussClip:
+class TrussClip(Buildable):
     """A pair of snap clips for the end of a truss.
 
     Examples:
@@ -645,7 +647,7 @@ class TrussClip:
         return self._solid.show()
 
 
-class TrussFoot:
+class TrussFoot(Buildable):
     """A foot that clips onto the bottom of a truss for support.
 
     Examples:
@@ -776,7 +778,7 @@ class TrussFoot:
         return self._solid.show()
 
 
-class TrussUClip:
+class TrussUClip(Buildable):
     """A U-shaped clip that joins two trusses face to face.
 
     Examples:
@@ -864,7 +866,7 @@ class TrussUClip:
         return self._solid.show()
 
 
-class TrussJoiner:
+class TrussJoiner(Buildable):
     """A joiner that clips two trusses end to end.
 
     Examples:

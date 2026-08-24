@@ -114,7 +114,7 @@ def test_the_ratchet_would_catch_an_existence_only_test() -> None:
     ]
 
     # ... and does not fire on a test that measures anything at all.
-    assert existence_only_tests("def test_d():\n    assert cuboid([1, 1, 1]).bounds()[1] == [1, 1, 1]\n") == []
+    assert existence_only_tests("def test_d():\n    assert cuboid([1, 1, 1]).bounds().size == [1, 1, 1]\n") == []
     assert (
         existence_only_tests(
             "def test_e():\n    assert isinstance(p, Path2D)\n    np.testing.assert_allclose(p, [[0, 0]])\n"

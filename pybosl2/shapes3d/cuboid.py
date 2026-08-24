@@ -64,6 +64,7 @@ else:
 
 from pybosl2._edges_lang import EDGE_OFFSETS, EDGES_ALL
 from pybosl2._edges_lang import edges as resolve_edges
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.shapes3d.cylinder import cyl_profile
 
 
@@ -455,7 +456,7 @@ def cuboid(
     chamfer_v = chamfer if chamfer else 0
     rounding_v = rounding if rounding else 0
     if chamfer_v and rounding_v:
-        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
 
     corners8 = [[xa, ya, za] for za in (-1, 1) for ya in (-1, 1) for xa in (-1, 1)]
 
@@ -804,18 +805,20 @@ def rect_tube(
         else ([s2[0] - 2 * wall, s2[1] - 2 * wall] if (wall is not None and s2 is not None) else None)
     )
     if size1_v is None or size2_v is None:
-        raise ValueError(
+        raise Bosl2ValueError(
             "rect_tube(): needs an outer size -- give size (or size1/size2), or an inner size with a wall thickness."
         )
     if isize1_v is None or isize2_v is None:
-        raise ValueError(
+        raise Bosl2ValueError(
             "rect_tube(): needs a bore -- give isize (or isize1/isize2), or a wall thickness to "
             "derive it from the outer size."
         )
     if isize1_v[0] >= size1_v[0] or isize1_v[1] >= size1_v[1]:
-        raise ValueError(f"rect_tube(): bore {isize1_v} is not smaller than the outer size {size1_v} at the bottom.")
+        raise Bosl2ValueError(
+            f"rect_tube(): bore {isize1_v} is not smaller than the outer size {size1_v} at the bottom."
+        )
     if isize2_v[0] >= size2_v[0] or isize2_v[1] >= size2_v[1]:
-        raise ValueError(f"rect_tube(): bore {isize2_v} is not smaller than the outer size {size2_v} at the top.")
+        raise Bosl2ValueError(f"rect_tube(): bore {isize2_v} is not smaller than the outer size {size2_v} at the top.")
 
     rounding1_v = force4f(rounding1 if rounding1 is not None else rounding)
     rounding2_v = force4f(rounding2 if rounding2 is not None else rounding)
@@ -962,9 +965,9 @@ def regular_prism(
 
     """
     if not (isinstance(sides, int)):
-        raise ValueError(f"regular_prism(): sides must be an integer >= 3, got {sides}")
+        raise Bosl2ValueError(f"regular_prism(): sides must be an integer >= 3, got {sides}")
     if not (sides > 2):
-        raise ValueError(f"regular_prism(): sides must be an integer >= 3, got {sides}")
+        raise Bosl2ValueError(f"regular_prism(): sides must be an integer >= 3, got {sides}")
     cos_half = math.cos(math.pi / sides)
 
     def circumradius(spec_r: float | None) -> float:
@@ -995,7 +998,7 @@ def regular_prism(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     if (r1v or r2v) and (c1v or c2v):
-        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
 
     use_anchor = anchor
     if use_anchor is None:

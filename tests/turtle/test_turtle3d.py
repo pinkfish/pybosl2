@@ -137,11 +137,11 @@ def test_debug_polygon_builds_with_labels() -> None:
     """The debug view is the flat polygon plus vertex markers, which stand outside its outline."""
     path = Path2D([[0, 0], [40, 0], [40, 30], [0, 30]])
     bare = path.debug_polygon(vertices=False)
-    assert [float(v) for v in bare.bounds()[1]][:2] == pytest.approx([40.0, 30.0], abs=0.01)
+    assert [float(v) for v in bare.bounds().size][:2] == pytest.approx([40.0, 30.0], abs=0.01)
 
     labelled = path.debug_polygon(size=3)
-    assert float(labelled.bounds()[1][0]) > 40.0  # the markers reach past the corners
-    assert float(labelled.bounds()[1][1]) > 30.0
+    assert float(labelled.bounds().size[0]) > 40.0  # the markers reach past the corners
+    assert float(labelled.bounds().size[1]) > 30.0
 
 
 def test_debug_region_builds() -> None:
@@ -149,8 +149,8 @@ def test_debug_region_builds() -> None:
     region = Region.with_holes([[0, 0], [50, 0], [50, 50], [0, 50]], [[15, 15], [35, 15], [35, 35], [15, 35]])  # type: ignore[arg-type]
     debug = region.debug_region(size=3)
     assert isinstance(debug, Bosl2Solid)
-    assert float(debug.bounds()[1][0]) > 50.0
-    assert float(debug.bounds()[1][2]) < 1.0  # it stays a flat overlay
+    assert float(debug.bounds().size[0]) > 50.0
+    assert float(debug.bounds().size[2]) < 1.0  # it stays a flat overlay
 
 
 def test_debug_region_single_path_defers_to_polygon() -> None:

@@ -250,7 +250,7 @@ def test_path_methods_on_path_object() -> None:
     # 2. offset_sweep
     res_sweep = p.offset_sweep(height=10)
     assert res_sweep is not None
-    assert res_sweep.volume() > 0  # type: ignore[attr-defined]
+    assert res_sweep.vnf.volume() > 0  # type: ignore[attr-defined]
 
     # 3. convex_offset_extrude
     res_extrude = p.convex_offset_extrude(height=10)

@@ -23,6 +23,7 @@ from shapely.geometry import LineString
 
 from pybosl2._backend import builds_with
 from pybosl2.caps import CapSpec, CapType, endcap_polys, endcap_trim, normalize_one, place, trim_ends
+from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -134,7 +135,7 @@ def stroke_2d(
 
     pts = [list(map(float, p)) for p in path]
     if not (len(pts) >= 2):
-        raise ValueError("stroke(): need at least 2 points.")
+        raise Bosl2ValueError("stroke(): need at least 2 points.")
     is_closed = _ensure_closed(pts, closed, getattr(path, "closed", False))
     ec1 = endcap1 if isinstance(endcap1, CapSpec) else normalize_one(endcap1)
     ec2 = endcap2 if isinstance(endcap2, CapSpec) else normalize_one(endcap2)
@@ -195,7 +196,7 @@ def dashed_stroke_2d(
 
     pts = [list(map(float, p)) for p in path]
     if not (len(pts) >= 2):
-        raise ValueError("dashed_stroke(): need at least 2 points.")
+        raise Bosl2ValueError("dashed_stroke(): need at least 2 points.")
     is_closed = _ensure_closed(pts, closed, getattr(path, "closed", False))
     raw = pts + [pts[0]] if is_closed else pts
     cuts = _dash_cuts(raw, dpat, is_closed, fit, mindash)

@@ -27,6 +27,7 @@ if TYPE_CHECKING:
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BOTTOM, DOWN
+from pybosl2.exceptions import Bosl2ValueError
 
 # Import base class and helper functions from shapes3d.base
 from .base import (
@@ -209,7 +210,7 @@ def torus(
     elif _or is not None and _r_min is not None:
         maj_rad = _or - _r_min
     else:
-        raise ValueError(
+        raise Bosl2ValueError(
             "torus(): needs enough radii to fix the major radius -- give major_radius/major_diameter, "
             "or any two of inner_radius/inner_diameter, outer_radius/outer_diameter and "
             "minor_radius/minor_diameter."
@@ -222,7 +223,7 @@ def torus(
     elif _or is not None:
         min_rad = _or - maj_rad
     else:
-        raise ValueError(
+        raise Bosl2ValueError(
             "torus(): needs enough radii to fix the minor radius -- give minor_radius/minor_diameter, "
             "inner_radius/inner_diameter or outer_radius/outer_diameter alongside the major radius."
         )

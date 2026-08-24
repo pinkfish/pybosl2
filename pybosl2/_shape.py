@@ -26,6 +26,7 @@ from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import AttachTag
+from pybosl2.exceptions import Bosl2ValueError
 
 __all__ = ["BaseShape", "diff", "intersect"]
 
@@ -196,11 +197,6 @@ class BaseShape(Colorable, Distributable):
             out.anchor = type(self)(self.shape, out.size, anchor).anchor  # type: ignore[call-arg]
         return out
 
-    @property
-    def nominal_size(self) -> "list[float] | None":
-        """The nominal anchor box, or None if this shape never had one attached (SPEC S-2a)."""
-        return None if self.size is None else [float(v) for v in self.size]
-
     def _record_anchor(self, anchor: Any) -> None:
         """Note that `reanchor()` moved this shape onto *anchor* (see `Anchorable`).
 
@@ -315,36 +311,39 @@ class BaseShape(Colorable, Distributable):
         from pythonscad import minkowski as _minkowski
 
         if not (others):
-            raise ValueError("minkowski(): needs at least one shape to sweep over this one.")
-        backend = getattr(self, "backend", "csg")
+            raise Bosl2ValueError("minkowski(): needs at least one shape to sweep over this one.")
         out = self.shape
         for other in others:
-            _check_operand_backend(backend, other)
+            self._check_operand(other)
             out = _minkowski(out, self._unwrap(other))
         return self._wrap(out)
 
+    def _check_operand(self, other: object) -> None:
+        """Reject an operand from another backend or another dimension (SPEC E-3, E-7)."""
+        _check_operand_backend(getattr(self, "backend", "csg"), other, getattr(self, "dimensions", None))
+
     def __or__(self, other: object) -> Self:
-        _check_operand_backend(getattr(self, "backend", "csg"), other)
+        self._check_operand(other)
         return self._wrap(self.shape | self._unwrap(other))
 
     def __and__(self, other: object) -> Self:
-        _check_operand_backend(getattr(self, "backend", "csg"), other)
+        self._check_operand(other)
         return self._wrap(self.shape & self._unwrap(other))
 
     def __sub__(self, other: object) -> Self:
-        _check_operand_backend(getattr(self, "backend", "csg"), other)
+        self._check_operand(other)
         return self._wrap(self.shape - self._unwrap(other))
 
     def __ror__(self, other: object) -> Self:
-        _check_operand_backend("csg", other)
+        self._check_operand(other)
         return self._wrap(self._unwrap(other) | self.shape)
 
     def __rand__(self, other: object) -> Self:
-        _check_operand_backend("csg", other)
+        self._check_operand(other)
         return self._wrap(self._unwrap(other) & self.shape)
 
     def __rsub__(self, other: object) -> Self:
-        _check_operand_backend("csg", other)
+        self._check_operand(other)
         return self._wrap(self._unwrap(other) - self.shape)
 
     # ------------------------------------------------------------------

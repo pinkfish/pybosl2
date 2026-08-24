@@ -33,6 +33,7 @@ from pybosl2._helpers import (
 )
 from pybosl2._native import native
 from pybosl2.constants import CENTER
+from pybosl2.exceptions import Bosl2ValueError
 
 from .base import Bosl2Shape2D, _finish
 
@@ -138,7 +139,7 @@ def hull(*children: "Shape2DLike | Sequence[Shape2DLike]") -> Bosl2Shape2D:
     if len(items) == 1 and not _is_child_2d(items[0]):
         items = list(items[0])  # type: ignore[arg-type]  # a single list *of* shapes
     if not items:
-        raise ValueError("hull(): needs at least one shape to hull.")
+        raise Bosl2ValueError("hull(): needs at least one shape to hull.")
     return Bosl2Shape2D(_ohull(*[_as_native_2d(c) for c in items]))
 
 
@@ -178,7 +179,7 @@ def round2d(
     orad = outer_radius if outer_radius is not None else (radius if radius is not None else 0)
     irad = inner_radius if inner_radius is not None else (radius if radius is not None else 0)
     if children is None:
-        raise ValueError("round2d(): needs the shape(s) to round -- pass children=.")
+        raise Bosl2ValueError("round2d(): needs the shape(s) to round -- pass children=.")
     shape = Bosl2Shape2D(_as_native_2d(children))
     shape = shape.offset(delta=irad, chamfer=True)
     shape = shape.offset(delta=-(irad + orad))
@@ -213,9 +214,9 @@ def shell2d(
 
     """
     if thickness is None:
-        raise ValueError("shell2d(): needs a wall thickness -- pass thickness=.")
+        raise Bosl2ValueError("shell2d(): needs a wall thickness -- pass thickness=.")
     if children is None:
-        raise ValueError("shell2d(): needs the shape(s) to shell -- pass children=.")
+        raise Bosl2ValueError("shell2d(): needs the shape(s) to shell -- pass children=.")
     if isinstance(thickness, (int, float)):
         th = [float(thickness), 0.0] if thickness < 0 else [0.0, float(thickness)]
     else:

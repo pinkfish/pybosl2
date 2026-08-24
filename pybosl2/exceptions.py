@@ -16,15 +16,51 @@
 
 from __future__ import annotations
 
-__all__ = ["Bosl2Error", "UnsupportedByBackendError", "CrossBackendError"]
+__all__ = ["Bosl2Error", "Bosl2ValueError", "UnsupportedByBackendError", "CrossBackendError"]
 
 
 class Bosl2Error(Exception):
-    """Base class for pybosl2's own errors."""
+    """Base class for pybosl2's own errors.
+
+    Every error the library raises derives from this (SPEC E-1), including the argument-validation
+    errors -- see :class:`Bosl2ValueError` for how that coexists with E-4's requirement that bad
+    input raises a :class:`ValueError`.
+    """
 
 
-class UnsupportedByBackendError(Bosl2Error):
+class Bosl2ValueError(Bosl2Error, ValueError):
+    """Bad input to a pybosl2 call: a ``ValueError`` *and* a :class:`Bosl2Error`.
+
+    SPEC E-4 requires argument validation to raise ``ValueError`` -- what a Python caller expects
+    for a bad argument -- and SPEC E-1 requires every library error to derive from one base so the
+    family can be caught with a single ``except``. Deriving from both is what makes the two
+    compatible: code that already catches ``ValueError`` is unaffected, and
+    ``except Bosl2Error`` starts catching the ~570 validation sites that it previously missed.
+
+    Raised for a bad argument value; a bad argument *type* or arity is still Python's own
+    ``TypeError``.
+
+    Examples:
+        Both spellings catch it::
+
+            from pybosl2 import Bosl2Error, cyl
+
+            try:
+                cyl(height=10, radius=5, diameter=10)
+            except Bosl2Error as err:
+                print(err)  # give radius or diameter, not both (radius=5, diameter=10)
+
+    """
+
+
+class UnsupportedByBackendError(Bosl2Error, AttributeError):
     """A feature the active backend cannot express.
+
+    Also an :class:`AttributeError`, because a backend refuses most often from ``__getattr__`` and
+    Python's attribute protocol is defined in terms of that type (SPEC E-6): ``hasattr()`` and
+    ``getattr(obj, name, default)`` catch ``AttributeError`` and nothing else, so any other type
+    turns a capability probe into a traceback and breaks ``copy``, ``pickle``, ``inspect`` and
+    every REPL completion. The extra base is invisible to a refusal raised from a call.
 
     Raised, rather than silently producing different geometry, when a call needs something the chosen
     backend has no faithful equivalent for -- e.g. the BOSL2 attachment/anchor system on the ``"sdf"``

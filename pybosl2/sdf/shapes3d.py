@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, cast
 
 import numpy as np
 
@@ -25,9 +25,11 @@ from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
 from pybosl2._edges_lang import Anchor
 from pybosl2._native import native
+from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.sdf._constants import BOTTOM, CENTER, FRONT, LEFT
 from pybosl2.sdf._libfive import LVTree, lv
 from pybosl2.sdf.edges import (
@@ -55,13 +57,16 @@ from pybosl2.sdf.paths import (
 )
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Sequence
+    from pathlib import Path as FilePath
 
     from numpy.typing import ArrayLike, NDArray
 
     from pybosl2._edges_lang import EdgeAtom
     from pybosl2.caps import CapSpec
     from pybosl2.paths import PathLike
+    from pybosl2.vnf import VNF
 
 
 def _matmul3(a: list[list[float]], b: list[list[float]]) -> list[list[float]]:
@@ -174,7 +179,9 @@ def _cuboid_edge_sdf(
 #: CSG-only while working (SPEC PAR-3). tests/test_backend_parity.py checks this.
 _MESH_OPERATIONS = frozenset(
     {
-        "size",  # native size query on the meshed solid
+        # "size" used to live here, forwarding to the *meshed* solid's native size query. It is a
+        # real property now -- the nominal anchor box (SPEC S-2a) -- and geometry measurement is
+        # bounds(), so there is nothing left to forward.
         "linear_extrude",  # 2-D -> 3-D on the meshed profile
         "rotate_extrude",
         "offset",  # native mesh offset
@@ -221,6 +228,9 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     #: pybosl2/_backend.py; Bosl2Solid is the "csg" counterpart. Lets a common Solid tell them apart
     #: and reject cross-backend booleans (CrossBackendError).
     backend = "sdf"
+
+    #: This shape is three-dimensional; see CsgSolid.dimensions (SPEC E-7).
+    dimensions = 3
 
     def __init__(
         self,
@@ -313,7 +323,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         return out
 
     @property
-    def nominal_size(self) -> "list[float] | None":
+    def size(self) -> "list[float] | None":
         """The nominal anchor box, or None if this shape never had one attached (SPEC S-2a)."""
         return None if self._nominal_size is None else list(self._nominal_size)
 
@@ -366,15 +376,175 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """Return the fully-evaluated libfive expression tree at the real coordinate trees."""
         return self._sdf_fn(lv.x(), lv.y(), lv.z())
 
-    def bounds(self) -> tuple[list[float], list[float]]:
-        """``(center, size)`` of this shape's axis-aligned bounding box (BOSL2/Bosl2Solid convention).
+    def bounds(self) -> Bounds3D:
+        """Return this shape's axis-aligned bounding box (SPEC S-2b).
 
         Exact and cheap -- every SDF constructor records its tight ``mn``/``mx``, so no meshing is
-        needed (unlike measuring a CSG solid). Matches :meth:`pybosl2.shapes3d.Bosl2Solid.bounds`.
+        needed (unlike measuring a CSG solid). Matches :meth:`pybosl2.shapes3d.CsgSolid.bounds`.
+
+        Returns:
+            The :class:`~pybosl2.bounds.Bounds3D` box, carrying ``min``/``max``, ``center``,
+            ``size`` and the per-axis extents.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import cuboid, use_backend
+
+                with use_backend("sdf"):
+                    shape = cuboid([40, 30, 20])
+                print(shape.bounds().size)
+                shape.show()
+
         """
-        center = [(a + b) / 2 for a, b in zip(self.mn, self.mx, strict=False)]
-        size = [b - a for a, b in zip(self.mn, self.mx, strict=False)]
-        return center, size
+        return Bounds3D.from_min_max(self.mn, self.mx)
+
+    @property
+    def vnf(self) -> "VNF":
+        """Return this solid as a mesh (SPEC C-8, S-19a).
+
+        For a solid a sweep built, this is the very mesh it was skinned from -- kept rather than
+        discarded so that returning a `Solid` (S-19a) costs the caller nothing who wanted the mesh.
+        For any other solid it is meshed on demand.
+
+        Returns:
+            The :class:`~pybosl2.vnf.VNF`, with faces wound counter-clockwise seen from outside.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
+                print(bar.vnf.volume())     # 2000.0
+                bar.show()
+
+        """
+        from pybosl2.vnf import VNF
+
+        stashed = getattr(self, "_vnf", None)
+        if stashed is not None:
+            return cast("VNF", stashed)
+        return VNF.from_solid(self)
+
+    def export(
+        self, path: "str | os.PathLike[str]", *, file_format: str | None = None, check: bool = True
+    ) -> "FilePath":
+        """Write this shape to a file (SPEC S-53).
+
+        The way out of the library: a shape you have built becomes a file you can slice, share or
+        diff. The mesh formats are written by pybosl2 itself, so this works wherever
+        ``import pybosl2`` does -- no CAD runtime required (S-54).
+
+        Args:
+            path: destination file. Its suffix picks the format -- ``.stl``, ``.obj``, ``.off``,
+                ``.ply`` -- unless *file_format* overrides it.
+            file_format: explicit format name (``"stl"``, ``"stla"`` for ASCII STL, ``"obj"``,
+                ``"off"``, ``"ply"``).
+            check: validate the mesh first and refuse to write one that is open or inside out
+                (SPEC S-55). Pass ``False`` for a surface that is open on purpose.
+
+        Returns:
+            The path written, so the call can be chained or logged.
+
+        Raises:
+            Bosl2ValueError: If the format is unknown, or *check* is on and the mesh is not a
+                closed, outward-wound solid.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import cuboid, cyl
+
+                bracket = cuboid([40, 30, 10], rounding=3) - cyl(radius=4, height=20)
+                bracket.export("bracket.stl")
+                bracket.show()
+
+        """
+        from pathlib import Path as _FilePath
+
+        from pybosl2.export import write_mesh
+
+        return write_mesh(self.vnf, _FilePath(path), file_format=file_format, check=check)
+
+    # --- The CSG-only surface, refused explicitly (SPEC C-12, C-13, PAR-3) ---------------------
+    # Declared as real methods rather than left to __getattr__ so that the neutral contract can
+    # carry them: attachment is part of the core object model (C-12), and "the SDF backend refuses
+    # it explicitly" (C-13) is better served by a method that says why than by a missing name.
+    # They are real methods for a second reason too -- since Python 3.12 `isinstance` against a
+    # runtime-checkable Protocol uses static lookup, so a member supplied only by __getattr__ makes
+    # `isinstance(sdf_solid, Solid)` false for a perfectly good solid (PLAN T-6b).
+
+    def _refuse(self, feature: str) -> "NoReturn":
+        """Raise the standard refusal for a CSG-only feature (SPEC B-4, E-2)."""
+        from pybosl2.exceptions import UnsupportedByBackendError
+
+        raise UnsupportedByBackendError(
+            feature,
+            "sdf",
+            hint=(
+                "attachment, tagging and the edge treatments need a shape's face and edge "
+                "structure, which a distance field does not retain. Build it on the default (csg) "
+                "backend, or bring this field across with `.to_csg()` first."
+            ),
+        )
+
+    def attach(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
+        self._refuse("attach")
+
+    def position(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
+        self._refuse("position")
+
+    def align(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
+        self._refuse("align")
+
+    def tag(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tagging serves attachment, which is CSG-only (SPEC C-13)."""
+        self._refuse("tag")
+
+    def tag_this(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tagging serves attachment, which is CSG-only (SPEC C-13)."""
+        self._refuse("tag_this")
+
+    def diff(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tag-driven boolean resolution is CSG-only (SPEC C-13). Use `-` instead."""
+        self._refuse("diff")
+
+    def intersect(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tag-driven boolean resolution is CSG-only (SPEC C-13). Use `&` instead."""
+        self._refuse("intersect")
+
+    def edge_mask(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
+        self._refuse("edge_mask")
+
+    def edge_profile(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
+        self._refuse("edge_profile")
+
+    def edge_profile_asym(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: edge treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
+        self._refuse("edge_profile_asym")
+
+    def corner_profile(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: corner treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
+        self._refuse("corner_profile")
+
+    def face_profile(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: face treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
+        self._refuse("face_profile")
+
+    def projection(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: a 2-D shadow of a field has no closed form (SPEC PAR-3). Use `.to_csg()`."""
+        self._refuse("projection")
+
+    def _center_size(self) -> tuple[list[float], list[float]]:
+        """Return the bounding box as the raw ``(center, size)`` pair the native layer reports."""
+        box = self.bounds()
+        return list(box.center), list(box.size)
 
     def show(self) -> "SdfSolid":
         """Hand this shape to the renderer as the output of the script, and return it.
@@ -496,7 +666,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         them in, so treating edges post-rotation wouldn't mean what it looks like it means.
         """
         if a is None:
-            raise ValueError("rotate(): give an angle (with an axis) or a list of Euler angles.")
+            raise Bosl2ValueError("rotate(): give an angle (with an axis) or a list of Euler angles.")
         m = _rotation_matrix(a, list(v) if v is not None else None)
         mt = [[m[j][i] for j in range(3)] for i in range(3)]  # transpose == inverse for a rotation
         fn = self._sdf_fn
@@ -567,7 +737,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         s = [float(v)] * 3 if isinstance(v, (int, float)) else [float(a) for a in v]
         if not (all((a > 0 for a in s))):
-            raise ValueError(f"scale() factors must be positive, got {s}")
+            raise Bosl2ValueError(f"scale() factors must be positive, got {s}")
         fn = self._sdf_fn
         smin = min(s)
         new_fn = lambda x, y, z: smin * fn(x / s[0], y / s[1], z / s[2])  # noqa: E731
@@ -585,7 +755,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         nx, ny, nz = (float(a) for a in v)
         nlen = math.sqrt(nx * nx + ny * ny + nz * nz)
         if not (nlen > 0):
-            raise ValueError("mirror() normal must be nonzero")
+            raise Bosl2ValueError("mirror() normal must be nonzero")
         nx, ny, nz = nx / nlen, ny / nlen, nz / nlen
         m = [
             [1 - 2 * nx * nx, -2 * nx * ny, -2 * nx * nz],
@@ -618,11 +788,11 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         m = np.asarray(matrix, dtype=float)
         if not (m.shape == (4, 4)):
-            raise ValueError("multmatrix requires a 4x4 matrix")
+            raise Bosl2ValueError("multmatrix requires a 4x4 matrix")
         try:
             mt = np.linalg.inv(m)
         except np.linalg.LinAlgError:
-            raise ValueError("multmatrix requires an invertible matrix") from None
+            raise Bosl2ValueError("multmatrix requires an invertible matrix") from None
 
         fn = self._sdf_fn
 
@@ -714,7 +884,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             distances = list(np.linspace(0, length, num_copies, endpoint=not is_closed))
         else:
             if not (spacing is not None):
-                raise ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
+                raise Bosl2ValueError("distribute_on_path(): provide num_copies, spacing, or dist.")
             cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if is_closed else 1)
             ptlist = [i * spacing for i in range(cnt)]
             center = sum(ptlist) / len(ptlist)
@@ -881,27 +1051,27 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         return self.offset3d(orr).offset3d(-irr - orr).offset3d(irr)
 
     def __or__(self, other: PyShape) -> PyShape:
-        _check_operand_backend("sdf", other)
+        _check_operand_backend("sdf", other, 3)
         return PyShape.union(self, other)
 
     def __and__(self, other: PyShape) -> PyShape:
-        _check_operand_backend("sdf", other)
+        _check_operand_backend("sdf", other, 3)
         return PyShape.intersection(self, other)
 
     def __sub__(self, other: PyShape) -> PyShape:
-        _check_operand_backend("sdf", other)
+        _check_operand_backend("sdf", other, 3)
         return PyShape.difference(self, other)
 
     def __ror__(self, other: PyShape) -> PyShape:
-        _check_operand_backend("sdf", other)
+        _check_operand_backend("sdf", other, 3)
         return PyShape.union(other, self)
 
     def __rand__(self, other: PyShape) -> PyShape:
-        _check_operand_backend("sdf", other)
+        _check_operand_backend("sdf", other, 3)
         return PyShape.intersection(other, self)
 
     def __rsub__(self, other: PyShape) -> PyShape:
-        _check_operand_backend("sdf", other)
+        _check_operand_backend("sdf", other, 3)
         return PyShape.difference(other, self)
 
     def __add__(self, other: Any) -> PyShape:
@@ -959,14 +1129,14 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         mn = [max(s.mn[i] for s in shs) for i in range(3)]
         mx = [min(s.mx[i] for s in shs) for i in range(3)]
         if not (all((mn[i] < mx[i] for i in range(3)))):
-            raise ValueError(f"intersection(): the shapes' bounding boxes don't overlap (got mn={mn}, mx={mx})")
+            raise Bosl2ValueError(f"intersection(): the shapes' bounding boxes don't overlap (got mn={mn}, mx={mx})")
         return PyShape(sdf_fn, mn, mx, max(s.res for s in shs))
 
     @staticmethod
     def difference(shape: PyShape, *tools: PyShape) -> PyShape:
         """`shape` minus the union of every `tool` (max(f, -min(tools))), as one PyShape."""
         if not (isinstance(shape, PyShape)):
-            raise ValueError(f"difference() base must be a PyShape, got {type(shape).__name__}")
+            raise Bosl2ValueError(f"difference() base must be a PyShape, got {type(shape).__name__}")
         if not tools:
             return shape
         tls = _as_shape_list(tools)
@@ -983,19 +1153,19 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
     def _edge_treat(self, amount: float, edges: Any, except_edges: Any, mode: EdgeMode) -> PyShape:
         if not (self.cuboid_size is not None):
-            raise ValueError(f"{mode}() requires a cuboid-shaped PyShape (from pybosl2.sdf.cuboid())")
+            raise Bosl2ValueError(f"{mode}() requires a cuboid-shaped PyShape (from pybosl2.sdf.cuboid())")
         if not (self.cuboid_edge_amounts is not None):  # pragma: no cover
             # defensive: cuboid() is the only place cuboid_size is set and it
             # always sets the amount/mode matrices with it, and every wrap carries the three
             # together, so a shape with a size but no edge state cannot exist.
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
             )
         if not (self.cuboid_edge_modes is not None):  # pragma: no cover
             # defensive: cuboid() is the only place cuboid_size is set and it
             # always sets the amount/mode matrices with it, and every wrap carries the three
             # together, so a shape with a size but no edge state cannot exist.
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"{mode}() requires the cuboid's per-edge treatment state (lost by rotate()/scale()/booleans)"
             )
         edge_set = resolve_edges(edges, except_edges or [])
@@ -1046,7 +1216,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
             args = list(args[0])
         if not args:  # pragma: no cover - defensive: `self` is always in args, so this cannot fire
             # from the method form; kept for the day hull() also exists as a free function.
-            raise ValueError("hull() needs at least one shape or point set")
+            raise Bosl2ValueError("hull() needs at least one shape or point set")
 
         entries: list[tuple[str, Any]] = []
         mn = [math.inf] * 3
@@ -1064,9 +1234,9 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                 if pts.ndim == 1:
                     pts = pts.reshape(1, -1)
                 if not (pts.ndim == 2):
-                    raise ValueError(f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}")
+                    raise Bosl2ValueError(f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}")
                 if not (pts.shape[1] == 3):
-                    raise ValueError(f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}")
+                    raise Bosl2ValueError(f"hull(): point arguments must be Nx3 array-likes, got shape {pts.shape}")
                 entries.append(("points", pts))
                 for i in range(3):
                     mn[i] = min(mn[i], float(pts[:, i].min()))
@@ -1083,7 +1253,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                     else:
                         verts, _faces = v.mesh().mesh()
                         if not (verts):
-                            raise ValueError("hull(): a child shape meshed to nothing (empty geometry)")
+                            raise Bosl2ValueError("hull(): a child shape meshed to nothing (empty geometry)")
                         pools.append(np.asarray(verts, dtype=float))
                 sup = _support_points(np.concatenate(pools), directions)
                 state["planes"] = _hull_planes([[float(c) for c in p] for p in sup])
@@ -1238,8 +1408,8 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         result = self
         for o in others:
-            mn, mx = o.bounds()
-            diag = math.sqrt(sum((mx[i] - mn[i]) ** 2 for i in range(3)))
+            box = o.bounds()
+            diag = math.sqrt(sum(extent**2 for extent in box.size))
             result = result.offset3d(diag / 2)
         return result
 
@@ -1281,7 +1451,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                     shape = cuboid([10, 20, 30]).resize([50, 0, 60])
                     # shape.bounds() → size=[50, 20, 60]
         """
-        _center, size = self.bounds()
+        size = self.bounds().size
         scale_factors: list[float] = []
         for i in range(3):
             n = float(newsize[i])
@@ -1404,9 +1574,9 @@ def _as_shape_list(shapes: tuple[Any, ...]) -> list[PyShape]:
         shapes = tuple(shapes[0])
     out = list(shapes)
     if not (out):
-        raise ValueError("need at least one shape")
+        raise Bosl2ValueError("need at least one shape")
     if not all(isinstance(s, PyShape) for s in out):
-        raise ValueError(f"every argument must be a PyShape, got {[type(s).__name__ for s in out]}")
+        raise Bosl2ValueError(f"every argument must be a PyShape, got {[type(s).__name__ for s in out]}")
     return out
 
 
@@ -1476,7 +1646,7 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
                 d = nx * ax + ny * ay + nz * az
                 side = [nx * p[0] + ny * p[1] + nz * p[2] - d for p in pts]
                 if all(abs(s) <= eps for s in side):
-                    raise ValueError("hull planes: points are coplanar -- that's a 2-D outline, not a solid")
+                    raise Bosl2ValueError("hull planes: points are coplanar -- that's a 2-D outline, not a solid")
                 if all(s <= eps for s in side):
                     pass  # already outward
                 elif all(s >= -eps for s in side):
@@ -1489,7 +1659,7 @@ def _hull_planes(pts: list[list[float]]) -> list[tuple[float, float, float, floa
                 seen.add(key)
                 planes.append((nx, ny, nz, d))
     if not (planes):
-        raise ValueError("hull planes: no supporting planes found -- are the points coplanar?")
+        raise Bosl2ValueError("hull planes: no supporting planes found -- are the points coplanar?")
     return planes
 
 
@@ -1591,7 +1761,7 @@ def cuboid(
     if size is None:
         size = [1, 1, 1]
     if rounding and chamfer:
-        raise ValueError("Cannot specify nonzero value for both rounding and chamfer")
+        raise Bosl2ValueError("Cannot specify nonzero value for both rounding and chamfer")
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 3
     edge_set = resolve_edges(edges, except_edges or [])
     half = [s / 2 for s in sz]
@@ -1599,7 +1769,7 @@ def cuboid(
         # BOSL2's negative rounding: an external cove flare on the selected edges (see
         # _cuboid_flare_sdf). Same restriction as BOSL2: no Z-aligned edges.
         if not (edge_set[2] == [0, 0, 0, 0]):
-            raise ValueError("Cannot use negative rounding with Z aligned edges")
+            raise Bosl2ValueError("Cannot use negative rounding with Z aligned edges")
         r = -rounding
         sdf_fn = lambda x, y, z: _cuboid_flare_sdf(x, y, z, sz, r, edge_set)  # noqa: E731
         # The flares stick out horizontally by r on whichever sides have a flared edge --
@@ -1754,16 +1924,16 @@ def rotate_extrude(
 
     """
     if paths is None or len(paths) == 0:
-        raise ValueError("rotate_extrude(): needs at least one profile outline")
+        raise Bosl2ValueError("rotate_extrude(): needs at least one profile outline")
     path_list = as_path_list(paths)
     if not path_list:  # pragma: no cover - as_path_list never empties a non-empty input
-        raise ValueError("rotate_extrude(): needs at least one profile outline")
+        raise Bosl2ValueError("rotate_extrude(): needs at least one profile outline")
     for outline in path_list:
         points = np.asarray(outline, dtype=float)
         if len(points) < 3:
-            raise ValueError(f"rotate_extrude(): a profile needs at least 3 points, got {len(points)}")
+            raise Bosl2ValueError(f"rotate_extrude(): a profile needs at least 3 points, got {len(points)}")
         if float(points[:, 0].min()) < -1e-9:
-            raise ValueError(
+            raise Bosl2ValueError(
                 "rotate_extrude(): the profile crosses the Z axis (a negative X), so the revolved "
                 "solid would intersect itself; keep every profile point at x >= 0."
             )
@@ -1827,12 +1997,12 @@ def tapered_polygon_prism(
 
     """
     if height <= 0:
-        raise ValueError(f"tapered_polygon_prism(): height must be positive, got {height}")
+        raise Bosl2ValueError(f"tapered_polygon_prism(): height must be positive, got {height}")
     if scale_bottom <= 0 or scale_top <= 0:
-        raise ValueError(f"tapered_polygon_prism(): scales must be positive, got {scale_bottom} and {scale_top}")
+        raise Bosl2ValueError(f"tapered_polygon_prism(): scales must be positive, got {scale_bottom} and {scale_top}")
     path_list = as_path_list(paths)
     if not path_list:
-        raise ValueError("tapered_polygon_prism(): needs at least one outline")
+        raise Bosl2ValueError("tapered_polygon_prism(): needs at least one outline")
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         t = lv.min(lv.max(z / height, 0), 1)
@@ -1901,11 +2071,11 @@ def spiral_sweep(
     """
     points = np.asarray(as_path_list(profile)[0], dtype=float)
     if len(points) < 3:
-        raise ValueError(f"spiral_sweep(): the profile needs at least 3 points, got {len(points)}")
+        raise Bosl2ValueError(f"spiral_sweep(): the profile needs at least 3 points, got {len(points)}")
     if turns == 0:
-        raise ValueError("spiral_sweep(): turns must not be zero")
+        raise Bosl2ValueError("spiral_sweep(): turns must not be zero")
     if height == 0:
-        raise ValueError("spiral_sweep(): height must not be zero")
+        raise Bosl2ValueError("spiral_sweep(): height must not be zero")
 
     outline = [[float(x), float(y)] for x, y in points]
     pitch = height / turns
@@ -1960,7 +2130,7 @@ def convex_polyhedron(points: ArrayLike, res: int = 10) -> PyShape:
     pts = [[float(v) for v in p] for p in points]
     n = len(pts)
     if not (n >= 4):
-        raise ValueError(f"convex_polyhedron() needs at least 4 points, got {n}")
+        raise Bosl2ValueError(f"convex_polyhedron() needs at least 4 points, got {n}")
     planes = _hull_planes(pts)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -2099,7 +2269,7 @@ def torus(
     elif _or is not None and _r_min is not None:
         maj = _or - _r_min
     else:
-        raise ValueError(
+        raise Bosl2ValueError(
             "torus(): needs enough radii to fix the major radius -- give major_radius/major_diameter, "
             "or any two of inner_radius/inner_diameter, outer_radius/outer_diameter and "
             "minor_radius/minor_diameter."
@@ -2111,7 +2281,7 @@ def torus(
     elif _or is not None:
         minr = _or - maj
     else:
-        raise ValueError(
+        raise Bosl2ValueError(
             "torus(): needs enough radii to fix the minor radius -- give minor_radius/minor_diameter, "
             "inner_radius/inner_diameter or outer_radius/outer_diameter alongside the major radius."
         )
@@ -2273,14 +2443,14 @@ def cyl(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     if (r1v or r2v) and (c1v or c2v):
-        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     if shift is not None and (shift[0] or shift[1]):
         if amt1:
-            raise ValueError("shift= cannot be combined with rounding/chamfer")
+            raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
         if amt2:
-            raise ValueError("shift= cannot be combined with rounding/chamfer")
+            raise Bosl2ValueError("shift= cannot be combined with rounding/chamfer")
         sdf_fn = lambda x, y, z: _cylinder_sdf(x, y, z, length, rad1, rad2, shift)  # noqa: E731
     else:
         sdf_fn = lambda x, y, z: _cyl_edge_sdf(z, _lv_hypot(x, y), length, rad1, rad2, amt1, amt2, mode)  # noqa: E731
@@ -2326,7 +2496,7 @@ def _cyl_axis(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0)
     if (r1v or r2v) and (c1v or c2v):
-        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -2507,7 +2677,7 @@ def tube(
     irad1 = irr1 if irr1 is not None else (orr1 - wall_v if orr1 is not None else None)
     irad2 = irr2 if irr2 is not None else (orr2 - wall_v if orr2 is not None else None)
     if rad1 is None or rad2 is None or irad1 is None or irad2 is None:
-        raise ValueError(
+        raise Bosl2ValueError(
             "tube(): needs two of the three sizes -- an inner radius/diameter, an outer "
             "radius/diameter, and a wall thickness."
         )
@@ -2517,7 +2687,7 @@ def tube(
     c1v = chamfer1 if chamfer1 is not None else (chamfer if chamfer is not None else 0.0)
     c2v = chamfer2 if chamfer2 is not None else (chamfer if chamfer is not None else 0.0)
     if (r1v or r2v) and (c1v or c2v):
-        raise ValueError("Cannot specify nonzero value for both chamfer and rounding")
+        raise Bosl2ValueError("Cannot specify nonzero value for both chamfer and rounding")
     mode, amt1, amt2 = (EdgeMode.CHAMFER, c1v, c2v) if (c1v or c2v) else (EdgeMode.ROUND, r1v, r2v)
 
     def outer_sdf(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
@@ -2705,13 +2875,13 @@ def rect_tube(
     """
     length = height if height is not None else (length if length is not None else 1)
     if size is None:
-        raise ValueError("rect_tube(): needs an outer size -- give size=, or an inner size with a wall.")
+        raise Bosl2ValueError("rect_tube(): needs an outer size -- give size=, or an inner size with a wall.")
     sz: list[float] = [float(v) for v in size] if isinstance(size, (list, tuple)) else [float(size)] * 2
     if isize is not None:
         isz: list[float] = [float(v) for v in isize] if isinstance(isize, (list, tuple)) else [float(isize)] * 2
     else:
         if not (wall is not None):
-            raise ValueError("rect_tube(): must give isize or wall.")
+            raise Bosl2ValueError("rect_tube(): must give isize or wall.")
         isz = [sz[0] - 2 * wall, sz[1] - 2 * wall]
     irounding_v = inner_rounding if inner_rounding is not None else rounding
     edge_set_z = resolve_edges(Anchor.Z, [])
@@ -2900,21 +3070,21 @@ def polygon_prism(
     if not isinstance(paths, (list, np.ndarray)):
         raise TypeError(f"polygon_prism(): paths must be a list of points or numpy array, got {type(paths).__name__}")
     if not (len(paths) >= 1):
-        raise ValueError("polygon_prism(): paths must not be empty")
+        raise Bosl2ValueError("polygon_prism(): paths must not be empty")
     path_list = as_path_list(paths)
     for p in path_list:
         if not (len(p) >= 3):
-            raise ValueError(f"polygon_prism(): every path needs >= 3 points, got {len(p)}")
+            raise Bosl2ValueError(f"polygon_prism(): every path needs >= 3 points, got {len(p)}")
     if not (height > 0):
-        raise ValueError(f"polygon_prism(): height must be > 0, height={height}")
+        raise Bosl2ValueError(f"polygon_prism(): height must be > 0, height={height}")
     if not (abs(rounding_top) < height):
-        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+        raise Bosl2ValueError("polygon_prism(): rim treatments must be smaller than height")
     if not (abs(rounding_bottom) < height):
-        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+        raise Bosl2ValueError("polygon_prism(): rim treatments must be smaller than height")
     if not (chamfer_top < height):
-        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+        raise Bosl2ValueError("polygon_prism(): rim treatments must be smaller than height")
     if not (chamfer_bottom < height):
-        raise ValueError("polygon_prism(): rim treatments must be smaller than height")
+        raise Bosl2ValueError("polygon_prism(): rim treatments must be smaller than height")
 
     def sdf_fn(x: LVTree, y: LVTree, z: LVTree) -> LVTree:
         d2d = None
@@ -2924,7 +3094,7 @@ def polygon_prism(
         if not (d2d is not None):  # pragma: no cover
             # defensive: polygon_prism() rejects an empty path list before it
             # ever builds this callback, so the loop above always sets d2d.
-            raise ValueError("polygon_prism(): no paths")
+            raise Bosl2ValueError("polygon_prism(): no paths")
 
         # Sharp prism, then max() in each roundover rim (each reduces to the sharp distance
         # away from its own rim -- see docstring).
@@ -3132,7 +3302,7 @@ def heightfield(
     if size is None:
         size = [100, 100]
     if not (callable(data)):
-        raise ValueError(
+        raise Bosl2ValueError(
             "pybosl2.sdf.shapes3d.heightfield() only supports callable data -- see the CAVEAT in its docstring."
         )
     bx, by = size[0] / 2, size[1] / 2
@@ -3219,7 +3389,7 @@ def regular_prism(
         # A tapered prism is sized by its ends, so the wider one stands in for the overall radius.
         rad = max(v for v in (radius1, radius2) if v is not None)
     if rad is None:
-        raise ValueError(
+        raise Bosl2ValueError(
             "regular_prism(): need one of r, d, outer_radius, outer_diameter, inner_radius, inner_diameter, or side."
         )
 
@@ -3243,7 +3413,7 @@ def regular_prism(
         bottom = radius1 if radius1 is not None else rad
         top = radius2 if radius2 is not None else rad
         if any(v for v in (r1v, r2v, c1v, c2v)):
-            raise ValueError(
+            raise Bosl2ValueError(
                 "regular_prism(): a tapered prism (radius1=/radius2=) cannot also take rim "
                 "rounding or chamfer here; build it on the csg backend for that."
             )
@@ -3297,7 +3467,7 @@ def _rmf_frames(points: ArrayLike) -> tuple[NDArray[np.float64], NDArray[np.floa
     t[-1] = p[-1] - p[-2]
     tl = np.linalg.norm(t, axis=1, keepdims=True)
     if not (np.all(tl > 1e-12)):
-        raise ValueError("path has a repeated point (zero-length tangent)")
+        raise Bosl2ValueError("path has a repeated point (zero-length tangent)")
     t /= tl
     nrm = np.zeros((n, 3))
     ref = np.array([0.0, 0.0, 1.0]) if abs(t[0][2]) < 0.9 else np.array([1.0, 0.0, 0.0])
@@ -3339,10 +3509,10 @@ def path_sweep(profile: ArrayLike, path: ArrayLike, res: int = 12, twist: float 
     """
     prof = as_points(profile)
     if not (len(prof) >= 3):
-        raise ValueError("sweep profile needs at least 3 points")
+        raise Bosl2ValueError("sweep profile needs at least 3 points")
     pts3 = [list(p) + [0.0] * (3 - len(p)) for p in np.asarray(path, dtype=float).tolist()]
     if not (len(pts3) >= 2):
-        raise ValueError("sweep path needs at least 2 points")
+        raise Bosl2ValueError("sweep path needs at least 2 points")
     p = np.asarray(pts3, dtype=float)
     tang, norm, binorm = _rmf_frames(p)
     n = len(p)
@@ -3471,7 +3641,7 @@ def stroke_3d(
 
     pts = [list(map(float, p)) for p in path]
     if not (len(pts) >= 2):
-        raise ValueError("stroke_3d: need at least 2 points.")
+        raise Bosl2ValueError("stroke_3d: need at least 2 points.")
     is_closed = closed if closed is not None else getattr(path, "closed", False)
     ec1 = endcap1 if endcap1 is not None else CapSpec(cap_type=CapType.ROUND)
     ec2 = endcap2 if endcap2 is not None else CapSpec(cap_type=CapType.ROUND)
@@ -3516,7 +3686,7 @@ def stroke_3d(
             shapes.append(sphere(radius=radius).translate(end))
 
     if not (shapes):
-        raise ValueError("stroke_3d: path has no drawable segments.")
+        raise Bosl2ValueError("stroke_3d: path has no drawable segments.")
     return SdfSolid.union(*shapes)
 
 

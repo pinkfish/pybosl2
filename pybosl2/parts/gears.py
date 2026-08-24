@@ -44,7 +44,9 @@ from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import INCH
 from pybosl2.enums import VNFStyle
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.math import lerp as _math_lerp
+from pybosl2.parts._buildable import Buildable
 from pybosl2.path2d import Path2D
 from pybosl2.shapes3d import cylinder
 from pybosl2.solid import cyl
@@ -905,7 +907,7 @@ def _rack2d_path(
     a = _adendum(center)
     diameter = _dedendum(center, clearance)
     if not (a + diameter < height):
-        raise ValueError("rack(): height must exceed adendum + dedendum.")
+        raise Bosl2ValueError("rack(): height must exceed adendum + dedendum.")
     xa = a * math.sin(math.radians(pressure_angle))
     xd = diameter * math.sin(math.radians(pressure_angle))
     left = -(teeth - 1) / 2 * center - 0.5 * center
@@ -1114,7 +1116,7 @@ class SpurGear2d:
         return self._shape
 
 
-class SpurGear:
+class SpurGear(Buildable):
     """A 3-D involute spur gear — helical and/or herringbone, with optional shaft bore.
 
     Examples:
@@ -1364,7 +1366,7 @@ class HerringboneGear(SpurGear):
         )
 
 
-class RingGear:
+class RingGear(Buildable):
     """An internal (ring) gear: a disk with inward-facing teeth cut into its bore.
 
     Examples:
@@ -1522,7 +1524,7 @@ class Rack2d:
         return self._shape
 
 
-class Rack:
+class Rack(Buildable):
     """A 3-D rack: a linear toothed bar a gear rolls along.
 
     Examples:
@@ -1605,7 +1607,7 @@ class Rack:
         return self._solid.show()
 
 
-class BevelGear:
+class BevelGear(Buildable):
     """A (potentially spiral) involute bevel gear.
 
     Examples:
@@ -1762,7 +1764,7 @@ class BevelGear:
         return self._solid.show()
 
 
-class Worm:
+class Worm(Buildable):
     """A worm — a screw that meshes a worm gear.
 
     Examples:
@@ -1850,7 +1852,7 @@ class Worm:
         return self._solid.show()
 
 
-class WormGear:
+class WormGear(Buildable):
     """A worm gear, hobbed to mesh a matching :class:`Worm`.
 
     Examples:
@@ -1911,7 +1913,7 @@ class WormGear:
 
         """
         if not (10 <= worm_arc <= 60):
-            raise ValueError("worm_gear(): worm_arc must be between 10 and 60 degrees.")
+            raise Bosl2ValueError("worm_gear(): worm_arc must be between 10 and 60 degrees.")
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         p = _pitch_radius(center, teeth)
         circ = 2 * PI * p

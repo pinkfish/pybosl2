@@ -112,7 +112,8 @@ def test_rod_builders(call: Callable[[], Bosl2Solid]) -> None:
     """Every rod profile builds a round bar: circular in plan, and taller than it is wide."""
     rod = call()
     assert isinstance(rod, Bosl2Solid)
-    _centre, size = rod.bounds()
+    _box = rod.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     width, depth, height = (float(v) for v in size)
     assert width == pytest.approx(depth, rel=0.02)  # round in plan, whatever the thread form
     assert height > width  # a rod, not a washer
@@ -137,7 +138,8 @@ def test_nut_builders(call: Callable[[], Bosl2Solid]) -> None:
     """Every nut is a squat block with a bore: wider than it is tall, and finite in every axis."""
     nut = call()
     assert isinstance(nut, Bosl2Solid)
-    _centre, size = nut.bounds()
+    _box = nut.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     width, _depth, height = (float(v) for v in size)
     assert width > height
     assert all(math.isfinite(float(v)) and float(v) > 0 for v in size)
@@ -147,7 +149,7 @@ def test_nut_with_zero_pitch_is_plain_hole() -> None:
     """pitch 0 leaves the bore unthreaded -- the same nut body, a different hole."""
     plain = iso_threaded_nut(18, 12, 10, 0).shape
     threaded = iso_threaded_nut(18, 12, 10, 1.75).shape
-    assert [float(v) for v in plain.bounds()[1]] == pytest.approx([float(v) for v in threaded.bounds()[1]])
+    assert [float(v) for v in plain.bounds().size] == pytest.approx([float(v) for v in threaded.bounds().size])
     assert repr(plain.shape) != repr(threaded.shape)
 
 
@@ -155,8 +157,8 @@ def test_thread_helix_builds() -> None:
     """A helix is `turns` * `pitch` tall, standing on a d=20 core -- more turns, more height."""
     three = ThreadHelix(20, 4, turns=3).shape
     two = ThreadHelix(20, 4, thread_depth=1.5, flank_angle=20, turns=2).shape
-    assert float(three.bounds()[1][0]) == pytest.approx(20.0, abs=0.2)  # the core diameter
-    assert float(three.bounds()[1][2]) > float(two.bounds()[1][2])
+    assert float(three.bounds().size[0]) == pytest.approx(20.0, abs=0.2)  # the core diameter
+    assert float(three.bounds().size[2]) > float(two.bounds().size[2])
 
 
 def test_invalid_rod_dims_raise() -> None:

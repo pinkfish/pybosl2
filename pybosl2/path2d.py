@@ -43,6 +43,7 @@ from shapely.geometry import LineString, Polygon
 from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.distributors import Distributable
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import (
     _is_point_on_segment,
     general_line_intersection,
@@ -270,13 +271,13 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self.closed = closed
             return
         if not (pts.ndim == 2):
-            raise ValueError(f"Path2D needs a list of [x, y] points, got {pts.ndim}D array")
+            raise Bosl2ValueError(f"Path2D needs a list of [x, y] points, got {pts.ndim}D array")
         if not (pts.shape[1] == 2):
-            raise ValueError(f"Path2D needs [x, y] points, got shape {pts.shape}")
+            raise Bosl2ValueError(f"Path2D needs [x, y] points, got shape {pts.shape}")
         if not (pts.dtype == np.float64):  # pragma: no cover
             # defensive: np.array(..., dtype=np.float64) either produces a
             # float64 array or raises on its own, so a surviving array never has another dtype.
-            raise ValueError(f"Path2D needs float64 points, got {pts.dtype}")
+            raise Bosl2ValueError(f"Path2D needs float64 points, got {pts.dtype}")
         self.closed = closed
         pts.flags.writeable = False  # shared by every _points reader; see the property
         self._array = pts
@@ -326,20 +327,20 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         if not ((droop is None) != (angle is None)):
-            raise ValueError("catenary() needs exactly one of droop= or angle=")
+            raise Bosl2ValueError("catenary() needs exactly one of droop= or angle=")
         if not (width > 0):
-            raise ValueError("catenary() needs width > 0.")
+            raise Bosl2ValueError("catenary() needs width > 0.")
         if not (isinstance(sides, int)):
-            raise ValueError("catenary() needs a positive integer sides.")
+            raise Bosl2ValueError("catenary() needs a positive integer sides.")
         if not (sides > 0):
-            raise ValueError("catenary() needs a positive integer sides.")
+            raise Bosl2ValueError("catenary() needs a positive integer sides.")
         given = droop if droop is not None else angle
         assert given is not None
         sgn = int(math.copysign(1, given))
         droop_a = None if droop is None else abs(droop)
         angle_a = None if angle is None else abs(angle)
         if not (angle_a is None or 0 < angle_a < 90):
-            raise ValueError("catenary() angle must satisfy 0 < |angle| < 90.")
+            raise Bosl2ValueError("catenary() angle must satisfy 0 < |angle| < 90.")
 
         if droop_a is None:  # solve for the scale that gives the requested endpoint slope
             assert angle_a is not None
@@ -832,7 +833,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if closed is None:
             closed = self.closed
         if not (points_per_segment is None or method == SubdivideMethod.SEGMENT):
-            raise ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
+            raise Bosl2ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
         ls = self._shapely
         total = ls.length
         if total < 1e-12:
@@ -1829,7 +1830,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if result.is_empty:
             return Path2D([], closed=True)
         if isinstance(result, GeometryCollection) or result.geom_type not in ("Polygon", "MultiPolygon"):
-            raise ValueError(f"Boolean operation produced an invalid result: {result.geom_type}")
+            raise Bosl2ValueError(f"Boolean operation produced an invalid result: {result.geom_type}")
         if isinstance(result, _Polygon):
             return Path2D(np.asarray(result.exterior.coords)[:-1], closed=True)
         # MultiPolygon: take the largest polygon
@@ -2273,12 +2274,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         if not ((radius is None) != (delta is None)):
-            raise ValueError(f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}")
+            raise Bosl2ValueError(f"offset() needs exactly one of radius= or delta=, radius={radius} delta={delta}")
         if not (closed is not False):
-            raise ValueError("Open paths are not supported by offset()")
+            raise Bosl2ValueError("Open paths are not supported by offset()")
         closed = True
         if not (not same_length or (radius is None and (not chamfer))):
-            raise ValueError(
+            raise Bosl2ValueError(
                 "offset(same_length=True) needs a plain delta offset: rounded and chamfered joins add points."
             )
         pts = self._points.copy()
@@ -2408,7 +2409,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
             return pts
         pts = pts[keep]
         if not (len(pts) >= 3):
-            raise ValueError("offset() needs at least 3 distinct points")
+            raise Bosl2ValueError("offset() needs at least 3 distinct points")
         return pts
 
     @staticmethod
@@ -2554,14 +2555,14 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         )
         parts = [part for part in getattr(grown, "geoms", [grown]) if not part.is_empty]
         if not (parts):
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
             )
         ring = [[float(x), float(y)] for x, y in max(parts, key=lambda part: part.area).exterior.coords[:-1]]
         if not (len(ring) >= 3):  # pragma: no cover
             # defensive: shapely's buffer returns polygons whose exterior ring always has at least
             # 3 distinct corners; the empty case is caught by the `parts` guard just above.
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"offset() collapsed the path: offsetting by {abs(amount)} leaves nothing of this outline."
             )
         source_sign = Path2D.polygon_area(source, signed=True)
@@ -2589,7 +2590,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if not (isinstance(start, int)):  # pragma: no cover
             # defensive: _select() is private and all three call sites pass a
             # literal int, so the slice form never sees a list or float start.
-            raise ValueError("_path_select(): slice form needs integer start")
+            raise Bosl2ValueError("_path_select(): slice form needs integer start")
         s = start % sides
         e = end % sides
         if s <= e:

@@ -23,10 +23,11 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pybosl2.parts._buildable import Buildable
 from pybosl2.vnf import VNF
 
 if TYPE_CHECKING:
@@ -216,7 +217,7 @@ class PolyhedronInfo:
         self.num_faces = len(faces)
 
 
-class RegularPolyhedron:
+class RegularPolyhedron(Buildable):
     """A regular Platonic solid, sized by circumradius, diameter, inradius, or side.
 
     *name* is a :class:`PlatonicSolid` enum.  The convenience class methods
@@ -303,15 +304,6 @@ class RegularPolyhedron:
         # larger than bounds() -- a cube of circumradius 1 measures 2/sqrt(3) across.
         self._solid = solid.with_nominal_size([2 * scale, 2 * scale, 2 * scale])
         return self._solid
-
-    def show(self) -> Any:
-        """Display the polyhedron in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
 
     @classmethod
     def tetrahedron(

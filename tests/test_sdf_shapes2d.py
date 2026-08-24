@@ -575,6 +575,7 @@ class TestBounds2D:
 
     def test_bounds_square(self) -> None:
         shape = sdf_s2d.rect2d([10, 8])
-        center, size = shape.bounds()
+        _box = shape.bounds()
+        size = list(_box.size)
         assert size[0] == pytest.approx(10)
         assert size[1] == pytest.approx(8)

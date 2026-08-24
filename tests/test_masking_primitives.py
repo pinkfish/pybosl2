@@ -53,7 +53,8 @@ def test_mask2d_groove() -> None:
 def test_mask3d_roundover_reaches_every_corner_of_the_box() -> None:
     """The cutter is one r-sided block per corner, so its envelope is the whole `size` box."""
     cutter = mask3d_roundover(r=2.0, size=(10.0, 10.0, 10.0))
-    centre, size = cutter.bounds()
+    _box = cutter.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert centre == pytest.approx([0.0, 0.0, 0.0])
     assert size == pytest.approx([10.0, 10.0, 10.0])
 
@@ -62,7 +63,8 @@ def test_mask3d_roundover_reaches_every_corner_of_the_box() -> None:
 def test_mask3d_roundover_corner_selection_limits_the_cutter(radius: float) -> None:
     """corners=TOP leaves the bottom four corners alone: the cutter is an r-thick top slab."""
     cutter = mask3d_roundover(r=radius, size=(10.0, 10.0, 10.0), corners=Anchor.TOP)
-    centre, size = cutter.bounds()
+    _box = cutter.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert centre == pytest.approx([0.0, 0.0, 5.0 - radius / 2])
     assert size == pytest.approx([10.0, 10.0, radius])
 
@@ -74,11 +76,13 @@ def test_mask3d_roundover_rejects_an_empty_corner_set() -> None:
 
 def test_mask3d_chamfer_occupies_the_same_corners_as_the_roundover() -> None:
     chamfered = mask3d_chamfer(chamfer=2.0, size=(10.0, 10.0, 10.0))
-    centre, size = chamfered.bounds()
+    _box = chamfered.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert centre == pytest.approx([0.0, 0.0, 0.0])
     assert size == pytest.approx([10.0, 10.0, 10.0])
 
-    centre, size = mask3d_chamfer(chamfer=2.0, size=(10.0, 10.0, 10.0), corners=Anchor.TOP).bounds()
+    _box = mask3d_chamfer(chamfer=2.0, size=(10.0, 10.0, 10.0), corners=Anchor.TOP).bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert centre == pytest.approx([0.0, 0.0, 4.0])
     assert size == pytest.approx([10.0, 10.0, 2.0])
 
@@ -107,8 +111,9 @@ def test_mask3d_chamfer_rejects_a_non_positive_chamfer() -> None:
 def test_mask3d_groove_measures_width_depth_and_length(width: float) -> None:
     """The groove is its 2-D profile extruded along Z: width in X, depth in Y, length in Z."""
     cutter = mask3d_groove(width=width, depth=2.0, length=10.0)
-    centre, size = cutter.bounds()
+    _box = cutter.bounds()
     # mask2d_groove carries a small excess past the surface so the cut clears it.
+    centre, size = list(_box.center), list(_box.size)
     assert size[0] == pytest.approx(width, abs=0.05)
     assert size[1] == pytest.approx(2.0, abs=0.05)
     assert size[2] == pytest.approx(10.0)

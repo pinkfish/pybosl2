@@ -39,7 +39,7 @@ from pybosl2._backend import (
     use_backend,
 )
 from pybosl2._edges_lang import Anchor
-from pybosl2.exceptions import CrossBackendError, UnsupportedByBackendError
+from pybosl2.exceptions import Bosl2ValueError, CrossBackendError, UnsupportedByBackendError
 
 #: Resolution knobs whose default is ambient rather than per-shape (see pybosl2.defaults).
 _AMBIENT = frozenset({"fn", "fa", "fs", "res"})
@@ -111,7 +111,8 @@ __all__ = [
     "Solid",
     "CrossBackendError",
     "UnsupportedByBackendError",
-    "given_arguments",
+    # `given_arguments` is the façade's own forwarding filter, not API (SPEC A-9). It is still
+    # importable for the backends that call it; it is simply not advertised.
 ]
 
 
@@ -2229,7 +2230,7 @@ def _require_operands(operation: str, solids: tuple[Solid, ...]) -> None:
 
     """
     if not solids:
-        raise ValueError(f"{operation}(): needs at least one solid to combine.")
+        raise Bosl2ValueError(f"{operation}(): needs at least one solid to combine.")
 
 
 def union(*solids: Solid) -> Solid:

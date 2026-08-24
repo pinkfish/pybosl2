@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.points import Point
 
 if TYPE_CHECKING:
@@ -290,7 +291,7 @@ def _anchor_to_edge_matrix(anchor: Anchor) -> list[list[int]]:
     try:
         v = anchor.vector
     except TypeError:
-        raise ValueError(f"Anchor.{anchor.name} cannot be converted to edge matrix") from None
+        raise Bosl2ValueError(f"Anchor.{anchor.name} cannot be converted to edge matrix") from None
     nz_count = sum(1 for x in v if x != 0)
     if nz_count == 1:
         # Face: select all edges on that face
@@ -313,7 +314,7 @@ def _anchor_to_corner_set(anchor: Anchor) -> list[int]:
     try:
         v = anchor.vector
     except TypeError:
-        raise ValueError(f"Anchor.{anchor.name} cannot be converted to corner set") from None
+        raise Bosl2ValueError(f"Anchor.{anchor.name} cannot be converted to corner set") from None
     # Match: each CORNER_OFFSET entry whose signed axes equal or are superset of the selector
     return [1 if all(v[i] == 0 or v[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
 
@@ -334,17 +335,17 @@ def resolve_anchor(anchor: Anchor | list[int | float] | list[list[int]]) -> Anch
     if isinstance(anchor, Anchor):
         return anchor
     if isinstance(anchor, str):
-        raise ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
+        raise Bosl2ValueError(f"Legacy string anchor selection is not allowed: {anchor!r}")
     if _is_edge_matrix(anchor):
-        raise ValueError("Cannot resolve a raw edge matrix to a single Anchor; use a list of Anchors instead.")
+        raise Bosl2ValueError("Cannot resolve a raw edge matrix to a single Anchor; use a list of Anchors instead.")
     if _is_plain_vector(anchor):
         v = [int(round(float(x))) for x in anchor]  # type: ignore[arg-type]
         # Search for matching Anchor
         for a in Anchor:
             if isinstance(a.value, tuple) and list(a.value) == v:
                 return a
-        raise ValueError(f"No Anchor member matches vector {v}")
-    raise ValueError(f"Cannot resolve anchor: {anchor!r}")
+        raise Bosl2ValueError(f"No Anchor member matches vector {v}")
+    raise Bosl2ValueError(f"Cannot resolve anchor: {anchor!r}")
 
 
 def _edge_set(
@@ -361,7 +362,7 @@ def _edge_set(
 
     """
     if isinstance(v, str):
-        raise ValueError(f"Legacy string edge selection is not allowed: {v!r}")
+        raise Bosl2ValueError(f"Legacy string edge selection is not allowed: {v!r}")
     if isinstance(v, Anchor):
         return _anchor_to_edge_matrix(v)
     if _is_edge_matrix(v):
@@ -376,7 +377,7 @@ def _edge_set(
                 for i in range(4):
                     summed[ax][i] += es[ax][i]
         return [[1 if summed[ax][i] > 0 else 0 for i in range(4)] for ax in range(3)]
-    raise ValueError(f"Unrecognised edge specifier: {v!r}")
+    raise Bosl2ValueError(f"Unrecognised edge specifier: {v!r}")
 
 
 def edges(
@@ -401,9 +402,9 @@ def edges(
     if v is Anchor.NONE or (isinstance(v, (list, tuple)) and len(v) == 0):
         return EDGES_NONE
     if isinstance(v, str):
-        raise ValueError(f"Legacy string edge selection is not allowed: {v!r}")
+        raise Bosl2ValueError(f"Legacy string edge selection is not allowed: {v!r}")
     if isinstance(except_, str):
-        raise ValueError(f"Legacy string edge selection is not allowed: {except_!r}")
+        raise Bosl2ValueError(f"Legacy string edge selection is not allowed: {except_!r}")
     if isinstance(v, Anchor) or _is_edge_matrix(v) or _is_plain_vector(v):
         return edges([v], except_)  # type: ignore[list-item]
     if isinstance(except_, Anchor) or _is_edge_matrix(except_) or _is_plain_vector(except_):

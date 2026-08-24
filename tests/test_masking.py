@@ -29,7 +29,8 @@ def test_chamfer_edge_mask_is_a_diamond_bar(length: float, chamfer: float, exces
     assert isinstance(mask, Bosl2Solid)
     assert mask.backend == "csg"
 
-    centre, size = mask.bounds()
+    _box = mask.bounds()
+    centre, size = list(_box.center), list(_box.size)
     assert size == pytest.approx([2 * chamfer, 2 * chamfer, length + excess], abs=0.01)
     assert centre == pytest.approx([0.0, 0.0, 0.0], abs=0.01)  # centred on the edge it cuts
 
@@ -42,16 +43,18 @@ def test_rounding_edge_mask_is_a_wrapped_solid() -> None:
     assert isinstance(mask, Bosl2Solid)
     assert mask.backend == "csg"
 
-    _centre, size = mask.bounds()
+    _box = mask.bounds()
+    _centre, size = list(_box.center), list(_box.size)
     assert size[2] == pytest.approx(10.0, abs=0.01)  # runs the length of the edge
     # The cross-section is the corner the fillet leaves behind: the radius, plus the excess that
     # carries the cut past the two faces.
     assert size[:2] == pytest.approx([2.1, 2.1], abs=0.01)
-    assert rounding_edge_mask(length=10, radius=4).bounds()[1][:2] == pytest.approx([4.1, 4.1], abs=0.01)
-    assert rounding_edge_mask(length=10, radius=2, excess=0.5).bounds()[1][:2] == pytest.approx([2.5, 2.5], abs=0.01)
+    assert rounding_edge_mask(length=10, radius=4).bounds().size[:2] == pytest.approx([4.1, 4.1], abs=0.01)
+    assert rounding_edge_mask(length=10, radius=2, excess=0.5).bounds().size[:2] == pytest.approx([2.5, 2.5], abs=0.01)
 
     # A tapered mask takes its cross-section from the wide end.
-    _centre, tapered_size = rounding_edge_mask(length=30, radius1=1, radius2=3).bounds()
+    _box = rounding_edge_mask(length=30, radius1=1, radius2=3).bounds()
+    _centre, tapered_size = list(_box.center), list(_box.size)
     assert tapered_size[2] == pytest.approx(30.0, abs=0.01)
     assert tapered_size[0] == pytest.approx(3.1, abs=0.01)
 

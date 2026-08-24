@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 
 from pybosl2.enums import EdgeMode
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import vector_angle3 as _vector_angle3
 from pybosl2.sdf._libfive import LVTree, lv
 from pybosl2.sdf.edges import _pick_radius
@@ -66,7 +67,7 @@ def as_points(pts: ArrayLike) -> NDArray[np.float64]:
     """
     arr = np.asarray(pts, dtype=float)
     if not (arr.ndim == 2):
-        raise ValueError(f"expected a point path, got shape {arr.shape}")
+        raise Bosl2ValueError(f"expected a point path, got shape {arr.shape}")
     return arr
 
 
@@ -189,14 +190,14 @@ def _halfplane_max_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64]) -> LV
         e = (ey / elen) * (x - x0) + (-ex / elen) * (y - y0)
         d = e if d is None else lv.max(d, e)
     if not (d is not None):
-        raise ValueError("polygon has no non-degenerate edges")
+        raise Bosl2ValueError("polygon has no non-degenerate edges")
     return d
 
 
 def _convex_deficiency_sdf(x: LVTree, y: LVTree, ccw_pts: NDArray[np.float64], _depth: int = 0) -> LVTree:
     """See _polygon_sdf_xy(): CCW polygon as (convex hull) minus (recursive pockets)."""
     if not (_depth < 16):
-        raise ValueError("polygon decomposition recursed implausibly deep -- is the outline self-intersecting?")
+        raise Bosl2ValueError("polygon decomposition recursed implausibly deep -- is the outline self-intersecting?")
     if _is_convex(ccw_pts):
         return _halfplane_max_sdf(x, y, ccw_pts)
 
@@ -394,7 +395,7 @@ def bezpath_points(
     """
     bez = as_points(bezpath)
     if len(bez) % n_degree != 1:
-        raise ValueError(
+        raise Bosl2ValueError(
             f"bezpath_points(): a degree {n_degree} bezier path needs a multiple of {n_degree} "
             f"points plus 1, got {len(bez)}."
         )
@@ -416,18 +417,18 @@ def egg_path(length: float, radius1: float, radius2: float, arc_radius: float, n
     Mirrors the bosl2 port's _egg_path() construction, with a fixed arc sampling density.
     """
     if length <= 0:
-        raise ValueError(f"egg_path(): length must be positive, got {length}.")
+        raise Bosl2ValueError(f"egg_path(): length must be positive, got {length}.")
     if not (length / 2 < arc_radius):
-        raise ValueError("Side radius arc_radius must be larger than length/2")
+        raise Bosl2ValueError("Side radius arc_radius must be larger than length/2")
     if not (length > radius1 + radius2):
-        raise ValueError("Length must be longer than radius1+radius2")
+        raise Bosl2ValueError("Length must be longer than radius1+radius2")
     c1 = [-length / 2 + radius1, 0.0]
     c2 = [length / 2 - radius2, 0.0]
     m_pts = list(reversed(_circle_circle_intersection(arc_radius - radius1, c1, arc_radius - radius2, c2)))
     if not (len(m_pts) == 2):  # pragma: no cover
         # defensive: the two guards above force arc_radius > length/2 > (radius1+radius2)/2, which
         # is exactly the condition under which the two blending circles meet in two points.
-        raise ValueError("egg_path(): circles do not intersect for the given length/radius1/radius2/arc_radius.")
+        raise Bosl2ValueError("egg_path(): circles do not intersect for the given length/radius1/radius2/arc_radius.")
     arcparms = []
     for m in m_pts:
         u1 = _unit2([c1[0] - m[0], c1[1] - m[1]])
@@ -531,7 +532,7 @@ def _v_unit(a: _VecLike) -> NDArray[np.float64]:
     arr = np.asarray(a, dtype=float)
     n = float(np.linalg.norm(arr))
     if not (n > 1e-12):
-        raise ValueError("cannot normalize a zero vector")
+        raise Bosl2ValueError("cannot normalize a zero vector")
     return arr / n
 
 
@@ -622,11 +623,11 @@ def path_tangents(path: ArrayLike, closed: bool = False, uniform: bool = True) -
         seg_starts = pts if closed else pts[:-1]
         segs = np.linalg.norm(seg_ends - seg_starts, axis=1)
         if not np.all(segs > 1e-12):
-            raise ValueError("path_tangents(): the path has a repeated point (zero-length segment).")
+            raise Bosl2ValueError("path_tangents(): the path has a repeated point (zero-length segment).")
         d = deriv(pts, h=segs, closed=closed)
     norms = np.linalg.norm(d, axis=1, keepdims=True)
     if not (np.all(norms > 1e-12)):
-        raise ValueError("cannot normalize a zero tangent")
+        raise Bosl2ValueError("cannot normalize a zero tangent")
     unit_tangents: NDArray[np.float64] = d / norms
     return unit_tangents
 
@@ -685,7 +686,7 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
     segment length).
     """
     if not (size is None or relsize is None):
-        raise ValueError("Can't define both size and relsize")
+        raise Bosl2ValueError("Can't define both size and relsize")
     path = as_points(path)
     curvesize = size if size is not None else (relsize if relsize is not None else 0.1)
     relative = size is None
@@ -704,7 +705,7 @@ def path_to_bezpath(  # type: ignore[no-untyped-def]
         second = path[(i + 1) % len(path)]
         seglength = math.dist(first, second)
         if not (seglength > 0):
-            raise ValueError(f"zero-length path segment at index {i}")
+            raise Bosl2ValueError(f"zero-length path segment at index {i}")
         segdir = (second - first) / seglength
         tangent1 = tang[i]
         tangent2 = -tang[(i + 1) % len(path)]  # points backward, along the curve
@@ -820,7 +821,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
     if isinstance(cutdist, (int, float)):
         return path_cut_points(path, [cutdist], closed)
     if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
-        raise ValueError("Cut distances must be an increasing list")
+        raise Bosl2ValueError("Cut distances must be an increasing list")
 
     def select(p: NDArray[np.float64] | Sequence[float], i: int) -> NDArray[np.float64]:
         return p[i % len(p)]  # type: ignore[return-value]
@@ -829,7 +830,7 @@ def path_cut_points(path: ArrayLike, cutdist: float | list[float], closed: bool 
         while True:
             if ind == len(path) - (0 if closed else 1):
                 if not (dist < eps):
-                    raise ValueError("Path2D is too short for specified cut distance")
+                    raise Bosl2ValueError("Path2D is too short for specified cut distance")
                 return [np.array(select(path, ind)), ind + 1]
             d = float(np.linalg.norm(select(path, ind + 1) - path[ind]))
             if d > dist:
@@ -912,10 +913,10 @@ def round_corners(  # type: ignore[no-untyped-def]
     path = as_points(path)
     n = len(path)
     if not (n > 2):
-        raise ValueError(f"Path2D has length {n}. Length must be 3 or more.")
+        raise Bosl2ValueError(f"Path2D has length {n}. Length must be 3 or more.")
     size = radius if radius is not None else r
     if not (size is not None):
-        raise ValueError("Must specify radius")
+        raise Bosl2ValueError("Must specify radius")
     parm = list(size) if isinstance(size, (list, tuple)) else [size] * n
 
     dk = []
@@ -926,7 +927,7 @@ def round_corners(  # type: ignore[no-untyped-def]
         p0, p1, p2 = path[(i - 1) % n], path[i], path[(i + 1) % n]
         angle = _vector_angle3(p0, p1, p2) / 2
         if not (angle > 1e-09):
-            raise ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding")
+            raise Bosl2ValueError(f"Path2D turns back on itself at index {i} with nonzero rounding")
         dk.append([parm[i] / math.tan(math.radians(angle)), parm[i]])
 
     out: list[Any] = []

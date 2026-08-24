@@ -36,6 +36,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Sequence, Union
 
+from pybosl2.exceptions import Bosl2ValueError
+
 if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2.paths import PathLike
@@ -312,7 +314,7 @@ def endcap_polys(spec: CapSpec, lw: float) -> list[list[list[float]]]:
 
     if spec.cap_type == CapType.CUSTOM:
         if not (spec.path is not None):
-            raise ValueError("CapType.CUSTOM requires path= on the CapSpec")
+            raise Bosl2ValueError("CapType.CUSTOM requires path= on the CapSpec")
         return [[[float(c) for c in pt] for pt in spec.path]]
 
     if spec.cap_type == CapType.CIRCLE:

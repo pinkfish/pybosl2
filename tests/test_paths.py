@@ -591,7 +591,8 @@ def test_polygon_and_geometry_carry_the_path_through() -> None:
     geom = Path2D(SQUARE).geometry()
 
     for shape in (poly, geom):
-        centre, size = shape.bounds()
+        _box = shape.bounds()
+        centre, size = list(_box.center), list(_box.size)
         assert size == pytest.approx([80.0, 60.0])
         assert centre == pytest.approx([40.0, 30.0])
         assert repr(shape).count("polygon(") == 1

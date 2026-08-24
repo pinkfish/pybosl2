@@ -20,8 +20,10 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 
+from pybosl2.bounds import Bounds2D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.enums import RoundingMethod
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path2d import Path2D
 from pybosl2.shapes3d import text3d
 
@@ -232,7 +234,7 @@ class Region:
 
         """
         if not (tolerance > 0):
-            raise ValueError(f"tolerance must be > 0, got {tolerance}")
+            raise Bosl2ValueError(f"tolerance must be > 0, got {tolerance}")
         polys = list(self._polygon.geoms) if isinstance(self._polygon, MultiPolygon) else [self._polygon]
         colours = self._polygon_colors or [self._color] * len(polys)
         pieces: list[tuple[Any, Any]] = []
@@ -663,17 +665,31 @@ class Region:
         """
         return Region([p.translate(v) for p in self.paths])
 
-    def bounds(self) -> np.ndarray:
-        """Return the bounding box over every path in the region.
+    def bounds(self) -> Bounds2D:
+        """Return the axis-aligned bounding box over every path in the region (SPEC S-2b).
 
         Returns:
-            A numpy array ``[[min_x, min_y], [max_x, max_y]]``.
+            The :class:`~pybosl2.bounds.Bounds2D` box -- the same type every other ``bounds()`` in
+            the library answers, rather than the bare NumPy ``[[min], [max]]`` array this used to
+            hand back.
+
+        Raises:
+            Bosl2ValueError: If the region holds no paths.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D, Region
+
+                region = Region([Path2D([[0, 0], [30, 0], [30, 20], [0, 20]], closed=True)])
+                print(region.bounds().size)     # (30.0, 20.0)
+                region.geometry().linear_extrude(height=4).show()
 
         """
         if not (self.paths):
-            raise ValueError("empty Region has no bounds")
+            raise Bosl2ValueError("empty Region has no bounds")
         all_pts = np.vstack([p.array for p in self.paths])
-        return np.array([all_pts.min(axis=0), all_pts.max(axis=0)])
+        return Bounds2D.from_min_max(all_pts.min(axis=0).tolist(), all_pts.max(axis=0).tolist())
 
     def geometry(self) -> "Bosl2Shape2D":
         """2-D geometry: every polygon in the region, each with its holes subtracted.

@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 
 from pybosl2._helpers import union
 from pybosl2.color import Color
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.solid import cuboid, teardrop, tube
 
 if TYPE_CHECKING:
@@ -84,7 +85,7 @@ class LinearBearings:
         try:
             return _LMXUU[int(size)]
         except (KeyError, ValueError):
-            raise ValueError(f"Unsupported lmXuu linear bearing size: {size!r}") from None
+            raise Bosl2ValueError(f"Unsupported lmXuu linear bearing size: {size!r}") from None
 
     @staticmethod
     def linear_bearing(

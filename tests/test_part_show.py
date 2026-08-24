@@ -182,8 +182,8 @@ def test_a_converted_part_builds_the_same_shape_on_either_backend(name: str) -> 
         assert shape.backend == backend, f"{name} built {shape.backend} geometry inside a {backend} block"
         built[backend] = shape.bounds()
 
-    csg_centre, csg_size = built["csg"]
-    sdf_centre, sdf_size = built["sdf"]
+    csg_centre, csg_size = list(built["csg"].center), list(built["csg"].size)
+    sdf_centre, sdf_size = list(built["sdf"].center), list(built["sdf"].size)
     for axis in range(3):
         assert abs(float(csg_size[axis]) - float(sdf_size[axis])) < 0.5, (
             f"{name}: backends disagree on size, csg={list(csg_size)} sdf={list(sdf_size)}"
@@ -289,8 +289,8 @@ def test_a_conservative_bounds_part_still_builds_the_right_solid(name: str) -> N
         assert shape.backend == backend
         built[backend] = shape.bounds()
 
-    csg_centre, csg_size = built["csg"]
-    sdf_centre, sdf_size = built["sdf"]
+    csg_centre, csg_size = list(built["csg"].center), list(built["csg"].size)
+    sdf_centre, sdf_size = list(built["sdf"].center), list(built["sdf"].size)
     for axis in range(3):
         assert float(sdf_size[axis]) >= float(csg_size[axis]) - 0.01, (
             f"{name}: the SDF box is SMALLER than the real solid on axis {axis}, which would clip it"

@@ -37,6 +37,7 @@ from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2._helpers import polar_to_xy as _polar_to_xy
 from pybosl2._helpers import quantup
+from pybosl2.exceptions import Bosl2ValueError
 
 from ._edges_lang import EDGE_OFFSETS
 from ._edges_lang import edges as resolve_edges
@@ -229,9 +230,9 @@ def edge_mask(
 
     """
     if not (size is not None):
-        raise ValueError("size= (the box's size) must be given")
+        raise Bosl2ValueError("size= (the box's size) must be given")
     if not (children is not None):
-        raise ValueError("children= (the edge cutter) must be given")
+        raise Bosl2ValueError("children= (the edge cutter) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Solid | None" = None
     for axis in range(3):
@@ -274,9 +275,9 @@ def edge_profile(
     """
     _ = convexity
     if not (size is not None):
-        raise ValueError("size= (the box's size) must be given")
+        raise Bosl2ValueError("size= (the box's size) must be given")
     if not (children is not None):
-        raise ValueError("children= (the 2-D mask path) must be given")
+        raise Bosl2ValueError("children= (the 2-D mask path) must be given")
     edge_set = resolve_edges(edges, except_edges or [])
     cutter: "Solid | None" = None
     for axis in range(3):
@@ -308,7 +309,7 @@ def _corner_set(v: list[int] | Anchor | Point) -> list[int]:
     if isinstance(v, str):  # pragma: no cover
         # defensive: _corners(), the only caller, rejects the string form for both its arguments
         # before it gets here.
-        raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
+        raise Bosl2ValueError(f"Legacy string corner selection is not allowed: {v!r}")
     arr = np.asarray(v, dtype=int)
     return [1 if all(arr[i] == 0 or arr[i] == c[i] for i in range(3)) else 0 for c in CORNER_OFFSETS]
 
@@ -320,9 +321,9 @@ def _corners(
     if except_ is None:
         except_ = []
     if isinstance(v, str):
-        raise ValueError(f"Legacy string corner selection is not allowed: {v!r}")
+        raise Bosl2ValueError(f"Legacy string corner selection is not allowed: {v!r}")
     if isinstance(except_, str):
-        raise ValueError(f"Legacy string corner selection is not allowed: {except_!r}")
+        raise Bosl2ValueError(f"Legacy string corner selection is not allowed: {except_!r}")
     # Wrap a SINGLE selector; leave a list of selectors alone. This has to use the same test
     # the edge language uses, not "is v[0] a list": `Anchor.BOTTOM + Anchor.FRONT + Anchor.LEFT`
     # is a Point, so `[that]` looked like a bare selector here and got wrapped a second time,
@@ -354,7 +355,7 @@ def _corner_cutter(
     fs: float | None = None,
 ) -> "Bosl2Solid":
     if radius <= 0:
-        raise ValueError(f"corner_profile(): radius/diameter must be positive, got {radius}.")
+        raise Bosl2ValueError(f"corner_profile(): radius/diameter must be positive, got {radius}.")
     # The cutter is the material a fillet leaves behind: the radius-sided block filling the very
     # corner, minus the sphere the rounded surface follows. The sphere sits at the *inner* point,
     # one radius in from the corner along each axis.
@@ -385,7 +386,7 @@ def _corner_chamfer_cutter(
     chamfer bars -- everything inside the block that at least one of the three planes shaves off.
     """
     if chamfer <= 0:
-        raise ValueError(f"Mask3D.chamfer(): chamfer must be positive, got {chamfer}.")
+        raise Bosl2ValueError(f"Mask3D.chamfer(): chamfer must be positive, got {chamfer}.")
     from pybosl2.shapes3d import cuboid
 
     corner_pt = [size[i] / 2 * corner_vec[i] for i in range(3)]
@@ -441,11 +442,11 @@ def corner_profile(
     _ = (children, convexity)
     if radius is None:
         if not (diameter is not None):
-            raise ValueError("corner_profile(): must give radius or diameter")
+            raise Bosl2ValueError("corner_profile(): must give radius or diameter")
         radius = diameter / 2
     rad = float(radius)
     if not (size is not None):
-        raise ValueError("size= (the box's size) must be given")
+        raise Bosl2ValueError("size= (the box's size) must be given")
     corner_set = _corners(corners, except_corners or [])
     cutter: "Solid | None" = None
     for idx, sel in enumerate(corner_set):
@@ -496,7 +497,7 @@ def face_profile(
     """
     if radius is None:
         if not (diameter is not None):
-            raise ValueError("face_profile(): must give radius or diameter")
+            raise Bosl2ValueError("face_profile(): must give radius or diameter")
         radius = diameter / 2
     rad = float(radius)
     mask = children if children is not None else mask2d_roundover(rad, fn=fn, fa=fa, fs=fs)
@@ -591,7 +592,7 @@ class Mask2D:
 
         if radius is None:
             if not (diameter is not None):
-                raise ValueError("Mask2D.roundover(): must give radius or diameter")
+                raise Bosl2ValueError("Mask2D.roundover(): must give radius or diameter")
             radius = diameter / 2
         rad = float(radius)
         inset_x, inset_y = inset if isinstance(inset, tuple) else (float(inset), float(inset))
@@ -827,7 +828,7 @@ class Mask3D:
             return_cutter=True,
         )
         if cutter is None:
-            raise ValueError(
+            raise Bosl2ValueError(
                 "Mask3D.roundover(): corners= selected no corners, so there is nothing to round; "
                 "pass an Anchor naming at least one corner."
             )
@@ -855,7 +856,7 @@ class Mask3D:
                 piece = _corner_chamfer_cutter(size, CORNER_OFFSETS[idx], chamfer)
                 cutter = piece if cutter is None else (cutter | piece)
         if cutter is None:
-            raise ValueError(
+            raise Bosl2ValueError(
                 "Mask3D.chamfer(): corners= selected no corners, so there is nothing to chamfer; "
                 "pass an Anchor naming at least one corner."
             )

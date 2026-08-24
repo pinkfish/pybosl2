@@ -426,7 +426,8 @@ class TestSphere:
     def test_spheroid_is_a_plain_sphere(self) -> None:
         shape = sdf_s3d.spheroid(radius=3).mesh()
         assert math.isclose(float(shape.sample(3, 0, 0)), float(0), abs_tol=1e-7)
-        center, size = sdf_s3d.spheroid(radius=3).bounds()
+        _box = sdf_s3d.spheroid(radius=3).bounds()
+        size = list(_box.size)
         assert size[0] == pytest.approx(6, abs=0.01)
         assert size[1] == pytest.approx(6, abs=0.01)
         assert size[2] == pytest.approx(6, abs=0.01)
@@ -439,7 +440,8 @@ class TestTorus:
         assert math.isclose(float(shape.sample(12, 0, 0)), float(0), abs_tol=1e-7), "outer equator"
         assert math.isclose(float(shape.sample(8, 0, 0)), float(0), abs_tol=1e-7), "inner equator"
         assert math.isclose(float(shape.sample(10, 0, 2)), float(0), abs_tol=1e-7), "top of the tube"
-        center, size = sdf_s3d.torus(major_radius=10, minor_radius=2).bounds()
+        _box = sdf_s3d.torus(major_radius=10, minor_radius=2).bounds()
+        size = list(_box.size)
         assert size[0] >= 22  # major_radius + minor_radius = 12, diameter = 24
         assert size[1] >= 22
         assert size[2] >= 3  # minor_radius * 2 = 4
@@ -451,7 +453,8 @@ class TestCylinders:
         assert math.isclose(float(shape.sample(5, 0, 0)), float(0), abs_tol=1e-7)
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=1e-7)
         assert shape.sample(0, 0, 0) < 0
-        center, size = sdf_s3d.cylinder(height=10, radius=5).bounds()
+        _box = sdf_s3d.cylinder(height=10, radius=5).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         assert size[0] == pytest.approx(10, abs=0.01)  # diameter = 2*radius
 
@@ -459,7 +462,8 @@ class TestCylinders:
         shape = sdf_s3d.cylinder(height=10, radius1=5, radius2=2).mesh()
         assert math.isclose(float(shape.sample(5, 0, -5)), float(0), abs_tol=10 ** (-3)), "bottom rim"
         assert math.isclose(float(shape.sample(2, 0, 5)), float(0), abs_tol=10 ** (-3)), "top rim"
-        center, size = sdf_s3d.cylinder(height=10, radius1=5, radius2=2).bounds()
+        _box = sdf_s3d.cylinder(height=10, radius1=5, radius2=2).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
 
     def test_cyl_uniform_rounding(self) -> None:
@@ -469,8 +473,10 @@ class TestCylinders:
         assert math.isclose(float(shape.sample(5, 0, 0)), float(0), abs_tol=10 ** (-9)), "flat side wall"
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=10 ** (-9)), "flat top cap"
         # rounding expands bounds outward by r
-        r_bounds, r_size = sdf_s3d.cyl(height=10, radius=5, rounding=r).bounds()
-        p_bounds, p_size = sdf_s3d.cyl(height=10, radius=5).bounds()
+        _box = sdf_s3d.cyl(height=10, radius=5, rounding=r).bounds()
+        r_size = list(_box.size)
+        _box = sdf_s3d.cyl(height=10, radius=5).bounds()
+        p_size = list(_box.size)
         assert r_size[0] >= p_size[0], "rounding should not shrink"
 
     def test_cyl_independent_top_bottom_chamfer(self) -> None:
@@ -536,7 +542,8 @@ class TestTubes:
         assert math.isclose(float(shape.sample(3, 0, 0)), float(0), abs_tol=1e-7), "inner wall"
         assert shape.sample(4, 0, 0) < 0, "inside the wall material"
         assert shape.sample(1, 0, 0) > 0, "inside the hollow bore"
-        center, size = sdf_s3d.tube(height=10, outer_radius=5, inner_radius=3).bounds()
+        _box = sdf_s3d.tube(height=10, outer_radius=5, inner_radius=3).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         assert size[0] >= 8, "outer diameter = 10"
 
@@ -550,7 +557,8 @@ class TestTubes:
         assert math.isclose(float(shape.sample(8, 0, 0)), float(0), abs_tol=1e-7), "inner wall"
         assert shape.sample(9, 0, 0) < 0, "in the wall"
         assert shape.sample(0, 0, 0) > 0, "in the hollow bore"
-        center, size = sdf_s3d.rect_tube(height=10, size=[20, 16], isize=[16, 12], anchor=CENTER).bounds()
+        _box = sdf_s3d.rect_tube(height=10, size=[20, 16], isize=[16, 12], anchor=CENTER).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         assert size[0] >= 18, "outer size = 20"
 
@@ -561,7 +569,8 @@ class TestPieSlice:
         assert shape.sample(3, 3, 0) < 0, "inside the 90deg wedge (Q1)"
         assert shape.sample(-3, 3, 0) > 0, "Q2 excluded"
         assert shape.sample(3, -3, 0) > 0, "Q4 excluded"
-        center, size = sdf_s3d.pie_slice(height=10, radius=5, angle=90).bounds()
+        _box = sdf_s3d.pie_slice(height=10, radius=5, angle=90).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         assert size[0] >= 4, "radius = 5"
 
@@ -571,7 +580,8 @@ class TestPieSlice:
         assert shape.sample(-3, 3, 0) < 0, "Q2 included"
         assert shape.sample(-3, -3, 0) < 0, "Q3 included"
         assert shape.sample(3, -3, 0) > 0, "Q4 (270-360) excluded"
-        center, size = sdf_s3d.pie_slice(height=10, radius=5, angle=270).bounds()
+        _box = sdf_s3d.pie_slice(height=10, radius=5, angle=270).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
 
     @pytest.mark.parametrize(
@@ -612,7 +622,8 @@ class TestPieSlice:
     def test_a_narrow_wedge_reports_a_narrow_box(self) -> None:
         """The regression in one line: a 30 degree slice claimed four times the area it occupies."""
         wedge = sdf_s3d.pie_slice(height=10, radius=10, angle=30)
-        _centre, size = wedge.bounds()
+        _box = wedge.bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert size[:2] == pytest.approx([10.0, 5.0])  # not the disc's [20, 20]
 
 
@@ -622,7 +633,8 @@ class TestPrismoid:
         assert math.isclose(float(shape.sample(5, 0, 0)), float(0), abs_tol=1e-7)
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=1e-7)
         assert shape.sample(0, 0, 0) < 0
-        center, size = sdf_s3d.prismoid(size1=[10, 10], size2=[10, 10], height=10, anchor=CENTER).bounds()
+        _box = sdf_s3d.prismoid(size1=[10, 10], size2=[10, 10], height=10, anchor=CENTER).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         assert size[0] >= 8, "size1 = 10"
 
@@ -631,7 +643,8 @@ class TestPrismoid:
         assert math.isclose(float(shape.sample(10, 0, -5)), float(0), abs_tol=10 ** (-3)), "bottom rim (wider)"
         assert math.isclose(float(shape.sample(5, 0, 5)), float(0), abs_tol=10 ** (-3)), "top rim (narrower)"
         assert shape.sample(0, 0, 0) < 0
-        center, size = sdf_s3d.prismoid(size1=[20, 20], size2=[10, 10], height=10, anchor=CENTER).bounds()
+        _box = sdf_s3d.prismoid(size1=[20, 20], size2=[10, 10], height=10, anchor=CENTER).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
 
 
@@ -759,7 +772,8 @@ class TestPolygonPrism:
         shape = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_top=1).mesh()
         assert shape is not None
         # chamfered top: surface at the corner should be modified
-        center, size = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_top=1).bounds()
+        _box = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_top=1).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         # interior should still be solid
         assert shape.sample(20, 7.5, 5) < 0, "center is inside"
@@ -767,7 +781,8 @@ class TestPolygonPrism:
     def test_polygon_prism_chamfer_bottom(self) -> None:
         shape = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_bottom=1).mesh()
         assert shape is not None
-        center, size = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_bottom=1).bounds()
+        _box = sdf_s3d.polygon_prism(self.L_PATH, height=10, chamfer_bottom=1).bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(10, abs=0.01)
         assert shape.sample(20, 7.5, 5) < 0, "center is inside"
 
@@ -797,7 +812,8 @@ class TestTeardropAndOnion:
         assert shape.sample(0, 0, 0) < 0
         apex = r / math.sin(math.radians(angle))
         assert math.isclose(float(shape.sample(0, 0, apex)), float(0), abs_tol=10 ** (-3))
-        center, size = sdf_s3d.onion(radius=r, angle=angle, anchor=CENTER).bounds()
+        _box = sdf_s3d.onion(radius=r, angle=angle, anchor=CENTER).bounds()
+        size = list(_box.size)
         assert size[0] >= 5
         assert size[2] >= 3
 
@@ -808,14 +824,16 @@ class TestHeightfield:
         assert math.isclose(float(shape.sample(0, 0, 5)), float(0), abs_tol=1e-7)
         assert shape.sample(0, 0, 0) < 0
         assert shape.sample(0, 0, 10) > 0
-        center, size = sdf_s3d.heightfield(lambda _x, _y: 5, size=[20, 20], bottom=-5, maxz=10).bounds()
+        _box = sdf_s3d.heightfield(lambda _x, _y: 5, size=[20, 20], bottom=-5, maxz=10).bounds()
+        size = list(_box.size)
         assert size[0] >= 18
         assert size[1] >= 18
 
     def test_varying_heightfield(self) -> None:
         shape = sdf_s3d.heightfield(lambda x, _y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).mesh()
         assert math.isclose(float(shape.sample(10, 0, 1)), float(0), abs_tol=1e-7)
-        center, size = sdf_s3d.heightfield(lambda x, _y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).bounds()
+        _box = sdf_s3d.heightfield(lambda x, _y: x * 0.1, size=[20, 20], bottom=-5, maxz=10).bounds()
+        size = list(_box.size)
         assert size[0] >= 18
 
     def test_rejects_non_callable_data(self) -> None:
@@ -920,7 +938,8 @@ class TestBoundingBox:
     def test_box_with_excess(self) -> None:
         s = sdf_s3d.sphere(radius=5)
         box = s.bounding_box(excess=2)
-        _center, size = box.bounds()
+        _box = box.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[0] == pytest.approx(14, abs=0.1)
 
 
@@ -958,13 +977,15 @@ class TestOffset3d:
     def test_expand_sphere(self) -> None:
         s = sdf_s3d.sphere(radius=5)
         bigger = s.offset3d(2)
-        _center, size = bigger.bounds()
+        _box = bigger.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[0] == pytest.approx(14, abs=0.1)
 
     def test_contract_sphere(self) -> None:
         s = sdf_s3d.sphere(radius=10)
         smaller = s.offset3d(-3)
-        _center, size = smaller.bounds()
+        _box = smaller.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[0] == pytest.approx(14, abs=0.1)
 
     def test_round3d_runs(self) -> None:
@@ -1004,7 +1025,8 @@ class TestHalfOf:
     @pytest.mark.parametrize(("method", "low", "high"), SDF_HALVES, ids=[row[0] for row in SDF_HALVES])
     def test_each_half_is_half_the_volume(self, method: str, low: list[float], high: list[float]) -> None:  # noqa: ARG002 - shared table
         """...and it is a half, not an eighth: the box is 5 x 10 x 10, whichever axis was cut."""
-        _centre, size = getattr(sdf_s3d.cuboid([10, 10, 10]), method)().bounds()
+        _box = getattr(sdf_s3d.cuboid([10, 10, 10]), method)().bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert sorted(round(float(v), 6) for v in size) == [5.0, 10.0, 10.0], method
 
     def test_the_cut_plane_can_be_moved_along_its_axis(self) -> None:
@@ -1105,7 +1127,7 @@ class TestPassthroughMethods:
         """repair() has no field form, so it meshes and hands back a CSG solid of the same size."""
         repaired = sdf_s3d.cuboid([4, 4, 4]).repair()
         assert repaired.backend == "csg"
-        assert [float(v) for v in repaired.bounds()[1]] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
+        assert [float(v) for v in repaired.bounds().size] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
 
     def test_render_is_noop(self) -> None:
         s = sdf_s3d.sphere(radius=5)
@@ -1114,13 +1136,15 @@ class TestPassthroughMethods:
     def test_resize_scales_to_target(self) -> None:
         s = sdf_s3d.cuboid([10, 10, 10])
         result = s.resize([20, 20, 20])
-        _center, size = result.bounds()
+        _box = result.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[0] == pytest.approx(20, abs=0.1)
 
     def test_resize_zero_axis_unchanged(self) -> None:
         s = sdf_s3d.cuboid([10, 10, 10])
         result = s.resize([0, 20, 0])
-        _center, size = result.bounds()
+        _box = result.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[0] == pytest.approx(10, abs=0.1)
         assert size[1] == pytest.approx(20, abs=0.1)
 
@@ -1135,44 +1159,46 @@ class TestPassthroughMethods:
         flat = sdf_s3d.cuboid([4, 20, 4])
         wrapped = flat.wrap(radius=10)
         assert wrapped.backend == "csg"
-        assert float(wrapped.bounds()[1][1]) != pytest.approx(float(flat.bounds()[1][1]), abs=0.2)
+        assert float(wrapped.bounds().size[1]) != pytest.approx(float(flat.bounds().size[1]), abs=0.2)
 
     def test_pull_delegates_to_csg(self) -> None:
         """pull() is a mesh deformation, so it comes back as CSG, still the same order of size."""
         pulled = sdf_s3d.cuboid([4, 4, 4]).pull([1, 0, 0], distance=2)
         assert pulled.backend == "csg"
-        assert float(pulled.bounds()[1][0]) >= 4.0 - 0.1
+        assert float(pulled.bounds().size[0]) >= 4.0 - 0.1
 
     @needs_csg_operable_mesh
     def test_minkowski_difference_delegates(self) -> None:
         """Carving with a radius-2 sphere insets the meshed cube by 2 on every side."""
         carved = sdf_s3d.cuboid([10, 10, 10]).minkowski_difference(sdf_s3d.sphere(radius=2))
-        assert [float(v) for v in carved.bounds()[1]] == pytest.approx([6.0, 6.0, 6.0], abs=0.5)
+        assert [float(v) for v in carved.bounds().size] == pytest.approx([6.0, 6.0, 6.0], abs=0.5)
 
     def test_oversample_delegates_to_csg(self) -> None:
         """oversample() subdivides the meshed solid: same shape, more triangles."""
         dense = sdf_s3d.cuboid([4, 4, 4]).oversample(8)
         assert dense.backend == "csg"
-        assert [float(v) for v in dense.bounds()[1]] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
+        assert [float(v) for v in dense.bounds().size] == pytest.approx([4.0, 4.0, 4.0], abs=0.1)
 
     @needs_csg_operable_mesh
     def test_partition_returns_two_parts(self) -> None:
         """The two interlocking halves come back separated by the spread."""
         first, second = sdf_s3d.cuboid([20, 20, 10]).partition(spread=10, cutsize=10)
-        gap = abs(float(first.bounds()[0][1]) - float(second.bounds()[0][1]))
+        gap = abs(float(first.bounds().center[1]) - float(second.bounds().center[1]))
         assert gap > 10.0  # each half's own depth, plus the 10mm spread
 
     def test_regular_prism_rounding_and_chamfer(self) -> None:
         s_round = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, rounding=2)
         assert s_round is not None
-        center, size = s_round.bounds()
+        _box = s_round.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[2] == pytest.approx(20, abs=0.01)
         assert size[0] > 0
         assert size[1] > 0
 
         s_chamfer = sdf_s3d.regular_prism(num_sides=5, height=20, inner_radius=12, chamfer=2)
         assert s_chamfer is not None
-        center, size = s_chamfer.bounds()
+        _box = s_chamfer.bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(20, abs=0.01)
         assert size[0] > 0
         assert size[1] > 0
@@ -1180,13 +1206,15 @@ class TestPassthroughMethods:
     def test_tube_rounding_and_chamfer(self) -> None:
         t_round = sdf_s3d.tube(height=20, outer_radius=15, inner_radius=10, rounding=1)
         assert t_round is not None
-        center, size = t_round.bounds()
+        _box = t_round.bounds()
+        _center, size = list(_box.center), list(_box.size)
         assert size[2] == pytest.approx(20, abs=0.01)
         assert size[0] >= 28
 
         t_chamfer = sdf_s3d.tube(height=20, outer_radius=15, inner_radius=10, chamfer=1)
         assert t_chamfer is not None
-        center, size = t_chamfer.bounds()
+        _box = t_chamfer.bounds()
+        size = list(_box.size)
         assert size[2] == pytest.approx(20, abs=0.01)
 
 
@@ -1209,7 +1237,7 @@ class TestSpiralSweep:
         from pybosl2.path2d import Path2D
         from pybosl2.shapes3d import cuboid as csg_cuboid
 
-        meshed = Path2D(self.SECTION).spiral_sweep(height=40, radius=12, turns=5).polyhedron()
+        meshed = Path2D(self.SECTION).spiral_sweep(height=40, radius=12, turns=5)
         field = sdf_s3d.spiral_sweep(self.SECTION, height=40, radius=12, turns=5).mesh()
 
         random.seed(11)

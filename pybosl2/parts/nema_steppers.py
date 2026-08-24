@@ -21,10 +21,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import union
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.solid import cuboid, cyl
 
 if TYPE_CHECKING:
@@ -74,7 +76,7 @@ class NemaSpec:
         try:
             spec = _NEMA[int(size)]
         except (KeyError, ValueError):
-            raise ValueError(f"Unsupported NEMA size: {size!r}") from None
+            raise Bosl2ValueError(f"Unsupported NEMA size: {size!r}") from None
         object.__setattr__(self, "motor_width", spec.motor_width)
         object.__setattr__(self, "plinth_height", spec.plinth_height)
         object.__setattr__(self, "plinth_diam", spec.plinth_diam)
@@ -110,7 +112,7 @@ _NEMA = {
 }
 
 
-class NemaMotor:
+class NemaMotor(Buildable):
     """A model of a NEMA stepper motor.
 
     The motor's mounting face is at ``z = 0`` with the body below it and the
@@ -227,17 +229,8 @@ class NemaMotor:
         )
         return self._solid
 
-    def show(self) -> Any:
-        """Display the motor in the viewer, and return it.
 
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()
-
-
-class NemaMountMask:
+class NemaMountMask(Buildable):
     """The mounting cutout for a NEMA stepper motor -- difference it from a plate.
 
     Cuts the four screw holes and (``atype=NemaMaskType.FULL``) the central plinth
@@ -285,7 +278,7 @@ class NemaMountMask:
 
         """
         if atype not in (NemaMaskType.FULL, NemaMaskType.SCREWS):
-            raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {atype!r}")
+            raise Bosl2ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {atype!r}")
         self._spec: NemaSpec = NemaSpec(size)
         self._depth: float = depth
         self._length: float = length
@@ -344,16 +337,7 @@ class NemaMountMask:
         elif self._atype != NemaMaskType.SCREWS:  # pragma: no cover
             # defensive: __init__ rejects anything that is not FULL or SCREWS, and _atype is never
             # reassigned, so by here it is always one of the two.
-            raise ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {self._atype!r}")
+            raise Bosl2ValueError(f"nema_mount_mask: atype must be FULL or SCREWS, got {self._atype!r}")
         w = ss + sz + (self._length if self._length > 0 else 0)
         self._solid = _union(parts).with_nominal_size([ss + sz, w, self._depth])
         return self._solid
-
-    def show(self) -> Any:
-        """Display the mount mask in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self.shape.show()

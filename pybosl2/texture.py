@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 import numpy as np
 
 from pybosl2._helpers import quantup as _quantup_float
+from pybosl2.exceptions import Bosl2ValueError
 
 __all__ = ["texture", "TEXTURES", "is_heightfield_texture", "is_vnf_texture", "TextureType"]
 
@@ -206,7 +207,7 @@ def _tex_pyramids_vnf(**_: object) -> tuple[list[list[float]], list[list[int]]]:
 def _tex_trunc_pyramids_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.1
     if not (0 < b < 0.5):
-        raise ValueError("trunc_pyramids_vnf texture requires border in (0, 0.5).")
+        raise Bosl2ValueError("trunc_pyramids_vnf texture requires border in (0, 0.5).")
     verts = _sq(1) + _mv([0.5, 0.5, 1], _rect(1 - 2 * b, 1 - 2 * b))
     faces = [[i, (i + 1) % 4, (i + 1) % 4 + 4, i + 4] for i in range(4)] + [[4, 5, 6, 7]]
     return verts, faces
@@ -249,11 +250,11 @@ def _tex_trunc_ribs_vnf(
     b = (border if border is not None else 0.25) * 2
     g = gap if gap is not None else 0.25
     if not (b >= 0):
-        raise ValueError("trunc_ribs_vnf requires gap>=0 and border>=0.")
+        raise Bosl2ValueError("trunc_ribs_vnf requires gap>=0 and border>=0.")
     if not (g >= 0):
-        raise ValueError("trunc_ribs_vnf requires gap>=0 and border>=0.")
+        raise Bosl2ValueError("trunc_ribs_vnf requires gap>=0 and border>=0.")
     if not (g + b <= 1):
-        raise ValueError("trunc_ribs_vnf requires 2*border+gap <= 1.")
+        raise Bosl2ValueError("trunc_ribs_vnf requires 2*border+gap <= 1.")
     verts = _mv([0.5, 0.5], _rect(1 - g, 1, 0)) + _mv([0.5, 0.5], _rect(1 - g - b, 1, 1)) + _sq(1)
     faces = [[4, 7, 3, 0], [1, 2, 6, 5]]
     if g + b < 1 - 1e-9:
@@ -269,11 +270,11 @@ def _tex_bricks_vnf(
     b = border if border is not None else 0.05
     g = gap if gap is not None else 0.05
     if not (b >= 0):
-        raise ValueError("bricks_vnf requires border>=0, gap>0, gap+border<0.5.")
+        raise Bosl2ValueError("bricks_vnf requires border>=0, gap>0, gap+border<0.5.")
     if not (g > 0):
-        raise ValueError("bricks_vnf requires border>=0, gap>0, gap+border<0.5.")
+        raise Bosl2ValueError("bricks_vnf requires border>=0, gap>0, gap+border<0.5.")
     if not (g + b < 0.5):
-        raise ValueError("bricks_vnf requires border>=0, gap>0, gap+border<0.5.")
+        raise Bosl2ValueError("bricks_vnf requires border>=0, gap>0, gap+border<0.5.")
     verts = (
         _sqr(1)
         + _mv([g / 2, g / 2, 0], _sqr([1 - g, 0.5 - g]))
@@ -313,7 +314,7 @@ def _tex_bricks_vnf(
 def _tex_checkers_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.05
     if not (0 < b < 0.5):
-        raise ValueError("checkers texture requires border in (0, 0.5).")
+        raise Bosl2ValueError("checkers texture requires border in (0, 0.5).")
     verts = (
         _mv([0, 0], _sqr(0.5 - b, 1))
         + _mv([0, 0.5], _sqr(0.5 - b))
@@ -355,7 +356,7 @@ def _tex_checkers_vnf(border: float | None = None, **_: object) -> tuple[list[li
 def _tex_trunc_diamonds_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = (border if border is not None else 0.1) / math.sqrt(2) * 2
     if not (0 < b < 0.5):
-        raise ValueError("trunc_diamonds texture requires border in (0, 0.5/sqrt(2)).")
+        raise Bosl2ValueError("trunc_diamonds texture requires border in (0, 0.5/sqrt(2)).")
     diameter1 = [[p[0], p[1], 0.0] for p in _circle_xy(1, 4)]
     diameter2 = [[p[0], p[1], 0.0] for p in _circle_xy(1 - b * 2, 4)]
     verts = _mv([0.5, 0.5, 0], diameter1) + _mv([0.5, 0.5, 1], diameter2)
@@ -376,7 +377,7 @@ def _tex_trunc_diamonds_vnf(border: float | None = None, **_: object) -> tuple[l
 def _tex_tri_grid_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = (border if border is not None else 0.05) * math.sqrt(3)
     if not (0 < b < math.sqrt(3) / 6):
-        raise ValueError("tri_grid texture requires border in (0, 1/6).")
+        raise Bosl2ValueError("tri_grid texture requires border in (0, 1/6).")
     adj = b / math.tan(math.radians(30))  # opp_ang_to_adj(border, 30)
     y1 = b / math.tan(math.radians(60))  # border / adj_ang_to_opp(1, 60)
     y2, y3, y4, y5, y6 = 2 * y1, 0.5 - y1, 0.5 + y1, 1 - 2 * y1, 1 - y1
@@ -499,7 +500,7 @@ def _tex_cones_vnf(
     b = border if border is not None else 0.05
     sides = quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     if not (0 < b < 0.5):
-        raise ValueError("this port's cones texture requires border in (0, 0.5).")
+        raise Bosl2ValueError("this port's cones texture requires border in (0, 0.5).")
     rim = [[0.5 + x, 0.5 + y, 0.0] for x, y in _circle_xy(1 - 2 * b, sides)]
     verts = rim + [[0.5, 0.5, 1.0]] + [[x, y, 0.0] for x, y in _square_pts(b)]
     faces = [[i, (i + 1) % sides, sides] for i in range(sides)] + _base_faces(sides, sides + 1, b)
@@ -512,7 +513,7 @@ def _tex_dots_vnf(
     b = border if border is not None else 0.05
     sides = quantup(fn, 4) if fn else _TEX_FN_DEFAULT
     if not (0 <= b < 0.5):
-        raise ValueError("dots texture requires border in [0, 0.5).")
+        raise Bosl2ValueError("dots texture requires border in [0, 0.5).")
     rows = math.ceil(sides / 4)
     radius = (0.5 - b) / math.cos(math.radians(45))  # adj_ang_to_hyp(0.5-border, 45)
     cpz = -radius * math.sin(math.radians(45))
@@ -546,7 +547,7 @@ def _tex_dots_vnf(
 def _tex_hex_grid_vnf(border: float | None = None, **_: object) -> tuple[list[list[float]], list[list[int]]]:
     b = border if border is not None else 0.1
     if not (0 < b < 0.5):
-        raise ValueError("hex_grid texture requires border in (0, 0.5).")
+        raise Bosl2ValueError("hex_grid texture requires border in (0, 0.5).")
     diag = b / math.sin(math.radians(60))  # opp_ang_to_hyp(border, 60)
     hyp = 0.5 / math.cos(math.radians(30))  # adj_ang_to_hyp(0.5, 30)
     sc = 1 / 3 / hyp
@@ -708,12 +709,12 @@ def texture(
 
     """
     if inset is not None and border is not None:
-        raise ValueError("texture(): give 'border' or 'inset', not both.")
+        raise Bosl2ValueError("texture(): give 'border' or 'inset', not both.")
     if inset is not None:
         border = inset
     key = tex.value if isinstance(tex, TextureType) else tex
     if key not in TEXTURES:
-        raise ValueError(f"Unrecognized (or unported) texture name: {key!r}; available: {sorted(TEXTURES)}")
+        raise Bosl2ValueError(f"Unrecognized (or unported) texture name: {key!r}; available: {sorted(TEXTURES)}")
     builder, _kind = TEXTURES[key]
     return builder(sides=sides, border=border, gap=gap, roughness=roughness, fn=fn)
 

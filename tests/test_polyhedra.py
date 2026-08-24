@@ -113,7 +113,7 @@ def test_a_platonic_solid_builds_on_either_backend(name: PlatonicSolid) -> None:
         with use_backend(backend):
             shape = RegularPolyhedron(name, side=10).shape
         assert shape.backend == backend
-        built[backend] = [float(v) for v in shape.bounds()[1]]
+        built[backend] = [float(v) for v in shape.bounds().size]
 
     assert built["sdf"] == pytest.approx(built["csg"], abs=1e-6)
     assert built["csg"] == pytest.approx([10 * _SIDE_BOXES[name]] * 3, abs=1e-9)

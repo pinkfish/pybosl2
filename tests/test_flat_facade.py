@@ -108,13 +108,15 @@ class TestShapeGeometry:
 
     def test_circle_centered_by_default(self) -> None:
         c = flat.circle(radius=10)
-        center, size = c.bounds()
+        _box = c.bounds()
+        center = list(_box.center)
         assert center[0] == pytest.approx(0, abs=0.01)
         assert center[1] == pytest.approx(0, abs=0.01)
 
     def test_circle_diameter_param(self) -> None:
         c = flat.circle(diameter=20)
-        center, size = c.bounds()
+        _box = c.bounds()
+        size = list(_box.size)
         assert size[0] == pytest.approx(20, abs=1.0)
         assert size[1] == pytest.approx(20, abs=1.0)
 
@@ -122,8 +124,10 @@ class TestShapeGeometry:
         csg = flat.circle(radius=10)
         with use_backend("sdf"):
             sdf = flat.circle(radius=10)
-        c_csg, s_csg = csg.bounds()
-        c_sdf, s_sdf = sdf.bounds()
+        _box = csg.bounds()
+        s_csg = list(_box.size)
+        _box = sdf.bounds()
+        s_sdf = list(_box.size)
         assert s_sdf[0] == pytest.approx(s_csg[0], abs=1.0)
         assert s_sdf[1] == pytest.approx(s_csg[1], abs=1.0)
 
@@ -131,14 +135,16 @@ class TestShapeGeometry:
 
     def test_square_is_square(self) -> None:
         s = flat.square(size=[20, 30])
-        center, size = s.bounds()
+        _box = s.bounds()
+        size = list(_box.size)
         assert size[0] == pytest.approx(20, abs=0.01)
         assert size[1] == pytest.approx(30, abs=0.01)
 
     def test_square_sdf_exact_bounds(self) -> None:
         with use_backend("sdf"):
             s = flat.square(size=10)
-            center, size = s.bounds()
+            _box = s.bounds()
+            center, size = list(_box.center), list(_box.size)
             assert size[0] == pytest.approx(10, abs=0.01)
             assert size[1] == pytest.approx(10, abs=0.01)
             assert center[0] == pytest.approx(0, abs=0.01)
@@ -147,15 +153,18 @@ class TestShapeGeometry:
 
     def test_rect_aspect_ratio(self) -> None:
         r = flat.rect(size=[20, 10])
-        center, size = r.bounds()
+        _box = r.bounds()
+        size = list(_box.size)
         assert size[0] / size[1] == pytest.approx(2.0, abs=0.01)
 
     def test_rect_csg_vs_sdf_same_size(self) -> None:
         csg = flat.rect(size=[30, 15])
         with use_backend("sdf"):
             sdf = flat.rect(size=[30, 15])
-        _, s_csg = csg.bounds()
-        _, s_sdf = sdf.bounds()
+        _box = csg.bounds()
+        _, s_csg = list(_box.center), list(_box.size)
+        _box = sdf.bounds()
+        _, s_sdf = list(_box.center), list(_box.size)
         assert s_sdf[0] == pytest.approx(s_csg[0], abs=0.5)
         assert s_sdf[1] == pytest.approx(s_csg[1], abs=0.5)
 
@@ -164,7 +173,8 @@ class TestShapeGeometry:
     def test_polygon_triangle_bounds(self) -> None:
         pts = [[0, 0], [8, 0], [4, 6]]
         p = flat.polygon(points=pts)
-        center, size = p.bounds()
+        _box = p.bounds()
+        size = list(_box.size)
         assert size[0] == pytest.approx(8, abs=0.01)
         assert size[1] == pytest.approx(6, abs=0.01)
 
@@ -173,15 +183,18 @@ class TestShapeGeometry:
         csg = flat.polygon(points=pts)
         with use_backend("sdf"):
             sdf = flat.polygon(points=pts)
-        _, s_csg = csg.bounds()
-        _, s_sdf = sdf.bounds()
+        _box = csg.bounds()
+        _, s_csg = list(_box.center), list(_box.size)
+        _box = sdf.bounds()
+        _, s_sdf = list(_box.center), list(_box.size)
         assert s_sdf[0] == pytest.approx(s_csg[0], abs=0.5)
         assert s_sdf[1] == pytest.approx(s_csg[1], abs=0.5)
 
     def test_polygon_concave_shape(self) -> None:
         pts = [[0, 0], [10, 0], [10, 5], [5, 2], [10, 10], [0, 10]]
         p = flat.polygon(points=pts)
-        center, size = p.bounds()
+        _box = p.bounds()
+        size = list(_box.size)
         assert size[0] == pytest.approx(10, abs=0.01)
         assert size[1] == pytest.approx(10, abs=0.01)
 
@@ -190,21 +203,25 @@ class TestShapeGeometry:
     def test_square_extrudes_to_correct_height(self) -> None:
         s = flat.square(size=10)
         solid = s.linear_extrude(height=5)
-        center3d, size3d = solid.bounds()
+        _box = solid.bounds()
+        size3d = list(_box.size)
         assert size3d[2] == pytest.approx(5, abs=0.01)
 
     def test_square_sdf_extrudes_to_correct_height(self) -> None:
         with use_backend("sdf"):
             s = flat.square(size=10)
             solid = s.linear_extrude(height=5, center=True)
-            center3d, size3d = solid.bounds()
+            _box = solid.bounds()
+            size3d = list(_box.size)
             assert size3d[2] == pytest.approx(5, abs=0.01)
 
     def test_circle_extrudes_keeps_xy_bounds(self) -> None:
         c = flat.circle(radius=10)
-        center2d, size2d = c.bounds()
+        _box = c.bounds()
+        size2d = list(_box.size)
         solid = c.linear_extrude(height=5)
-        center3d, size3d = solid.bounds()
+        _box = solid.bounds()
+        size3d = list(_box.size)
         assert size3d[0] == pytest.approx(size2d[0], abs=1.0)
         assert size3d[1] == pytest.approx(size2d[1], abs=1.0)
 
@@ -212,6 +229,7 @@ class TestShapeGeometry:
 
     def test_text_has_nonzero_area(self) -> None:
         t = flat.text("Q", size=20)
-        center, size = t.bounds()
+        _box = t.bounds()
+        size = list(_box.size)
         assert size[0] > 2
         assert size[1] > 2

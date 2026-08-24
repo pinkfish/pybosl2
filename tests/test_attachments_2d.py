@@ -21,7 +21,8 @@ def test_2d_attach() -> None:
     # Verify that the placement translated the child:
     # circle center should be placed at X = 10 (half of parent width) + 5 (child radius) = 15
     placed_child = attached.attachments[0]
-    center, size = placed_child.bounds()
+    _box = placed_child.bounds()
+    center = list(_box.center)
     assert center[0] == pytest.approx(15.0)
     assert center[1] == pytest.approx(0.0)
 
@@ -35,7 +36,8 @@ def test_2d_position() -> None:
     assert len(positioned.attachments) == 1
 
     placed_child = positioned.attachments[0]
-    center, size = placed_child.bounds()
+    _box = placed_child.bounds()
+    center = list(_box.center)
     assert center[0] == pytest.approx(-10.0)
     assert center[1] == pytest.approx(10.0)
 
@@ -49,8 +51,9 @@ def test_2d_align() -> None:
     assert len(aligned.attachments) == 1
 
     placed_child = aligned.attachments[0]
-    center, size = placed_child.bounds()
+    _box = placed_child.bounds()
     # circle's bottom anchor should touch square's top anchor
+    center = list(_box.center)
     # square top is Y = 10. Circle radius is 5.
     # circle center should be Y = 10 + 5 = 15
     assert center[0] == pytest.approx(0.0)

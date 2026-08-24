@@ -67,7 +67,7 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
 
       def __or__(self, other: Self) -> Self: ...
       def translate(self, v: Sequence[float]) -> Self: ...
-      def bounds(self) -> tuple[list[float], list[float]]: ...
+      def bounds(self) -> Bounds2D | Bounds3D: ...
 
 
   class Flat(Shape, Protocol):
@@ -81,6 +81,22 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   `Self` is what makes SPEC C-16 static: `flat | flat` checks, `flat | solid` does not, with no
   runtime guard and no `TypeVar` machinery. A shared member MUST NOT be re-declared on `Flat` or
   `Solid` — re-declaring is how the two drifted apart in the first place.
+* **T-6c The protocol declares everything the object does.** SPEC C-20: a public attribute on
+  `CsgSolid`, `SdfSolid`, `CsgShape2D` or `PyShape2D` that no protocol declares is a defect, not an
+  extra. Write the member on `Shape` if both dimensions can honour it (C-22), on `Flat`/`Solid`
+  only if it is genuinely dimensional. Where the two backends' concrete signatures differ in ways
+  the checker cannot reconcile, the protocol declares the **caller's** view and the parameter is
+  typed `Any` with a comment saying which two spellings it is bridging — that is a T-2 exception
+  earned by the contract, and it is bounded by the allowlist in
+  `tests/test_shape_contract.py::test_the_contract_is_the_whole_object`. Prefer widening the
+  protocol to shrinking the object: a method users already call does not stop existing because it
+  is inconvenient to type.
+* **T-6d A return type does not depend on a flag.** SPEC S-19b. A `bool` parameter that selects
+  which arm of a union comes back is a second function wearing the first one's name: split it
+  (`path_sweep` / `path_sweep_transforms`). The only unions a public return may carry are ones the
+  *caller's own input* selects — a façade returning `Flat` or `Solid` by dimension — and even
+  those need `@overload` so the checker can narrow. Guarded by
+  `tests/test_exports.py::test_no_public_return_type_is_a_flag_selected_union`.
 * **T-6b Protocol members must be real methods.** Since Python 3.12, `isinstance()` against a
   `runtime_checkable` Protocol uses static lookup and ignores anything `__getattr__` supplies. A
   member that exists only through a dynamic passthrough therefore fails the check even though the
@@ -225,8 +241,13 @@ SPEC B-3 makes the façade the owner of every default both backends understand.
   `check_operand_backend()` before touching an operand, so a mismatch raises `CrossBackendError`
   with its conversion hint rather than an internal `AssertionError` from deeper in (SPEC C-1, E-3).
 * **B-P4 An exclusive-feature list is checked, not just written.** Every name in
-  `CSG_ONLY_FEATURES` must genuinely be absent from the SDF shape, and vice versa; a name that is
-  both listed and implemented (as `projection` is today) means the refusal never fires.
+  `CSG_ONLY_FEATURES` must be implemented on the SDF shape **as a refusal**, and vice versa
+  (SPEC PAR-3): a real method whose whole body raises `UnsupportedByBackendError` with a hint. The
+  test is that calling it raises and that the message names the way forward — not that the
+  attribute is missing, which would break `isinstance` against the shape protocols (T-6b) and make
+  the refusal less explicit than C-13 asks for. What must never happen is the third case: a name
+  that is listed as exclusive and *works anyway*, so the refusal never fires (as `projection`
+  once did).
 
 ### 4.3 Resolution plumbing (`fn` / `fa` / `fs` / `res`)
 
@@ -277,6 +298,31 @@ Python that means:
 * **D-P5 Examples that build geometry.** Every function producing 2-D or 3-D output carries a
   `.. pythonscad-example::` block that renders to STL. A 2-D example MUST extrude
   (`.linear_extrude(...)`) before `.show()`, since STL has no 2-D form.
+* **D-P5a Every example is type-checked with `mypy --strict`.** SPEC DOC-5, Q-6. An example is
+  user code — it is the code a caller copies — so it is held to exactly what this plan asks of user
+  code, and an example the checker rejects is a **signature defect the docs found first**, to be
+  fixed in the signature rather than worked around in the prose.
+
+  The mechanics: `tests/test_docstring_examples.py` walks every public module, extracts each
+  `.. pythonscad-example::` block (and every `>>>` doctest) with the same parser the docs build
+  uses, writes each one to a file in a temp directory, and runs one batched `mypy --strict` over
+  the lot. A failure reports the owning callable, the example, and mypy's message together, so the
+  fix is obvious from the test output alone.
+
+  Rules for writing an example so this stays cheap:
+  * **Imports are real and complete.** The block starts with the `from pybosl2 import …` a caller
+    would need; no implicit names, no `...` elisions, no reliance on a doc-build preamble.
+  * **No `# type: ignore`.** An example is the wrong place to suppress an error — if the example
+    needs one, the signature is wrong (that is the point of the rule).
+  * **Annotate only where inference genuinely fails.** Examples should read like a user wrote them,
+    not like a stub file.
+  * A block that is deliberately not runnable Python — a shell command, a `.scad` fragment shown
+    for comparison — uses a plain `code-block` directive, not `pythonscad-example`, so it is not
+    collected.
+
+  Because it type-checks rather than executes, the gate needs no CAD runtime and runs in CI.
+  It is not a substitute for D-P5's rendering — one proves the example *compiles*, the other that
+  it *builds something*.
 * **D-P6 File header tags.** Immediately after the licence header, every module carries:
 
   ```
@@ -342,10 +388,30 @@ Python that means:
 * **E-P3** Library errors derive from `pybosl2.exceptions.Bosl2Error`; backend refusals use
   `UnsupportedByBackendError(feature, backend, hint=…)` and cross-backend mixing uses
   `CrossBackendError`. Both MUST carry an actionable hint.
-* **E-P4** Never swallow an exception to return a degenerate shape.
-* **E-P4a** Every library error derives from `Bosl2Error` (SPEC E-1), so a caller can catch the
-  family with one `except`. A bare `ValueError` from argument validation is the sanctioned
-  exception — it is what Python users expect for a bad argument.
+* **E-P4** Never swallow an exception to return a degenerate shape. A constructor that cannot
+  produce a usable shape from what it was given raises (SPEC E-5); it does not return a polygon of
+  coincident points, a zero-size solid, or anything whose `bounds()` is infinite or `NaN`.
+  `tests/test_min_args.py` asserts the *result*, not merely the absence of a traceback: a
+  zero-argument call either raises `ValueError` or produces a shape with finite, positive bounds.
+* **E-P4a Validation errors are `Bosl2ValueError`.** SPEC E-1 and E-4 both bind, so the type raised
+  for bad input derives from **both** `Bosl2Error` and `ValueError`:
+
+  ```python
+  class Bosl2ValueError(Bosl2Error, ValueError):
+      """Bad input: a ValueError for callers who expect one, a Bosl2Error for callers who catch the family."""
+  ```
+
+  Every `raise ValueError(...)` in the package becomes `raise Bosl2ValueError(...)`; the message is
+  unchanged, `except ValueError` keeps working unmodified, and `except Bosl2Error` starts working.
+  Tests that assert `pytest.raises(ValueError)` need no change — that is the point of the MRO.
+  New code raises `Bosl2ValueError`; a bare `ValueError` in the package is a defect, guarded by the
+  same AST ratchet that keeps the `assert`s out (`tests/test_errors.py`).
+* **E-P4b An error raised from `__getattr__` is an `AttributeError` too.** SPEC E-6.
+  `UnsupportedByBackendError` inherits `AttributeError` alongside `Bosl2Error`, because Python's
+  attribute protocol is defined in terms of that type: `hasattr()` and `getattr(x, n, default)`
+  catch `AttributeError` and nothing else, so any other type turns a capability probe into a
+  traceback and breaks `copy`, `pickle`, `inspect` and every REPL completion. Refusals raised from
+  a *call* are unaffected by the change — the extra base is invisible unless something is probing.
 * **E-P5** Resolve radius/diameter spellings through `_helpers.pick_radius()`, never with a
   hand-rolled `radius if radius is not None else diameter / 2` ternary. The helper is what enforces
   SPEC D-5 — same-dimension conflicts raise, specificity levels resolve most-specific-first — and a
@@ -461,7 +527,8 @@ The spec's quality gates map to these commands — all five MUST pass before a c
 | **Q-2** strict typing | `mypy --strict pybosl2` |
 | **Q-3** lint and format | `ruff check . --fix && ruff format .` |
 | **Q-4** minimum-argument test + validated example | `pytest tests/test_defaults.py tests/validate_examples.py` |
-| **Q-5** contract tests still pass | `pytest tests/test_facets.py tests/test_init_stub.py tests/test_backend_matrix.py` |
+| **Q-5** contract tests still pass | `pytest tests/test_facets.py tests/test_init_stub.py tests/test_backend_matrix.py tests/test_shape_contract.py` |
+| **Q-6** every docstring example type-checks | `pytest tests/test_docstring_examples.py` |
 
 
 ```bash
@@ -472,6 +539,7 @@ pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad
 export TMPDIR=/Volumes/ExternalDocs/tmp/   # scratch on the big volume, not the system disk
 pytest                               # full suite
 pytest tests/test_stl_render.py      # real-binary render checks (skips without the app)
+pytest tests/test_docstring_examples.py   # Q-6: every example under mypy --strict
 mypy --strict pybosl2                # zero errors required
 ruff check . --fix && ruff format .  # lint + format
 make -C docs html                    # docs into wiki/
@@ -499,15 +567,21 @@ Before calling a change done:
 3. If it draws a curve, does it take `fn`/`fa`/`fs` *and pass them down*? (R-P2)
 4. Is there a class where a family of functions was tempting? (O-1, O-4)
 5. `mypy --strict` clean, with no new `Any`? (T-1, T-2)
-6. Google docstring with `Args:`/`Returns:`/`Raises:` and a rendering example? (D-P1, D-P5)
-7. Bad input → `ValueError` naming the fix, not `assert`, and radius/diameter through
-   `pick_radius`? (E-P1, E-P2, E-P5)
+6. Google docstring with `Args:`/`Returns:`/`Raises:` and a rendering example — and does that
+   example pass `mypy --strict` as written? (D-P1, D-P5, D-P5a)
+7. Bad input → `Bosl2ValueError` naming the fix, not `assert` and not a bare `ValueError`, and
+   radius/diameter through `pick_radius`? (E-P1, E-P2, E-P4a, E-P5)
 8. Minimum-argument test added, and does every new test assert the *content* of what it built —
    bounds, counts, a span — rather than only that an object came back? (X-3, X-8)
 9. `ruff check` / `ruff format` clean, functions under 50 lines? (S-1, S-2)
 10. If it is a façade constructor, does the façade own the shared default? (F-P1)
 11. If it is a shared shape operation, is it declared once on `Shape` — as a real method, not via a
-    passthrough? (T-6a, T-6b)
+    passthrough — and does the protocol declare *every* public member the object has? (T-6a, T-6b,
+    T-6c)
+11a. Does it return one type, with no arm selected by one of its own flags, and does `bounds()`
+    return a `Bounds2D`/`Bounds3D`? (T-6d, S-2b)
+11b. Is there exactly one public spelling of the operation — no `move`/`translate` pair — and, if
+    it lands on only one of `Flat`/`Solid`, is that split genuinely dimensional? (C-21, C-22)
 12. If the module holds a public name, does it have a public `DocCategory`, and does every
     `__all__` entry resolve? (D-P6a, M-2)
 13. If it is a new shared feature, does it work on **both** backends or refuse explicitly and

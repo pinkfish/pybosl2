@@ -23,7 +23,7 @@ from pybosl2.shapes3d import Bosl2Solid, cuboid
 
 
 def _size(s: Bosl2Solid) -> list[float]:
-    return s.bounds()[1]
+    return s.bounds().size
 
 
 def test_narrowing_strut_builds_and_height() -> None:

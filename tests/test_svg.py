@@ -457,7 +457,7 @@ def test_region_color_persists_through_extrude(tmp_path) -> None:
     for region in regions_from_svg(str(f)):
         solid = region.linear_extrude(height=3)
         assert "color" in repr(solid.shape)
-        assert float(solid.bounds()[1][2]) == pytest.approx(3.0, abs=0.01)
+        assert float(solid.bounds().size[2]) == pytest.approx(3.0, abs=0.01)
 
 
 # -- per-polygon colors via region_from_svg ---------------------------------------------------

@@ -36,6 +36,7 @@ from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.bounds import Bounds3D
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.distributors import Distributable
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import is_collinear, line_closest_point
 from pybosl2.math import EPSILON, deriv, deriv2, deriv3, lerp, lerpn
 from pybosl2.miscellaneous import Extrudable
@@ -94,13 +95,13 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             self._points: np.ndarray = np.empty((0, 3), dtype=np.float64)
         else:
             if not (pts.ndim == 2):
-                raise ValueError(f"Path3D needs a list of [x, y, z] points, got {pts.ndim}D array")
+                raise Bosl2ValueError(f"Path3D needs a list of [x, y, z] points, got {pts.ndim}D array")
             if not (pts.shape[1] == 3):
-                raise ValueError(f"Path3D needs [x, y, z] points, got shape {pts.shape}")
+                raise Bosl2ValueError(f"Path3D needs [x, y, z] points, got shape {pts.shape}")
             if not (pts.dtype == np.float64):  # pragma: no cover
                 # defensive: np.array(..., dtype=np.float64) either produces a float64 array or
                 # raises on its own, so a surviving array never has another dtype.
-                raise ValueError(f"Path3D needs float64 points, got {pts.dtype}")
+                raise Bosl2ValueError(f"Path3D needs float64 points, got {pts.dtype}")
             self._points = pts
         self._color: "Color | None" = None
         self.closed = closed
@@ -167,9 +168,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         r2v = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter, dflt=1)
         length = length if length is not None else height
         if not (sum((v is not None for v in (length, turns, angle))) == 2):
-            raise ValueError("helix() needs exactly two of length/height, turns, and angle.")
+            raise Bosl2ValueError("helix() needs exactly two of length/height, turns, and angle.")
         if not (angle is None or length != 0):
-            raise ValueError("helix() cannot take an angle with length 0.")
+            raise Bosl2ValueError("helix() cannot take an angle with length 0.")
         if angle is not None and length != 0:
             dz = 2 * math.pi * r1v * math.tan(math.radians(angle))
         else:
@@ -383,7 +384,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             v = np.cross(np.cross(p[1] - p[0], p[2] - p[0]), ta)
             norm = float(np.linalg.norm(v))
             if not (norm > EPSILON):
-                raise ValueError("3D path contains collinear points")
+                raise Bosl2ValueError("3D path contains collinear points")
             out.append(Point([float(x) for x in (v / norm)]))
         return out
 
@@ -466,9 +467,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         cd = [float(cutdist)] if isinstance(cutdist, (int, float)) else [float(c) for c in cutdist]
         total = self.perimeter()
         if not (cd[-1] < total):
-            raise ValueError("Cut distances must be smaller than the path length")
+            raise Bosl2ValueError("Cut distances must be smaller than the path length")
         if not (cd[0] > 0):
-            raise ValueError("Cut distances must be strictly positive")
+            raise Bosl2ValueError("Cut distances must be strictly positive")
         cutlist: list[CutPoint] = _path_cut_points(self._points, closed, cd)
         sub_paths = _path_cut_getpaths(self._points, closed, cutlist)
         return [self.__class__(pts, closed=self.closed) for pts in sub_paths]  # type: ignore[arg-type]
@@ -657,11 +658,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         if closed is None:
             closed = self.closed
         if not (points_per_segment is None or method == SubdivideMethod.SEGMENT):
-            raise ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
+            raise Bosl2ValueError("points_per_segment requires method=SubdivideMethod.SEGMENT")
         method_val = method.value
         pts_arr = self._points
         if not (sum((x is not None for x in (points, None, maxlen))) == 1):
-            raise ValueError("Must give exactly one of sides, refine, and maxlen")
+            raise Bosl2ValueError("Must give exactly one of sides, refine, and maxlen")
         if points == len(pts_arr):
             return self.__class__(list(pts_arr), closed=self.closed)
         if maxlen is not None:
@@ -676,9 +677,9 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 out.append(pts_arr[-1])
             return self.__class__(out, closed=self.closed)
         if not (isinstance(points, (int, float))):
-            raise ValueError("Parameter sides must be positive number")
+            raise Bosl2ValueError("Parameter sides must be positive number")
         if not (points > 0):
-            raise ValueError("Parameter sides must be positive number")
+            raise Bosl2ValueError("Parameter sides must be positive number")
         count = len(pts_arr) - (0 if closed else 1)
         if method_val == "segment":
             add_guess: Any = [(points - len(pts_arr)) / count] * count
@@ -742,7 +743,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
             closed = self.closed
         points = self._points
         if not ((num_copies is None) != (spacing is None)):
-            raise ValueError("Must define exactly one of num_copies and spacing")
+            raise Bosl2ValueError("Must define exactly one of num_copies and spacing")
         length = self.perimeter()
         if num_copies is not None:
             n_use = num_copies - (0 if closed else 1)
@@ -1497,17 +1498,17 @@ def _path_cut_points(
 
     """
     if len(points) < (3 if closed else 2):
-        raise ValueError(f"cut_points(): a closed path needs three points, an open one two; got {len(points)}.")
+        raise Bosl2ValueError(f"cut_points(): a closed path needs three points, an open one two; got {len(points)}.")
     if isinstance(cutdist, (int, float, np.floating, np.integer)):
         return _path_cut_points(points, closed, [cutdist], direction)
     if not isinstance(cutdist, (list, tuple, np.ndarray)):
-        raise ValueError(f"cut_points(): give a distance or a list of increasing distances, got {cutdist!r}.")
+        raise Bosl2ValueError(f"cut_points(): give a distance or a list of increasing distances, got {cutdist!r}.")
     if not (all((cutdist[i] < cutdist[i + 1] for i in range(len(cutdist) - 1)))):
-        raise ValueError("Cut distances must be an increasing list")
+        raise Bosl2ValueError("Cut distances must be an increasing list")
     if len(cutdist) and cutdist[0] < 0:
         # 0 is the path start and is a fine place to cut; a negative distance divides by a
         # zero-length partial segment further down, so catch it here with something actionable.
-        raise ValueError(
+        raise Bosl2ValueError(
             f"cut_points(): distances are measured forward along the path, so they cannot be negative; "
             f"got {cutdist[0]}."
         )
@@ -1591,7 +1592,7 @@ def _path_cut_single(points: np.ndarray, closed: bool, dist: float, ind: int = 0
     while True:
         if ind == len(points) - (0 if closed else 1):
             if not (dist < eps):
-                raise ValueError("Path2D is too short for specified cut distance")
+                raise Bosl2ValueError("Path2D is too short for specified cut distance")
             pt_arr = np.asarray(points[(ind) % len(points)], dtype=float)
             return CutPoint(
                 point=Point(float(pt_arr[0]), float(pt_arr[1]), float(pt_arr[2])),
@@ -1643,7 +1644,7 @@ def _path_plane(points: np.ndarray, closed: bool, ind: int, i: int) -> list[Poin
                 Point([float(a - b) for a, b in zip(points[ind], points[ind - 1], strict=False)]),
             ]
         i -= 1
-    raise ValueError("No non-collinear point found to define a local plane.")
+    raise Bosl2ValueError("No non-collinear point found to define a local plane.")
 
 
 def _path_cuts_dir(points: np.ndarray, closed: bool, cuts: list[CutPoint], eps: float = 1e-2) -> list[Point]:

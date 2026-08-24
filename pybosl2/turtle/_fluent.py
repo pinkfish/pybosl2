@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.turtle.commands import TurtleCommand, TurtleCommandType
 
 if TYPE_CHECKING:
@@ -113,7 +114,7 @@ def _make(name: str, cmd_type: TurtleCommandType, field: str, summary: str) -> A
     def method(self: TurtleCommands, value: Any = None, **kwargs: Any) -> Any:
         if value is not None:
             if field in kwargs:
-                raise ValueError(f"{name}(): give {field} once -- positionally or by name, not both.")
+                raise Bosl2ValueError(f"{name}(): give {field} once -- positionally or by name, not both.")
             kwargs[field] = value
         return self.run([TurtleCommand(cmd_type, **kwargs)])
 

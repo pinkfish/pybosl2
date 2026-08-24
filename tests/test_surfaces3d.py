@@ -115,7 +115,8 @@ class TestCylindricalHeightfield:
 
     def test_the_solid_is_as_long_as_the_cylinder(self) -> None:
         """The data wraps around the circumference, so `length` is the Z run whatever it holds."""
-        _centre, size = cylindrical_heightfield(self.FLAT, length=20, radius=15).bounds()
+        _box = cylindrical_heightfield(self.FLAT, length=20, radius=15).bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert float(size[2]) == pytest.approx(20.0)
 
     def test_transpose_matches_passing_the_transposed_array(self) -> None:
@@ -124,20 +125,20 @@ class TestCylindricalHeightfield:
         flipped = [list(col) for col in zip(*data, strict=False)]
         swapped = cylindrical_heightfield(data, length=20, radius=15, transpose=True).bounds()
         by_hand = cylindrical_heightfield(flipped, length=20, radius=15).bounds()
-        assert [float(v) for v in swapped[0]] == pytest.approx([float(v) for v in by_hand[0]])
-        assert [float(v) for v in swapped[1]] == pytest.approx([float(v) for v in by_hand[1]])
+        assert [float(v) for v in swapped.center] == pytest.approx([float(v) for v in by_hand.center])
+        assert [float(v) for v in swapped.size] == pytest.approx([float(v) for v in by_hand.size])
 
     def test_maxh_clamps_the_data(self) -> None:
         """A tall spike capped at maxh builds the same solid as data that never exceeded it."""
         spiky = [[50.0] * 8 for _ in range(6)]
         capped = cylindrical_heightfield(spiky, length=20, radius=15, maxh=2).bounds()
         flat2 = cylindrical_heightfield([[2.0] * 8 for _ in range(6)], length=20, radius=15).bounds()
-        assert [float(v) for v in capped[1]] == pytest.approx([float(v) for v in flat2[1]])
+        assert [float(v) for v in capped.size] == pytest.approx([float(v) for v in flat2.size])
 
     def test_taller_data_stands_further_out(self) -> None:
         """The heights are radial, so raising them widens the solid without lengthening it."""
-        low = cylindrical_heightfield(self.FLAT, length=20, radius=15).bounds()[1]
-        high = cylindrical_heightfield([[4.0] * 8 for _ in range(6)], length=20, radius=15).bounds()[1]
+        low = cylindrical_heightfield(self.FLAT, length=20, radius=15).bounds().size
+        high = cylindrical_heightfield([[4.0] * 8 for _ in range(6)], length=20, radius=15).bounds().size
         assert float(high[0]) > float(low[0])
         assert float(high[2]) == pytest.approx(float(low[2]))
 
@@ -148,8 +149,8 @@ class TestCylindricalHeightfield:
             lambda _x, _y: 2.0, length=20, radius=15, xrange=(-1, 0.5, 1), yrange=(-1, 0.5, 1)
         ).bounds()
         tabulated = cylindrical_heightfield([[2.0] * 5 for _ in range(5)], length=20, radius=15).bounds()
-        assert [float(v) for v in sampled[0]] == pytest.approx([float(v) for v in tabulated[0]])
-        assert [float(v) for v in sampled[1]] == pytest.approx([float(v) for v in tabulated[1]])
+        assert [float(v) for v in sampled.center] == pytest.approx([float(v) for v in tabulated.center])
+        assert [float(v) for v in sampled.size] == pytest.approx([float(v) for v in tabulated.size])
 
     def test_more_columns_wrap_further_around(self) -> None:
         """Each sampled column takes a fixed step around the circumference, so sampling xrange
@@ -157,15 +158,15 @@ class TestCylindricalHeightfield:
         profile = lambda x, _y: 2 + math.cos(x * 3)  # noqa: E731
         coarse = cylindrical_heightfield(profile, length=20, radius=15, xrange=(-1, 0.5, 1), yrange=(-1, 0.5, 1))
         fine = cylindrical_heightfield(profile, length=20, radius=15, xrange=(-1, 0.25, 1), yrange=(-1, 0.5, 1))
-        assert float(fine.bounds()[1][1]) > float(coarse.bounds()[1][1])
-        assert float(fine.bounds()[1][2]) == pytest.approx(20.0)  # ...but no longer
+        assert float(fine.bounds().size[1]) > float(coarse.bounds().size[1])
+        assert float(fine.bounds().size[2]) == pytest.approx(20.0)  # ...but no longer
 
     def test_a_taper_is_wider_at_its_wide_end(self) -> None:
         """radius1/radius2 taper the cylinder the data wraps around."""
         tapered = cylindrical_heightfield(self.FLAT, length=20, radius1=15, radius2=10).bounds()
         straight = cylindrical_heightfield(self.FLAT, length=20, radius=15).bounds()
-        assert float(tapered[1][2]) == pytest.approx(20.0)
-        assert float(tapered[1][0]) > float(straight[1][0])  # the taper leans it across X
+        assert float(tapered.size[2]) == pytest.approx(20.0)
+        assert float(tapered.size[0]) > float(straight.size[0])  # the taper leans it across X
 
     def test_data_too_wide_for_the_cylinder_is_refused(self) -> None:
         """The data has to fit around the circumference; the message says the radius it needs."""
@@ -220,17 +221,21 @@ class TestHeightfield:
         """Sampling a callable on a 5x5 grid must build what the equivalent 5x5 array builds."""
         sampled = heightfield(lambda _x, _y: 3.0, size=[40, 40], xrange=(-1, 0.5, 1), yrange=(-1, 0.5, 1)).bounds()
         tabulated = heightfield([[3.0] * 5 for _ in range(5)], size=[40, 40]).bounds()
-        assert [float(v) for v in sampled[0]] == pytest.approx([float(v) for v in tabulated[0]])
-        assert [float(v) for v in sampled[1]] == pytest.approx([float(v) for v in tabulated[1]])
+        assert [float(v) for v in sampled.center] == pytest.approx([float(v) for v in tabulated.center])
+        assert [float(v) for v in sampled.size] == pytest.approx([float(v) for v in tabulated.size])
 
     def test_the_footprint_is_the_requested_size(self) -> None:
         """`size` is the XY rectangle the data is spread over, whatever the heights do in Z."""
-        _centre, size = heightfield(
-            lambda x, y: 5 + math.cos(x * 3) * math.sin(y * 3),
-            size=[40, 25],
-            xrange=(-1, 0.25, 1),
-            yrange=(-1, 0.25, 1),
-        ).bounds()
+        size = (
+            heightfield(
+                lambda x, y: 5 + math.cos(x * 3) * math.sin(y * 3),
+                size=[40, 25],
+                xrange=(-1, 0.25, 1),
+                yrange=(-1, 0.25, 1),
+            )
+            .bounds()
+            .size
+        )
         assert [float(size[0]), float(size[1])] == pytest.approx([40.0, 25.0])
 
     def test_maxz_clamps_the_sampled_heights(self) -> None:
@@ -239,13 +244,14 @@ class TestHeightfield:
             lambda _x, _y: 99.0, size=[40, 40], maxz=4, xrange=(-1, 0.5, 1), yrange=(-1, 0.5, 1)
         ).bounds()
         flat = heightfield([[4.0] * 5 for _ in range(5)], size=[40, 40]).bounds()
-        assert [float(v) for v in capped[1]] == pytest.approx([float(v) for v in flat[1]])
+        assert [float(v) for v in capped.size] == pytest.approx([float(v) for v in flat.size])
 
     @pytest.mark.parametrize("style", [VNFStyle.DEFAULT, VNFStyle.ALT, VNFStyle.QUINCUNX, VNFStyle.MIN_EDGE])
     def test_every_style_covers_the_same_surface(self, style: VNFStyle) -> None:
         """The quad styles change the triangulation underneath, never the surface it describes."""
         data = [[float((r * c) % 4) + 1 for c in range(6)] for r in range(6)]
-        _centre, size = heightfield(data, size=[40, 40], style=style).bounds()
+        _box = heightfield(data, size=[40, 40], style=style).bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert [float(v) for v in size] == pytest.approx([40.0, 40.0, 24.0])
 
 
@@ -260,27 +266,29 @@ class TestPlot3d:
 
     def test_zclip_clamps_the_surface(self) -> None:
         """Clamped to +/-1 the surface is 2 tall, and the default base adds its own 1mm."""
-        _centre, size = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES, zclip=[-1.0, 1.0]).bounds()
+        _box = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES, zclip=[-1.0, 1.0]).bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert float(size[2]) == pytest.approx(3.0)
 
     def test_zspan_rescales_the_surface_into_the_given_range(self) -> None:
         """Rescaling maps the sampled heights onto exactly the span asked for, base aside."""
-        _centre, size = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES, zspan=[0, 10]).bounds()
+        _box = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES, zspan=[0, 10]).bounds()
+        _centre, size = list(_box.center), list(_box.size)
         assert float(size[2]) == pytest.approx(11.0)
 
     def test_zspan_rescales_rather_than_clips(self) -> None:
         """The difference from zclip: a span keeps the whole shape of the surface, so a span as
         wide as the data leaves the heights alone."""
         plain = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES).bounds()
-        spread = float(plain[1][2]) - 1.0  # take the base back off
+        spread = float(plain.size[2]) - 1.0  # take the base back off
         spanned = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES, zspan=[0, spread]).bounds()
-        assert float(spanned[1][2]) == pytest.approx(float(plain[1][2]))
+        assert float(spanned.size[2]) == pytest.approx(float(plain.size[2]))
 
     def test_base_zero_leaves_just_the_surface(self) -> None:
         """base=0 drops the slab, so the solid is only as tall as the data's own range."""
         with_base = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES).bounds()
         bare = plot3d(self._ripple, x=self.SAMPLES, y=self.SAMPLES, base=0).bounds()
-        assert float(with_base[1][2]) - float(bare[1][2]) == pytest.approx(1.0)
+        assert float(with_base.size[2]) - float(bare.size[2]) == pytest.approx(1.0)
 
 
 class TestPlotRevolution:
@@ -295,21 +303,21 @@ class TestPlotRevolution:
     def _cylinder_bounds(self) -> list[float]:
         """The same revolution with no displacement at all: a plain radius-10 cylinder."""
         undisplaced = plot_revolution(lambda _t, _z: 0.0, angle=self.ANGLES, z=[-10, 10], radius=10)
-        return [float(v) for v in undisplaced.bounds()[1]]
+        return [float(v) for v in undisplaced.bounds().size]
 
     def test_a_zero_width_span_removes_the_modulation(self) -> None:
         """rspan squeezes every displacement into the given range, so a zero-width one leaves
         the plain cylinder -- the ripple is gone, not merely reduced."""
         squeezed = plot_revolution(self._ripple, angle=self.ANGLES, z=[-10, 10], radius=10, rspan=[0, 0])
-        assert [float(v) for v in squeezed.bounds()[1]] == pytest.approx(self._cylinder_bounds())
+        assert [float(v) for v in squeezed.bounds().size] == pytest.approx(self._cylinder_bounds())
 
     def test_a_zero_width_clip_removes_the_modulation(self) -> None:
         """Clamping the displacement to exactly zero does the same, by the other route."""
         clamped = plot_revolution(self._ripple, angle=self.ANGLES, z=[-10, 10], radius=10, rclip=[0, 0])
-        assert [float(v) for v in clamped.bounds()[1]] == pytest.approx(self._cylinder_bounds())
+        assert [float(v) for v in clamped.bounds().size] == pytest.approx(self._cylinder_bounds())
 
     def test_the_modulation_actually_widens_the_solid(self) -> None:
         """Guard the two above: left alone, the ripple has to make a visible difference."""
         rippled = plot_revolution(self._ripple, angle=self.ANGLES, z=[-10, 10], radius=10)
-        assert float(rippled.bounds()[1][0]) > self._cylinder_bounds()[0]
-        assert float(rippled.bounds()[1][2]) == pytest.approx(20.0)  # ...without changing the height
+        assert float(rippled.bounds().size[0]) > self._cylinder_bounds()[0]
+        assert float(rippled.bounds().size[2]) == pytest.approx(20.0)  # ...without changing the height

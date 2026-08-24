@@ -42,6 +42,7 @@ from pybosl2._helpers import is_num, rot_from_to4, translate4
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.constants import BACK, RIGHT, UP
 from pybosl2.enums import StaggerMode
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.points import Point
 from pybosl2.transforms import axis_angle_matrix
 
@@ -195,15 +196,15 @@ def grid_copies(
 ) -> list[np.ndarray]:
     """Return copies laid out in a square or staggered (hex) grid."""
     if stagger not in (False, True, StaggerMode.ALT):
-        raise ValueError("grid_copies(): stagger must be False, True or 'alt'.")
+        raise Bosl2ValueError("grid_copies(): stagger must be False, True or 'alt'.")
     if not (len(axes) == 2):
-        raise ValueError("grid_copies(): invalid axes.")
+        raise Bosl2ValueError("grid_copies(): invalid axes.")
     if axes[0] not in "xyz":
-        raise ValueError("grid_copies(): invalid axes.")
+        raise Bosl2ValueError("grid_copies(): invalid axes.")
     if axes[1] not in "xyz":
-        raise ValueError("grid_copies(): invalid axes.")
+        raise Bosl2ValueError("grid_copies(): invalid axes.")
     if not (axes[0] != axes[1]):
-        raise ValueError("grid_copies(): invalid axes.")
+        raise Bosl2ValueError("grid_copies(): invalid axes.")
     ai: dict[str, int] = {"x": 0, "y": 1, "z": 2}
 
     def permax(pt: Sequence[float]) -> np.ndarray:
@@ -300,7 +301,7 @@ def rot_copies(
 ) -> list[np.ndarray]:
     """Return rotated copies about an axis, optionally offset into a ring."""
     if not (subrot or np.linalg.norm(_vec3(delta, 0.0)) > 0):
-        raise ValueError("rot_copies(): subrot can only be False when delta is nonzero.")
+        raise Bosl2ValueError("rot_copies(): subrot can only be False when delta is nonzero.")
     sang = sa + offset
     if num_copies is not None:
         angs = [] if num_copies <= 0 else [i / num_copies * 360 + sang for i in range(num_copies)]
@@ -498,7 +499,7 @@ def path_copies(
         distances = list(np.linspace(0, length, num_copies, endpoint=not closed))
     else:
         if spacing is None:
-            raise ValueError("path_copies(): give num_copies=, spacing= or dist= to say where the copies go.")
+            raise Bosl2ValueError("path_copies(): give num_copies=, spacing= or dist= to say where the copies go.")
         cnt = num_copies if num_copies is not None else int(math.floor(length / spacing)) + (0 if closed else 1)
         ptlist = [i * spacing for i in range(cnt)]
         center = sum(ptlist) / len(ptlist)
@@ -507,9 +508,9 @@ def path_copies(
         else:
             distances = [e + length / 2 - center for e in ptlist]
     if not (min(distances) >= -1e-09):
-        raise ValueError("path_copies(): copies don't fit on the path.")
+        raise Bosl2ValueError("path_copies(): copies don't fit on the path.")
     if not (max(distances) <= length + 1e-09):
-        raise ValueError("path_copies(): copies don't fit on the path.")
+        raise Bosl2ValueError("path_copies(): copies don't fit on the path.")
     distances = [min(max(dst, 0.0), length) for dst in distances]
     cutlist = (Path3D(pts) if dim == 3 else Path2D(pts)).cut_points(distances, closed=closed, direction=True)
     planar = len(pts[0]) == 2
@@ -854,12 +855,13 @@ class Distributable(ABC):
         dirv = dir_arr / dir_norm if dir_norm else dir_arr
         cnt = len(children)
         if not (cnt >= 1):
-            raise ValueError("distribute(): needs at least one child.")
+            raise Bosl2ValueError("distribute(): needs at least one child.")
         if sizes is None:
-            extents = [
-                abs(float(np.dot(np.asarray(c.bounds()[1]), dirv) - np.dot(np.asarray(c.bounds()[0]), dirv)))
-                for c in children
-            ]
+            # The extent of an axis-aligned box along a direction is the projection of its *size*,
+            # summed per axis -- it does not depend on where the box sits. The old form subtracted
+            # the projected centre from the projected size, which happened to agree for a child
+            # centred on the origin and under-measured every other one.
+            extents = [float(np.abs(np.asarray(c.bounds().size) * dirv).sum()) for c in children]
         else:
             extents = [float(s) for s in sizes]
         gaps = [0.0] if cnt < 2 else [extents[i] / 2 + extents[i + 1] / 2 for i in range(cnt - 1)]

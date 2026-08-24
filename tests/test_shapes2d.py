@@ -30,6 +30,7 @@ from pybosl2._helpers import (
 from pybosl2._helpers import (
     rotate2d as _rotate2d,
 )
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.shapes2d import (
     arc,
     circle,
@@ -116,7 +117,7 @@ def test_circle_builds_a_solid_via_mock() -> None:
     shape = circle(radius=5)
     if shape.shape.size is None:
         pytest.skip("no native 2-D bounding box (running against the numeric mock)")
-    assert [float(v) for v in shape.bounds()[1]] == pytest.approx([10.0, 10.0], abs=0.01)
+    assert [float(v) for v in shape.bounds().size] == pytest.approx([10.0, 10.0], abs=0.01)
 
 
 def test_squircle_circle_at_zero_squareness() -> None:
@@ -145,7 +146,7 @@ def test_squircle_builds_solid() -> None:
     shape = squircle(40, squareness=0.7)
     if shape.shape.size is None:
         pytest.skip("no native 2-D bounding box (running against the numeric mock)")
-    assert [float(v) for v in shape.bounds()[1]] == pytest.approx([40.0, 40.0], abs=0.2)
+    assert [float(v) for v in shape.bounds().size] == pytest.approx([40.0, 40.0], abs=0.2)
 
 
 def test_squircle_rejects_bad_squareness() -> None:
@@ -159,14 +160,14 @@ def test_keyhole_builds_both_orientations() -> None:
     if small_first.shape.size is None:
         pytest.skip("no native 2-D bounding box (running against the numeric mock)")
     large_first = keyhole(length=25, radius1=9, radius2=4, shoulder_radius=2)
-    assert float(small_first.bounds()[1][0]) == pytest.approx(2 * 9, abs=0.1)
-    assert [float(v) for v in large_first.bounds()[1]] == pytest.approx(
-        [float(v) for v in small_first.bounds()[1]], abs=0.01
+    assert float(small_first.bounds().size[0]) == pytest.approx(2 * 9, abs=0.1)
+    assert [float(v) for v in large_first.bounds().size] == pytest.approx(
+        [float(v) for v in small_first.bounds().size], abs=0.01
     )
-    assert float(large_first.bounds()[0][1]) > float(small_first.bounds()[0][1])  # flipped over
+    assert float(large_first.bounds().center[1]) > float(small_first.bounds().center[1])  # flipped over
 
     no_shoulder = keyhole(length=20, radius1=5, radius2=10)
-    assert float(no_shoulder.bounds()[1][0]) == pytest.approx(2 * 10, abs=0.1)
+    assert float(no_shoulder.bounds().size[0]) == pytest.approx(2 * 10, abs=0.1)
 
 
 def test_keyhole_rejects_short_length() -> None:
@@ -180,9 +181,9 @@ def test_ring_forms() -> None:
     if by_width.shape.size is None:
         pytest.skip("no native 2-D bounding box (running against the numeric mock)")
     # radius=20 is the mid-wall, so a 4mm wall puts the outer edge at 22
-    assert float(by_width.bounds()[1][0]) == pytest.approx(2 * 24, abs=0.1)
+    assert float(by_width.bounds().size[0]) == pytest.approx(2 * 24, abs=0.1)
     by_radii = ring(radius1=10, radius2=16)
-    assert float(by_radii.bounds()[1][0]) == pytest.approx(2 * 16, abs=0.1)
+    assert float(by_radii.bounds().size[0]) == pytest.approx(2 * 16, abs=0.1)
 
 
 def test_ring_requires_valid_params() -> None:
@@ -201,13 +202,15 @@ def test_star_and_supershape_atype_enum() -> None:
     if stars[0].shape.size is None:
         pytest.skip("no native 2-D bounding box (running against the numeric mock)")
     for atype, shape in zip(AnchorType, stars, strict=True):
-        centre, size = shape.bounds()
+        _box = shape.bounds()
+        centre, size = list(_box.center), list(_box.size)
         assert float(centre[0]) == pytest.approx(-float(size[0]) / 2, abs=0.01), atype
         assert float(size[0]) == pytest.approx(2 * 10, abs=0.1), atype  # tip to tip
 
     # ...and the same for the supershape, anchored the other way
     for atype in ("box", "hull", "intersect"):
-        centre, size = supershape(m1=4, radius=10, atype=atype, anchor=LEFT).bounds()
+        _box = supershape(m1=4, radius=10, atype=atype, anchor=LEFT).bounds()
+        centre, size = list(_box.center), list(_box.size)
         assert float(centre[0]) == pytest.approx(float(size[0]) / 2, abs=0.01), atype
 
 
@@ -281,19 +284,19 @@ def test_regular_ngon_realign() -> None:
     assert shape is not None
 
 
-def test_regular_ngon_no_size_defaults() -> None:
-    """regular_ngon() with no size at all falls back to radius 0 -- a degenerate, empty shape.
+def test_regular_ngon_with_no_size_refuses() -> None:
+    """regular_ngon() with no size at all raises, naming every spelling that would fix it.
 
-    It builds rather than refusing, which is why nothing has ever caught it; the bounds come back
-    non-finite because there is no geometry to measure (see TASKS.md T13).
+    It used to fall back to radius 0 and *build* -- a polygon of coincident points whose bounds
+    were non-finite. Nothing caught it because the minimum-argument check only asserted that no
+    exception escaped, which a degenerate shape satisfies as happily as a real one. SPEC E-5 says
+    a call that cannot mean what it says fails loudly, and its sibling `star()` always did.
     """
-    import math as _math
+    with pytest.raises(Bosl2ValueError, match="needs a size"):
+        s2.regular_ngon()
 
-    shape = s2.regular_ngon()
-    if shape.shape.size is None:
-        pytest.skip("no native 2-D bounding box (running against the numeric mock)")
-    _centre, size = shape.bounds()
-    assert not all(_math.isfinite(float(v)) for v in size)
+    # ... and naming any one of the accepted spellings builds a real shape.
+    assert s2.regular_ngon(radius=10).bounds().size == pytest.approx((20.0, 17.32), abs=0.01)
 
 
 def test_right_triangle_center() -> None:

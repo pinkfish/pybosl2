@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 
 from pybosl2._helpers import frag_count as _frag_count
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import general_line_intersection, line_normal
 from pybosl2.path2d import Path2D
 from pybosl2.points import Point
@@ -211,7 +212,7 @@ class Turtle2D(TurtleCommands):
             if cmd.cmd_type == TurtleCommandType.XYZMOVE:
                 self._xymove(cmd.size, index)
                 return
-            raise ValueError(
+            raise Bosl2ValueError(
                 f'Turtle command "{cmd.cmd_type.value}" involves the z-axis and is not valid in 2-D at index {index}'
             )
 
@@ -257,7 +258,7 @@ class Turtle2D(TurtleCommands):
                 (Point(self._n(cmd.size), 0), Point(self._n(cmd.size), 1)),
             )
             if res is None:
-                raise ValueError(f'"untilx" never reaches the goal at index {index}')
+                raise Bosl2ValueError(f'"untilx" never reaches the goal at index {index}')
             self._state = self._state.with_point([res[0].x, res[0].y])
         elif ct == TurtleCommandType.UNTILY:
             res = general_line_intersection(
@@ -268,7 +269,7 @@ class Turtle2D(TurtleCommands):
                 (Point(0, self._n(cmd.size)), Point(1, self._n(cmd.size))),
             )
             if res is None:
-                raise ValueError(f'"untily" never reaches the goal at index {index}')
+                raise Bosl2ValueError(f'"untily" never reaches the goal at index {index}')
             self._state = self._state.with_point([res[0].x, res[0].y])
         elif ct == TurtleCommandType.LEFT:
             self._state = self._state.with_step(_rot2(ang if ang is not None else self._state.angle, step))
@@ -287,7 +288,7 @@ class Turtle2D(TurtleCommands):
                 v0 = float(cmd.size[0])
                 v1 = float(cmd.size[1])
                 if len(cmd.size) >= 3 and abs(float(cmd.size[2])) > 1e-12:
-                    raise ValueError(f'"setdir" z-component must be 0 for 2-D turtle at index {index}')
+                    raise Bosl2ValueError(f'"setdir" z-component must be 0 for 2-D turtle at index {index}')
                 norm = math.hypot(step[0], step[1])
                 u = unit([v0, v1])
                 self._state = self._state.with_step([norm * u[0], norm * u[1]])
@@ -317,7 +318,7 @@ class Turtle2D(TurtleCommands):
         elif ct == TurtleCommandType.ARCZROT:
             self._arczrot(cmd, index)
         else:
-            raise ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
+            raise Bosl2ValueError(f'Unknown turtle command "{ct.value}" at index {index}')
 
     # -- 2-D specific commands -----------------------------------------------
 
@@ -352,7 +353,7 @@ class Turtle2D(TurtleCommands):
             v1 = float(parm[1]) if len(parm) > 1 else 0.0
             v2 = float(parm[2]) if len(parm) > 2 else 0.0
         if abs(v2) > 1e-12:
-            raise ValueError(f'"xymove" z-component must be 0 for 2-D turtle at index {index}')
+            raise Bosl2ValueError(f'"xymove" z-component must be 0 for 2-D turtle at index {index}')
         self._state = self._state.with_point([lastpt[0] + v0, lastpt[1] + v1])
 
     # -- arc handling --------------------------------------------------------
@@ -366,7 +367,7 @@ class Turtle2D(TurtleCommands):
         """Execute an arc command (arcleft / arcright / arcleftto / arcrightto) in 2-D."""
         radius_val = cmd.radius
         if not (isinstance(radius_val, (int, float))):
-            raise ValueError(f'"{cmd.cmd_type.value}" needs a numeric radius at index {index}')
+            raise Bosl2ValueError(f'"{cmd.cmd_type.value}" needs a numeric radius at index {index}')
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
@@ -382,7 +383,7 @@ class Turtle2D(TurtleCommands):
             rot_step = _rot2(lrsign * myangle, step)
         else:
             if not (isinstance(cmd.angle, (int, float))):
-                raise ValueError(f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}')
+                raise Bosl2ValueError(f'"{cmd.cmd_type.value}" needs a numeric angle at index {index}')
             radius = radius_val
             ln2 = line_normal(Point(0.0, 0.0), Point(float(step[0]), float(step[1])))
             center = [lastpt[0] + lrsign * radius * ln2[0], lastpt[1] + lrsign * radius * ln2[1]]
@@ -421,7 +422,7 @@ class Turtle2D(TurtleCommands):
         """
         radius_val = cmd.radius
         if not (isinstance(radius_val, (int, float))):
-            raise ValueError(f'"arczrot" needs a numeric radius at index {index}')
+            raise Bosl2ValueError(f'"arczrot" needs a numeric radius at index {index}')
 
         lastpt = self._state.lastpt
         step = self._state.step_arr
@@ -475,7 +476,7 @@ class Turtle2D(TurtleCommands):
             TurtleCommand.RotationType.XROT,
             TurtleCommand.RotationType.YROT,
         ):
-            raise ValueError(
+            raise Bosl2ValueError(
                 f'Compound turtle command contains z-axis sub-command "{cmd.rotation_type.value}" at index {index}'
             )
         if (
@@ -487,7 +488,7 @@ class Turtle2D(TurtleCommands):
             or cmd.rrollto is not None
             or cmd.lrollto is not None
         ):
-            raise ValueError(f"Compound turtle command contains z-axis sub-commands at index {index}")
+            raise Bosl2ValueError(f"Compound turtle command contains z-axis sub-commands at index {index}")
 
         reverse = cmd.reverse
         usersteps = cmd.steps or 1
@@ -504,11 +505,11 @@ class Turtle2D(TurtleCommands):
         elif cmd.cmd_type == TurtleCommandType.ARC:
             radius = movescale * (cmd.radius if isinstance(cmd.radius, (int, float)) else 0)
             if not (radius != 0):
-                raise ValueError(f'"arc" compound needs a non-zero radius at index {index}')
+                raise Bosl2ValueError(f'"arc" compound needs a non-zero radius at index {index}')
 
             angle = cmd.angle if isinstance(cmd.angle, (int, float)) else 0
             if not (angle != 0):
-                raise ValueError(f'"arc" compound needs a non-zero rotation angle at index {index}')
+                raise Bosl2ValueError(f'"arc" compound needs a non-zero rotation angle at index {index}')
 
             lrsign = 1 if angle >= 0 else -1
             turn = lrsign * abs(angle)
@@ -535,7 +536,7 @@ class Turtle2D(TurtleCommands):
             self._state = replace(self._state, step=[float(rot_step[0]), float(rot_step[1])])
 
         else:
-            raise ValueError(f'Unknown compound command head "{cmd.cmd_type.value}" at index {index}')
+            raise Bosl2ValueError(f'Unknown compound command head "{cmd.cmd_type.value}" at index {index}')
 
 
 # -- turtle2d function --------------------------------------------------------

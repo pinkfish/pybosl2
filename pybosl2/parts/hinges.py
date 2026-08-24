@@ -27,6 +27,8 @@ from typing import TYPE_CHECKING, Any
 
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM
+from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.parts._buildable import Buildable
 from pybosl2.solid import cuboid, cyl, prismoid, sphere
 
 if TYPE_CHECKING:
@@ -41,7 +43,7 @@ __all__ = [
 ]
 
 
-class LivingHingeMask:
+class LivingHingeMask(Buildable):
     """A wedge mask to difference out of a plate to make a print-in-place living hinge.
 
     Centre it on the bottom of a plate of thickness *thick*; it leaves ``2*layerheight``
@@ -112,7 +114,7 @@ class LivingHingeMask:
         return self._solid.show()
 
 
-class KnuckleHinge:
+class KnuckleHinge(Buildable):
     """One leaf of an interlocking knuckle hinge with a pin bore.
 
     The hinge pin lies along X at the origin; the flat leaf extends in +Y (outer
@@ -164,7 +166,7 @@ class KnuckleHinge:
 
         """
         if not (segs >= 2):
-            raise ValueError("knuckle_hinge(): segs must be >= 2.")
+            raise Bosl2ValueError("knuckle_hinge(): segs must be >= 2.")
         seglen = (length - (segs - 1) * gap) / segs
         mine = 1 if inner else 0
 
@@ -241,7 +243,7 @@ class KnuckleHinge:
         return self._solid.show()
 
 
-class KnuckleHingePair:
+class KnuckleHingePair(Buildable):
     """Both leaves of a knuckle hinge, meshed around one pin.
 
     Set *fold* to rotate the inner leaf about the pin axis.  With *pin*, a pin
@@ -352,7 +354,7 @@ class KnuckleHingePair:
         return self._solid.show()
 
 
-class SnapLock:
+class SnapLock(Buildable):
     """A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`.
 
     Examples:
@@ -425,7 +427,7 @@ class SnapLock:
         return self._solid.show()
 
 
-class SnapSocket:
+class SnapSocket(Buildable):
     """The receiving socket for a :class:`SnapLock` tab.
 
     Examples:

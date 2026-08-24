@@ -27,16 +27,19 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
 from pybosl2._mctable import CORNER_OFFSETS, EDGE_CORNERS, TRI_TABLE
 from pybosl2.bounds import Bounds2D, Bounds3D
 from pybosl2.enums import SamplingType, SkinMethod, VNFStyle
+from pybosl2.exceptions import Bosl2ValueError
 
 if TYPE_CHECKING:
+    import os
     from collections.abc import Callable, Sequence
+    from pathlib import Path as FilePath
 
     from numpy.typing import NDArray
 
@@ -828,7 +831,7 @@ class VNF:
 
         """
         if not (len(plane) == 4):
-            raise ValueError("halfspace(): plane must be [A, B, C, D].")
+            raise Bosl2ValueError("halfspace(): plane must be [A, B, C, D].")
         a, b, c, d = plane[0], plane[1], plane[2], plane[3]
         verts_in = np.asarray(self.vertices, dtype=float)
         if len(verts_in) == 0:
@@ -946,6 +949,89 @@ class VNF:
         below = self.halfspace(plane, keep=False, closed=closed)
         return above, below
 
+    def export(
+        self, path: "str | os.PathLike[str]", *, file_format: str | None = None, check: bool = True
+    ) -> "FilePath":
+        """Write this mesh to a file (SPEC S-53).
+
+        Pure Python and numpy -- no CAD runtime -- so a mesh built with no kernel present can be
+        saved with none present either (SPEC S-54, A-2).
+
+        Args:
+            path: destination file. Its suffix picks the format -- ``.stl``, ``.obj``, ``.off``,
+                ``.ply`` -- unless *file_format* overrides it.
+            file_format: explicit format name (``"stl"``, ``"stla"`` for ASCII STL, ``"obj"``,
+                ``"off"``, ``"ply"``).
+            check: validate the mesh first and refuse to write one that is open or wound inside
+                out (SPEC S-55). ``False`` for a surface that is open on purpose.
+
+        Returns:
+            The path written.
+
+        Raises:
+            Bosl2ValueError: If the format is unknown, or *check* is on and the mesh is not a
+                closed, outward-wound solid.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D
+
+                bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
+                bar.vnf.export("bar.stl")
+                bar.show()
+
+        """
+        from pathlib import Path as _FilePath
+
+        from pybosl2.export import write_mesh
+
+        return write_mesh(self, _FilePath(path), file_format=file_format, check=check)
+
+    @classmethod
+    def from_solid(cls, solid: "Solid") -> "VNF":
+        """Mesh *solid* into a VNF (SPEC C-8).
+
+        The way back across the boundary :meth:`polyhedron` crosses the other way, so anything the
+        library can build can also be measured, joined or exported without the caller reaching for
+        a native handle. Faces come back wound the way the native layer wants them and are
+        reversed on the way in, matching the convention :meth:`volume` and :meth:`polyhedron`
+        assume: counter-clockwise seen from outside, positive volume for a solid.
+
+        Args:
+            solid: any 3-D shape on any backend.
+
+        Returns:
+            The mesh, as an ordinary :class:`VNF`.
+
+        Raises:
+            Bosl2ValueError: If the solid produced no geometry to mesh.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import cuboid, VNF
+
+                mesh = VNF.from_solid(cuboid([20, 20, 20]))
+                print(mesh.volume())      # 8000.0
+                mesh.polyhedron().show()
+
+        """
+        # A CSG shape wraps its native handle as `.shape`; an SDF shape has none until its field is
+        # meshed, and `mesh()` there hands back the native solid rather than the vertices.
+        native: Any = getattr(solid, "shape", None)
+        if native is None:
+            native = cast("Any", solid).mesh()
+            native = getattr(native, "shape", native)
+        vertices, faces = native.mesh()
+        if not len(vertices) or not len(faces):
+            raise Bosl2ValueError("VNF.from_solid(): the solid meshed to nothing -- is it empty?")
+        mesh = cls(
+            [[float(c) for c in v] for v in vertices],
+            [[int(i) for i in reversed(list(f))] for f in faces],
+        )
+        return mesh if mesh.volume() >= 0 else mesh.reverse()
+
     @classmethod
     def vertex_array(
         cls,
@@ -999,9 +1085,9 @@ class VNF:
         make_cap1, cap1_round = _resolve_cap(cap1)
         make_cap2, cap2_round = _resolve_cap(cap2)
         if (make_cap1 or make_cap2) and not col_wrap:
-            raise ValueError("vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column.")
+            raise Bosl2ValueError("vertex_array(): caps need col_wrap=True -- a cap closes the wrapped column.")
         if (make_cap1 or make_cap2) and row_wrap:
-            raise ValueError(
+            raise Bosl2ValueError(
                 "vertex_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
             )
 
@@ -1182,7 +1268,7 @@ class VNF:
         meshes triangular / irregular point arrays (what the degenerate bezier patches produce).
         """
         if (caps or cap1 or cap2) and row_wrap:
-            raise ValueError(
+            raise Bosl2ValueError(
                 "tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
             )
         plen = len(points)
@@ -1254,7 +1340,7 @@ class VNF:
         # The native polyhedron() rejects an empty point list with a bare "There must at least be
         # one point in the polyhedron"; say which VNF that came from instead.
         if not self.vertices or not self.faces:
-            raise ValueError(
+            raise Bosl2ValueError(
                 f"polyhedron(): this VNF has no geometry to build "
                 f"({len(self.vertices)} vertices, {len(self.faces)} faces)."
             )
@@ -1399,7 +1485,7 @@ class VNF:
             xs, ys, zs = _grid_axes(bb, vs_final)
         else:
             if not (bb is not None):
-                raise ValueError("from_field(): a callable field needs a bounding_box.")
+                raise Bosl2ValueError("from_field(): a callable field needs a bounding_box.")
             bb, vs_final = _resolve_grid(bb, voxel_size, voxel_count, exact_bounds)
             xs, ys, zs = _grid_axes(bb, vs_final)
             field = _sample_field(f, xs, ys, zs)
@@ -1456,7 +1542,7 @@ class VNF:
 
         """
         if not (spec):
-            raise ValueError("from_metaballs(): the spec is empty.")
+            raise Bosl2ValueError("from_metaballs(): the spec is empty.")
 
         bb: Bounds3D
         if isinstance(bounding_box, Bounds3D):
@@ -1481,7 +1567,7 @@ class VNF:
                     val[0], val[1], val[2], val[3], val[4], val[5], val[3] - val[0], val[4] - val[1], val[5] - val[2]
                 )
             else:
-                raise ValueError("bounding_box list must have length 2, 3 or 6.")
+                raise Bosl2ValueError("bounding_box list must have length 2, 3 or 6.")
         else:
             raise TypeError("bounding_box must be Bounds3D, float, or list/tuple.")
 

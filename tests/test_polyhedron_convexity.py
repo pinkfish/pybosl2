@@ -49,7 +49,7 @@ def test_the_csg_backend_builds_the_concave_solid_it_was_asked_for() -> None:
 
     with use_backend("csg"):
         solid = get_backend().polyhedron(L_POINTS, L_FACES)
-    assert solid.bounds()[1] == pytest.approx([10.0, 10.0, 5.0])
+    assert solid.bounds().size == pytest.approx([10.0, 10.0, 5.0])
     # The notch is open -- a probe sitting in it comes back empty.
     probe = cuboid([2, 2, 2]).translate([7, 7, 2.5])
     assert (solid & probe)._native_bounds() is None
@@ -63,7 +63,7 @@ def test_the_hull_would_have_filled_the_notch() -> None:
     """
     with use_backend("sdf"):
         hull = get_backend().polyhedron(L_POINTS)  # no faces: the hull is what was asked for
-        assert hull.bounds()[1] == pytest.approx([10.0, 10.0, 5.0])  # ... same envelope
+        assert hull.bounds().size == pytest.approx([10.0, 10.0, 5.0])  # ... same envelope
         assert float(hull.mesh().sample(6, 6, 2.5)) < 0  # ... but solid where the notch should be
 
 
@@ -73,7 +73,7 @@ def test_a_convex_polyhedron_builds_on_both_backends(points: list, faces: list) 
     built = {}
     for backend in ("csg", "sdf"):
         with use_backend(backend):
-            built[backend] = [float(v) for v in get_backend().polyhedron(points, faces).bounds()[1]]
+            built[backend] = [float(v) for v in get_backend().polyhedron(points, faces).bounds().size]
     assert built["sdf"] == pytest.approx(built["csg"], abs=0.01)
 
 

@@ -196,6 +196,40 @@ _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
     "quaternion_mult": ("pybosl2.quaternions", "quaternion_mult"),
     "quaternion_slerp": ("pybosl2.quaternions", "quaternion_slerp"),
     "quaternion_rot": ("pybosl2.quaternions", "quaternion_rot"),
+    # sweeps: the sweep itself is a Path2D/Path3D method (S-19), so what the top level owes the
+    # caller is the vocabulary those methods take -- the enums and the end treatments (A-8).
+    "SweepMethod": ("pybosl2.enums", "SweepMethod"),
+    "SkinMethod": ("pybosl2.enums", "SkinMethod"),
+    "SamplingType": ("pybosl2.enums", "SamplingType"),
+    "ResampleMethod": ("pybosl2.enums", "ResampleMethod"),
+    "RoundingMethod": ("pybosl2.enums", "RoundingMethod"),
+    "PartitionCutType": ("pybosl2.enums", "PartitionCutType"),
+    "VNFStyle": ("pybosl2.enums", "VNFStyle"),
+    "EdgeMode": ("pybosl2.enums", "EdgeMode"),
+    "Measure": ("pybosl2.enums", "Measure"),
+    "StaggerMode": ("pybosl2.enums", "StaggerMode"),
+    # offset-sweep end treatments (S-21): a rim treatment is one value, so the values are exported
+    "os_circle": ("pybosl2.skin", "os_circle"),
+    "os_smooth": ("pybosl2.skin", "os_smooth"),
+    "os_teardrop": ("pybosl2.skin", "os_teardrop"),
+    "os_chamfer": ("pybosl2.skin", "os_chamfer"),
+    "os_flat": ("pybosl2.skin", "os_flat"),
+    "os_profile": ("pybosl2.skin", "os_profile"),
+    "OSProfile": ("pybosl2.skin", "OSProfile"),
+    "OSType": ("pybosl2.skin", "OSType"),
+    # corner treatment (S-8) is `path.round_corners(...)` / `path.smooth_path(...)` -- methods on
+    # the Path types (PLAN O-3), so what the top level owes is the vocabulary: RoundingMethod above.
+    # turtles (S-10)
+    "Turtle2D": ("pybosl2.turtle", "Turtle2D"),
+    "Turtle3D": ("pybosl2.turtle", "Turtle3D"),
+    # rotation algebra (S-5): the class is the preferred spelling, not just the functions
+    "Quaternion": ("pybosl2.quaternions", "Quaternion"),
+    # textures (S-34)
+    "texture": ("pybosl2.texture", "texture"),
+    # the mask family, whole (S-26): mask2d_roundover was the one member left out
+    "mask2d_roundover": ("pybosl2.masking", "mask2d_roundover"),
+    # export (S-53)
+    "Bosl2ValueError": ("pybosl2.exceptions", "Bosl2ValueError"),
     # masking
     "Mask2D": ("pybosl2.masking", "Mask2D"),
     "Mask3D": ("pybosl2.masking", "Mask3D"),

@@ -32,6 +32,7 @@ from pybosl2._native import native
 from pybosl2.caps import CapType
 from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
 from pybosl2.enums import VNFStyle
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path2d import Path2D
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.shapes3d.base import (
@@ -487,21 +488,29 @@ def cylindrical_heightfield(
     _ = convexity
     l_val = length if length is not None else (height if height is not None else height)
     if not (l_val is not None):
-        raise ValueError("Must supply one of length= or height= as a finite positive number.")
+        raise Bosl2ValueError("Must supply one of length= or height= as a finite positive number.")
     if not (l_val > 0):
-        raise ValueError("Must supply one of length= or height= as a finite positive number.")
+        raise Bosl2ValueError("Must supply one of length= or height= as a finite positive number.")
     r1v = _pick_radius(radius1=radius1, diameter1=diameter1, radius=radius, diameter=diameter)
     r2v = _pick_radius(radius2=radius2, diameter2=diameter2, radius=radius, diameter=diameter)
     if not (r1v is not None):
-        raise ValueError("Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number.")
+        raise Bosl2ValueError(
+            "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
+        )
     if not (r1v > 0):
-        raise ValueError("Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number.")
+        raise Bosl2ValueError(
+            "Must supply one of radius=, radius1=, diameter=, or diameter1= as a finite positive number."
+        )
     if not (r2v is not None):
-        raise ValueError("Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number.")
+        raise Bosl2ValueError(
+            "Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number."
+        )
     if not (r2v > 0):
-        raise ValueError("Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number.")
+        raise Bosl2ValueError(
+            "Must supply one of radius=, radius2=, diameter=, or diameter2= as a finite positive number."
+        )
     if not (base > 0):
-        raise ValueError("base= must be a finite positive number.")
+        raise Bosl2ValueError("base= must be a finite positive number.")
 
     style_key = style if style in ("alt", "quincunx") else "default"
 
@@ -524,7 +533,7 @@ def cylindrical_heightfield(
     astep = 360 / circ * stepx
     arc = astep * (xlen - 1)
     if not (stepx * xlen <= circ):
-        raise ValueError(f"heightfield ({xlen} x {ylen}) needs a radius of at least {maxr * stepx * xlen / circ}.")
+        raise Bosl2ValueError(f"heightfield ({xlen} x {ylen}) needs a radius of at least {maxr * stepx * xlen / circ}.")
     bsteps = max(1, round(_frag_count(maxr - base) * arc / 360))
     bstep = arc / bsteps
 
@@ -613,9 +622,9 @@ def plot3d(
     zlo, zhi = zclip if zclip is not None else [-math.inf, math.inf]
     data = [[[float(xi), float(yi), min(max(float(f(xi, yi)), zlo), zhi)] for yi in ys] for xi in xs]
     if not (len(data) > 1):
-        raise ValueError("plot3d(): x and y must each give at least 2 points.")
+        raise Bosl2ValueError("plot3d(): x and y must each give at least 2 points.")
     if not (len(data[0]) > 1):
-        raise ValueError("plot3d(): x and y must each give at least 2 points.")
+        raise Bosl2ValueError("plot3d(): x and y must each give at least 2 points.")
     if zspan is not None:
         allz = [p[2] for row in data for p in row]
         minv, maxv = min(allz), max(allz)
@@ -705,17 +714,17 @@ def plot_revolution(
     )
     theta = [float(a) for a in angle]  # type: ignore[attr-defined]
     if not (len(theta) > 1):
-        raise ValueError("plot_revolution(): angle must have at least 2 values.")
+        raise Bosl2ValueError("plot_revolution(): angle must have at least 2 values.")
     if path is not None:
         prof = [[float(p[0]), float(p[1])] for p in path]
     else:
         zs = list(z)  # type: ignore[arg-type]
         if not (r1v is not None):
-            raise ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
+            raise Bosl2ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
         if not (r2v is not None):
-            raise ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
+            raise Bosl2ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
         if not (len(zs) > 1):
-            raise ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
+            raise Bosl2ValueError("plot_revolution(): give z with radius1 and radius2 (or a path).")
         z0, z1 = zs[0], zs[-1]
         prof = [[r1v + (r2v - r1v) * (zz - z0) / (z1 - z0), zz] for zz in zs]
     normals = (
@@ -781,7 +790,7 @@ def fillet(
     from . import masking
 
     if not (angle == 90):
-        raise ValueError("fillet(): only 90-degree edges (angle=90) are supported in this port.")
+        raise Bosl2ValueError("fillet(): only 90-degree edges (angle=90) are supported in this port.")
     lv = (
         length
         if length is not None
@@ -885,7 +894,7 @@ def textured_tile(
                 [int(tex_reps[0]), int(tex_reps[1])] if hasattr(tex_reps, "__len__") else [int(tex_reps), int(tex_reps)]
             )
         if not (tex_size is not None):
-            raise ValueError("textured_tile(): give tex_reps or tex_size.")
+            raise Bosl2ValueError("textured_tile(): give tex_reps or tex_size.")
         ts = (
             [float(tex_size), float(tex_size)]
             if isinstance(tex_size, (int, float))
@@ -962,9 +971,9 @@ def ruler(
     if colors is None:
         colors = ["black", "white"]
     if not (depth <= 5):
-        raise ValueError("Cannot render scales smaller than depth=5")
+        raise Bosl2ValueError("Cannot render scales smaller than depth=5")
     if not (len(colors) == 2):
-        raise ValueError("'colors' must contain a list of exactly two colors.")
+        raise Bosl2ValueError("'colors' must contain a list of exactly two colors.")
 
     length_v = INCH * length if inch else length
     unit_v = INCH * unit if inch else unit

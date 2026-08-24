@@ -101,7 +101,8 @@ def test_partition_cutpath_repeats_to_length() -> None:
 
 def _box(solid: Bosl2Solid) -> tuple[list[float], list[float]]:
     """The solid's bounding box as ``(centre, size)`` in plain floats."""
-    centre, size = solid.bounds()
+    _box = solid.bounds()
+    centre, size = list(_box.center), list(_box.size)
     return [float(v) for v in centre], [float(v) for v in size]
 
 
@@ -594,7 +595,7 @@ def test_up_and_down_cuts_are_mirror_images() -> None:
 
 def _separation(pieces: list[Bosl2Solid]) -> float:
     """Distance between the two pieces' bounding-box centres, across the cut."""
-    centres = [piece.bounds()[0] for piece in pieces]
+    centres = [piece.bounds().center for piece in pieces]
     return abs(float(centres[0][1]) - float(centres[1][1]))
 
 

@@ -29,6 +29,7 @@ from pybosl2.solid import cuboid, prismoid
 
 if TYPE_CHECKING:
     from pybosl2._backend import Solid
+from pybosl2.parts._buildable import Buildable
 from pybosl2.vnf import VNF
 
 __all__ = ["Slider", "Rail"]
@@ -37,7 +38,7 @@ __all__ = ["Slider", "Rail"]
 _union = union
 
 
-class Slider:
+class Slider(Buildable):
     """V-groove slider (BOSL2 slider()).
 
     The slider rides in a matching V-groove rail. Both print without support.
@@ -129,7 +130,7 @@ class Slider:
             ).reorient(anchor=BOTTOM, orient=LEFT)
             parts.append(slid.up(base + h / 2).multmatrix(m.tolist()))
         result = _union(parts).down(base + h / 2).rotate([0, 0, 90])
-        size = list(result.bounds()[1])
+        size = list(result.bounds().size)
         self._solid: "Solid" = result.with_nominal_size(size)
 
     @property
@@ -162,7 +163,7 @@ class Slider:
         return self._solid.show()
 
 
-class Rail:
+class Rail(Buildable):
     """V-groove rail (BOSL2 rail()).
 
     A matching rail for the V-groove slider.
