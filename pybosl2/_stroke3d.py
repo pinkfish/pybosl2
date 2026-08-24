@@ -162,7 +162,12 @@ def _stroke_3d_csg(
                 shapes.append(blob)
     if not (shapes):
         raise Bosl2ValueError("stroke(): path has no drawable segments.")
-    return Bosl2Solid(reduce(operator.or_, shapes))
+    # `shapes` already holds wrappers, and `|` between two of them returns a wrapper, so the
+    # reduction is the finished solid. Wrapping it again produced a Bosl2Solid whose `.shape` was
+    # another Bosl2Solid -- which looks fine until something reaches for the native handle, at
+    # which point `.mesh()` (and so `.vnf()`, `.export()`) fails on a perfectly good stroke.
+    strokes = reduce(operator.or_, shapes)
+    return strokes if isinstance(strokes, Bosl2Solid) else Bosl2Solid(strokes)
 
 
 @builds_with("csg")
@@ -231,7 +236,12 @@ def dashed_stroke_3d(
 
     if not shapes:
         return Bosl2Solid(None)
-    return Bosl2Solid(reduce(operator.or_, shapes))
+    # `shapes` already holds wrappers, and `|` between two of them returns a wrapper, so the
+    # reduction is the finished solid. Wrapping it again produced a Bosl2Solid whose `.shape` was
+    # another Bosl2Solid -- which looks fine until something reaches for the native handle, at
+    # which point `.mesh()` (and so `.vnf()`, `.export()`) fails on a perfectly good stroke.
+    strokes = reduce(operator.or_, shapes)
+    return strokes if isinstance(strokes, Bosl2Solid) else Bosl2Solid(strokes)
 
 
 def _path_length_3d(pts: list[list[float]]) -> float:

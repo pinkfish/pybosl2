@@ -44,10 +44,7 @@ IMPLEMENTATIONS = [
 #: allowlist SPEC C-20 requires -- "a named, justified allowlist for the deliberate exceptions" --
 #: and it is meant to shrink.
 UNDECLARED_BY_DESIGN: dict[str, str] = {
-    # --- C-21: synonym halves, pending removal (SPEC §12.2) ---
-    "move": "synonym of translate (C-21), pending removal",
-    "rot": "synonym of rotate (C-21), pending removal",
-    "fwd": "synonym of forward (C-21), pending removal",
+    # `move`, `rot` and `fwd` were here as synonym halves awaiting removal (C-21). They are gone.
     "bounding_box": "returns the box as a *solid*, which is a different operation from bounds()",
     # --- attachment machinery: state, not operations ---
     "attachments": "attachment state; the operations that use it are declared",
@@ -212,3 +209,35 @@ def test_no_contract_member_is_a_property_that_computes(label: str, cls: type, p
         f"Make them methods -- `isinstance` calls `hasattr` on every member and that evaluates a "
         f"property."
     )
+
+
+@pytest.mark.parametrize("removed", ["move", "rot", "fwd"])
+def test_a_removed_synonym_does_not_come_back(removed: str) -> None:
+    """One operation, one public spelling (SPEC C-21).
+
+    `move`/`translate`, `rot`/`rotate` and `fwd`/`forward` were pure aliases -- two names for one
+    call, each a second thing to keep in step and a coin-flip at every call site. BOSL2's name is
+    the one that stays (B2-3). `Turtle2D.move()` is unaffected: that is a turtle *command*, not a
+    synonym of a transform.
+    """
+    for _label, cls, _protocols in IMPLEMENTATIONS:
+        assert not hasattr(cls, removed), f"{cls.__name__}.{removed} is a synonym and must not return"
+
+    from pybosl2 import Path2D, Path3D
+
+    for path_type in (Path2D, Path3D):
+        assert not hasattr(path_type, removed), f"{path_type.__name__}.{removed} is a synonym"
+
+
+def test_the_surviving_spellings_all_work() -> None:
+    """Removing a synonym must not have removed the operation."""
+    from pybosl2 import Path2D, cuboid
+
+    solid = cuboid([10, 20, 30])
+    assert solid.translate([1, 2, 3]).bounds().center == pytest.approx((1.0, 2.0, 3.0))
+    assert solid.rotate(90).bounds().size == pytest.approx((20.0, 10.0, 30.0), abs=1e-9)
+    assert solid.forward(5).bounds().center == pytest.approx((0.0, -5.0, 0.0))
+
+    path = Path2D([[0, 0], [3, 0]])
+    assert list(path.rotate(90)[1]) == pytest.approx([0.0, 3.0], abs=1e-9)
+    assert list(path.translate([1, 1])[0]) == pytest.approx([1.0, 1.0])

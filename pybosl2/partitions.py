@@ -919,10 +919,10 @@ class Partitionable:
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> list[Self]:
+    ) -> tuple[Self, Self]:
         """Cut this solid into two interlocking pieces, spread apart.
 
-        Returns ``[back_piece, front_piece]`` -- the two halves with matched joining edges, moved
+        Returns ``(back_piece, front_piece)`` -- the two halves with matched joining edges, moved
         *spread* apart along the (spun) Y axis so they print separately and snap back together.
         The joint follows *cutpath* (``"jigsaw"``, ``"dovetail"``, ``"hammerhead"``, ...); *spin*
         rotates the cut direction; *slop* leaves a printer-fit clearance.
@@ -965,7 +965,10 @@ class Partitionable:
             mask = mask.rotate([0, 0, spin]).translate([float(c2) for c2 in center_pt])
             move = vec if idx == 0 else -vec
             pieces.append(self._wrap(self.shape & mask).translate([float(m) for m in move]))  # type: ignore[attr-defined]
-        return pieces
+        # A partition makes exactly two pieces, and a 2-tuple says so where a list only implies it.
+        # The SDF backend already returned a pair; the two disagreeing on the container is what
+        # forced the shared contract to type this `Any` (SPEC PAR-4).
+        return (pieces[0], pieces[1])
 
 
 # (imported from pybosl2._helpers as zrot4)

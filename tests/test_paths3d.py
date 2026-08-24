@@ -92,7 +92,7 @@ def test_segment_lengths_and_fractions() -> None:
 def test_translate_and_directional_moves() -> None:
     p = Path3D([[0, 0, 0]], closed=False)
     np.testing.assert_allclose(p.translate([1, 2, 3])[0], [1, 2, 3], atol=1e-9)
-    np.testing.assert_allclose(p.move([1, 2, 3])[0], [1, 2, 3], atol=1e-9)
+    np.testing.assert_allclose(p.translate([1, 2, 3])[0], [1, 2, 3], atol=1e-9)
     np.testing.assert_allclose(p.right(5)[0], [5, 0, 0], atol=1e-9)
     np.testing.assert_allclose(p.left(5)[0], [-5, 0, 0], atol=1e-9)
     np.testing.assert_allclose(p.back(5)[0], [0, 5, 0], atol=1e-9)

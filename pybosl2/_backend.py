@@ -706,11 +706,19 @@ class Solid(Shape, Protocol):
     # Partitioning. Both backends implement the whole family; it was simply never declared.
     # The parameters are `Any` because the two spell their accepted forms differently (a list on
     # one, a Sequence on the other) while accepting the same values.
-    # The three shared parameters only. The CSG side also takes `cut_path`/`cut_angle`/`offset`
-    # for a profiled cut, which the SDF side has no notion of -- a PAR-4 divergence like
-    # `partition`'s, recorded in SPEC §12.2 rather than smoothed over with `**kwargs` (which would
-    # require both implementations to accept arbitrary keywords, and neither does).
-    def half_of(self, v: Any = ..., center: Any = ..., s: float | None = None) -> Self: ...
+    # The full surface, including the profiled-cut parameters. Those are CSG-only and the SDF side
+    # refuses them by name (SPEC B-9) rather than lacking them, which is what lets the contract
+    # describe the operation completely -- and what let the two stop disagreeing about what a bare
+    # `half_of()` means (it kept a different half per backend, a PAR-5 defect).
+    def half_of(
+        self,
+        v: Any = ...,
+        center: Any = None,
+        s: float | None = None,
+        cut_path: Any = None,
+        cut_angle: float = 0,
+        offset: float = 0,
+    ) -> Self: ...
     def left_half(self, x: float = 0, s: float | None = None) -> Self: ...
     def right_half(self, x: float = 0, s: float | None = None) -> Self: ...
     def front_half(self, y: float = 0, s: float | None = None) -> Self: ...
@@ -719,12 +727,10 @@ class Solid(Shape, Protocol):
     def bottom_half(self, z: float = 0, s: float | None = None) -> Self: ...
 
     # --- SPEC C-20, the genuinely three-dimensional half ------------------------------------
-    # `partition` splits, so it returns the pieces rather than one shape -- but the two backends
-    # disagree on the container: the CSG one hands back `list[CsgSolid]` and the SDF one
-    # `tuple[SdfSolid, SdfSolid]`. That is a PAR-4 divergence this contract work surfaced, not a
-    # difference a caller should have to know about; `Any` holds the line until the two agree
-    # (tracked in SPEC §12.2).
-    def partition(self, *args: Any, **kwargs: Any) -> Any: ...
+    # `partition` splits, so it returns the pieces rather than one shape -- exactly two of them,
+    # which a 2-tuple states and a list only implies. The backends used to disagree on the
+    # container (`list` on CSG, `tuple` on SDF), which is what forced this to be `Any`.
+    def partition(self, *args: Any, **kwargs: Any) -> tuple[Self, Self]: ...
     # Edge, corner and face treatments (SPEC S-26, S-27) and the one way down to 2-D (C-17).
     # As above: the SDF backend refuses each by name.
     def edge_mask(self, *args: Any, **kwargs: Any) -> Self: ...

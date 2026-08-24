@@ -100,7 +100,7 @@ class Bezier:
 
             circle = [[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]
             tube = Bezier([[0, 0, 5], [0, 0, 20], [25, 12, 15], [30, 4, 6]]).sweep(circle, splinesteps=24)
-            tube.polyhedron().show()
+            tube.show()
 
     """
 
@@ -1311,7 +1311,10 @@ class BezierPatch:
             with equal-length rows.
 
         """
-        if not (isinstance(x, (list, tuple)) and len(x) > 0):
+        # `np.ndarray` belongs in that check: without it this returned False for the very type
+        # `BezierPatch.array` hands back and its own annotation advertises, so `to_vnf(patch.array)`
+        # took the sequence-of-patches branch and tried to build a patch out of one row.
+        if not (isinstance(x, (list, tuple, np.ndarray)) and len(x) > 0):
             return False
         r0 = x[0]
         if not (isinstance(r0, (list, tuple, np.ndarray)) and len(r0) > 0):
@@ -1345,11 +1348,11 @@ class BezierPatch:
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import BezierPatch
+            from pybosl2 import BezierPatch, Path3D
 
             patch = BezierPatch.flat([100, 100], n_degree=3)
             pts = patch.points(0, [i / 16 for i in range(17)])
-            pts.stroke(width=2).linear_extrude(height=3).show()
+            Path3D(pts).stroke(width=2).show()
 
         """
         patch = self.array
@@ -1457,7 +1460,7 @@ class BezierPatch:
 
     @staticmethod
     def to_vnf(
-        patches: np.ndarray | Sequence[np.ndarray],
+        patches: "BezierPatch | np.ndarray | Sequence[BezierPatch | np.ndarray]",
         splinesteps: int = 16,
         style: VNFStyle = VNFStyle.DEFAULT,
     ) -> VNF:
@@ -1485,9 +1488,15 @@ class BezierPatch:
             BezierPatch.to_vnf([p1, p2], splinesteps=16).polyhedron().show()
 
         """
-        if BezierPatch.is_patch(patches):
-            return BezierPatch(patches).vnf(splinesteps, style)  # type: ignore[arg-type]
-        return VNF.union([BezierPatch(p).vnf(splinesteps, style) for p in patches])
+
+        # A caller may hand over a single patch or a sequence of them, and each may already be a
+        # BezierPatch or still be the raw control-point grid (PLAN T-4). Normalise on the way in.
+        def _as_patch(value: "BezierPatch | np.ndarray | Sequence[Sequence[Sequence[float]]]") -> "BezierPatch":
+            return value if isinstance(value, BezierPatch) else BezierPatch(value)
+
+        if isinstance(patches, BezierPatch) or BezierPatch.is_patch(patches):
+            return _as_patch(cast("np.ndarray", patches)).vnf(splinesteps, style)
+        return VNF.union([_as_patch(p).vnf(splinesteps, style) for p in patches])
 
     @staticmethod
     def flat(

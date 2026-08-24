@@ -49,11 +49,10 @@ spec renumbers as items close, and all but S-46a have.
 | 6 | E-1 / E-5 / E-6 / E-7 | [T20](#t20--make-the-error-contract-usable) ✅ | M |
 | 7 | A-8 / A-9 | [T21](#t21--export-the-families-whole) ✅ | S |
 | 8 | S-26a … S-26c | [T22](#t22--make-the-masks-obey-the-librarys-own-rules) ✅ | L |
-| 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) 🔶 | M |
+| 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) ✅ | M |
 
-T0–T13, T15 and **T16–T22 are done**. Open: **T23 step 2** — the 35 docstring examples still held
-by the ratchet, almost all of them one rule (T-4, "inputs widen"). T14 (parts on the SDF backend)
-remains the long-running parity item.
+**T0–T23 are all done.** T14 (parts on the SDF backend) is the one remaining conformance item,
+and it is bounded by mathematics rather than effort — see SPEC §12.2.
 
 T16–T23 came from using the library as a caller rather than reading it: every one is a rule the
 spec already stated that nothing measured — which is why T23's gate went in even though its
@@ -1476,8 +1475,9 @@ C-13 asks for, and what keeps `isinstance(sdf_solid, Solid)` true under Python 3
 protocol lookup. PAR-3 and PLAN B-P4 were reworded to match, and their tests now assert that
 calling refuses rather than that the attribute is missing.
 
-Synonyms removed: `nominal_size` (→ `size`). `move`/`rot`/`fwd` are still present; they were left
-for a follow-up rather than bundled into a change this size.
+Synonyms removed: `nominal_size` (→ `size`), and in a follow-up `move` (→ `translate`), `rot`
+(→ `rotate`) and `fwd` (→ `forward`) — deliberately separated from a change this size rather than
+bundled into it. C-21 is closed.
 
 ---
 
@@ -1789,7 +1789,7 @@ they wrap are on it).
 
 ---
 
-## T23 — Type-check the examples, and build a front door 🔶
+## T23 — Type-check the examples, and build a front door ✅
 
 **Closes:** §12.2 item 9 (DOC-5, DOC-6, Q-6) · **Implements:** PLAN D-P5a · **Size:** M
 **Risk:** low — a new gate plus a new page
@@ -1828,7 +1828,7 @@ getting-started page renders in the docs build with every step producing a figur
 table lists Q-6 and it passes; a reader following the page end to end has an STL.
 
 
-**Step 1 and step 3 landed; step 2 is nearly closed — 7 of 314, down from 54.**
+**Landed in full. The ratchet is empty: all 314 examples type-check, from 54 failing.**
 
 The gate: `tests/test_docstring_examples.py` extracts all 304 examples with the same parser the
 docs build uses and type-checks them in one batched `mypy --strict` run. No CAD runtime, so it runs

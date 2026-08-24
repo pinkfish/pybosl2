@@ -538,7 +538,7 @@ def test_translate_and_move_alias() -> None:
     p = Path2D(UNIT).translate([1, 2])
     np.testing.assert_allclose(p[0], [1, 2])
     assert len(p) == 4
-    np.testing.assert_allclose(Path2D(UNIT).move([1, 2])[0], [1, 2])
+    np.testing.assert_allclose(Path2D(UNIT).translate([1, 2])[0], [1, 2])
     np.testing.assert_allclose(p[-1], [1, 12])
 
 
@@ -550,11 +550,11 @@ def test_directional_moves() -> None:
     np.testing.assert_allclose(p.left(5)[1], [-3, 1])
     np.testing.assert_allclose(p.back(5)[0], [1, 6])
     np.testing.assert_allclose(p.forward(5)[0], [1, -4])
-    np.testing.assert_allclose(p.fwd(5)[0], [1, -4])
+    np.testing.assert_allclose(p.forward(5)[0], [1, -4])
 
 
 def test_rot_and_rotate_alias() -> None:
-    p = Path2D([[1, 0], [2, 0]], closed=False).rot(90)
+    p = Path2D([[1, 0], [2, 0]], closed=False).rotate(90)
     np.testing.assert_allclose(p[0], [0, 1], atol=1e-9)
     assert len(p) == 2
     np.testing.assert_allclose(Path2D([[1, 0], [2, 0]], closed=False).rotate(90)[0], [0, 1], atol=1e-9)

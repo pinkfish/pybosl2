@@ -154,10 +154,10 @@ def test_repr_names_the_class() -> None:
 #: A 10mm square turned 30 degrees measures 10*(cos30 + sin30) = 13.66 across its new box.
 TRANSFORMS = [
     ("translate", lambda s: s.translate([5, 2]), [5.0, 2.0], [10.0, 10.0]),
-    ("move", lambda s: s.move([5, 2]), [5.0, 2.0], [10.0, 10.0]),
+    ("move", lambda s: s.translate([5, 2]), [5.0, 2.0], [10.0, 10.0]),
     ("rotate_scalar", lambda s: s.rotate(30), [0.0, 0.0], [13.66, 13.66]),  # bare scalar -> Z
     ("rotate_vector", lambda s: s.rotate([0, 0, 30]), [0.0, 0.0], [13.66, 13.66]),
-    ("rot", lambda s: s.rot(30), [0.0, 0.0], [13.66, 13.66]),
+    ("rot", lambda s: s.rotate(30), [0.0, 0.0], [13.66, 13.66]),
     ("spin", lambda s: s.spin(30), [0.0, 0.0], [13.66, 13.66]),
     ("mirror", lambda s: s.mirror([1, 0]), [0.0, 0.0], [10.0, 10.0]),
     ("scale_scalar", lambda s: s.scale(2), [0.0, 0.0], [20.0, 20.0]),
@@ -167,7 +167,7 @@ TRANSFORMS = [
     ("left", lambda s: s.left(5), [-5.0, 0.0], [10.0, 10.0]),
     ("back", lambda s: s.back(5), [0.0, 5.0], [10.0, 10.0]),
     ("forward", lambda s: s.forward(5), [0.0, -5.0], [10.0, 10.0]),
-    ("fwd", lambda s: s.fwd(5), [0.0, -5.0], [10.0, 10.0]),
+    ("fwd", lambda s: s.forward(5), [0.0, -5.0], [10.0, 10.0]),
     ("xflip", lambda s: s.xflip(), [0.0, 0.0], [10.0, 10.0]),
     ("yflip_about_3", lambda s: s.yflip(3), [0.0, 6.0], [10.0, 10.0]),  # mirrored across y=3
     ("color", lambda s: s.color(Color("red")), [0.0, 0.0], [10.0, 10.0]),

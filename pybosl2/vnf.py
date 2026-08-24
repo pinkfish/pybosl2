@@ -456,7 +456,7 @@ def contour(
             from pybosl2.path2d import Path2D
 
             def field(p: np.ndarray) -> np.ndarray:
-                return np.hypot(p[:, 0], p[:, 1])
+                return np.asarray(np.hypot(p[:, 0], p[:, 1]))
             paths = contour(field, 10, Bounds2D(-15, -15, 15, 15, 30, 30), pixel_size=0.5)
             Path2D(paths[0]).stroke(width=0.5).linear_extrude(height=2).show()
 
@@ -977,7 +977,7 @@ class VNF:
                 from pybosl2 import Path2D
 
                 bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
-                bar.vnf.export("bar.stl")
+                bar.vnf().export("bar.stl")
                 bar.show()
 
         """
@@ -1392,7 +1392,7 @@ class VNF:
 
             def field(p: np.ndarray) -> np.ndarray:
                 x, y, z = p[:, 0], p[:, 1], p[:, 2]
-                return 20 / np.sqrt(x * x + y * y + z * z) + 3 * np.sin(x / 3)
+                return np.asarray(20 / np.sqrt(x * x + y * y + z * z) + 3 * np.sin(x / 3))
             VNF.from_field(
                 field, 1,
                 Bounds3D(-30, -30, -30, 30, 30, 30, 60, 60, 60),
