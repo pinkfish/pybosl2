@@ -56,10 +56,16 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
+      # `.[test]` carries mypy, which tests/test_docstring_examples.py needs to run the Q-6
+      # gate over every docstring example. Without it that test would skip, and a skipped gate
+      # reports the same green tick as a passing one.
       - name: Install package with test and docs extras
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[test,docs]'
+
+      - name: Verify the docstring-example gate can run
+        run: python -m mypy --version
 
       - name: Build spec sheets (required by test_docs_links)
         run: |
@@ -100,6 +106,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[test]'
+
+      - name: Verify the docstring-example gate can run
+        run: python -m mypy --version
 
       - name: Verify pythonscad imports
         run: python -c "import pythonscad, openscad, pybosl2.shapes3d; print('native modules import OK')"

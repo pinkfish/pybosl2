@@ -35,8 +35,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # `.[test]` carries mypy: tests/test_docstring_examples.py runs `mypy --strict` over every
+      # docstring example (SPEC Q-6), and that gate fails rather than skips when CI is set.
       - name: Install dependencies
         run: pip install -e ".[test]" coverage diff-cover
+
+      - name: Verify the docstring-example gate can run
+        run: python -m mypy --version
       # Only the render tests are held back -- they drive the PythonSCAD app binary, which this
       # runner does not install (the separate `render` job in tests.yml covers them). The SDF
       # suites used to be excluded too, back when they needed a real libfive; they run against the

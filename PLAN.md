@@ -560,13 +560,13 @@ The spec's quality gates map to these commands — all five MUST pass before a c
 | **Q-3** lint and format | `ruff check . --fix && ruff format .` |
 | **Q-4** minimum-argument test + validated example | `pytest tests/test_defaults.py tests/validate_examples.py` |
 | **Q-5** contract tests still pass | `pytest tests/test_facets.py tests/test_init_stub.py tests/test_backend_matrix.py tests/test_shape_contract.py` |
-| **Q-6** every docstring example type-checks | `pytest tests/test_docstring_examples.py` |
+| **Q-6** every docstring example type-checks | `pytest tests/test_docstring_examples.py` (needs mypy, which the `test` extra carries; the gate **fails rather than skips** when `CI` is set, and `tests/test_ci_gates.py` checks every workflow can run it) |
 
 
 ```bash
 python -m venv .venv                 # create from OUTSIDE the repo: pybosl2/math.py can shadow stdlib
 source .venv/bin/activate
-pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad
+pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad + mypy
 
 export TMPDIR=/Volumes/ExternalDocs/tmp/   # scratch on the big volume, not the system disk
 pytest                               # full suite

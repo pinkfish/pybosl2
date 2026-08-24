@@ -74,7 +74,7 @@ The test-suite runs against a real, pip-installed `pythonscad` in a virtualenv:
 python -m venv .venv          # create from outside the repo dir, or the local
                               # pybosl2/math.py etc. can shadow stdlib modules
 source .venv/bin/activate
-pip install -e '.[test]'      # installs pybosl2 + pytest + numpy + pythonscad
+pip install -e '.[test]'      # pybosl2 + pytest + numpy + pythonscad + mypy
 pytest
 ```
 

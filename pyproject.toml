@@ -39,12 +39,18 @@ dependencies = [
 # Everything needed to run the test-suite in a venv. `pythonscad` provides the
 # real `pythonscad`/`openscad` native modules the geometry code imports; the STL
 # render tests additionally need the PythonSCAD app binary and skip without it.
+#
+# `mypy` is a genuine test dependency, not just a lint tool: SPEC Q-6 makes every
+# docstring example type-check, and tests/test_docstring_examples.py runs it. It
+# belongs here rather than in each workflow so no job -- present or future -- can
+# install the suite and silently skip that gate.
 test = [
     "pytest>=7",
     "numpy",
     "pythonscad",
     "typing-extensions",
     "shapely",
+    "mypy>=1.8",
 ]
 # Retained for backward compatibility; shapely is now a required dependency.
 geo = []
