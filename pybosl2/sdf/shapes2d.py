@@ -412,7 +412,7 @@ class SdfShape2D:
                 with use_backend("sdf"):
                     shape = square([20, 10])
                 print(shape.bounds().width)
-                shape.extrude(height=4).show()
+                shape.linear_extrude(height=4).show()
 
         """
         return Bounds2D.from_min_max(self.mn, self.mx)

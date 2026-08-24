@@ -1097,8 +1097,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         vv[: min(3, len(va))] = va[: min(3, len(va))]
         return self.__class__(self._points + vv, closed=self.closed)
 
-    move = translate
-
     def scale(self, v: "float | Sequence[float]") -> "Path3D":
         """Scale every point by a scalar or a per-axis ``[sx, sy, sz]`` factor.
 
@@ -1157,8 +1155,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
         else:
             m = np.asarray(axis_angle_matrix(float(a), [0, 0, 1]), dtype=float)  # type: ignore[type-var, arg-type]
         return self.__class__(self._points @ m.T, closed=self.closed)
-
-    rot = rotate
 
     def mirror(self, v: Sequence[float]) -> "Path3D":
         """Reflect every point across the plane through the origin with normal *v*.
@@ -1230,8 +1226,6 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         return self.translate([0.0, -y, 0.0])
-
-    fwd = forward
 
     def up(self, z: float) -> "Path3D":
         """Translate by *z* along +Z.

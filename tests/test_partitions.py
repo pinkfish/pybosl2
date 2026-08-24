@@ -207,10 +207,13 @@ def test_half_of_with_cut_path() -> None:
 
 
 def test_partition_returns_two_pieces() -> None:
+    """A 2-tuple, on both backends: it states the count a list only implies (SPEC PAR-4)."""
     pieces = BOX.partition(spread=12, cutpath="dovetail")
-    assert isinstance(pieces, list)
+    assert isinstance(pieces, tuple)
     assert len(pieces) == 2
     assert all(isinstance(p, Bosl2Solid) for p in pieces)
+    back, front = pieces  # and it unpacks as a pair
+    assert back.bounds().size == pytest.approx(front.bounds().size, abs=0.5)
 
 
 def test_partition_accepts_cutsize_vector_and_spin() -> None:

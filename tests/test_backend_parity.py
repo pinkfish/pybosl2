@@ -89,7 +89,7 @@ def test_sdf_shapes_keep_their_backend_through_moves_and_colour() -> None:
     from pybosl2.solid import cuboid
 
     with use_backend("sdf"):
-        moved = cuboid([10, 10, 10]).up(5).right(2).fwd(1)
+        moved = cuboid([10, 10, 10]).up(5).right(2).forward(1)
         assert isinstance(moved, SdfSolid)
         assert moved.backend == "sdf"
         assert moved.bounds() == Bounds3D.from_center_size([2.0, -1.0, 5.0], [10.0, 10.0, 10.0])
@@ -116,7 +116,10 @@ def test_an_unknown_operation_refuses_instead_of_meshing() -> None:
 
 
 def test_every_directional_move_stays_in_the_field() -> None:
-    """All nine moves are exact wrappers over the SDF's own translate/rotate (SPEC C-1)."""
+    """Every directional move is an exact wrapper over the SDF's own translate (SPEC C-1).
+
+    `fwd` was here too, as a synonym of `forward`; it is gone (SPEC C-21).
+    """
     from pybosl2._backend import use_backend
     from pybosl2.solid import cuboid
 
@@ -127,7 +130,6 @@ def test_every_directional_move_stays_in_the_field() -> None:
             "left": ([2.0], [-2.0, 0.0, 0.0]),
             "back": ([2.0], [0.0, 2.0, 0.0]),
             "forward": ([2.0], [0.0, -2.0, 0.0]),
-            "fwd": ([2.0], [0.0, -2.0, 0.0]),
             "up": ([2.0], [0.0, 0.0, 2.0]),
             "down": ([2.0], [0.0, 0.0, -2.0]),
         }
@@ -137,8 +139,8 @@ def test_every_directional_move_stays_in_the_field() -> None:
             assert moved.backend == "sdf", name
             assert moved.bounds().center == expected_centre, name
 
-        assert shape.move([1.0, 2.0, 3.0]).bounds().center == [1.0, 2.0, 3.0]
-        assert isinstance(shape.rot(90), SdfSolid)
+        assert shape.translate([1.0, 2.0, 3.0]).bounds().center == [1.0, 2.0, 3.0]
+        assert isinstance(shape.rotate(90), SdfSolid)
 
 
 def test_colour_and_modifiers_are_recorded_on_the_field() -> None:

@@ -222,8 +222,6 @@ class BaseShape(Colorable, Distributable):
         out.attachments = [att.translate(v) for att in self.attachments]
         return out
 
-    move = translate
-
     def rotate(self, *a: object, **k: object) -> Self:
         # The native rotate() only takes a 3-vector, so a bare angle is spun about +Z. Both spellings
         # OpenSCAD accepts for it -- positional and ``a=`` -- need the same widening.
@@ -234,8 +232,6 @@ class BaseShape(Colorable, Distributable):
         out = self._wrap(self.shape.rotate(*a, **k))  # type: ignore[attr-defined]
         out.attachments = [att.rotate(*a, **k) for att in self.attachments]
         return out
-
-    rot = rotate
 
     def mirror(self, v: Sequence[float]) -> Self:
         out = self._wrap(self.shape.mirror([float(c) for c in v]))  # type: ignore[attr-defined]
@@ -267,8 +263,6 @@ class BaseShape(Colorable, Distributable):
 
     def forward(self, y: float) -> Self:
         return self.translate([0.0, -y])
-
-    fwd = forward
 
     # ------------------------------------------------------------------
     # CSG operators

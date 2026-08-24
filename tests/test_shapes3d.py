@@ -103,13 +103,17 @@ def test_directional_moves_shift_center() -> None:
 
 def test_move_and_translate_agree() -> None:
     c = cuboid([10, 10, 10])
-    np.testing.assert_allclose(c.move([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
+    np.testing.assert_allclose(c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
     np.testing.assert_allclose(c.translate([1, 2, 3]).anchor_point(CENTER), [1, 2, 3], atol=1e-9)
 
 
-def test_rot_is_rotate_alias() -> None:
-    assert Bosl2Solid.rot is Bosl2Solid.rotate  # type: ignore[misc]
-    assert isinstance(cuboid([10, 10, 10]).rot(90), Bosl2Solid)
+def test_rotate_has_one_spelling() -> None:
+    """`rot` was an alias of `rotate`; SPEC C-21 says one operation gets one public name."""
+    assert not hasattr(Bosl2Solid, "rot"), "`rot` is gone -- use `rotate` (SPEC C-21)"
+    rotated = cuboid([10, 20, 30]).rotate(90)
+    assert isinstance(rotated, Bosl2Solid)
+    # a quarter turn about Z swaps the X and Y extents
+    assert rotated.bounds().size == pytest.approx((20.0, 10.0, 30.0), abs=1e-9)
 
 
 def test_reanchor_moves_anchor_to_origin() -> None:

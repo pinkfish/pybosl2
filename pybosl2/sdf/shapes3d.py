@@ -16,14 +16,14 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable, NoReturn, cast
+from typing import TYPE_CHECKING, Any, Callable, NoReturn, Self, cast
 
 import numpy as np
 
 from pybosl2._anchoring import Anchorable
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
-from pybosl2._edges_lang import Anchor
+from pybosl2._edges_lang import Anchor, resolve_anchor
 from pybosl2._native import native
 from pybosl2.bounds import Bounds3D
 from pybosl2.color import Colorable
@@ -717,10 +717,6 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """Move this shape *y* along -Y."""
         return self.translate([0.0, -y, 0.0])
 
-    def fwd(self, y: float) -> PyShape:
-        """Move this shape *y* along -Y (BOSL2's spelling of :meth:`forward`)."""
-        return self.forward(y)
-
     def up(self, z: float) -> PyShape:
         """Move this shape *z* along +Z."""
         return self.translate([0.0, 0.0, z])
@@ -728,14 +724,6 @@ class SdfSolid(Colorable, Anchorable, Distributable):
     def down(self, z: float) -> PyShape:
         """Move this shape *z* along -Z."""
         return self.translate([0.0, 0.0, -z])
-
-    def move(self, v: Sequence[float]) -> PyShape:
-        """Move this shape by vector *v* (BOSL2's spelling of :meth:`translate`)."""
-        return self.translate(v)
-
-    def rot(self, a: float | Sequence[float], v: list[float] | None = None) -> PyShape:
-        """Rotate this shape (BOSL2's spelling of :meth:`rotate`)."""
-        return self.rotate(a, v)
 
     def scale(self, v: float | Sequence[float]) -> PyShape:
         """Scale the SDF (`f(p) -> s_min * f(p / s)`), exact zero set, no meshing involved.
@@ -1283,25 +1271,46 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
     def half_of(
         self,
-        v: Sequence[float] = (1.0, 0.0, 0.0),
-        center: float | Sequence[float] = (0.0, 0.0, 0.0),
+        v: "Any" = Anchor.TOP,
+        center: "bool | float | Sequence[float] | None" = None,
         s: float | None = None,
+        cut_path: "Any" = None,
+        cut_angle: float = 0,
+        offset: float = 0,
     ) -> PyShape:
         """Keep the half of this solid on the positive side of the plane through *center* with normal *v*.
 
         The mask size *s* defaults to the solid's own bounding box diagonal plus margin.
 
+        The signature matches the CSG `half_of()` exactly, defaults included (SPEC PAR-4, PAR-5):
+        the two used to disagree on what a bare `half_of()` meant -- ``Anchor.TOP`` here against
+        ``(1, 0, 0)`` there -- so the same code kept a different half depending on the backend,
+        which is precisely what PAR-5 exists to prevent. The three profiled-cut parameters are
+        CSG-only and refuse by name rather than being silently absent (SPEC B-9).
+
         Args:
-            v: Plane normal direction (default: +X, keeps x ≥ 0 half).
+            v: Plane normal direction (default: ``Anchor.TOP``, keeps the z >= 0 half).
             center: A point the plane passes through, or a scalar distance to shift the plane
                 along *v* -- the same two forms the CSG `half_of()` takes. The scalar form used to
                 raise `TypeError: 'float' object is not subscriptable` here, so a call that worked
                 on one backend crashed on the other.
             s: Half of the mask's side length (auto-sized from bounds if None).
+            cut_path: CSG only -- a profiled cut needs a path swept through the solid, which a
+                distance field cannot express.
+            cut_angle: CSG only, as *cut_path*.
+            offset: CSG only, as *cut_path*.
 
         Returns:
             A new :class:`PyShape` representing the kept half.
+
+        Raises:
+            UnsupportedByBackendError: If a profiled-cut parameter is given.
         """
+        for name, value, default in (("cut_path", cut_path, None), ("cut_angle", cut_angle, 0), ("offset", offset, 0)):
+            if value != default:
+                self._refuse(f"half_of({name}=)")
+        v = resolve_anchor(v) if not isinstance(v, (list, tuple)) else v
+        center = (0.0, 0.0, 0.0) if center is None else center
         if s is None:
             diag = [self.mx[i] - self.mn[i] for i in range(3)]
             s = 2.2 * math.sqrt(sum(d * d for d in diag)) + 2.0
@@ -1324,11 +1333,13 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                 axis = axis / float(np.linalg.norm(axis))
             angle = math.degrees(math.acos(float(np.dot(z_axis, v3))))
             half_mask = half_mask.rotate(angle, axis.tolist())
+        # named `shift` rather than `offset`: `offset` is a parameter now (the CSG-only one), and
+        # a local of the same name would shadow the value the refusal above checks
         if isinstance(center, (int, float)) and not isinstance(center, bool):
-            offset = (float(center) * v3).tolist() if vn > 0 else [0.0, 0.0, 0.0]
+            shift = (float(center) * v3).tolist() if vn > 0 else [0.0, 0.0, 0.0]
         else:
-            offset = [float(value) for value in center]  # type: ignore[union-attr]
-        half_mask = half_mask.translate(offset)
+            shift = [float(value) for value in cast("Sequence[float]", center)]
+        half_mask = half_mask.translate(shift)
         return self & half_mask
 
     def left_half(self, x: float = 0, s: float | None = None) -> PyShape:
@@ -1537,7 +1548,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         fn: int | None = None,
         fa: float | None = None,
         fs: float | None = None,
-    ) -> tuple[PyShape, PyShape]:
+    ) -> tuple[Self, Self]:
         """Split this solid into two interlocking halves via CSG conversion.
 
         Args:

@@ -1295,9 +1295,7 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         vv[: min(2, len(va))] = va[: min(2, len(va))]
         return self.__class__(self._points + vv, closed=self.closed)
 
-    move = translate
-
-    def rot(self, a: float) -> "Path2D":
+    def rotate(self, a: float) -> "Path2D":
         """Rotate every point by *a* degrees about the origin (Z axis).
 
         Args:
@@ -1311,8 +1309,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         c, s = math.cos(rad), math.sin(rad)
         rotmat = np.array([[c, -s], [s, c]])
         return self.__class__(self._points @ rotmat.T, closed=self.closed)
-
-    rotate = rot
 
     def mirror(self, v: Sequence[float]) -> "Path2D":
         """Reflect every point across the line through the origin with normal *v*.
@@ -1390,8 +1386,6 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         return self.translate([0.0, -y])
-
-    fwd = forward
 
     # -- conversion ------------------------------------------------------------------------
 

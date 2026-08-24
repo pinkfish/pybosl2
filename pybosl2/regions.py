@@ -878,7 +878,7 @@ class Region:
 
             red = Path2D.square(20).color("red")
             blue = Path2D.square(20).color("blue")
-            region = Region.even_odd([red, blue.move(25)])
+            region = Region.even_odd([red, blue.translate([25, 0])])
             solid = region.linear_extrude(
                 height=5,
                 color_heights={"red": 10, "blue": 3},

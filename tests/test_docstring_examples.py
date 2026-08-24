@@ -159,13 +159,10 @@ def test_there_are_examples_to_check() -> None:
 #: Counted per module rather than per line so the list survives ordinary editing: a moved example
 #: must not silently free a slot.
 #:
-#: 8 of 314 examples, down from 54 when the gate landed.
-KNOWN_UNTYPED_EXAMPLES: dict[str, int] = {
-    "pybosl2/beziers.py": 3,
-    "pybosl2/partitions.py": 1,
-    "pybosl2/sdf/shapes2d.py": 1,
-    "pybosl2/vnf.py": 3,
-}
+#: **Empty.** All 314 examples type-check. It started at 54 and must stay at zero: an
+#: entry here is debt, and the companion staleness test means a module cannot be left on
+#: the list after its examples are fixed.
+KNOWN_UNTYPED_EXAMPLES: dict[str, int] = {}
 
 
 def test_no_module_grows_its_untyped_examples(mypy_report: dict[str, list[str]]) -> None:
