@@ -21,6 +21,7 @@ Two directions, both of which have failed in this codebase:
 from __future__ import annotations
 
 import inspect
+from typing import Generic, Protocol
 
 import pytest
 
@@ -135,10 +136,26 @@ SDF_FLAT_PARITY_GAP = frozenset(
 )
 
 
+#: Bases that carry no contract of their own and whose members must not be counted.
+_NOT_CONTRACT_BASES = frozenset({object, Protocol, Generic})
+
+
 def _declared(protocols: tuple[type, ...]) -> set[str]:
+    """Return every public member the given protocols declare.
+
+    Computed by walking the protocols' own MRO rather than reading `__protocol_attrs__`, which is
+    a CPython implementation detail that does not exist before 3.12 -- and this project supports
+    3.11 (`requires-python`), so a test built on it passes locally and errors on the oldest
+    supported interpreter. That is the same trap as PLAN T-6e, one layer up: a check that behaves
+    differently per version is not a check.
+    """
     names: set[str] = set()
     for protocol in protocols:
-        names |= set(protocol.__protocol_attrs__)
+        for base in protocol.__mro__:
+            if base in _NOT_CONTRACT_BASES or base.__module__ == "typing":
+                continue
+            names |= {n for n in vars(base) if not n.startswith("_")}
+            names |= {n for n in getattr(base, "__annotations__", {}) if not n.startswith("_")}
     return names
 
 
