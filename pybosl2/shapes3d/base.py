@@ -601,7 +601,6 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
         center, size = self._center_size()
         return Bounds3D.from_center_size(center, size)
 
-    @property
     def vnf(self) -> "VNF":
         """Return this solid as a mesh (SPEC C-8, S-19a).
 
@@ -618,7 +617,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
                 from pybosl2 import Path2D
 
                 bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
-                print(bar.vnf.volume())     # 2000.0
+                print(bar.vnf().volume())     # 2000.0
                 bar.show()
 
         """
@@ -667,7 +666,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
 
         from pybosl2.export import write_mesh
 
-        return write_mesh(self.vnf, _FilePath(path), file_format=file_format, check=check)
+        return write_mesh(self.vnf(), _FilePath(path), file_format=file_format, check=check)
 
     def _center_size(self) -> "tuple[list[float], list[float]]":
         """Return the bounding box as the raw ``(center, size)`` pair the native layer reports."""

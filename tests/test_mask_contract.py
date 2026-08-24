@@ -42,7 +42,7 @@ def _plain() -> object:
 def test_a_named_treatment_needs_only_the_treatment(name: str, kwargs: dict[str, float]) -> None:
     """The solid knows its own box, so the caller never names it (SPEC S-26a, S-26b)."""
     treated = getattr(_plain(), name)(Anchor.Z, **kwargs).realize()
-    assert treated.vnf.volume() < PLAIN_VOLUME, f"{name} removed nothing"
+    assert treated.vnf().volume() < PLAIN_VOLUME, f"{name} removed nothing"
     assert treated.bounds().size == pytest.approx((40.0, 30.0, 20.0)), "a treatment must not resize the part"
 
 
@@ -50,7 +50,7 @@ def test_a_named_treatment_matches_the_mask_it_replaces() -> None:
     """The friendly spelling is the same geometry, not an approximation of it."""
     by_name = _plain().round_edges(Anchor.Z, radius=4, fn=32).realize()
     by_mask = _plain().edge_profile(Anchor.Z, mask=Mask2D.roundover(4, fn=32)).realize()
-    assert by_name.vnf.volume() == pytest.approx(by_mask.vnf.volume(), rel=1e-12)
+    assert by_name.vnf().volume() == pytest.approx(by_mask.vnf().volume(), rel=1e-12)
 
 
 def test_no_public_masking_signature_mentions_a_native_type() -> None:

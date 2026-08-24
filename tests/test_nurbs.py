@@ -6,7 +6,7 @@
 
 """Tests for pybosl2/nurbs.py: the NurbsCurve and NurbsPatch classes -- evaluation, meshing, and
 degree elevation. Here we check the object surface (return types, endpoints, encapsulation, and
-error handling); NurbsPatch.vnf uses the mocked VNF, so its geometry is checked for real in
+error handling); NurbsPatch.vnf() uses the mocked VNF, so its geometry is checked for real in
 test_stl_render.py."""
 
 import numpy as np

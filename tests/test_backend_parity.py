@@ -416,7 +416,7 @@ class TestLinearSweepAgreesAcrossBackends:
         from pybosl2 import Path2D
 
         swept = Path2D(self._blob_profile()).linear_sweep(height=self.HEIGHT, **kwargs)  # type: ignore[arg-type]
-        verts = np.asarray(swept.vnf.vertices, dtype=float)
+        verts = np.asarray(swept.vnf().vertices, dtype=float)
         top = verts[np.abs(verts[:, 2] - self.HEIGHT) < 1e-6]
         return [float(c) for c in top[:, :2].mean(axis=0)]
 

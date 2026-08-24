@@ -709,7 +709,7 @@ class Bezier:
             style: VNF triangulation style.
 
         Returns:
-            The swept solid, on the active backend (SPEC S-19a). Its mesh is on ``.vnf`` for
+            The swept solid, on the active backend (SPEC S-19a). Its mesh is on ``.vnf()`` for
             anything that wants to measure or export it without a CAD runtime.
 
         Examples:

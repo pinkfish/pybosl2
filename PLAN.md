@@ -102,6 +102,21 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   member that exists only through a dynamic passthrough therefore fails the check even though the
   call works — which is how `show()` was absent from every shape contract while appearing to be
   present. Anything in a contract MUST be declared on the class.
+* **T-6e A runtime-checkable Protocol declares no property that does work.** `isinstance()`
+  against such a Protocol calls `hasattr()` on **every** declared member, and `hasattr` on a
+  property *evaluates* it. So a property that meshes, renders, crosses the FFI, or can raise turns
+  a type check into that work — silently, on every call — and, when the work fails, into an
+  exception escaping the check itself, because `hasattr` catches `AttributeError` and nothing else.
+
+  `Solid.vnf` was declared as a property and did exactly this: `isinstance(shape, Solid)` meshed an
+  SDF field, and on a machine with no mesher available the resulting `Bosl2ValueError` propagated
+  out of the `isinstance` call. Two backend tests failed with a mesh error from inside a type
+  check.
+
+  So: anything on a contract that computes is a **method** (`bounds()`, `vnf()`, `volume()`,
+  `show()`); a property on a contract is a cheap, total accessor over state the object already
+  holds (`backend`, `size`). This is the same failure family as E-6 — code that probes an object
+  must get an answer, not a traceback — arriving through `isinstance` rather than `getattr`.
 * **T-7 Variance is explicit.** `TypeVar("T", covariant=True)` / `contravariant=True` where a
   generic is exposed publicly.
 * **T-8 Stubs for dynamic surfaces, and *only* for those.** A module whose public names are bound

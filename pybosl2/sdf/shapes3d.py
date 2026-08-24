@@ -399,7 +399,6 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """
         return Bounds3D.from_min_max(self.mn, self.mx)
 
-    @property
     def vnf(self) -> "VNF":
         """Return this solid as a mesh (SPEC C-8, S-19a).
 
@@ -416,7 +415,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
                 from pybosl2 import Path2D
 
                 bar = Path2D([[-5, -5], [5, -5], [5, 5], [-5, 5]], closed=True).linear_sweep(height=20)
-                print(bar.vnf.volume())     # 2000.0
+                print(bar.vnf().volume())     # 2000.0
                 bar.show()
 
         """
@@ -465,7 +464,7 @@ class SdfSolid(Colorable, Anchorable, Distributable):
 
         from pybosl2.export import write_mesh
 
-        return write_mesh(self.vnf, _FilePath(path), file_format=file_format, check=check)
+        return write_mesh(self.vnf(), _FilePath(path), file_format=file_format, check=check)
 
     # --- The CSG-only surface, refused explicitly (SPEC C-12, C-13, PAR-3) ---------------------
     # Declared as real methods rather than left to __getattr__ so that the neutral contract can

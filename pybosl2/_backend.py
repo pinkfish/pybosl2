@@ -667,9 +667,15 @@ class Solid(Shape, Protocol):
         """Return the 3-D axis-aligned bounding box (SPEC S-2b)."""
         ...
 
-    @property
     def vnf(self) -> "VNF":
-        """Return this solid as a mesh (SPEC C-8, S-19a)."""
+        """Return this solid as a mesh (SPEC C-8, S-19a).
+
+        A method rather than a property because it does real work -- meshing a field, or crossing
+        the FFI for a native tessellation -- and because `isinstance` against a runtime-checkable
+        Protocol calls `hasattr` on every declared member, which *evaluates* a property
+        (PLAN T-6e). As a property this meshed an SDF field on every `isinstance(shape, Solid)`
+        and, where no mesher was available, raised out of the check.
+        """
         ...
 
     def export(

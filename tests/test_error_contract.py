@@ -136,7 +136,7 @@ def test_same_dimension_booleans_are_untouched(backend: str) -> None:
     assert flat_cut.bounds().size == pytest.approx((10.0, 10.0), abs=0.01)
     assert solid_cut.bounds().size == pytest.approx((10.0, 10.0, 10.0), abs=0.01)
     if backend == "csg":  # meshing an SDF field needs libfive, which the pip wheel does not carry
-        assert solid_cut.vnf.volume() < 10 * 10 * 10
+        assert solid_cut.vnf().volume() < 10 * 10 * 10
 
 
 # --- E-5: a call that cannot mean what it says fails loudly ---------------------------------
