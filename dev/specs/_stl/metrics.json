@@ -1,0 +1,598 @@
+{
+ "gears": {
+  "spur": {
+   "tris": 5320,
+   "vol": "39,095.6",
+   "bbox": "88\u00d788\u00d78",
+   "wt": true
+  },
+  "profile-shift": {
+   "tris": 2012,
+   "vol": "6,128.8",
+   "bbox": "39\u00d738\u00d78",
+   "wt": true
+  },
+  "helical": {
+   "tris": 5800,
+   "vol": "47,901.7",
+   "bbox": "96\u00d796\u00d78",
+   "wt": true
+  },
+  "herringbone": {
+   "tris": 8700,
+   "vol": "71,880.4",
+   "bbox": "96\u00d796\u00d712",
+   "wt": true
+  },
+  "rack": {
+   "tris": 140,
+   "vol": "4,620.4",
+   "bbox": "101\u00d78\u00d710",
+   "wt": true
+  },
+  "ring": {
+   "tris": 6856,
+   "vol": "23,015.5",
+   "bbox": "114\u00d7113\u00d78",
+   "wt": true
+  },
+  "bevel": {
+   "tris": 3400,
+   "vol": "36,770.3",
+   "bbox": "85\u00d785\u00d713",
+   "wt": true
+  },
+  "worm": {
+   "tris": 7982,
+   "vol": "36,024.6",
+   "bbox": "38\u00d738\u00d750",
+   "wt": true
+  }
+ },
+ "walls": {
+  "sparse": {
+   "tris": 564,
+   "vol": "12,007.0",
+   "bbox": "4\u00d7101\u00d750",
+   "wt": true
+  },
+  "corrugated": {
+   "tris": 476,
+   "vol": "14,200.0",
+   "bbox": "5\u00d7100\u00d750",
+   "wt": true
+  },
+  "thinning-wall": {
+   "tris": 44,
+   "vol": "9,422.6",
+   "bbox": "4\u00d780\u00d750",
+   "wt": true
+  },
+  "thinning-triangle": {
+   "tris": 74,
+   "vol": "7,032.8",
+   "bbox": "4\u00d780\u00d750",
+   "wt": true
+  },
+  "strut": {
+   "tris": 16,
+   "vol": "7,464.1",
+   "bbox": "10\u00d780\u00d714",
+   "wt": true
+  },
+  "sparse-cuboid": {
+   "tris": 346,
+   "vol": "14,673.8",
+   "bbox": "20\u00d740\u00d730",
+   "wt": true
+  }
+ },
+ "wiring": {
+  "13": {
+   "tris": 10348,
+   "vol": "6,974.3",
+   "bbox": "60\u00d759\u00d754",
+   "wt": false
+  },
+  "7": {
+   "tris": 5572,
+   "vol": "3,703.2",
+   "bbox": "56\u00d756\u00d753",
+   "wt": false
+  },
+  "1": {
+   "tris": 796,
+   "vol": "529.0",
+   "bbox": "52\u00d752\u00d751",
+   "wt": true
+  },
+  "thick": {
+   "tris": 5572,
+   "vol": "8,043.4",
+   "bbox": "59\u00d759\u00d754",
+   "wt": false
+  }
+ },
+ "hooks": {
+  "ring": {
+   "tris": 208,
+   "vol": "9,771.2",
+   "bbox": "50\u00d710\u00d750",
+   "wt": true
+  },
+  "solid": {
+   "tris": 124,
+   "vol": "25,197.0",
+   "bbox": "70\u00d710\u00d750",
+   "wt": true
+  },
+  "d-hole": {
+   "tris": 144,
+   "vol": "18,737.4",
+   "bbox": "50\u00d710\u00d750",
+   "wt": true
+  },
+  "rounded": {
+   "tris": 312,
+   "vol": "21,937.7",
+   "bbox": "50\u00d710\u00d765",
+   "wt": true
+  },
+  "custom": {
+   "tris": 120,
+   "vol": "43,834.9",
+   "bbox": "50\u00d720\u00d755",
+   "wt": true
+  }
+ },
+ "polyhedra": {
+  "tetrahedron": {
+   "tris": 4,
+   "vol": "1,732.1",
+   "bbox": "17\u00d717\u00d717",
+   "wt": true
+  },
+  "cube": {
+   "tris": 12,
+   "vol": "5,196.2",
+   "bbox": "17\u00d717\u00d717",
+   "wt": true
+  },
+  "octahedron": {
+   "tris": 8,
+   "vol": "4,500.0",
+   "bbox": "30\u00d730\u00d730",
+   "wt": true
+  },
+  "dodecahedron": {
+   "tris": 36,
+   "vol": "13,241.9",
+   "bbox": "31\u00d731\u00d731",
+   "wt": true
+  },
+  "icosahedron": {
+   "tris": 20,
+   "vol": "8,559.5",
+   "bbox": "26\u00d726\u00d726",
+   "wt": true
+  }
+ },
+ "hinges": {
+  "pair": {
+   "tris": 492,
+   "vol": "5,811.5",
+   "bbox": "40\u00d746\u00d76",
+   "wt": true
+  },
+  "knuckle": {
+   "tris": 276,
+   "vol": "2,960.5",
+   "bbox": "40\u00d726\u00d76",
+   "wt": true
+  },
+  "snap-lock": {
+   "tris": 36,
+   "vol": "181.7",
+   "bbox": "5\u00d75\u00d78",
+   "wt": true
+  },
+  "snap-socket": {
+   "tris": 76,
+   "vol": "179.6",
+   "bbox": "5\u00d75\u00d78",
+   "wt": true
+  }
+ },
+ "joiners": {
+  "male": {
+   "tris": 12,
+   "vol": "3,920.0",
+   "bbox": "18\u00d730\u00d78",
+   "wt": true
+  },
+  "female": {
+   "tris": 12,
+   "vol": "3,920.0",
+   "bbox": "18\u00d730\u00d78",
+   "wt": true
+  },
+  "taper": {
+   "tris": 20,
+   "vol": "3,419.1",
+   "bbox": "18\u00d730\u00d78",
+   "wt": true
+  },
+  "snap-pin": {
+   "tris": 228,
+   "vol": "173.5",
+   "bbox": "6\u00d76\u00d714",
+   "wt": true
+  },
+  "socket": {
+   "tris": 112,
+   "vol": "301.2",
+   "bbox": "6\u00d77\u00d713",
+   "wt": true
+  }
+ },
+ "cubetruss": {
+  "truss": {
+   "tris": 1456,
+   "vol": "15,456.6",
+   "bbox": "30\u00d784\u00d730",
+   "wt": true
+  },
+  "segment": {
+   "tris": 468,
+   "vol": "5,997.9",
+   "bbox": "30\u00d730\u00d730",
+   "wt": true
+  },
+  "corner": {
+   "tris": 1992,
+   "vol": "19,910.0",
+   "bbox": "57\u00d757\u00d757",
+   "wt": true
+  },
+  "support": {
+   "tris": 156,
+   "vol": "3,150.3",
+   "bbox": "30\u00d730\u00d730",
+   "wt": true
+  },
+  "clip": {
+   "tris": 96,
+   "vol": "354.0",
+   "bbox": "33\u00d78\u00d720",
+   "wt": true
+  }
+ },
+ "ball_bearings": {
+  "608": {
+   "tris": 2328,
+   "vol": "1,640.6",
+   "bbox": "22\u00d722\u00d77",
+   "wt": true
+  },
+  "6902zz": {
+   "tris": 696,
+   "vol": "2,862.2",
+   "bbox": "28\u00d728\u00d77",
+   "wt": true
+  },
+  "r8": {
+   "tris": 2978,
+   "vol": "2,400.7",
+   "bbox": "29\u00d728\u00d76",
+   "wt": false
+  }
+ },
+ "linear_bearings": {
+  "lm8uu": {
+   "tris": 816,
+   "vol": "2,997.1",
+   "bbox": "15\u00d715\u00d724",
+   "wt": true
+  },
+  "housing": {
+   "tris": 508,
+   "vol": "6,499.2",
+   "bbox": "27\u00d724\u00d724",
+   "wt": true
+  },
+  "lm12uu": {
+   "tris": 1088,
+   "vol": "6,932.1",
+   "bbox": "21\u00d721\u00d730",
+   "wt": true
+  }
+ },
+ "modular_hose": {
+  "segment": {
+   "tris": 2760,
+   "vol": "3,432.6",
+   "bbox": "25\u00d725\u00d730",
+   "wt": true
+  },
+  "ball": {
+   "tris": 1500,
+   "vol": "1,465.7",
+   "bbox": "21\u00d721\u00d713",
+   "wt": true
+  },
+  "socket": {
+   "tris": 1500,
+   "vol": "2,105.5",
+   "bbox": "25\u00d725\u00d718",
+   "wt": true
+  }
+ },
+ "nema_steppers": {
+  "17": {
+   "tris": 290,
+   "vol": "43,858.4",
+   "bbox": "42\u00d742\u00d744",
+   "wt": true
+  },
+  "23": {
+   "tris": 388,
+   "vol": "79,815.8",
+   "bbox": "57\u00d757\u00d744",
+   "wt": true
+  },
+  "8": {
+   "tris": 262,
+   "vol": "10,312.0",
+   "bbox": "20\u00d720\u00d744",
+   "wt": true
+  },
+  "mask": {
+   "tris": 506,
+   "vol": "2,843.8",
+   "bbox": "34\u00d739\u00d75",
+   "wt": true
+  }
+ },
+ "threading": {
+  "iso-rod": {
+   "tris": 6172,
+   "vol": "8,055.3",
+   "bbox": "20\u00d720\u00d730",
+   "wt": true
+  },
+  "iso-nut": {
+   "tris": 796,
+   "vol": "610.8",
+   "bbox": "15\u00d713\u00d77",
+   "wt": true
+  },
+  "trapezoidal": {
+   "tris": 3932,
+   "vol": "7,699.5",
+   "bbox": "20\u00d720\u00d730",
+   "wt": true
+  },
+  "acme": {
+   "tris": 3996,
+   "vol": "3,098.2",
+   "bbox": "13\u00d713\u00d730",
+   "wt": true
+  }
+ },
+ "screw_drive": {
+  "phillips": {
+   "tris": 176,
+   "vol": "29.3",
+   "bbox": "6\u00d76\u00d74",
+   "wt": true
+  },
+  "hex": {
+   "tris": 20,
+   "vol": "80.9",
+   "bbox": "4\u00d73\u00d710",
+   "wt": true
+  },
+  "torx": {
+   "tris": 188,
+   "vol": "176.3",
+   "bbox": "6\u00d75\u00d710",
+   "wt": true
+  },
+  "robertson": {
+   "tris": 74,
+   "vol": "93.4",
+   "bbox": "4\u00d74\u00d710",
+   "wt": true
+  }
+ },
+ "bottlecaps": {
+  "pco1810-neck": {
+   "tris": 4130,
+   "vol": "4,358.5",
+   "bbox": "33\u00d733\u00d726",
+   "wt": true
+  },
+  "pco1810-cap": {
+   "tris": 932,
+   "vol": "4,793.7",
+   "bbox": "33\u00d733\u00d716",
+   "wt": true
+  },
+  "pco1881-neck": {
+   "tris": 3934,
+   "vol": "3,465.0",
+   "bbox": "33\u00d733\u00d722",
+   "wt": true
+  }
+ },
+ "sliders": {
+  "slider": {
+   "tris": 100,
+   "vol": "8,307.2",
+   "bbox": "30\u00d718\u00d720",
+   "wt": true
+  },
+  "rail": {
+   "tris": 52,
+   "vol": "6,861.2",
+   "bbox": "10\u00d7100\u00d710",
+   "wt": true
+  }
+ },
+ "shapes3d": {
+  "cuboid": {
+   "tris": 12,
+   "vol": "9,000.0",
+   "bbox": "30\u00d720\u00d715",
+   "wt": true
+  },
+  "sphere": {
+   "tris": 896,
+   "vol": "13,880.9",
+   "bbox": "30\u00d730\u00d730",
+   "wt": true
+  },
+  "cylinder": {
+   "tris": 100,
+   "vol": "3,982.2",
+   "bbox": "16\u00d716\u00d720",
+   "wt": true
+  },
+  "cone": {
+   "tris": 360,
+   "vol": "2,902.4",
+   "bbox": "20\u00d720\u00d720",
+   "wt": false
+  },
+  "prismoid": {
+   "tris": 12,
+   "vol": "3,500.0",
+   "bbox": "20\u00d720\u00d715",
+   "wt": true
+  },
+  "torus": {
+   "tris": 780,
+   "vol": "3,617.5",
+   "bbox": "32\u00d732\u00d78",
+   "wt": true
+  },
+  "tube": {
+   "tris": 196,
+   "vol": "4,016.4",
+   "bbox": "20\u00d720\u00d720",
+   "wt": true
+  },
+  "teardrop": {
+   "tris": 92,
+   "vol": "6,676.4",
+   "bbox": "20\u00d720\u00d724",
+   "wt": true
+  },
+  "capsule": {
+   "tris": 896,
+   "vol": "7,107.0",
+   "bbox": "24\u00d724\u00d724",
+   "wt": true
+  },
+  "rounded-cuboid": {
+   "tris": 36,
+   "vol": "8,943.7",
+   "bbox": "30\u00d720\u00d715",
+   "wt": true
+  },
+  "chamfered-cylinder": {
+   "tris": 360,
+   "vol": "6,004.5",
+   "bbox": "20\u00d720\u00d720",
+   "wt": false
+  },
+  "octahedron": {
+   "tris": 8,
+   "vol": "1,333.3",
+   "bbox": "20\u00d720\u00d720",
+   "wt": true
+  }
+ },
+ "shapes2d": {
+  "circle": {
+   "tris": 116,
+   "vol": "1,403.4",
+   "bbox": "30\u00d730\u00d72",
+   "wt": true
+  },
+  "square": {
+   "tris": 12,
+   "vol": "1,800.0",
+   "bbox": "30\u00d730\u00d72",
+   "wt": true
+  },
+  "rect": {
+   "tris": 76,
+   "vol": "1,153.1",
+   "bbox": "30\u00d720\u00d72",
+   "wt": true
+  },
+  "trapezoid": {
+   "tris": 12,
+   "vol": "1,800.0",
+   "bbox": "40\u00d730\u00d72",
+   "wt": true
+  },
+  "star": {
+   "tris": 36,
+   "vol": "1,469.5",
+   "bbox": "45\u00d748\u00d72",
+   "wt": true
+  },
+  "ring": {
+   "tris": 240,
+   "vol": "1,571.8",
+   "bbox": "48\u00d748\u00d72",
+   "wt": true
+  },
+  "pie-slice": {
+   "tris": 64,
+   "vol": "2,078.9",
+   "bbox": "30\u00d720\u00d75",
+   "wt": true
+  },
+  "squircle": {
+   "tris": 124,
+   "vol": "1,128.7",
+   "bbox": "30\u00d730\u00d72",
+   "wt": false
+  },
+  "keyhole": {
+   "tris": 136,
+   "vol": "810.6",
+   "bbox": "18\u00d738\u00d72",
+   "wt": true
+  },
+  "rounded-square": {
+   "tris": 124,
+   "vol": "1,686.8",
+   "bbox": "30\u00d730\u00d72",
+   "wt": true
+  }
+ },
+ "tripod_mounts": {
+  "rc2-all": {
+   "tris": 112,
+   "vol": "19,569.5",
+   "bbox": "42\u00d752\u00d710",
+   "wt": true
+  },
+  "rc2-bot": {
+   "tris": 88,
+   "vol": "19,581.0",
+   "bbox": "42\u00d752\u00d710",
+   "wt": true
+  },
+  "rc2-none": {
+   "tris": 72,
+   "vol": "19,591.9",
+   "bbox": "42\u00d752\u00d710",
+   "wt": true
+  }
+ }
+}
