@@ -53,8 +53,15 @@ spec renumbers as items close, and all but S-46a have.
 
 **T0–T23 are all done**, and every item from the API review that opened this wave is closed —
 including the last one, `Path2D.stroke()` returning a path rather than the area it covers (S-23a).
+
 T14 (parts on the SDF backend) is the one remaining conformance item, and it is bounded by
-mathematics rather than effort: see SPEC §12.2.
+mathematics rather than effort. Its numbers are now **measured**, by
+`tests/test_parts_backend_coverage.py`, rather than written by hand: 40 of 51 parts build on either
+backend and 11 refuse, where the spec had long claimed 38 of 53 with 15 refusing. The total had
+double-counted an alias and neither figure had been rerun since parts were ported. The *reason*
+survived the audit intact — all 11 refusals were checked one by one and every one cites
+non-convexity — so what was wrong was the arithmetic, not the argument. That is the shape of most
+of what this wave found.
 
 T16–T23 came from using the library as a caller rather than reading it: every one is a rule the
 spec already stated that nothing measured — which is why T23's gate went in even though its

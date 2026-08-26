@@ -884,7 +884,7 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
 
 | # | Requirement | Current state |
 |---|---|---|
-| 1 | **S-46a / PAR-1** | **38 of the 53 parts build on either backend** (T14). The 15 that still refuse all need the same thing — a non-convex mesh, which has no closed-form distance field — so closing this fully would mean approximating one, which B-5 forbids. |
+| 1 | **S-46a / PAR-1** | **40 of the 51 parts build on either backend** (T14), measured rather than asserted by `tests/test_parts_backend_coverage.py`. The 11 that refuse all need the same thing — a non-convex mesh, which has no closed-form distance field — so closing this fully would mean approximating one, which B-5 forbids. **The reason is the gap; the count is not effort left to spend.** These figures were previously stated as "38 of 53, 15 refusing": the total double-counted an alias (`manfrotto_rc2_plate` *is* `ManfrottoRC2Plate`) and neither number had been rerun since parts were ported. All 11 refusals were checked individually and every one cites non-convexity, so the *reasoning* was right where the arithmetic was not — which is precisely why B2-1 says a claim nothing measures is a wish. |
 
 ## 13. Change process
 1. A change altering a public signature MUST cite the requirement it serves in the commit body
