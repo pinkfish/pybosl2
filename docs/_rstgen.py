@@ -401,6 +401,12 @@ def _generate_index() -> None:
 
 .. toctree::
    :maxdepth: 1
+   :caption: Start here
+
+   getting_started
+
+.. toctree::
+   :maxdepth: 1
    :caption: Solid backends
    :glob:
 
@@ -612,7 +618,22 @@ def _generate_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:
 
 #: Pages that are not module stubs, so the stale-stub sweep must leave them alone: hand-written
 #: prose, and pages written by another generator (`bosl2_coverage` comes from _covgen.py).
-_HANDWRITTEN_PAGES = frozenset({"index", "drawing", "native_ops", "shapes2d", "shapes3d", "backends", "bosl2_coverage"})
+#:
+#: A page missing from here is *deleted* on the next build -- silently, because a file the sweep
+#: removes raises no warning and the generated `index.rst` simply stops mentioning it. That is how
+#: `getting_started` disappeared after being written and committed (SPEC DOC-6).
+_HANDWRITTEN_PAGES = frozenset(
+    {
+        "index",
+        "getting_started",
+        "drawing",
+        "native_ops",
+        "shapes2d",
+        "shapes3d",
+        "backends",
+        "bosl2_coverage",
+    }
+)
 
 
 def _cleanup_stale_stubs(modules: dict[str, dict[str, Any]]) -> list[str]:

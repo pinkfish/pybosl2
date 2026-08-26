@@ -9,13 +9,10 @@ pybosl2 — a pure-Python PythonSCAD port of BOSL2
 that this toolkit uses, with **no** ``osuse()``/BOSL2 runtime dependency. Every operation hangs off
 an object — :class:`~pybosl2.path2d.Path2D` for 2-D outlines, :class:`~pybosl2.regions.Region` for
 outlines-with-holes, :class:`~pybosl2.beziers.Bezier` / :class:`~pybosl2.beziers.BezierPatch` for bezier
-curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the backend-neutral
-:mod:`pybosl2.solid` / :mod:`pybosl2.flat` constructors — so new code reads as fluent chains::
+curves and surfaces, :class:`~pybosl2.vnf.VNF` for vertex-face meshes, and the
+``pybosl2.shapes3d.Bosl2Solid`` primitives — so new code reads as fluent chains::
 
     Path2D([[0, 0], [80, 0], [80, 60], [0, 60]]).offset(r=-2).round_corners(radius=1).polygon()
-
-**New here?** :doc:`getting_started` builds one real part end to end — solid, roundover, bore,
-boss, measurement, exported file — before any of the reference below.
 
 .. raw:: html
 
