@@ -397,6 +397,11 @@ For how far the port goes, see the :doc:`BOSL2 coverage table <bosl2_coverage>`:
 
 def _generate_index() -> None:
     """Write docs/index.rst with glob-based toctrees auto-discovering RST files."""
+    # The front door's link belongs *here*, in the generator, not in the file this writes: a
+    # hand-added entry in index.rst is overwritten on the next build, and if the page is ever
+    # deleted alongside it nothing dangles, so the docs build passes with the page silently gone.
+    # Generated from here, the reference survives the page and Sphinx's `-W` turns a deletion into
+    # a build failure (SPEC DOC-1a, DOC-6).
     toctree = """
 
 .. toctree::
