@@ -43,6 +43,19 @@ using the anchor language — the same vocabulary used everywhere a face, edge o
    body = cuboid([60, 40, 12], rounding=4, edges=Anchor.Z)
    body.show()
 
+The same treatment is available on a shape you have already built, which is what you want when the
+rounding is not part of how the shape was made:
+
+.. pythonscad-example::
+
+   from pybosl2 import Anchor, cuboid
+
+   body = cuboid([60, 40, 12]).round_edges(Anchor.Z, radius=4)
+   body.show()
+
+``chamfer_edges()`` and ``cove_edges()`` are its siblings. Each takes the *treatment* and works out
+the rest from the shape it is applied to — you never restate the part's own dimensions.
+
 3. Cut a hole
 -------------
 
