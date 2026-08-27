@@ -38,6 +38,13 @@ jobs:
         run: |
           python tests/validate_examples.py
 
+      # `-W` is what makes this job a gate, and it catches a deleted hand-written page only
+      # because the toctree entry for it lives in `_rstgen.py` (the generator) rather than in
+      # `index.rst` (which the generator overwrites). With the link in the generated file, a
+      # deletion took the link with it, nothing dangled, and the build passed with the page
+      # silently absent -- which is exactly what happened to `getting_started.rst`. With the link
+      # in the generator, the same deletion leaves `toctree contains reference to nonexisting
+      # document` and this job fails (SPEC DOC-1a).
       - name: Build docs (warnings as errors)
         run: |
           echo '
