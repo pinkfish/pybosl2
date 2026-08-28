@@ -377,6 +377,22 @@ Python that means:
   Because it type-checks rather than executes, the gate needs no CAD runtime and runs in CI.
   It is not a substitute for D-P5's rendering — one proves the example *compiles*, the other that
   it *builds something*.
+* **D-P5b An example that states a value is held to it.** A trailing comment on a printed
+  expression is an assertion in prose:
+
+  ```python
+  print(bracket.bounds().size)  # (60.0, 40.0, 18.0)
+  ```
+
+  Nothing else checks it. D-P5a proves the line *compiles*; D-P5 renders the *geometry* and never
+  reads the printed text. So a number written from intuition rather than from running the API
+  survives both — which is how the getting-started page came to claim `(60, 40, 18)` for a bracket
+  that measures `(60, 40, 12)`, `attach()` having recorded the boss rather than merged it.
+
+  `tests/test_example_claims.py` executes every example carrying such a comment and compares.
+  Examples without one are left alone: the rule is to check claims, not to run everything. Write
+  the comment only for a value you have actually seen — and when it disagrees with the code, run
+  the example before deciding which is wrong, because that is how the wrong one got written.
 * **D-P6 File header tags.** Immediately after the licence header, every module carries:
 
   ```
@@ -582,7 +598,7 @@ The spec's quality gates map to these commands — all five MUST pass before a c
 | **Q-3** lint and format | `ruff check . --fix && ruff format .` |
 | **Q-4** minimum-argument test + validated example | `pytest tests/test_defaults.py tests/validate_examples.py` |
 | **Q-5** contract tests still pass | `pytest tests/test_facets.py tests/test_init_stub.py tests/test_backend_matrix.py tests/test_shape_contract.py` |
-| **Q-6** every docstring example type-checks | `pytest tests/test_docstring_examples.py` (needs mypy, which the `test` extra carries; the gate **fails rather than skips** when `CI` is set, and `tests/test_ci_gates.py` checks every workflow can run it) |
+| **Q-6** every example type-checks, and every claimed value is true | `pytest tests/test_docstring_examples.py tests/test_example_claims.py` (the first needs mypy, which the `test` extra carries; it **fails rather than skips** when `CI` is set, and `tests/test_ci_gates.py` checks every workflow can run it. The second executes the examples that state a value — PLAN D-P5b) |
 
 
 ```bash
@@ -593,7 +609,8 @@ pip install -e '.[test]'             # pybosl2 + pytest + numpy + pythonscad + m
 export TMPDIR=/Volumes/ExternalDocs/tmp/   # scratch on the big volume, not the system disk
 pytest                               # full suite
 pytest tests/test_stl_render.py      # real-binary render checks (skips without the app)
-pytest tests/test_docstring_examples.py   # Q-6: every example under mypy --strict
+pytest tests/test_docstring_examples.py \
+       tests/test_example_claims.py        # Q-6: examples type-check, and their claims are true
 mypy --strict pybosl2                # zero errors required
 ruff check . --fix && ruff format .  # lint + format
 make -C docs html                    # docs into wiki/

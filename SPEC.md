@@ -803,8 +803,10 @@ A change is done when all of these hold (mechanics in [PLAN.md §9–§11](PLAN.
   generalised (§12.2).
 * **Q-5** The contract tests guarding these rules (mutable defaults, façade honesty, stub parity,
   facet coverage, backend matrix, protocol/object agreement, export completeness) still pass.
-* **Q-6** Every docstring example type-checks under `mypy --strict` (DOC-5). The examples are user
-  code; they are held to what the library asks of user code.
+* **Q-6** Every docstring example type-checks under `mypy --strict` (DOC-5), and every example
+  that states a value in a trailing comment is executed and held to it (PLAN D-P5b). The examples
+  are user code; they are held to what the library asks of user code, and to the truth of what
+  they claim.
 
 ---
 
