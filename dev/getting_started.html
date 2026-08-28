@@ -2391,22 +2391,29 @@ you rarely have to compute a position.</p>
 </code></pre></div>
 </div>
 <div class="stl-viewer" data-stl-uri="_stl/8517100152f49cb5.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/8517100152f49cb5.stl">⬇ Download STL mesh</a></p>
+<p>One thing to know about <code class="docutils literal notranslate"><span class="pre">attach</span></code>: it <em>records</em> the child rather than merging it immediately, so
+the pieces can be tagged and resolved together later. <code class="docutils literal notranslate"><span class="pre">show()</span></code> and <code class="docutils literal notranslate"><span class="pre">export()</span></code> resolve it for
+you. If you want the combined shape in hand — to measure it, as in the next step — ask for it with
+<code class="docutils literal notranslate"><span class="pre">realize()</span></code>.</p>
 <h2 id="measure-it">5. Measure it<a class="headerlink" href="#measure-it" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">bounds()</span></code> answers a box, without rendering anything. It carries every spelling of itself, so
 you never do the arithmetic.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span><span class="p">,</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span>
 
 <span class="n">body</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">12</span><span class="p">],</span> <span class="n">rounding</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">edges</span><span class="o">=</span><span class="n">Anchor</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span>
-<span class="n">bracket</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span> <span class="n">cyl</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span>
 
-<span class="n">box</span> <span class="o">=</span> <span class="n">bracket</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>        <span class="c1"># (60.0, 40.0, 18.0)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">max_z</span><span class="p">)</span>       <span class="c1"># 9.0 -- the top of the boss</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>      <span class="c1"># where the middle of it sits</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>        <span class="c1"># (60.0, 40.0, 12.0)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">max_z</span><span class="p">)</span>       <span class="c1"># 6.0 -- half the height, since it is centred</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">))</span>
+
+<span class="c1"># the boss is attached, so measure the resolved shape</span>
+<span class="n">bracket</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">Anchor</span><span class="o">.</span><span class="n">TOP</span><span class="p">,</span> <span class="n">cyl</span><span class="p">(</span><span class="n">diameter</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">6</span><span class="p">))</span><span class="o">.</span><span class="n">realize</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bracket</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>     <span class="c1"># (60.0, 40.0, 18.0) -- 12 of body plus 6 of boss</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bracket</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">max_z</span><span class="p">)</span>    <span class="c1"># 12.0 -- the top of the boss</span>
 <span class="n">bracket</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>
 </div>
-<div class="stl-viewer" data-stl-uri="_stl/90e20334549f7bc2.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/90e20334549f7bc2.stl">⬇ Download STL mesh</a></p>
+<div class="stl-viewer" data-stl-uri="_stl/37873d9a6f184082.stl" data-stl-color="#6f9ac9" style="width:100%;height:360px"><div class="stl-viewer-status">Loading 3-D preview&hellip;</div></div><p><a class="reference external" href="_stl/37873d9a6f184082.stl">⬇ Download STL mesh</a></p>
 <h2 id="save-it">6. Save it<a class="headerlink" href="#save-it" title="Link to this heading">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span><span class="p">,</span> <span class="n">cuboid</span><span class="p">,</span> <span class="n">cyl</span>
 

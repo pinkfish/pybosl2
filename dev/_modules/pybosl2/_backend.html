@@ -2733,6 +2733,16 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">intersect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">realize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Resolve this shape's attached children into one shape (SPEC C-12).</span>
+
+<span class="sd">        `attach()` *records* a child rather than merging it, so pieces can be tagged and resolved</span>
+<span class="sd">        together. `show()` and `export()` resolve for you; this is how a caller gets the combined</span>
+<span class="sd">        shape in hand -- to measure it, above all, since `bounds()` before realizing reports the</span>
+<span class="sd">        parent's box alone.</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
     <span class="c1"># Distribution: an operation on "any shape", not on solids specifically (SPEC C-19, S-31).</span>
     <span class="c1"># These return a *list* of copies, not one shape -- `xcopies(3)` is three shapes, and the</span>
     <span class="c1"># caller unions them or distributes them further.</span>
