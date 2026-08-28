@@ -13,7 +13,9 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, NoReturn
+
+import numpy as np
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -21,10 +23,13 @@ if TYPE_CHECKING:
     from pybosl2.paths import PathLike
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
+from pybosl2._edges_lang import Anchor
 from pybosl2._helpers import pick_radius as _pick_radius
 from pybosl2.bounds import Bounds2D
+from pybosl2.color import Colorable
+from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
-from pybosl2.exceptions import Bosl2ValueError
+from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
 from pybosl2.sdf._constants import CENTER
 from pybosl2.sdf._libfive import lv
 from pybosl2.sdf.paths import (
@@ -50,7 +55,7 @@ from pybosl2.sdf.shapes3d import PyShape
 # ---------------------------------------------------------------------------
 
 
-class SdfShape2D:
+class SdfShape2D(Colorable, Distributable):
     """A lazy 2-D shape: a symbolic signed-distance function of (x, y) plus bounds -- the flat.
 
     sibling of PyShape, for building lid-pattern shapes (shapes.py/tesselations.py) entirely in
@@ -75,9 +80,282 @@ class SdfShape2D:
         self.mn = [float(mn[0]), float(mn[1])]
         self.mx = [float(mx[0]), float(mx[1])]
         self.res = res
+        #: Colour and preview modifier ride along with the field as metadata and are applied when
+        #: the shape becomes geometry, which for a 2-D SDF means when it is extruded. Same scheme
+        #: as SdfSolid: recording them costs nothing and keeps the chain in SDF-land (SPEC C-19).
+        self._colour: tuple[Any, float | None] | None = None
+        self._modifier: str | None = None
+        #: The nominal anchor box (SPEC S-2a), if one was attached.
+        self._size: list[float] | None = None
+
+    @property
+    def size(self) -> "list[float] | None":
+        """Return the nominal anchor box, or None if this shape never had one (SPEC S-2a)."""
+        return None if self._size is None else list(self._size)
 
     def _wrap(self, sdf_fn: Callable, mn: Sequence[float], mx: Sequence[float]) -> PyShape2D:  # type: ignore[type-arg]
-        return PyShape2D(sdf_fn, mn, mx, self.res)
+        out = PyShape2D(sdf_fn, mn, mx, self.res)
+        out._colour = self._colour
+        out._modifier = self._modifier
+        out._size = None if self._size is None else list(self._size)
+        return out
+
+    # ------------------------------------------------------------------
+    # Colour, as metadata on the field (SPEC C-19, S-37)
+    # ------------------------------------------------------------------
+
+    def _recoloured(self, colour: "tuple[Any, float | None] | None", modifier: str | None) -> PyShape2D:
+        out = self._wrap(self._sdf_fn, self.mn, self.mx)
+        out._colour = colour
+        out._modifier = modifier
+        return out
+
+    def _color_native(self, c: Any = None, alpha: float | None = None) -> PyShape2D:
+        """Record the colour; it is applied when the shape is extruded into geometry."""
+        return self._recoloured((c, alpha), self._modifier)
+
+    def _highlight_native(self) -> PyShape2D:
+        """Record the highlight (``#``) modifier."""
+        return self._recoloured(self._colour, "highlight")
+
+    def _ghost_native(self) -> PyShape2D:
+        """Record the ghost (``%``) modifier."""
+        return self._recoloured(self._colour, "ghost")
+
+    def _apply_appearance(self, built: Any) -> Any:
+        """Apply any recorded colour/modifier to *built* and return it."""
+        if self._colour is not None:
+            colour, alpha = self._colour
+            built = built.color(colour, alpha) if alpha is not None else built.color(colour)
+        if self._modifier == "highlight":
+            built = built.highlight()
+        elif self._modifier == "ghost":
+            built = built.ghost()
+        return built
+
+    # ------------------------------------------------------------------
+    # Transforms the shared contract expects of any shape (SPEC C-15, C-22)
+    # ------------------------------------------------------------------
+
+    def multmatrix(self, matrix: "Sequence[Sequence[float]] | np.ndarray") -> PyShape2D:
+        """Apply an affine matrix to the field, exact and free.
+
+        Accepts the 4x4 the rest of the library speaks -- the distributors build 4x4 matrices for
+        both dimensions -- and uses its 2-D part. A matrix with a Z component that would move the
+        shape out of its plane is refused rather than silently flattened.
+
+        Args:
+            matrix: a 3x3 or 4x4 affine matrix.
+
+        Returns:
+            The transformed shape.
+
+        Raises:
+            Bosl2ValueError: If the matrix is not 3x3 or 4x4, is singular, or would move a 2-D
+                shape out of the Z=0 plane.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import square, use_backend
+
+                with use_backend("sdf"):
+                    shape = square([20, 10]).multmatrix(
+                        [[1, 0, 0, 5], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+                    )
+                shape.linear_extrude(height=4).show()
+
+        """
+        m = np.asarray(matrix, dtype=float)
+        if m.shape == (4, 4):
+            if not (np.allclose(m[2, :3], [0.0, 0.0, 1.0]) and abs(float(m[2, 3])) < 1e-12):
+                raise Bosl2ValueError(
+                    "multmatrix(): this matrix moves the shape out of the Z=0 plane, which a 2-D "
+                    "shape cannot represent. Extrude it first with `.linear_extrude(height=...)`."
+                )
+            m = np.array([[m[0, 0], m[0, 1], m[0, 3]], [m[1, 0], m[1, 1], m[1, 3]], [0.0, 0.0, 1.0]])
+        elif m.shape != (3, 3):
+            raise Bosl2ValueError(f"multmatrix() requires a 3x3 or 4x4 matrix, got {m.shape}.")
+        try:
+            mt = np.linalg.inv(m)
+        except np.linalg.LinAlgError:
+            raise Bosl2ValueError("multmatrix() requires an invertible matrix.") from None
+
+        fn = self._sdf_fn
+
+        def new_fn(x, y):  # type: ignore[no-untyped-def]
+            return fn(mt[0, 0] * x + mt[0, 1] * y + mt[0, 2], mt[1, 0] * x + mt[1, 1] * y + mt[1, 2])
+
+        corners = [
+            [self.mn[0], self.mn[1]],
+            [self.mx[0], self.mn[1]],
+            [self.mn[0], self.mx[1]],
+            [self.mx[0], self.mx[1]],
+        ]
+        moved = [
+            [m[0, 0] * c[0] + m[0, 1] * c[1] + m[0, 2], m[1, 0] * c[0] + m[1, 1] * c[1] + m[1, 2]] for c in corners
+        ]
+        return self._wrap(
+            new_fn,
+            [min(c[i] for c in moved) for i in range(2)],
+            [max(c[i] for c in moved) for i in range(2)],
+        )
+
+    # ------------------------------------------------------------------
+    # Anchoring (SPEC C-10, S-2a) -- box arithmetic, which an SDF shape knows exactly
+    # ------------------------------------------------------------------
+
+    def _resolve_bounds(self, bbox: "Sequence[Sequence[float]] | None" = None) -> tuple[list[float], list[float]]:
+        """Return ``(centre, size)`` for anchoring, from *bbox* if given or this shape's own box."""
+        if bbox is None:
+            return self._center_size()
+        arr = np.asarray(bbox, dtype=float)
+        if arr.shape != (2, 2):
+            raise Bosl2ValueError("bbox must be [[min_x, min_y], [max_x, max_y]].")
+        lo, hi = arr[0], arr[1]
+        if not bool(np.all(hi >= lo - 1e-12)):
+            raise Bosl2ValueError("bbox must have max >= min on both axes.")
+        return [float((lo[i] + hi[i]) / 2) for i in range(2)], [float(hi[i] - lo[i]) for i in range(2)]
+
+    def anchor_point(
+        self, anchor: "Anchor | Sequence[float]", bbox: "Sequence[Sequence[float]] | None" = None
+    ) -> list[float]:
+        """Return the 2-D point for the given anchor.
+
+        The same arithmetic the CSG 2-D shape does, on the same anchor vocabulary (SPEC C-10) --
+        it only ever needed a bounding box, and an SDF shape carries an exact one.
+
+        Args:
+            anchor: an :class:`~pybosl2._edges_lang.Anchor` or a 2-vector.
+            bbox: override box, ``[[min_x, min_y], [max_x, max_y]]``.
+
+        Returns:
+            The ``[x, y]`` point.
+        """
+        centre, size = self._resolve_bounds(bbox)
+        vec = list(anchor.vector_2d) if isinstance(anchor, Anchor) else list(anchor)
+        return [centre[i] + vec[i] * size[i] / 2 for i in range(2)]
+
+    def reanchor(
+        self, anchor: "Anchor | Sequence[float]", bbox: "Sequence[Sequence[float]] | None" = None
+    ) -> PyShape2D:
+        """Move this shape so that *anchor* lands on the origin.
+
+        Args:
+            anchor: an :class:`~pybosl2._edges_lang.Anchor` or a 2-vector.
+            bbox: override box, ``[[min_x, min_y], [max_x, max_y]]``.
+
+        Returns:
+            The moved shape.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Anchor, square, use_backend
+
+                with use_backend("sdf"):
+                    shape = square([20, 10]).reanchor(Anchor.LEFT)
+                shape.linear_extrude(height=4).show()
+
+        """
+        point = self.anchor_point(anchor, bbox=bbox)
+        return self.translate([-point[0], -point[1]])
+
+    def with_nominal_size(self, size: "Sequence[float]", anchor: Any = None) -> PyShape2D:
+        """Return this shape carrying *size* as its nominal anchor box (SPEC S-2a).
+
+        Args:
+            size: the nominal box, ``[width, length]``.
+            anchor: accepted for signature parity; the 2-D shape tracks only the box.
+
+        Returns:
+            A copy carrying the nominal size.
+        """
+        _ = anchor
+        out = self._wrap(self._sdf_fn, self.mn, self.mx)
+        out._size = [float(v) for v in size]
+        return out
+
+    # ------------------------------------------------------------------
+    # The CSG-only surface, refused explicitly (SPEC C-13, PAR-3)
+    # ------------------------------------------------------------------
+
+    def _refuse_csg_only(self, feature: str) -> "NoReturn":
+        """Raise the standard refusal for a CSG-only feature (SPEC B-4, E-2)."""
+        raise UnsupportedByBackendError(
+            feature,
+            "sdf",
+            hint=(
+                "attachment and tagging need a shape's edge structure, which a distance field "
+                "does not retain. Build it on the default (csg) backend, or extrude this field "
+                "and bring it across with `.to_csg()`."
+            ),
+        )
+
+    def attach(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
+        self._refuse_csg_only("attach")
+
+    def position(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
+        self._refuse_csg_only("position")
+
+    def align(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: attachment is a CSG-backend feature (SPEC C-13)."""
+        self._refuse_csg_only("align")
+
+    def tag(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tagging serves attachment, which is CSG-only (SPEC C-13)."""
+        self._refuse_csg_only("tag")
+
+    def tag_this(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tagging serves attachment, which is CSG-only (SPEC C-13)."""
+        self._refuse_csg_only("tag_this")
+
+    def diff(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tag-driven boolean resolution is CSG-only (SPEC C-13). Use `-` instead."""
+        self._refuse_csg_only("diff")
+
+    def intersect(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: tag-driven boolean resolution is CSG-only (SPEC C-13). Use `&` instead."""
+        self._refuse_csg_only("intersect")
+
+    def realize(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: there are no attachments to resolve; attachment is CSG-only (SPEC C-13)."""
+        self._refuse_csg_only("realize")
+
+    def minkowski(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: a Minkowski sum of two fields has no closed form (SPEC B-4).
+
+        `offset()` is the SDF answer for the common case -- growing a shape by a radius is a
+        single subtraction on the field, exact and free.
+        """
+        raise UnsupportedByBackendError(
+            "minkowski",
+            "sdf",
+            hint="a Minkowski sum has no closed-form distance field; use `.offset(r)` to grow a "
+            "shape by a radius, which an SDF does exactly.",
+        )
+
+    def _distribute(self, mats: list[Any]) -> list:  # type: ignore[type-arg]
+        """Return one transformed copy per matrix -- the hook `Distributable` builds on."""
+        return [self.multmatrix(m) for m in mats]
+
+    def left(self, x: float) -> PyShape2D:
+        """Move this shape *x* in -X."""
+        return self.translate([-x, 0.0])
+
+    def right(self, x: float) -> PyShape2D:
+        """Move this shape *x* in +X."""
+        return self.translate([x, 0.0])
+
+    def forward(self, y: float) -> PyShape2D:
+        """Move this shape *y* in -Y."""
+        return self.translate([0.0, -y])
+
+    def back(self, y: float) -> PyShape2D:
+        """Move this shape *y* in +Y."""
+        return self.translate([0.0, y])
 
     def show(self) -> PyShape2D:
         """Refuse to render a 2-D field, naming the extrusion that would make it renderable.
@@ -517,12 +795,19 @@ class SdfShape2D:
             return out
 
         flare = max(0.0, -rounding_top, -rounding_bottom)
-        return PyShape(
+        extruded = PyShape(
             sdf_fn,
             [self.mn[0] - flare, self.mn[1] - flare, z0],
             [self.mx[0] + flare, self.mx[1] + flare, z0 + h],
             res if res is not None else self.res,
         )
+        # A 2-D SDF becomes geometry only by extruding, so this is where a recorded colour or
+        # preview modifier is handed on -- carried across as metadata, so the result stays a field
+        # rather than being meshed to apply it (SPEC C-19, B-5).
+        if self._colour is not None or self._modifier is not None:
+            extruded._colour = self._colour
+            extruded._modifier = self._modifier
+        return extruded
 
     def revolve_sdf(self, angle: float = 360.0, res: int = 10) -> PyShape:
         """Revolve this 2-D profile around the Z axis, returning a 3-D PyShape."""
@@ -531,6 +816,100 @@ class SdfShape2D:
         return _revolve_sdf(self, angle=angle, res=res)
 
     rotate_sweep = revolve_sdf
+
+    def rotate_extrude(
+        self,
+        angle: float = 360.0,
+        convexity: int | None = None,
+        fn: int | None = None,
+        fa: float | None = None,
+        fs: float | None = None,
+        res: int | None = None,
+    ) -> PyShape:
+        """Revolve this 2-D profile about the Z axis into a solid -- the contract's spelling.
+
+        The same operation as :meth:`revolve_sdf`, under the name `Flat` declares and the CSG 2-D
+        shape already used (SPEC C-17, PAR-4). Having only the backend's own name made a caller's
+        code backend-specific for no reason.
+
+        Args:
+            angle: sweep angle in degrees (default: a full revolution).
+            convexity: accepted for signature parity with the CSG spelling; a field has no
+                facet count to hint at.
+            fn: accepted and ignored -- tessellation is `res` on this backend (SPEC B-9).
+            fa: accepted and ignored, as *fn*.
+            fs: accepted and ignored, as *fn*.
+            res: sampling resolution; the ambient default applies when omitted.
+
+        Returns:
+            The revolved :class:`PyShape`.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import square, use_backend
+
+                with use_backend("sdf"):
+                    shape = square([6, 20]).right(14).rotate_extrude()
+                shape.show()
+
+        """
+        _ = (convexity, fn, fa, fs)
+        return self.revolve_sdf(angle=angle, res=res if res is not None else self.res)
+
+    def distribute_on_path(
+        self,
+        path: Any,
+        num_copies: int | None = None,
+        spacing: float | None = None,
+        start_pos: float | None = None,
+        dist: list[float] | None = None,
+        rotate_children: bool = True,
+    ) -> PyShape2D:
+        """Place copies of this shape along *path*, unioned into one shape (SPEC S-32).
+
+        The 2-D twin of :meth:`pybosl2.sdf.shapes3d.SdfSolid.distribute_on_path`, built on the
+        same `Distributable` matrices, so the placement is identical on both backends.
+
+        Args:
+            path: the route to place copies along, as a `Path2D` or a point sequence.
+            num_copies: how many copies (default: one per path point).
+            spacing: distance between copies along the path.
+            start_pos: distance along the path to start at.
+            dist: explicit distances along the path, one per copy.
+            rotate_children: turn each copy to follow the path direction.
+
+        Returns:
+            The copies, unioned into one shape.
+
+        Examples:
+            .. pythonscad-example::
+
+                from pybosl2 import Path2D, square, use_backend
+
+                with use_backend("sdf"):
+                    route = Path2D([[0, 0], [40, 0], [40, 30]])
+                    trail = square([6, 4]).distribute_on_path(route, num_copies=8)
+                trail.linear_extrude(height=3).show()
+
+        """
+        # Built on the inherited `path_copies`, which places the copies, rather than on a second
+        # copy of the placement arithmetic: `distribute_on_path` is `path_copies` plus a union,
+        # and two implementations of one placement would drift (PLAN O-1c).
+        placed: list[PyShape2D] = self.path_copies(
+            path,
+            spacing=spacing,
+            start_pos=start_pos,
+            dist=dist,
+            rotate_children=rotate_children,
+            num_copies=num_copies,
+        )
+        if not placed:
+            raise Bosl2ValueError("distribute_on_path(): the path produced no positions to place a copy at.")
+        out = placed[0]
+        for piece in placed[1:]:
+            out = out | piece
+        return out
 
     def linear_sweep_sdf(  # type: ignore[no-untyped-def]
         self,
