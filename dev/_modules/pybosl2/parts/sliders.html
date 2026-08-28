@@ -2145,7 +2145,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">csg_part</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._edges_lang</span><span class="w"> </span><span class="kn">import</span> <span class="n">Anchor</span>
@@ -2217,6 +2217,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">l</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">w</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="c1"># Everything above is the resolved spec, and it is all a caller needs to *measure* a</span>
+        <span class="c1"># slider. The geometry below costs ~18 ms and is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the slider geometry. Called once, on the first access to `shape`."""</span>
+        <span class="n">l</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>  <span class="c1"># noqa: E741</span>
+
         <span class="n">full_width</span> <span class="o">=</span> <span class="n">w</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">wall</span>
         <span class="n">full_height</span> <span class="o">=</span> <span class="n">h</span> <span class="o">+</span> <span class="n">base</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
@@ -2260,7 +2269,7 @@
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slid</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">multmatrix</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">_union</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">h</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
         <span class="n">size</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">bounds</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2279,20 +2288,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Return the slider geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="Slider.show">
-<a class="viewcode-back" href="../../../parts/sliders.html#pybosl2.parts.sliders.Slider.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the slider in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+<span class="w">        </span><span class="sd">"""Return the slider geometry, building it on first access (SPEC C-14)."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2464,19 +2463,7 @@
     <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds from a VNF whose faces are not convex, so it has no distance-field form"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the rail geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="Rail.show">
-<a class="viewcode-back" href="../../../parts/sliders.html#pybosl2.parts.sliders.Rail.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the rail in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 </code></pre></div>
 

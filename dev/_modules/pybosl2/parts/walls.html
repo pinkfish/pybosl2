@@ -2151,7 +2151,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -2320,19 +2320,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the strut geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="NarrowingStrut.show">
-<a class="viewcode-back" href="../../../parts/walls.html#pybosl2.parts.walls.NarrowingStrut.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the strut in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2406,19 +2394,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the wall geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="SparseWall.show">
-<a class="viewcode-back" href="../../../parts/walls.html#pybosl2.parts.walls.SparseWall.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the wall in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2480,19 +2456,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the cuboid geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="SparseCuboid.show">
-<a class="viewcode-back" href="../../../parts/walls.html#pybosl2.parts.walls.SparseCuboid.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the cuboid in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2569,19 +2533,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the wall geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="CorrugatedWall.show">
-<a class="viewcode-back" href="../../../parts/walls.html#pybosl2.parts.walls.CorrugatedWall.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the wall in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2756,19 +2708,7 @@
     <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its braced sheet from a VNF handed over vertex by vertex, which has no distance-field form"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the wall geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="ThinningWall.show">
-<a class="viewcode-back" href="../../../parts/walls.html#pybosl2.parts.walls.ThinningWall.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the wall in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2862,19 +2802,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the triangle geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="ThinningTriangle.show">
-<a class="viewcode-back" href="../../../parts/walls.html#pybosl2.parts.walls.ThinningTriangle.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the triangle in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 </code></pre></div>
 

@@ -2150,7 +2150,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BOTTOM</span>
@@ -2231,19 +2231,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hinge mask geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="LivingHingeMask.show">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.LivingHingeMask.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the hinge mask in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2366,19 +2354,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the knuckle hinge leaf geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="KnuckleHinge.show">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHinge.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the knuckle hinge leaf in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2483,19 +2459,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hinge pair geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="KnuckleHingePair.show">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.KnuckleHingePair.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the hinge pair in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2562,19 +2526,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the snap-lock tab geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="SnapLock.show">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapLock.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the snap-lock tab in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
 
@@ -2649,19 +2601,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the snap socket geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span>
-
-<div class="viewcode-block" id="SnapSocket.show">
-<a class="viewcode-back" href="../../../parts/hinges.html#pybosl2.parts.hinges.SnapSocket.show">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Display the snap socket in the viewer, and return it.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The shape, so the call can be chained or assigned.</span>
-
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 </code></pre></div>
 
