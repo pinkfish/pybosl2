@@ -34,11 +34,12 @@ SOURCEDIR     = .
 BUILDDIR      = _build
 WIKIDIR       = ../wiki
 
-.PHONY: help clean html specs check
+.PHONY: help clean html specs check tidy
 help:
 	@echo "make html   -- build the docs into $(WIKIDIR) (checked in); warnings are errors"
 	@echo "make check  -- strict FULL rebuild into a scratch dir; use this in CI"
 	@echo "make specs  -- (re)generate the visual spec sheets in _extra/specs/"
+	@echo "make tidy   -- ruff the sources the build regenerated (run by `make html`)"
 	@echo "make clean  -- remove $(WIKIDIR), the doctree cache, and the render caches"
 	@echo ""
 	@echo "make html SPHINXOPTS=--keep-going   -- build past warnings instead of failing"
@@ -52,6 +53,15 @@ specs:
 html: specs
 	@mkdir -p _generated
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(WIKIDIR)" -d "$(BUILDDIR)/doctrees" $(SPHINXOPTS) $(O)
+	@$(MAKE) --no-print-directory tidy
+
+# The build regenerates sources (`_rstgen.py` writes index.rst and the module stubs), so they are
+# formatted afterwards to keep the tree clean. It is a separate target, and announces itself,
+# because it is *not* part of the Sphinx build: bundled into `html` silently, a lint error
+# anywhere in the repo made `make html` fail with `Error 1` and no clue that Sphinx had already
+# succeeded.
+tidy:
+	@echo "--> tidying regenerated sources with ruff (the Sphinx build has already finished)"
 	@cd .. && ruff check --fix . && ruff format .
 
 # `make html` alone cannot promise "fails if anything is broken", because a warm build skips
