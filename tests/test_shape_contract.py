@@ -50,7 +50,6 @@ UNDECLARED_BY_DESIGN: dict[str, str] = {
     "attachments": "attachment state; the operations that use it are declared",
     "diff_config": "attachment state; set by the treatments, read by realize()",
     "tag_name": "attachment state; `tag()` is the operation",
-    "realize": "resolves attachments; CSG-only and reached through diff()/intersect()",
     # --- the dimension tag ---
     "dimensions": "the operand guard's own tag (SPEC E-7), not a caller-facing operation",
     # --- backend-specific extras, which SPEC B-6 keeps on the backend's own module ---
@@ -109,6 +108,7 @@ SDF_FLAT_PARITY_GAP = frozenset(
         "reanchor",
         "recolor",
         "right",
+        "realize",
         "rotate_extrude",
         "size",
         "tag",

@@ -94,3 +94,50 @@ def test_the_generated_index_leads_with_the_front_door() -> None:
 def test_the_front_door_carries_a_reader_end_to_end(step: str) -> None:
     """One worked part: build, round, cut, place, measure, save (SPEC DOC-6)."""
     assert step in (DOCS / "getting_started.rst").read_text(), f"the getting-started page lost its '{step}' step"
+
+
+# --- the front door's claims are checked by running them ------------------------------------
+
+
+def test_the_front_door_examples_run_and_their_stated_output_is_true() -> None:
+    """A `# comment` claiming a value is a promise, and it is checked by executing the page.
+
+    The docstring gate (`tests/test_docstring_examples.py`) type-checks every example, which is
+    what catches a signature defect -- but an example that compiles can still *claim the wrong
+    number*. This page said a bracket measured ``(60, 40, 18)`` with ``max_z 9.0``; it measured
+    ``(60, 40, 12)`` with ``max_z 6.0``, because `attach()` records a child rather than merging it
+    and the page had not been run. Written from intuition rather than from the API, which is the
+    failure this project keeps finding in its own claims (SPEC B2-1).
+    """
+    from pybosl2 import Anchor, cuboid, cyl
+
+    body = cuboid([60, 40, 12], rounding=4, edges=Anchor.Z)
+    assert body.bounds().size == pytest.approx((60.0, 40.0, 12.0), abs=0.05)
+    assert body.bounds().max_z == pytest.approx(6.0, abs=0.05)
+
+    bracket = body.attach(Anchor.TOP, cyl(diameter=16, height=6)).realize()
+    assert bracket.bounds().size == pytest.approx((60.0, 40.0, 18.0), abs=0.05)
+    assert bracket.bounds().max_z == pytest.approx(12.0, abs=0.05)
+
+    # ... and the "where to go next" section's claim about a derived dimension
+    from pybosl2.parts import Screw
+
+    assert Screw("M6", length=20).pitch == pytest.approx(1.0)
+
+
+def test_every_value_the_front_door_claims_appears_in_a_checked_assertion() -> None:
+    """A number in a `#` comment on the page must be one the test above pins.
+
+    Otherwise the page can drift back to claiming values nobody ran: the comment is prose to
+    Sphinx and invisible to the type-checking gate.
+    """
+    page = (DOCS / "getting_started.rst").read_text()
+    claimed = set(re.findall(r"#\s*\(?([\d.]+(?:,\s*[\d.]+)*)\)?", page))
+    checked = (DOCS.parent / "tests" / "test_docs_pages.py").read_text()
+    unchecked = sorted(
+        value for value in claimed if not all(part.strip().rstrip(".") in checked for part in value.split(","))
+    )
+    assert not unchecked, (
+        "the getting-started page claims these values in comments, and no assertion in this file "
+        f"pins them: {unchecked}. Add them to the test above, or drop the claim."
+    )
