@@ -81,56 +81,15 @@ UNDECLARED_BY_DESIGN: dict[str, str] = {
     "spin": "CSG 2-D only; C-22 would move it to Shape with the C-21 synonym work",
 }
 
-#: Contract members the SDF 2-D shape does not implement. This is the C-19 parity gap the spec
-#: already records -- "the SDF backend's shapes carry no colour, and its 2-D shapes no
-#: distribution" -- stated here as a number so it cannot quietly grow.
-SDF_FLAT_PARITY_GAP = frozenset(
-    {
-        "align",
-        "anchor_point",
-        "attach",
-        "back",
-        "color",
-        "color_this",
-        "diff",
-        "distribute_on_path",
-        "forward",
-        "ghost",
-        "highlight",
-        "hsl",
-        "hsv",
-        "intersect",
-        "left",
-        "minkowski",
-        "mirror_copy",
-        "multmatrix",
-        "position",
-        "reanchor",
-        "recolor",
-        "right",
-        "realize",
-        "rotate_extrude",
-        "size",
-        "tag",
-        "tag_this",
-        "with_nominal_size",
-        "arc_copies",
-        "grid_copies",
-        "line_copies",
-        "path_copies",
-        "rot_copies",
-        "sphere_copies",
-        "xcopies",
-        "ycopies",
-        "zcopies",
-        "xflip_copy",
-        "yflip_copy",
-        "zflip_copy",
-        "xrot_copies",
-        "yrot_copies",
-        "zrot_copies",
-    }
-)
+#: Contract members the SDF 2-D shape does not implement. **Empty.** This was 43 -- the whole of
+#: colour, distribution, anchoring and the in-plane moves -- because `SdfShape2D` inherited from
+#: nothing while `SdfSolid` inherited `Colorable`, `Anchorable` and `Distributable`. C-19 puts
+#: colour and distribution on *any* shape, so the gap was the 2-D SDF shape simply never having
+#: been given the shared behaviour, not a limit of distance fields.
+#:
+#: What genuinely cannot cross over is declared and refuses, as PAR-3 requires: attachment and
+#: tagging need edge structure a field does not retain, and a Minkowski sum has no closed form.
+SDF_FLAT_PARITY_GAP: frozenset[str] = frozenset()
 
 
 #: Bases that carry no contract of their own and whose members must not be counted.
