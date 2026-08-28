@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.parts._buildable import Buildable
@@ -290,15 +290,6 @@ class HoseSegment(Buildable):
     def shape(self) -> "Solid":
         """Return the hose segment geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the hose segment in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 def modular_hose_radius(size: float, outer: bool = False) -> float:

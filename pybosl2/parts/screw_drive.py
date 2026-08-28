@@ -483,15 +483,6 @@ class PhillipsMask(Buildable):
         """
         return self._solid
 
-    def show(self) -> Any:
-        """Display the Phillips driver-recess mask in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class HexDriveMask(Buildable):
     """Hex (Allen) driver-recess mask (BOSL2 hex_drive_mask()).
@@ -571,15 +562,6 @@ class HexDriveMask(Buildable):
         """Return the hex drive mask geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the hex drive mask in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 hex_mask = HexDriveMask  #: Alias for :class:`HexDriveMask`.
 
@@ -643,8 +625,8 @@ class TorxMask2d:
             The shape, so the call can be chained or assigned.
 
         """
-        self._shape.polygon().show()
-        return self._shape
+        self.shape.polygon().show()
+        return self.shape
 
 
 class TorxMask(Buildable):
@@ -718,15 +700,6 @@ class TorxMask(Buildable):
 
         """
         return self._solid
-
-    def show(self) -> Any:
-        """Display the Torx driver-recess mask in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class RobertsonMask(Buildable):
@@ -816,12 +789,3 @@ class RobertsonMask(Buildable):
 
         """
         return self._solid
-
-    def show(self) -> Any:
-        """Display the Robertson driver-recess mask in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()

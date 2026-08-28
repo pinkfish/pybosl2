@@ -23,7 +23,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pybosl2._helpers import union
 from pybosl2.constants import BOTTOM
@@ -103,15 +103,6 @@ class LivingHingeMask(Buildable):
     def shape(self) -> "Solid":
         """Return the hinge mask geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the hinge mask in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class KnuckleHinge(Buildable):
@@ -233,15 +224,6 @@ class KnuckleHinge(Buildable):
         """Return the knuckle hinge leaf geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the knuckle hinge leaf in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class KnuckleHingePair(Buildable):
     """Both leaves of a knuckle hinge, meshed around one pin.
@@ -344,15 +326,6 @@ class KnuckleHingePair(Buildable):
         """Return the hinge pair geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the hinge pair in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class SnapLock(Buildable):
     """A snap-lock tab (a ridge on a post) that clicks into a :class:`SnapSocket`.
@@ -416,15 +389,6 @@ class SnapLock(Buildable):
     def shape(self) -> "Solid":
         """Return the snap-lock tab geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the snap-lock tab in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class SnapSocket(Buildable):
@@ -497,12 +461,3 @@ class SnapSocket(Buildable):
     def shape(self) -> "Solid":
         """Return the snap socket geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the snap socket in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()

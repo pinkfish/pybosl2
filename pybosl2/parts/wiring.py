@@ -24,7 +24,6 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
 
 import math
-from typing import Any
 
 from pybosl2._backend import csg_part
 from pybosl2._helpers import frag_count as _segs
@@ -190,12 +189,3 @@ class WireBundle(Buildable):
     def shape(self) -> Bosl2Solid:
         """Return the wire bundle geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the wire bundle in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
