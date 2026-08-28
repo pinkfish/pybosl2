@@ -221,7 +221,13 @@ what they need, rather than passing a bag of numbers through free functions.
   3. read-only `@property` accessors for every derived dimension (`diameter`, `pitch`,
      `pitch_radius`, `head_height`) so callers can measure without building geometry,
   4. a **`@property` named `shape`** returning the `Solid`/`Flat`, built on first access and
-     cached in a private attribute — `part.shape`, never `part.shape()`,
+     cached in a private attribute — `part.shape`, never `part.shape()`. **The validation stays in
+     `__init__`.** A part separates three things, not two: validate the arguments, resolve the
+     derived dimensions, then build. Deferring the validation along with the geometry means a
+     rejected call stops raising until someone asks for a shape, which is E-4 and E-5 undone — the
+     caller learns about their mistake at a call they did not make. `Slider`
+     (`pybosl2/parts/sliders.py`) is the worked example; `tests/test_parts_are_lazy.py` counts what
+     is left,
   5. a `show()` for the interactive/preview case.
 
   Beware the name: on a backend wrapper, `.shape` is the *raw native handle* (SPEC C-14a). A part's

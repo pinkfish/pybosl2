@@ -18,7 +18,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
@@ -88,6 +88,15 @@ class Slider(Buildable):
         self._length: float = l
         self._width: float = w
         self._height: float = h
+        # Everything above is the resolved spec, and it is all a caller needs to *measure* a
+        # slider. The geometry below costs ~18 ms and is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (l, w, h, base, wall, angle, slop, fn, fa, fs)
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the slider geometry. Called once, on the first access to `shape`."""
+        l, w, h, base, wall, angle, slop, fn, fa, fs = self._args  # noqa: E741
+
         full_width = w + 2 * wall
         full_height = h + base
         parts = [
@@ -131,7 +140,7 @@ class Slider(Buildable):
             parts.append(slid.up(base + h / 2).multmatrix(m.tolist()))
         result = _union(parts).down(base + h / 2).rotate([0, 0, 90])
         size = list(result.bounds().size)
-        self._solid: "Solid" = result.with_nominal_size(size)
+        return result.with_nominal_size(size)
 
     @property
     def length(self) -> float:
@@ -150,17 +159,10 @@ class Slider(Buildable):
 
     @property
     def shape(self) -> "Solid":
-        """Return the slider geometry."""
+        """Return the slider geometry, building it on first access (SPEC C-14)."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
-
-    def show(self) -> Any:
-        """Display the slider in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class Rail(Buildable):
@@ -330,12 +332,3 @@ class Rail(Buildable):
     def shape(self) -> "Solid":
         """Return the rail geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the rail in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()

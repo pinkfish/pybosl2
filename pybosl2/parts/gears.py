@@ -1270,15 +1270,6 @@ class SpurGear(Buildable):
         """Return the spur gear geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the spur gear in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class HerringboneGear(SpurGear):
     """A herringbone (double-helical) spur gear — :class:`SpurGear` with ``herringbone=True``.
@@ -1446,15 +1437,6 @@ class RingGear(Buildable):
         """Return the ring gear geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the ring gear in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class Rack2d:
     """A 2-D involute rack outline — a straight bar of teeth.
@@ -1596,15 +1578,6 @@ class Rack(Buildable):
     def shape(self) -> "Solid":
         """Return the rack geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the rack in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class BevelGear(Buildable):
@@ -1754,15 +1727,6 @@ class BevelGear(Buildable):
         """Return the bevel gear geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the bevel gear in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class Worm(Buildable):
     """A worm — a screw that meshes a worm gear.
@@ -1841,15 +1805,6 @@ class Worm(Buildable):
     def shape(self) -> "Solid":
         """Return the worm geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the worm in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class WormGear(Buildable):
@@ -1975,12 +1930,3 @@ class WormGear(Buildable):
     def shape(self) -> "Solid":
         """Return the worm gear geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the worm gear in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()

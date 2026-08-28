@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -611,15 +611,6 @@ class ThreadHelix(Buildable):
     def shape(self) -> "Solid":
         """Return the helix geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the helix in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 # -- convenience constructors for standard thread profiles --------------------

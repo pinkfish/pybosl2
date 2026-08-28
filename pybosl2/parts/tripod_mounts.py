@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Sequence
+from typing import Sequence
 
 from pybosl2._backend import csg_part
 from pybosl2._edges_lang import Anchor
@@ -241,15 +241,6 @@ class ManfrottoRC2Plate(Buildable):
     def shape(self) -> Bosl2Solid:
         """Return the RC2 plate geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the RC2 plate in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 manfrotto_rc2_plate = ManfrottoRC2Plate  #: Alias for :class:`ManfrottoRC2Plate`.

@@ -22,7 +22,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pybosl2.parts._buildable import Buildable
 from pybosl2.parts.enums import Gender
@@ -137,15 +137,6 @@ class Dovetail(Buildable):
         """Return the dovetail geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the dovetail in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class SnapPin(Buildable):
     """A press-and-click snap pin: a slotted shaft with a barbed head.
@@ -228,15 +219,6 @@ class SnapPin(Buildable):
         """Return the snap pin geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the snap pin in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class SnapPinSocket(Buildable):
     """The mating socket mask for a :class:`SnapPin` — difference it out of a part.
@@ -310,12 +292,3 @@ class SnapPinSocket(Buildable):
     def shape(self) -> "Solid":
         """Return the socket geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the socket in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()

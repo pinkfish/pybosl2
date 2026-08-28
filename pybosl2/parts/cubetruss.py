@@ -217,15 +217,6 @@ class TrussSegment(Buildable):
         """Return the segment geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the segment in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class Truss(Buildable):
     """A truss assembled from a grid of cube segments.
@@ -337,15 +328,6 @@ class Truss(Buildable):
         """Return the truss geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the truss in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class TrussSupport(Buildable):
     """A diagonal support truss — a block cut on the diagonal and lightened.
@@ -434,15 +416,6 @@ class TrussSupport(Buildable):
         """Return the support truss geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the support truss in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class TrussCorner(Buildable):
     """A corner truss with arms jutting out in one or more directions.
@@ -525,15 +498,6 @@ class TrussCorner(Buildable):
     def shape(self) -> "Solid":
         """Return the corner geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the corner in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class TrussClip(Buildable):
@@ -636,15 +600,6 @@ class TrussClip(Buildable):
     def shape(self) -> "Solid":
         """Return the clip geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the clip in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class TrussFoot(Buildable):
@@ -768,15 +723,6 @@ class TrussFoot(Buildable):
         """Return the foot geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the foot in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class TrussUClip(Buildable):
     """A U-shaped clip that joins two trusses face to face.
@@ -855,15 +801,6 @@ class TrussUClip(Buildable):
     def shape(self) -> "Solid":
         """Return the U-clip geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the U-clip in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class TrussJoiner(Buildable):
@@ -965,12 +902,3 @@ class TrussJoiner(Buildable):
     def shape(self) -> "Solid":
         """Return the joiner geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the joiner in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()

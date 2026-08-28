@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import math
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -193,15 +193,6 @@ class NarrowingStrut(Buildable):
         """Return the strut geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the strut in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class SparseWall(Buildable):
     """An open, X-cross-braced rectangular wall that saves material.
@@ -273,15 +264,6 @@ class SparseWall(Buildable):
         """Return the wall geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the wall in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class SparseCuboid(Buildable):
     """A solid cuboid whose interior is X-cross-braced along *dir* ("X", "Y" or "Z") (BOSL2 sparse_cuboid()).
@@ -340,15 +322,6 @@ class SparseCuboid(Buildable):
     def shape(self) -> "Solid":
         """Return the cuboid geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the cuboid in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class CorrugatedWall(Buildable):
@@ -423,15 +396,6 @@ class CorrugatedWall(Buildable):
     def shape(self) -> "Solid":
         """Return the wall geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the wall in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
 
 
 class ThinningWall(Buildable):
@@ -605,15 +569,6 @@ class ThinningWall(Buildable):
         """Return the wall geometry."""
         return self._solid
 
-    def show(self) -> Any:
-        """Display the wall in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
-
 
 class ThinningTriangle(Buildable):
     """A right-triangular wall with thick edges thinning to *wall* in the middle (BOSL2 thinning_triangle()).
@@ -704,12 +659,3 @@ class ThinningTriangle(Buildable):
     def shape(self) -> "Solid":
         """Return the triangle geometry."""
         return self._solid
-
-    def show(self) -> Any:
-        """Display the triangle in the viewer, and return it.
-
-        Returns:
-            The shape, so the call can be chained or assigned.
-
-        """
-        return self._solid.show()
