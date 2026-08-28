@@ -89,6 +89,11 @@ you rarely have to compute a position.
    bracket = body.attach(Anchor.TOP, boss) - cyl(diameter=10, height=40)
    bracket.show()
 
+One thing to know about ``attach``: it *records* the child rather than merging it immediately, so
+the pieces can be tagged and resolved together later. ``show()`` and ``export()`` resolve it for
+you. If you want the combined shape in hand — to measure it, as in the next step — ask for it with
+``realize()``.
+
 5. Measure it
 -------------
 
@@ -100,12 +105,15 @@ you never do the arithmetic.
    from pybosl2 import Anchor, cuboid, cyl
 
    body = cuboid([60, 40, 12], rounding=4, edges=Anchor.Z)
-   bracket = body.attach(Anchor.TOP, cyl(diameter=16, height=6))
 
-   box = bracket.bounds()
-   print(box.size)        # (60.0, 40.0, 18.0)
-   print(box.max_z)       # 9.0 -- the top of the boss
-   print(box.center)      # where the middle of it sits
+   print(body.bounds().size)        # (60.0, 40.0, 12.0)
+   print(body.bounds().max_z)       # 6.0 -- half the height, since it is centred
+   print(tuple(body.bounds().center))
+
+   # the boss is attached, so measure the resolved shape
+   bracket = body.attach(Anchor.TOP, cyl(diameter=16, height=6)).realize()
+   print(bracket.bounds().size)     # (60.0, 40.0, 18.0) -- 12 of body plus 6 of boss
+   print(bracket.bounds().max_z)    # 12.0 -- the top of the boss
    bracket.show()
 
 6. Save it

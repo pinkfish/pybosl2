@@ -94,3 +94,19 @@ def test_the_generated_index_leads_with_the_front_door() -> None:
 def test_the_front_door_carries_a_reader_end_to_end(step: str) -> None:
     """One worked part: build, round, cut, place, measure, save (SPEC DOC-6)."""
     assert step in (DOCS / "getting_started.rst").read_text(), f"the getting-started page lost its '{step}' step"
+
+
+# --- the front door's non-rendered claims ---------------------------------------------------
+
+
+def test_the_front_door_prose_examples_are_true() -> None:
+    """The claims in the page's plain code blocks, which the general gate cannot see.
+
+    `tests/test_example_claims.py` executes every `pythonscad-example` that claims a value and
+    holds it to it -- which covers the four numbers in this page's walkthrough. The "where to go
+    next" section uses plain ``::`` blocks instead, because they are illustrations rather than
+    renderable steps, so its one claim is checked here.
+    """
+    from pybosl2.parts import Screw
+
+    assert Screw("M6", length=20).pitch == pytest.approx(1.0), "the page claims `screw.pitch  # 1.0`"

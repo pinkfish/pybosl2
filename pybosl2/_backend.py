@@ -597,6 +597,16 @@ class Shape(Protocol):
     def diff(self, *args: Any, **kwargs: Any) -> Self: ...
     def intersect(self, *args: Any, **kwargs: Any) -> Self: ...
 
+    def realize(self) -> Self:
+        """Resolve this shape's attached children into one shape (SPEC C-12).
+
+        `attach()` *records* a child rather than merging it, so pieces can be tagged and resolved
+        together. `show()` and `export()` resolve for you; this is how a caller gets the combined
+        shape in hand -- to measure it, above all, since `bounds()` before realizing reports the
+        parent's box alone.
+        """
+        ...
+
     # Distribution: an operation on "any shape", not on solids specifically (SPEC C-19, S-31).
     # These return a *list* of copies, not one shape -- `xcopies(3)` is three shapes, and the
     # caller unions them or distributes them further.

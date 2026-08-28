@@ -516,6 +516,10 @@ class SdfSolid(Colorable, Anchorable, Distributable):
         """Refuse: tag-driven boolean resolution is CSG-only (SPEC C-13). Use `&` instead."""
         self._refuse("intersect")
 
+    def realize(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
+        """Refuse: there are no attachments to resolve; attachment is CSG-only (SPEC C-13)."""
+        self._refuse("realize")
+
     def edge_mask(self, *_args: Any, **_kwargs: Any) -> "NoReturn":
         """Refuse: edge treatments are CSG-only; use the `rounding=`/`chamfer=` parameters."""
         self._refuse("edge_mask")
