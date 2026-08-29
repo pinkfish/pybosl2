@@ -2098,6 +2098,54 @@ class WormGear(Buildable):
         """
         if not (10 <= worm_arc <= 60):
             raise Bosl2ValueError("worm_gear(): worm_arc must be between 10 and 60 degrees.")
+        self._teeth: int = teeth
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            circ_pitch,
+            teeth,
+            worm_diam,
+            worm_starts,
+            worm_arc,
+            crowning,
+            left_handed,
+            pressure_angle,
+            backlash,
+            slices,
+            clearance,
+            shaft_diam,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            circ_pitch,
+            teeth,
+            worm_diam,
+            worm_starts,
+            worm_arc,
+            crowning,
+            left_handed,
+            pressure_angle,
+            backlash,
+            slices,
+            clearance,
+            shaft_diam,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         p = _pitch_radius(center, teeth)
         circ = 2 * PI * p
@@ -2146,8 +2194,7 @@ class WormGear(Buildable):
         solid = vnf.polyhedron().with_nominal_size([2 * p, 2 * p, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=worm_diam, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
-        self._solid: "Solid" = solid
-        self._teeth: int = teeth
+        return solid
 
     @property
     def teeth(self) -> int:
@@ -2155,7 +2202,9 @@ class WormGear(Buildable):
         return self._teeth
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
+    @csg_part("cuts its throated teeth into a VNF, and a non-convex mesh has no distance-field form")
     def shape(self) -> "Solid":
         """Return the worm gear geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid

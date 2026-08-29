@@ -183,6 +183,42 @@ class KnuckleHinge(Buildable):
         """
         if not (segs >= 2):
             raise Bosl2ValueError("knuckle_hinge(): segs must be >= 2.")
+        self._length: float = length
+        self._arm: float = arm
+        self._inner: bool = inner
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            length,
+            segs,
+            knuckle_diam,
+            pin_diam,
+            arm,
+            thick,
+            gap,
+            inner,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            length,
+            segs,
+            knuckle_diam,
+            pin_diam,
+            arm,
+            thick,
+            gap,
+            inner,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         seglen = (length - (segs - 1) * gap) / segs
         mine = 1 if inner else 0
 
@@ -224,10 +260,7 @@ class KnuckleHinge(Buildable):
         if keep:
             clearance = clearance - union(keep)
         leaf = leaf - clearance
-        self._solid: "Solid" = leaf.with_nominal_size([length, plate_w + knuckle_diam / 2, knuckle_diam])
-        self._length: float = length
-        self._arm: float = arm
-        self._inner: bool = inner
+        return leaf.with_nominal_size([length, plate_w + knuckle_diam / 2, knuckle_diam])
 
     @property
     def length(self) -> float:
@@ -247,6 +280,8 @@ class KnuckleHinge(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the knuckle hinge leaf geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 

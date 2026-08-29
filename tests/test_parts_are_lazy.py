@@ -47,7 +47,6 @@ EAGER_PARTS = frozenset(
     {
         "HexDriveMask",
         "HoseSegment",
-        "KnuckleHinge",
         "ManfrottoRC2Plate",
         "Nut",
         "PhillipsMask",
@@ -62,8 +61,6 @@ EAGER_PARTS = frozenset(
         "Truss",
         "TrussCorner",
         "TrussSegment",
-        "WireBundle",
-        "WormGear",
     }
 )
 
