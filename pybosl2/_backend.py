@@ -853,3 +853,84 @@ class SolidBackend(Protocol):
     ) -> Solid:
         """3-D tube along *path*."""
         ...
+
+
+# Dimension arguments, by the name the façade uses for them. A shape whose extent is given by one
+# of these cannot be built from a negative value, and on the SDF backend nothing downstream ever
+# noticed: `cuboid([-5, 5, 5])` returned a shape whose `bounds().size` was -5, and that negative
+# extent then flowed into anchoring and layout arithmetic as if it were a measurement.
+_POSITIVE_DIMENSIONS = frozenset(
+    {
+        "height",
+        "h",
+        "l",
+        "length",
+        "radius",
+        "r",
+        "r1",
+        "r2",
+        "diameter",
+        "d",
+        "d1",
+        "d2",
+        "radius1",
+        "radius2",
+        "diameter1",
+        "diameter2",
+        "side",
+        "thickness",
+    }
+)
+
+
+def refuse_bad_dimensions(shape: str, arguments: "Mapping[str, Any]") -> None:
+    """Raise if a dimension argument is negative, or *size* is not a usable extent (SPEC E-4).
+
+    Both backends call this, because they disagreed about the same bad input and both answers were
+    wrong: CSG leaked the kernel's own `TypeError` ("Invalid Cube dimensions"), which named a class
+    the caller never used and escaped `except Bosl2Error`; SDF accepted it outright and built a
+    shape with a negative extent. Neither told the caller which argument was wrong.
+
+    A zero extent is allowed through: it is degenerate but well defined, and it is a legitimate
+    intermediate when a dimension is computed rather than typed.
+
+    Args:
+        shape: the constructor's name, so the message names the call the caller made.
+        arguments: the arguments the caller actually supplied.
+
+    Raises:
+        Bosl2ValueError: If a dimension is negative or *size* is not a 1- or 3-component extent.
+
+    """
+    from pybosl2.exceptions import Bosl2ValueError
+
+    for name, value in arguments.items():
+        is_number = isinstance(value, (int, float)) and not isinstance(value, bool)
+        if name in _POSITIVE_DIMENSIONS and is_number and value < 0:
+            raise Bosl2ValueError(
+                f"{shape}(): {name} must not be negative, got {value}. A negative extent is not "
+                f"a smaller shape -- it has no geometry, and its bounds() would report a "
+                f"negative size."
+            )
+    size = arguments.get("size")
+    if size is None or isinstance(size, (int, float)):
+        if isinstance(size, (int, float)) and not isinstance(size, bool) and size < 0:
+            raise Bosl2ValueError(f"{shape}(): size must not be negative, got {size}.")
+        return
+    try:
+        values = [float(v) for v in size]
+    except (TypeError, ValueError):
+        raise Bosl2ValueError(f"{shape}(): size must be a number or a sequence of numbers, got {size!r}.") from None
+    if len(values) not in (1, 2, 3):
+        # 2 is legitimate: the 2-D shapes take [x, y], and so does `rect_tube`, whose size is its
+        # cross-section rather than the solid. An earlier version of this check allowed only 1 or
+        # 3 and rejected them -- a guard has to know the library it is guarding.
+        raise Bosl2ValueError(
+            f"{shape}(): size must be a single number, [x, y] or [x, y, z], got {len(values)} values ({size!r})."
+        )
+    if any(v <= 0 for v in values):
+        raise Bosl2ValueError(
+            f"{shape}(): every size component must be positive, got {size!r}. A zero or negative "
+            f"extent is not a smaller shape -- it has no geometry, and on the SDF backend its "
+            f"bounds() reported the negative number back as a measurement."
+        )

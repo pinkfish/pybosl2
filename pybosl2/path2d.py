@@ -953,6 +953,12 @@ class Path2D(Path, Distributable, Extrudable, Sweepable, Roundable):
         ``max_x``, ``max_y``, ``width``, and ``length`` fields.
 
         """
+        if len(self) == 0:
+            # Matches Region, which already refuses this ("empty Region has no bounds"). Shapely
+            # answers NaN for an empty geometry, and NaN is the worst of the options: it survives
+            # arithmetic and every comparison against it is False, so `if bounds.width > 0` passes
+            # nothing through and the mistake surfaces far from its cause (SPEC E-4).
+            raise Bosl2ValueError("empty Path2D has no bounds")
         minx, miny, maxx, maxy = self._shapely.bounds
         return Bounds2D(
             float(minx),

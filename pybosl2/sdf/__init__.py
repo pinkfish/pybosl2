@@ -25,7 +25,13 @@ if TYPE_CHECKING:
 
 import numpy as np
 
-from pybosl2._backend import SolidBackend, for_backend, refuse_unhonoured, register_backend
+from pybosl2._backend import (
+    SolidBackend,
+    for_backend,
+    refuse_bad_dimensions,
+    refuse_unhonoured,
+    register_backend,
+)
 from pybosl2.defaults import resolve_res
 from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
 from pybosl2.sdf import shapes3d as _s
@@ -126,6 +132,7 @@ class SdfBackend:
         """
         fn = self.constructor(shape)
         refuse_unhonoured(shape, arguments, fn, "sdf", self._OWN_NAMES)
+        refuse_bad_dimensions(shape, arguments)
         named = {self._OWN_NAMES.get(name, name): value for name, value in arguments.items()}
         named = for_backend(fn, named)
         if "res" not in named and _takes_res(fn):
