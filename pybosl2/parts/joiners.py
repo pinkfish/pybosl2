@@ -89,6 +89,45 @@ class Dovetail(Buildable):
             None
 
         """
+        self._gender: Gender = gender
+        self._width: float = width
+        self._height: float = height
+        self._slide: float = slide
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            gender,
+            width,
+            height,
+            slide,
+            angle,
+            slope,
+            taper,
+            back_width,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            gender,
+            width,
+            height,
+            slide,
+            angle,
+            slope,
+            taper,
+            back_width,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         if angle is not None:
             slope = 1 / math.tan(math.radians(angle))
         hslop = slop if gender == Gender.FEMALE else 0.0
@@ -106,11 +145,7 @@ class Dovetail(Buildable):
         else:
             body = prismoid([w, slide], [w + flare, slide], height=h, fn=fn, fa=fa, fs=fs)
 
-        self._solid: "Solid" = body.with_nominal_size([w + flare, slide, h])
-        self._gender: Gender = gender
-        self._width: float = width
-        self._height: float = height
-        self._slide: float = slide
+        return body.with_nominal_size([w + flare, slide, h])
 
     @property
     def gender(self) -> Gender:
@@ -135,6 +170,8 @@ class Dovetail(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the dovetail geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -184,6 +221,37 @@ class SnapPin(Buildable):
             None
 
         """
+        self._diameter: float = diameter
+        self._length: float = length
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            diameter,
+            length,
+            nub_depth,
+            snap,
+            clearance,
+            slot,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            diameter,
+            length,
+            nub_depth,
+            snap,
+            clearance,
+            slot,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         _ = clearance
         shaft = cyl(height=length, diameter=diameter, fn=fn, fa=fa, fs=fs)
         barb = cyl(
@@ -200,9 +268,7 @@ class SnapPin(Buildable):
         # Nominal anchor box: the pin's nominal envelope -- shaft diameter plus the barbs, and the
         # length plus a nominal tip. The moulded barb and rounded tip do not fill it exactly, so
         # bounds() differs slightly; anchoring follows the stated size a socket is cut for.
-        self._solid: "Solid" = pin.with_nominal_size([diameter + 2 * nub_depth, diameter, length + diameter / 2])
-        self._diameter: float = diameter
-        self._length: float = length
+        return pin.with_nominal_size([diameter + 2 * nub_depth, diameter, length + diameter / 2])
 
     @property
     def diameter(self) -> float:
@@ -217,6 +283,8 @@ class SnapPin(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the snap pin geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -262,6 +330,35 @@ class SnapPinSocket(Buildable):
             None
 
         """
+        self._diameter: float = diameter
+        self._length: float = length
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            diameter,
+            length,
+            nub_depth,
+            snap,
+            clearance,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            diameter,
+            length,
+            nub_depth,
+            snap,
+            clearance,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         bore = cyl(height=length + 1, diameter=diameter + 2 * clearance, fn=fn, fa=fa, fs=fs)
         relief = cyl(
             height=snap + clearance,
@@ -272,11 +369,9 @@ class SnapPinSocket(Buildable):
         ).up(length / 2 - snap / 2)
         # Nominal anchor box: the matching pin's envelope plus the clearance, so a pin and its
         # socket anchor alike (see SnapPin). The relief cut makes the real solid a little different.
-        self._solid: "Solid" = (bore | relief).with_nominal_size(
+        return (bore | relief).with_nominal_size(
             [diameter + 2 * nub_depth + 2 * clearance, diameter + 2 * clearance, length]
         )
-        self._diameter: float = diameter
-        self._length: float = length
 
     @property
     def diameter(self) -> float:
@@ -291,4 +386,6 @@ class SnapPinSocket(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the socket geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid

@@ -161,12 +161,31 @@ class NarrowingStrut(Buildable):
         self._wall_val = wall
         self._angle = angle
 
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            w,
+            length,
+            wall,
+            angle,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            w,
+            length,
+            wall,
+            angle,
+        ) = self._args
+
         height = wall + w / 2 / math.tan(math.radians(angle))
         profile = [[-w / 2, 0], [w / 2, 0], [w / 2, wall], [0, height], [-w / 2, wall]]
         # Path2D.linear_extrude() dispatches through the backend, where the native
         # polygon().linear_extrude() pair is CSG-only (TASKS T14).
         shape = Path2D(profile).linear_extrude(height=length, center=True).rotate([90, 0, 0])
-        self._solid: "Solid" = shape.with_nominal_size([w, length, height])
+        return shape.with_nominal_size([w, length, height])
 
     @property
     def width(self) -> float:
@@ -191,6 +210,8 @@ class NarrowingStrut(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the strut geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -238,11 +259,34 @@ class SparseWall(Buildable):
         self._length = length
         self._thick = thick
 
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            height,
+            length,
+            thick,
+            maxang,
+            strut,
+            max_bridge,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            height,
+            length,
+            thick,
+            maxang,
+            strut,
+            max_bridge,
+        ) = self._args
+
         outlines = _sparse_wall2d(height, length, maxang, strut, max_bridge)
         shape = _union(Path2D(outline).linear_extrude(height=thick, center=True) for outline in outlines).rotate(
             [0, 90, 0]
         )
-        self._solid: "Solid" = shape.with_nominal_size([thick, length, height])
+        return shape.with_nominal_size([thick, length, height])
 
     @property
     def height(self) -> float:
@@ -262,6 +306,8 @@ class SparseWall(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the wall geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -365,6 +411,27 @@ class CorrugatedWall(Buildable):
         self._length = length
         self._thick = thick
 
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            height,
+            length,
+            thick,
+            strut,
+            wall,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            height,
+            length,
+            thick,
+            strut,
+            wall,
+        ) = self._args
+
         amplitude = (thick - wall) / 2
         period = min(15, thick * 2)
         steps = ((_segs(thick / 2) + 3) // 4) * 4
@@ -375,7 +442,7 @@ class CorrugatedWall(Buildable):
         pts += [[amplitude * math.sin(math.radians(y / period * 360)) + wall / 2, y] for y in reversed(ys)]
         sheet = Path2D(pts).linear_extrude(height=height - 2 * strut + 0.1, center=True)
         frame = cuboid([thick, length, height]) - cuboid([thick + 0.5, length - 2 * strut, height - 2 * strut])
-        self._solid: "Solid" = (sheet | frame).with_nominal_size([thick, length, height])
+        return (sheet | frame).with_nominal_size([thick, length, height])
 
     @property
     def height(self) -> float:
@@ -395,6 +462,8 @@ class CorrugatedWall(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the wall geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -441,6 +510,29 @@ class ThinningWall(Buildable):
         self._height = height
         self._length = length
         self._thick = thick
+
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            height,
+            length,
+            thick,
+            angle,
+            strut,
+            wall,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            height,
+            length,
+            thick,
+            angle,
+            strut,
+            wall,
+        ) = self._args
 
         l1 = length[0] if isinstance(length, (list, tuple)) else length
         l2 = length[1] if isinstance(length, (list, tuple)) else length
@@ -546,7 +638,7 @@ class ThinningWall(Buildable):
         ]
         pts = [[-y, x, z] for x, y, z in pts]
         shape = VNF(pts, faces).polyhedron()
-        self._solid: "Solid" = shape.with_nominal_size([thick, l1, height])
+        return shape.with_nominal_size([thick, l1, height])
 
     @property
     def height(self) -> float:
@@ -567,6 +659,8 @@ class ThinningWall(Buildable):
     @csg_part("builds its braced sheet from a VNF handed over vertex by vertex, which has no distance-field form")
     def shape(self) -> "Solid":
         """Return the wall geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -616,6 +710,33 @@ class ThinningTriangle(Buildable):
         self._length = length
         self._thick = thick
 
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            height,
+            length,
+            thick,
+            angle,
+            strut,
+            wall,
+            diagonly,
+            center,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            height,
+            length,
+            thick,
+            angle,
+            strut,
+            wall,
+            diagonly,
+            center,
+        ) = self._args
+
         dang = math.degrees(math.atan(height / length))
         dlen = height / math.sin(math.radians(dang))
         parts = []
@@ -638,7 +759,7 @@ class ThinningTriangle(Buildable):
         body = body - cutter
         if center is False:
             body = body.up(height / 2).back(length / 2)
-        self._solid: "Solid" = body.with_nominal_size([thick, length, height])
+        return body.with_nominal_size([thick, length, height])
 
     @property
     def height(self) -> float:
@@ -658,4 +779,6 @@ class ThinningTriangle(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the triangle geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid

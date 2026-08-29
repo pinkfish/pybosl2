@@ -204,6 +204,27 @@ class Rail(Buildable):
         self._length: float = l
         self._width: float = w
         self._height: float = h
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            l,
+            w,
+            h,
+            chamfer,
+            angle,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            l,  # noqa: E741
+            w,
+            h,
+            chamfer,
+            angle,
+        ) = self._args
+
         attack_ang, attack_len = 30, 2
         fudge = 1.177
         chamf = math.sqrt(2) * chamfer
@@ -310,7 +331,7 @@ class Rail(Buildable):
             [13, 22, 21],
             [13, 21, 6],
         ]
-        self._solid: "Solid" = VNF(pts, faces).polyhedron().with_nominal_size([w, l, h])
+        return VNF(pts, faces).polyhedron().with_nominal_size([w, l, h])
 
     @property
     def length(self) -> float:
@@ -331,4 +352,6 @@ class Rail(Buildable):
     @csg_part("builds from a VNF whose faces are not convex, so it has no distance-field form")
     def shape(self) -> "Solid":
         """Return the rail geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid

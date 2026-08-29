@@ -1182,6 +1182,60 @@ class SpurGear(Buildable):
             None
 
         """
+        self._teeth: int = teeth
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            circ_pitch,
+            teeth,
+            thickness,
+            shaft_diam,
+            hide,
+            pressure_angle,
+            clearance,
+            backlash,
+            helical,
+            herringbone,
+            internal,
+            profile_shift,
+            shorten,
+            slices,
+            gear_spin,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            circ_pitch,
+            teeth,
+            thickness,
+            shaft_diam,
+            hide,
+            pressure_angle,
+            clearance,
+            backlash,
+            helical,
+            herringbone,
+            internal,
+            profile_shift,
+            shorten,
+            slices,
+            gear_spin,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         spec = GearSpec(
             teeth=teeth,
             circ_pitch=circ_pitch,
@@ -1257,8 +1311,7 @@ class SpurGear(Buildable):
         result = solid.with_nominal_size([2 * _or, 2 * _or, thickness])
         if gear_spin:
             result = result.rotate([0, 0, gear_spin])
-        self._solid: "Solid" = result
-        self._teeth: int = teeth
+        return result
 
     @property
     def teeth(self) -> int:
@@ -1268,6 +1321,8 @@ class SpurGear(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the spur gear geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -1409,6 +1464,48 @@ class RingGear(Buildable):
             None
 
         """
+        self._teeth: int = teeth
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            circ_pitch,
+            teeth,
+            thickness,
+            backing,
+            pressure_angle,
+            clearance,
+            backlash,
+            helical,
+            profile_shift,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            circ_pitch,
+            teeth,
+            thickness,
+            backing,
+            pressure_angle,
+            clearance,
+            backlash,
+            helical,
+            profile_shift,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
         _or = _outer_radius_basic(center, teeth, clearance, True, helical, ps, 0) + backing
@@ -1424,8 +1521,7 @@ class RingGear(Buildable):
             profile_shift=profile_shift,
         ).shape
         body = facade_cylinder(height=thickness, diameter=2 * _or, center=True, fn=fn, fa=fa, fs=fs)
-        self._solid: "Solid" = (body - cavity).with_nominal_size([2 * _or, 2 * _or, thickness])
-        self._teeth: int = teeth
+        return (body - cavity).with_nominal_size([2 * _or, 2 * _or, thickness])
 
     @property
     def teeth(self) -> int:
@@ -1435,6 +1531,8 @@ class RingGear(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the ring gear geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -1552,6 +1650,40 @@ class Rack(Buildable):
             None
 
         """
+        self._teeth: int = teeth
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            circ_pitch,
+            teeth,
+            thickness,
+            height,
+            pressure_angle,
+            backlash,
+            clearance,
+            helical,
+            mod,
+            pitch,
+            diam_pitch,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            circ_pitch,
+            teeth,
+            thickness,
+            height,
+            pressure_angle,
+            backlash,
+            clearance,
+            helical,
+            mod,
+            pitch,
+            diam_pitch,
+        ) = self._args
+
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         a = _adendum(center)
         diameter = _dedendum(center, clearance)
@@ -1566,8 +1698,7 @@ class Rack(Buildable):
         z_extent = height + diameter - a
         # Nominal anchor box: the rack's nominal tooth height, which the rounded tooth tips sit
         # just inside. Anchoring follows the pitch line rather than the printed profile.
-        self._solid: "Solid" = shape.with_nominal_size([sheared_length, thickness, z_extent])
-        self._teeth: int = teeth
+        return shape.with_nominal_size([sheared_length, thickness, z_extent])
 
     @property
     def teeth(self) -> int:
@@ -1577,6 +1708,8 @@ class Rack(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the rack geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -1646,6 +1779,60 @@ class BevelGear(Buildable):
             None
 
         """
+        self._teeth: int = teeth
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            circ_pitch,
+            teeth,
+            face_width,
+            pitch_angle,
+            mate_teeth,
+            shaft_diam,
+            hide,
+            pressure_angle,
+            clearance,
+            backlash,
+            cutter_radius,
+            spiral_angle,
+            left_handed,
+            slices,
+            interior,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            circ_pitch,
+            teeth,
+            face_width,
+            pitch_angle,
+            mate_teeth,
+            shaft_diam,
+            hide,
+            pressure_angle,
+            clearance,
+            backlash,
+            cutter_radius,
+            spiral_angle,
+            left_handed,
+            slices,
+            interior,
+            mod,
+            pitch,
+            diam_pitch,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         _ = hide
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         slices_ = 1 if cutter_radius == 0 else slices
@@ -1713,8 +1900,7 @@ class BevelGear(Buildable):
         solid = vnf.polyhedron().with_nominal_size([2 * pr, 2 * pr, thickness])
         if shaft_diam and shaft_diam > 0:
             solid = solid - cylinder(height=2 * thickness + 1, diameter=shaft_diam, center=True, fn=fn, fa=fa, fs=fs)
-        self._solid: "Solid" = solid
-        self._teeth: int = teeth
+        return solid
 
     @property
     def teeth(self) -> int:
@@ -1722,9 +1908,14 @@ class BevelGear(Buildable):
         return self._teeth
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
+    # Not "2-D geometry" -- the same copy-paste that mislabelled Worm. A bevel gear's teeth are
+    # built with `VNF.vertex_array`, and a non-convex mesh has no distance-field form. Both wrong
+    # reasons were invisible while the refusal fired generically at construction.
+    @csg_part("builds its teeth as a VNF, and a non-convex mesh has no distance-field form")
     def shape(self) -> "Solid":
         """Return the bevel gear geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -1774,6 +1965,39 @@ class Worm(Buildable):
             None
 
         """
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            circ_pitch,
+            diameter,
+            length,
+            starts,
+            left_handed,
+            pressure_angle,
+            backlash,
+            clearance,
+            mod,
+            pitch,
+            diam_pitch,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            circ_pitch,
+            diameter,
+            length,
+            starts,
+            left_handed,
+            pressure_angle,
+            backlash,
+            clearance,
+            mod,
+            pitch,
+            diam_pitch,
+        ) = self._args
+
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         rack = _rack2d_path(center, starts, diameter, pressure_angle, backlash, clearance)[1:-1]
         polars = [[360 * px / center / starts, py + diameter / 2] for px, py in rack]
@@ -1798,12 +2022,17 @@ class Worm(Buildable):
             vnf = _vnf_xflip(vnf)
         # Nominal anchor box: the worm's pitch diameter. The thread crests stand proud of it, so
         # bounds() reports a wider solid -- mating parts line up on the pitch cylinder.
-        self._solid: "Solid" = vnf.polyhedron().with_nominal_size([diameter, diameter, length])
+        return vnf.polyhedron().with_nominal_size([diameter, diameter, length])
 
     @property
-    @csg_part("builds its involute tooth profile as 2-D geometry, which is a CSG notion")
+    # Not "2-D geometry" -- that reason was copy-pasted from BevelGear. A worm is a swept helical
+    # thread built with `VNF.vertex_array`, and a non-convex mesh has no distance-field form. The
+    # wrong reason was invisible while the refusal fired at construction with a generic message.
+    @csg_part("sweeps its helical thread as a VNF, and a non-convex mesh has no distance-field form")
     def shape(self) -> "Solid":
         """Return the worm geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
