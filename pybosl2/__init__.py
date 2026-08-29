@@ -256,4 +256,15 @@ def __getattr__(name: str) -> object:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
+def __dir__() -> list[str]:
+    """Return everything the façade exports, so the lazy names are still discoverable.
+
+    PEP 562 pairs a module `__getattr__` with a module `__dir__` for exactly this reason: a name
+    reached lazily does not exist in `globals()` until something asks for it, so without this
+    `dir(pybosl2)` -- and every REPL and IDE completion built on it -- listed 3 public names out
+    of 191, and the top-level façade the library points newcomers at looked empty (SPEC DOC-5).
+    """
+    return sorted(set(__all__) | set(globals()))
+
+
 __all__ = ["Version", "__version__", "version"] + sorted(k for k in _LAZY_EXPORTS if k)

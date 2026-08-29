@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 from pybosl2._anchoring import Anchorable
 from pybosl2._helpers import frag_count as _frag_count
 from pybosl2._helpers import pick_radius as _pick_radius
-from pybosl2._helpers import unwrap
+from pybosl2._helpers import require_anchor, unwrap
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.bounds import Bounds3D
 from pybosl2.defaults import resolve_facets as _resolve_facets
@@ -761,7 +761,7 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             cube.align(Anchor.FRONT, label, align=Anchor.LEFT).show()
 
         """
-        face = anchor.vector
+        face = require_anchor(anchor, "anchor").vector
         edge = Anchor.CENTER.vector if align is None else align.vector
         factor = -1.0 if inside else 1.0
         csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
@@ -818,8 +818,9 @@ class CsgSolid(BaseShape, Anchorable, Partitionable):
             cube.attach(Anchor.TOP, cyl).show()
 
         """
+        parent_anchor = require_anchor(parent_anchor, "parent_anchor")
         pa = parent_anchor.vector
-        ca = -pa if child_anchor is None else child_anchor.vector
+        ca = -pa if child_anchor is None else require_anchor(child_anchor, "child_anchor").vector
         csolid = child if isinstance(child, Bosl2Solid) else Bosl2Solid(child)
         cpt = csolid.anchor_point(ca)
         placed = csolid.translate([-cpt[0], -cpt[1], -cpt[2]])

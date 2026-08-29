@@ -33,6 +33,7 @@ from pybosl2._helpers import (
 from pybosl2._helpers import (
     frag_count as _frag_count,
 )
+from pybosl2._helpers import require_anchor
 from pybosl2._native import native
 from pybosl2._shape import BaseShape as BaseShape
 from pybosl2.bounds import Bounds2D
@@ -409,7 +410,7 @@ class CsgShape2D(BaseShape):
             A copy of this shape carrying the placed child as a pending attachment.
 
         """
-        face = list(anchor.vector_2d)
+        face = list(require_anchor(anchor, "anchor").vector_2d)
         edge = list(Anchor.CENTER.vector_2d) if align is None else list(align.vector_2d)
         factor = -1.0 if inside else 1.0
         cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
@@ -455,8 +456,9 @@ class CsgShape2D(BaseShape):
             A copy of this shape carrying the placed child as a pending attachment.
 
         """
+        parent_anchor = require_anchor(parent_anchor, "parent_anchor")
         pa = list(parent_anchor.vector_2d)
-        ca = [-pa[0], -pa[1]] if child_anchor is None else list(child_anchor.vector_2d)
+        ca = [-pa[0], -pa[1]] if child_anchor is None else list(require_anchor(child_anchor, "child_anchor").vector_2d)
         cshape = child if isinstance(child, CsgShape2D) else CsgShape2D(child)
         cpt = cshape.anchor_point(ca)
         placed = cshape.translate([-cpt[0], -cpt[1]])

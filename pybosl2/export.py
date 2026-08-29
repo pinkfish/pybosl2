@@ -224,6 +224,13 @@ def open_edges(mesh: "VNF") -> list[tuple[int, int]]:
     return sorted(edge for edge, count in counts.items() if count != 2)
 
 
+def _is_vnf(mesh: object) -> bool:
+    """Return True if *mesh* is a VNF, importing it lazily to keep this module CAD-runtime free."""
+    from pybosl2.vnf import VNF
+
+    return isinstance(mesh, VNF)
+
+
 def check_exportable(mesh: "VNF") -> None:
     """Raise if *mesh* is not a solid a slicer would accept (SPEC S-55).
 
@@ -238,6 +245,17 @@ def check_exportable(mesh: "VNF") -> None:
         Bosl2ValueError: If the mesh is empty, has open edges, or is wound inside out.
 
     """
+    from pybosl2.vnf import VNF
+
+    if not isinstance(mesh, VNF):
+        # A shape is the natural thing to reach for here, because `Shape.export()` takes one.
+        # Meshing it implicitly is the one thing this must not do: deciding when a field becomes
+        # a mesh is the caller's call, not the exporter's (SPEC T3). So say what to call instead.
+        raise Bosl2ValueError(
+            f"export(): expected a VNF mesh, got {type(mesh).__name__}. Call `shape.export(path)` "
+            f"to write a shape directly, or `shape.vnf()` to mesh it yourself first -- this "
+            f"function will not mesh for you, because when a shape is meshed is your decision."
+        )
     if not mesh.vertices or not mesh.faces:
         raise Bosl2ValueError("export(): the mesh is empty -- there is nothing to write.")
     holes = open_edges(mesh)
@@ -275,6 +293,13 @@ def write_mesh(mesh: "VNF", path: "Path", *, file_format: str | None = None, che
     name = format_for(path, file_format)
     if check:
         check_exportable(mesh)
+    elif not _is_vnf(mesh):
+        # `check=False` waives the *watertightness* checks, not the type -- without this the
+        # wrong argument reached a writer and failed on a backend attribute instead.
+        raise Bosl2ValueError(
+            f"export(): expected a VNF mesh, got {type(mesh).__name__}. Call `shape.export(path)` "
+            f"to write a shape directly, or `shape.vnf()` to mesh it yourself first."
+        )
     path.parent.mkdir(parents=True, exist_ok=True)
     _WRITERS[name](mesh, path)
     return path
