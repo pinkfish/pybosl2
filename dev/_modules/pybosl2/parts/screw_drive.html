@@ -2743,8 +2743,17 @@
 
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Path2D | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span><span class="n">size</span><span class="p">,)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">spec</span> <span class="o">=</span> <span class="n">TorxSpec</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Path2D"</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">_profile</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">spec</span><span class="o">.</span><span class="n">_profile</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -2766,6 +2775,8 @@
 <span class="sd">                TorxMask2d(size=30).shape.linear_extrude(height=10).show()</span>
 
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
 
 <div class="viewcode-block" id="TorxMask2d.show">

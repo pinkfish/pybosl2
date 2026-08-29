@@ -2336,6 +2336,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">l</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">w</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">l</span><span class="p">,</span>
+            <span class="n">w</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">chamfer</span><span class="p">,</span>
+            <span class="n">angle</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span>
+            <span class="n">l</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
+            <span class="n">w</span><span class="p">,</span>
+            <span class="n">h</span><span class="p">,</span>
+            <span class="n">chamfer</span><span class="p">,</span>
+            <span class="n">angle</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">attack_ang</span><span class="p">,</span> <span class="n">attack_len</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">2</span>
         <span class="n">fudge</span> <span class="o">=</span> <span class="mf">1.177</span>
         <span class="n">chamf</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">chamfer</span>
@@ -2442,7 +2463,7 @@
             <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">21</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">VNF</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">VNF</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">faces</span><span class="p">)</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">w</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">h</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2463,6 +2484,8 @@
     <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds from a VNF whose faces are not convex, so it has no distance-field form"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the rail geometry."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 </code></pre></div>
