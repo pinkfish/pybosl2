@@ -3150,6 +3150,12 @@
 <span class="sd">        ``max_x``, ``max_y``, ``width``, and ``length`` fields.</span>
 
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Matches Region, which already refuses this ("empty Region has no bounds"). Shapely</span>
+            <span class="c1"># answers NaN for an empty geometry, and NaN is the worst of the options: it survives</span>
+            <span class="c1"># arithmetic and every comparison against it is False, so `if bounds.width &gt; 0` passes</span>
+            <span class="c1"># nothing through and the mistake surfaces far from its cause (SPEC E-4).</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"empty Path2D has no bounds"</span><span class="p">)</span>
         <span class="n">minx</span><span class="p">,</span> <span class="n">miny</span><span class="p">,</span> <span class="n">maxx</span><span class="p">,</span> <span class="n">maxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shapely</span><span class="o">.</span><span class="n">bounds</span>
         <span class="k">return</span> <span class="n">Bounds2D</span><span class="p">(</span>
             <span class="nb">float</span><span class="p">(</span><span class="n">minx</span><span class="p">),</span>

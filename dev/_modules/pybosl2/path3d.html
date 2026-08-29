@@ -3007,6 +3007,11 @@
 
 <span class="sd">        """</span>
         <span class="n">pts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_points</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Matches Region and Path2D. Without this, numpy surfaced the emptiness as</span>
+            <span class="c1"># "zero-size array to reduction operation minimum", which names an internal</span>
+            <span class="c1"># reduction rather than the empty path the caller actually has (SPEC E-4).</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"empty Path3D has no bounds"</span><span class="p">)</span>
         <span class="n">min_pt</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">max_pt</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Bounds3D</span><span class="p">(</span>
