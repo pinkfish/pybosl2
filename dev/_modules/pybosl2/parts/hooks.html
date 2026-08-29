@@ -2307,6 +2307,38 @@
         <span class="n">tangents</span> <span class="o">=</span> <span class="n">_circle_point_tangents</span><span class="p">(</span><span class="n">ro</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">hole_z</span><span class="p">],</span> <span class="p">[</span><span class="n">bx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
         <span class="n">tx</span><span class="p">,</span> <span class="n">tz</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">tangents</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_base_size</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_hole_z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hole_z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ro</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ri</span>
+        <span class="c1"># Everything above resolves and validates the spec, so a bad call still fails at the call</span>
+        <span class="c1"># that was wrong (SPEC E-4) and the four dimensions above are answerable without building.</span>
+        <span class="c1"># The geometry below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">bx</span><span class="p">,</span>
+            <span class="n">w</span><span class="p">,</span>
+            <span class="n">custom</span><span class="p">,</span>
+            <span class="n">ri</span><span class="p">,</span>
+            <span class="n">ro</span><span class="p">,</span>
+            <span class="n">tx</span><span class="p">,</span>
+            <span class="n">tz</span><span class="p">,</span>
+            <span class="n">hole</span><span class="p">,</span>
+            <span class="n">hole_z</span><span class="p">,</span>
+            <span class="n">hole_rounding</span><span class="p">,</span>
+            <span class="n">rounding</span><span class="p">,</span>
+            <span class="n">outside_segments</span><span class="p">,</span>
+            <span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span><span class="n">bx</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">custom</span><span class="p">,</span> <span class="n">ri</span><span class="p">,</span> <span class="n">ro</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">tz</span><span class="p">,</span> <span class="n">hole</span><span class="p">,</span> <span class="n">hole_z</span><span class="p">,</span> <span class="n">hole_rounding</span><span class="p">,</span> <span class="n">rounding</span><span class="p">,</span> <span class="n">outside_segments</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+        <span class="p">)</span>
+
         <span class="n">base</span> <span class="o">=</span> <span class="n">prismoid</span><span class="p">(</span>
             <span class="p">[</span><span class="n">bx</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span>
             <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">tx</span><span class="p">,</span> <span class="n">w</span><span class="p">],</span>
@@ -2331,11 +2363,7 @@
 
         <span class="k">if</span> <span class="n">ri</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">custom</span><span class="p">:</span>
             <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">-</span> <span class="n">_hole_cutter</span><span class="p">(</span><span class="n">hole</span><span class="p">,</span> <span class="n">ri</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">hole_z</span><span class="p">,</span> <span class="n">hole_rounding</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">bx</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">hole_z</span> <span class="o">+</span> <span class="n">ro</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_base_size</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_hole_z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">hole_z</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ro</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_inner_radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">ri</span>
+        <span class="k">return</span> <span class="n">body</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">bx</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">hole_z</span> <span class="o">+</span> <span class="n">ro</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">base_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
@@ -2360,7 +2388,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the ring hook geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 

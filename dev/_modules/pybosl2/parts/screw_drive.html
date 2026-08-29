@@ -2668,6 +2668,28 @@
         <span class="n">realsize</span> <span class="o">=</span> <span class="mf">1.0072</span> <span class="o">*</span> <span class="n">size</span> <span class="o">+</span> <span class="mf">0.0341</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">slop</span>
         <span class="c1"># A hexagonal prism, not a hexagon extruded: regular_prism() builds on either backend</span>
         <span class="c1"># where the 2-D hexagon is CSG geometry. The two were checked to give the same solid.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_realsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">realsize</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">size</span><span class="p">,</span>
+            <span class="n">l</span><span class="p">,</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">center</span><span class="p">,</span>
+            <span class="n">realsize</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span>
+            <span class="n">size</span><span class="p">,</span>
+            <span class="n">l</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
+            <span class="n">slop</span><span class="p">,</span>
+            <span class="n">center</span><span class="p">,</span>
+            <span class="n">realsize</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">solid</span> <span class="o">=</span> <span class="n">regular_prism</span><span class="p">(</span>
             <span class="mi">6</span><span class="p">,</span>
             <span class="n">inner_diameter</span><span class="o">=</span><span class="n">realsize</span><span class="p">,</span>
@@ -2676,8 +2698,7 @@
         <span class="p">)</span>
         <span class="c1"># Nominal anchor box: the hex key's across-flats size, which is what the fastener is named</span>
         <span class="c1"># for. The recess measures 2/sqrt(3) of that across the corners, so bounds() is wider in X.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">solid</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">realsize</span><span class="p">,</span> <span class="n">realsize</span><span class="p">,</span> <span class="n">l</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_realsize</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">realsize</span>
+        <span class="k">return</span> <span class="n">solid</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">realsize</span><span class="p">,</span> <span class="n">realsize</span><span class="p">,</span> <span class="n">l</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2707,6 +2728,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the hex drive mask geometry."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
@@ -2827,11 +2850,32 @@
 
         <span class="n">spec</span> <span class="o">=</span> <span class="n">TorxSpec</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
         <span class="n">outer_diameter</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">diam</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">outer_diameter</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">size</span><span class="p">,</span>
+            <span class="n">l</span><span class="p">,</span>
+            <span class="n">center</span><span class="p">,</span>
+            <span class="n">spec</span><span class="p">,</span>
+            <span class="n">outer_diameter</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span>
+            <span class="n">size</span><span class="p">,</span>
+            <span class="n">l</span><span class="p">,</span>  <span class="c1"># noqa: E741</span>
+            <span class="n">center</span><span class="p">,</span>
+            <span class="n">spec</span><span class="p">,</span>
+            <span class="n">outer_diameter</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">solid</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">_profile</span><span class="p">()</span><span class="o">.</span><span class="n">linear_extrude</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">l</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">)</span>
         <span class="c1"># Nominal anchor box: the Torx size's outer diameter. The lobed profile only touches that</span>
         <span class="c1"># circle at the six lobes, so bounds() is narrower across the flats between them.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">solid</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">l</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_outer_diameter</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">outer_diameter</span>
+        <span class="k">return</span> <span class="n">solid</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">outer_diameter</span><span class="p">,</span> <span class="n">outer_diameter</span><span class="p">,</span> <span class="n">l</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -2866,6 +2910,8 @@
 <span class="sd">                TorxMask(size=30, l=10).shape.show()</span>
 
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 

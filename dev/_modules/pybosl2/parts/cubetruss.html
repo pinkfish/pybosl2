@@ -2310,6 +2310,16 @@
         <span class="n">height</span> <span class="o">=</span> <span class="n">sz</span>
         <span class="n">crossthick</span> <span class="o">=</span> <span class="n">st</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">voffset</span> <span class="o">=</span> <span class="mf">0.333</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sz</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">st</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">br</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">crossthick</span><span class="p">,</span> <span class="n">voffset</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">br</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">crossthick</span><span class="p">,</span> <span class="n">voffset</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
         <span class="n">body</span> <span class="o">=</span> <span class="n">cuboid</span><span class="p">([</span><span class="n">sz</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">height</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span> <span class="o">-</span> <span class="n">cuboid</span><span class="p">(</span>
             <span class="p">[</span><span class="n">sz</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span><span class="p">,</span> <span class="n">sz</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">st</span><span class="p">],</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span>
@@ -2330,9 +2340,7 @@
                     <span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">voffset</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">body</span> <span class="o">=</span> <span class="n">body</span> <span class="o">|</span> <span class="p">(</span><span class="n">brace</span> <span class="o">-</span> <span class="n">hole</span><span class="p">)</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">45</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">sz</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">sz</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">sz</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_strut</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">st</span>
+        <span class="k">return</span> <span class="n">body</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">sz</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">sz</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2347,7 +2355,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the segment geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 
@@ -2412,6 +2422,16 @@
             <span class="n">w</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">hh</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 
         <span class="n">step</span> <span class="o">=</span> <span class="n">sz</span> <span class="o">-</span> <span class="n">st</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">extents</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extents</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extents</span><span class="p">)</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">clips</span><span class="p">,</span> <span class="n">bracing</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">ct</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">hh</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">clips</span><span class="p">,</span> <span class="n">bracing</span><span class="p">,</span> <span class="n">slop</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">segs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="s2">"Solid"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">zrow</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hh</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">xcol</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
@@ -2450,8 +2470,7 @@
             <span class="n">truss_dist</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">),</span>
             <span class="n">truss_dist</span><span class="p">(</span><span class="n">hh</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">),</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_extents</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">extents</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extents</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">extents</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extents</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
@@ -2461,7 +2480,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the truss geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 
@@ -2634,6 +2655,15 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">exts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">extents</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]]</span>
         <span class="n">step</span> <span class="o">=</span> <span class="n">sz</span> <span class="o">-</span> <span class="n">st</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">exts</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span><span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">exts</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">seg</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">TrussSegment</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">sz</span><span class="p">,</span> <span class="n">strut</span><span class="o">=</span><span class="n">st</span><span class="p">,</span> <span class="n">bracing</span><span class="o">=</span><span class="n">bracing</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
@@ -2652,8 +2682,7 @@
             <span class="n">truss_dist</span><span class="p">(</span><span class="n">exts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">exts</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">),</span>
             <span class="n">truss_dist</span><span class="p">(</span><span class="n">h</span> <span class="o">+</span> <span class="n">exts</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">st</span><span class="p">),</span>
         <span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">height</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -2663,7 +2692,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the corner geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 

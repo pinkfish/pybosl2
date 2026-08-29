@@ -2678,8 +2678,6 @@
 <span class="sd">            None</span>
 
 <span class="sd">        """</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">pitch</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"ThreadHelix: d and pitch must be positive."</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">d</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
@@ -2689,6 +2687,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_turns</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">turns</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_starts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">starts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_left_handed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">left_handed</span>
+        <span class="c1"># The five dimensions above are all a caller needs to *measure* this helix; the sweep</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">,</span> <span class="n">flank_angle</span><span class="p">,</span> <span class="n">turns</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
+
+        <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">thread_depth</span><span class="p">,</span> <span class="n">flank_angle</span><span class="p">,</span> <span class="n">turns</span><span class="p">,</span> <span class="n">starts</span><span class="p">,</span> <span class="n">left_handed</span><span class="p">,</span> <span class="n">profile</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
 
         <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">depth</span> <span class="o">=</span> <span class="n">thread_depth</span> <span class="k">if</span> <span class="n">thread_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pitch</span> <span class="o">/</span> <span class="mi">2</span>
@@ -2715,7 +2723,7 @@
                 <span class="n">piece</span> <span class="o">=</span> <span class="n">piece</span><span class="o">.</span><span class="n">rotate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">k</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">starts</span><span class="p">])</span>
             <span class="n">thread</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="n">thread</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">(</span><span class="n">thread</span> <span class="o">|</span> <span class="n">piece</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">thread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">thread</span>
+        <span class="k">return</span> <span class="n">thread</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">diameter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2745,7 +2753,9 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the helix geometry."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
 
 
 

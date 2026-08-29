@@ -3205,23 +3205,46 @@
 <span class="sd">        """</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">ps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">_auto_profile_shift</span><span class="p">(</span><span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">profile_shift</span><span class="p">)</span>
-        <span class="n">tooth</span> <span class="o">=</span> <span class="n">_gear_tooth_profile</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">internal</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
-        <span class="n">perim</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">teeth</span> <span class="o">-</span> <span class="n">hide</span><span class="p">):</span>
-            <span class="n">perim</span> <span class="o">+=</span> <span class="n">_zrot_pts</span><span class="p">(</span><span class="n">tooth</span><span class="p">,</span> <span class="o">-</span><span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">teeth</span> <span class="o">+</span> <span class="n">gear_spin</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">hide</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">perim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-        <span class="n">_or</span> <span class="o">=</span> <span class="n">_outer_radius_basic</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
-        <span class="c1"># The perimeter as a path, not as 2-D geometry. A path is backend-neutral -- it is what</span>
-        <span class="c1"># `Path2D.linear_extrude()` dispatches on -- while a `Bosl2Shape2D` is a CSG notion, and</span>
-        <span class="c1"># that was what kept every gear CSG-only (TASKS T14).</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">_dedup</span><span class="p">(</span><span class="n">perim</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># A bore is a hole, and one path cannot describe an outline with a hole in it. It is cut</span>
         <span class="c1"># where the geometry is built instead -- see `bore`, and SpurGear, which subtracts it as a</span>
         <span class="c1"># cylinder for exactly the same result.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shaft_diam</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">shaft_diam</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">hide</span> <span class="k">else</span> <span class="mf">0.0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">teeth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">mod</span>
+        <span class="c1"># The pitch and profile shift above are arithmetic on the arguments, so they still resolve</span>
+        <span class="c1"># (and reject) at the call. Cutting the tooth profile and repeating it around the gear is</span>
+        <span class="c1"># the expensive half, and is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">center</span><span class="p">,</span>
+            <span class="n">ps</span><span class="p">,</span>
+            <span class="n">teeth</span><span class="p">,</span>
+            <span class="n">hide</span><span class="p">,</span>
+            <span class="n">pressure_angle</span><span class="p">,</span>
+            <span class="n">clearance</span><span class="p">,</span>
+            <span class="n">backlash</span><span class="p">,</span>
+            <span class="n">helical</span><span class="p">,</span>
+            <span class="n">internal</span><span class="p">,</span>
+            <span class="n">shorten</span><span class="p">,</span>
+            <span class="n">gear_spin</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">:</span> <span class="n">Path2D</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path2D</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the perimeter path. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">hide</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">internal</span><span class="p">,</span> <span class="n">shorten</span><span class="p">,</span> <span class="n">gear_spin</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+        <span class="p">)</span>
+
+        <span class="n">tooth</span> <span class="o">=</span> <span class="n">_gear_tooth_profile</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">,</span> <span class="n">pressure_angle</span><span class="p">,</span> <span class="n">clearance</span><span class="p">,</span> <span class="n">backlash</span><span class="p">,</span> <span class="n">helical</span><span class="p">,</span> <span class="n">internal</span><span class="p">,</span> <span class="n">ps</span><span class="p">,</span> <span class="n">shorten</span><span class="p">)</span>
+        <span class="n">perim</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">teeth</span> <span class="o">-</span> <span class="n">hide</span><span class="p">):</span>
+            <span class="n">perim</span> <span class="o">+=</span> <span class="n">_zrot_pts</span><span class="p">(</span><span class="n">tooth</span><span class="p">,</span> <span class="o">-</span><span class="n">i</span> <span class="o">*</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">teeth</span> <span class="o">+</span> <span class="n">gear_spin</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hide</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">perim</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># The perimeter as a path, not as 2-D geometry. A path is backend-neutral -- it is what</span>
+        <span class="c1"># `Path2D.linear_extrude()` dispatches on -- while a `Bosl2Shape2D` is a CSG notion, and</span>
+        <span class="c1"># that was what kept every gear CSG-only (TASKS T14).</span>
+        <span class="k">return</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">_dedup</span><span class="p">(</span><span class="n">perim</span><span class="p">),</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -3236,7 +3259,9 @@
 <span class="sd">        gear built from this outline is not tied to CSG. It carries the teeth only -- a bore is a</span>
 <span class="sd">        hole, which one path cannot describe; see :attr:`bore`.</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_path</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bore</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -3259,8 +3284,8 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shaft_diam</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Region</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">Region</span><span class="o">.</span><span class="n">with_holes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">,</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">circle2d</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shaft_diam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span></div>
+            <span class="k">return</span> <span class="n">Region</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Region</span><span class="o">.</span><span class="n">with_holes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">circle2d</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_shaft_diam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="SpurGear2d.show">
@@ -3277,7 +3302,7 @@
 
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">()</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span></div>
 </div>
 
 
