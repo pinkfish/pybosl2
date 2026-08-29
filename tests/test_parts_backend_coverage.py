@@ -166,7 +166,12 @@ def test_each_refusal_names_non_convexity(name: str) -> None:
     assert isinstance(failure, UnsupportedByBackendError), (
         f"{name} is listed CSG-only but failed with {type(failure).__name__}: {failure}"
     )
-    assert "non-convex" in str(failure), (
+    # Matched on meaning rather than one spelling: a part that builds lazily refuses from its own
+    # `shape` with its own wording ("faces are not convex", "no distance-field form") rather than
+    # from a generic guard at construction. Pinning the literal substring made the *better*,
+    # more specific message look like a different reason.
+    reasons = ("non-convex", "not convex", "no distance-field form", "has no closed-form")
+    assert any(reason in str(failure) for reason in reasons), (
         f"{name} refuses for a reason other than non-convexity, which is the only reason "
         f"SPEC §12.2 accepts for this gap: {failure}"
     )

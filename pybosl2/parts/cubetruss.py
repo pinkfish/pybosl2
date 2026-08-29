@@ -367,6 +367,29 @@ class TrussSupport(Buildable):
             None.
 
         """
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            extents,
+            size,
+            strut,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            extents,
+            size,
+            strut,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         if isinstance(extents, (int, float)):
@@ -409,11 +432,13 @@ class TrussSupport(Buildable):
                 ]
             )
             pieces.append((base - holes - ytun).multmatrix(mx.tolist()))
-        self._solid: "Solid" = _union(pieces).with_nominal_size([w, length, height])
+        return _union(pieces).with_nominal_size([w, length, height])
 
     @property
     def shape(self) -> "Solid":
         """Return the support truss geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -540,6 +565,33 @@ class TrussClip(Buildable):
             None.
 
         """
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            extents,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            extents,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -594,11 +646,13 @@ class TrussClip(Buildable):
             st * 2,
             clipheight - 2 * st,
         ]
-        self._solid: "Solid" = pair.with_nominal_size(s_arr)
+        return pair.with_nominal_size(s_arr)
 
     @property
     def shape(self) -> "Solid":
         """Return the clip geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -642,6 +696,33 @@ class TrussFoot(Buildable):
             None.
 
         """
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            w,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            w,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -716,11 +797,13 @@ class TrussFoot(Buildable):
         # Nominal anchor box: the foot's plate. Its plugs stand proud of the plate in Z, so
         # bounds() is taller -- anchoring follows the surface the foot sits on.
         s_arr = [span + 2 * ct, sz - 2 * st, st + ct]
-        self._solid: "Solid" = result.with_nominal_size(s_arr)
+        return result.with_nominal_size(s_arr)
 
     @property
     def shape(self) -> "Solid":
         """Return the foot geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -764,6 +847,33 @@ class TrussUClip(Buildable):
             None.
 
         """
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            dual,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            dual,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -795,11 +905,13 @@ class TrussUClip(Buildable):
                 for m in DistributableMatrix.xflip_copy(offset=(1 if dual else 0.5) * st + slop / 2)
             ]
         ).back((st + slop) / 2)
-        self._solid: "Solid" = (body | clips).with_nominal_size(s_arr)
+        return (body | clips).with_nominal_size(s_arr)
 
     @property
     def shape(self) -> "Solid":
         """Return the U-clip geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -845,6 +957,35 @@ class TrussJoiner(Buildable):
             None.
 
         """
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            w,
+            vert,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            w,
+            vert,
+            size,
+            strut,
+            clipthick,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         sz = CUBETRUSS_SIZE if size is None else size
         st = CUBETRUSS_STRUT_SIZE if strut is None else strut
         ct = CUBETRUSS_CLIP_THICKNESS if clipthick is None else clipthick
@@ -896,9 +1037,11 @@ class TrussJoiner(Buildable):
         # Nominal anchor box: the joiner's plate, as TrussFoot uses. Its wall clips stand well
         # above the plate, so bounds() is several times taller in Z.
         s_arr = [span + 2 * ct, 2 * (sz - st) + st, st + ct]
-        self._solid: "Solid" = result.with_nominal_size(s_arr)
+        return result.with_nominal_size(s_arr)
 
     @property
     def shape(self) -> "Solid":
         """Return the joiner geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid

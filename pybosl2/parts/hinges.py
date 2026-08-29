@@ -83,11 +83,34 @@ class LivingHingeMask(Buildable):
             None.
 
         """
-        hg = (layerheight if hingegap is None else hingegap) + 2 * slop
-        top = hg + 2 * thick / math.tan(math.radians(foldangle / 2))
-        self._solid: "Solid" = prismoid([length, hg], [length, top], height=thick, anchor=BOTTOM).up(layerheight * 2)
         self._length: float = length
         self._thick: float = thick
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            length,
+            thick,
+            layerheight,
+            foldangle,
+            hingegap,
+            slop,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            length,
+            thick,
+            layerheight,
+            foldangle,
+            hingegap,
+            slop,
+        ) = self._args
+
+        hg = (layerheight if hingegap is None else hingegap) + 2 * slop
+        top = hg + 2 * thick / math.tan(math.radians(foldangle / 2))
+        return prismoid([length, hg], [length, top], height=thick, anchor=BOTTOM).up(layerheight * 2)
 
     @property
     def length(self) -> float:
@@ -102,6 +125,8 @@ class LivingHingeMask(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the hinge mask geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -276,6 +301,43 @@ class KnuckleHingePair(Buildable):
             None.
 
         """
+        self._length: float = length
+        self._fold: float = fold
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            length,
+            segs,
+            knuckle_diam,
+            pin_diam,
+            arm,
+            thick,
+            gap,
+            fold,
+            pin,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            length,
+            segs,
+            knuckle_diam,
+            pin_diam,
+            arm,
+            thick,
+            gap,
+            fold,
+            pin,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         outer = KnuckleHinge(
             length,
             segs,
@@ -307,9 +369,7 @@ class KnuckleHingePair(Buildable):
         hinge = outer | inner
         if pin:
             hinge = hinge | cyl(height=length - gap, diameter=pin_diam - 0.1, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0])
-        self._solid: "Solid" = hinge.with_nominal_size([length, 2 * arm + knuckle_diam, knuckle_diam])
-        self._length: float = length
-        self._fold: float = fold
+        return hinge.with_nominal_size([length, 2 * arm + knuckle_diam, knuckle_diam])
 
     @property
     def length(self) -> float:
@@ -324,6 +384,8 @@ class KnuckleHingePair(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the hinge pair geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -371,14 +433,45 @@ class SnapLock(Buildable):
             None.
 
         """
+        self._thick: float = thick
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            thick,
+            snaplen,
+            snapdiam,
+            layerheight,
+            foldangle,
+            hingegap,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            thick,
+            snaplen,
+            snapdiam,
+            layerheight,
+            foldangle,
+            hingegap,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         hg = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hg / 2
         post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)
         ridge = cyl(height=snaplen, diameter=snapdiam, fn=fn, fa=fa, fs=fs).rotate([0, 90, 0]).up(snapdiam / 2 + thick)
         # Nominal anchor box: the plate the snap is mounted on, so a lock and its socket anchor to
         # the same frame. The snap head stands above it, making bounds() taller.
-        self._solid: "Solid" = (post | ridge).back(snap_x).with_nominal_size([snaplen, snapdiam, 2 * thick])
-        self._thick: float = thick
+        return (post | ridge).back(snap_x).with_nominal_size([snaplen, snapdiam, 2 * thick])
 
     @property
     def thick(self) -> float:
@@ -388,6 +481,8 @@ class SnapLock(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the snap-lock tab geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -435,6 +530,38 @@ class SnapSocket(Buildable):
             None.
 
         """
+        self._thick: float = thick
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            thick,
+            snaplen,
+            snapdiam,
+            layerheight,
+            foldangle,
+            hingegap,
+            slop,
+            fn,
+            fa,
+            fs,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            thick,
+            snaplen,
+            snapdiam,
+            layerheight,
+            foldangle,
+            hingegap,
+            slop,
+            fn,
+            fa,
+            fs,
+        ) = self._args
+
         hg = (layerheight if hingegap is None else hingegap) + 2 * slop
         snap_x = (snapdiam / 2 + (thick - 2 * layerheight)) / math.tan(math.radians(foldangle / 2)) + hg / 2
         post = cuboid([snaplen, snapdiam, snapdiam / 2 + thick], fn=fn, fa=fa, fs=fs).up((snapdiam / 2 + thick) / 2)
@@ -447,10 +574,7 @@ class SnapSocket(Buildable):
         )
         # Nominal anchor box: the plate, as SnapLock uses, so the two halves anchor to the same
         # frame. The socket's ridge stands above the plate, so bounds() is taller.
-        self._solid: "Solid" = (
-            ((post | ridge) - divot).forward(snap_x).with_nominal_size([snaplen, snapdiam, 2 * thick])
-        )
-        self._thick: float = thick
+        return ((post | ridge) - divot).forward(snap_x).with_nominal_size([snaplen, snapdiam, 2 * thick])
 
     @property
     def thick(self) -> float:
@@ -460,4 +584,6 @@ class SnapSocket(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the snap socket geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid

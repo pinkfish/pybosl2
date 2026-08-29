@@ -593,8 +593,17 @@ class TorxMask2d:
 
         """
         self._size: int = size
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (size,)
+        self._shape: "Path2D | None" = None
+
+    def _build(self) -> "Path2D":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (size,) = self._args
+
         spec = TorxSpec(size)
-        self._shape: "Path2D" = spec._profile()
+        return spec._profile()
 
     @property
     def size(self) -> int:
@@ -616,6 +625,8 @@ class TorxMask2d:
                 TorxMask2d(size=30).shape.linear_extrude(height=10).show()
 
         """
+        if self._shape is None:
+            self._shape = self._build()
         return self._shape
 
     def show(self) -> Any:
