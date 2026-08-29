@@ -175,6 +175,38 @@ class RingHook(Buildable):
         tangents = _circle_point_tangents(ro, [0, hole_z], [bx / 2, 0])
         tx, tz = max(tangents, key=lambda t: t[1])
 
+        self._base_size: list[float] = base_size
+        self._hole_z: float = hole_z
+        self._outer_radius: float = ro
+        self._inner_radius: float = ri
+        # Everything above resolves and validates the spec, so a bad call still fails at the call
+        # that was wrong (SPEC E-4) and the four dimensions above are answerable without building.
+        # The geometry below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            bx,
+            w,
+            custom,
+            ri,
+            ro,
+            tx,
+            tz,
+            hole,
+            hole_z,
+            hole_rounding,
+            rounding,
+            outside_segments,
+            fn,
+            fa,
+            fs,
+        )
+        self._shape: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (bx, w, custom, ri, ro, tx, tz, hole, hole_z, hole_rounding, rounding, outside_segments, fn, fa, fs) = (
+            self._args
+        )
+
         base = prismoid(
             [bx, w],
             [2 * tx, w],
@@ -199,11 +231,7 @@ class RingHook(Buildable):
 
         if ri > 0 or custom:
             body = body - _hole_cutter(hole, ri, w, hole_z, hole_rounding, fn, fa, fs)
-        self._solid: "Solid" = body.with_nominal_size([bx, w, hole_z + ro])
-        self._base_size: list[float] = base_size
-        self._hole_z: float = hole_z
-        self._outer_radius: float = ro
-        self._inner_radius: float = ri
+        return body.with_nominal_size([bx, w, hole_z + ro])
 
     @property
     def base_size(self) -> list[float]:
@@ -228,7 +256,9 @@ class RingHook(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the ring hook geometry."""
-        return self._solid
+        if self._shape is None:
+            self._shape = self._build()
+        return self._shape
 
 
 def _hole_cutter(

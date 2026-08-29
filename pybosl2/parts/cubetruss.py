@@ -178,6 +178,16 @@ class TrussSegment(Buildable):
         height = sz
         crossthick = st / math.sqrt(2)
         voffset = 0.333
+        self._size: float = sz
+        self._strut: float = st
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (sz, st, br, height, crossthick, voffset, fn, fa, fs)
+        self._shape: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (sz, st, br, height, crossthick, voffset, fn, fa, fs) = self._args
 
         body = cuboid([sz, sz, height], fn=fn, fa=fa, fs=fs) - cuboid(
             [sz - 2 * st, sz - 2 * st, height - 2 * st], fn=fn, fa=fa, fs=fs
@@ -198,9 +208,7 @@ class TrussSegment(Buildable):
                     .up(i * voffset)
                 )
                 body = body | (brace - hole).rotate([0, 0, i * 45])
-        self._solid: "Solid" = body.with_nominal_size([sz, sz, sz])
-        self._size: float = sz
-        self._strut: float = st
+        return body.with_nominal_size([sz, sz, sz])
 
     @property
     def size(self) -> float:
@@ -215,7 +223,9 @@ class TrussSegment(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the segment geometry."""
-        return self._solid
+        if self._shape is None:
+            self._shape = self._build()
+        return self._shape
 
 
 class Truss(Buildable):
@@ -277,6 +287,16 @@ class Truss(Buildable):
             w, length, hh = int(e[0]), int(e[1]), int(e[2])
 
         step = sz - st
+        self._extents: int | tuple[int, ...] = extents if isinstance(extents, int) else tuple(extents)
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (sz, st, ct, w, length, hh, step, clips, bracing, slop, fn, fa, fs)
+        self._shape: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (sz, st, ct, w, length, hh, step, clips, bracing, slop, fn, fa, fs) = self._args
+
         segs: list["Solid"] = []
         for zrow in range(hh):
             for xcol in range(w):
@@ -315,8 +335,7 @@ class Truss(Buildable):
             truss_dist(length, 1, sz, st),
             truss_dist(hh, 1, sz, st),
         ]
-        self._solid: "Solid" = result.with_nominal_size(s)
-        self._extents: int | tuple[int, ...] = extents if isinstance(extents, int) else tuple(extents)
+        return result.with_nominal_size(s)
 
     @property
     def extents(self) -> int | tuple[int, ...]:
@@ -326,7 +345,9 @@ class Truss(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the truss geometry."""
-        return self._solid
+        if self._shape is None:
+            self._shape = self._build()
+        return self._shape
 
 
 class TrussSupport(Buildable):
@@ -493,6 +514,15 @@ class TrussCorner(Buildable):
         else:
             exts = [int(x) for x in (list(extents) + [0] * 5)[:5]]
         step = sz - st
+        self._height: int = h
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (sz, st, h, exts, step, bracing, fn, fa, fs)
+        self._shape: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (sz, st, h, exts, step, bracing, fn, fa, fs) = self._args
 
         def seg() -> "Solid":
             return TrussSegment(size=sz, strut=st, bracing=bracing, fn=fn, fa=fa, fs=fs).shape
@@ -511,8 +541,7 @@ class TrussCorner(Buildable):
             truss_dist(exts[1] + 1 + exts[3], 1, sz, st),
             truss_dist(h + exts[4], 1, sz, st),
         ]
-        self._solid: "Solid" = result.with_nominal_size(s)
-        self._height: int = h
+        return result.with_nominal_size(s)
 
     @property
     def height(self) -> int:
@@ -522,7 +551,9 @@ class TrussCorner(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the corner geometry."""
-        return self._solid
+        if self._shape is None:
+            self._shape = self._build()
+        return self._shape
 
 
 class TrussClip(Buildable):

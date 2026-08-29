@@ -55,15 +55,9 @@ EAGER_PARTS = frozenset(
         # eager deliberately; converting it is a hand edit, not a mechanical one.
         "PhillipsMask",
         "Rack2d",
-        "RingHook",
         "RobertsonMask",
         "SparseCuboid",
-        "SpurGear2d",
-        "ThreadHelix",
         "ThreadedNut",
-        "Truss",
-        "TrussCorner",
-        "TrussSegment",
     }
 )
 
