@@ -153,6 +153,31 @@ class WireBundle(Buildable):
         """
         if wires < 1:
             raise Bosl2ValueError("wire_bundle() needs at least one wire.")
+        self._wires: int = wires
+        self._wirediam: float = wirediam
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            path,
+            wires,
+            wirediam,
+            rounding,
+            wirenum,
+            corner_steps,
+        )
+        self._solid: "Bosl2Solid | None" = None
+
+    def _build(self) -> "Bosl2Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            path,
+            wires,
+            wirediam,
+            rounding,
+            wirenum,
+            corner_steps,
+        ) = self._args
+
         sides = max(_segs(wirediam / 2), 8)
         offsets = _hex_offsets(wires, wirediam)
         rounded_path = Path3D(path, closed=False).round_corners(radius=rounding, fn=(corner_steps + 1) * 4)
@@ -170,9 +195,7 @@ class WireBundle(Buildable):
             wire = wire.color(_WIRE_COLORS[(i + wirenum) % len(_WIRE_COLORS)])
             bundle = wire if bundle is None else (bundle | wire)
         assert bundle is not None
-        self._solid: Bosl2Solid = Bosl2Solid(cast("Bosl2Solid", bundle).shape, size=None)
-        self._wires: int = wires
-        self._wirediam: float = wirediam
+        return Bosl2Solid(cast("Bosl2Solid", bundle).shape, size=None)
 
     @property
     def wires(self) -> int:
@@ -185,7 +208,12 @@ class WireBundle(Buildable):
         return self._wirediam
 
     @property
-    @csg_part("sweeps the bundle along its route with path_sweep(), which a distance field cannot express")
+    @csg_part(
+        "sweeps each wire along the route with path_sweep(), and a swept tube that follows bends "
+        "is a non-convex mesh with no distance-field form"
+    )
     def shape(self) -> Bosl2Solid:
         """Return the wire bundle geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
