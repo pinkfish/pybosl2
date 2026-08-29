@@ -521,6 +521,28 @@ class HexDriveMask(Buildable):
         realsize = 1.0072 * size + 0.0341 + 2 * slop
         # A hexagonal prism, not a hexagon extruded: regular_prism() builds on either backend
         # where the 2-D hexagon is CSG geometry. The two were checked to give the same solid.
+        self._realsize: float = realsize
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            size,
+            l,
+            slop,
+            center,
+            realsize,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            size,
+            l,  # noqa: E741
+            slop,
+            center,
+            realsize,
+        ) = self._args
+
         solid = regular_prism(
             6,
             inner_diameter=realsize,
@@ -529,8 +551,7 @@ class HexDriveMask(Buildable):
         )
         # Nominal anchor box: the hex key's across-flats size, which is what the fastener is named
         # for. The recess measures 2/sqrt(3) of that across the corners, so bounds() is wider in X.
-        self._solid: "Solid" = solid.with_nominal_size([realsize, realsize, l])
-        self._realsize: float = realsize
+        return solid.with_nominal_size([realsize, realsize, l])
 
     @property
     def size(self) -> float:
@@ -560,6 +581,8 @@ class HexDriveMask(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the hex drive mask geometry."""
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 
@@ -671,11 +694,32 @@ class TorxMask(Buildable):
 
         spec = TorxSpec(size)
         outer_diameter = spec.diam
+        self._outer_diameter: float = outer_diameter
+        # The spec above is all a caller needs to *measure* this part; the geometry
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            size,
+            l,
+            center,
+            spec,
+            outer_diameter,
+        )
+        self._solid: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        (
+            size,
+            l,  # noqa: E741
+            center,
+            spec,
+            outer_diameter,
+        ) = self._args
+
         solid = spec._profile().linear_extrude(height=l, center=center)
         # Nominal anchor box: the Torx size's outer diameter. The lobed profile only touches that
         # circle at the six lobes, so bounds() is narrower across the flats between them.
-        self._solid: "Solid" = solid.with_nominal_size([outer_diameter, outer_diameter, l])
-        self._outer_diameter: float = outer_diameter
+        return solid.with_nominal_size([outer_diameter, outer_diameter, l])
 
     @property
     def size(self) -> int:
@@ -710,6 +754,8 @@ class TorxMask(Buildable):
                 TorxMask(size=30, l=10).shape.show()
 
         """
+        if self._solid is None:
+            self._solid = self._build()
         return self._solid
 
 

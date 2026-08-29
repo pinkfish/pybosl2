@@ -543,8 +543,6 @@ class ThreadHelix(Buildable):
             None
 
         """
-        from pybosl2.path2d import Path2D
-
         if not (pitch > 0):
             raise Bosl2ValueError("ThreadHelix: d and pitch must be positive.")
         if not (d > 0):
@@ -554,6 +552,16 @@ class ThreadHelix(Buildable):
         self._turns: float = turns
         self._starts: int = starts
         self._left_handed: bool = left_handed
+        # The five dimensions above are all a caller needs to *measure* this helix; the sweep
+        # below is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (d, pitch, thread_depth, flank_angle, turns, starts, left_handed, profile)
+        self._shape: "Solid | None" = None
+
+    def _build(self) -> "Solid":
+        """Build the geometry. Called once, on the first access to `shape`."""
+        from pybosl2.path2d import Path2D
+
+        (d, pitch, thread_depth, flank_angle, turns, starts, left_handed, profile) = self._args
 
         if profile is None:
             depth = thread_depth if thread_depth is not None else pitch / 2
@@ -580,7 +588,7 @@ class ThreadHelix(Buildable):
                 piece = piece.rotate([0, 0, k * 360 / starts])
             thread = piece if thread is None else (thread | piece)
         assert thread is not None
-        self._solid: "Solid" = thread
+        return thread
 
     @property
     def diameter(self) -> float:
@@ -610,7 +618,9 @@ class ThreadHelix(Buildable):
     @property
     def shape(self) -> "Solid":
         """Return the helix geometry."""
-        return self._solid
+        if self._shape is None:
+            self._shape = self._build()
+        return self._shape
 
 
 # -- convenience constructors for standard thread profiles --------------------

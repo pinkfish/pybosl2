@@ -1046,23 +1046,46 @@ class SpurGear2d:
         """
         center = _circular_pitch(circ_pitch, mod, pitch, diam_pitch)
         ps: float = _auto_profile_shift(teeth, pressure_angle, helical, profile_shift)
-        tooth = _gear_tooth_profile(center, teeth, pressure_angle, clearance, backlash, helical, internal, ps, shorten)
-        perim: list[list[float]] = []
-        for i in range(teeth - hide):
-            perim += _zrot_pts(tooth, -i * 360 / teeth + gear_spin)
-        if hide > 0:
-            perim.append([0, 0])
-        _or = _outer_radius_basic(center, teeth, None, False, helical, ps, shorten)
-        # The perimeter as a path, not as 2-D geometry. A path is backend-neutral -- it is what
-        # `Path2D.linear_extrude()` dispatches on -- while a `Bosl2Shape2D` is a CSG notion, and
-        # that was what kept every gear CSG-only (TASKS T14).
-        self._shape: Path2D = Path2D(_dedup(perim), closed=True)
         # A bore is a hole, and one path cannot describe an outline with a hole in it. It is cut
         # where the geometry is built instead -- see `bore`, and SpurGear, which subtracts it as a
         # cylinder for exactly the same result.
         self._shaft_diam: float = shaft_diam if not hide else 0.0
         self._teeth: int = teeth
         self._mod: float | None = mod
+        # The pitch and profile shift above are arithmetic on the arguments, so they still resolve
+        # (and reject) at the call. Cutting the tooth profile and repeating it around the gear is
+        # the expensive half, and is deferred to `shape` (SPEC C-14, PLAN O-2).
+        self._args = (
+            center,
+            ps,
+            teeth,
+            hide,
+            pressure_angle,
+            clearance,
+            backlash,
+            helical,
+            internal,
+            shorten,
+            gear_spin,
+        )
+        self._path: Path2D | None = None
+
+    def _build(self) -> Path2D:
+        """Build the perimeter path. Called once, on the first access to `shape`."""
+        (center, ps, teeth, hide, pressure_angle, clearance, backlash, helical, internal, shorten, gear_spin) = (
+            self._args
+        )
+
+        tooth = _gear_tooth_profile(center, teeth, pressure_angle, clearance, backlash, helical, internal, ps, shorten)
+        perim: list[list[float]] = []
+        for i in range(teeth - hide):
+            perim += _zrot_pts(tooth, -i * 360 / teeth + gear_spin)
+        if hide > 0:
+            perim.append([0, 0])
+        # The perimeter as a path, not as 2-D geometry. A path is backend-neutral -- it is what
+        # `Path2D.linear_extrude()` dispatches on -- while a `Bosl2Shape2D` is a CSG notion, and
+        # that was what kept every gear CSG-only (TASKS T14).
+        return Path2D(_dedup(perim), closed=True)
 
     @property
     def teeth(self) -> int:
@@ -1077,7 +1100,9 @@ class SpurGear2d:
         gear built from this outline is not tied to CSG. It carries the teeth only -- a bore is a
         hole, which one path cannot describe; see :attr:`bore`.
         """
-        return self._shape
+        if self._path is None:
+            self._path = self._build()
+        return self._path
 
     @property
     def bore(self) -> float:
@@ -1098,8 +1123,8 @@ class SpurGear2d:
         from pybosl2.regions import Region
 
         if self._shaft_diam <= 0:
-            return Region([self._shape])
-        return Region.with_holes(self._shape, Path2D.circle2d(radius=self._shaft_diam / 2))
+            return Region([self.shape])
+        return Region.with_holes(self.shape, Path2D.circle2d(radius=self._shaft_diam / 2))
 
     def show(self) -> Any:
         """Display the gear outline in the viewer, and return it.
@@ -1113,7 +1138,7 @@ class SpurGear2d:
 
         """
         self.region().geometry().show()
-        return self._shape
+        return self.shape
 
 
 class SpurGear(Buildable):
