@@ -573,3 +573,41 @@ def is_child_2d(obj: Any) -> bool:
     if callable(getattr(obj, "geometry", None)):
         return True  # Path2D / Region
     return bool(len(obj)) and isinstance(obj[0], (list, tuple)) and len(obj[0]) == 2
+
+
+def require_anchor(anchor: object, parameter: str) -> Anchor:
+    """Return *anchor* as an :class:`~pybosl2.enums.Anchor`, rejecting anything else clearly.
+
+    `attach()` and `align()` mate a *named face* against another, so unlike `anchor_vector()`
+    they need a member rather than a direction vector. They previously reached straight for
+    `.vector`, so a wrong argument surfaced as ``AttributeError: 'str' object has no attribute
+    'vector'`` -- an internal detail naming neither the parameter at fault nor what to pass,
+    while every other anchor in the library rejected the same mistake in plain terms (SPEC E-4).
+
+    Args:
+        anchor: The value passed for an anchor parameter.
+        parameter: Name of the parameter, so the message points at the argument that was wrong.
+
+    Returns:
+        The anchor, unchanged, when it is an :class:`~pybosl2.enums.Anchor`.
+
+    Raises:
+        Bosl2ValueError: If *anchor* is not an :class:`~pybosl2.enums.Anchor` member.
+
+    """
+    if isinstance(anchor, Anchor):
+        return anchor
+    hint = ""
+    if isinstance(anchor, str):
+        # The likeliest mistake by far, and one the message can turn straight into the fix.
+        named = anchor.upper().replace("-", "_")
+        hint = f" Did you mean Anchor.{named}?" if named in Anchor.__members__ else ""
+    return _reject_anchor(anchor, parameter, hint)
+
+
+def _reject_anchor(anchor: object, parameter: str, hint: str) -> Anchor:
+    raise Bosl2ValueError(
+        f"{parameter} must be an Anchor member, not {type(anchor).__name__} ({anchor!r})."
+        f"{hint} Anchors name a face to mate against -- a direction vector is accepted by "
+        f"`anchor=` on the shape constructors, but not here."
+    )

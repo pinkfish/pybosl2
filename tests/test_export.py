@@ -22,7 +22,7 @@ import pytest
 
 from pybosl2 import VNF, Path2D, cuboid, cyl
 from pybosl2.exceptions import Bosl2ValueError
-from pybosl2.export import FORMATS, check_exportable, format_for, open_edges
+from pybosl2.export import FORMATS, check_exportable, format_for, open_edges, write_mesh
 from tests.render_stl import parse_stl, stl_metrics
 
 if TYPE_CHECKING:
@@ -173,3 +173,43 @@ def test_a_curved_solid_survives_the_round_trip(tmp_path: Path) -> None:
     metrics = stl_metrics(swept.export(tmp_path / "rod.stl"))
     assert metrics.volume == pytest.approx(swept.vnf().volume(), rel=1e-5)
     assert metrics.ntris == 2 * 24 + 2 * 22  # 24 side quads fanned, plus two 24-gon caps
+
+
+def test_exporting_a_shape_says_what_to_call_instead(tmp_path: "Path") -> None:
+    """A shape is the natural argument here, so the refusal names the call that does work.
+
+    `Shape.export()` takes a shape, so reaching for `write_mesh(shape, ...)` is an easy mistake.
+    It used to reach a writer and fail on a backend attribute -- `'openscad.PyOpenSCAD' object
+    has no attribute 'vertices'` -- which names an internal class and no way forward (SPEC E-4).
+    """
+    from pybosl2 import Anchor
+
+    shape = cuboid([20, 20, 5]).attach(Anchor.TOP, cyl(diameter=6, height=8)).realize()
+    for call in (
+        lambda: check_exportable(shape),
+        lambda: write_mesh(shape, tmp_path / "a.stl"),
+        # check=False waives the watertightness checks, not the type
+        lambda: write_mesh(shape, tmp_path / "b.stl", check=False),
+    ):
+        with pytest.raises(Bosl2ValueError) as excinfo:
+            call()
+        message = str(excinfo.value)
+        assert "CsgSolid" in message, f"{message!r} does not say what was passed"
+        assert "shape.export(path)" in message, f"{message!r} does not name the call that works"
+
+
+def test_the_exporter_never_meshes_a_shape_for_you(tmp_path: "Path") -> None:
+    """Refusing a shape is deliberate: when a shape is meshed is the caller's decision (SPEC T3).
+
+    Auto-calling `.vnf()` here would be the friendlier-looking fix and the wrong one -- it is
+    exactly the silent meshing the SDF backend was changed to stop doing.
+    """
+    from pybosl2 import Anchor
+
+    shape = cuboid([20, 20, 5]).attach(Anchor.TOP, cyl(diameter=6, height=8)).realize()
+    out = tmp_path / "never.stl"
+    with pytest.raises(Bosl2ValueError):
+        write_mesh(shape, out)
+    assert not out.exists(), "the exporter wrote a file for an argument it should have refused"
+    # ...but meshing it yourself is one call, and then it writes.
+    assert write_mesh(shape.vnf(), out).exists()

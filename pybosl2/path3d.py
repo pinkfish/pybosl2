@@ -813,6 +813,11 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
 
         """
         pts = self._points
+        if len(pts) == 0:
+            # Matches Region and Path2D. Without this, numpy surfaced the emptiness as
+            # "zero-size array to reduction operation minimum", which names an internal
+            # reduction rather than the empty path the caller actually has (SPEC E-4).
+            raise Bosl2ValueError("empty Path3D has no bounds")
         min_pt = pts.min(axis=0)
         max_pt = pts.max(axis=0)
         return Bounds3D(
