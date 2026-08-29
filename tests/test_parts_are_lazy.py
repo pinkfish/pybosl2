@@ -27,7 +27,9 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import pathlib
 import pkgutil
+import re
 from typing import Any
 
 import pytest
@@ -45,10 +47,12 @@ import pybosl2.parts as parts
 #: judgement per part. `Slider` is the worked example (`pybosl2/parts/sliders.py`).
 EAGER_PARTS = frozenset(
     {
-        "HexDriveMask",
         "HoseSegment",
         "ManfrottoRC2Plate",
         "Nut",
+        # Its derived length is trigonometry on module-level helpers rather than plain arithmetic
+        # on the spec, so resolving it in `__init__` means duplicating that computation. Left
+        # eager deliberately; converting it is a hand edit, not a mechanical one.
         "PhillipsMask",
         "Rack2d",
         "RingHook",
@@ -57,7 +61,6 @@ EAGER_PARTS = frozenset(
         "SpurGear2d",
         "ThreadHelix",
         "ThreadedNut",
-        "TorxMask",
         "Truss",
         "TrussCorner",
         "TrussSegment",
@@ -179,3 +182,20 @@ def test_a_lazy_part_answers_its_catalogue_without_building() -> None:
         "measuring a screw must not have built one (SPEC C-14)"
     )
     assert screw.shape is not None  # ...and asking for geometry does build it
+
+
+def test_spec_eager_count_matches_the_measurement() -> None:
+    """SPEC's stated eager-part count is the measured one (SPEC §12.2 item 1).
+
+    The count in SPEC is the whole point of that row -- it exists because the *previous* claim
+    there was never measured and sat in the spec being false. A figure that drifts as parts are
+    converted reintroduces exactly the problem the row records, so it is checked, not trusted.
+    """
+    spec = (pathlib.Path(__file__).resolve().parent.parent / "SPEC.md").read_text()
+    stated = re.search(r"\*\*(\d+) of the (\d+) parts build their geometry in `__init__`\*\*", spec)
+    assert stated is not None, "SPEC §12.2 item 1 no longer states the eager-part count"
+    measured_eager = sum(1 for cls in PARTS.values() if _built_eagerly(cls))
+    assert (int(stated.group(1)), int(stated.group(2))) == (measured_eager, len(PARTS)), (
+        f"SPEC says {stated.group(1)} of {stated.group(2)} parts build eagerly, but "
+        f"{measured_eager} of {len(PARTS)} do. Update the figure in SPEC §12.2 item 1."
+    )
