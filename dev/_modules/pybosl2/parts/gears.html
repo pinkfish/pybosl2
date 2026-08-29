@@ -4290,6 +4290,54 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">10</span> <span class="o">&lt;=</span> <span class="n">worm_arc</span> <span class="o">&lt;=</span> <span class="mi">60</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"worm_gear(): worm_arc must be between 10 and 60 degrees."</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">teeth</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">circ_pitch</span><span class="p">,</span>
+            <span class="n">teeth</span><span class="p">,</span>
+            <span class="n">worm_diam</span><span class="p">,</span>
+            <span class="n">worm_starts</span><span class="p">,</span>
+            <span class="n">worm_arc</span><span class="p">,</span>
+            <span class="n">crowning</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">pressure_angle</span><span class="p">,</span>
+            <span class="n">backlash</span><span class="p">,</span>
+            <span class="n">slices</span><span class="p">,</span>
+            <span class="n">clearance</span><span class="p">,</span>
+            <span class="n">shaft_diam</span><span class="p">,</span>
+            <span class="n">mod</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">diam_pitch</span><span class="p">,</span>
+            <span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span>
+            <span class="n">circ_pitch</span><span class="p">,</span>
+            <span class="n">teeth</span><span class="p">,</span>
+            <span class="n">worm_diam</span><span class="p">,</span>
+            <span class="n">worm_starts</span><span class="p">,</span>
+            <span class="n">worm_arc</span><span class="p">,</span>
+            <span class="n">crowning</span><span class="p">,</span>
+            <span class="n">left_handed</span><span class="p">,</span>
+            <span class="n">pressure_angle</span><span class="p">,</span>
+            <span class="n">backlash</span><span class="p">,</span>
+            <span class="n">slices</span><span class="p">,</span>
+            <span class="n">clearance</span><span class="p">,</span>
+            <span class="n">shaft_diam</span><span class="p">,</span>
+            <span class="n">mod</span><span class="p">,</span>
+            <span class="n">pitch</span><span class="p">,</span>
+            <span class="n">diam_pitch</span><span class="p">,</span>
+            <span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">center</span> <span class="o">=</span> <span class="n">_circular_pitch</span><span class="p">(</span><span class="n">circ_pitch</span><span class="p">,</span> <span class="n">mod</span><span class="p">,</span> <span class="n">pitch</span><span class="p">,</span> <span class="n">diam_pitch</span><span class="p">)</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">_pitch_radius</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">teeth</span><span class="p">)</span>
         <span class="n">circ</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">PI</span> <span class="o">*</span> <span class="n">p</span>
@@ -4338,8 +4386,7 @@
         <span class="n">solid</span> <span class="o">=</span> <span class="n">vnf</span><span class="o">.</span><span class="n">polyhedron</span><span class="p">()</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="mi">2</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="n">thickness</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">shaft_diam</span> <span class="ow">and</span> <span class="n">shaft_diam</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">solid</span> <span class="o">=</span> <span class="n">solid</span> <span class="o">-</span> <span class="n">cylinder</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="n">worm_diam</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="n">shaft_diam</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fn</span><span class="o">=</span><span class="n">fn</span><span class="p">,</span> <span class="n">fa</span><span class="o">=</span><span class="n">fa</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">fs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">solid</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">teeth</span>
+        <span class="k">return</span> <span class="n">solid</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">teeth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -4347,9 +4394,11 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_teeth</span>
 
     <span class="nd">@property</span>
-    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"builds its involute tooth profile as 2-D geometry, which is a CSG notion"</span><span class="p">)</span>
+    <span class="nd">@csg_part</span><span class="p">(</span><span class="s2">"cuts its throated teeth into a VNF, and a non-convex mesh has no distance-field form"</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the worm gear geometry."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 </code></pre></div>

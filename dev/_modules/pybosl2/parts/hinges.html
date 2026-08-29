@@ -2315,6 +2315,42 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">segs</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="s2">"knuckle_hinge(): segs must be &gt;= 2."</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">arm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inner</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">inner</span>
+        <span class="c1"># The spec above is all a caller needs to *measure* this part; the geometry</span>
+        <span class="c1"># below is deferred to `shape` (SPEC C-14, PLAN O-2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">length</span><span class="p">,</span>
+            <span class="n">segs</span><span class="p">,</span>
+            <span class="n">knuckle_diam</span><span class="p">,</span>
+            <span class="n">pin_diam</span><span class="p">,</span>
+            <span class="n">arm</span><span class="p">,</span>
+            <span class="n">thick</span><span class="p">,</span>
+            <span class="n">gap</span><span class="p">,</span>
+            <span class="n">inner</span><span class="p">,</span>
+            <span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid | None"</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build the geometry. Called once, on the first access to `shape`."""</span>
+        <span class="p">(</span>
+            <span class="n">length</span><span class="p">,</span>
+            <span class="n">segs</span><span class="p">,</span>
+            <span class="n">knuckle_diam</span><span class="p">,</span>
+            <span class="n">pin_diam</span><span class="p">,</span>
+            <span class="n">arm</span><span class="p">,</span>
+            <span class="n">thick</span><span class="p">,</span>
+            <span class="n">gap</span><span class="p">,</span>
+            <span class="n">inner</span><span class="p">,</span>
+            <span class="n">fn</span><span class="p">,</span>
+            <span class="n">fa</span><span class="p">,</span>
+            <span class="n">fs</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_args</span>
+
         <span class="n">seglen</span> <span class="o">=</span> <span class="p">(</span><span class="n">length</span> <span class="o">-</span> <span class="p">(</span><span class="n">segs</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">gap</span><span class="p">)</span> <span class="o">/</span> <span class="n">segs</span>
         <span class="n">mine</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">inner</span> <span class="k">else</span> <span class="mi">0</span>
 
@@ -2356,10 +2392,7 @@
         <span class="k">if</span> <span class="n">keep</span><span class="p">:</span>
             <span class="n">clearance</span> <span class="o">=</span> <span class="n">clearance</span> <span class="o">-</span> <span class="n">union</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
         <span class="n">leaf</span> <span class="o">=</span> <span class="n">leaf</span> <span class="o">-</span> <span class="n">clearance</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span><span class="p">:</span> <span class="s2">"Solid"</span> <span class="o">=</span> <span class="n">leaf</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">plate_w</span> <span class="o">+</span> <span class="n">knuckle_diam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">knuckle_diam</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_arm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">arm</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_inner</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">inner</span>
+        <span class="k">return</span> <span class="n">leaf</span><span class="o">.</span><span class="n">with_nominal_size</span><span class="p">([</span><span class="n">length</span><span class="p">,</span> <span class="n">plate_w</span> <span class="o">+</span> <span class="n">knuckle_diam</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">knuckle_diam</span><span class="p">])</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -2379,6 +2412,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Solid"</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return the knuckle hinge leaf geometry."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solid</span></div>
 
 
