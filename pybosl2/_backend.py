@@ -26,6 +26,7 @@ import contextlib
 import contextvars
 import functools
 import inspect
+import numbers
 from typing import TYPE_CHECKING, Any, Callable, Iterator, Protocol, Self, TypeVar, cast, runtime_checkable
 
 from pybosl2.exceptions import Bosl2Error, UnsupportedByBackendError
@@ -415,6 +416,16 @@ def unsupported_feature(backend: str, name: str) -> "UnsupportedByBackendError |
     return None
 
 
+# A path or a region is the library's own, and is *not* geometry -- the distinction C-16 and
+# S-23a rest on. Each has one call that turns it into geometry, so name that call rather than let
+# the native layer answer "invalid argument left to operator".
+_NOT_GEOMETRY = {
+    "Path2D": "a 2-D path; call .linear_extrude(height=...) to make geometry from it",
+    "Path3D": "a 3-D path; sweep a profile along it, or call .stroke() to give it thickness",
+    "Region": "a 2-D region; call .geometry() to make geometry from it",
+}
+
+
 def check_operand_backend(self_backend: str, other: Any, self_dimensions: int | None = None) -> None:
     """Raise if *other* cannot be combined with a shape on *self_backend* in *self_dimensions*.
 
@@ -443,6 +454,27 @@ def check_operand_backend(self_backend: str, other: Any, self_dimensions: int | 
         Bosl2ValueError: If *other* has a different number of dimensions.
 
     """
+    from pybosl2.exceptions import Bosl2ValueError
+
+    if other is None:
+        # The pass-through for objects with no `backend` attribute exists for raw native interop,
+        # and None went through it: the native operator returned the left operand unchanged, so
+        # `part - cutter` where `cutter` came back None left the solid uncut and said nothing.
+        # A function that falls off its end returns None, which is the ordinary way to get here.
+        raise Bosl2ValueError(
+            "cannot combine a shape with None. The operation would have returned the shape "
+            "unchanged -- check whether the operand came from a function that returned nothing."
+        )
+    if isinstance(other, (str, bytes, numbers.Number)):
+        # Never a shape, and the native layer answered these with its own "invalid argument left
+        # to operator" -- a TypeError that named no operand and escaped `except Bosl2Error`.
+        raise Bosl2ValueError(
+            f"cannot combine a shape with {type(other).__name__} ({other!r}); the right-hand "
+            f"operand of a boolean must be a shape."
+        )
+    hint = _NOT_GEOMETRY.get(type(other).__name__)
+    if hint is not None:
+        raise Bosl2ValueError(f"cannot combine a shape with {type(other).__name__}: it is {hint}.")
     other_backend = getattr(other, "backend", None)
     if other_backend is not None and other_backend != self_backend:
         from pybosl2.exceptions import CrossBackendError

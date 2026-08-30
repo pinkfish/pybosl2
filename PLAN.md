@@ -65,13 +65,25 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   always `list[float]`, `dict[str, Anchor]`, `tuple[list[float], list[float]]`,
   `Sequence[Sequence[float]]`. This applies to local variables holding collections, to empty
   initialisations (`results: list[str] = []`), and to `.pyi` stubs.
-* **T-4 Inputs widen, outputs narrow.** Accept `Sequence[float]`, return `list[float]`. Wherever a
-  polyline is meant, the parameter is typed **`PathLike`** (`pybosl2.paths`) —
-  `Path | Sequence[Sequence[float]] | NDArray[np.float64]` — so a `Path`, the thing the library
-  itself hands back, is accepted by the checker and not merely at runtime (SPEC C-7). Normalise on
-  the first line of the body (`np.asarray(x, dtype=float)`, `Path2D(x)`, `as_points(x)`) so the
-  rest works on one shape. Guarded by
-  `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path`.
+* **T-4 Inputs widen, outputs narrow — except for points.** Accept `Sequence[float]`, return
+  `list[float]`. **A polyline is the exception** (SPEC C-7a): a public parameter meaning an ordered
+  set of points is typed `Path2D`, `Path3D` or `Path`, never `PathLike` and never a bare sequence
+  or array. Widening is right for a *vector* — three floats are three floats — and wrong for a
+  *path*, because the bare form drops the three things the caller needs the callee to know:
+  dimension, closed-ness, and winding. Every function taking the bare form re-derives them, and
+  they disagree.
+* **T-4a `PathLike` is an implementation type.** It types the local normalisation inside a body
+  (`pts = Path2D(x)` at the top), never a parameter in a public signature. Import it for that and
+  nothing else.
+* **T-4b Refuse raw points with `require_path()`.** `pybosl2.paths.require_path(value, parameter,
+  function)` returns the `Path` unchanged and otherwise raises `Bosl2ValueError` naming the
+  wrapper to apply — `Path2D(...)` for 2-D points, `Path3D(...)` for 3-D — chosen from the shape of
+  what was passed, so the message is the fix (SPEC C-7b). Call it on the first line, before any
+  other work, so the refusal arrives at the call that was wrong (SPEC E-4).
+* **T-4c The migration is ratcheted, not big-banged.** `tests/test_polyline_parameters.py` holds
+  the list of public parameters still accepting a raw sequence; it only ever shrinks, so a new
+  function cannot join them and the remaining debt is a measured number rather than an assertion.
+  Guarded also by `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path`.
 * **T-5 No union-widening in overrides.** An override MUST NOT broaden a parameter to
   `float | list[float]` to cover both callers; pick the collection form and convert at the entry
   point. The one sanctioned union is a *spec argument* at a public constructor (SPEC D-7), which

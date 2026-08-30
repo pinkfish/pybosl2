@@ -8,7 +8,7 @@
 
 import pytest
 
-from pybosl2 import flat
+from pybosl2 import Path2D, flat
 from pybosl2._backend import current_backend, use_backend
 from pybosl2.flat import Flat
 
@@ -75,13 +75,13 @@ def test_rect_csg_path() -> None:
 def test_polygon_sdf_path() -> None:
     """flat.polygon() returns SDF shape under SDF backend."""
     with use_backend("sdf"):
-        p = flat.polygon(points=[[0, 0], [10, 0], [5, 10]])
+        p = flat.polygon(points=Path2D([[0, 0], [10, 0], [5, 10]]))
         assert p.backend == "sdf"
 
 
 def test_polygon_csg_path() -> None:
     """flat.polygon() returns CSG shape on default backend."""
-    p = flat.polygon(points=[[0, 0], [10, 0], [5, 10]])
+    p = flat.polygon(points=Path2D([[0, 0], [10, 0], [5, 10]]))
     assert p.backend == "csg"
     assert isinstance(p, Flat)
 
@@ -172,7 +172,7 @@ class TestShapeGeometry:
 
     def test_polygon_triangle_bounds(self) -> None:
         pts = [[0, 0], [8, 0], [4, 6]]
-        p = flat.polygon(points=pts)
+        p = flat.polygon(points=Path2D(pts))
         _box = p.bounds()
         size = list(_box.size)
         assert size[0] == pytest.approx(8, abs=0.01)
@@ -180,9 +180,9 @@ class TestShapeGeometry:
 
     def test_polygon_csg_vs_sdf_same_bounds(self) -> None:
         pts = [[0, 0], [10, 0], [6, 8]]
-        csg = flat.polygon(points=pts)
+        csg = flat.polygon(points=Path2D(pts))
         with use_backend("sdf"):
-            sdf = flat.polygon(points=pts)
+            sdf = flat.polygon(points=Path2D(pts))
         _box = csg.bounds()
         _, s_csg = list(_box.center), list(_box.size)
         _box = sdf.bounds()
@@ -192,7 +192,7 @@ class TestShapeGeometry:
 
     def test_polygon_concave_shape(self) -> None:
         pts = [[0, 0], [10, 0], [10, 5], [5, 2], [10, 10], [0, 10]]
-        p = flat.polygon(points=pts)
+        p = flat.polygon(points=Path2D(pts))
         _box = p.bounds()
         size = list(_box.size)
         assert size[0] == pytest.approx(10, abs=0.01)
