@@ -2173,8 +2173,8 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.caps</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapSpec</span><span class="p">,</span> <span class="n">CapsSpec</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.isosurface</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetaballSpec</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
 
 <span class="n">_EPS</span> <span class="o">=</span> <span class="mf">1e-9</span>
 
@@ -3774,7 +3774,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_skin</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">profiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PathLike</span><span class="p">],</span>
+        <span class="n">profiles</span><span class="p">:</span> <span class="s2">"Sequence[Path2D | Path3D]"</span><span class="p">,</span>
         <span class="n">slices</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">refine</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">method</span><span class="p">:</span> <span class="n">SkinMethod</span> <span class="o">=</span> <span class="n">SkinMethod</span><span class="o">.</span><span class="n">DIRECT</span><span class="p">,</span>
@@ -3808,11 +3808,13 @@
 
 <span class="sd">                import math</span>
 <span class="sd">                import numpy as np</span>
-<span class="sd">                from pybosl2 import VNF</span>
+<span class="sd">                from pybosl2 import VNF, Path2D</span>
 <span class="sd">                from pybosl2.enums import SkinMethod</span>
 
-<span class="sd">                circle = [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
-<span class="sd">                square = [[-8, -8], [8, -8], [8, 8], [-8, 8]]</span>
+<span class="sd">                circle = Path2D(</span>
+<span class="sd">                    [[6 * math.cos(t), 6 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)]</span>
+<span class="sd">                )</span>
+<span class="sd">                square = Path2D([[-8, -8], [8, -8], [8, 8], [-8, 8]])</span>
 <span class="sd">                VNF.from_skin([circle, square], slices=20, method=SkinMethod.REINDEX, z=[0, 25]).show()</span>
 
 <span class="sd">        """</span>

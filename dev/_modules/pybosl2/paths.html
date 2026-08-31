@@ -2143,6 +2143,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">abc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
@@ -2200,7 +2201,7 @@
 <span class="c1">#: the body works on one shape.</span>
 <span class="n">PathLike</span><span class="p">:</span> <span class="s2">"TypeAlias"</span> <span class="o">=</span> <span class="s2">"Path | Sequence[Sequence[float]] | NDArray[np.float64]"</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">,</span> <span class="s2">"require_path"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CutPoint"</span><span class="p">,</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="s2">"SubdivideMethod"</span><span class="p">,</span> <span class="s2">"require_path"</span><span class="p">,</span> <span class="s2">"require_paths"</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="require_path">
@@ -2232,6 +2233,38 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">value</span>
     <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a </span><span class="si">{</span><span class="n">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="require_paths">
+<a class="viewcode-back" href="../../paths/paths.html#pybosl2.paths.require_paths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">require_paths</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"list[Path]"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return *values* as a list of :class:`Path`, refusing raw points elementwise (SPEC C-7a).</span>
+
+<span class="sd">    The sequence form of :func:`require_path`. The index of the offending element is part of the</span>
+<span class="sd">    message, because a list of profiles where only one is raw is the usual way to get here and</span>
+<span class="sd">    saying only "profiles must be Paths" leaves the caller to find which.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        values: the argument supplied for a sequence-of-polylines parameter.</span>
+<span class="sd">        parameter: the parameter's name.</span>
+<span class="sd">        function: the function's name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The paths as a list, unchanged.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        Bosl2ValueError: If *values* is not a sequence, or any element is not a `Path`.</span>
+
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2"> must be a sequence of Path2D/Path3D, got </span><span class="si">{</span><span class="n">values</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">(): </span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">] must be a </span><span class="si">{</span><span class="n">_suggest_path_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
 
 
 
