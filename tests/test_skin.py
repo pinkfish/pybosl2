@@ -305,7 +305,9 @@ def test_path_sweep2d_closed_loop() -> None:
 
 
 def test_subdivide_and_slice_equalizes_and_slices() -> None:
-    profs = subdivide_and_slice([[[0, 0], [1, 0], [1, 1]], [[0, 2], [2, 2], [2, 3]]], slices=3, numpoints=6)
+    profs = subdivide_and_slice(
+        [Path2D([[0, 0], [1, 0], [1, 1]]), Path2D([[0, 2], [2, 2], [2, 3]])], slices=3, numpoints=6
+    )
     assert len(profs) == 5  # 3 interpolated + 2 endpoints
     assert all(len(p) == 6 for p in profs)
 

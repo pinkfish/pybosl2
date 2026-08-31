@@ -22,6 +22,7 @@ import ast
 import pathlib
 import re
 
+import numpy as np
 import pytest
 
 from pybosl2 import Path2D
@@ -78,24 +79,27 @@ EXCLUDED = frozenset(
         # at all -- `_path_sweep(tangent=)` and `Bezier.sweep()` both pad *direction vectors* with
         # it -- and no point type describes a list of tangents.
         "pybosl2/skin.py::path3d::path",
+        # BOSL2's apply(): a matrix applied to point data, which explicitly includes a *single*
+        # point (`pts.ndim == 1` returns one point back). No path type describes one point, and
+        # the mapping is per-point, so order carries no meaning here.
+        "pybosl2/transforms.py::apply::points",
+        # The plain-list constructor, by name and contract -- the same convention as
+        # `Path2D.from_list(lst)`, which escaped this scan only by not naming its parameter
+        # `points`. `Bezier(path)` is the typed entry point; this is the wide one it needs.
+        "pybosl2/beziers.py::from_list::points",
+        # `(verts, faces)` is a *mesh*: an unordered vertex array indexed by faces, where
+        # reordering `verts` without reindexing `faces` destroys the geometry. The type these
+        # want is `VNF` (SPEC C-8), not a `Path` -- recorded as §12.2 item 4, not dropped.
+        "pybosl2/texture.py::is_watertight_topology::verts",
+        "pybosl2/texture.py::rasterize_vnf_texture::verts",
+        "pybosl2/texture.py::vnf_tile_to_solid::verts",
     }
 )
 
 #: Public parameters still accepting a raw sequence. This list only shrinks (SPEC §12.2 item 3).
-STILL_RAW = frozenset(
-    {
-        "pybosl2/beziers.py::from_list::points",
-        "pybosl2/distributors.py::path_copies::path",
-        "pybosl2/regions.py::even_odd::paths",
-        "pybosl2/surfaces3d.py::plot_revolution::path",
-        "pybosl2/texture.py::is_watertight_topology::verts",
-        "pybosl2/texture.py::rasterize_vnf_texture::verts",
-        "pybosl2/texture.py::vnf_tile_to_solid::verts",
-        "pybosl2/transforms.py::apply::points",
-        "pybosl2/vnf.py::tri_array::points",
-        "pybosl2/vnf.py::vertex_array::points",
-    }
-)
+#: **Empty**: every public parameter that means an ordered set of points now takes a `Path`.
+#: The list stays, and the scan with it, so a new signature cannot quietly re-open the debt.
+STILL_RAW: frozenset[str] = frozenset()
 
 
 def _public_functions(tree: ast.Module) -> list[ast.FunctionDef | ast.AsyncFunctionDef]:
@@ -371,3 +375,178 @@ def test_clockwise_polygon_returns_an_outline_not_raw_points() -> None:
     assert wound == counterclockwise.reverse()
     assert Path2D.polygon_area(wound, signed=True) <= 0
     assert clockwise_polygon(wound) == wound, "already clockwise, so unchanged"
+
+
+def test_the_scan_still_has_teeth_now_that_the_list_is_empty() -> None:
+    """An empty ratchet must mean "nothing left", not "the scan stopped looking".
+
+    `STILL_RAW` reaching zero is the point at which this file's other tests all pass vacuously, so
+    this one checks the detector against a signature written to be caught -- a negative control for
+    the whole gate.
+    """
+    import ast
+    import textwrap
+
+    source = textwrap.dedent("""
+        def draw(path: PathLike, width: float) -> None: ...
+        def fill(paths: Sequence[Sequence[float]]) -> None: ...
+        def mesh(points: ArrayLike) -> None: ...
+        class Thing:
+            def trace(self, poly: NDArray[np.float64]) -> None: ...
+        def _private(path: PathLike) -> None: ...
+        def outer() -> None:
+            def nested(path: PathLike) -> None: ...
+    """)
+    tree = ast.parse(source)
+    caught = {
+        f"{node.name}::{arg.arg}"
+        for node in _public_functions(tree)
+        for arg in node.args.args + node.args.kwonlyargs
+        if arg.annotation is not None and arg.arg in _POINTY and _RAW.search(ast.unparse(arg.annotation))
+    }
+    assert caught == {"draw::path", "fill::paths", "mesh::points", "trace::poly"}, caught
+
+
+def test_every_exclusion_names_a_real_function() -> None:
+    """An exclusion that has drifted off a renamed function silently stops excluding anything."""
+    root = pathlib.Path(__file__).resolve().parent.parent
+    for entry in sorted(EXCLUDED):
+        relative, function, parameter = entry.split("::")
+        tree = ast.parse((root / relative).read_text())
+        found = [f for f in _public_functions(tree) if f.name == function]
+        assert found, f"{entry}: no public {function}() in {relative}"
+        names = {a.arg for f in found for a in f.args.args + f.args.kwonlyargs}
+        assert parameter in names, f"{entry}: {function}() has no {parameter} parameter"
+
+
+@pytest.mark.parametrize(
+    ("call", "wrapper"),
+    [
+        ("path_copies", "Path2D("),
+        ("even_odd", "Path2D("),
+        ("vertex_array", "Path3D("),
+        ("tri_array", "Path3D("),
+    ],
+)
+def test_the_last_tranche_refuses_raw_points(call: str, wrapper: str) -> None:
+    """The final four converted entry points name the wrapper (C-7a/b)."""
+    from pybosl2.distributors import path_copies
+    from pybosl2.regions import Region
+    from pybosl2.vnf import VNF
+
+    square = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    row = [[0, 0, 0], [1, 0, 0], [2, 0, 0]]
+    attempts = {
+        "path_copies": lambda: path_copies(square, num_copies=3),
+        "even_odd": lambda: Region.even_odd([square]),
+        "vertex_array": lambda: VNF.vertex_array([row, row]),
+        "tri_array": lambda: VNF.tri_array([row, row]),
+    }
+    with pytest.raises(Bosl2ValueError) as excinfo:
+        attempts[call]()
+    assert wrapper in str(excinfo.value), str(excinfo.value)
+
+
+def test_path_copies_reads_closed_off_the_path_instead_of_guessing() -> None:
+    """The payoff C-7a promises: the callee stops re-deriving what the type already carries.
+
+    `path_copies` used to probe `getattr(path, "closed", False)` -- a bare sequence had no such
+    flag, so an open default was assumed for anything that was not a `Path`. A closed outline now
+    distributes around its full perimeter, including the closing segment, without being told.
+    """
+    from pybosl2.distributors import path_copies
+
+    square = [[0, 0], [10, 0], [10, 10], [0, 10]]
+    around = path_copies(Path2D(square, closed=True), num_copies=4)
+    along = path_copies(Path2D(square, closed=False), num_copies=4)
+    assert len(around) == len(along) == 4
+    # The closed path is one segment longer, so its copies are spaced further apart.
+    assert not np.allclose(np.asarray(around), np.asarray(along))
+
+
+#: Path-typed parameters that reach a guard indirectly, and how. A delegating function does not
+#: need its own `require_path` -- but it does need to be named here, so "no guard" never passes
+#: unexamined.
+GUARDED_BY_DELEGATION = {
+    "pybosl2/beziers.py::create_bezier::path": "calls Bezier.from_path(), which guards",
+    "pybosl2/flat.py::circle::points": "calls shapes2d.circle(), which guards",
+    "pybosl2/distributors.py::path_copies::path": "the method form calls the module function, which guards",
+    "pybosl2/shapes2d/base.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
+    "pybosl2/shapes3d/base.py::distribute_on_path::path": "calls distributors.path_copies(), which guards",
+    "pybosl2/shapes3d/extrusions.py::path_text::path": "calls Path2D/Path3D methods that guard",
+    "pybosl2/vnf.py::from_skin::profiles": "calls skin.slice_profiles(), which guards",
+}
+
+
+def _geometry_path_names(tree: ast.Module) -> set[str]:
+    """The names in this module that actually mean a pybosl2 `Path`.
+
+    `Path` is `pathlib.Path` in `export.py` -- a *file* path -- and `PathLike` is `os.PathLike` in
+    several modules. Matching on the spelling alone confuses all three, which is the mistake the
+    `STILL_RAW` scan already made once with `os.PathLike`. Resolve against the module's own imports
+    instead, so a name counts only when it was imported from `pybosl2.path2d`/`path3d`/`paths`.
+    """
+    names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module in {
+            "pybosl2.path2d",
+            "pybosl2.path3d",
+            "pybosl2.paths",
+        }:
+            names |= {a.asname or a.name for a in node.names if a.name in {"Path", "Path2D", "Path3D"}}
+    return names
+
+
+def _path_typed_parameters() -> dict[str, ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Every public parameter already annotated with a pybosl2 path type."""
+    root = pathlib.Path(__file__).resolve().parent.parent
+    found: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
+    for file in sorted((root / "pybosl2").rglob("*.py")):
+        if file.name.startswith("_"):
+            continue
+        tree = ast.parse(file.read_text())
+        wanted = _geometry_path_names(tree)
+        if not wanted:
+            continue
+        for node in _public_functions(tree):
+            for arg in node.args.args + node.args.kwonlyargs:
+                if arg.annotation is None or arg.arg not in _POINTY:
+                    continue
+                entry = f"{file.relative_to(root).as_posix()}::{node.name}::{arg.arg}"
+                if entry in EXCLUDED:
+                    continue
+                pieces = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", ast.unparse(arg.annotation)))
+                if pieces & wanted:
+                    found[entry] = node
+    return found
+
+
+def test_a_path_annotation_is_backed_by_a_guard() -> None:
+    """Typing a parameter `Path2D` does not make it one -- something must check (SPEC C-7a/d).
+
+    The `STILL_RAW` ratchet only sees *wide* annotations, so it goes quiet the moment a signature is
+    retyped -- whether or not a guard was added with it. That is how `Region.even_odd`, `Bezier
+    .from_path`, `Region.with_holes`, `skin.subdivide_and_slice` and `shapes2d.polygon` all kept
+    accepting raw points while the ratchet read zero, and how `point_in_polygon` came to leak a bare
+    `AttributeError: 'list' object has no attribute 'bounds'` instead of naming the type (E-4).
+    An empty ratchet means "no wide annotations", not "the contract holds"; this is what holds it.
+    """
+    unguarded = []
+    for entry, node in sorted(_path_typed_parameters().items()):
+        if entry in GUARDED_BY_DELEGATION:
+            continue
+        body = ast.unparse(node)
+        if "require_path" not in body and "as_path_list" not in body:
+            unguarded.append(entry)
+    assert not unguarded, (
+        f"these parameters are typed as a path but nothing checks it: {unguarded}. "
+        f"Call require_path()/require_paths() on the first line (PLAN T-4b), or record the "
+        f"delegation in GUARDED_BY_DELEGATION with the callee that guards."
+    )
+
+
+def test_the_delegation_list_does_not_go_stale() -> None:
+    """A delegation entry for a parameter that no longer exists silently excuses nothing."""
+    known = _path_typed_parameters()
+    missing = sorted(set(GUARDED_BY_DELEGATION) - set(known))
+    assert not missing, f"these no longer name a path-typed public parameter: {missing}"

@@ -12,11 +12,13 @@ import pytest
 
 from pybosl2.caps import CapType
 from pybosl2.enums import VNFStyle
+from pybosl2.path3d import Path3D
 from pybosl2.vnf import VNF
 
 
-def _grid(rows: int, cols: int, warp: bool = False) -> list[list[list[float]]]:
-    return [[[float(i), float(j), (float(i * j) if warp else 0.0)] for j in range(cols)] for i in range(rows)]
+def _grid(rows: int, cols: int, warp: bool = False) -> list[Path3D]:
+    """A grid of `Path3D` rows -- the type `VNF.vertex_array` takes (SPEC C-7a)."""
+    return [Path3D([[float(i), float(j), (float(i * j) if warp else 0.0)] for j in range(cols)]) for i in range(rows)]
 
 
 def _valid(vnf: object) -> bool:
@@ -123,7 +125,7 @@ def test_vertex_array_col_wrap_adds_cells() -> None:
 
 
 def test_vertex_array_too_small_is_empty() -> None:
-    result = VNF.vertex_array([[[0, 0, 0], [1, 0, 0]]])  # type: ignore  # single row
+    result = VNF.vertex_array([Path3D([[0, 0, 0], [1, 0, 0]])])  # single row
     assert not result
     assert len(result.vertices) == 0
     assert len(result.faces) == 0
@@ -142,8 +144,8 @@ def test_vertex_array_bad_style() -> None:
 
 
 def test_tri_array_triangular_rows() -> None:
-    pts = [[[0, 0, 0]], [[-1, 1, 0], [1, 1, 0]], [[-2, 2, 0], [0, 2, 0], [2, 2, 0]]]
-    v = VNF.tri_array(pts)  # type: ignore[arg-type]
+    pts = [Path3D([[0, 0, 0]]), Path3D([[-1, 1, 0], [1, 1, 0]]), Path3D([[-2, 2, 0], [0, 2, 0], [2, 2, 0]])]
+    v = VNF.tri_array(pts)
     assert len(v.vertices) == 6
     assert len(v.faces) == 4
     assert _valid(v)
@@ -455,10 +457,10 @@ def test_vnf_join_is_alias_for_union() -> None:
 def test_vnf_halfspace_plane_remove_top() -> None:
     cube_vnf = VNF.vertex_array(
         [
-            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
-            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
-            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+            Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+            Path3D([[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]),
+            Path3D([[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]]),
+            Path3D([[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]]),
         ],
         style=VNFStyle.QUAD,
     )
@@ -478,10 +480,10 @@ def test_vnf_halfspace_plane_remove_top() -> None:
 def test_vnf_halfspace_keep_false() -> None:
     cube_vnf = VNF.vertex_array(
         [
-            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
-            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
-            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+            Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+            Path3D([[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]),
+            Path3D([[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]]),
+            Path3D([[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]]),
         ],
         style=VNFStyle.QUAD,
     )
@@ -499,10 +501,10 @@ def test_vnf_halfspace_keep_false() -> None:
 def test_vnf_halfspace_no_closed() -> None:
     cube_vnf = VNF.vertex_array(
         [
-            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
-            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
-            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+            Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+            Path3D([[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]),
+            Path3D([[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]]),
+            Path3D([[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]]),
         ],
         style=VNFStyle.QUAD,
     )
@@ -535,10 +537,10 @@ def test_vnf_halfspace_all_outside() -> None:
 def test_vnf_slice_returns_above_below() -> None:
     cube_vnf = VNF.vertex_array(
         [
-            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
-            [[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
-            [[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]],
-            [[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]],
+            Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]),
+            Path3D([[0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]),
+            Path3D([[0.0, 0.0, 1.0], [1.0, 0.0, 1.0]]),
+            Path3D([[0.0, 1.0, 1.0], [1.0, 1.0, 1.0]]),
         ],
         style=VNFStyle.QUAD,
     )
@@ -560,7 +562,7 @@ def test_vnf_slice_returns_above_below() -> None:
 
 def test_vnf_geometry() -> None:
     vnf = VNF.vertex_array(
-        [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]]],
+        [Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]])],
         col_wrap=True,
         style=VNFStyle.MIN_EDGE,
     )
@@ -592,7 +594,10 @@ def test_vnf_from_field_cube() -> None:
 
 def test_vnf_halfspace_closed() -> None:
     vnf = VNF.vertex_array(
-        [[[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]], [[0, 0, 10], [10, 0, 10], [10, 10, 10], [0, 10, 10]]],
+        [
+            Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0], [0, 10, 0]]),
+            Path3D([[0, 0, 10], [10, 0, 10], [10, 10, 10], [0, 10, 10]]),
+        ],
         col_wrap=True,
         style=VNFStyle.MIN_EDGE,
     )

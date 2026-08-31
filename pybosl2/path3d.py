@@ -45,6 +45,7 @@ from pybosl2.paths import (
     CutPoint,
     Path,
     SubdivideMethod,
+    require_closed_flag,
 )
 from pybosl2.points import Point
 from pybosl2.rounding import Roundable
@@ -104,7 +105,7 @@ class Path3D(Path, Distributable, Extrudable, Sweepable, Roundable):
                 raise Bosl2ValueError(f"Path3D needs float64 points, got {pts.dtype}")
             self._points = pts
         self._color: "Color | None" = None
-        self.closed = closed
+        self.closed = require_closed_flag(closed, "Path3D")
 
     def copy(self) -> "Path3D":
         """Return a shallow copy of this path."""

@@ -34,6 +34,8 @@ from pybosl2.constants import BACK, CENTER, FRONT, INCH, LEFT, TOP, UP
 from pybosl2.enums import VNFStyle
 from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
+from pybosl2.paths import require_path
 from pybosl2.shapes2d import text as _text2d
 from pybosl2.shapes3d.base import (
     Bosl2Solid,
@@ -51,7 +53,6 @@ if TYPE_CHECKING:
 
     from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
-    from pybosl2.paths import PathLike
 
 if TYPE_CHECKING:  # real stub-typed imports for the checker (identical to pre-lazy)
     from pythonscad import cube as _ocube
@@ -631,13 +632,13 @@ def plot3d(
         scale = (zspan[1] - zspan[0]) / (maxv - minv)
         data = [[[p[0], p[1], scale * (p[2] - minv) + zspan[0]] for p in row] for row in data]
     if base == 0:
-        vnf = VNF.vertex_array(data, style=style)
+        vnf = VNF.vertex_array([Path3D(r) for r in data], style=style)
     else:
         allz = [p[2] for row in data for p in row]
         bottom = (zspan[0] - base) if zspan is not None else (min(allz) - base)
         skirted = [[[p[0], p[1], bottom] for p in data[0]]] + data + [[[p[0], p[1], bottom] for p in data[-1]]]
         tdata = [[skirted[i][j] for i in range(len(skirted))] for j in range(len(skirted[0]))]
-        vnf = VNF.vertex_array(tdata, caps=CapType.BUTT, col_wrap=True, style=style, reverse=True)
+        vnf = VNF.vertex_array([Path3D(r) for r in tdata], caps=CapType.BUTT, col_wrap=True, style=style, reverse=True)
         if vnf.volume() < 0:  # ensure outward winding for a valid manifold solid
             vnf = vnf.reverse()
     return vnf.polyhedron()
@@ -654,7 +655,7 @@ def plot_revolution(
     diameter: float | None = None,
     diameter1: float | None = None,
     diameter2: float | None = None,
-    path: PathLike | None = None,
+    path: "Path2D | None" = None,
     rclip: Sequence[float] | None = None,
     rspan: Sequence[float] | None = None,
     horiz: bool = False,
@@ -677,7 +678,7 @@ def plot_revolution(
         diameter1: the profile's bottom/top radius (straight taper form)
         diameter2: the profile's bottom/top radius (straight taper form)
         diameter: the profile's bottom/top radius (straight taper form)
-        path:   an explicit ``[[radius, z], ...]`` profile (instead of z + radii)
+        path:   an explicit ``[[radius, z], ...]`` profile as a `Path2D` (instead of z + radii)
         rclip:  [rmin, rmax] to clamp the modulated radius
         rspan:  [rmin, rmax] to rescale the displacement into
         horiz:  displace radially (normal [1, 0]) instead of along the profile normal
@@ -718,7 +719,7 @@ def plot_revolution(
     if not (len(theta) > 1):
         raise Bosl2ValueError("plot_revolution(): angle must have at least 2 values.")
     if path is not None:
-        prof = [[float(p[0]), float(p[1])] for p in path]
+        prof = [[float(p[0]), float(p[1])] for p in require_path(path, "path", "plot_revolution", Path2D)]
     else:
         zs = list(z)  # type: ignore[arg-type]
         if not (r1v is not None):
@@ -749,7 +750,7 @@ def plot_revolution(
             zz = pt[1] + rdata[i][j] * normals[i][1]
             row.append([rr * math.cos(math.radians(t)), rr * math.sin(math.radians(t)), zz])
         grid.append(row)
-    vnf = VNF.vertex_array(grid, caps=CapType.BUTT, col_wrap=True, style=style)
+    vnf = VNF.vertex_array([Path3D(r) for r in grid], caps=CapType.BUTT, col_wrap=True, style=style)
     if vnf.volume() < 0:
         vnf = vnf.reverse()
     return vnf.polyhedron()

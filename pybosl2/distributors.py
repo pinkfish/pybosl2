@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 
     from pybosl2._edges_lang import Anchor
     from pybosl2._shape import BaseShape as BaseShape
-    from pybosl2.paths import PathLike
+    from pybosl2.paths import Path
 
 _CopyType = TypeVar("_CopyType", bound="Distributable")
 
@@ -470,7 +470,7 @@ def sphere_copies(
 
 
 def path_copies(
-    path: PathLike,
+    path: "Path",
     spacing: float | None = None,
     start_pos: float | None = None,
     dist: Sequence[float] | None = None,
@@ -481,9 +481,13 @@ def path_copies(
     """Return copies placed along *path*, oriented to it."""
     from pybosl2.path2d import Path2D
     from pybosl2.path3d import Path3D
+    from pybosl2.paths import require_path
 
+    path = require_path(path, "path", "path_copies")
     pts = [list(map(float, p)) for p in path]
-    closed = bool(getattr(path, "closed", False)) if closed is None else closed
+    # `closed` comes off the object now rather than a getattr() probe: a bare sequence had no such
+    # flag, so the default had to be guessed (SPEC C-7a).
+    closed = path.closed if closed is None else closed
     dim = len(pts[0]) if pts else 2
     length = (Path3D(pts) if dim == 3 else Path2D(pts)).perimeter()
     if dist is not None:
@@ -779,7 +783,7 @@ class Distributable(ABC):
 
     def path_copies(
         self,
-        path: PathLike,
+        path: "Path",
         spacing: float | None = None,
         start_pos: float | None = None,
         dist: Sequence[float] | None = None,

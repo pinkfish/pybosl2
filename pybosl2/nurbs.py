@@ -1206,11 +1206,13 @@ class NurbsPatch:
 
         # caps close the column-wrapped ends, so a closed U direction is transposed into V
         flip = havecaps and self._nurbs_type[0] == NurbsType.CLOSED
+        from pybosl2.path3d import Path3D as _Path3D
+
         pts = self._grid(splinesteps=splinesteps)
         if flip:
             pts = [list(row) for row in zip(*pts, strict=False)]
         return VNF.vertex_array(
-            pts,
+            [_Path3D(r) for r in pts],
             style=style,
             row_wrap=self._nurbs_type[1 if flip else 0] == NurbsType.CLOSED,
             col_wrap=self._nurbs_type[0 if flip else 1] == NurbsType.CLOSED,

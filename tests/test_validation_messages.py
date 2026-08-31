@@ -718,7 +718,7 @@ def test_path2d_rejections_say_what_to_pass(call: Callable[[], object], expected
 
 
 _TRI2D = [[-4.0, -4.0], [4.0, -4.0], [0.0, 4.0]]
-_SQC2D = [[-5.0, -5.0], [5.0, -5.0], [5.0, 5.0], [-5.0, 5.0]]
+_SQC2D = Path2D([[-5.0, -5.0], [5.0, -5.0], [5.0, 5.0], [-5.0, 5.0]])
 
 SKIN_MORE_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: VNF.from_skin([_SQC2D, _SQC2D], slices=2), "matching-length z"),
@@ -1078,7 +1078,7 @@ def test_shape_size_rejections_say_what_to_pass(call: Callable[[], object], expe
 
 MISC_MODULE_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: dist.grid_copies(spacing=5, num_copies=2, axes="xq"), "invalid axes"),
-    (lambda: dist.path_copies([[0.0, 0.0], [1.0, 0.0]], num_copies=3, spacing=50), "don't fit on the path"),
+    (lambda: dist.path_copies(Path2D([[0.0, 0.0], [1.0, 0.0]]), num_copies=3, spacing=50), "don't fit on the path"),
     (lambda: partitions.partition_path(["comb 0x"]), "repetition count must be positive"),
     (lambda: partitions.partition_path(["comb 0x20"]), "positive LENGTH and WIDTH"),
     (lambda: Color("#12345"), "invalid hex colour"),
@@ -1133,7 +1133,7 @@ SIBLING_GUARD_CASES: list[tuple[Callable[[], object], str]] = [
         lambda: _round_corners(_TRI2D, method=RoundingMethod.CIRCLE, radius=1, k=[0.5, 0.5, 0.5]),
         'k is only allowed with method="smooth"',
     ),
-    (lambda: dist.path_copies([[0.0, 0.0], [1.0, 0.0]], dist=[50.0]), "don't fit on the path"),
+    (lambda: dist.path_copies(Path2D([[0.0, 0.0], [1.0, 0.0]]), dist=[50.0]), "don't fit on the path"),
     (lambda: s2.arc(points=Path2D([[0.0, 0.0], [2.0, 0.0]]), center=[1.0, 0.0]), "define a unique arc"),
     (lambda: s2.egg(length=0, radius1=1, radius2=1, arc_radius=10), "length must be positive"),
     (
@@ -1151,7 +1151,7 @@ def test_sibling_guards_say_what_to_pass(call: Callable[[], object], expected: s
         call()
 
 
-_GRID3 = [[[float(i), float(j), 0.0] for j in range(3)] for i in range(3)]
+_GRID3 = [Path3D([[float(i), float(j), 0.0] for j in range(3)]) for i in range(3)]
 _BEZ = beziers.Bezier([[0.0, 0.0], [1.0, 1.0], [2.0, 0.0], [3.0, 1.0]])
 
 WAS_ASSERTION_CASES: list[tuple[Callable[[], object], str]] = [
@@ -1180,7 +1180,7 @@ WAS_ASSERTION_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: Path3D([[0.0, 0.0, 0.0]]).cut_points(1.0), "a closed path needs three points"),
     (lambda: Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]).cut_points("x"), "a distance or a list of increasing"),
     (lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=0, size=(10, 10, 10)), "must be positive"),
-    (lambda: dist.path_copies([[0.0, 0.0], [10.0, 0.0]]), "to say where the copies go"),
+    (lambda: dist.path_copies(Path2D([[0.0, 0.0], [10.0, 0.0]])), "to say where the copies go"),
     (lambda: sdfp.egg_path(length=0, radius1=1, radius2=1, arc_radius=10), "length must be positive"),
     (lambda: s2.reuleaux_polygon(sides=4, radius=5), "odd number of 3 or more"),
     (lambda: s2.reuleaux_polygon(sides=1, radius=5), "odd number of 3 or more"),

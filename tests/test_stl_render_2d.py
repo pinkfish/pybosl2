@@ -86,7 +86,8 @@ def test_bounds_follow_a_translate(tmp_path):
 def test_region_fill_drops_the_hole(tmp_path):
     m = _render(
         tmp_path,
-        "Region.with_holes([[0,0],[20,0],[20,10],[0,10]], [[5,3],[15,3],[15,7],[5,7]]).fill().linear_extrude(height=1)",
+        "Region.with_holes(Path2D([[0,0],[20,0],[20,10],[0,10]]), Path2D([[5,3],[15,3],[15,7],[5,7]]))"
+        ".fill().linear_extrude(height=1)",
     )
     np.testing.assert_allclose(m.size[:2], [20, 10], atol=1.0)
 

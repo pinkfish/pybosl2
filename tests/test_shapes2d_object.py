@@ -680,7 +680,7 @@ def test_path_extruders() -> None:
 
 def test_region_geometry_is_the_2d_wrapper() -> None:
     # the type IS the claim: a Region enters the same 2-D/3-D pipeline as a shape (PLAN X-8)
-    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])  # type: ignore[arg-type]
+    region = Region.with_holes(Path2D(SQUARE_PTS), Path2D([[5, 3], [15, 3], [15, 7], [5, 7]]))
     assert isinstance(region.geometry(), Bosl2Shape2D)
     assert isinstance(region.fill(), Bosl2Shape2D)
     assert isinstance(region.geometry().hull(), Bosl2Shape2D)
@@ -691,7 +691,7 @@ def test_region_geometry_is_the_2d_wrapper() -> None:
 @needs_native_2d_bbox
 def test_a_region_keeps_its_outline_through_the_pipeline() -> None:
     """Its outer boundary is 20x10 whatever is done to it -- the hole never changes the box."""
-    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])  # type: ignore[arg-type]
+    region = Region.with_holes(Path2D(SQUARE_PTS), Path2D([[5, 3], [15, 3], [15, 7], [5, 7]]))
     assert [float(v) for v in region.geometry().bounds().size] == pytest.approx([20.0, 10.0], abs=0.01)
     assert [float(v) for v in region.geometry().hull().bounds().size] == pytest.approx([20.0, 10.0], abs=0.01)
     assert [float(v) for v in region.linear_extrude(height=4).bounds().size] == pytest.approx(
@@ -703,7 +703,7 @@ def test_a_region_keeps_its_outline_through_the_pipeline() -> None:
 
 @needs_native_2d_bbox
 def test_region_fill_drops_the_hole() -> None:
-    region = Region.with_holes(SQUARE_PTS, [[5, 3], [15, 3], [15, 7], [5, 7]])  # type: ignore[arg-type]
+    region = Region.with_holes(Path2D(SQUARE_PTS), Path2D([[5, 3], [15, 3], [15, 7], [5, 7]]))
     np.testing.assert_allclose(region.fill().shape.size, [20, 10], atol=1e-6)
     assert not _covers(region.geometry(), [10, 5])  # the hole
     assert _covers(region.fill(), [10, 5])
@@ -732,7 +732,7 @@ def test_solid_hull_accepts_a_raw_native_and_a_vnf() -> None:
     with_native = sphere(radius=8).hull(cuboid([4, 4, 4]).shape)
     assert [float(v) for v in with_native.bounds().size] == pytest.approx(alone, abs=0.5)  # cube fits inside
 
-    vnf = VNF.tri_array([[[0, 0, 0], [10, 0, 0]], [[0, 10, 0], [10, 10, 5]]])
+    vnf = VNF.tri_array([Path3D([[0, 0, 0], [10, 0, 0]]), Path3D([[0, 10, 0], [10, 10, 5]])])
     with_vnf = sphere(radius=8).hull(vnf)
     assert float(with_vnf.bounds().size[0]) > alone[0]  # the mesh reaches out to x=10
 

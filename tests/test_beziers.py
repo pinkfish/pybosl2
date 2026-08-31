@@ -154,7 +154,9 @@ def test_close_to_axis_and_offset_return_bezier() -> None:
 
 
 def test_from_path_returns_cubic_bezpath() -> None:
-    fp = Bezier.from_path([[0, 0], [10, 10], [20, 0]], relsize=0.1)  # type: ignore[arg-type]
+    from pybosl2.path2d import Path2D
+
+    fp = Bezier.from_path(Path2D([[0, 0], [10, 10], [20, 0]]), relsize=0.1)
     assert isinstance(fp, Bezier)
     assert len(fp) % 3 == 1  # a valid cubic bezier path
     assert len(fp) == 7

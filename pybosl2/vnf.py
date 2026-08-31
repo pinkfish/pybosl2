@@ -698,9 +698,9 @@ class VNF:
         .. pythonscad-example::
 
             import math
-            from pybosl2 import VNF
+            from pybosl2 import Path3D, VNF
 
-            grid = [[[x, y, 4 * math.sin(x / 6) * math.cos(y / 6)] for y in range(0, 60, 4)]
+            grid = [Path3D([[x, y, 4 * math.sin(x / 6) * math.cos(y / 6)] for y in range(0, 60, 4)])
                     for x in range(0, 60, 4)]
             VNF.vertex_array(grid).polyhedron().show()
 
@@ -783,10 +783,10 @@ class VNF:
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import VNF
+            from pybosl2 import Path3D, VNF
 
-            a = VNF.vertex_array([[ [0,0,0],[1,0,0] ], [ [0,1,0],[1,1,0] ]])
-            b = VNF.vertex_array([[ [0,0,1],[1,0,1] ], [ [0,1,1],[1,1,1] ]])
+            a = VNF.vertex_array([Path3D([[0, 0, 0], [1, 0, 0]]), Path3D([[0, 1, 0], [1, 1, 0]])])
+            b = VNF.vertex_array([Path3D([[0, 0, 1], [1, 0, 1]]), Path3D([[0, 1, 1], [1, 1, 1]])])
             VNF.join([a, b]).polyhedron().show()
 
         """
@@ -1034,7 +1034,7 @@ class VNF:
     @classmethod
     def vertex_array(
         cls,
-        points: "Path3D | Sequence[Path3D] | Sequence[Sequence[Sequence[float]]] | Sequence[np.ndarray] | np.ndarray",
+        points: "Sequence[Path3D]",
         caps: "CapsSpec | None" = None,
         col_wrap: bool = False,
         row_wrap: bool = False,
@@ -1051,7 +1051,8 @@ class VNF:
         *reverse* flips face winding. Degenerate (zero-area) faces are dropped.
 
         Args:
-            points: Input grid points.
+            points: The grid, one :class:`~pybosl2.path3d.Path3D` per row (SPEC C-7a). A grid is a
+                sequence of rows and a row is an ordered set of points, so each row is a path.
             caps: Cap specification for both ends: a single :class:`CapType`,
                   :class:`CapSpec`, or a two-element pair ``[cap_start, cap_end]``.
                   Pass ``None`` (the default) for no caps.
@@ -1073,7 +1074,10 @@ class VNF:
                 return True, True
             return True, False
 
-        grid = _to_grid(points)
+        from pybosl2.path3d import Path3D as _Path3D
+        from pybosl2.paths import require_paths
+
+        grid = _to_grid(require_paths(points, "points", "vertex_array", _Path3D))
         rows = len(grid)
         if rows == 0:
             return cls([], [])
@@ -1252,7 +1256,7 @@ class VNF:
     @classmethod
     def tri_array(
         cls,
-        points: list[list[list[float]]],
+        points: "Sequence[Path3D]",
         caps: bool = False,
         cap1: bool | None = None,
         cap2: bool | None = None,
@@ -1265,18 +1269,41 @@ class VNF:
 
         Triangulates between adjacent rows by repeatedly adding the shortest new edge, so it
         meshes triangular / irregular point arrays (what the degenerate bezier patches produce).
+
+        Args:
+            points: The rows, one :class:`~pybosl2.path3d.Path3D` each; unlike
+                :meth:`vertex_array` they may differ in length (SPEC C-7a).
+            caps: Close both open ends.
+            cap1: Close the first end (overrides *caps*).
+            cap2: Close the last end (overrides *caps*).
+            col_wrap: Wrap each row back to its own first point.
+            row_wrap: Wrap the last row back to the first.
+            reverse: Flip face winding.
+            limit_bunching: Limit how many triangles may fan from one vertex.
+
+        Returns:
+            The triangulated mesh.
+
+        Raises:
+            Bosl2ValueError: If *points* is not a sequence of `Path3D`, or caps are combined
+                with *row_wrap*.
+
         """
         if (caps or cap1 or cap2) and row_wrap:
             raise Bosl2ValueError(
                 "tri_array(): caps cannot be combined with row_wrap -- a wrapped grid has no open end to cap."
             )
+        from pybosl2.path3d import Path3D as _Path3D
+        from pybosl2.paths import require_paths
+
+        points = require_paths(points, "points", "tri_array", _Path3D)  # type: ignore[assignment]
         plen = len(points)
         st = []
         for row in points:
-            row = [list(p) for p in row]
-            if col_wrap and not np.array_equal(row[0], row[-1]):
-                row = row + [list(row[0])]
-            st.append(row)
+            coords = [list(p) for p in row]
+            if col_wrap and not np.array_equal(coords[0], coords[-1]):
+                coords = coords + [list(coords[0])]
+            st.append(coords)
         addcol = (len(st[0]) - len(points[0])) if col_wrap else 0
         rowstarts = [len(r) for r in st]
         pcumlen = [0]
@@ -1310,7 +1337,7 @@ class VNF:
             else:
                 rng = list(range(pcumlen[plen - 1], pcumlen[plen] - addcol))
             faces.append(rng)
-        verts = [p for row in st for p in row]
+        verts = [[float(c) for c in p] for row in st for p in row]
         return cls(verts, faces)
 
     def polyhedron(self) -> "Solid":
