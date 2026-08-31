@@ -57,13 +57,70 @@ if TYPE_CHECKING:
 
     from pybosl2.color import Color
 
-#: Anything an API that wants a polyline accepts: a :class:`Path` (what the library hands back and
-#: what SPEC C-7 requires every such API to take), a plain point sequence, or a NumPy point array.
-#: Normalise it on the first line -- ``np.asarray(x, dtype=float)`` or ``Path2D(x)`` -- so the rest
-#: of the body works on one shape (PLAN T-4).
+#: **Internal.** The permissive form a body normalises *from*, never a public parameter type
+#: (SPEC C-7c, PLAN T-4a). A public parameter meaning an ordered set of points is typed `Path2D`,
+#: `Path3D` or `Path` and guarded with :func:`require_path` (SPEC C-7a).
+#:
+#: This alias used to be documented as "anything an API that wants a polyline accepts", and that
+#: sentence is how it reached 36 public signatures: the widest form read as the intended contract,
+#: so every new function copied it. A bare sequence carries no dimension, no open/closed flag and
+#: no winding, leaving each callee to re-derive all three -- and they disagreed.
+#:
+#: Normalise on the first line -- ``np.asarray(x, dtype=float)`` or ``Path2D(x)`` -- so the rest of
+#: the body works on one shape.
 PathLike: "TypeAlias" = "Path | Sequence[Sequence[float]] | NDArray[np.float64]"
 
-__all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod"]
+__all__ = ["CutPoint", "Path", "PathLike", "SubdivideMethod", "require_path"]
+
+
+def require_path(value: object, parameter: str, function: str) -> "Path":
+    """Return *value* as a :class:`Path`, refusing raw points and naming the wrapper (SPEC C-7a/b).
+
+    A bare sequence carries no dimension, no open/closed flag and no winding, so every function
+    that accepted one had to re-derive all three -- and they did not agree: the same list was a
+    2-D outline to one and a degenerate 3-D path to the next. Requiring the type moves that
+    decision to the single place that can make it once, at construction.
+
+    Raw points are what a caller usually has -- literals, a CSV, another library's output -- so the
+    refusal names the wrapper to apply, picking `Path2D` or `Path3D` from the width of what was
+    passed rather than making the caller work it out (SPEC C-7b).
+
+    Args:
+        value: the argument supplied for a polyline parameter.
+        parameter: the parameter's name, so the message points at the argument that was wrong.
+        function: the function's name, so it points at the call.
+
+    Returns:
+        *value* unchanged, when it is already a :class:`Path`.
+
+    Raises:
+        Bosl2ValueError: If *value* is not a :class:`Path`.
+
+    """
+    if isinstance(value, Path):
+        return value
+    raise Bosl2ValueError(f"{function}(): {parameter} must be a {_suggest_path_type(value)}.")
+
+
+def _suggest_path_type(value: object) -> str:
+    """Describe the Path type *value* should have been wrapped in, from its own shape."""
+    width = _point_width(value)
+    if width == 2:
+        return "Path2D, not raw points -- wrap them with Path2D(points)"
+    if width == 3:
+        return "Path3D, not raw points -- wrap them with Path3D(points)"
+    return "Path2D or Path3D, not raw points -- wrap them with Path2D(points) or Path3D(points)"
+
+
+def _point_width(value: object) -> int | None:
+    """Return the number of components per point, or None if *value* is not point-shaped."""
+    try:
+        arr = np.asarray(value, dtype=float)
+    except (TypeError, ValueError):
+        return None
+    if arr.ndim != 2 or arr.shape[0] == 0:
+        return None
+    return int(arr.shape[1])
 
 
 class SubdivideMethod(Enum):

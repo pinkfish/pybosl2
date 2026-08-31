@@ -16,10 +16,8 @@ duplicated across both subclasses.
 from __future__ import annotations
 
 import numbers
-from typing import TYPE_CHECKING, Any, Self
-
-if TYPE_CHECKING:
-    from collections.abc import Sequence
+from collections.abc import Sequence
+from typing import Any, Self
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._backend import unsupported_feature as _unsupported_feature
@@ -29,6 +27,30 @@ from pybosl2.enums import AttachTag
 from pybosl2.exceptions import Bosl2ValueError
 
 __all__ = ["BaseShape", "diff", "intersect"]
+
+
+def _numeric_vector(values: object, method: str, parameter: str) -> list[float]:
+    """Return *values* as floats, refusing anything that is not a number (SPEC E-4).
+
+    The native transforms differ in how they handle a non-numeric component, and both ways were
+    bad. `translate()` coerced with `float()` and let Python's own `ValueError: could not convert
+    string to float: 'x'` escape -- loud, but naming neither the method nor the argument, and not
+    catchable as a library error. `rotate()` forwarded the value untouched and the native call
+    treated it as **zero**, so `rotate([0, 0, spin])` with a bad `spin` returned an unrotated
+    shape and said nothing at all. A typo in a variable is the ordinary way to reach this.
+    """
+    if isinstance(values, (str, bytes)) or not isinstance(values, Sequence):
+        raise Bosl2ValueError(f"{method}(): {parameter} must be a sequence of numbers, got {values!r}.")
+    out: list[float] = []
+    for index, value in enumerate(values):
+        if isinstance(value, bool) or not isinstance(value, numbers.Real):
+            raise Bosl2ValueError(
+                f"{method}(): every component of {parameter} must be a number, but component "
+                f"{index} is {value!r}. A non-numeric component used to be silently treated as 0, "
+                f"which returned the shape untransformed."
+            )
+        out.append(float(value))
+    return out
 
 
 def _is_angle(value: object) -> bool:
@@ -218,7 +240,7 @@ class BaseShape(Colorable, Distributable):
     # ------------------------------------------------------------------
 
     def translate(self, v: Sequence[float]) -> Self:
-        out = self._wrap(self.shape.translate([float(c) for c in v]))  # type: ignore[attr-defined]
+        out = self._wrap(self.shape.translate(_numeric_vector(v, "translate", "v")))  # type: ignore[attr-defined]
         out.attachments = [att.translate(v) for att in self.attachments]
         return out
 
@@ -229,12 +251,17 @@ class BaseShape(Colorable, Distributable):
             a = ([0.0, 0.0, float(a[0])],)  # type: ignore[arg-type]
         elif not a and _is_angle(k.get("a")) and "v" not in k:
             k = {**k, "a": [0.0, 0.0, float(k["a"])]}  # type: ignore[arg-type]
+        if a and not _is_angle(a[0]):
+            a = (_numeric_vector(a[0], "rotate", "a"), *a[1:])
+        for name in ("a", "v"):
+            if name in k and not _is_angle(k[name]):
+                k = {**k, name: _numeric_vector(k[name], "rotate", name)}
         out = self._wrap(self.shape.rotate(*a, **k))  # type: ignore[attr-defined]
         out.attachments = [att.rotate(*a, **k) for att in self.attachments]
         return out
 
     def mirror(self, v: Sequence[float]) -> Self:
-        out = self._wrap(self.shape.mirror([float(c) for c in v]))  # type: ignore[attr-defined]
+        out = self._wrap(self.shape.mirror(_numeric_vector(v, "mirror", "v")))  # type: ignore[attr-defined]
         out.attachments = [att.mirror(v) for att in self.attachments]
         return out
 

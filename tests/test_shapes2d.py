@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 import pybosl2.shapes2d as s2
+from pybosl2 import Path2D
 from pybosl2._helpers import (
     arc_points as _arc_points,
 )
@@ -94,7 +95,7 @@ def test_arc_by_radius() -> None:
 
 
 def test_arc_through_three_points() -> None:
-    pts = arc(count=7, points=[[1, 0], [0, 1], [-1, 0]])
+    pts = arc(count=7, points=Path2D([[1, 0], [0, 1], [-1, 0]]))
     # all points lie on the unit circle about the origin
     for p in pts:
         assert math.isclose(math.hypot(p[0], p[1]), 1.0, abs_tol=1e-9)

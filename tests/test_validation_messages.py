@@ -187,12 +187,15 @@ ARC_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: s2.arc(corner=[[0, 0], [10, 0]], radius=5), "exactly 3 points"),
     (lambda: s2.arc(corner=[[0, 0], [10, 0], [10, 10]]), "needs radius="),
     (lambda: s2.arc(corner=[[0, 0], [10, 0], [10, 10]], radius=0), "needs radius="),
-    (lambda: s2.arc(points=[[0, 0, 0], [5, 5, 0], [10, 0, 0]]), "2-D points only"),
-    (lambda: s2.arc(points=[[0, 0], [5, 5], [10, 0], [15, 5]]), "needs 2 or 3 points"),
+    # 3-D points are now refused by `Path2D` itself rather than by `arc()`: typing the parameter
+    # moved the dimension check to construction, which is the one place that can make it once
+    # (SPEC C-7a). The message names the type, not the caller's function.
+    (lambda: Path2D([[0, 0, 0], [5, 5, 0], [10, 0, 0]]), "Path2D needs \\[x, y\\] points"),
+    (lambda: s2.arc(points=Path2D([[0, 0], [5, 5], [10, 0], [15, 5]])), "needs 2 or 3 points"),
     (lambda: s2.arc(radius=5, angle=[0, 90], start=10), "start= is not allowed"),
-    (lambda: s2.arc(points=[[0, 0], [10, 0]]), "center= is required"),
-    (lambda: s2.arc(points=[[5, 5], [5, 5]], center=[0, 0]), "endpoints are equal"),
-    (lambda: s2.arc(points=[[0, 0], [5, 0], [10, 0]]), "collinear"),
+    (lambda: s2.arc(points=Path2D([[0, 0], [10, 0]])), "center= is required"),
+    (lambda: s2.arc(points=Path2D([[5, 5], [5, 5]]), center=[0, 0]), "endpoints are equal"),
+    (lambda: s2.arc(points=Path2D([[0, 0], [5, 0], [10, 0]])), "collinear"),
     (lambda: s2.keyhole(length=0, radius1=3, radius2=6), "length must be positive"),
     (lambda: s2.ring(radius1=10, radius2=6, angle=90), "full-annulus"),
 ]
@@ -1038,7 +1041,7 @@ SHAPE_SIZE_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: s3.cross(size=[10, 10], height=-5), "positive height"),
     (lambda: s2.rect(size=[10, 10], rounding=8), "exceed the rect width"),
     (lambda: s2.rect(size=[30, 4], rounding=3), "exceed the rect height"),
-    (lambda: s2.arc(points=[[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]), "collinear"),
+    (lambda: s2.arc(points=Path2D([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]])), "collinear"),
     (lambda: s2.teardrop2d(radius=5, cap_height=1), "cap_height cannot be less than"),
     (
         lambda: s3.rect_tube(height=10, size1=[20, 20], size2=[20, 20], isize2=[10, 10]),
@@ -1114,7 +1117,7 @@ SIBLING_GUARD_CASES: list[tuple[Callable[[], object], str]] = [
         'k is only allowed with method="smooth"',
     ),
     (lambda: dist.path_copies([[0.0, 0.0], [1.0, 0.0]], dist=[50.0]), "don't fit on the path"),
-    (lambda: s2.arc(points=[[0.0, 0.0], [2.0, 0.0]], center=[1.0, 0.0]), "define a unique arc"),
+    (lambda: s2.arc(points=Path2D([[0.0, 0.0], [2.0, 0.0]]), center=[1.0, 0.0]), "define a unique arc"),
     (lambda: s2.egg(length=0, radius1=1, radius2=1, arc_radius=10), "length must be positive"),
     (
         lambda: masking.corner_profile(cuboid([10, 10, 10]), radius=2, size=(10, 10, 10), except_corners="left"),

@@ -1875,6 +1875,56 @@ the first run, which is the rule working as intended. The index no longer points
 
 ---
 
+## T24 — Make a point sequence a `Path2D`/`Path3D`, not a bare list 🔶
+
+**Closes:** §12.2 item 3 (C-7a, C-7b, C-7c) · **Implements:** PLAN T-4, T-4a, T-4b, T-4c · **Size:** L
+**Risk:** medium — API-breaking at 36 public parameters, and the raw form is what most examples use
+
+C-7 asked that an API taking a polyline *accept* a `Path`. They all do, through the permissive
+`PathLike` alias — and that is the defect, not the compliance: the widest form became the default
+one, so `PathLike` spread into public signatures as if it were the contract its docstring claimed
+("anything an API that wants a polyline accepts"). A bare sequence carries no dimension, no
+open/closed flag and no winding, so every function that takes one re-derives all three, and they
+do not always agree.
+
+1. Add `require_path(value, parameter, function)` to `pybosl2.paths`: returns a `Path` unchanged,
+   otherwise raises `Bosl2ValueError` naming the wrapper to apply, choosing `Path2D` or `Path3D`
+   from the width of the points it was handed so the message is the fix (C-7b).
+2. Retype the 36 public parameters to `Path2D | Path3D | Path` and call `require_path()` on the
+   first line, before any other work (E-4).
+3. Mark `PathLike` internal in its own docstring and in `pybosl2.paths.__all__`'s documentation —
+   it types the normalisation *inside* a body, never a parameter (C-7c).
+4. Add `tests/test_polyline_parameters.py`: a ratchet listing the public parameters still accepting
+   a raw sequence, which only shrinks, plus a test that each converted one refuses raw points with
+   a message naming `Path2D(` or `Path3D(`.
+5. Update the docstring examples that pass raw lists — the docstring gate (D-P5a) type-checks them,
+   so these fail loudly rather than silently going stale.
+
+**Excluded, and why:** `export(path: str | os.PathLike[str])` is a *file* path — `os.PathLike` is
+unrelated to `pybosl2.paths.PathLike` and must not be swept up by a name match. `field(pts:
+np.ndarray)` is an SDF sampling kernel called per evaluation batch, not a caller-supplied polyline;
+wrapping it would be both wrong and slow. `heightfield(data=...)` and `tri_array(points=...)` take
+a *grid*, not a path.
+
+**Landed so far (4 of 36).** `require_path()` and the C-7c docstring change are in;
+`flat.polygon`, `flat.circle`, `shapes2d.circle` and `shapes2d.arc` now take a `Path2D`. The
+ratchet in `tests/test_polyline_parameters.py` holds the remaining **31**.
+
+Two things the first tranche showed, both worth expecting on the rest:
+
+* **`mypy --strict` finds the internal callers.** Retyping `arc(points=)` immediately surfaced
+  three call sites inside the library still passing raw lists (one in `shapes2d/circle.py`, two in
+  `turtle/turtle2d.py`). That is the migration's own safety net -- the raw form stops being
+  invisible the moment the parameter is typed.
+* **Runtime checks become redundant, and that is the payoff.** `arc()` carried its own
+  "handles 2-D points only" branch; with the parameter typed `Path2D` that branch is unreachable,
+  because `Path2D` rejects 3-D points at construction. The check moved to the one place that can
+  make it once (C-7a), and the message improved -- it now names the type rather than the caller's
+  function. Eighteen tests failed on the retype and all were tests passing raw lists; one asserted
+  the old message and was updated to assert the new location.
+
+---
+
 ## Keeping this file honest
 
 The mapping table at the top is the contract between this file and the spec. Two ways it goes

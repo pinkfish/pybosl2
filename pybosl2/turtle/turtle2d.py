@@ -410,7 +410,7 @@ class Turtle2D(TurtleCommands):
                 [float(v) for v in p_mid],
                 [float(v) for v in p_end],
             ]
-            arcpath = [[float(v) for v in p] for p in arc(steps, points=points_2d)][1:]
+            arcpath = [[float(v) for v in p] for p in arc(steps, points=Path2D(points_2d))][1:]
 
         new_path = self._state.path + [[float(p[0]), float(p[1])] for p in arcpath]
         self._state = replace(self._state, path=new_path, step=[float(rot_step[0]), float(rot_step[1])])
@@ -454,7 +454,7 @@ class Turtle2D(TurtleCommands):
                 [float(v) for v in p_mid],
                 [float(v) for v in p_end],
             ]
-            arcpath = [[float(v) for v in p] for p in arc(steps, points=points_2d)][1:]
+            arcpath = [[float(v) for v in p] for p in arc(steps, points=Path2D(points_2d))][1:]
 
         new_path = self._state.path + [[float(p[0]), float(p[1])] for p in arcpath]
         self._state = replace(self._state, path=new_path, step=[float(rot_step[0]), float(rot_step[1])])

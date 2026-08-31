@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Union, cast
 
 import numpy as np
 
@@ -53,6 +53,7 @@ from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.geometry import is_collinear
 from pybosl2.geometry import vector_angle3 as _vector_angle
 from pybosl2.path2d import Path2D
+from pybosl2.paths import require_path
 from pybosl2.points import Point
 from pybosl2.vectors import unit
 
@@ -68,7 +69,6 @@ if TYPE_CHECKING:
     from openscad import PyOpenSCAD
 
     from pybosl2._edges_lang import Anchor
-    from pybosl2.paths import PathLike
 
 
 Shape2DLike = Union["Bosl2Shape2D", "PyOpenSCAD", "Path2D", Sequence[Sequence[float]], np.ndarray]
@@ -93,7 +93,7 @@ else:
 def circle(
     radius: float | None = None,
     diameter: float | None = None,
-    points: PathLike | None = None,
+    points: "Path2D | None" = None,
     corner: Sequence[Sequence[float]] | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -129,6 +129,7 @@ def circle(
     """
     fn, fa, fs = _resolve_facets(fn, fa, fs)
     if points is not None:
+        points = cast("Path2D", require_path(points, "points", "circle"))
         center, rad = _circle_from_3pts(points)
         return _finish(_ocircle(r=rad, fn=fn, fa=fa, fs=fs), center, 0, size=[2 * rad, 2 * rad])
     if corner is not None:
@@ -149,7 +150,7 @@ def arc(
     angle: float | Sequence[float] | None = None,
     diameter: float | None = None,
     center: Sequence[float] | None = None,
-    points: PathLike | None = None,
+    points: "Path2D | None" = None,
     corner: Sequence[Sequence[float]] | None = None,
     width: float | None = None,
     thickness: float | None = None,
@@ -210,7 +211,7 @@ def arc(
             raise Bosl2ValueError("conflicting arc() params")
         return arc(
             count=count,
-            points=[[width / 2, 0], [0, thickness], [-width / 2, 0]],
+            points=Path2D([[width / 2, 0], [0, thickness], [-width / 2, 0]]),
             wedge=wedge,
             endpoint=endpoint,
             fn=fn,
@@ -265,6 +266,7 @@ def arc(
 
     # -- points forms ------------------------------------------------------------------------
     if points is not None:
+        points = cast("Path2D", require_path(points, "points", "arc"))
         pts = [[float(p[0]), float(p[1])] for p in points]
         if not (all((len(p) == 2 for p in points))):
             raise Bosl2ValueError("arc() port handles 2-D points only")

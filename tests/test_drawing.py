@@ -49,8 +49,8 @@ def test_arc_angle_range_form() -> None:
 
 
 def test_arc_two_point_short_and_long() -> None:
-    short = arc(count=7, center=[0, 0], points=[[10, 0], [0, 10]])
-    long = arc(count=7, center=[0, 0], points=[[10, 0], [0, 10]], long=True)
+    short = arc(count=7, center=[0, 0], points=Path2D([[10, 0], [0, 10]]))
+    long = arc(count=7, center=[0, 0], points=Path2D([[10, 0], [0, 10]]), long=True)
     # both start/end at the same points, but the long one bulges the other way (negative x mid)
     np.testing.assert_allclose(short[0], [10, 0], atol=1e-9)
     np.testing.assert_allclose(long[0], [10, 0], atol=1e-9)
@@ -71,7 +71,7 @@ def test_arc_corner_is_tangent_fillet() -> None:
 
 def test_arc_collinear_points_raise() -> None:
     with pytest.raises(ValueError, match="collinear"):
-        arc(count=5, points=[[0, 0], [1, 0], [2, 0]])
+        arc(count=5, points=Path2D([[0, 0], [1, 0], [2, 0]]))
 
 
 # -- catenary -----------------------------------------------------------------------------

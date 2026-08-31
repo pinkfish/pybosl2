@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
     from pybosl2.bounds import Bounds2D
-    from pybosl2.paths import PathLike
+    from pybosl2.path2d import Path2D
 
 
 __all__ = [
@@ -96,7 +96,7 @@ def circle(
     radius: float | None = None,
     diameter: float | None = None,
     *,
-    points: PathLike | None = None,
+    points: "Path2D | None" = None,
     corner: Sequence[Sequence[float]] | None = None,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -293,7 +293,7 @@ def rect(
 
 
 def polygon(
-    points: PathLike,
+    points: "Path2D",
     *,
     anchor: Anchor | Sequence[float] = CENTER,
     spin: float = 0,
@@ -304,7 +304,7 @@ def polygon(
     Creates a 2D polygon from list of points.
 
     Args:
-        points: Sequence of 2-D points.
+        points: The outline, as a :class:`~pybosl2.path2d.Path2D` (SPEC C-7a).
         anchor: Anchor point.
         spin: Z-axis rotation in degrees after anchor.
         res: SDF backend's resolution (SDF backend only).
@@ -315,22 +315,25 @@ def polygon(
     Examples:
         .. pythonscad-example::
 
+            from pybosl2 import Path2D
             from pybosl2.flat import polygon
-            polygon(points=[[0, 0], [10, 0], [5, 10]]).linear_extrude(height=5).show()
+            polygon(points=Path2D([[0, 0], [10, 0], [5, 10]])).linear_extrude(height=5).show()
 
     """
+    from pybosl2.paths import require_path
+
+    points = cast("Path2D", require_path(points, "points", "polygon"))
     if current_backend() == "sdf":
         from pybosl2.sdf.shapes2d import polygon2d
 
         return cast("Flat", polygon2d(paths=points, res=_resolve_res(res) or 10))
 
-    from pybosl2.path2d import Path2D
     from pybosl2.shapes2d.square import polygon as csg_polygon
 
     return cast(
         "Flat",
         csg_polygon(
-            path=Path2D(points),
+            path=points,
             anchor=anchor,
             spin=spin,
         ),
