@@ -2588,6 +2588,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">path3d</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""Pad a 2-D (or 3-D) point list to 3-D with z=0.</span>
 
+<span class="sd">    `path` stays array-like rather than becoming a `Path` (SPEC C-7a's normalizer carve-out, PLAN</span>
+<span class="sd">    T-4d). The name says polyline, but half its callers hand it something that is not one: this</span>
+<span class="sd">    also pads **tangent and derivative vectors** to three components -- `_path_sweep(tangent=)` and</span>
+<span class="sd">    `Bezier.sweep()` both do -- and no point type describes a list of direction vectors. It is a</span>
+<span class="sd">    "pad each row to three floats" utility that a polyline merely happens to be a common input for.</span>
+
 <span class="sd">    The coordinates are converted to plain Python floats, not left as whatever the input held: a</span>
 <span class="sd">    numpy row in would otherwise leak ``np.float64`` scalars out of an annotation that promises</span>
 <span class="sd">    ``float``, and those raise SystemError/TypeError at the native FFI boundary (see the note in</span>
@@ -2599,11 +2605,18 @@
 
 <div class="viewcode-block" id="clockwise_polygon">
 <a class="viewcode-back" href="../../paths/skin.html#pybosl2.skin.clockwise_polygon">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">clockwise_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Path2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""*poly* wound clockwise (reversed if its signed area is positive/CCW)."""</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">clockwise_polygon</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="s2">"Path2D"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Path2D"</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""*poly* wound clockwise (reversed if its signed area is positive/CCW).</span>
+
+<span class="sd">    Returns a :class:`~pybosl2.path2d.Path2D`, not a bare point list: rewinding an outline yields an</span>
+<span class="sd">    outline, and handing back the raw points would drop the type its caller just supplied (PLAN</span>
+<span class="sd">    T-4, SPEC C-9). The old signature said `list[Sequence[float]]` while actually returning numpy</span>
+<span class="sd">    rows, which only type-checked because a `# type: ignore` sat on the call.</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span>
 
-    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">poly</span><span class="p">)</span> <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">poly</span><span class="p">)))</span>  <span class="c1"># type: ignore[arg-type]</span></div>
+    <span class="n">poly</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">require_path</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="s2">"poly"</span><span class="p">,</span> <span class="s2">"clockwise_polygon"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">poly</span> <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">poly</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span></div>
 
 
 
@@ -2643,7 +2656,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sweep</span><span class="p">(</span>
-    <span class="n">shape</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">shape</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span>
     <span class="n">transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]],</span>
     <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">caps</span><span class="p">:</span> <span class="n">CapsSpec</span> <span class="o">=</span> <span class="n">CapType</span><span class="o">.</span><span class="n">BUTT</span><span class="p">,</span>
@@ -2656,7 +2669,8 @@
 <span class="sd">    are handled inline by :class:`VNF.vertex_array`.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        shape:      a 2-D polygon (list of [x, y] points)</span>
+<span class="sd">        shape:      the 2-D cross-section -- a `Path2D`, or the raw points a private</span>
+<span class="sd">                    helper still holds (C-7c: `PathLike` types a body, not a public parameter)</span>
 <span class="sd">        transforms: list of 4x4 matrices, one per cross section along the path</span>
 <span class="sd">        closed:     the sweep loops back on itself (no caps)</span>
 <span class="sd">        caps:       cap the open ends (default: BUTT); supports decorative cap types</span>
@@ -2839,7 +2853,9 @@
     <span class="n">transform_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">unscaled</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">scale_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unscaled</span><span class="p">))]</span>
     <span class="k">if</span> <span class="n">transforms</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">transform_list</span>
-    <span class="n">shp</span> <span class="o">=</span> <span class="n">clockwise_polygon</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">"Sequence[Sequence[float]] | Path2D"</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path2D</span> <span class="k">as</span> <span class="n">_Path2D</span>
+
+    <span class="n">shp</span> <span class="o">=</span> <span class="n">clockwise_polygon</span><span class="p">(</span><span class="n">shape</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">_Path2D</span><span class="p">)</span> <span class="k">else</span> <span class="n">_Path2D</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">_sweep</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">transform_list</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">caps</span><span class="o">=</span><span class="n">caps</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span>
 
 

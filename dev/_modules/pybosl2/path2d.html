@@ -2159,7 +2159,6 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2._backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Solid</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.beziers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bezier</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">Color</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.path3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path3D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">PathLike</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Region</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.shapes2d</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bosl2Shape2D</span>
@@ -2183,6 +2182,7 @@
     <span class="n">CutPoint</span><span class="p">,</span>
     <span class="n">Path</span><span class="p">,</span>
     <span class="n">SubdivideMethod</span><span class="p">,</span>
+    <span class="n">require_path</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.points</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pybosl2.rounding</span><span class="w"> </span><span class="kn">import</span> <span class="n">Roundable</span>
@@ -3240,7 +3240,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return True if the first and last points of the path coincide."""</span>
-        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">is_closed_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Path2D.is_simple">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.is_simple">[docs]</a>
@@ -3512,7 +3512,7 @@
 <span class="sd">            A list of non-intersecting simple :class:`Path2D` polygon parts.</span>
 
 <span class="sd">        """</span>
-        <span class="n">poly</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
+        <span class="n">poly</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">tagged</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">_tag_self_crossing_subpaths</span><span class="p">(</span><span class="n">nonzero</span><span class="o">=</span><span class="n">nonzero</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
         <span class="n">kept</span> <span class="o">=</span> <span class="p">[</span><span class="n">sub</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">tagged</span> <span class="k">if</span> <span class="n">sub</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"O"</span><span class="p">]</span>
@@ -4425,7 +4425,7 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">close_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">close_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span> <span class="k">if</span> <span class="n">closed</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">)</span>
         <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">result</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SelfIntersection</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_crossing_candidates</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">closed</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
@@ -4554,7 +4554,7 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">closed</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">closed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_points</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">cleanup_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
         <span class="n">temp</span> <span class="o">=</span> <span class="n">Path2D</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">raw</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">temp</span><span class="o">.</span><span class="n">self_intersections</span><span class="p">(</span><span class="n">closed</span><span class="o">=</span><span class="n">closed</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">):</span>
@@ -4931,10 +4931,10 @@
             <span class="k">raise</span> <span class="n">Bosl2ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"offset() collapsed the path: offsetting by </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">amount</span><span class="p">)</span><span class="si">}</span><span class="s2"> leaves nothing of this outline."</span>
             <span class="p">)</span>
-        <span class="n">source_sign</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">source_sign</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">source</span><span class="p">),</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">ring</span>
-            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">ring</span><span class="p">,</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">==</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">source_sign</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">ring</span><span class="p">),</span> <span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">==</span> <span class="n">math</span><span class="o">.</span><span class="n">copysign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">source_sign</span><span class="p">)</span>
             <span class="k">else</span> <span class="n">ring</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="p">)</span>
 
@@ -5020,15 +5020,18 @@
 <div class="viewcode-block" id="Path2D.polygon_area">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.polygon_area">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">polygon_area</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">signed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">polygon_area</span><span class="p">(</span><span class="n">poly</span><span class="p">:</span> <span class="s2">"Path2D"</span><span class="p">,</span> <span class="n">signed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Area of a 2-D polygon (shoelace formula).</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            poly: A sequence of [x, y] points.</span>
+<span class="sd">            poly: The outline, as a :class:`Path2D` -- the shoelace formula is planar (SPEC C-7a).</span>
 <span class="sd">            signed: If True, preserve the sign so negative indicates clockwise winding.</span>
 
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If *poly* is not a `Path2D`.</span>
+
 <span class="sd">        """</span>
-        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">require_path</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="s2">"poly"</span><span class="p">,</span> <span class="s2">"polygon_area"</span><span class="p">,</span> <span class="n">Path2D</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">sides</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sides</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
@@ -5109,49 +5112,68 @@
 <div class="viewcode-block" id="Path2D.is_closed_path">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.is_closed_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_closed_path</span><span class="p">(</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="s2">"Path2D"</span> <span class="o">|</span> <span class="s2">"Path3D"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_closed_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return True if the first and last points of path coincide.</span>
+
+<span class="sd">        Takes a `Path` rather than a concrete width: whether the ends meet is the same question</span>
+<span class="sd">        in 2-D and 3-D (SPEC C-7a).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path: A path to check for closure.</span>
 <span class="sd">            eps: Epsilon for numerical comparison.</span>
 
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span></div>
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If *path* is not a `Path`.</span>
 
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">(</span><span class="n">require_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"path"</span><span class="p">,</span> <span class="s2">"is_closed_path"</span><span class="p">),</span> <span class="n">eps</span><span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_closed</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="s2">"PathLike"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""`is_closed_path` without the guard, for the private fragment machinery.</span>
+
+<span class="sd">        `_assemble_a_path_from_fragments` walks raw point lists in a `while True` loop and asks this</span>
+<span class="sd">        twice per turn; wrapping each in a `Path2D` only to unwrap it again would allocate per</span>
+<span class="sd">        iteration to re-derive what the loop already knows. This is the C-7c line: `PathLike` types</span>
+<span class="sd">        the normalisation inside a body, and the public entry point above is what holds the contract.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Path2D.close_path">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.close_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">close_path</span><span class="p">(</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="s2">"Path2D"</span> <span class="o">|</span> <span class="s2">"Path3D"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Append the start point to path if it isn't already closed.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            path: A path to close.</span>
+<span class="sd">            path: A path to close, at either width.</span>
 <span class="sd">            eps: Epsilon for numerical comparison.</span>
 
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If *path* is not a `Path`.</span>
+
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">is_closed_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
+        <span class="n">require_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"path"</span><span class="p">,</span> <span class="s2">"close_path"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span></div>
 
 
 <div class="viewcode-block" id="Path2D.cleanup_path">
 <a class="viewcode-back" href="../../paths/paths.html#pybosl2.path2d.Path2D.cleanup_path">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_path</span><span class="p">(</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="s2">"Path2D"</span> <span class="o">|</span> <span class="s2">"Path3D"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="s2">"Path"</span><span class="p">,</span> <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPSILON</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""Drop the last point of path if it coincides with the first.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            path: A path to clean up.</span>
+<span class="sd">            path: A path to clean up, at either width.</span>
 <span class="sd">            eps: Epsilon for numerical comparison.</span>
 
+<span class="sd">        Raises:</span>
+<span class="sd">            Bosl2ValueError: If *path* is not a `Path`.</span>
+
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">is_closed_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+        <span class="n">require_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"path"</span><span class="p">,</span> <span class="s2">"cleanup_path"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
 
 
     <span class="nd">@staticmethod</span>
@@ -5285,13 +5307,13 @@
         <span class="n">path</span> <span class="o">=</span> <span class="n">fragments</span><span class="p">[</span><span class="n">startfrag</span><span class="p">]</span>
         <span class="n">remainder</span> <span class="o">=</span> <span class="p">[</span><span class="n">fragments</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fragments</span><span class="p">))</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">startfrag</span><span class="p">]</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">is_closed_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
                 <span class="k">return</span> <span class="p">[</span><span class="n">path</span><span class="p">,</span> <span class="n">remainder</span><span class="p">]</span>
             <span class="n">seg</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_select</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">foundfrag</span><span class="p">,</span> <span class="n">remainder2</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_extreme_angle_fragment</span><span class="p">(</span><span class="n">seg</span><span class="p">,</span> <span class="n">remainder</span><span class="p">,</span> <span class="n">rightmost</span><span class="o">=</span><span class="n">rightmost</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">foundfrag</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[</span><span class="n">path</span><span class="p">,</span> <span class="n">remainder2</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">is_closed_path</span><span class="p">(</span><span class="n">foundfrag</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">(</span><span class="n">foundfrag</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
                 <span class="k">return</span> <span class="p">[</span><span class="n">foundfrag</span><span class="p">,</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">+</span> <span class="n">remainder2</span><span class="p">]</span>
             <span class="n">fragend</span> <span class="o">=</span> <span class="n">foundfrag</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">hits</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fragend</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">eps</span><span class="p">)]</span>
@@ -5320,10 +5342,10 @@
             <span class="n">minxidx</span> <span class="o">=</span> <span class="n">minxs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">minxs</span><span class="p">))</span>
             <span class="n">result_l</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_assemble_a_path_from_fragments</span><span class="p">(</span><span class="n">frags</span><span class="p">,</span> <span class="n">startfrag</span><span class="o">=</span><span class="n">minxidx</span><span class="p">,</span> <span class="n">rightmost</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
             <span class="n">result_r</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">_assemble_a_path_from_fragments</span><span class="p">(</span><span class="n">frags</span><span class="p">,</span> <span class="n">startfrag</span><span class="o">=</span><span class="n">minxidx</span><span class="p">,</span> <span class="n">rightmost</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="n">eps</span><span class="p">)</span>
-            <span class="n">l_area</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">result_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="k">if</span> <span class="n">result_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">r_area</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">result_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="k">if</span> <span class="n">result_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">l_area</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">result_l</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span> <span class="k">if</span> <span class="n">result_l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">r_area</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Path2D</span><span class="o">.</span><span class="n">polygon_area</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">result_r</span><span class="p">[</span><span class="mi">0</span><span class="p">])))</span> <span class="k">if</span> <span class="n">result_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">result_l</span> <span class="k">if</span> <span class="n">l_area</span> <span class="o">&lt;</span> <span class="n">r_area</span> <span class="k">else</span> <span class="n">result_r</span>
-            <span class="n">newpath</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">cleanup_path</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">newpath</span> <span class="o">=</span> <span class="n">Path2D</span><span class="o">.</span><span class="n">cleanup_path</span><span class="p">(</span><span class="n">Path2D</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="n">remainder</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">min</span><span class="p">(</span><span class="n">l_area</span><span class="p">,</span> <span class="n">r_area</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="p">:</span>
                 <span class="n">finished</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newpath</span><span class="p">)</span>

@@ -4268,6 +4268,11 @@ a coil.</p>
 <dt class="sig sig-object highlight py" id="pybosl2.skin.path3d">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.skin.</span></span><span class="sig-name descname"><span class="pre">path3d</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.skin.path3d.path" title="pybosl2.skin.path3d.path (Python parameter)"><span class="n"><span class="pre">path</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/skin.html#path3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.path3d" title="Link to this definition">¶</a></dt>
 <dd><p>Pad a 2-D (or 3-D) point list to 3-D with z=0.</p>
+<p><cite>path</cite> stays array-like rather than becoming a <cite>Path</cite> (SPEC C-7a’s normalizer carve-out, PLAN
+T-4d). The name says polyline, but half its callers hand it something that is not one: this
+also pads <strong>tangent and derivative vectors</strong> to three components – <cite>_path_sweep(tangent=)</cite> and
+<cite>Bezier.sweep()</cite> both do – and no point type describes a list of direction vectors. It is a
+“pad each row to three floats” utility that a polyline merely happens to be a common input for.</p>
 <p>The coordinates are converted to plain Python floats, not left as whatever the input held: a
 numpy row in would otherwise leak <code class="docutils literal notranslate"><span class="pre">np.float64</span></code> scalars out of an annotation that promises
 <code class="docutils literal notranslate"><span class="pre">float</span></code>, and those raise SystemError/TypeError at the native FFI boundary (see the note in
@@ -4289,15 +4294,19 @@ pybosl2/paths.py).</p>
 <dt class="sig sig-object highlight py" id="pybosl2.skin.clockwise_polygon">
 <span class="sig-prename descclassname"><span class="pre">pybosl2.skin.</span></span><span class="sig-name descname"><span class="pre">clockwise_polygon</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#pybosl2.skin.clockwise_polygon.poly" title="pybosl2.skin.clockwise_polygon.poly (Python parameter)"><span class="n"><span class="pre">poly</span></span></a></em></span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pybosl2/skin.html#clockwise_polygon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pybosl2.skin.clockwise_polygon" title="Link to this definition">¶</a></dt>
 <dd><p><em>poly</em> wound clockwise (reversed if its signed area is positive/CCW).</p>
+<p>Returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">Path2D</span></code>, not a bare point list: rewinding an outline yields an
+outline, and handing back the raw points would drop the type its caller just supplied (PLAN
+T-4, SPEC C-9). The old signature said <cite>list[Sequence[float]]</cite> while actually returning numpy
+rows, which only type-checked because a <cite># type: ignore</cite> sat on the call.</p>
 <dl class="field-list simple">
 <dt class="field-odd" id="pybosl2.skin.clockwise_polygon-parameters">Parameters<span class="colon">:</span><a class="headerlink" href="#pybosl2.skin.clockwise_polygon-parameters" title="Permalink to this headline">¶</a></dt>
 <dd class="field-odd"><dl class="simple api-field highlight">
-<dt id="pybosl2.skin.clockwise_polygon.poly"><span class="sig-name descname">poly</span><span class="p"> : </span><span class="desctype"><span class="desctype">Sequence[Sequence[float]] | Path2D</span></span><a class="headerlink" href="#pybosl2.skin.clockwise_polygon.poly" title="Permalink to this definition">¶</a></dt><dd><p></p>
+<dt id="pybosl2.skin.clockwise_polygon.poly"><span class="sig-name descname">poly</span><span class="p"> : </span><span class="desctype"><span class="desctype">Path2D</span></span><a class="headerlink" href="#pybosl2.skin.clockwise_polygon.poly" title="Permalink to this definition">¶</a></dt><dd><p></p>
 </dd>
 </dl>
 </dd>
 <dt class="field-even" id="pybosl2.skin.clockwise_polygon-return-type">Return type<span class="colon">:</span><a class="headerlink" href="#pybosl2.skin.clockwise_polygon-return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>list[Sequence[float]]</p>
+<dd class="field-even"><p>Path2D</p>
 </dd>
 </dl>
 </dd></dl>
