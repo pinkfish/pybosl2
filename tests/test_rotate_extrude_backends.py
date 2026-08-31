@@ -27,7 +27,7 @@ from pybosl2.path2d import Path2D
 
 #: A 4mm-wide, 2mm-tall rectangle sitting between radius 6 and 10: revolves into a square-section
 #: ring, whose every dimension is known in closed form.
-RING = [[6, -1], [10, -1], [10, 1], [6, 1]]
+RING = Path2D([[6, -1], [10, -1], [10, 1], [6, 1]])
 
 BACKENDS = ["csg", "sdf"]
 
@@ -35,7 +35,7 @@ BACKENDS = ["csg", "sdf"]
 @pytest.mark.parametrize("backend", BACKENDS)
 def test_a_full_revolution_is_a_ring_of_the_stated_radius(backend: str) -> None:
     with use_backend(backend):
-        ring = Path2D(RING).rotate_extrude()
+        ring = RING.rotate_extrude()
     _box = ring.bounds()
     centre, size = list(_box.center), list(_box.size)
     assert size[0] == pytest.approx(20.0, abs=0.2)  # 2 * outer radius; CSG facets fall just inside
@@ -53,7 +53,7 @@ def test_a_partial_revolution_sweeps_the_same_sector_on_both_backends(
     built = {}
     for backend in BACKENDS:
         with use_backend(backend):
-            built[backend] = Path2D(RING).rotate_extrude(angle).bounds()
+            built[backend] = RING.rotate_extrude(angle).bounds()
     for axis in range(3):
         assert abs(float(built["csg"].size[axis]) - float(built["sdf"].size[axis])) < 0.2
         assert abs(float(built["csg"].center[axis]) - float(built["sdf"].center[axis])) < 0.2
@@ -79,10 +79,10 @@ def test_a_profile_crossing_the_axis_is_rejected() -> None:
     from pybosl2.sdf.shapes3d import rotate_extrude
 
     with pytest.raises(ValueError, match="crosses the Z axis"):
-        rotate_extrude([[-2, -1], [10, -1], [10, 1], [-2, 1]])
+        rotate_extrude(Path2D([[-2, -1], [10, -1], [10, 1], [-2, 1]]))
 
 
-@pytest.mark.parametrize("bad", [[], [[[0, 0], [1, 0]]]])
+@pytest.mark.parametrize("bad", [[], [Path2D([[0, 0], [1, 0]])]])
 def test_a_degenerate_profile_is_rejected(bad: object) -> None:
     from pybosl2.sdf.shapes3d import rotate_extrude
 
@@ -95,7 +95,7 @@ def test_a_concave_profile_revolves_correctly() -> None:
     from pybosl2.sdf.shapes3d import rotate_extrude
 
     # An L-section: full width below z=0, stepped back to r=8 above it.
-    profile = [[6, -2], [10, -2], [10, 0], [8, 0], [8, 2], [6, 2]]
+    profile = Path2D([[6, -2], [10, -2], [10, 0], [8, 0], [8, 2], [6, 2]])
     ring = rotate_extrude(profile).mesh()
     assert float(ring.sample(9, 0, -1)) < 0  # in the wide part, below the step
     assert float(ring.sample(7, 0, 1)) < 0  # in the narrow part, above it

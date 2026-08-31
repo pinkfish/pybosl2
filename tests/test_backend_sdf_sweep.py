@@ -22,11 +22,11 @@ import pytest
 
 import pybosl2.sdf.shapes3d as sdf
 from pybosl2.beziers import Bezier
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.sdf.shapes3d import PyShape
 
-CIRCLE: list[list[float]] = [
-    [2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 48, endpoint=False)
-]
+CIRCLE = Path2D([[2 * math.cos(t), 2 * math.sin(t)] for t in np.linspace(0, 2 * math.pi, 48, endpoint=False)])
 
 
 class _LVNumeric:
@@ -63,7 +63,7 @@ def _frame_probe(shape: PyShape, path: Sequence[Sequence[float]]) -> Callable[[f
 
 
 def test_sweep_builds_ffi_free() -> None:
-    tube = sdf.bezier_sweep(CIRCLE, [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
+    tube = sdf.bezier_sweep(CIRCLE, Path3D([[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]]))
     assert type(tube).__name__ == "SdfSolid"
     assert tube.backend == "sdf"
     size = tube.bounds().size
@@ -73,7 +73,7 @@ def test_sweep_builds_ffi_free() -> None:
 
 @pytest.mark.usefixtures("numeric_lv")
 def test_straight_tube_geometry() -> None:
-    tube = sdf.path_sweep(CIRCLE, [[0, 0, z] for z in np.linspace(0, 30, 40)])
+    tube = sdf.path_sweep(CIRCLE, Path3D([[0, 0, z] for z in np.linspace(0, 30, 40)]))
     # a radius-2 circle swept 0..30 along z: bounds exactly [4, 4, 30], no overshoot past the ends
     sx, sy, sz = tube.bounds().size
     assert abs(sx - 4) < 0.05
@@ -90,7 +90,7 @@ def test_straight_tube_geometry() -> None:
 
 @pytest.mark.usefixtures("numeric_lv")
 def test_bezier_tube_watertight_along_path() -> None:
-    cp = [[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]]
+    cp = Path3D([[0, 0, 0], [0, 0, 20], [25, 12, 15], [30, 4, 6]])
     tube = sdf.bezier_sweep(CIRCLE, cp, splinesteps=48)
     f = _field(tube)
     # every point strictly along the centerline (excluding the exact end points, which sit on the
@@ -101,8 +101,8 @@ def test_bezier_tube_watertight_along_path() -> None:
 
 @pytest.mark.usefixtures("numeric_lv")
 def test_twist_keeps_it_a_solid() -> None:
-    square = [[-2, -2], [2, -2], [2, 2], [-2, 2]]
-    tube = sdf.path_sweep(square, [[0, 0, z] for z in np.linspace(0, 20, 30)], twist=90)
+    square = Path2D([[-2, -2], [2, -2], [2, 2], [-2, 2]])
+    tube = sdf.path_sweep(square, Path3D([[0, 0, z] for z in np.linspace(0, 20, 30)]), twist=90)
     f = _field(tube)
     assert f(0, 0, 10) < 0  # still solid along the axis with a 90-degree twist
     # the mid station is rotated ~45 degrees, so a corner reaches ~2*sqrt2; the mesh domain must
@@ -118,8 +118,8 @@ def test_twist_keeps_it_a_solid() -> None:
 def test_concave_profile_notch_is_carved() -> None:
     # An L-shaped (concave) profile: the removed top-right quadrant must read OUTSIDE, while both
     # arms read inside -- i.e. the sweep honours the concavity (via _polygon_sdf_xy), not just a hull.
-    profile = [[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]]
-    path = [[0, 0, z] for z in np.linspace(0, 10, 30)]
+    profile = Path2D([[0, 0], [4, 0], [4, 2], [2, 2], [2, 4], [0, 4]])
+    path = Path3D([[0, 0, z] for z in np.linspace(0, 10, 30)])
     tube = sdf.path_sweep(profile, path)
     uv = _frame_probe(tube, path)
     assert uv(1, 1) < 0

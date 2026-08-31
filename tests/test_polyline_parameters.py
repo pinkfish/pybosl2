@@ -30,7 +30,11 @@ from pybosl2.path3d import Path3D
 from pybosl2.paths import require_path
 
 # `os.PathLike` is a FILE path and unrelated to `pybosl2.paths.PathLike`; a name match sweeps it up.
-_RAW = re.compile(r"(?<!os\.)\bPathLike\b|Sequence\[Sequence\[float\]\]|list\[list\[float\]\]")
+# `ArrayLike`/`NDArray` belong here because C-7a names a NumPy array explicitly: they are the same
+# defect spelled in numpy's vocabulary, and leaving them out under-reported the debt by 16.
+_RAW = re.compile(
+    r"(?<!os\.)\bPathLike\b|Sequence\[Sequence\[float\]\]|list\[list\[float\]\]|\bArrayLike\b|\bNDArray\b"
+)
 
 # Parameter names that mean an ordered set of points.
 _POINTY = frozenset(
@@ -58,6 +62,17 @@ _POINTY = frozenset(
     }
 )
 
+#: Normalizers, excluded by construction rather than by debt. Each one's *job* is to accept the
+#: wide form -- they are the SDF layer's equivalent of the `Path2D(...)` constructor, and requiring
+#: a `Path` of them would make them no-ops while forcing every internal numpy pipeline through a
+#: wrapper. This is the C-7c line (a normalisation step, not a parameter), drawn explicitly so a
+#: permanent entry never sits on a list that is supposed to only shrink.
+EXCLUDED = frozenset(
+    {
+        "pybosl2/sdf/paths.py::as_points::pts",
+    }
+)
+
 #: Public parameters still accepting a raw sequence. This list only shrinks (SPEC §12.2 item 3).
 STILL_RAW = frozenset(
     {
@@ -68,13 +83,14 @@ STILL_RAW = frozenset(
         "pybosl2/path2d.py::is_closed_path::path",
         "pybosl2/path2d.py::polygon_area::poly",
         "pybosl2/regions.py::even_odd::paths",
-        "pybosl2/sdf/paths.py::as_path_list::paths",
-        "pybosl2/sdf/shapes2d.py::contains::poly",
-        "pybosl2/sdf/shapes2d.py::polygon2d::paths",
-        "pybosl2/sdf/shapes2d.py::region2d::paths",
-        "pybosl2/sdf/shapes3d.py::rotate_extrude::paths",
-        "pybosl2/sdf/shapes3d.py::spiral_sweep::profile",
-        "pybosl2/sdf/shapes3d.py::tapered_polygon_prism::paths",
+        "pybosl2/sdf/paths.py::bezier_points::curve",
+        "pybosl2/sdf/paths.py::offset_polyline::path",
+        "pybosl2/sdf/paths.py::path_cut_points::path",
+        "pybosl2/sdf/paths.py::path_normals::path",
+        "pybosl2/sdf/paths.py::path_tangents::path",
+        "pybosl2/sdf/paths.py::path_to_bezpath::path",
+        "pybosl2/sdf/paths.py::round_corners::path",
+        "pybosl2/sdf/paths.py::total_length::path",
         "pybosl2/skin.py::clockwise_polygon::poly",
         "pybosl2/skin.py::path3d::path",
         "pybosl2/surfaces3d.py::plot_revolution::path",
@@ -88,6 +104,22 @@ STILL_RAW = frozenset(
 )
 
 
+def _public_functions(tree: ast.Module) -> list[ast.FunctionDef | ast.AsyncFunctionDef]:
+    """Module-level functions and the methods of module-level classes -- and nothing else.
+
+    `ast.walk` also reaches functions nested inside a function body, whose parameters can never be
+    part of the public API; counting one of those (`region2d`'s local `contains`) overstated the
+    debt by one and put an unfixable entry on the ratchet.
+    """
+    found: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+    for top in tree.body:
+        if isinstance(top, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            found.append(top)
+        elif isinstance(top, ast.ClassDef) and not top.name.startswith("_"):
+            found += [b for b in top.body if isinstance(b, (ast.FunctionDef, ast.AsyncFunctionDef))]
+    return [f for f in found if not f.name.startswith("_")]
+
+
 def _raw_polyline_parameters() -> set[str]:
     """Every public parameter meaning a polyline that still accepts a raw sequence."""
     root = pathlib.Path(__file__).resolve().parent.parent
@@ -99,9 +131,7 @@ def _raw_polyline_parameters() -> set[str]:
             tree = ast.parse(file.read_text())
         except SyntaxError:  # pragma: no cover - the package must parse
             continue
-        for node in ast.walk(tree):
-            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) or node.name.startswith("_"):
-                continue
+        for node in _public_functions(tree):
             for arg in node.args.args + node.args.kwonlyargs:
                 if arg.annotation is None or arg.arg not in _POINTY:
                     continue
@@ -110,7 +140,9 @@ def _raw_polyline_parameters() -> set[str]:
                     continue
                 if _RAW.search(annotation):
                     rel = file.relative_to(root).as_posix()
-                    found.add(f"{rel}::{node.name}::{arg.arg}")
+                    entry = f"{rel}::{node.name}::{arg.arg}"
+                    if entry not in EXCLUDED:
+                        found.add(entry)
     return found
 
 
@@ -161,3 +193,70 @@ def test_a_path3d_is_accepted_as_a_path() -> None:
     """Both concrete path types satisfy the contract."""
     path = Path3D([[0, 0, 0], [1, 1, 1]])
     assert require_path(path, "path", "sweep") is path
+
+
+def test_as_path_list_no_longer_guesses_one_path_from_many() -> None:
+    """A `Path2D` says which it is, so the sniffing that used to decide is gone (C-7a).
+
+    `as_path_list` used to inspect ``paths[0][0]`` to work out whether it held one outline or
+    several. That guess is precisely the ambiguity a bare sequence creates, and it is unanswerable
+    for a 2-point path: ``[[0, 0], [1, 1]]`` is either one 2-point outline or two 1-point ones.
+    """
+    from pybosl2.sdf.paths import as_path_list
+
+    one = Path2D([[0, 0], [1, 0], [1, 1]])
+    assert len(as_path_list(one)) == 1
+    assert len(as_path_list([one, one])) == 2
+
+
+@pytest.mark.parametrize(
+    ("function", "argument"),
+    [
+        ("polygon2d", [[0, 0], [10, 0], [10, 10]]),
+        ("region2d", [[[0, 0], [10, 0], [10, 10]]]),
+    ],
+)
+def test_the_sdf_2d_entry_points_refuse_raw_points(function: str, argument: list) -> None:
+    """The SDF shape entry points name the wrapper rather than meshing a guess (C-7b)."""
+    import pybosl2.sdf.shapes2d as shapes2d
+
+    with pytest.raises(Bosl2ValueError) as excinfo:
+        getattr(shapes2d, function)(argument)
+    assert "Path2D(" in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    ("function", "arguments"),
+    [
+        ("rotate_extrude", ([[1, 0], [2, 0], [2, 1]],)),
+        ("tapered_polygon_prism", ([[0, 0], [1, 0], [1, 1]], 5.0)),
+        ("spiral_sweep", ([[0, 0], [1, 0], [1, 1]], 10.0, 5.0)),
+        ("polygon_extrude", ([[0, 0], [1, 0], [1, 1]], 5.0)),
+        ("convex_polyhedron", ([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]],)),
+    ],
+)
+def test_the_sdf_3d_entry_points_refuse_raw_points(function: str, arguments: tuple) -> None:
+    """Same for the 3-D entry points, each naming the type its own parameter carries."""
+    import pybosl2.sdf.shapes3d as shapes3d
+
+    with pytest.raises(Bosl2ValueError) as excinfo:
+        getattr(shapes3d, function)(*arguments)
+    message = str(excinfo.value)
+    assert function + "()" in message
+    assert "Path3D(" in message if function == "convex_polyhedron" else "Path2D(" in message
+
+
+def test_path_sweep_takes_a_2d_profile_along_a_path_of_either_width() -> None:
+    """`path_sweep` sweeps a 2-D cross-section along a 2-D *or* 3-D spine.
+
+    Typing the spine `Path2D` on the strength of the module's name would reject every 3-D call --
+    the mistake `path_extrude` made in an earlier tranche, which no static gate caught.
+    """
+    from pybosl2.sdf.shapes3d import path_sweep
+
+    profile = Path2D([[-1, -1], [1, -1], [1, 1], [-1, 1]])
+    # A 2-D spine is lifted to z=0, so it runs in the XY plane -- these two spell the same spine.
+    planar = path_sweep(profile, Path2D([[0, 0], [0, 5], [2, 9]])).bounds()
+    spatial = path_sweep(profile, Path3D([[0, 0, 0], [0, 5, 0], [2, 9, 0]])).bounds()
+    assert planar.size == pytest.approx(spatial.size)
+    assert planar.size[1] > 8, f"the spine runs 9 units along y, so the sweep should too: {planar.size}"

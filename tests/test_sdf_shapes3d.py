@@ -9,6 +9,8 @@ import math
 import pytest
 
 from pybosl2._edges_lang import Anchor
+from pybosl2.path2d import Path2D
+from pybosl2.path3d import Path3D
 from pybosl2.sdf import shapes3d as sdf_s3d
 from pybosl2.sdf._constants import BACK, CENTER, FRONT, LEFT, RIGHT, TOP
 
@@ -205,7 +207,7 @@ class TestNamedCombinators:
         assert h.sample(7, 7, 12) > 0, "outside the taper"
 
     def test_hull_of_raw_points_matches_convex_polyhedron(self) -> None:
-        pts = [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10]]
+        pts = Path3D([[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10]])
         h = sdf_s3d.PyShape.hull(pts).mesh()  # type: ignore[arg-type]
         ref = sdf_s3d.convex_polyhedron(pts).mesh()
         for p in [(2, 2, 2), (5, 5, 5), (-1, -1, -1), (3, 0, 0)]:
@@ -379,7 +381,7 @@ class TestScale:
 
 class TestConvexPolyhedron:
     def test_tetrahedron_from_vertices(self) -> None:
-        pts = [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10]]
+        pts = Path3D([[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10]])
         shape = sdf_s3d.convex_polyhedron(pts).mesh()
         assert shape.sample(1, 1, 1) < 0, "inside near the right-angle corner"
         assert math.isclose(float(shape.sample(5, 0, 5)), float(0), abs_tol=10 ** (-9)), "on the x/z face"
@@ -393,7 +395,7 @@ class TestConvexPolyhedron:
     def test_octahedron_matches_builtin_zero_set(self) -> None:
         s = 10.0
         h = s / 2
-        pts = [[h, 0, 0], [-h, 0, 0], [0, h, 0], [0, -h, 0], [0, 0, h], [0, 0, -h]]
+        pts = Path3D([[h, 0, 0], [-h, 0, 0], [0, h, 0], [0, -h, 0], [0, 0, h], [0, 0, -h]])
         hulled = sdf_s3d.convex_polyhedron(pts).mesh()
         builtin = sdf_s3d.octahedron(size=s).mesh()
         face_pt = (h / 3, h / 3, h / 3)
@@ -403,17 +405,17 @@ class TestConvexPolyhedron:
             assert (hulled.sample(*p) > 0) == (builtin.sample(*p) > 0), f"sign disagreement at {p}"
 
     def test_interior_points_do_not_make_planes(self) -> None:
-        pts = [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10], [2, 2, 2]]
+        pts = Path3D([[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10], [2, 2, 2]])
         with_interior = sdf_s3d.convex_polyhedron(pts).mesh()
-        without = sdf_s3d.convex_polyhedron(pts[:4]).mesh()
+        without = sdf_s3d.convex_polyhedron(Path3D(pts[:4])).mesh()
         for p in [(1, 1, 1), (5, 5, 5), (-3, 3, 3), (5, 0, 5)]:
             assert math.isclose(float(with_interior.sample(*p)), float(without.sample(*p)), abs_tol=10 ** (-9))
 
     def test_rejects_too_few_or_coplanar_points(self) -> None:
         with pytest.raises(ValueError, match=r"convex_polyhedron\(\) needs at"):
-            sdf_s3d.convex_polyhedron([[0, 0, 0], [1, 0, 0], [0, 1, 0]])
+            sdf_s3d.convex_polyhedron(Path3D([[0, 0, 0], [1, 0, 0], [0, 1, 0]]))
         with pytest.raises(ValueError, match="hull planes: points are"):
-            sdf_s3d.convex_polyhedron([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]])
+            sdf_s3d.convex_polyhedron(Path3D([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]]))
 
 
 class TestSphere:
@@ -669,16 +671,16 @@ class TestPositionableCutters:
         assert shape.sample(0, 0, 6) > 0, "past the swept length, outside the cutter"
 
     def test_polygon_extrude(self) -> None:
-        shape = sdf_s3d.polygon_extrude([[0, 0], [4, 0], [0, 4]], length=10).mesh()
+        shape = sdf_s3d.polygon_extrude(Path2D([[0, 0], [4, 0], [0, 4]]), length=10).mesh()
         assert shape.sample(1, 1, 0) < 0, "inside the triangle"
         assert shape.sample(3, 3, 0) > 0, "outside the hypotenuse"
         assert shape.sample(-1, 1, 0) > 0, "outside the left edge"
         assert shape.sample(1, 1, 6) > 0, "past the swept length"
 
     def test_polygon_extrude_accepts_either_winding_order(self) -> None:
-        pts = [[0, 0], [4, 0], [0, 4]]
+        pts = Path2D([[0, 0], [4, 0], [0, 4]])
         a = sdf_s3d.polygon_extrude(pts, length=10).mesh()
-        b = sdf_s3d.polygon_extrude(list(reversed(pts)), length=10).mesh()
+        b = sdf_s3d.polygon_extrude(Path2D(list(reversed(pts))), length=10).mesh()
         for p in [(1, 1, 0), (3, 3, 0), (-1, 1, 0)]:
             assert math.isclose(float(a.sample(*p)), float(b.sample(*p)), abs_tol=10 ** (-9))
 
@@ -687,7 +689,7 @@ class TestPolygonPrism:
     """polygon_prism(): the exact winding-number polygon SDF plus offset_sweep-style rim
     treatments."""
 
-    L_PATH = [[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]]
+    L_PATH = Path2D([[0, 0], [40, 0], [40, 15], [15, 15], [15, 40], [0, 40]])
 
     def test_concave_polygon_sign_is_exact(self) -> None:
         shape = sdf_s3d.polygon_prism(self.L_PATH, height=10).mesh()
@@ -715,7 +717,7 @@ class TestPolygonPrism:
 
     def test_either_winding_order(self) -> None:
         a = sdf_s3d.polygon_prism(self.L_PATH, height=10).mesh()
-        b = sdf_s3d.polygon_prism(list(reversed(self.L_PATH)), height=10).mesh()
+        b = sdf_s3d.polygon_prism(Path2D(list(reversed(self.L_PATH))), height=10).mesh()
         for p in [(5, 5, 5), (30, 30, 5), (45, -5, 5)]:
             assert math.isclose(float(a.sample(*p)), float(b.sample(*p)), abs_tol=10 ** (-9))
 
@@ -753,8 +755,8 @@ class TestPolygonPrism:
         assert math.isclose(float(shape.sample(-u, 20, w)), float(0), abs_tol=10 ** (-6))
 
     def test_region_of_disjoint_islands(self) -> None:
-        square_a = [[0, 0], [10, 0], [10, 10], [0, 10]]
-        square_b = [[20, 0], [30, 0], [30, 10], [20, 10]]
+        square_a = Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])
+        square_b = Path2D([[20, 0], [30, 0], [30, 10], [20, 10]])
         shape = sdf_s3d.polygon_prism([square_a, square_b], height=5).mesh()
         assert shape.sample(5, 5, 2) < 0, "inside island A"
         assert shape.sample(25, 5, 2) < 0, "inside island B"
@@ -764,7 +766,7 @@ class TestPolygonPrism:
         with pytest.raises(ValueError, match="height must be > 0, height=0"):
             sdf_s3d.polygon_prism(self.L_PATH, height=0)
         with pytest.raises(ValueError, match="every path needs >= 3 points, got"):
-            sdf_s3d.polygon_prism([[0, 0], [1, 0]], height=5)
+            sdf_s3d.polygon_prism(Path2D([[0, 0], [1, 0]]), height=5)
         with pytest.raises(ValueError, match="rim treatments must be smaller"):
             sdf_s3d.polygon_prism(self.L_PATH, height=5, rounding_top=6)
 
@@ -1221,7 +1223,7 @@ class TestPassthroughMethods:
 class TestSpiralSweep:
     """spiral_sweep(): a helical sweep as a distance field (TASKS T14)."""
 
-    SECTION = [[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]]
+    SECTION = Path2D([[-1.2, -1.2], [1.2, -1.2], [1.2, 1.2], [-1.2, 1.2]])
 
     def test_the_coil_matches_the_meshed_sweep(self) -> None:
         """The zero set is exact, so a sampled point agrees with the meshed sweep.

@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
@@ -35,26 +35,55 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike, NDArray
 
-    from pybosl2.paths import PathLike
+    from pybosl2.path2d import Path2D
 
     _VecLike = Sequence[float] | NDArray[np.float64]
 
 
-def as_path_list(paths: PathLike | Sequence[PathLike]) -> list[NDArray[np.float64]]:
-    """Normalize `paths` -- one path, or a list of paths, in any array-like spelling -- to a.
+def as_path_list(
+    paths: "Path2D | Sequence[Path2D]", parameter: str = "paths", function: str = "as_path_list"
+) -> list[NDArray[np.float64]]:
+    """Normalize one `Path2D`, or a sequence of them, to a list of (n, 2) float arrays.
 
-    list of (n, 2) float arrays (the multi-outline entry-point convention polygon2d()/
-    region2d() accept).
+    This is the multi-outline entry-point convention polygon2d()/region2d()/polygon_prism()
+    share. It used to accept any array-like spelling and *guess* which it had been given, by
+    looking at whether the first element's first item was itself a sequence -- which is exactly
+    the ambiguity SPEC C-7a removes. A `Path2D` says outright which it is, so there is nothing
+    left to guess: one path, or several.
+
+    Args:
+        paths: one outline, or a sequence of them.
+        parameter: the caller's parameter name, so a refusal points at the caller's argument.
+        function: the caller's function name, for the same reason.
+
+    Returns:
+        One (n, 2) float array per outline.
+
+    Raises:
+        Bosl2ValueError: If `paths` is not a `Path2D` or a sequence of them (C-7b).
+
     """
-    if isinstance(paths, np.ndarray):
-        return [as_points(paths)] if paths.ndim == 2 else [as_points(q) for q in paths]
-    first = paths[0]
-    from pybosl2.paths import Path as _PathBase
+    from collections.abc import Sequence as _Sequence
 
-    if isinstance(first, (_PathBase, np.ndarray)) or isinstance(first[0], (list, tuple, np.ndarray)):
-        return [as_points(q) for q in paths]
-    # not a list of paths, so it is one path: a plain sequence of [x, y] points
-    return [as_points(cast("Sequence[Sequence[float]]", paths))]
+    from pybosl2.paths import Path as _PathBase
+    from pybosl2.paths import require_path, require_paths
+
+    if isinstance(paths, _PathBase):
+        return [as_points(require_path(paths, parameter, function))]
+    if (
+        isinstance(paths, _Sequence)
+        and not isinstance(paths, (str, bytes))
+        and len(paths) > 0
+        and not isinstance(paths[0], _PathBase)
+    ):
+        # Raw points, either as one outline or as several. Deferring to require_paths() here would
+        # say "paths[0] must be a Path2D" -- and for one raw outline, paths[0] is a *point*, so the
+        # index would send the caller to wrap the wrong thing.
+        raise Bosl2ValueError(
+            f"{function}(): {parameter} must be a Path2D, or a sequence of them, not raw points -- "
+            f"wrap one outline with Path2D(points), or wrap each of several."
+        )
+    return [as_points(p) for p in require_paths(paths, parameter, function)]
 
 
 def as_points(pts: ArrayLike) -> NDArray[np.float64]:

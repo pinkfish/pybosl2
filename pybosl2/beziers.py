@@ -54,6 +54,8 @@ if TYPE_CHECKING:
     from pybosl2._backend import Solid
     from pybosl2._edges_lang import Anchor
     from pybosl2.caps import CapsSpec, CapType
+    from pybosl2.path2d import Path2D
+    from pybosl2.path3d import Path3D
     from pybosl2.paths import Path, PathLike
     from pybosl2.points import Point, PointLike
     from pybosl2.shapes3d import Bosl2Solid
@@ -199,7 +201,7 @@ class Bezier:
         result = powers @ mp
         return result[0] if scalar else result  # type: ignore[no-any-return]
 
-    def curve(self, splinesteps: int = 16, endpoint: bool = True) -> "Path":
+    def curve(self, splinesteps: int = 16, endpoint: bool = True) -> "Path2D | Path3D":
         """Sample *splinesteps* segments uniformly along the curve.
 
         Returns an ndarray of *splinesteps*+1 points (or *splinesteps* if
@@ -217,9 +219,9 @@ class Bezier:
         Examples:
         .. pythonscad-example::
 
-            from pybosl2 import Bezier
+            from pybosl2 import Bezier, Path2D
 
-            pts = Bezier([[44, 5], [48, 6], [64, -15]]).curve(20)
+            pts = Path2D(Bezier([[44, 5], [48, 6], [64, -15]]).curve(20))
             pts.stroke(width=2).linear_extrude(height=3).show()
 
         """

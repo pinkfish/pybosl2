@@ -45,6 +45,7 @@ from pybosl2 import Anchor
 from pybosl2.caps import CapSpec, CapType
 from pybosl2.color import Color
 from pybosl2.enums import ResampleMethod, RoundingMethod
+from pybosl2.exceptions import Bosl2ValueError
 from pybosl2.isosurface import (
     mb_capsule,
     mb_connector,
@@ -207,7 +208,7 @@ def test_arc_and_ring_rejections(call: Callable[[], object], expected: str) -> N
         call()
 
 
-SQUARE_OUTLINE = [[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]]
+SQUARE_OUTLINE = Path2D([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]])
 SPINE = [[0.0, 0.0, 0.0], [0.0, 0.0, 20.0]]
 SQUARE_PATH = Path2D([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0]])
 
@@ -278,7 +279,7 @@ TRIANGLE = [[0.0, 0.0], [10.0, 0.0], [5.0, 8.0]]
 SKIN_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: skin.os_circle(), "radius is required"),
     (lambda: skin.os_profile(Path2D([[1.0, 0.0], [1.0, 1.0]])), "First point of the profile"),
-    (lambda: skin.subdivide_and_slice([TRIANGLE, TRIANGLE], slices=2, numpoints=2), "smaller than"),
+    (lambda: skin.subdivide_and_slice([Path2D(TRIANGLE), Path2D(TRIANGLE)], slices=2, numpoints=2), "smaller than"),
     (lambda: skin.rot_resample([[0.0, 0.0, 0.0], [0.0, 0.0, 90.0]], num_copies=3, smoothlen=0), "positive odd"),
     (lambda: skin.rot_resample([[0.0, 0.0, 0.0], [0.0, 0.0, 90.0]], num_copies=1.5), "must be an integer"),
 ]
@@ -319,8 +320,8 @@ SDF_3D_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: sdf3.polygon_prism([SQUARE_OUTLINE], 5, chamfer_top=9), "smaller than"),
     (lambda: sdf3.polygon_prism([SQUARE_OUTLINE], 5, chamfer_bottom=9), "smaller than"),
     # sweeps
-    (lambda: sdf3.path_sweep([[0.0, 0.0], [5.0, 0.0]], SPINE), "at least 3 points"),
-    (lambda: sdf3.path_sweep(SQUARE_OUTLINE, [[0.0, 0.0, 0.0]]), "at least 2 points"),
+    (lambda: sdf3.path_sweep(Path2D([[0.0, 0.0], [5.0, 0.0]]), Path3D(SPINE)), "at least 3 points"),
+    (lambda: sdf3.path_sweep(SQUARE_OUTLINE, Path3D([[0.0, 0.0, 0.0]])), "at least 2 points"),
     (lambda: sdf3.stroke_3d([[0.0, 0.0, 0.0]], width=2), "at least 2 points"),
     # transforms and combinators
     (lambda: CUBOID_FIELD.mirror([0, 0, 0]), "must be nonzero"),
@@ -339,18 +340,29 @@ def test_sdf_solid_rejections_say_what_to_pass(call: Callable[[], object], expec
         call()
 
 
-def test_polygon_prism_rejects_a_non_sequence_with_a_type_error() -> None:
-    """A wrong *type* is a TypeError; a wrong *value* is a ValueError (PLAN E-P1)."""
-    with pytest.raises(TypeError, match="must be a list of points"):
-        sdf3.polygon_prism("not a path", 10)
+def test_polygon_prism_names_the_wrapper_for_a_non_path() -> None:
+    """A non-`Path` argument names the type to wrap it in, rather than only its own wrongness.
+
+    This used to raise a bare `TypeError("must be a list of points or numpy array")` from a
+    hand-rolled isinstance check. SPEC E-4 wants a `Bosl2ValueError` that says what to pass, and
+    C-7b wants that to name the type -- which is what the shared guard produces for every converted
+    parameter, so the special case went away rather than being restated.
+
+    A string is not offered a wrapper: `Path2D("not a path")` is not the fix, so the message names
+    the type it wanted and echoes what it got instead.
+    """
+    with pytest.raises(Bosl2ValueError, match="must be a sequence of Path2D/Path3D"):
+        sdf3.polygon_prism("not a path", 10)  # type: ignore[arg-type]
+    with pytest.raises(Bosl2ValueError, match=r"Path2D\("):
+        sdf3.polygon_prism([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]], 10)  # type: ignore[arg-type]
 
 
 SDF_2D_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: sdf2.rect2d([20, 10], rounding=2, chamfer=2), "rounding and chamfer"),
     (lambda: sdf2.rect2d([20, 10], rounding=[1, 2, 3]), "needs 4 values"),
     (lambda: sdf2.rect2d([20, 10], rounding=[9, 9, 9, 9]), "exceeds half"),
-    (lambda: sdf2.polygon2d([[[0.0, 0.0], [10.0, 0.0]]]), "every path needs"),
-    (lambda: sdf2.region2d([[[0.0, 0.0], [10.0, 0.0]]]), "every outline needs"),
+    (lambda: sdf2.polygon2d([Path2D([[0.0, 0.0], [10.0, 0.0]])]), "every path needs"),
+    (lambda: sdf2.region2d([Path2D([[0.0, 0.0], [10.0, 0.0]])]), "every outline needs"),
     (lambda: sdf2.stroke2d(Path2D([[0.0, 0.0]]), width=2), "at least 2 points"),
     (lambda: sdf2.hull2d_discs([]), "at least one disc"),
     (lambda: sdf2.trapezoid2d(height=10, width1=-1, width2=5), "Degenerate"),
@@ -760,15 +772,17 @@ SDF_SHAPES3D_CASES: list[tuple[Callable[[], object], str]] = [
     (lambda: sdf3.cuboid(size=10).scale([2, 1, 1]).chamfer(1), "requires a cuboid-shaped"),
     (lambda: sdf3.cuboid(size=10).hull([[0.0, 0.0], [1.0, 1.0], [2.0, 2.0]]), "must be Nx3 array-likes"),
     (
-        lambda: sdf3.convex_polyhedron([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]),
+        lambda: sdf3.convex_polyhedron(Path3D([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]])),
         "points are coplanar",
     ),
     (
-        lambda: sdf3.convex_polyhedron([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]]),
+        lambda: sdf3.convex_polyhedron(Path3D([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0]])),
         "no supporting planes found",
     ),
     (
-        lambda: sdf3.path_sweep([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]], path=[[0.0, 0.0, 0.0]] * 2 + [[0.0, 0.0, 5.0]]),
+        lambda: sdf3.path_sweep(
+            Path2D([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]), path=Path3D([[0.0, 0.0, 0.0]] * 2 + [[0.0, 0.0, 5.0]])
+        ),
         "repeated point",
     ),
     (

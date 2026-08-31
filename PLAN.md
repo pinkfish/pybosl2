@@ -84,6 +84,16 @@ Static safety is enforced by `mypy --strict` over the whole package; it MUST pas
   the list of public parameters still accepting a raw sequence; it only ever shrinks, so a new
   function cannot join them and the remaining debt is a measured number rather than an assertion.
   Guarded also by `tests/test_exports.py::test_every_polyline_parameter_accepts_a_path`.
+  A ratchet is only as honest as what it can see, so the scan's own scope is part of the rule:
+  it counts `ArrayLike`/`NDArray` as raw (C-7a names a NumPy array explicitly, and leaving numpy's
+  spelling out under-reported the debt by 16), and it counts only module-level functions and the
+  methods of module-level classes — a function nested in a body has no public parameters, and
+  counting one put an entry on the list that no conversion could ever remove.
+* **T-4d A normalizer is excluded, not owed.** A function whose *job* is to accept the wide form —
+  `sdf.paths.as_points()`, the SDF layer's equivalent of the `Path2D(...)` constructor — is listed
+  in the scan's `EXCLUDED` set with its reason, never left on `STILL_RAW`. Requiring a `Path` of it
+  would make it a no-op while pushing every internal numpy pipeline through a wrapper, so it is a
+  permanent entry, and a permanent entry on a list defined to only shrink is a lie about the debt.
 * **T-5 No union-widening in overrides.** An override MUST NOT broaden a parameter to
   `float | list[float]` to cover both callers; pick the collection form and convert at the entry
   point. The one sanctioned union is a *spec argument* at a public constructor (SPEC D-7), which

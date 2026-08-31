@@ -20,8 +20,6 @@ import numpy as np
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pybosl2.path2d import Path2D
-    from pybosl2.paths import PathLike
 
 from pybosl2._backend import check_operand_backend as _check_operand_backend
 from pybosl2._edges_lang import Anchor
@@ -31,6 +29,7 @@ from pybosl2.color import Colorable
 from pybosl2.distributors import Distributable
 from pybosl2.enums import EdgeMode
 from pybosl2.exceptions import Bosl2ValueError, UnsupportedByBackendError
+from pybosl2.path2d import Path2D
 from pybosl2.paths import require_path
 from pybosl2.sdf._constants import CENTER
 from pybosl2.sdf._libfive import lv
@@ -611,7 +610,7 @@ class SdfShape2D(Colorable, Distributable):
                 pts.extend([[float(c[0]), float(c[1])] for c in p])
         if not pts:
             return self
-        return polygon2d(pts, res=self.res)
+        return polygon2d(Path2D(pts), res=self.res)
 
     def xflip(self, x: float = 0.0) -> PyShape2D:
         """Mirror this shape across the vertical line x = *x*, keeping the copy left of it.
@@ -672,7 +671,7 @@ class SdfShape2D(Colorable, Distributable):
                 pts.extend([[float(c[0]), float(c[1])] for c in p])
         if not pts:
             return self
-        return polygon2d(pts, res=self.res)
+        return polygon2d(Path2D(pts), res=self.res)
 
     def bounds(self) -> Bounds2D:
         """Return this shape's axis-aligned bounding box (SPEC S-2b).
@@ -1009,18 +1008,33 @@ def supershape2d(
     parameters and sampling as the bosl2 port's supershape()) and turned into a polygon2d().
     """
     return polygon2d(
-        _supershape_path(step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter),
+        Path2D(
+            _supershape_path(
+                step=step, n=n, m1=m1, m2=m2, n1=n1, n2=n2, n3=n3, a=a, b=b, radius=radius, diameter=diameter
+            )
+        ),
         res=res,
     )
 
 
-def polygon2d(paths: PathLike, res: int = 10) -> PyShape2D:
+def polygon2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
     """Return an arbitrary SIMPLE polygon (or a list of disjoint ones), via the same convex-deficiency.
 
     decomposition polygon_prism() uses -- concave outlines welcome, holes not supported.
-    Accepts any array-like path spelling (per the numpy-paths convention).
+
+    Args:
+        paths: one outline as a `Path2D`, or several disjoint ones (SPEC C-7a).
+        res: libfive meshing resolution passed to frep().
+
+    Returns:
+        The polygon as a 2-D SDF shape.
+
+    Raises:
+        Bosl2ValueError: If `paths` is not a `Path2D` (or a sequence of them), or an outline has
+            fewer than 3 points.
+
     """
-    path_list = as_path_list(paths)
+    path_list = as_path_list(paths, "paths", "polygon2d")
     for p in path_list:
         if not (len(p) >= 3):
             raise Bosl2ValueError(f"polygon2d(): every path needs >= 3 points, got {len(p)}")
@@ -1037,7 +1051,7 @@ def polygon2d(paths: PathLike, res: int = 10) -> PyShape2D:
     return PyShape2D(sdf_fn, [min(xs), min(ys)], [max(xs), max(ys)], res)
 
 
-def region2d(paths: Sequence[PathLike], res: int = 10) -> PyShape2D:
+def region2d(paths: "Path2D | Sequence[Path2D]", res: int = 10) -> PyShape2D:
     """BOSL2-style REGION data as a PyShape2D: a list of simple outlines with even-odd nesting.
 
     semantics -- an outline inside another outline is a hole, an outline inside a hole is an
@@ -1048,7 +1062,7 @@ def region2d(paths: Sequence[PathLike], res: int = 10) -> PyShape2D:
     outline against the others), holes subtract from their direct parents, and islands rejoin
     the union.
     """
-    cleaned = as_path_list(paths)
+    cleaned = as_path_list(paths, "paths", "region2d")
     for p in cleaned:
         if not (len(p) >= 3):
             raise Bosl2ValueError(f"region2d(): every outline needs >= 3 points, got {len(p)}")
@@ -1285,7 +1299,7 @@ def regular_ngon2d(
             for p in pts
         ]
 
-    return polygon2d(pts, res=res)
+    return polygon2d(Path2D(pts), res=res)
 
 
 def star2d(
@@ -1338,7 +1352,7 @@ def star2d(
             for p in pts
         ]
 
-    return polygon2d(pts, res=res)
+    return polygon2d(Path2D(pts), res=res)
 
 
 def trapezoid2d(
@@ -1390,7 +1404,7 @@ def trapezoid2d(
         [-width1 / 2, -height / 2],
         [width1 / 2, -height / 2],
     ]
-    return polygon2d(pts, res=res)
+    return polygon2d(Path2D(pts), res=res)
 
 
 _KEYHOLE_EPS = 1e-9
@@ -1542,7 +1556,7 @@ def keyhole2d(
         diameter2=diameter2,
         res=res,
     )
-    return polygon2d(pts, res=res)
+    return polygon2d(Path2D(pts), res=res)
 
 
 PyShape2D = SdfShape2D
