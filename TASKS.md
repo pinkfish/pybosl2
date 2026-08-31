@@ -52,7 +52,7 @@ spec renumbers as items close, and all but S-46a have.
 | 9 | DOC-5 / DOC-6 / Q-6 | [T23](#t23--type-check-the-examples-and-build-a-front-door) ✅ | M |
 | 3 | spec maintainability | [T26](#t26--make-the-requirements-measurable) ✅ | M |
 | 3 | spec maintainability | [T27](#t27--generate-the-prose-from-the-registry) | M |
-| 5 | Q-7 | [T28](#t28--ship-the-types) | XS |
+| 5 | Q-7 | [T28](#t28--test-what-ships) ✅ | XS |
 | 4 | A-1 / A-6 / A-10 / PAR-1 | [T29](#t29--make-the-layering-true) | M |
 | 7 | G-1 … G-5 | [T30](#t30--group-the-arguments-that-travel-together) | L |
 | 7 | B-3 / G-4 | [T31](#t31--slim-the-façade) | M |
@@ -2141,23 +2141,46 @@ either fails the build; `CONFORMANCE.md` and `docs/tasks-archive.md` carry the h
 
 ---
 
-## T28 — Ship the types
+## T28 — Test what ships ✅
 
 **Closes:** §12.2 item 5 (Q-7) · **Size:** XS
-**Risk:** low, and it is the only item on this list a user feels immediately
+**Risk:** low, and it is the first gate in this project that reads the artifact rather than the tree
 
-Everything PLAN §2 asks for is invisible to anyone who installs this package: PEP 561 needs a
-`py.typed` marker and there is none.
+Every gate here reads the working copy. Nothing builds the wheel, installs it, or imports it, so
+the first person to learn what a release contains is whoever installed it.
 
-1. `pybosl2/py.typed`, declared as package data so it reaches the wheel and the sdist.
-2. Check the five `.pyi` stubs ship with it.
-3. Untrack `dist/` — the committed wheel still contains `solid.pyi`, which PLAN T-8 deleted.
-4. **Q-7** (new, §11): a CI job builds the wheel, installs it into a clean virtualenv, imports
-   `pybosl2`, and runs `mypy --strict` over a short consumer snippet — the artifact, not the source
-   tree, which is what Q-1…Q-6 test today.
+1. `pybosl2/py.typed`, declared under `[tool.setuptools.package-data]` — setuptools ships the
+   `.pyi` stubs unasked and never ships that marker unasked.
+2. `tests/test_packaging.py` — the cheap half: the declarations that decide what the build
+   collects, checked at pytest speed.
+3. **Q-7** (new, §11) — the full half: an `artifact` job that builds the wheel, asserts it carries
+   the marker and every stub in the tree, installs it into an empty virtualenv, imports it, and
+   type-checks a consumer snippet against the installed package.
 
-**Done when:** a clean-venv install type-checks a snippet that uses `Path2D`, a façade constructor
-and `bounds()`, and the job fails if `py.typed` goes missing.
+**Done when:** the wheel carries `py.typed` and all five stubs; a clean-venv install imports and
+type-checks a snippet using `Path2D`, a façade constructor and `bounds()`.
+
+**Landed.** The wheel carries `py.typed` and all five stubs; a clean virtualenv with nothing but
+the wheel and mypy imports it and type-checks the consumer snippet.
+
+**The premise this task was written on was wrong, and the gate is what found it.** §12.2 item 5
+claimed the missing marker made the library's types invisible to installed users — that PEP 561
+would make every checker skip it. Measured rather than asserted: against **mypy 1.20.2, mypy 2.3.1
+and pyright at default settings**, a consumer in a clean virtualenv gets full type information from
+this package **with or without** `py.typed` — each of them reads a library's inline types whether
+or not the library declares them, and a wrong attribute name (`Path2D.as_region`) is caught either
+way. The marker is hygiene, not a defect that was costing anyone type checking.
+
+Two smaller corrections went with it. The claim that a *committed* `dist/` wheel carried a deleted
+stub was wrong — `dist/` is gitignored and untracked, and what I read was local build output. And
+the first negative control appeared to prove the marker did nothing, which was mypy's incremental
+cache answering from the previous run; the real answer needed `rm -rf .mypy_cache` between probes.
+A control that agrees with you too easily has usually not run.
+
+So the marker stays — it is what a typed library ships, and it is the difference between a
+declaration and each checker's default — but the value of this task is the gate, not the file it
+added. That generalises: the artifact was never measured, so what it contained was whatever
+setuptools happened to do, and nobody would have found out from a green suite.
 
 ---
 
