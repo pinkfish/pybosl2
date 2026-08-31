@@ -669,10 +669,10 @@ def test_deduplicate_static() -> None:
 
 
 def test_polygon_area_static() -> None:
-    assert Path2D.polygon_area(SQUARE) == 4800
-    assert Path2D.polygon_area([[0, 0], [1, 0]]) == 0  # too few points
-    assert Path2D.polygon_area(UNIT) == 100
-    assert Path2D.polygon_area([]) == 0
+    assert Path2D.polygon_area(Path2D(SQUARE)) == 4800
+    assert Path2D.polygon_area(Path2D([[0, 0], [1, 0]])) == 0  # too few points
+    assert Path2D.polygon_area(Path2D(UNIT)) == 100
+    assert Path2D.polygon_area(Path2D([])) == 0
 
 
 def test_point_in_polygon_static() -> None:

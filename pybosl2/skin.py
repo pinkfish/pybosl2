@@ -435,6 +435,12 @@ def _u_nd(v: np.ndarray) -> np.ndarray:
 def path3d(path: Sequence[Sequence[float]] | Path | np.ndarray | Sequence[np.ndarray]) -> list[list[float]]:
     """Pad a 2-D (or 3-D) point list to 3-D with z=0.
 
+    `path` stays array-like rather than becoming a `Path` (SPEC C-7a's normalizer carve-out, PLAN
+    T-4d). The name says polyline, but half its callers hand it something that is not one: this
+    also pads **tangent and derivative vectors** to three components -- `_path_sweep(tangent=)` and
+    `Bezier.sweep()` both do -- and no point type describes a list of direction vectors. It is a
+    "pad each row to three floats" utility that a polyline merely happens to be a common input for.
+
     The coordinates are converted to plain Python floats, not left as whatever the input held: a
     numpy row in would otherwise leak ``np.float64`` scalars out of an annotation that promises
     ``float``, and those raise SystemError/TypeError at the native FFI boundary (see the note in
@@ -443,11 +449,18 @@ def path3d(path: Sequence[Sequence[float]] | Path | np.ndarray | Sequence[np.nda
     return [[float(p[0]), float(p[1]), float(p[2]) if len(p) > 2 else 0.0] for p in path]
 
 
-def clockwise_polygon(poly: Sequence[Sequence[float]] | Path2D) -> list[Sequence[float]]:
-    """*poly* wound clockwise (reversed if its signed area is positive/CCW)."""
+def clockwise_polygon(poly: "Path2D") -> "Path2D":
+    """*poly* wound clockwise (reversed if its signed area is positive/CCW).
+
+    Returns a :class:`~pybosl2.path2d.Path2D`, not a bare point list: rewinding an outline yields an
+    outline, and handing back the raw points would drop the type its caller just supplied (PLAN
+    T-4, SPEC C-9). The old signature said `list[Sequence[float]]` while actually returning numpy
+    rows, which only type-checked because a `# type: ignore` sat on the call.
+    """
     from pybosl2.path2d import Path2D
 
-    return list(poly) if Path2D.polygon_area(poly, signed=True) <= 0 else list(reversed(list(poly)))  # type: ignore[arg-type]
+    poly = cast("Path2D", require_path(poly, "poly", "clockwise_polygon", Path2D))
+    return poly if Path2D.polygon_area(poly, signed=True) <= 0 else poly.reverse()
 
 
 def frame_map(
@@ -483,7 +496,7 @@ def frame_map(
 
 
 def _sweep(
-    shape: Sequence[Sequence[float]],
+    shape: "PathLike",
     transforms: Sequence[Sequence[Sequence[float]]],
     closed: bool = False,
     caps: CapsSpec = CapType.BUTT,
@@ -496,7 +509,8 @@ def _sweep(
     are handled inline by :class:`VNF.vertex_array`.
 
     Args:
-        shape:      a 2-D polygon (list of [x, y] points)
+        shape:      the 2-D cross-section -- a `Path2D`, or the raw points a private
+                    helper still holds (C-7c: `PathLike` types a body, not a public parameter)
         transforms: list of 4x4 matrices, one per cross section along the path
         closed:     the sweep loops back on itself (no caps)
         caps:       cap the open ends (default: BUTT); supports decorative cap types
@@ -679,7 +693,9 @@ def _path_sweep(
     transform_list = [unscaled[i] @ scale_list[i] for i in range(len(unscaled))]
     if transforms:
         return transform_list
-    shp = clockwise_polygon(cast("Sequence[Sequence[float]] | Path2D", shape))
+    from pybosl2.path2d import Path2D as _Path2D
+
+    shp = clockwise_polygon(shape if isinstance(shape, _Path2D) else _Path2D(shape))
     return _sweep(shp, transform_list, closed=closed, caps=caps, style=style)
 
 

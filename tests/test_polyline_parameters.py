@@ -74,6 +74,10 @@ EXCLUDED = frozenset(
         # Its "curve" is not always a polyline either: `path_to_bezpath()` evaluates it over a
         # control array built from *normal vectors*, which no point type describes.
         "pybosl2/sdf/paths.py::bezier_points::curve",
+        # Pads each row to three floats. Half its callers hand it something that is not a polyline
+        # at all -- `_path_sweep(tangent=)` and `Bezier.sweep()` both pad *direction vectors* with
+        # it -- and no point type describes a list of tangents.
+        "pybosl2/skin.py::path3d::path",
     }
 )
 
@@ -82,13 +86,7 @@ STILL_RAW = frozenset(
     {
         "pybosl2/beziers.py::from_list::points",
         "pybosl2/distributors.py::path_copies::path",
-        "pybosl2/path2d.py::cleanup_path::path",
-        "pybosl2/path2d.py::close_path::path",
-        "pybosl2/path2d.py::is_closed_path::path",
-        "pybosl2/path2d.py::polygon_area::poly",
         "pybosl2/regions.py::even_odd::paths",
-        "pybosl2/skin.py::clockwise_polygon::poly",
-        "pybosl2/skin.py::path3d::path",
         "pybosl2/surfaces3d.py::plot_revolution::path",
         "pybosl2/texture.py::is_watertight_topology::verts",
         "pybosl2/texture.py::rasterize_vnf_texture::verts",
@@ -332,3 +330,44 @@ def test_the_width_check_reaches_into_a_sequence() -> None:
     """`require_paths` names the index *and* the width, since one bad profile is the usual case."""
     with pytest.raises(Bosl2ValueError, match=r"paths\[1\] must be a Path2D, got a Path3D"):
         require_paths([Path2D([[0, 0], [1, 1]]), Path3D([[0, 0, 0], [1, 1, 1]])], "paths", "skin", Path2D)
+
+
+@pytest.mark.parametrize("function", ["is_closed_path", "close_path", "cleanup_path"])
+def test_the_closure_helpers_refuse_raw_points(function: str) -> None:
+    """`Path2D`'s static path helpers name the wrapper too (C-7a/b).
+
+    These are the clearest case the requirement describes: each one re-derived closed-ness from a
+    bare list, while the `Path2D` a caller almost always had already carried a `closed` flag.
+    """
+    with pytest.raises(Bosl2ValueError) as excinfo:
+        getattr(Path2D, function)([[0, 0], [10, 0], [10, 10]])
+    assert function + "()" in str(excinfo.value)
+    assert "Path2D(" in str(excinfo.value)
+
+
+def test_the_closure_helpers_take_either_width() -> None:
+    """Whether the ends meet is the same question in 2-D and 3-D, so these take `Path`."""
+    assert Path2D.is_closed_path(Path2D([[0, 0], [10, 0], [0, 0]]))
+    assert Path2D.is_closed_path(Path3D([[0, 0, 0], [10, 0, 0], [0, 0, 0]]))
+    assert not Path2D.is_closed_path(Path3D([[0, 0, 0], [10, 0, 0]]))
+    assert len(Path2D.close_path(Path3D([[0, 0, 0], [10, 0, 0]]))) == 3
+    assert len(Path2D.cleanup_path(Path3D([[0, 0, 0], [10, 0, 0], [0, 0, 0]]))) == 2
+
+
+def test_polygon_area_is_planar_and_says_so() -> None:
+    """The shoelace formula has no 3-D meaning, so `polygon_area` refuses a `Path3D` (C-7d)."""
+    assert Path2D.polygon_area(Path2D([[0, 0], [10, 0], [10, 10], [0, 10]])) == pytest.approx(100.0)
+    with pytest.raises(Bosl2ValueError, match="must be a Path2D, got a Path3D"):
+        Path2D.polygon_area(Path3D([[0, 0, 0], [10, 0, 0], [10, 10, 0]]))  # type: ignore[arg-type]
+
+
+def test_clockwise_polygon_returns_an_outline_not_raw_points() -> None:
+    """Rewinding an outline yields an outline (PLAN T-4: outputs narrow)."""
+    from pybosl2.skin import clockwise_polygon
+
+    counterclockwise = Path2D([[0, 0], [1, 0], [1, 1], [0, 1]])
+    wound = clockwise_polygon(counterclockwise)
+    assert isinstance(wound, Path2D)
+    assert wound == counterclockwise.reverse()
+    assert Path2D.polygon_area(wound, signed=True) <= 0
+    assert clockwise_polygon(wound) == wound, "already clockwise, so unchanged"
